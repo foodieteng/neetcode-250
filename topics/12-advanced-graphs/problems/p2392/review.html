@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2392 · Build a Matrix With Conditions // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P2392</span>
+    <span><a href="https://leetcode.com/problems/build-a-matrix-with-conditions/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">依條件建構矩陣</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2392</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>每個數字的座標 =(列索引, 行索引),兩維度<strong>獨立</strong></td></tr>
+        <tr><td>關鍵轉換</td><td>「a 在 b 上 / 左」= 有向邊 <code>a → b</code>;合法順序 = 拓樸序</td></tr>
+        <tr><td>做兩次</td><td>rowConditions 一次(列)、colConditions 一次(行)</td></tr>
+        <tr><td>判環</td><td>Kahn 排出的 <code>order.size() != k</code> ⇒ 有環 ⇒ 回 <code>{}</code></td></tr>
+        <tr><td>放格</td><td><code>matrix[rowPos[v]][colPos[v]] = v</code>,其餘 0</td></tr>
+        <tr><td>不撞格</td><td>rowPos、colPos 皆為排列 ⇒ k 值落 k 個相異格</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼行、列條件要<strong>分開</strong>做兩次拓樸,而不是合成一張圖一次排完?</div>
+    <div class="qa"><strong>Q2.</strong> 條件 <code>[a, b]</code> 為什麼建成有向邊 <code>a → b</code>?這裡的「入度」代表什麼意義?</div>
+    <div class="qa"><strong>Q3.</strong> 如何從拓樸排序偵測「無解」?為什麼 <code>order.size() != k</code> 就代表有環?</div>
+    <div class="qa"><strong>Q4.</strong> 為什麼把 k 個數字放進矩陣,保證<strong>不會</strong>有兩個數字落在同一格?</div>
+    <div class="qa"><strong>Q5.</strong> <code>graph</code>、<code>indegree</code>、<code>pos</code> 為什麼都開 <code>k + 1</code> 而不是 <code>k</code>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// k=3, row=[[1,2],[3,2]], col=[[2,1],[3,2]]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ROW TOPO  (edges 1→2, 3→2)</span>
+indegree: 1:0  2:2  3:0        queue 初始 = [1, 3]
+pop 1 → order=[1]              (2 的入度 2→1)
+pop 3 → order=[1,3]            (2 的入度 1→0 → 入隊)
+pop 2 → order=[1,3,2]
+rowOrder = [1,3,2]  ⇒  1@列0, 3@列1, 2@列2</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// COL TOPO  (edges 2→1, 3→2)</span>
+indegree: 1:1  2:1  3:0        queue 初始 = [3]
+pop 3 → order=[3]              (2 的入度 1→0 → 入隊)
+pop 2 → order=[3,2]            (1 的入度 1→0 → 入隊)
+pop 1 → order=[3,2,1]
+colOrder = [3,2,1]  ⇒  3@行0, 2@行1, 1@行2</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PLACE  pos[v] = (row, col)</span>
+1 → (0, 2)      3 → (1, 0)      2 → (2, 1)
+matrix[0][2]=1   matrix[1][0]=3   matrix[2][1]=2</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+     c0 c1 c2
+r0 [  0  0  1 ]
+r1 [  3  0  0 ]
+r2 [  0  2  0 ]
+<span class="sc-trace__out">// OUTPUT: [[0,0,1],[3,0,0],[0,2,0]]  ✓ 通過驗證</span></div>
+
+    <div class="sc-insight">
+      驗算 rowCondition <code>[1,2]</code>:1 在列 0、2 在列 2,<strong>0 &lt; 2 ✓</strong>。
+      colCondition <code>[2,1]</code>:2 在行 1、1 在行 2,<strong>1 &lt; 2 ✓</strong>。題目要「任一」解,故與官方範例不同排版也對。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若題目只問「是否存在合法矩陣」(回傳 bool),程式可以怎麼精簡?複雜度有何改變?</div>
+    <div class="qa"><strong>App 2.</strong> 若 rowConditions 給的是「a 在 b 下面 <code>k</code> 列以上」這種帶距離的限制,單純拓樸還夠嗎?會往哪個方向想?</div>
+    <div class="qa"><strong>App 3.</strong> 當條件自我矛盾時,如何進一步找出「環上有哪些數字」以便回報使用者?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 一個數字的<strong>列</strong>只由 rowConditions 決定、<strong>行</strong>只由 colConditions 決定,兩者互不影響。合成一張圖會把「列限制」和「行限制」混為同一維度的先後關係,製造出<strong>不存在的環</strong>、或把本來各自可解的兩個問題錯誤綁死。兩維度獨立 ⇒ 分開各排一次才正確。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> <code>[a, b]</code> 表「a 必須排在 b 前面(較小索引)」,方向是 <code>a → b</code>。<strong>入度 indegree[v]</strong> = 「還有幾個數字必須排在 v 之前」。入度為 0 代表 v 沒有未滿足的前置,可以安全放到當前最前位置 —— 這正是 Kahn 演算法一次取一個入度 0 節點的依據。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 無環的 DAG,每個節點都會恰好入隊、出隊一次,最終 <code>order</code> 長度 = k。若存在環,環上每個節點的入度永遠 &gt; 0(彼此互相卡著),永遠進不了佇列,於是 <code>order.size() &lt; k</code>。所以 <code>order.size() != k</code> 就是「排不完 = 有環 = 條件矛盾」,回傳空矩陣。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <code>rowOrder</code> 是 <code>1..k</code> 的一個排列,掃一遍得到的 <code>rowPos</code> 是「數字 → 列索引」的<strong>雙射</strong>:不同數字必有不同列。<code>colPos</code> 同理是不同行的雙射。因此任兩個數字至少在「列」上就不同(其實行也不同),k 個數字落在 k 個相異格,像一個排列矩陣,絕不重疊。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 數字的值域是 <code>1..k</code>,程式直接<strong>用數值當索引</strong>(如 <code>indegree[v]</code>、<code>pos[v]</code>、<code>graph[u]</code>)。若只開到 <code>k</code>,存取 <code>[k]</code> 就會越界。開 <code>k + 1</code> 讓索引 <code>0..k</code> 都合法(索引 0 空著不用),寫起來最直接。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 不必真的建矩陣,只要兩次拓樸都成功(長度都等於 k)即存在合法解 ⇒ 回傳 <code>true</code>,否則 <code>false</code>。省掉 O(k²) 的矩陣建置,時間降到 <strong>O(k + E)</strong>、空間 <strong>O(k + E)</strong>(不再需要 k×k 陣列)。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 純拓樸只保證「相對先後」,無法保證「恰好差 <code>k</code> 列」這種<strong>帶權距離</strong>約束。這時要轉成<strong>差分約束系統</strong>(difference constraints):把每個限制寫成 <code>pos[b] − pos[a] ≥ w</code>,用最短 / 最長路(Bellman-Ford / SPFA)求解,負環即代表無解。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 跑完 Kahn 後,<strong>入度仍 &gt; 0 的節點</strong>就一定在環上或被環「擋在後面」。要精準抓環,可改用 DFS 三色標記(白 / 灰 / 黑):在遞迴堆疊中(灰色)又遇到灰色節點,即偵測到一條回邊,沿堆疊回溯即可列出環上的數字。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能講出「兩維度獨立 → 各拓樸一次 → 判環 → 交叉放格」,這題就穩了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 2392 · BUILD A MATRIX WITH CONDITIONS</div>
+  </div>
+
+</body>
+</html>

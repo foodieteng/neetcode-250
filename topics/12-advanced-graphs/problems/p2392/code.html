@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2392 · Build a Matrix With Conditions // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P2392</span>
+    <span><a href="https://leetcode.com/problems/build-a-matrix-with-conditions/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">依條件建構矩陣</h1>
+    <p class="sc-mast__subtitle">// CODE · 完整實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2392</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// SOLUTION</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p2392.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> <span class="f">buildMatrix</span><span class="p">(</span><span class="t">int</span> k<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> rowConditions<span class="p">,</span>
+                                       <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> colConditions<span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> rowOrder <span class="p">=</span> <span class="f">topo</span><span class="p">(</span>rowConditions<span class="p">,</span> k<span class="p">);</span>   <span class="c">// 列順序</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> colOrder <span class="p">=</span> <span class="f">topo</span><span class="p">(</span>colConditions<span class="p">,</span> k<span class="p">);</span>   <span class="c">// 行順序</span>
+        <span class="k">if</span> <span class="p">(</span>rowOrder<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">||</span> colOrder<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="k">return</span> <span class="p">{};</span>  <span class="c">// 有環 → 無解</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span><span class="t">int</span><span class="p">&gt;&gt;</span> pos<span class="p">(</span>k <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="p">{-</span><span class="n">1</span><span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">});</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> k<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            pos<span class="p">[</span>rowOrder<span class="p">[</span>i<span class="p">]].</span>first  <span class="p">=</span> i<span class="p">;</span>          <span class="c">// 該數字的列索引</span>
+            pos<span class="p">[</span>colOrder<span class="p">[</span>i<span class="p">]].</span>second <span class="p">=</span> i<span class="p">;</span>          <span class="c">// 該數字的行索引</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> matrix<span class="p">(</span>k<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;(</span>k<span class="p">,</span> <span class="n">0</span><span class="p">));</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">=</span> <span class="n">1</span><span class="p">;</span> v <span class="p">&lt;=</span> k<span class="p">;</span> v<span class="p">++)</span>
+            matrix<span class="p">[</span>pos<span class="p">[</span>v<span class="p">].</span>first<span class="p">][</span>pos<span class="p">[</span>v<span class="p">].</span>second<span class="p">]</span> <span class="p">=</span> v<span class="p">;</span>   <span class="c">// 交叉放格</span>
+        <span class="k">return</span> matrix<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c">// Kahn 拓樸排序:回傳長度 k 的順序,若有環回傳空</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">topo</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> arr<span class="p">,</span> <span class="t">int</span> k<span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> graph<span class="p">(</span>k <span class="p">+</span> <span class="n">1</span><span class="p">);</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> indegree<span class="p">(</span>k <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> e <span class="p">:</span> arr<span class="p">)</span> <span class="p">{</span>
+            <span class="k">auto</span> u <span class="p">=</span> e<span class="p">[</span><span class="n">0</span><span class="p">],</span> v <span class="p">=</span> e<span class="p">[</span><span class="n">1</span><span class="p">];</span>
+            graph<span class="p">[</span>u<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>v<span class="p">);</span>                     <span class="c">// u 在 v 之前(上/左)</span>
+            indegree<span class="p">[</span>v<span class="p">]++;</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> order<span class="p">;</span>
+        <span class="t">queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> q<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> k<span class="p">;</span> i<span class="p">++)</span>
+            <span class="k">if</span> <span class="p">(</span>indegree<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>i<span class="p">);</span>       <span class="c">// 入度 0 先入隊</span>
+
+        <span class="k">while</span> <span class="p">(!</span>q<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">auto</span> u <span class="p">=</span> q<span class="p">.</span><span class="f">front</span><span class="p">();</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            order<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>u<span class="p">);</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> v <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span>
+                <span class="k">if</span> <span class="p">(--</span>indegree<span class="p">[</span>v<span class="p">]</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>v<span class="p">);</span>   <span class="c">// 入度歸零才入隊</span>
+        <span class="p">}</span>
+        <span class="k">return</span> order<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> k <span class="p">?</span> order <span class="p">:</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;();</span>  <span class="c">// 少於 k = 有環</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">建圖 + 入度</td><td class="mono">O(k + E)</td><td>E = 條件筆數</td></tr>
+        <tr><td class="mono">Kahn ×2</td><td class="mono">O(k + E)</td><td>每點每邊各處理一次</td></tr>
+        <tr><td class="mono">建 pos</td><td class="mono">O(k)</td><td>掃兩個順序陣列</td></tr>
+        <tr><td class="mono">初始化 + 填矩陣</td><td class="mono">O(k²)</td><td>k×k 全 0 再放 k 個值</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(k² + E)</strong>　　S = <strong>O(k² + E)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        k = 數字個數(≤ 400),E = rowConditions + colConditions 筆數(≤ 2×10⁴)。矩陣本身佔 O(k²)。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>把 row / col 條件併成一張圖</td>
+          <td class="fail">製造假環</td>
+          <td>行、列是兩個獨立維度,必須<strong>各自</strong>拓樸</td>
+        </tr>
+        <tr>
+          <td>忘了判環</td>
+          <td class="fail">回傳壞矩陣</td>
+          <td>拓樸 <code>order.size() != k</code> 即有環 → 回傳 <code>{}</code></td>
+        </tr>
+        <tr>
+          <td>陣列開到 <code>k</code> 而非 <code>k+1</code></td>
+          <td class="fail">值 k 越界</td>
+          <td>數字是 <code>1..k</code>,以值當索引要開 <code>k + 1</code></td>
+        </tr>
+        <tr>
+          <td>誤以為要「唯一解」</td>
+          <td class="fail">過度約束</td>
+          <td>題目要「任一」合法解,拓樸的任一有效順序都行</td>
+        </tr>
+        <tr>
+          <td>擔心兩數字撞到同格</td>
+          <td class="pass">不會發生</td>
+          <td><code>rowPos</code>、<code>colPos</code> 皆為排列,k 個值必落相異格</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// EDGE: [a, b] 為什麼是 a → b</span>
+rowConditions [a, b]:a 要在 b「上面」= a 的列比 b 小
+拓樸排序保證 a 排在 b 之前 ⇒ 先出隊的拿到較小索引
+所以建邊 graph[a].push_back(b)、indegree[b]++
+  ↳ 入度 = 「還有幾個數字必須排在我前面」</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// KAHN: 為什麼消入度能排出拓樸序</span>
+入度 0 = 沒有前置限制 → 可立刻放到最前面
+每放一個 u,它指向的 v 少一個前置 → --indegree[v]
+indegree[v] 歸零表示 v 的前置全部就位 → 入隊
+若還有點永遠進不了隊(入度卡著)⇒ 存在環</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// CYCLE: order.size() != k 的意義</span>
+無環時每個點都會恰好入隊、出隊一次 ⇒ order 長度 = k
+有環時環上的點入度永遠 &gt; 0,進不了隊 ⇒ order &lt; k
+例:1→2→3→1,三點入度都是 1,初始沒人能入隊 → order 空</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PLACE: pos[v] = (row, col) 交叉放格</span>
+掃 rowOrder:rowOrder[i] 這個數字的列索引 = i
+掃 colOrder:colOrder[i] 這個數字的行索引 = i
+matrix[pos[v].first][pos[v].second] = v
+其餘格子維持初始化的 0</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// TWO THINGS TO REMEMBER</div>
+    <div class="sc-summary-bar__body">行、列<strong>各自</strong>拓樸(別併圖);<code>order.size() != k</code> 就是有環 → 回 <code>{}</code>。</div>
+    <div class="sc-summary-bar__detail">DUAL TOPOLOGICAL SORT · O(k² + E)</div>
+  </div>
+
+</body>
+</html>
