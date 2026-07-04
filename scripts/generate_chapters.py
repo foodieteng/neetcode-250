@@ -416,35 +416,36 @@ def diff_chip(difficulty):
     name = DIFF_NAMES.get(difficulty, difficulty)
     color = DIFF_COLOR.get(difficulty, 'var(--concrete)')
     return (
-        f'<span class="chip" style="font-size:9px;border-color:{color};'
+        f'<span class="chip chip--diff" style="font-size:9px;border-color:{color};'
         f'color:{color};">{name}</span>'
     )
 
 
 def render_problem_item(cat_id, cat_slug, pid, title, url_slug, difficulty, status, *, indent=''):
-    """Render a single <li> for a problem in the category outline / list."""
+    """Render a single <li> for a problem as a column-aligned .pl-row
+    (difficulty chip | number | title | 原題 link)."""
     num = pid[1:]  # strip leading 'p' -> leetcode number
-    label = f'{num} · {title}'
-    source = (
-        f' <a href="{leetcode_url(url_slug)}" target="_blank" rel="noopener" '
-        f'style="margin-left:8px;font-size:11px;color:var(--rust-bright);border:none;">'
-        f'原題 ↗</a>'
-    )
     chip = diff_chip(difficulty)
+    numspan = f'<span class="pl-num">{num}</span>'
+    src = (
+        f'<a class="pl-src" href="{leetcode_url(url_slug)}" target="_blank" rel="noopener" '
+        f'style="font-size:11px;color:var(--rust-bright);border:none;">原題 ↗</a>'
+    )
     if status == 'todo':
-        return (
-            f'{indent}<li>{chip} <span style="color:var(--concrete)">{label} '
-            f'<span style="color:var(--line-bright)">(待補)</span></span>{source}</li>'
+        main = (
+            f'<span class="pl-main" style="color:var(--concrete)">{title} '
+            f'<span style="color:var(--line-bright)">(待補)</span></span>'
         )
-    href = resolve_problem_link(cat_slug, pid)
-    if status == 'demo':
-        return (
-            f'{indent}<li>{chip} <a href="{href}">{label}</a>'
-            f'<span class="chip chip--warning" style="margin-left:8px;font-size:9px;">DEMO</span>'
-            f'{source}</li>'
+    elif status == 'demo':
+        href = resolve_problem_link(cat_slug, pid)
+        main = (
+            f'<span class="pl-main"><a href="{href}">{title}</a>'
+            f'<span class="chip chip--warning" style="margin-left:8px;font-size:9px;">DEMO</span></span>'
         )
-    # 'done' or anything else
-    return f'{indent}<li>{chip} <a href="{href}">{label}</a>{source}</li>'
+    else:  # 'done'
+        href = resolve_problem_link(cat_slug, pid)
+        main = f'<span class="pl-main"><a href="{href}">{title}</a></span>'
+    return f'{indent}<li><span class="pl-row">{chip}{numspan}{main}{src}</span></li>'
 
 
 def chapter_quick_index(cat_id, cat_slug, probs):
@@ -499,27 +500,13 @@ def chapter_quick_index(cat_id, cat_slug, probs):
 
 
 def chapter_outline(cat_id, cat_slug, probs):
-    """Build the category TOC at the top of the category page."""
+    """Build the category TOC at the top of the category page — section links only
+    (the full problem list lives in the quick-index table and the 題目列表 section)."""
     items = []
     if probs:
         items.append(f'          <li><a href="#sec-quick-index">⚡ 快速索引</a></li>')
     items.append(f'          <li><a href="#sec-concept">{cat_id}.1 · 核心概念</a></li>')
-
-    if not probs:
-        items.append(f'          <li><a href="#sec-problems">{cat_id}.2 · 題目列表</a></li>')
-        items.append(f'          <li><a href="#sec-notes">{cat_id}.3 · 筆記與補充</a></li>')
-        return '\n'.join(items)
-
-    items.append(f'          <li><a href="#sec-problems">{cat_id}.2 · 題目列表</a>')
-    sub = '\n'.join(
-        render_problem_item(cat_id, cat_slug, pid, title, url_slug, difficulty, status,
-                            indent='              ')
-        for pid, title, url_slug, difficulty, status in probs
-    )
-    items.append(f'            <ul class="notes-list" style="margin: 6px 0 6px 16px;">')
-    items.append(sub)
-    items.append(f'            </ul>')
-    items.append(f'          </li>')
+    items.append(f'          <li><a href="#sec-problems">{cat_id}.2 · 題目列表</a></li>')
     items.append(f'          <li><a href="#sec-notes">{cat_id}.3 · 筆記與補充</a></li>')
     return '\n'.join(items)
 
