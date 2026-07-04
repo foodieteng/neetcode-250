@@ -261,7 +261,7 @@ PROBLEMS = {
         ('p787', 'Cheapest Flights Within K Stops',                                 'cheapest-flights-within-k-stops',                                 'med', 'todo'),
         ('p1489','Find Critical and Pseudo Critical Edges in Minimum Spanning Tree','find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree','hard','todo'),
         ('p2392','Build a Matrix With Conditions',                                  'build-a-matrix-with-conditions',                                  'hard','todo'),
-        ('p2709','Greatest Common Divisor Traversal',                               'greatest-common-divisor-traversal',                               'hard','todo'),
+        ('p2709','Greatest Common Divisor Traversal',                               'greatest-common-divisor-traversal',                               'hard','done'),
     ],
     '13': [  # 1-D Dynamic Programming
         ('p70',  'Climbing Stairs',               'climbing-stairs',               'easy','todo'),

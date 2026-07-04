@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2709 · Greatest Common Divisor Traversal // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <!-- ── top nav ── -->
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P2709</span>
+    <span><a href="https://leetcode.com/problems/greatest-common-divisor-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <!-- ── masthead ── -->
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最大公因數走訪</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 為什麼是「質因數併查集」</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2709</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>UNION-FIND · SIEVE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給定 0-indexed 陣列 <code>nums</code>。若 <code>gcd(nums[i], nums[j]) &gt; 1</code>，
+        便可在索引 <code>i</code>、<code>j</code> 間互相移動（走訪）。問：是否<strong>任兩個索引</strong>
+        之間都存在一條走訪路徑？可以回傳 <code>true</code>，否則 <code>false</code>。
+      </p>
+    </div>
+
+    <p>
+      「兩數 gcd &gt; 1」等價於「兩數<strong>共用至少一個質因數</strong>」。把索引看成節點、可走訪看成邊，
+      題目就是問：這張圖<strong>是否連通</strong>？難點在於邊數可達 O(n²)，不能真的把邊建出來。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用質因數 DSU ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「質因數併查集」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">兩兩算 gcd 建邊 + BFS/DFS</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            對每對 (i, j) 算一次 gcd，最壞 5×10⁴ 個數 ⇒ ~10⁹ 對，邊也可能爆到 O(n²)。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">把每個「數字」當節點來 union</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            要決定「哪兩個數字該 union」還是得比較質因數；直接數字對數字仍逃不掉兩兩比對。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 沒解決核心</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">把「質數」當節點：每個數字把自己的質因數連成一組</span>
+          <span class="sc-ko-card__o">O(V·√A) 近線性</span>
+        </div>
+        <div class="sc-ko-card__body">
+          關鍵轉換：<strong>數字 ↔ 它的質因數集合</strong>。兩數若共用質因數，就會落在同一個質數分量裡。
+          於是「所有數字互相可達」等價於「出現過的<strong>質數全部在同一連通分量</strong>」——
+          用併查集合併，最後數分量即可。質因數個數 ≤ log A，節點數 ≤ 質數個數，規模驟降。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · STABLE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>線性篩最小質因數 spf[]</strong>：讓任何數在 O(log A) 內被拆成質因數。</li>
+      <li><strong>逐一處理每個數字</strong>：把它的所有質因數 <code>Union</code> 成同一組（單一質因數則不用）。順手記一個 <code>anchor</code>（第一個看到的質數）。</li>
+      <li><strong>連通性檢查</strong>：每個數字取其最小質因數 <code>spf[v]</code>，看是否與 <code>anchor</code> 同根；全部同根 ⇒ <code>true</code>。過程遇到 <code>1</code>（與任何數 gcd=1）直接 <code>false</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZE · nums = [2, 3, 6]</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ PRIME-FACTOR UNION-FIND</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:470px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button>
+        <button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button>
+        <button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 正確性 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼這樣就對<span class="sc-section__title-en">// CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">CLAIM · 圖連通 ⇔ 質數同分量</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li>每個數字 <strong>v</strong> 都「附著」在它的每個質因數上（把 v 與其質因數視為同組）。所以 v 一定和自己的質因數連通。</li>
+          <li>兩數字 <strong>a, b</strong> 可直接走訪 ⇔ 共用質因數 ⇔ 它們的質因數落在<strong>同一分量</strong>。</li>
+          <li>因此「任兩數字可達」⇔「所有出現的質數同屬一個分量」。反過來若某質數自成孤島，含它的數字就走不到別處。</li>
+          <li>特例：出現 <code>1</code> 時它沒有任何質因數，與所有數 gcd=1，除非陣列只有它自己，否則必然 <code>false</code>。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>設 <code>n</code> = 陣列長度、<code>A</code> = 最大值（≤ 10⁵）。篩法一次 O(A log log A)；每個數字拆質因數 O(log A) 次 union，配合路徑壓縮 + 按秩合併近乎 O(1)。</p>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(A log log A)</strong> + <strong>O(n log A · α)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        篩最小質因數 <strong>+</strong> 每個數字沿質因數做常數級 union；<strong>α</strong> 為反 Ackermann，實務視為常數。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(A log log A + n log A)</td><td>篩 + 拆質因數併查</td></tr>
+        <tr><td>Space</td><td class="mono">O(A)</td><td><code>spf[]</code> 與 <code>parent[]</code> 皆開到 max 值</td></tr>
+        <tr><td>質因數個數</td><td class="mono">≤ log₂A ≈ 17</td><td>每個數字最多 17 個質因數</td></tr>
+        <tr><td>Constant factor</td><td class="mono">小</td><td>純陣列操作、無雜湊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      別去連「數字和數字」，去連「數字和它的<strong>質因數</strong>」。節點數瞬間從 <strong>n 個大數</strong>
+      壓成 <strong>少數質數</strong>，O(n²) 的連通性檢查退化成一次線性併查集。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">質因數當節點，數字把自己的質因數併成一組；全部質數同分量 ⇒ 全連通。</div>
+    <div class="sc-summary-bar__detail">SPF SIEVE + UNION-FIND · O(A log log A + n log A)</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p2709-primedsu.js"></script>
+</body>
+</html>

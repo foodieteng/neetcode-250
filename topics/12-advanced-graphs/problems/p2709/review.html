@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2709 · Greatest Common Divisor Traversal // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P2709</span>
+    <span><a href="https://leetcode.com/problems/greatest-common-divisor-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最大公因數走訪</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2709</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td><code>gcd&gt;1</code> 建圖問連通 ⇒ 邊數 O(n²) 不可建</td></tr>
+        <tr><td>關鍵轉換</td><td>節點改成「<strong>質數</strong>」；數字把自己的質因數併成一組</td></tr>
+        <tr><td>等價命題</td><td>全連通 ⇔ 出現過的質數落在<strong>同一分量</strong></td></tr>
+        <tr><td>工具</td><td>最小質因數篩 <code>spf[]</code> + 併查集（路徑壓縮 + 按秩）</td></tr>
+        <tr><td>兩個 bug</td><td>篩守門 <code>spf[j]==j</code>；檢查用 <code>Find(spf[v])</code></td></tr>
+        <tr><td>特例</td><td><code>n==1</code>→true；含 <code>1</code> 且 <code>n&gt;1</code>→false</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「<code>gcd(a,b) &gt; 1</code>」可以等價換成「a、b 共用至少一個質因數」？</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼要把「質數」當作併查集的節點，而不是把「數字」當節點？這帶來什麼規模上的差別？</div>
+    <div class="qa"><strong>Q3.</strong> 篩最小質因數時，內層守門條件為什麼是 <code>spf[j] == j</code>？若誤寫成 <code>spf[j] == i</code> 會怎樣？</div>
+    <div class="qa"><strong>Q4.</strong> 最後的連通性檢查為什麼是 <code>Find(spf[v])</code> 而不是 <code>Find(v)</code>？</div>
+    <div class="qa"><strong>Q5.</strong> 陣列出現 <code>1</code> 時應如何處理？<code>n==1</code> 與 <code>n&gt;1</code> 為何結論不同？</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// nums = [4, 3, 12, 8]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+mx = 12 → spf[] 篩後：spf[4]=2 spf[3]=3 spf[12]=2 spf[8]=2
+parent[0..12] 全部 = -1，anchor = -1</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// v = 4  (= 2·2)</span>
+p=spf[4]=2, prev=-1 → anchor 尚未設 ⇒ anchor = 2
+prev=2, v=4/2=2, p=spf[2]=2
+prev=2 ⇒ Union(2, 2)  無效（同根）
+prev=2, v=2/2=1 → 停
+分量：{2}   3、5… 尚未出現</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// v = 3  (= 3)</span>
+p=spf[3]=3, prev=-1，但 anchor 已是 2 ⇒ 什麼都不做
+prev=3, v=3/3=1 → 停
+分量：{2}、{3}  ← 3 目前是孤島！</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// v = 12  (= 2·2·3)</span>
+p=2, prev=-1（anchor 已設）→ 略；prev=2, v=6
+p=2, Union(2,2) 無效；prev=2, v=3
+p=3, prev=2 ⇒ <span class="sc-trace__out">Union(2, 3) 合併！</span>；v=1 停
+分量：{2, 3}  ← 12 同時含 2、3，把兩座島接起來</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// v = 8  (= 2·2·2)</span>
+全是質因數 2，Union(2,2) 皆無效
+分量不變：{2, 3}</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// CHECK  (anchor = 2)</span>
+Find(spf[4])  = Find(2) = 2 == Find(2) ✓
+Find(spf[3])  = Find(3) = 2 == Find(2) ✓
+Find(spf[12]) = Find(2) = 2 == Find(2) ✓
+Find(spf[8])  = Find(2) = 2 == Find(2) ✓
+<span class="sc-trace__out">// OUTPUT: true</span></div>
+
+    <div class="sc-insight">
+      注意 <strong>3 一度是孤島</strong>，直到 <code>12</code> 這個同時含 2 和 3 的數字把它接回主分量。
+      這正是「數字把自己的質因數併成一組」在做的事。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若值域放大到 <code>10⁹</code>，開不下 <code>spf[]</code> 陣列，你會怎麼對每個數字做質因數分解？整體複雜度變成多少？</div>
+    <div class="qa"><strong>App 2.</strong> 若不維護 <code>anchor</code>，改成「數 distinct 根的個數」來判斷是否全連通，程式要怎麼寫？兩種寫法各有什麼取捨？</div>
+    <div class="qa"><strong>App 3.</strong> 進一步問「把整張圖變連通，最少要再加幾條邊（合併幾個分量）」，在這個質因數 DSU 上該怎麼回答？</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 把 a、b 做質因數分解，<code>gcd(a,b)</code> 就是兩者質因數（取次方較小者）的乘積。<code>gcd &gt; 1</code> 代表這個公因數至少含一個質數 ⇒ 兩者<strong>至少共用一個質因數</strong>；反之若無共用質因數則 gcd=1。所以「可走訪」＝「共用質因數」。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 用數字當節點的話，要決定「哪兩個數字該連」仍需兩兩比較質因數，逃不掉 O(n²)。改用質數當節點：每個數字只把自己 <strong>≤ log₂A</strong> 個質因數連起來，節點數 = 出現過的質數個數（很少），邊也線性。連通性檢查因此從 O(n²) 降到近線性。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> <code>spf[j] == j</code> 代表 j 還沒被任何更小的質數標記過，此刻用當前質數 <code>i</code>（由小到大）寫入，即得<strong>最小</strong>質因數（先到先得）。若寫成 <code>spf[j] == i</code>：由於 <code>spf[j]</code> 初值是 j，幾乎永遠不等於 i，條件幾乎不成立 ⇒ 篩形同虛設，<code>spf</code> 全留初值 j，之後分解合成數會出錯。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 我們 <code>Union</code> 的節點是<strong>質數</strong>，只有質數的 <code>parent</code> 被寫過。合成數 <code>v</code>（如 12）從來沒被 union，<code>Find(v)</code> 會回到它自己、與任何質數不同根，且 v 可能超出有意義範圍。取 <code>spf[v]</code>（v 的一個質因數，必在 v 的分量裡）才能正確代表 v 的所屬分量。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> <code>1</code> 沒有質因數，與任何數 <code>gcd = 1</code>，無法與別人走訪。<code>n == 1</code> 時陣列只有它自己，沒有任何「一對」需要連通 ⇒ <strong>true</strong>；<code>n &gt; 1</code> 只要出現 1，它就是永遠到不了的孤點 ⇒ <strong>false</strong>。程式用開頭 <code>if(n==1) return true</code> 與迴圈內 <code>if(v==1) return false</code> 分別處理。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 改用<strong>試除法</strong>：對每個數字用 2..√v 試除取質因數，單數 O(√v)，整體 O(n√A)。若要更快可先線性篩出 √(10⁹) ≈ 31623 以內的質數，只拿這些質數試除，剩下的殘值（&gt;1）本身就是一個大質數。分解出的質因數同樣做 union，其餘框架不變。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 收集所有出現過的質數，對每個取 <code>Find</code> 丟進 set 數 distinct 根；size == 1 ⇒ 全連通。取捨：<code>anchor</code> 版本 O(n·α)、常數更小、無額外容器；數根版本語意更直觀、且能順便回報「幾個分量」，但要多一個 set 掃過所有質數（O(質數種類·α)）。兩者結論一致。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 答案是<strong>（質數分量數 − 1）</strong>：把 k 個分量接成一張連通圖，最少加 k−1 條邊（等同「把 k 棵樹接成一棵」）。在 DSU 上就是統計 distinct 根的個數 k，回傳 k−1。若 k=1 代表已連通，加 0 條。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能講出「質數當節點 + 兩個 bug + 含 1 特例」，這題就穩了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 2709 · GREATEST COMMON DIVISOR TRAVERSAL</div>
+  </div>
+
+</body>
+</html>
