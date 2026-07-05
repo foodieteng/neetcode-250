@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>269 · Alien Dictionary // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P269</span>
+    <span><a href="https://leetcode.com/problems/alien-dictionary/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">外星字典</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 269</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>從字典序反推字母順序 = 拓樸排序</td></tr>
+        <tr><td>資訊來源</td><td>相鄰兩字<strong>第一個不同字元</strong> → 一條邊(找到就 break)</td></tr>
+        <tr><td>特例①</td><td>前綴矛盾 <code>["abc","ab"]</code> → 回 <code>""</code></td></tr>
+        <tr><td>特例②</td><td>孤立字母也要放進圖 / 入度表</td></tr>
+        <tr><td>兩種寫法</td><td>DFS 逆後序 · Kahn 消入度(記得 count 去重)</td></tr>
+        <tr><td>判環</td><td>DFS 撞灰 · Kahn 輸出長度不足 → <code>""</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼相鄰兩字只有<strong>第一個不同的字元</strong>透露順序?後面的字元為何不能用?</div>
+    <div class="qa"><strong>Q2.</strong> 什麼是「前綴矛盾」?為什麼 <code>["abc","ab"]</code> 無解、要回 <code>""</code>?</div>
+    <div class="qa"><strong>Q3.</strong> DFS 寫法為什麼<strong>後序</strong>加入再 <code>reverse</code>?三色(白 / 灰 / 黑)各代表什麼、如何判環?</div>
+    <div class="qa"><strong>Q4.</strong> Kahn 寫法為什麼一定要先 <code>count</code> 再 <code>indegree++</code>?不去重會發生什麼?</div>
+    <div class="qa"><strong>Q5.</strong> 沒有任何邊的<strong>孤立字母</strong>怎麼處理?漏了它會怎樣?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// words = [wrt, wrf, er, ett, rftt]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// COLLECT + BUILD EDGES</span>
+出現的字母:w r t f e
+wrt vs wrf → 第 2 位 t≠f → 邊 t→f
+wrf vs er  → 第 0 位 w≠e → 邊 w→e
+er  vs ett → 第 1 位 r≠t → 邊 r→t
+ett vs rftt→ 第 0 位 e≠r → 邊 e→r
+圖:w→e→r→t→f(一條鏈)</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · DFS 三色後序</span>
+從某白點開始 DFS,沿 w→e→r→t→f 遞迴到底
+f 無出邊 → 標黑、res="f"
+回溯:t→res="ft", r→"ftr", e→"ftre", w→"ftrew"
+reverse("ftrew") = "wertf"</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// B · Kahn 消入度</span>
+入度:w0 e1 r1 t1 f1  → 佇列=[w]
+取 w → res="w",e 入度→0 入隊
+取 e → res="we",r→0 入隊
+取 r → res="wer",t→0；取 t → "wert",f→0；取 f → "wertf"
+res.size()=5 = 字母數 ✓</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+<span class="sc-trace__out">// OUTPUT: "wertf"</span>(兩種寫法此例都得同一鏈序)</div>
+
+    <div class="sc-insight">
+      這個例子是一條<strong>單鏈</strong> w→e→r→t→f,拓樸序唯一,所以 DFS 與 Kahn 都給 <code>"wertf"</code>。
+      若圖存在多個入度 0 的起點,兩法可能給出<strong>不同但都合法</strong>的順序。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若題目保證輸入一定有解(無環、無前綴矛盾),程式可以安全省掉哪些檢查?省了之後風險在哪?</div>
+    <div class="qa"><strong>App 2.</strong> 若要回傳<strong>字典序最小</strong>的合法字母順序,兩種寫法哪個比較好改?怎麼改?</div>
+    <div class="qa"><strong>App 3.</strong> 若字母不是 26 個小寫,而是上萬種 Unicode 字元,對資料結構與複雜度分析有什麼影響?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 字典序比較是「逐位比,遇到第一個不同就分勝負,之後不看」。所以相鄰兩字 <code>w1, w2</code> 只保證在<strong>第一個不同位</strong> <code>w1[j] &lt; w2[j]</code>;再往後的字元屬於「已經分完勝負」的部分,兩者誰大誰小完全不受字母表限制,拿來加邊就是<strong>假關係</strong>。因此找到第一個不同就加邊並 break。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 「前綴矛盾」= 前面完全相同,但前一個字<strong>比後一個長</strong>,例如 <code>["abc","ab"]</code>。任何字母表下,一個字的<strong>前綴</strong>(ab)都必須排在它自己(abc)<strong>前面</strong>,不可能反過來。所以這種輸入本身違反字典序、無解,直接回 <code>""</code>。程式用 <code>j == minL &amp;&amp; w1.size() &gt; w2.size()</code> 偵測。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 三色:<strong>白(0)</strong>未訪、<strong>灰(1)</strong>正在遞迴堆疊中、<strong>黑(2)</strong>子樹已全部完成。DFS 在一個節點的<strong>所有後代都完成後</strong>才把自己加入 <code>res</code>(後序),得到的是「每個點都排在其後代之後」——也就是<strong>逆</strong>拓樸序,所以最後 <code>reverse</code> 轉回正序。判環:若沿途<strong>撞到灰色</strong>節點,代表回到還在堆疊中的祖先 = 回邊 = 有環。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 同一條有向邊 <code>c1→c2</code> 可能被<strong>多對</strong>相鄰單字重複推出。若每遇到就 <code>indegree[c2]++</code>,但 <code>graph</code> 是 set 只會存一次,<code>indegree</code> 就會比實際入邊數<strong>多算</strong>。結果 <code>c2</code> 的入度永遠減不到 0,進不了佇列,最後輸出長度不足 → <strong>誤判有環</strong>。所以要 <code>if(!graph[c1].count(c2))</code> 確認是新邊,才同時 <code>insert</code> + <code>indegree++</code>。(DFS 版用 set 天生免疫。)</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 沒有任何邊的字母(只出現、不與別人比出順序)仍是字母表的一員,必須出現在答案裡。所以要<strong>先掃過所有字元</strong>把每個字母都放進 <code>graph</code> / <code>indegree</code>(入度 0)。漏了它,答案就會<strong>少字母</strong>;在 Kahn 版還會讓 <code>res.size() != indegree.size()</code> 的判斷失準。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 可省掉<strong>判環</strong>(DFS 撞灰 / Kahn 長度檢查)與<strong>前綴矛盾</strong>兩個回 <code>""</code> 的分支,直接輸出拓樸序。風險:一旦「保證有解」的假設被打破(髒資料),程式會回傳<strong>不完整或錯誤</strong>的順序而不自知,除錯困難。實務上通常仍保留檢查。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> <strong>Kahn 版</strong>好改:把普通佇列換成<strong>最小堆(priority_queue / set)</strong>,每次取出目前入度 0 中<strong>字典序最小</strong>的字母即可,得到唯一的「字典序最小拓樸序」。DFS 逆後序不容易直接保證全域字典序最小,通常改用 Kahn + 小根堆。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 用 <code>unordered_map</code> 存圖與入度,本來就不綁定 26 個字母,換成大字集只是 <code>V</code> 變大。複雜度仍是 <code>O(C + V + E)</code>,只是不能再把 V「當常數 26」忽略;若原本用固定大小 <code>int[26]</code> 陣列則要改回雜湊表。空間也隨相異字元數與邊數線性成長。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">兩種寫法與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能講出「第一個不同字元 + 前綴矛盾 + 孤立字母 + 兩種拓樸判環」,這題就穩了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 269 · ALIEN DICTIONARY</div>
+  </div>
+
+</body>
+</html>

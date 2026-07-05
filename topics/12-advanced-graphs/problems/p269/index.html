@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>269 · Alien Dictionary // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P269</span>
+    <span><a href="https://leetcode.com/problems/alien-dictionary/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">外星字典</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 相鄰字推邊 + 拓樸排序</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 269</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TOPOLOGICAL SORT</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一份外星語字典把單字 <code>words</code> 依它們的字母順序<strong>由小到大</strong>排好了。請反推出這個外星語的
+        <strong>字母順序</strong>(回傳任一合法順序)。若順序矛盾(無解),回傳 <code>""</code>。
+      </p>
+    </div>
+
+    <p>
+      關鍵觀察:字典序只在<strong>相鄰兩個單字</strong>之間洩漏一點資訊 —— 它們<strong>第一個不同的字元</strong>,
+      前者一定排在後者<strong>前面</strong>。把每條這種「誰在前」關係當成一條有向邊,問題就變成經典的<strong>拓樸排序</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼是拓樸排序 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「建圖 + 拓樸排序」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉所有字母排列去驗證</span>
+            <span class="sc-ko-card__o">O(k!)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            最多 26 個字母,26! 天文數字,不可能全試。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 爆炸</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">比較整個單字大小去推</span>
+            <span class="sc-ko-card__o">資訊過載</span>
+          </div>
+          <div class="sc-ko-card__body">
+            兩字只有「第一個不同字元」有意義,拿整串比會混入無效關係、甚至誤判。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 抓錯重點</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">相鄰字第一個不同字元 → 有向邊 → 拓樸排序</span>
+          <span class="sc-ko-card__o">O(C)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          每對相鄰單字最多貢獻<strong>一條邊</strong>(第一個不同的字元 <code>c1 → c2</code>)。收集所有邊後做拓樸排序,
+          得到的線性順序就是字母表。若圖<strong>有環</strong>(順序自我矛盾)則無解;另有一個「前綴矛盾」的特例要擋。
+          總成本線性於所有字元總長 <code>C</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · LINEAR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>收集字母</strong>:掃過所有單字,把出現過的字母都放進圖(即使它沒有任何邊,也要出現在答案裡)。</li>
+      <li><strong>建邊</strong>:對每對相鄰單字,找<strong>第一個不同</strong>的位置 <code>j</code>,加邊 <code>w1[j] → w2[j]</code> 後即可 break。順手擋掉「<strong>前綴矛盾</strong>」:若前面完全相同卻 <code>w1</code> 比 <code>w2</code> 長(如 <code>["abc","ab"]</code>)⇒ 無解回 <code>""</code>。</li>
+      <li><strong>拓樸排序</strong>:對這張圖做拓樸排序(DFS 後序 或 Kahn BFS 皆可)。排不出完整順序(有環)⇒ 回 <code>""</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZE · words = [wrt, wrf, er, ett, rftt]</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ ALIEN DICTIONARY · TOPO SORT</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:520px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button>
+        <button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button>
+        <button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 11</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 兩種拓樸寫法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩種拓樸寫法<span class="sc-section__title-en">// DFS vs KAHN</span></h2>
+    </div>
+
+    <p>建圖完全一樣,差別只在<strong>怎麼拓樸排序</strong>。兩種都對,完整程式碼見下一頁:</p>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>寫法 A · DFS 三色後序</th><th>寫法 B · Kahn BFS 入度</th></tr></thead>
+      <tbody>
+        <tr><td>核心</td><td>遞迴走訪,<strong>後序</strong>加入,最後<strong>反轉</strong></td><td>入度 0 進佇列,逐一取出、鄰居入度 −1</td></tr>
+        <tr><td>判環</td><td>撞到<strong>灰色(訪問中)</strong>節點 = 有環</td><td>最後輸出長度 &lt; 字母數 = 有環</td></tr>
+        <tr><td>額外狀態</td><td><code>color</code>:白 / 灰 / 黑</td><td><code>indegree</code> 計數 + 佇列</td></tr>
+        <tr><td>順序來源</td><td>逆後序(reverse post-order)</td><td>層層剝除入度 0</td></tr>
+        <tr><td>結果</td><td colspan="2">多組合法解時兩者可能給出<strong>不同但都合法</strong>的順序</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight">
+      拓樸排序有<strong>兩種標準骨架</strong>:DFS 逆後序、與 Kahn 消入度。這題是把它們套進「外星字母圖」的最佳練習題。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 陷阱 / 正確性 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">關鍵細節<span class="sc-section__title-en">// CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">CLAIM · 三個一定要顧到的點</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>只取第一個不同字元</strong>:相鄰字 <code>w1, w2</code> 的字典序只保證「第一個不同處 <code>w1[j] &lt; w2[j]</code>」,之後的字元<strong>沒有</strong>任何順序資訊,找到就 break。</li>
+          <li><strong>前綴矛盾</strong>:若掃到 <code>minL</code> 都相同,而 <code>w1</code> 比 <code>w2</code> 長(<code>["abc","ab"]</code>),字典序不可能讓長的排前面 ⇒ 直接 <code>""</code>。</li>
+          <li><strong>孤立字母也要出現</strong>:沒有任何邊的字母仍屬於字母表,所以要先把所有出現過的字母放進圖 / 入度表。</li>
+          <li><strong>判環</strong>:有環代表順序自我矛盾,兩種寫法各有偵測法(灰色 / 長度不足)。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>設 <code>C</code> = 所有單字的字元總數、<code>V</code> = 相異字母數(≤ 26)、<code>E</code> = 邊數(≤ 相鄰對數)。</p>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(C + V + E)</strong>　　S = <strong>O(V + E)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        建圖掃過所有字元 <strong>O(C)</strong>;拓樸排序 <strong>O(V + E)</strong>。字母上限 26,故常數極小。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(C + V + E)</td><td>建圖 + 拓樸</td></tr>
+        <tr><td>Space</td><td class="mono">O(V + E)</td><td>鄰接表 + 狀態 / 入度</td></tr>
+        <tr><td>字母數 V</td><td class="mono">≤ 26</td><td>邊數 E ≤ 相鄰對數</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      字典序的線索只藏在<strong>相鄰字的第一個不同字元</strong>裡。把它抽成有向邊,剩下就是一題<strong>拓樸排序</strong> ——
+      別忘了「前綴矛盾」與「孤立字母」兩個特例。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">兩種寫法與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">相鄰字第一個不同字元 → 有向邊 → 拓樸排序(DFS 或 Kahn);環 / 前綴矛盾 → ""。</div>
+    <div class="sc-summary-bar__detail">BUILD GRAPH + TOPOLOGICAL SORT · O(C + V + E)</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p269-alien.js"></script>
+</body>
+</html>

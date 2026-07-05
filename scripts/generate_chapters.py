@@ -257,7 +257,7 @@ PROBLEMS = {
         ('p332', 'Reconstruct Itinerary',                                           'reconstruct-itinerary',                                           'hard','todo'),
         ('p1584','Min Cost to Connect All Points',                                  'min-cost-to-connect-all-points',                                  'med', 'todo'),
         ('p778', 'Swim in Rising Water',                                            'swim-in-rising-water',                                            'hard','todo'),
-        ('p269', 'Alien Dictionary',                                                'alien-dictionary',                                                'hard','todo'),
+        ('p269', 'Alien Dictionary',                                                'alien-dictionary',                                                'hard','done'),
         ('p787', 'Cheapest Flights Within K Stops',                                 'cheapest-flights-within-k-stops',                                 'med', 'todo'),
         ('p1489','Find Critical and Pseudo Critical Edges in Minimum Spanning Tree','find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree','hard','done'),
         ('p2392','Build a Matrix With Conditions',                                  'build-a-matrix-with-conditions',                                  'hard','done'),

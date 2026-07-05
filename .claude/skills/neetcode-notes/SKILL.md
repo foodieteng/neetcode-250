@@ -93,9 +93,17 @@ It rewrites every `topics/<NN>-<slug>/index.html` category page and refreshes th
    - The `string.length`-based bbox stub is **unreliable for CJK** — trust the rendered PNG, not the stub.
    - If anything is clipped/overlapping/has a big dead zone, **fix the JS geometry and re-render**. Clear horizontal bands (see `p157-incexc.js`) is the reliable fix.
 
-7. **Flip status to `'done'`** in `PROBLEMS`, then `python3 scripts/generate_chapters.py`.
+7. **🎤 MANDATORY: also generate a mock-interview PNG.** Every problem's notes must ship with a `leetcode-mock-png` transcript. Invoke the `leetcode-mock-png` skill for the same problem + solution, render the PNG, and save it as `topics/<NN>-<slug>/problems/<pXXX>/mock.png`. Link it from `code.html` right after the code window:
+   ```html
+   <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+     🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+   </p>
+   ```
+   If the problem has **two implementations**, the mock must cover **both** (show both code blocks in the Implement phase). The mock's `pre.code` follows the mock skill's Google-style spacing rule.
 
-8. **Commit:**
+8. **Flip status to `'done'`** in `PROBLEMS`, then `python3 scripts/generate_chapters.py`.
+
+9. **Commit:**
    ```
    feat(<NN>/P<num>): <Title> — <one-line algorithm summary>
    ```
