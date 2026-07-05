@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1489 · Find Critical and Pseudo-Critical Edges in MST // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1489</span>
+    <span><a href="https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">MST 關鍵邊與偽關鍵邊</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · Kruskal + skip / force 分類</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1489</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MST · UNION-FIND</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一張帶權無向圖 <code>n</code> 個點、<code>edges[i] = [u, v, w]</code>。找出所有邊分成兩類:
+        <strong>關鍵邊(critical)</strong>—— 刪掉它,最小生成樹(MST)權重會變大或圖不再連通;
+        <strong>偽關鍵邊(pseudo-critical)</strong>—— 它出現在<strong>某些</strong>但非<strong>全部</strong>的 MST 裡。回傳這兩組邊的<strong>原始索引</strong>。
+      </p>
+    </div>
+
+    <p>
+      先把 MST 求出來得到基準權重 <code>mst</code>。一條邊到底多重要,就用兩個小測試量:
+      <strong>拿掉它</strong>會不會變貴 / 斷開,以及<strong>強迫它先進來</strong>還能不能維持一樣便宜。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 Kruskal 分類 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「Kruskal + skip / force」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉所有生成樹再比較</span>
+            <span class="sc-ko-card__o">指數級</span>
+          </div>
+          <div class="sc-ko-card__body">
+            生成樹數量可達指數級(Cayley:完全圖有 nⁿ⁻²  棵),不可能全列。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 爆炸</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">只跑一次 MST 看哪些邊被選</span>
+            <span class="sc-ko-card__o">不完整</span>
+          </div>
+          <div class="sc-ko-card__body">
+            一次 MST 只給「一棵」樹;等重的邊誰進誰出是任意的,無法區分關鍵 / 偽關鍵。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 分不出來</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">基準 MST + 對每條邊做 skip / force 兩測試</span>
+          <span class="sc-ko-card__o">O(m²·α)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          先算基準 <code>mst</code>。對每條邊 e:<strong>skip</strong> —— 不准用 e 建 MST,若權重 &gt; mst(或無法連通),
+          e 是<strong>關鍵邊</strong>;否則 <strong>force</strong> —— 強迫先放 e 再建,若權重仍 = mst,e 是<strong>偽關鍵</strong>。
+          每個測試就是一次 Kruskal,乾淨且好證明。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · PROVABLE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>排序 + 基準 MST</strong>:把邊照權重排序,跑一次 Kruskal 得基準權重 <code>mst</code>。</li>
+      <li><strong>關鍵邊測試(skip)</strong>:對每條邊 <code>i</code>,建 MST 時<strong>跳過</strong> i。若結果 <code>&gt; mst</code>(變貴或斷開)⇒ i 是關鍵邊。</li>
+      <li><strong>偽關鍵測試(force)</strong>:若不是關鍵邊,則<strong>強制先放</strong> i 再建 MST。若結果 <code>== mst</code> ⇒ i 是偽關鍵邊。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 語法補充(間接排序慣用法) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">語法補充 · 間接排序慣用法<span class="sc-section__title-en">// C++ IDIOM</span></h2>
+    </div>
+
+    <p>這三行是很常見的 C++「<strong>間接排序 indirect sort</strong>」寫法 —— <strong>排序的是「索引陣列」而不是資料本身</strong>。逐行拆解:</p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">indirect_sort.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> order<span class="p">(</span>m<span class="p">);</span>                       <span class="c">// ① 建一個長度 m 的陣列(值全為 0)</span>
+
+<span class="f">iota</span><span class="p">(</span>order<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> order<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>       <span class="c">// ② 填入 0,1,2,...,m-1(每條邊的原始索引)</span>
+
+<span class="f">sort</span><span class="p">(</span>order<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> order<span class="p">.</span><span class="f">end</span><span class="p">(),</span>            <span class="c">// ③ 排序「索引」,不是排 edges 本身</span>
+     <span class="p">[&amp;](</span><span class="t">int</span> a<span class="p">,</span> <span class="t">int</span> b<span class="p">)</span> <span class="p">{</span>                  <span class="c">//    [&amp;] = lambda 以「參考」抓外部變數(edges)</span>
+         <span class="k">return</span> edges<span class="p">[</span>a<span class="p">][</span><span class="n">2</span><span class="p">]</span> <span class="p">&lt;</span> edges<span class="p">[</span>b<span class="p">][</span><span class="n">2</span><span class="p">];</span>    <span class="c">//    比較兩索引對應邊的權重(第 3 欄)</span>
+     <span class="p">});</span>                                    <span class="c">//    回傳 a&lt;b ⇒ a 排前面 ⇒ 權重由小到大</span></pre>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>行</th><th>語法</th><th>作用 / 目的</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono">①</td>
+          <td class="mono">vector&lt;int&gt; order(m);</td>
+          <td>用「大小建構子」開一個長度 <code>m</code> 的 <code>int</code> 陣列,元素預設全為 <code>0</code>。(注意 <code>vector&lt;int&gt; v(m)</code> 是 <strong>m 個 0</strong>;<code>vector&lt;int&gt; v{m}</code> 才是<strong>一個值 m</strong>。)</td>
+        </tr>
+        <tr>
+          <td class="mono">②</td>
+          <td class="mono">iota(begin, end, 0)</td>
+          <td>來自 <code>&lt;numeric&gt;</code>。從起始值 <code>0</code> 開始遞增填滿:<code>order = {0,1,2,…,m-1}</code>。這樣 <code>order</code> 就是「每條邊的原始編號」。</td>
+        </tr>
+        <tr>
+          <td class="mono">③</td>
+          <td class="mono">sort(…, cmp)</td>
+          <td>第三個參數是<strong>比較器</strong>,決定排序規則。這裡排的是 <code>order</code>(索引),比較時去查 <code>edges[a][2]</code>(權重),等於「照權重排索引」。</td>
+        </tr>
+        <tr>
+          <td class="mono">lambda</td>
+          <td class="mono">[&amp;](int a,int b){…}</td>
+          <td>匿名函式當比較器。<code>[&amp;]</code> = <strong>以參考擷取</strong>外層所有變數(這裡需要用到 <code>edges</code>);參數 <code>a,b</code> 是要比較的兩個索引;<code>return a&lt;b</code> 代表「a 應排在 b 前面」⇒ 遞增。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">WHY · 為什麼不直接 sort(edges)?</div>
+      <div class="sc-dark-box__body">
+        因為答案要回傳邊的<strong>原始索引</strong>,而且 skip / force 測試都針對「第 i 條原始邊」。若直接對 <code>edges</code> 排序,
+        原始編號就被打亂、對不回去了。<strong>間接排序</strong>只重排一份索引清單 <code>order</code>,既能「照權重由小到大掃描」,
+        又完整保留每條邊的原始編號 —— 一魚兩吃。
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZE · e0(0-1,1) e1(1-2,2) e2(1-3,2) e3(2-3,2)</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ KRUSKAL · CRITICAL / PSEUDO</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:540px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button>
+        <button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button>
+        <button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 正確性 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">為什麼這樣就對<span class="sc-section__title-en">// CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">CLAIM · skip 抓關鍵、force 抓偽關鍵</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>關鍵邊</strong>:若刪掉 e 後 MST 變貴(或不連通),代表<strong>沒有</strong>一棵 MST 能不用 e ⇒ e 出現在<strong>每一棵</strong> MST 裡。這正是 skip 測試 <code>&gt; mst</code> 的意義。</li>
+          <li><strong>偽關鍵邊</strong>:e 不是關鍵(拿掉不變貴),但<strong>強制先放 e</strong> 仍能建出權重 = mst 的樹 ⇒ e 出現在<strong>某些</strong> MST 裡。這是 force 測試 <code>== mst</code>。</li>
+          <li>兩測試互斥且互補:一條在 MST 上的邊,不是關鍵就是偽關鍵;完全用不到的邊兩個測試都不會通過。</li>
+          <li>force 的實作:先 <code>Union</code> 這條邊、權重先加、已選數 +1,再照權重跑剩下的 Kruskal。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>設 <code>m</code> = 邊數。排序 O(m log m);之後對每條邊最多做 2 次 Kruskal,每次 O(m·α)。</p>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(m log m + m² · α)</strong>　　S = <strong>O(n + m)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        主導項是 <strong>m 條邊 × 每條 2 次 Kruskal</strong>;<strong>α</strong> 為反 Ackermann,視為常數。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(m² · α)</td><td>每條邊各 skip / force 一次 Kruskal</td></tr>
+        <tr><td>Space</td><td class="mono">O(n + m)</td><td>併查集 O(n)、order O(m)</td></tr>
+        <tr><td>基準 MST</td><td class="mono">O(m · α)</td><td>一次 Kruskal</td></tr>
+        <tr><td>排序</td><td class="mono">O(m log m)</td><td>間接排序索引</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      量一條邊有多重要,就<strong>拿掉它看會不會變貴</strong>(關鍵)、<strong>硬塞它看能不能一樣便宜</strong>(偽關鍵)。
+      兩個 Kruskal 小測試,把每條邊分類完畢。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">基準 MST 後,對每條邊 skip(抓關鍵)＋ force(抓偽關鍵)各跑一次 Kruskal。</div>
+    <div class="sc-summary-bar__detail">KRUSKAL + UNION-FIND · O(m² · α)</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1489-kruskal.js"></script>
+</body>
+</html>

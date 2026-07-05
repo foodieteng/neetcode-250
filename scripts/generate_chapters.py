@@ -259,7 +259,7 @@ PROBLEMS = {
         ('p778', 'Swim in Rising Water',                                            'swim-in-rising-water',                                            'hard','todo'),
         ('p269', 'Alien Dictionary',                                                'alien-dictionary',                                                'hard','todo'),
         ('p787', 'Cheapest Flights Within K Stops',                                 'cheapest-flights-within-k-stops',                                 'med', 'todo'),
-        ('p1489','Find Critical and Pseudo Critical Edges in Minimum Spanning Tree','find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree','hard','todo'),
+        ('p1489','Find Critical and Pseudo Critical Edges in Minimum Spanning Tree','find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree','hard','done'),
         ('p2392','Build a Matrix With Conditions',                                  'build-a-matrix-with-conditions',                                  'hard','done'),
         ('p2709','Greatest Common Divisor Traversal',                               'greatest-common-divisor-traversal',                               'hard','done'),
     ],

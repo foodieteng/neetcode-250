@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1489 · Find Critical and Pseudo-Critical Edges in MST // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1489</span>
+    <span><a href="https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">MST 關鍵邊與偽關鍵邊</h1>
+    <p class="sc-mast__subtitle">// CODE · 完整實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1489</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// SOLUTION</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1489.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> parent<span class="p">;</span>
+
+    <span class="t">int</span> <span class="f">Find</span><span class="p">(</span><span class="t">int</span> x<span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> parent<span class="p">[</span>x<span class="p">]</span> <span class="p">&lt;</span> <span class="n">0</span> <span class="p">?</span> x <span class="p">:</span> parent<span class="p">[</span>x<span class="p">]</span> <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>parent<span class="p">[</span>x<span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">Union</span><span class="p">(</span><span class="t">int</span> x<span class="p">,</span> <span class="t">int</span> y<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> rx <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>x<span class="p">);</span>
+        <span class="t">int</span> ry <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>y<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>rx <span class="p">==</span> ry<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(-</span>parent<span class="p">[</span>rx<span class="p">]</span> <span class="p">&lt;</span> <span class="p">-</span>parent<span class="p">[</span>ry<span class="p">])</span> <span class="p">{</span>
+            <span class="f">swap</span><span class="p">(</span>rx<span class="p">,</span> ry<span class="p">);</span>
+        <span class="p">}</span>
+        parent<span class="p">[</span>rx<span class="p">]</span> <span class="p">+=</span> parent<span class="p">[</span>ry<span class="p">];</span>
+        parent<span class="p">[</span>ry<span class="p">]</span> <span class="p">=</span> rx<span class="p">;</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c">// 建 MST:skip 跳過某邊、force 強制先放某邊;回傳權重或 INT_MAX</span>
+    <span class="t">int</span> <span class="f">kruskal</span><span class="p">(</span><span class="t">int</span> n<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> edges<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> order<span class="p">,</span>
+                <span class="t">int</span> skip<span class="p">,</span> <span class="t">int</span> force<span class="p">)</span> <span class="p">{</span>
+        parent<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">);</span>
+        <span class="t">int</span> total <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="t">int</span> add <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span>force <span class="p">!=</span> <span class="p">-</span><span class="n">1</span><span class="p">)</span> <span class="p">{</span>                 <span class="c">// 先強制放入 force 這條邊</span>
+            <span class="f">Union</span><span class="p">(</span>edges<span class="p">[</span>force<span class="p">][</span><span class="n">0</span><span class="p">],</span> edges<span class="p">[</span>force<span class="p">][</span><span class="n">1</span><span class="p">]);</span>
+            total <span class="p">+=</span> edges<span class="p">[</span>force<span class="p">][</span><span class="n">2</span><span class="p">];</span>
+            add<span class="p">++;</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> idx <span class="p">:</span> order<span class="p">)</span> <span class="p">{</span>            <span class="c">// 照權重由小到大掃描</span>
+            <span class="k">if</span> <span class="p">(</span>idx <span class="p">==</span> skip<span class="p">)</span> <span class="p">{</span>
+                <span class="k">continue</span><span class="p">;</span>                  <span class="c">// 跳過被 skip 的邊</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span>add <span class="p">&gt;=</span> n <span class="p">-</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">break</span><span class="p">;</span>                     <span class="c">// 已選滿 n-1 條</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">Union</span><span class="p">(</span>edges<span class="p">[</span>idx<span class="p">][</span><span class="n">0</span><span class="p">],</span> edges<span class="p">[</span>idx<span class="p">][</span><span class="n">1</span><span class="p">]))</span> <span class="p">{</span>
+                add<span class="p">++;</span>
+                total <span class="p">+=</span> edges<span class="p">[</span>idx<span class="p">][</span><span class="n">2</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> add <span class="p">==</span> n <span class="p">-</span> <span class="n">1</span> <span class="p">?</span> total <span class="p">:</span> <span class="t">INT_MAX</span><span class="p">;</span>   <span class="c">// 沒連滿 = 不連通</span>
+    <span class="p">}</span>
+
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> <span class="f">findCriticalAndPseudoCriticalEdges</span><span class="p">(</span>
+            <span class="t">int</span> n<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> edges<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> m <span class="p">=</span> edges<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> order<span class="p">(</span>m<span class="p">);</span>              <span class="c">// 間接排序:排索引不排邊</span>
+        <span class="f">iota</span><span class="p">(</span>order<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> order<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>
+        <span class="f">sort</span><span class="p">(</span>order<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> order<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="p">[&amp;](</span><span class="t">int</span> a<span class="p">,</span> <span class="t">int</span> b<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> edges<span class="p">[</span>a<span class="p">][</span><span class="n">2</span><span class="p">]</span> <span class="p">&lt;</span> edges<span class="p">[</span>b<span class="p">][</span><span class="n">2</span><span class="p">];</span>
+        <span class="p">});</span>
+
+        <span class="t">int</span> mst <span class="p">=</span> <span class="f">kruskal</span><span class="p">(</span>n<span class="p">,</span> edges<span class="p">,</span> order<span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">);</span>   <span class="c">// 基準 MST 權重</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> critical<span class="p">;</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> pseudo<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> m<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">kruskal</span><span class="p">(</span>n<span class="p">,</span> edges<span class="p">,</span> order<span class="p">,</span> i<span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">)</span> <span class="p">&gt;</span> mst<span class="p">)</span> <span class="p">{</span>
+                critical<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>i<span class="p">);</span>                 <span class="c">// 拿掉變貴 → 關鍵</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="f">kruskal</span><span class="p">(</span>n<span class="p">,</span> edges<span class="p">,</span> order<span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">,</span> i<span class="p">)</span> <span class="p">==</span> mst<span class="p">)</span> <span class="p">{</span>
+                pseudo<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>i<span class="p">);</span>                   <span class="c">// 硬塞仍等 → 偽關鍵</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span>critical<span class="p">,</span> pseudo<span class="p">};</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">間接排序</td><td class="mono">O(m log m)</td><td>只排一次索引</td></tr>
+        <tr><td class="mono">基準 MST</td><td class="mono">O(m · α)</td><td>一次 Kruskal</td></tr>
+        <tr><td class="mono">每邊 skip / force</td><td class="mono">O(m · α)</td><td>最多 2 次 Kruskal × m 條邊</td></tr>
+        <tr><td class="mono">Find / Union</td><td class="mono">≈ O(α)</td><td>路徑壓縮 + 按秩合併</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(m² · α)</strong>　　S = <strong>O(n + m)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        m = 邊數,n = 點數。<strong>α</strong> 為反 Ackermann,實務視為常數。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>直接 <code>sort(edges)</code></td>
+          <td class="fail">索引被打亂</td>
+          <td>用<strong>間接排序</strong>排 <code>order</code>,保留原始邊編號</td>
+        </tr>
+        <tr>
+          <td>skip 忘了判「不連通」</td>
+          <td class="fail">漏抓關鍵邊</td>
+          <td>沒連滿回 <code>INT_MAX</code>,它 <code>&gt; mst</code> 自然算關鍵</td>
+        </tr>
+        <tr>
+          <td>先測 pseudo 再測 critical</td>
+          <td class="fail">分類重疊</td>
+          <td>先 skip 判關鍵,<strong>否則</strong>才 force 判偽關鍵(互斥)</td>
+        </tr>
+        <tr>
+          <td>force 沒把邊「先」放進去</td>
+          <td class="fail">測不到強制效果</td>
+          <td>force 要先 <code>Union</code> + 加權重 + 計數,再跑其餘</td>
+        </tr>
+        <tr>
+          <td><code>vector&lt;int&gt; order{m}</code></td>
+          <td class="fail">變成 1 個值 m</td>
+          <td>要 <code>order(m)</code>(m 個 0)才是大小建構子</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// INDIRECT SORT: order 是什麼</span>
+order 初值 = {0,1,2,...,m-1}         ← iota 填的原始邊索引
+sort 用 edges[a][2] 比較(權重)      ← 排的是索引、查的是權重
+結果:order 依權重由小到大,但每格仍是「原始編號」
+  ↳ 之後 skip/force 都用原始編號,回傳也用原始編號</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// KRUSKAL(skip, force): 一個函式三種用途</span>
+skip=-1, force=-1 → 純建 MST(基準 mst)
+skip=i,  force=-1 → 不准用第 i 條邊(關鍵測試)
+skip=-1, force=i  → 先塞第 i 條邊再建(偽關鍵測試)
+add 計已選邊數;add == n-1 才算連通,否則回 INT_MAX</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// CLASSIFY: 互斥的兩個 if</span>
+if (skip 版 &gt; mst)         → 拿掉變貴/斷開 → critical
+else if (force 版 == mst)   → 硬塞仍一樣便宜 → pseudo
+兩者皆非 → 這條邊不影響任何 MST(用不到)</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// UNION: by size + 路徑壓縮</span>
+parent[root] 存負的分量大小,-parent 越大分量越大
+合併時大分量當根;Find 回程把節點直接指向根 → 攤還近 O(1)</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// TWO THINGS TO REMEMBER</div>
+    <div class="sc-summary-bar__body">間接排序保留原始邊索引;一個 <code>kruskal(skip, force)</code> 兼三種用途。</div>
+    <div class="sc-summary-bar__detail">KRUSKAL + UNION-FIND · O(m² · α)</div>
+  </div>
+
+</body>
+</html>
