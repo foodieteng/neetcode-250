@@ -254,7 +254,7 @@ PROBLEMS = {
     '12': [  # Advanced Graphs
         ('p1631','Path With Minimum Effort',                                        'path-with-minimum-effort',                                        'med', 'todo'),
         ('p743', 'Network Delay Time',                                              'network-delay-time',                                              'med', 'todo'),
-        ('p332', 'Reconstruct Itinerary',                                           'reconstruct-itinerary',                                           'hard','todo'),
+        ('p332', 'Reconstruct Itinerary',                                           'reconstruct-itinerary',                                           'hard','done'),
         ('p1584','Min Cost to Connect All Points',                                  'min-cost-to-connect-all-points',                                  'med', 'todo'),
         ('p778', 'Swim in Rising Water',                                            'swim-in-rising-water',                                            'hard','todo'),
         ('p269', 'Alien Dictionary',                                                'alien-dictionary',                                                'hard','done'),

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>332 · Reconstruct Itinerary // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P332</span>
+    <span><a href="https://leetcode.com/problems/reconstruct-itinerary/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">重建行程</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · Hierholzer 歐拉路徑</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 332</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EULERIAN PATH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一堆機票 <code>tickets[i] = [from, to]</code>,每張<strong>剛好用一次</strong>,從 <code>"JFK"</code> 出發,
+        重建整條行程。若有多條合法行程,回傳<strong>字典序最小</strong>的那條。題目保證至少有一條合法行程。
+      </p>
+    </div>
+
+    <p>
+      「每條邊用剛好一次」= 找一條<strong>歐拉路徑(Eulerian path)</strong>。把機場當節點、機票當有向邊,
+      要走過每條邊各一次、且從 JFK 起。多條解時取字典序最小 → 每步優先走<strong>字母最小</strong>的目的地。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 Hierholzer ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Hierholzer<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">回溯枚舉所有行程</span>
+            <span class="sc-ko-card__o">指數級</span>
+          </div>
+          <div class="sc-ko-card__body">
+            嘗試每種走法、遇死路就回退,最壞是階乘 / 指數級。300 張票會 TLE。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">貪心走最小、直接順序輸出</span>
+            <span class="sc-ko-card__o">會卡死</span>
+          </div>
+          <div class="sc-ko-card__body">
+            只顧走字母最小,可能提早走進<strong>死路</strong>、把還沒用的票困住 → 走不完。順序輸出是錯的。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 提早卡死</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Hierholzer:貪心走最小 + 死路先入答案 + 最後反轉</span>
+          <span class="sc-ko-card__o">O(E log E)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          用 <code>multiset</code> 讓每個機場的出邊自動字典序排好。DFS 一路走<strong>最小的邊並邊走邊刪</strong>;
+          走到<strong>沒有出邊</strong>的節點(死路)就把它 <code>push</code> 進 <code>routes</code>(後序),回退繼續。
+          全部走完後 <strong>reverse</strong> —— 死路節點自然被排到正確的尾端,detour(繞路)也會被正確接回。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · STABLE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建圖</strong>:<code>graph[from]</code> 用 <code>multiset&lt;string&gt;</code> 存目的地 —— 自動字典序、又能 O(log) 刪除。</li>
+      <li><strong>DFS 消邊</strong>:在 <code>u</code> 時,不斷取出<strong>最小</strong>的出邊 <code>v</code>、<strong>刪掉</strong>它、遞迴進 <code>v</code>;直到 <code>u</code> 無出邊。</li>
+      <li><strong>後序 push + 反轉</strong>:<code>u</code> 無出邊時 <code>routes.push_back(u)</code>。整個 DFS 完成後 <code>reverse(routes)</code>,即為答案。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZE · [[JFK,KUL],[JFK,NRT],[NRT,JFK]]</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ HIERHOLZER · EULERIAN PATH</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:500px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button>
+        <button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button>
+        <button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼後序+反轉 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「後序 + 反轉」是對的<span class="sc-section__title-en">// CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">CLAIM · 死路節點必是尾端</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li>當 DFS 卡在某節點 <code>u</code>(無出邊),<code>u</code> 一定是目前這段路的<strong>終點</strong> —— 沒有票能再飛出去。它就是行程(這一段)的<strong>最後一個</strong>機場,所以最早被 <code>push</code>。</li>
+          <li>回退時若某個更早的節點<strong>還有未用的邊</strong>,DFS 會從那裡再走一個<strong>環(detour)</strong>回到自己;這個環會被 push 在「已 push 的尾段」之前,反轉後剛好<strong>插進正確位置</strong>。</li>
+          <li>因此 <code>routes</code> 是行程的<strong>逆序</strong>,最後 <code>reverse</code> 還原。這正是動畫裡 <code>KUL</code> 字母最小卻排到最後的原因 —— 它是死路,最早入 routes。</li>
+          <li>因為每一步都走「當前最小」,得到的歐拉路徑就是<strong>字典序最小</strong>的那條。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>設 <code>E</code> = 機票數。每條邊被走一次、從 multiset 刪一次(O(log E));reverse 為 O(E)。</p>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(E log E)</strong>　　S = <strong>O(E)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        建圖 + 每條邊一次 <strong>O(log E)</strong> 刪除;遞迴堆疊與 <code>routes</code> 皆 O(E)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(E log E)</td><td>multiset 排序 / 刪除的 log 因子</td></tr>
+        <tr><td>Space</td><td class="mono">O(E)</td><td>圖 + 遞迴堆疊 + routes</td></tr>
+        <tr><td>遞迴深度</td><td class="mono">O(E)</td><td>最壞一條長鏈(E ≤ 300,無虞)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      別在走的時候急著輸出。<strong>走到死路才 push、最後反轉</strong> —— 死路自動落到尾端,繞路自動接回中間。
+      每步走最小的邊,就順便拿到<strong>字典序最小</strong>的歐拉路徑。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">Hierholzer:multiset 走最小邊、邊走邊刪;死路後序 push,最後 reverse。</div>
+    <div class="sc-summary-bar__detail">EULERIAN PATH (HIERHOLZER) · O(E log E)</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p332-hierholzer.js"></script>
+</body>
+</html>

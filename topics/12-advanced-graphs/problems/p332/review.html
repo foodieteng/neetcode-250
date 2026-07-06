@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>332 · Reconstruct Itinerary // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P332</span>
+    <span><a href="https://leetcode.com/problems/reconstruct-itinerary/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">重建行程</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 332</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>每條邊走一次 = <strong>歐拉路徑</strong>,起點 JFK,取字典序最小</td></tr>
+        <tr><td>演算法</td><td>Hierholzer:貪心走最小邊 + 邊走邊刪</td></tr>
+        <tr><td>資料結構</td><td><code>multiset</code>:自動字典序 + O(log) 取最小/刪除</td></tr>
+        <tr><td>關鍵手法</td><td>死路節點<strong>後序 push</strong>,最後 <code>reverse</code></td></tr>
+        <tr><td>為何有效</td><td>死路必是尾端;繞路反轉後接回中間</td></tr>
+        <tr><td>字典序最小</td><td>每步走「當前最小」的邊即可保證</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼<strong>不能</strong>邊走邊按順序輸出機場?會出什麼問題?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼用 <code>multiset</code> 而不是 <code>vector</code> 存每個機場的出邊?</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼是「<strong>後序 push + 最後 reverse</strong>」?死路節點在其中扮演什麼角色?</div>
+    <div class="qa"><strong>Q4.</strong> 動畫例子裡 <code>KUL</code> 字母最小、又最先被走到,為什麼答案裡它排<strong>最後</strong>?</div>
+    <div class="qa"><strong>Q5.</strong> 這題和「拓樸排序 / 一般 DFS 走點」的本質差別在哪?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [[JFK,KUL],[JFK,NRT],[NRT,JFK]]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// BUILD GRAPH (multiset 自動排序)</span>
+graph[JFK] = { KUL, NRT }   (K &lt; N)
+graph[NRT] = { JFK }
+routes = []</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// DFS(JFK)</span>
+JFK: 取最小 KUL,刪 JFK→KUL,dfs(KUL)
+  KUL: 無出邊 → push KUL          routes=[KUL]
+JFK: 取 NRT,刪 JFK→NRT,dfs(NRT)
+  NRT: 取 JFK,刪 NRT→JFK,dfs(JFK)
+    JFK: 無出邊 → push JFK        routes=[KUL,JFK]
+  NRT: 無出邊 → push NRT          routes=[KUL,JFK,NRT]
+JFK: 無出邊 → push JFK            routes=[KUL,JFK,NRT,JFK]</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// REVERSE</span>
+routes           = [KUL, JFK, NRT, JFK]
+reverse(routes)  = [JFK, NRT, JFK, KUL]
+<span class="sc-trace__out">// OUTPUT: [JFK, NRT, JFK, KUL]</span></div>
+
+    <div class="sc-insight">
+      <code>KUL</code> 是字母最小、也最先被走到,但它<strong>沒有出邊(死路)</strong>,所以最早被 push、
+      反轉後落到<strong>最後</strong>。這就是「順序輸出會錯、後序+反轉才對」的具體證據。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若改成要找<strong>歐拉迴路</strong>(走完所有邊並回到起點),存在性的判斷條件是什麼(有向圖)?</div>
+    <div class="qa"><strong>App 2.</strong> 遞迴深度可能到 E,擔心爆棧時,如何把這段 DFS 改寫成<strong>顯式 stack 的迭代版</strong>?整體邏輯有何不同?</div>
+    <div class="qa"><strong>App 3.</strong> 若題目<strong>不保證</strong>一定有解,如何偵測「無法用完所有機票」的情況?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為貪心走「當前最小」可能<strong>提早走進死路</strong>,把還沒用的機票困在別的分支。例如 <code>[[JFK,KUL],[JFK,NRT],[NRT,JFK]]</code>:若順序輸出,從 JFK 先走最小的 KUL,KUL 沒有出邊就卡住了,但 NRT 那條環還沒走。正確做法是把死路 KUL 先擱著(push),回頭走完 NRT 的環,最後反轉 —— 死路自動被排到尾端。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 每個機場的出邊需要兩個操作:<strong>取字典序最小</strong>與<strong>取完刪掉</strong>。<code>multiset</code> 保持排序,<code>*begin()</code> 取最小、<code>erase(begin())</code> 刪除都是 <strong>O(log)</strong>。若用 <code>vector</code>,取最小要 O(size) 掃描、刪除要搬移元素,整體退化到 <strong>O(E²)</strong>;還得自己維護有序。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 一個節點只有在它<strong>所有出邊都走完</strong>之後才被 <code>push</code>(後序)。最深的<strong>死路</strong>最先 push —— 它是整條行程的最後一站;起點 JFK 最後 push —— 它是第一站。所以 <code>routes</code> 恰好是<strong>逆行程</strong>,<code>reverse</code> 一次就還原成正確順序。死路節點是這個機制的關鍵:它保證「走不下去的地方」落在尾端。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為 <code>KUL</code> 沒有出邊,是<strong>死路</strong>。DFS 一走到它就卡住、立刻 <code>push</code>,成為 <code>routes</code> 的<strong>第一個</strong>元素。而 <code>routes</code> 是逆行程,反轉後第一個變<strong>最後一個</strong>。所以「字母最小、最早走到」與「答案裡的位置」無關 —— 決定位置的是它<strong>何時走投無路</strong>。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 拓樸排序 / 一般 DFS 是走<strong>每個節點一次</strong>;這題是走<strong>每條邊一次</strong>(歐拉路徑),同一個機場可以重複造訪。所以狀態不是「節點是否訪問過」,而是「邊是否用過」—— 因此要邊走邊<strong>刪邊</strong>,而不是標記節點 visited。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 有向圖存在<strong>歐拉迴路</strong>的條件:① 每個節點<strong>入度 = 出度</strong>;② 所有<strong>有邊的節點</strong>屬於同一個(強)連通分量。歐拉<strong>路徑</strong>(不需回起點)則放寬為:至多一個節點出度−入度=1(起點)、至多一個入度−出度=1(終點),其餘入=出,且連通。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 用顯式 <code>stack&lt;string&gt;</code>:把 JFK 推入;當 <code>stack.top()</code> 還有出邊時,取最小、刪邊、把該鄰居<strong>推入 stack</strong>;當 top 無出邊時,把它 <code>pop</code> 並 <strong>append 到 routes</strong>。最後 <code>reverse</code>。邏輯與遞迴相同(stack 模擬呼叫堆疊),但不受遞迴深度限制。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 跑完之後檢查 <code>routes.size() == tickets.size() + 1</code>。歐拉路徑用掉 E 條邊會經過 E+1 個節點;若因為卡住而少於這個數,代表<strong>沒能用完所有機票</strong>(無解)。也可在建圖後先用 App 1 的入/出度 + 連通性條件做前置判斷。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「走邊不走點 + 死路後序 push + reverse + multiset 取最小」,這題就穩了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 332 · RECONSTRUCT ITINERARY</div>
+  </div>
+
+</body>
+</html>
