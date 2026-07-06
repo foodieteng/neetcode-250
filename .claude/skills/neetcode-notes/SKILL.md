@@ -80,7 +80,7 @@ It rewrites every `topics/<NN>-<slug>/index.html` category page and refreshes th
    - Step-by-step state machine driven by Reset / Prev / Play / Next
    - Single canvas per page; canvas + control IDs are `viz-canvas`, `viz-reset`, `viz-prev`, `viz-play`, `viz-next`, `viz-step`, `viz-label`
    - Live description via `<div class="sc-viz__label" id="viz-label">`
-   - If a page needs TWO animations (base + general case), use prefixed IDs `viz-base` / `vb-*` and `viz-general` / `vg-*`
+   - **🎬 ONE ANIMATION PER WRITE-UP (required).** If the problem has N distinct solution write-ups (e.g. DFS vs BFS, or Union-Find vs Dijkstra vs binary-search), the Concept page's 動畫演示 section must contain **N animations — one per approach**, each showing that approach's own mechanic (not the same animation reused). Give each its own prefixed IDs (`va-*`, `vb-*`, `vc-*` …), one `.sc-viz` block per approach, and load one JS file per approach. Same rule for base+general (`vb-*` / `vg-*`). Every canvas + control set must use a unique prefix so the instances don't collide.
 
 6. **🟠 MANDATORY: screenshot-verify the animation layout before flipping to done.** The user cares a lot that the canvas is *整齊好看、不被切到*. Eyeballing the JS is not enough — render every animation step in headless Chrome and look at the image:
    ```bash

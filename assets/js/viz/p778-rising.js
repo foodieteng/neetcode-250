@@ -12,16 +12,16 @@
    ============================================================ */
 
 (function () {
-  const canvas = document.getElementById('viz-canvas');
+  const canvas = document.getElementById('va-canvas');
   if (!canvas) return;
 
   const ctx      = canvas.getContext('2d');
-  const stepEl   = document.getElementById('viz-step');
-  const labelEl  = document.getElementById('viz-label');
-  const btnPrev  = document.getElementById('viz-prev');
-  const btnNext  = document.getElementById('viz-next');
-  const btnPlay  = document.getElementById('viz-play');
-  const btnReset = document.getElementById('viz-reset');
+  const stepEl   = document.getElementById('va-step');
+  const labelEl  = document.getElementById('va-label');
+  const btnPrev  = document.getElementById('va-prev');
+  const btnNext  = document.getElementById('va-next');
+  const btnPlay  = document.getElementById('va-play');
+  const btnReset = document.getElementById('va-reset');
 
   const COLOR = {
     paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
