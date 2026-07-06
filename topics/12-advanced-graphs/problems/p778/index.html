@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>778 · Swim in Rising Water // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P778</span>
+    <span><a href="https://leetcode.com/problems/swim-in-rising-water/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">水位上升</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 最小化路徑上的最大高度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 778</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MINIMAX PATH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>n×n</code> 網格,<code>grid[i][j]</code> 是該格高度(<code>0..n²-1</code> 的排列)。時間 <code>t</code> 時,所有高度 ≤ <code>t</code> 的格子都被水淹、可游過。
+        求從左上 <code>(0,0)</code> 游到右下 <code>(n-1,n-1)</code> 的<strong>最短時間</strong>。
+      </p>
+    </div>
+
+    <p>
+      在時間 <code>t</code> 能走的格子 = 高度 ≤ <code>t</code>。要能走完一條路,<code>t</code> 必須 ≥ 這條路上的<strong>最高格</strong>。
+      所以答案 = <strong>所有路徑中「路徑最大高度」的最小值</strong>(minimax / bottleneck path)。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「最小化瓶頸」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">DFS 枚舉所有路徑取最小最大值</span>
+            <span class="sc-ko-card__o">指數級</span>
+          </div>
+          <div class="sc-ko-card__body">
+            路徑數指數爆炸,重複子路徑無法剪枝,直接 TLE。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">當成「路徑和最小」的最短路</span>
+            <span class="sc-ko-card__o">目標錯</span>
+          </div>
+          <div class="sc-ko-card__body">
+            這題要最小化的是<strong>路徑上的最大值</strong>,不是總和。用一般最短路會算錯。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 目標函數錯</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">最小化瓶頸 → 三種標準解法</span>
+          <span class="sc-ko-card__o">O(n² log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          把「最小化路徑最大高度」用三種角度解:<strong>① 上升水位 + Union-Find</strong>(由低到高淹格,連通即答案)、
+          <strong>② Dijkstra 變形</strong>(把路徑成本改成「沿途最大值」)、<strong>③ 二分答案 + BFS</strong>(答案有單調性)。
+          三者同為 <code>O(n² log n)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 3 WAYS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>重述</strong>:答案 = 從起點到終點所有路徑中,<code>max(路徑上的高度)</code> 的最小值。</li>
+      <li><strong>三種算法(見下一頁完整碼)</strong>:
+        <ul>
+          <li>A · <strong>上升水位 + Union-Find</strong>:把格子當「邊」,依高度由小到大加入、與已加入的鄰居 union;一旦起點與終點同分量,當前高度就是答案。</li>
+          <li>B · <strong>Dijkstra 變形</strong>:<code>dist[cell]</code> = 到此格所需的最小瓶頸,鬆弛用 <code>max(當前, 鄰居高度)</code>;彈出終點即答案。</li>
+          <li>C · <strong>二分答案 + BFS</strong>:二分時間 <code>t</code>,用 BFS 檢查「只走 ≤ t 的格」能否到終點;可達性隨 t 單調。</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZE · [[0,2,1],[5,8,3],[6,7,4]] → 4</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ RISING WATER · UNION-FIND</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:520px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button>
+        <button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button>
+        <button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 三種寫法對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">三種寫法對照<span class="sc-section__title-en">// A vs B vs C</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>A · Union-Find 水位</th><th>B · Dijkstra 瓶頸</th><th>C · 二分 + BFS</th></tr></thead>
+      <tbody>
+        <tr><td>核心</td><td>由低到高淹格 + union</td><td>min-heap 取最小瓶頸</td><td>二分 t,BFS 驗可達</td></tr>
+        <tr><td>何時得解</td><td>起終點連通那一刻</td><td>彈出終點時</td><td>二分收斂到最小可行 t</td></tr>
+        <tr><td>複雜度</td><td>O(n² log n)</td><td>O(n² log n)</td><td>O(n² log n)</td></tr>
+        <tr><td>直覺</td><td>最貼「水位上升」的畫面</td><td>把 sum 換成 max 的最短路</td><td>答案單調 → 可二分</td></tr>
+        <tr><td>關鍵點</td><td>格子當邊、Kruskal 風</td><td>鬆弛用 <code>max</code> 而非 <code>+</code></td><td>可達性對 t 單調</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight">
+      三者其實是<strong>同一件事的三個視角</strong>:最小化「路徑瓶頸」。看到「最小化最大值 / 最大化最小值」的題型,
+      這三招(Kruskal 風 Union-Find、max-Dijkstra、二分答案)就是標準工具箱。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(n² log n)</strong>　　S = <strong>O(n²)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        三種寫法同級。A/B 的 log 來自 heap;C 的 log 來自二分值域 <code>log(n²) = O(log n)</code>,每次 BFS O(n²)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>Time</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>A · Union-Find</td><td class="mono">O(n² log n)</td><td class="mono">O(n²)</td></tr>
+        <tr><td>B · Dijkstra</td><td class="mono">O(n² log n)</td><td class="mono">O(n²)</td></tr>
+        <tr><td>C · 二分 + BFS</td><td class="mono">O(n² log n)</td><td class="mono">O(n²)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      這題不是求「路徑和最小」,而是求「路徑上<strong>最高的一格</strong>最小」。想成水位慢慢上升,
+      第一次讓起終點連通的高度就是答案 —— Union-Find、max-Dijkstra、二分答案三招都能算它。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">三種寫法與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">最小化路徑瓶頸:水位 Union-Find / max-Dijkstra / 二分+BFS,皆 O(n² log n)。</div>
+    <div class="sc-summary-bar__detail">MINIMAX (BOTTLENECK) PATH · THREE WAYS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p778-rising.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>778 · Swim in Rising Water // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P778</span>
+    <span><a href="https://leetcode.com/problems/swim-in-rising-water/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">水位上升</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 778</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>最小化路徑上的<strong>最大高度</strong>(minimax / 瓶頸路徑)</td></tr>
+        <tr><td>A · Union-Find</td><td>由低到高淹格 + union,連通那刻的高度 = 答案</td></tr>
+        <tr><td>B · Dijkstra</td><td>成本 = <code>max(沿途)</code>,彈出終點即答案</td></tr>
+        <tr><td>C · 二分+BFS</td><td>可達性對 t 單調,二分最小可行 t</td></tr>
+        <tr><td>複雜度</td><td>三者皆 <code>O(n² log n)</code></td></tr>
+        <tr><td>易錯</td><td>把它當「路徑和最小」;Dijkstra 鬆弛誤用 <code>+</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼答案是「路徑<strong>最大高度</strong>的最小值」,而不是路徑高度<strong>總和</strong>的最小值?</div>
+    <div class="qa"><strong>Q2.</strong> 寫法 A 為什麼「起點與終點<strong>第一次連通</strong>那一刻」的高度就是答案?</div>
+    <div class="qa"><strong>Q3.</strong> 寫法 B 的 Dijkstra 為什麼鬆弛用 <code>max(h, 鄰居)</code> 而不是 <code>h + 鄰居</code>?</div>
+    <div class="qa"><strong>Q4.</strong> 寫法 C 為什麼能對答案二分?單調性從哪裡來?</div>
+    <div class="qa"><strong>Q5.</strong> 三種寫法都是 <code>O(n² log n)</code>,各自的 <code>log</code> 分別來自什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace · A 上升水位<span class="sc-section__title-en">// [[0,2,1],[5,8,3],[6,7,4]]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// GRID (值 = 高度)</span>
+      c0 c1 c2
+r0 [  0  2  1 ]   START=(0,0)
+r1 [  5  8  3 ]
+r2 [  6  7  4 ]   END=(2,2)
+依高度由小到大淹:0,1,2,3,4,5,6,7,8 的位置依序加入</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 上升水位 + UNION</span>
+h=0  淹 (0,0)             區:{(0,0)=START}
+h=1  淹 (0,2)             另一島 {(0,2)}
+h=2  淹 (0,1) → 併 (0,0)、(0,2)   上排連成一片
+h=3  淹 (1,2) → 併 (0,2)          接上 (1,2)
+h=4  淹 (2,2)=END → 併 (1,2)      <span class="sc-trace__out">START ↔ END 連通!</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+連通路徑:0 → 2 → 1 → 3 → 4  (max = 4)
+高度 5,6,7,8 從頭到尾沒被淹
+<span class="sc-trace__out">// OUTPUT: 4</span></div>
+
+    <div class="sc-insight">
+      答案 <strong>4</strong> = 這條低窪路徑上的最高格。高牆 <code>5~8</code> 完全用不到 —— 這就是「最小化瓶頸」的畫面:
+      水只要漲到剛好淹過那條最低的通道即可。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若改成「<strong>最大化</strong>路徑上的<strong>最小值</strong>」(例如找承載量最大的通道),三種寫法各要怎麼調整?</div>
+    <div class="qa"><strong>App 2.</strong> 若允許<strong>八方向</strong>(含斜向)移動,三種寫法分別要改哪裡?複雜度會變嗎?</div>
+    <div class="qa"><strong>App 3.</strong> 若同一個 grid 要回答<strong>很多次</strong>「時間 t 能否到達」的查詢,哪種前處理最划算?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為在時間 <code>t</code>,你能踏上的格子是「高度 ≤ t」。要走完一條路,<code>t</code> 必須 ≥ 這條路上<strong>最高的那格</strong>(任何一格太高就淹不到、過不去)。所以「能走完某路的最早時間」= 那條路的最大高度;要最早到達 = 在所有路裡挑<strong>最大高度最小</strong>的那條。與總和無關 —— 只有最高的瓶頸決定能不能過。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 格子依高度由小到大加入,等於「水位逐步上升」。當加入某格(高度 <code>h</code>)後 START 與 END 首次落在同一分量,代表<strong>存在一條全程 ≤ h 的路</strong>;而在加入它之前不連通,代表<strong>沒有全程 &lt; h 的路</strong>。所以 <code>h</code> 正是能連通的<strong>最小</strong>水位 = 答案。這是 Kruskal「加邊到連通」的翻版。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為路徑成本被定義成「沿途<strong>最大</strong>高度」,不是總和。到達鄰居 <code>(nr,nc)</code> 的瓶頸 = <code>max(到我這格的瓶頸 h, 鄰居自己的高度)</code> —— 走過去只會被「更高的那個」卡住。Dijkstra 的貪心(每次取當前瓶頸最小的點)在 <code>max</code> 這個單調運算下依然成立,所以彈出終點時它的瓶頸就是最小值。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 可達性對門檻 <code>t</code> 具<strong>單調性</strong>:<code>t</code> 越大,可通行的格子只增不減,所以「t 時能到終點」若成立,則所有 <code>&gt; t</code> 也成立。於是存在一個臨界值 <code>t*</code>,<code>t &lt; t*</code> 不可達、<code>t ≥ t*</code> 可達。對這種「false…false true…true」結構就能二分,找第一個 <code>true</code> 即答案。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> <strong>A</strong>:把 n² 個格丟進 min-heap,每次取最小是 <code>O(log n²)=O(log n)</code>(union-find 的 α 視為常數)。<strong>B</strong>:Dijkstra 的 heap 操作 <code>O(log n)</code>,最多推入 O(n²) 次。<strong>C</strong>:二分值域 <code>0..n²-1</code> 共 <code>O(log n²)=O(log n)</code> 輪,每輪 BFS <code>O(n²)</code>。三者相乘後都是 <code>O(n² log n)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 對稱地改成「最大化最小值」:<strong>A</strong> 改成由<strong>高到低</strong>加入格子(像最大生成樹),連通那刻的高度就是答案;<strong>B</strong> 用<strong>最大堆</strong>,鬆弛改成 <code>min(h, 鄰居)</code>,取「當前最小值最大」的點擴展;<strong>C</strong> 二分不變,BFS 條件改成只走「≥ t」的格,找最大可行 t。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 只需把 <code>dirs</code> 從 4 個方向改成 <strong>8 個</strong>(加四個斜向)。三種寫法的主體邏輯都不變。複雜度<strong>量級不變</strong>(每格鄰居從 4 個變 8 個,只是常數),仍是 <code>O(n² log n)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 用<strong>寫法 A 的離線做法</strong>最划算:把格子依高度排序,逐步 union,並記錄「START 與各點連通時的水位」;或直接記錄每對查詢在何時連通。一次 <code>O(n² log n)</code> 前處理後,每個「t 能否到達」查詢可用當時的連通資訊 <code>O(1)~O(α)</code> 回答,不必每次重跑 BFS。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">三種寫法與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「最小化瓶頸 + 三招(水位UF / max-Dijkstra / 二分)+ 各自 log 來源」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 778 · SWIM IN RISING WATER</div>
+  </div>
+
+</body>
+</html>
