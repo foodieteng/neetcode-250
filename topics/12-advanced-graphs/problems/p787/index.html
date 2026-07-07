@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>787 · Cheapest Flights Within K Stops // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P787</span>
+    <span><a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">K 站中轉最便宜航班</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 限制中轉數的最短路 · Bellman-Ford（temp 快照）</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 787</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BELLMAN-FORD</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        有 <code>n</code> 座城市與一批<strong>單向航班</strong> <code>flights[i] = [from, to, price]</code>。求從 <code>src</code> 飛到 <code>dst</code>、
+        <strong>最多中轉 <code>k</code> 站（at most k stops）</strong>的<strong>最低總票價</strong>；到不了就回傳 <code>-1</code>。
+      </p>
+    </div>
+
+    <p>
+      「中轉 <code>k</code> 站」= 路徑<strong>最多用 <code>k+1</code> 條邊</strong>（k 個中間城市，加頭尾）。這個「邊數上限」正是本題與一般最短路的差別
+      —— 純粹的 Dijkstra 只顧「最便宜」，會挑出中轉太多的違規路徑。<code>1 ≤ n ≤ 100 · 0 ≤ k &lt; n · price ≤ 10⁴</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 Bellman-Ford ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Bellman-Ford<span class="sc-section__title-en">// WHY BELLMAN-FORD</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">DFS 枚舉所有路徑</span>
+            <span class="sc-ko-card__o">O(nᵏ⁺¹)</span>
+          </div>
+          <div class="sc-ko-card__body">窮舉每條 ≤ k+1 條邊的路徑。分支數隨 k 指數爆炸，稠密圖直接 TLE。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">純 Dijkstra（只比價格）</span>
+            <span class="sc-ko-card__o">O(E log V)</span>
+          </div>
+          <div class="sc-ko-card__body">貪心只鎖「最便宜」，會回傳中轉超過 k 的更便宜路 —— <strong>忽略了邊數上限</strong>。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · WRONG</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Bellman-Ford · 跑 k+1 輪（或分層 BFS）</span>
+          <span class="sc-ko-card__o">O(k·E)</span>
+        </div>
+        <div class="sc-ko-card__body">每輪用 <strong>temp 凍結快照</strong>鬆弛所有邊 ⇒ <strong>一輪剛好多用一條邊</strong>。跑 k+1 輪 = 最多 k 次中轉，邊數自動封頂。</div>
+        <div class="sc-ko-card__verdict">● ADOPT · CORRECT</div>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;">
+      <strong>關鍵洞察</strong>：Bellman-Ford 一輪鬆弛，若<strong>每輪都以本輪開頭的凍結值當來源</strong>，則第 <code>r</code> 輪之後
+      <code>dist[v]</code> = 「從 <code>src</code> 出發、<strong>最多用 r 條邊</strong>到 <code>v</code>」的最低票價。題目「最多 k 站」= 最多 k+1 條邊 ⇒ 跑 <code>k+1</code> 輪剛好。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <p>維護 <code>dist[v]</code> = 目前找到、抵達 <code>v</code> 的最低票價。初始 <code>dist[src]=0</code>，其餘 ∞。</p>
+
+    <ol style="margin-top:6px;">
+      <li><strong>凍結快照</strong> · 每輪一開始把 <code>dist</code> 複製成 <code>temp</code>。本輪所有鬆弛<strong>只讀 temp</strong>，不讀本輪剛改過的 <code>dist</code>。</li>
+      <li><strong>掃全部邊鬆弛</strong> · 對每條 <code>(u,v,w)</code>，若 <code>temp[u]+w &lt; dist[v]</code> 就更新 <code>dist[v]</code>。因讀 temp，一輪內<strong>不會連鎖多跳</strong>。</li>
+      <li><strong>跑滿 k+1 輪</strong> · 重複步驟 1–2 共 <code>k+1</code> 次。最後 <code>dist[dst]</code> 即答案（仍 ∞ ⇒ <code>-1</code>）。</li>
+    </ol>
+
+    <p style="margin-top:8px;color:var(--sc-ink-dim);font-size:13.5px;">
+      <strong>為何步驟 1 不能省</strong> · 若直接讀 <code>dist</code>，同一輪內 <code>src→a</code> 剛更新的值會立刻被 <code>a→b</code> 接著用，
+      一輪就偷跑了兩條邊、破壞「一輪 = 一條邊」的計數 ⇒ 可能回傳中轉超過 k 的更便宜路（答案偏小、違規）。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫（兩種寫法各一段）════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 兩種寫法各一段<span class="sc-section__title-en">// n=4, src=0→dst=3, k=1 → 700</span></h2>
+    </div>
+
+    <p>官方樣本：航班 <code>0→1:100 · 1→2:100 · 2→0:100 · 1→3:600 · 2→3:200</code>、<code>src=0 · dst=3 · k=1</code>。
+    兩種寫法都跑 <code>k+1=2</code> 輪/層，看它們如何讓答案是 <strong>700</strong> 而非 300：</p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · BELLMAN-FORD（TEMP 快照）</div>
+      <canvas id="va-canvas" class="sc-viz__canvas" style="height:470px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button>
+        <button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button>
+        <button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ B · 分層 BFS（sz = q.size() 凍結每層）</div>
+      <canvas id="vb-canvas" class="sc-viz__canvas" style="height:470px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button>
+        <button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button>
+        <button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+
+    <p style="margin-top:14px;font-size:13px;color:var(--sc-ink-dim);">
+      兩段的關鍵都一樣：<strong>A 的 temp[2]=∞</strong> 與 <strong>B 的 (2,200) 在下一層</strong>，都把「串到 2→3 得 300」的違規捷徑擋在 k 站之外。
+      <code>temp = dist</code> 與 <code>sz = q.size()</code> 是同一個「凍結本輪」的手法。
+    </p>
+  </section>
+
+  <!-- ════════════ 5 · 為何一輪一條邊 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為何「一輪 = 一條邊」<span class="sc-section__title-en">// WHY ONE EDGE PER ROUND</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · 第 r 輪之後 dist[v] 的意義</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong><code>dist[v]</code> = 從 src 出發、最多用 r 條邊抵達 v 的最低票價。</strong></li>
+          <li>歸納：第 r 輪的每個鬆弛 <code>dist[v] ← temp[u] + w</code>，<code>temp[u]</code> 是「≤ r−1 條邊到 u」的最佳值，接上邊 <code>(u,v)</code>
+            ⇒「≤ r 條邊到 v」。因讀 temp、不讀本輪剛改的 dist，同一輪<strong>不會串兩條邊</strong>。</li>
+          <li>「最多 k 站」= 最多 k 個中間城市 = 路徑<strong>最多 k+1 條邊</strong>。所以跑 <code>k+1</code> 輪後的 <code>dist[dst]</code> 正是答案。</li>
+          <li>邊權非負，多繞不會更便宜；故「≤ k+1 條邊」的最佳解不會漏掉更短邊數的更優解（它們在更早的輪已算進 dist）。</li>
+        </ol>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;">
+      <strong>實測佐證</strong>：對 20 萬組隨機圖，本解與「列舉 exactly-e 條邊 DP」的暴力參考解<strong>答案完全一致、零反例</strong>；
+      官方三個樣本亦全數吻合（700 / 200 / 500）。兩種寫法（Bellman-Ford / 分層 BFS）互相對拍也一致。
+    </p>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = (k+1) × O(E) = <strong>O(k·E)</strong>　　S = <strong>O(V)</strong></div>
+      <p class="sc-formula__hint">n ≤ 100、E ≤ n² ⇒ 上限約 100 × 10⁴ = 10⁶，瞬殺。</p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>數量</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(k·E)</td><td>k+1 輪 × 每輪掃 E 條邊</td></tr>
+        <tr><td>Space</td><td class="mono">O(V)</td><td>dist + 每輪 temp（BFS 版是 queue，最壞 O(E)）</td></tr>
+        <tr><td>輪數</td><td class="mono">k+1</td><td>「最多 k 站」= 最多 k+1 條邊</td></tr>
+        <tr><td>數值型別</td><td class="mono">int</td><td>總價 ≤ (n−1)·10⁴ ≈ 10⁶；相加前判 <code>≠ INF</code> 防溢位</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「最多 k 站」= 「最多 k+1 條邊」= 「跑 k+1 輪 Bellman-Ford（或 k+1 層 BFS）」。每輪用 <code>temp</code> 凍結快照鬆弛，
+      讓一輪只前進一條邊、邊數自動封頂。<strong>省掉凍結 ⇒ 一輪偷跑多條邊 ⇒ 中轉超標、答案偏小。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">兩種寫法 + 複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">跑 k+1 輪 Bellman-Ford，每輪用 temp 凍結快照鬆弛全部邊 ⇒ 一輪 = 一條邊，最多 k 站自動封頂。</div>
+    <div class="sc-summary-bar__detail">CONSTRAINED SHORTEST PATH (≤ k STOPS) · O(k·E)</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p787-bellman.js"></script>
+  <script src="../../../../assets/js/viz/p787-bfs.js"></script>
+</body>
+</html>

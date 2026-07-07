@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>787 · Cheapest Flights Within K Stops // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P787</span>
+    <span><a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">K 站中轉最便宜航班</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 · Trace 範例</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 787</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>核心對應</td><td>「最多 k 站」= 「最多 k+1 條邊」= 跑 <code>k+1</code> 輪 Bellman-Ford。</td></tr>
+        <tr><td>temp 快照</td><td>每輪開頭 <code>temp = dist</code>，鬆弛只讀 temp ⇒ 一輪只前進一條邊。</td></tr>
+        <tr><td>不變量</td><td>第 r 輪後 <code>dist[v]</code> = 「≤ r 條邊到 v」的最低票價。</td></tr>
+        <tr><td>為何非 Dijkstra</td><td>有邊數上限，貪心會漏「貴一點但中轉少」的合法路。</td></tr>
+        <tr><td>不可達</td><td>跑完 <code>dist[dst]</code> 仍 INF ⇒ 回傳 <code>-1</code>。</td></tr>
+        <tr><td>複雜度</td><td>每輪掃 E 條邊 × k+1 輪 = <code>O(k·E)</code>。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa">
+      <span class="qa__id">Q1</span><span class="qa__tag">核心對應</span>
+      <h4>為什麼「最多中轉 k 站」對應「跑 k+1 輪」而不是「k 輪」？「站」和「邊」的關係是什麼？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q2</span><span class="qa__tag">temp 快照</span>
+      <h4>如果把 <code>temp = dist</code> 拿掉、鬆弛時直接讀 <code>dist</code>，會發生什麼錯？請用「一輪跑幾條邊」說明。</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q3</span><span class="qa__tag">不變量</span>
+      <h4>第 r 輪跑完後 <code>dist[v]</code> 的精確含義是什麼？為什麼跑滿 k+1 輪就足以得到答案？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q4</span><span class="qa__tag">為何非 Dijkstra</span>
+      <h4>本題能不能直接套 Dijkstra（priority_queue 按價格）？舉一個它會答錯的情境。</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q5</span><span class="qa__tag">兩種寫法</span>
+      <h4>分層 BFS 裡的 <code>sz = q.size()</code> 和 Bellman-Ford 的 <code>temp = dist</code> 有什麼共同作用？</h4>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace · 跑一次 code 看 dist 怎麼變<span class="sc-section__title-en">// WORKED TRACE</span></h2>
+    </div>
+
+    <p>用官方樣本 1（就是動畫那張）。<code>n=4</code>、<code>src=0</code>、<code>dst=3</code>、<code>k=1</code> ⇒ 跑 2 輪。</p>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// INPUT</span>n = 4, src = 0, dst = 3, k = 1
+flights:
+  0 → 1  (100)
+  1 → 2  (100)
+  2 → 0  (100)
+  1 → 3  (600)
+  2 → 3  (200)</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// INIT</span>
+dist = [ 0,  ∞,  ∞,  ∞ ]      ← 只有 src=0 是 0</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// 第 0 輪  (temp = [0, ∞, ∞, ∞])</span>
+只有邊 0→1 的來源 temp[0]=0 有限：
+  dist[1] = min(∞, 0 + 100) = 100
+其餘邊來源都是 ∞ ⇒ 無效
+dist = [ 0, 100,  ∞,  ∞ ]     ← 「≤ 1 條邊」能到的最低價</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// 第 1 輪  (temp = [0, 100, ∞, ∞])</span>
+1→2 : dist[2] = min(∞, temp[1]+100) = 200
+1→3 : dist[3] = min(∞, temp[1]+600) = <span class="sc-trace__out">700</span>
+2→3 : 想用 temp[2]，但 temp[2]=∞（本輪凍結）⇒ 無效！
+      （所以 dist[3] 保持 700，不會被壓成 0→1→2→3 = 300）
+dist = [ 0, 100, 200, 700 ]</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// OUTPUT</span>dist[dst=3] = 700
+（路徑 0 → 1 → 3，恰好中轉 1 站）</pre>
+
+    <div class="sc-insight">
+      <strong>觀察</strong>：<code>0→1→2→3</code> 只要 300，卻用了<strong>兩次中轉</strong>（超過 k=1）。正是 <code>temp[2]=∞</code> 這一格把它擋在門外
+      —— temp 快照就是「中轉數不准偷跑」的守門員。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <span class="qa__id">App 1</span><span class="qa__tag">手算</span>
+      <h4>承上例，如果把 <code>k</code> 改成 <code>2</code>，答案會變成多少？請用第 3 輪的 trace 說明。</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">App 2</span><span class="qa__tag">變形</span>
+      <h4>若題目改問「<strong>恰好</strong> k 次中轉」（不是「最多」），這份 code 要怎麼改？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">App 3</span><span class="qa__tag">對比</span>
+      <h4>本題和 P743（Network Delay Time）都是最短路，為什麼一個用 Bellman-Ford、一個用 Dijkstra？</h4>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider" id="answers">
+    <span class="answer-divider__label">// ANSWERS</span>
+    <span class="answer-divider__rule"></span>
+  </div>
+
+  <p style="max-width:900px;margin:0 auto var(--sp-5);color:var(--sc-ink-dim);font-size:13px;">
+    先自己想過再對答案 — Q 對應 Q、App 對應 App。
+  </p>
+
+  <section class="sc-section">
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A1 · 核心對應</span>
+      <p>「中轉 k 站」數的是<strong>中間經過的城市</strong>。一條 <code>src → a₁ → … → dst</code> 若中間有 k 個城市，它就有 <strong>k+1 條邊</strong>（頭尾各接一段）。</p>
+      <p>Bellman-Ford「一輪 = 多允許一條邊」，所以要涵蓋「最多 k+1 條邊」的路徑，就得跑 <code>k+1</code> 輪。只跑 k 輪會漏掉剛好用滿 k 站的合法路。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A2 · temp 快照</span>
+      <p>會讓<strong>一輪偷跑多條邊</strong>。直接讀 <code>dist</code> 時，本輪 <code>src→a</code> 剛更新的 <code>dist[a]</code>，會馬上被同輪稍後的 <code>a→b</code> 讀去接力，於是一輪就走了 2、3、… 條邊。</p>
+      <pre class="sc-trace"><span class="sc-trace__head">// 不用 temp 的後果（本範例 k=1）</span>
+第 1 輪若讀 dist：
+  1→2 先把 dist[2]=200
+  2→3 立刻讀新的 dist[2] ⇒ dist[3]=min(700, 200+200)=<strong>400</strong>
+但 0→1→2→3 用了 2 次中轉，超過 k=1 ⇒ 答案錯（違規變便宜）</pre>
+      <p>所以一定要 <code>temp = dist</code> 凍結，讓鬆弛都讀「上一輪結束時」的值。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A3 · 不變量</span>
+      <p>第 r 輪跑完後，<code>dist[v]</code> = 「從 src 出發、<strong>最多用 r 條邊</strong>抵達 v」的最低票價。</p>
+      <p>歸納：每次鬆弛 <code>dist[v] ← temp[u] + w</code>，<code>temp[u]</code> 是「≤ r−1 條邊到 u」的最佳值，接一條邊 <code>(u,v)</code> 就變「≤ r 條邊到 v」。
+        跑滿 <code>k+1</code> 輪即涵蓋「≤ k+1 條邊」＝「≤ k 站」的所有路徑，<code>dist[dst]</code> 就是答案。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A4 · 為何非 Dijkstra</span>
+      <p><strong>不能直接套</strong>。Dijkstra 的貪心一旦「定型」某點的最短距離就不再更新，但本題有邊數上限，最優解可能要走「貴一點、但中轉更少」的路。</p>
+      <pre class="sc-trace"><span class="sc-trace__head">// 反例（本題樣本，k=1）</span>
+Dijkstra 會先鎖定 0→1→2→3 = 300（最便宜）
+但那是 2 次中轉，違反 k=1
+正解是 0→1→3 = 700
+⇒ 純 Dijkstra 給 300，WA</pre>
+      <p>（進階：可以把狀態擴成 <code>(node, stops)</code> 再跑 Dijkstra，但那本質上就回到「按邊數分層」的想法。）</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A5 · 兩種寫法</span>
+      <p>兩者都在<strong>「凍結本輪」</strong>：</p>
+      <ul>
+        <li><code>temp = dist</code>：鬆弛都讀上一輪結束的值，不讀本輪剛改的。</li>
+        <li><code>sz = q.size()</code>：每層只處理凍結當下的 sz 個節點，新 push 的算下一層。</li>
+      </ul>
+      <p>效果一致 —— 強制一輪/層只前進一條邊，讓「最多 k 站」的邊數上限自動成立。所以兩份 code 對任意輸入答案都相同。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A · App 1</span>
+      <p><code>k=2</code> ⇒ 跑 3 輪。接著第 2 輪（temp = [0,100,200,700]）：</p>
+      <pre class="sc-trace"><span class="sc-trace__head">// 第 2 輪</span>
+2→3 : dist[3] = min(700, temp[2]+200) = min(700, 200+200) = <strong>400</strong>
+（此時 temp[2]=200 已是上一輪算好的，允許使用）
+答案 = 400   ← 路徑 0→1→2→3，用了 2 次中轉（≤ k=2 合法）</pre>
+      <p>放寬中轉上限，就能解鎖更便宜的 400。可見答案<strong>隨 k 遞減（或持平）</strong>。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A · App 2</span>
+      <p>「最多 k 站」跑 k+1 輪、最後讀 <code>dist[dst]</code> 即可。若要「<strong>恰好</strong> k 次中轉」，就把狀態拆成<strong>邊數維度</strong>：
+        <code>dp[e][v]</code> = 恰好用 e 條邊到 v 的最低價，只用 <code>dp[e][*]</code> 推 <code>dp[e+1][*]</code>，最後取 <code>dp[k+1][dst]</code>（不再對更少邊數取 min）。</p>
+      <p>本題 code 其實就是把這個二維 dp 用「dist + temp 滾動」壓成一維、且對所有 ≤ k+1 邊數取 min 的版本。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A · App 3</span>
+      <p>差別在<strong>有沒有「邊數上限」這個額外限制</strong>。</p>
+      <ul>
+        <li><strong>P743</strong>：純最短路、無邊數限制、邊權非負 ⇒ Dijkstra 貪心最快 <code>O(E log V)</code>。</li>
+        <li><strong>P787</strong>：多了「最多 k 站」的限制。Dijkstra 的「定案即不改」會和邊數上限打架，所以改用<strong>按輪數（邊數）分層的 Bellman-Ford</strong>，跑 k+1 輪剛好封頂。</li>
+      </ul>
+      <p>一句話：<strong>無限制 → Dijkstra；限制邊數 → 分層 Bellman-Ford</strong>。</p>
+    </div>
+
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">完整 Code</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">5 觀念題 + 3 應用題 + 逐輪 trace — 看懂「k 站 = k+1 輪」與 temp 快照守門「中轉不准偷跑」。</div>
+    <div class="sc-summary-bar__detail">dist [0,∞,∞,∞]→[0,100,∞,∞]→[0,100,200,700] · ANSWER 700（0→1→3）</div>
+  </div>
+
+</body>
+</html>
