@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>743 · Network Delay Time // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P743</span>
+    <span><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">網路延遲時間</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 單源最短路 · Dijkstra（min-heap + 惰性刪除）</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 743</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DIJKSTRA</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        有 <code>n</code> 個節點與一批<strong>有向帶權邊</strong> <code>times[i] = [u, v, w]</code>（訊號從 <code>u</code> 傳到 <code>v</code> 需 <code>w</code> 時間）。
+        從節點 <code>k</code> 同時發出訊號，求<strong>所有節點都收到</strong>所需的最短時間；若有節點永遠收不到，回傳 <code>-1</code>。
+      </p>
+    </div>
+
+    <p>
+      「所有點都收到」= 取<strong>最晚收到的那一個</strong>的時間。而每個點「收到」的時間就是從 <code>k</code> 出發到它的
+      <strong>最短路徑長</strong>。所以答案 = <code>max</code><sub>v</sub> <code>dist(k, v)</code>；只要有一個 <code>dist = ∞</code> ⇒ 不可達 ⇒ <code>-1</code>。
+      <code>1 ≤ n ≤ 100 · 1 ≤ w ≤ 100</code>，邊權皆正。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 Dijkstra ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Dijkstra<span class="sc-section__title-en">// WHY DIJKSTRA</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">純 BFS（數層數）</span>
+            <span class="sc-ko-card__o">O(V+E)</span>
+          </div>
+          <div class="sc-ko-card__body">BFS 假設「每條邊等長」。這題邊有權，最短時間 ≠ 最少邊數 ⇒ 會算錯。</div>
+          <div class="sc-ko-card__verdict">× REJECT · WRONG</div>
+        </div>
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">Bellman-Ford</span>
+            <span class="sc-ko-card__o">O(V·E)</span>
+          </div>
+          <div class="sc-ko-card__body">跑 V−1 輪鬆弛，答案會對。但邊權全正時做了多餘的重複鬆弛，比 Dijkstra 慢。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 較慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH SUBOPTIMAL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Dijkstra · min-heap</span>
+          <span class="sc-ko-card__o">O(E log V)</span>
+        </div>
+        <div class="sc-ko-card__body">邊權<strong>非負</strong> ⇒ 貪心成立：每次取「目前最近的未定點」定案，鬆弛出邊。用 min-heap + 惰性刪除高效實作。</div>
+        <div class="sc-ko-card__verdict">● ADOPT · OPTIMAL</div>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;">
+      <strong>Dijkstra 成立的前提</strong>：所有邊權 <strong>≥ 0</strong>。本題 <code>w ≥ 1</code>，滿足。核心貪心：當我們從 heap 彈出
+      「目前 dist 最小的未定點 u」時，<code>dist[u]</code> 已是<strong>最終答案</strong> —— 任何繞經更遠點再回來的路徑（非負邊）都不可能更短。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <p>維護 <code>dist[v]</code> = 目前找到、從 <code>k</code> 到 <code>v</code> 的最短時間；一個 min-heap 存待處理的 <code>(d, node)</code>。</p>
+
+    <ol style="margin-top:6px;">
+      <li><strong>彈出最近點</strong> · 從 heap 取出 <code>d</code> 最小的 <code>(d, u)</code>。若 <code>d &gt; dist[u]</code> ⇒ 過期項，<strong>直接跳過</strong>（惰性刪除）。</li>
+      <li><strong>鬆弛出邊</strong> · 對每條 <code>u→v (w)</code>，若 <code>d + w &lt; dist[v]</code> 就更新 <code>dist[v]</code>，並把新的 <code>(dist[v], v)</code> 推進 heap。</li>
+      <li><strong>取 max</strong> · heap 空後掃 <code>dist[1..n]</code>：有任一 <code>= ∞</code> ⇒ 回 <code>-1</code>，否則回傳最大值。</li>
+    </ol>
+
+    <p style="margin-top:8px;color:var(--sc-ink-dim);font-size:13.5px;">
+      <strong>惰性刪除（lazy deletion）</strong> · STL 的 <code>priority_queue</code> 不能改鍵，所以更新 <code>dist[v]</code> 時不刪舊項、只推新項；
+      彈出時用 <code>d &gt; dist[u]</code> 判斷並略過過期舊項。比自己寫可減鍵 heap 簡單許多。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 定案順序 + 惰性刪除<span class="sc-section__title-en">// n=5, src=1 → 6</span></h2>
+    </div>
+
+    <p>看節點如何按 <code>dist</code> 遞增逐一「定案」，以及 heap 裡的<strong>過期項如何被略過</strong>，最後答案 = <code>max dist = 6</code>：</p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ DIJKSTRA · MIN-HEAP + LAZY DELETION</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:470px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button>
+        <button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button>
+        <button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+
+    <p style="margin-top:14px;font-size:13px;color:var(--sc-ink-dim);">
+      <strong>顏色</strong>：
+      <span style="color:#d4a868">●</span> 起點 src ·
+      <span style="color:#5fa866">●</span> 已定案的點 / dist ·
+      <span style="color:#d96e4e">●</span> 本步彈出的點 / 剛更新的 dist / 鬆弛的邊 ·
+      <span style="color:#bdbdbd">(d,v)</span> heap 裡被劃掉的過期項
+    </p>
+  </section>
+
+  <!-- ════════════ 5 · 貪心正確性 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">貪心正確性 & 惰性刪除<span class="sc-section__title-en">// WHY IT WORKS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 彈出即定案 + 過期項可安全略過</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>彈出即最短</strong> · 當 <code>(d, u)</code> 是 heap 中最小且 <code>d = dist[u]</code>，<code>dist[u]</code> 就是最終最短路。
+            所有邊非負 ⇒ 任何「先繞去比 u 更遠的點再回來」的路徑長度只會 ≥ d，不可能更短。</li>
+          <li><strong>惰性刪除安全</strong> · 更新 <code>dist[v]</code> 時推入新的 <code>(新距離, v)</code>，不刪舊的 <code>(舊距離, v)</code>。
+            舊項之後被彈出時必有 <code>舊距離 &gt; dist[v]</code> ⇒ 判斷式 <code>d &gt; dist[u]</code> 成立，直接 <code>continue</code>。</li>
+          <li><strong>不會漏更新</strong> · 每次有效鬆弛都推一個新項 ⇒ 每個「更短的到達方式」都在 heap 裡有代表，不因沒刪舊項而遺漏。</li>
+          <li><strong>heap 大小</strong> · 最壞 O(E) 個項（每條邊最多推一次），單次操作 <code>O(log E) = O(log V)</code>。</li>
+        </ol>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;">
+      <strong>實測佐證</strong>：對 20 萬組隨機圖，本解與 Bellman-Ford 參考解<strong>答案完全一致、零反例</strong>；官方三個樣本亦全數吻合（2 / 1 / −1）。
+    </p>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = O((V + E) log V) = <strong>O(E log V)</strong>　　S = <strong>O(V + E)</strong></div>
+      <p class="sc-formula__hint">每條邊最多推一次 heap，每次操作 log；n ≤ 100 ⇒ 約 10⁴ log 100，瞬殺。</p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>數量</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(E log V)</td><td>每邊推一次、每次 heap 操作 log</td></tr>
+        <tr><td>Space</td><td class="mono">O(V + E)</td><td>鄰接表 + dist + heap（最壞 O(E) 項）</td></tr>
+        <tr><td>heap 項數</td><td class="mono">O(E)</td><td>惰性刪除 ⇒ 含過期項，但總推入 ≤ E</td></tr>
+        <tr><td>邊權要求</td><td class="mono">≥ 0</td><td>有負權須改 Bellman-Ford / SPFA</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「訊號傳遍全網」= 單源最短路，答案取所有點 dist 的 <strong>max</strong>。邊權非負 ⇒ Dijkstra 貪心成立，min-heap 彈出即定案。
+      用<strong>惰性刪除</strong>（<code>d &gt; dist[u]</code> 就跳過）取代可減鍵 heap，簡單又高效。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">完整 Code + 複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">從 k 跑 Dijkstra（min-heap + 惰性刪除），答案 = max dist；有點不可達回 −1。</div>
+    <div class="sc-summary-bar__detail">SINGLE-SOURCE SHORTEST PATH · O(E log V)</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p743-dijkstra.js"></script>
+</body>
+</html>

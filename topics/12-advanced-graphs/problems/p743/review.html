@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>743 · Network Delay Time // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P743</span>
+    <span><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">網路延遲時間</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 · Trace 範例</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 743</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>「訊號傳遍全網」= 單源最短路，答案 = <code>max</code> over v 的 <code>dist(k, v)</code>。</td></tr>
+        <tr><td>選 Dijkstra</td><td>邊權非負 ⇒ 貪心成立，<code>O(E log V)</code> 比 Bellman-Ford 快。</td></tr>
+        <tr><td>彈出即定案</td><td>min-heap 彈出的最小 <code>(d,u)</code>，<code>dist[u]</code> 就是最終最短路。</td></tr>
+        <tr><td>惰性刪除</td><td><code>d &gt; dist[u]</code> ⇒ 過期項，直接 <code>continue</code>；免寫可減鍵 heap。</td></tr>
+        <tr><td>不可達</td><td>掃 dist 有 <code>INT_MAX</code> ⇒ 回 <code>-1</code>。</td></tr>
+        <tr><td>複雜度</td><td>每邊推一次 heap，總 <code>O(E log V)</code>。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa">
+      <span class="qa__id">Q1</span><span class="qa__tag">問題轉化</span>
+      <h4>為什麼「所有節點都收到訊號的時間」等於「所有 <code>dist(k,v)</code> 的最大值」而不是總和或平均？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q2</span><span class="qa__tag">貪心正確性</span>
+      <h4>Dijkstra 為什麼要求邊權非負？舉一個有負邊時「彈出即定案」會出錯的直覺。</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q3</span><span class="qa__tag">惰性刪除</span>
+      <h4><code>if (d &gt; dist[u]) continue;</code> 在做什麼？如果刪掉這行，答案還會對嗎？效率呢？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q4</span><span class="qa__tag">實作細節</span>
+      <h4>為什麼 <code>priority_queue</code> 要加 <code>greater&lt;P&gt;</code>？pair 為什麼存 <code>{距離, 節點}</code> 而不是 <code>{節點, 距離}</code>？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">Q5</span><span class="qa__tag">複雜度</span>
+      <h4>heap 裡可能同時有同一個節點的多個項，這會不會讓複雜度爆掉？為什麼總推入次數仍是 O(E)？</h4>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace · 跑一次 Dijkstra<span class="sc-section__title-en">// WORKED TRACE</span></h2>
+    </div>
+
+    <p>用動畫那張圖。<code>n=5</code>、<code>src=1</code>，有向邊如下：</p>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// INPUT</span>n = 5, src = 1
+edges:  1→2:2 · 1→3:5 · 2→3:1 · 2→4:7 · 3→4:2 · 4→5:1 · 3→5:6</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// INIT</span>dist = [_, 0, ∞, ∞, ∞, ∞]      heap = { (0,1) }</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// pop (0,1) — 定案 1</span>
+1→2: dist[2]=2   1→3: dist[3]=5
+dist = [_, 0, 2, 5, ∞, ∞]      heap = { (2,2), (5,3) }</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// pop (2,2) — 定案 2</span>
+2→3: 2+1=3 &lt; 5 ⇒ dist[3]=3   2→4: dist[4]=9
+dist = [_, 0, 2, 3, 9, ∞]      heap = { (3,3), (5,3)過期, (9,4) }</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// pop (3,3) — 定案 3</span>
+3→4: 3+2=5 &lt; 9 ⇒ dist[4]=5   3→5: dist[5]=9
+dist = [_, 0, 2, 3, 5, 9]      heap = { (5,3)過期, (5,4), (9,4)過期, (9,5) }</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// pop (5,3) — 過期！</span>
+d=5 &gt; dist[3]=3 ⇒ <span class="sc-trace__out">continue</span>（惰性刪除，不處理）</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// pop (5,4) — 定案 4</span>
+4→5: 5+1=6 &lt; 9 ⇒ dist[5]=6
+dist = [_, 0, 2, 3, 5, 6]      heap = { (6,5), (9,4)過期, (9,5)過期 }</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// pop (6,5) — 定案 5；之後彈出全過期，略過</span>
+dist = [_, 0, 2, 3, 5, 6]</pre>
+
+    <pre class="sc-trace"><span class="sc-trace__head">// OUTPUT</span>max(0, 2, 3, 5, 6) = <span class="sc-trace__out">6</span>
+（節點 5 最晚收到，時間 6）</pre>
+
+    <div class="sc-insight">
+      <strong>觀察</strong>：<code>(5,3)</code> 被彈出時 <code>dist[3]</code> 早已是 3，這個舊項是節點 2 鬆弛前留下的殘影。
+      靠 <code>d &gt; dist[u]</code> 一句就安全略過 —— 這就是<strong>不用可減鍵 heap 也能正確</strong>的關鍵。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <span class="qa__id">App 1</span><span class="qa__tag">手算</span>
+      <h4>承上例，如果起點改成 <code>k=3</code>，哪些節點會收不到訊號？答案會是多少？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">App 2</span><span class="qa__tag">變形</span>
+      <h4>若把邊改成<strong>無向</strong>（雙向都能傳），這份 code 要改哪裡？答案會變嗎？</h4>
+    </div>
+    <div class="qa">
+      <span class="qa__id">App 3</span><span class="qa__tag">對比</span>
+      <h4>本題和 P787（Cheapest Flights within K Stops）都是最短路，為什麼一個用 Dijkstra、一個用 Bellman-Ford？</h4>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider" id="answers">
+    <span class="answer-divider__label">// ANSWERS</span>
+    <span class="answer-divider__rule"></span>
+  </div>
+
+  <p style="max-width:900px;margin:0 auto var(--sp-5);color:var(--sc-ink-dim);font-size:13px;">
+    先自己想過再對答案 — Q 對應 Q、App 對應 App。
+  </p>
+
+  <section class="sc-section">
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A1 · 問題轉化</span>
+      <p>訊號從 <code>k</code> 同時往外擴散，每個節點「第一次收到」的時間就是它到 <code>k</code> 的<strong>最短路徑長</strong>。
+        「全部都收到」必須等<strong>最慢的那一個</strong>，所以取 <code>max</code>。</p>
+      <p>不是總和（會重複計算共用路段），也不是平均（題目要的是「全部完成」的時刻，由最大值決定）。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A2 · 貪心正確性</span>
+      <p>Dijkstra 假設「一旦彈出某點、它的 dist 就定案」。這靠<strong>非負邊</strong>保證：之後再走的路徑只會更長，不可能繞遠路反而變短。</p>
+      <p>若有負邊，一條「先走遠、再靠一條負邊補回來」的路可能更短，但那個點可能已被提早定案 ⇒ 錯過更短路。所以負權要改用 Bellman-Ford / SPFA。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A3 · 惰性刪除</span>
+      <p>它跳過 heap 裡的<strong>過期項</strong>：某節點 <code>u</code> 的 dist 後來被更短路徑更新過，heap 裡還躺著舊的、較大的 <code>(舊距離, u)</code>，
+        彈出時 <code>舊距離 &gt; dist[u]</code> 成立 ⇒ 略過。</p>
+      <p><strong>刪掉這行答案仍會對</strong>（進到迴圈後 <code>nd &lt; dist[v]</code> 的鬆弛條件本身就擋得住無效更新），
+        但會多花時間去展開已定案節點的出邊、重複做白工，效率變差。標準寫法保留它。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A4 · 實作細節</span>
+      <p><code>priority_queue</code> 預設是<strong>大根堆</strong>（每次給最大）。我們要每次拿「最近的點」，所以加 <code>greater&lt;P&gt;</code> 變 min-heap。</p>
+      <p>pair 的比較<strong>先比 first</strong>。存 <code>{距離, 節點}</code> 才能讓 heap 按距離排序；若存 <code>{節點, 距離}</code> 就會按節點編號排，完全錯亂。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A5 · 複雜度</span>
+      <p><strong>不會爆</strong>。heap 裡雖然可能有同一節點的多個項，但「推入」只發生在<strong>鬆弛成功</strong>時，而每條邊最多觸發一次有效鬆弛 ⇒ 總推入次數 ≤ E。</p>
+      <p>所以 heap 大小 O(E)、總彈出 O(E)，每次操作 <code>O(log E) = O(log V)</code>，合計 <code>O(E log V)</code>。過期項只是被 <code>continue</code> 快速丟棄，不增加漸進複雜度。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A · App 1</span>
+      <p>從 <code>k=3</code> 出發，只能走 <code>3→4→5</code> 和 <code>3→5</code>：</p>
+      <pre class="sc-trace"><span class="sc-trace__head">// src = 3</span>
+dist[3]=0, dist[4]=2, dist[5]=min(6, 2+1)=3
+dist[1]=∞, dist[2]=∞   ← 沒有指向 1、2 的路徑
+⇒ 有點收不到，回傳 <strong>-1</strong></pre>
+      <p>節點 1、2 沒有入邊來自 {3,4,5} 這側，永遠收不到 ⇒ 答案 −1。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A · App 2</span>
+      <p>建圖時<strong>兩個方向都加</strong>：<code>graph[u].push_back({v,w})</code> 之外再 <code>graph[v].push_back({u,w})</code>。演算法本體完全不動。</p>
+      <p>答案通常會變小（多了反向邊、更多捷徑），且無向連通圖不會出現「收不到」（只要整張圖連通）。</p>
+    </div>
+
+    <div class="qa qa--answer">
+      <span class="qa__id">A · App 3</span>
+      <p>差別在<strong>有沒有「邊數上限」這個額外限制</strong>。</p>
+      <ul>
+        <li><strong>P743</strong>：純最短路、無邊數限制、邊權非負 ⇒ Dijkstra 貪心最快 <code>O(E log V)</code>。</li>
+        <li><strong>P787</strong>：多了「最多 k 站」的限制。Dijkstra 的「定案即不改」會和邊數上限打架（貴一點但中轉少的路會被錯過），
+          所以改用<strong>按輪數（邊數）分層的 Bellman-Ford</strong>，跑 k+1 輪剛好封頂。</li>
+      </ul>
+      <p>一句話：<strong>無限制 → Dijkstra；限制邊數 → 分層 Bellman-Ford</strong>。</p>
+    </div>
+
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">完整 Code</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">5 觀念題 + 3 應用題 + 逐步 trace — 看懂「彈出即定案」「惰性刪除略過過期項」與取 max。</div>
+    <div class="sc-summary-bar__detail">SAMPLE dist=[0,2,3,5,6] · ANSWER 6 · (5,3) 過期被 d&gt;dist[u] 略過</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>743 · Network Delay Time // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P743</span>
+    <span><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">網路延遲時間</h1>
+    <p class="sc-mast__subtitle">// CODE · Dijkstra（min-heap）與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 743</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(E log V)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · Dijkstra<span class="sc-section__title-en">// FULL C++</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p743_dijkstra.cpp</span>
+        <span class="sc-codewindow__lang">C++</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">networkDelayTime</span><span class="p">(</span>vector<span class="p">&lt;</span>vector<span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> times<span class="p">,</span> <span class="t">int</span> n<span class="p">,</span> <span class="t">int</span> k<span class="p">)</span> <span class="p">{</span>
+        vector<span class="p">&lt;</span>vector<span class="p">&lt;</span>pair<span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;&gt;</span> graph<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">);</span>
+        vector<span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> dist<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">,</span> INT_MAX<span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> t <span class="p">:</span> times<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> u <span class="p">=</span> t<span class="p">[</span><span class="n">0</span><span class="p">],</span> v <span class="p">=</span> t<span class="p">[</span><span class="n">1</span><span class="p">],</span> w <span class="p">=</span> t<span class="p">[</span><span class="n">2</span><span class="p">];</span>
+            graph<span class="p">[</span>u<span class="p">].</span><span class="f">push_back</span><span class="p">({</span>v<span class="p">,</span> w<span class="p">});</span>
+        <span class="p">}</span>
+
+        <span class="k">using</span> P <span class="p">=</span> pair<span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;;</span>          <span class="c">// {距離, 節點}</span>
+        priority_queue<span class="p">&lt;</span>P<span class="p">,</span> vector<span class="p">&lt;</span>P<span class="p">&gt;,</span> greater<span class="p">&lt;</span>P<span class="p">&gt;&gt;</span> pq<span class="p">;</span>  <span class="c">// min-heap</span>
+
+        dist<span class="p">[</span>k<span class="p">]</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        pq<span class="p">.</span><span class="f">push</span><span class="p">({</span><span class="n">0</span><span class="p">,</span> k<span class="p">});</span>
+
+        <span class="k">while</span> <span class="p">(!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">auto</span> <span class="p">[</span>d<span class="p">,</span> u<span class="p">]</span> <span class="p">=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">();</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+
+            <span class="k">if</span> <span class="p">(</span>d <span class="p">&gt;</span> dist<span class="p">[</span>u<span class="p">])</span> <span class="k">continue</span><span class="p">;</span>          <span class="c">// 過期項 ⇒ 惰性刪除</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span>v<span class="p">,</span> w<span class="p">]</span> <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span> <span class="p">{</span>
+                <span class="t">int</span> nd <span class="p">=</span> d <span class="p">+</span> w<span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span>nd <span class="p">&lt;</span> dist<span class="p">[</span>v<span class="p">])</span> <span class="p">{</span>              <span class="c">// 鬆弛成功 ⇒ 推新項</span>
+                    dist<span class="p">[</span>v<span class="p">]</span> <span class="p">=</span> nd<span class="p">;</span>
+                    pq<span class="p">.</span><span class="f">push</span><span class="p">({</span>nd<span class="p">,</span> v<span class="p">});</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="t">int</span> ans <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>dist<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> INT_MAX<span class="p">)</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>  <span class="c">// 有點收不到</span>
+            ans <span class="p">=</span> <span class="f">max</span><span class="p">(</span>dist<span class="p">[</span>i<span class="p">],</span> ans<span class="p">);</span>          <span class="c">// 取最晚收到的時間</span>
+        <span class="p">}</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <p style="margin-top:10px;font-size:13px;color:var(--sc-ink-dim);">
+      節點編號 <code>1..n</code>，所以用 <code>n+1</code> 大小的 <code>graph</code>、<code>dist</code>（索引 0 空著）。整份就是標準 Dijkstra 模板 + 最後「取 max、有 ∞ 回 −1」。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>內容</th><th>成本</th></tr></thead>
+      <tbody>
+        <tr><td>建圖</td><td>掃過所有邊入鄰接表</td><td class="mono">O(E)</td></tr>
+        <tr><td>heap 彈出</td><td>最多 O(E) 個項（含過期）</td><td class="mono">O(E log V)</td></tr>
+        <tr><td>鬆弛推入</td><td>每條邊最多推一次</td><td class="mono">O(E log V)</td></tr>
+        <tr><td>取 max</td><td>掃 dist[1..n]</td><td class="mono">O(V)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = O((V + E) log V) = <strong>O(E log V)</strong></div>
+      <p class="sc-formula__hint">每條邊推一次、每次 heap 操作 log；連通圖 E ≥ V−1。</p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>數量</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(E log V)</td><td>n ≤ 100 ⇒ 遠快於時限</td></tr>
+        <tr><td>Space</td><td class="mono">O(V + E)</td><td>鄰接表 + dist + heap</td></tr>
+        <tr><td>數值型別</td><td class="mono">int</td><td>最長路 ≤ (n−1)·100 ≈ 10⁴，int 夠</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>說明 / 解法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1-indexed 節點</strong></td><td>節點編號 <code>1..n</code>，容器開 <code>n+1</code>、迴圈跑 <code>1..n</code>；別誤用 0-based 漏掉節點 n。</td></tr>
+        <tr><td><strong>忘了惰性刪除判斷</strong></td><td>少了 <code>if (d &gt; dist[u]) continue;</code> 答案仍對（鬆弛條件會擋），但會重複展開過期項、變慢。標準寫法要留著。</td></tr>
+        <tr><td><strong>min-heap 方向</strong></td><td><code>priority_queue</code> 預設是<strong>大根堆</strong>；要 <code>greater&lt;P&gt;</code> 才是 min-heap。忘了會變每次取最遠點、邏輯全錯。</td></tr>
+        <tr><td><strong>pair 順序</strong></td><td>存 <code>{距離, 節點}</code> 而非 <code>{節點, 距離}</code>，才能讓 heap 按距離排序。</td></tr>
+        <tr><td><strong>不可達判斷</strong></td><td>最後掃 dist，只要有一個 <code>== INT_MAX</code> 就 <code>return -1</code>，別漏。</td></tr>
+        <tr><td><strong>負權不適用</strong></td><td>Dijkstra 只在邊權非負時正確。本題 <code>w ≥ 1</code> OK；有負權要改 Bellman-Ford。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <p><strong>① 建圖 + 初始化</strong></p>
+    <pre class="sc-trace"><span class="sc-trace__head">// build</span>
+graph[u].push_back({v, w})   ← 有向鄰接表
+dist[k] = 0，其餘 INT_MAX
+pq.push({0, k})              ← 起點入堆</pre>
+
+    <p><strong>② 主迴圈：彈出 + 惰性刪除</strong></p>
+    <pre class="sc-trace"><span class="sc-trace__head">// pop</span>
+auto [d, u] = pq.top(); pq.pop();
+if (d &gt; dist[u]) continue;   ← d 比目前最短還大 ⇒ 過期，跳過
+（否則 d == dist[u]，u 正式定案）</pre>
+
+    <p><strong>③ 鬆弛出邊</strong></p>
+    <pre class="sc-trace"><span class="sc-trace__head">// relax</span>
+for (auto [v, w] : graph[u]):
+    nd = d + w
+    if nd &lt; dist[v]:
+        dist[v] = nd
+        pq.push({nd, v})     ← 只推新項、不刪舊項</pre>
+
+    <p><strong>④ 收尾：取 max / 判 −1</strong></p>
+    <pre class="sc-trace"><span class="sc-trace__head">// answer</span>
+for i in [1, n]:
+    if dist[i] == INT_MAX: return -1   ← 有點收不到
+    ans = max(ans, dist[i])
+return ans                              ← 最晚收到的時間</pre>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span>
+      <span class="sc-pager__title">演算法概念</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span>
+      <span class="sc-pager__title">複習 + Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">標準 Dijkstra（min-heap + d &gt; dist[u] 惰性刪除），最後取 max dist、有 ∞ 回 −1。</div>
+    <div class="sc-summary-bar__detail">1-INDEXED · greater&lt;P&gt; MIN-HEAP · pair{dist,node} · O(E log V)</div>
+  </div>
+
+</body>
+</html>
