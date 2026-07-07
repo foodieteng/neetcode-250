@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1631 · Path With Minimum Effort // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1631</span>
+    <span><a href="https://leetcode.com/problems/path-with-minimum-effort/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小體力路徑</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 最小化相鄰高度差的最大值</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1631</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MINIMAX PATH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>rows×cols</code> 高度網格。從左上走到右下(上下左右移動),一條路徑的<strong>體力 effort</strong> = 路徑上<strong>相鄰兩格高度差 <code>|Δ|</code> 的最大值</strong>。
+        求所有路徑中<strong>最小</strong>的 effort。
+      </p>
+    </div>
+
+    <p>
+      把相鄰格之間連一條邊、權重 = <code>|高度差|</code>。一條路徑的 effort = 該路徑上<strong>最大的邊權</strong>。
+      答案 = 所有路徑中「最大邊權」的最小值 —— 又是<strong>最小化瓶頸(minimax)</strong>路徑,與 778 同型,只是成本改成邊權 <code>|Δ|</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「最小化瓶頸」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">DFS 枚舉所有路徑</span>
+            <span class="sc-ko-card__o">指數級</span>
+          </div>
+          <div class="sc-ko-card__body">路徑數指數爆炸,無法剪枝,TLE。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">當成「邊權和最小」的最短路</span>
+            <span class="sc-ko-card__o">目標錯</span>
+          </div>
+          <div class="sc-ko-card__body">要最小化的是路徑上邊權的<strong>最大值</strong>,不是總和。一般 Dijkstra 累加會算錯。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 目標函數錯</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">最小化瓶頸 → 三種標準解法</span>
+          <span class="sc-ko-card__o">O(mn·log)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>① Union-Find / Kruskal</strong>:邊照 <code>|Δ|</code> 由小到大加入,src 與 dst 連通那刻的權重即答案。
+          <strong>② Dijkstra 變形</strong>:effort 用 <code>max(當前, 邊權)</code> 鬆弛,彈出終點即答案。
+          <strong>③ 二分答案 + BFS</strong>:可達性對門檻單調,二分最小可行 effort。三者同為 <code>O(mn·log(mn))</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 3 WAYS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>重述</strong>:答案 = 起點到終點所有路徑中,<code>max(相鄰 |Δ|)</code> 的最小值。</li>
+      <li><strong>三種算法(見下一頁完整碼)</strong>:
+        <ul>
+          <li>A · <strong>Union-Find</strong>:枚舉所有相鄰邊、依 <code>|Δ|</code> 排序、逐一 union,一旦 <code>Find(src)==Find(dst)</code> 回傳當前邊權。</li>
+          <li>B · <strong>Dijkstra 變形</strong>:<code>dist[cell]</code> = 到此格的最小 effort,鬆弛用 <code>max(d, |Δ|)</code>;彈出終點即答案。</li>
+          <li>C · <strong>二分答案 + BFS</strong>:二分 effort 門檻 <code>mid</code>,BFS 只跨 <code>|Δ| ≤ mid</code> 的邊,檢查能否到終點。</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示(三種寫法各一段) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 三種寫法各一段<span class="sc-section__title-en">// [[1,2,2],[3,8,2],[5,3,5]] → 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      同一個 grid,三種算法各跑一遍。<strong>A</strong> 邊照 |Δ| 加入看連通、<strong>B</strong> 從起點探索看 effort、<strong>C</strong> 二分門檻看可達性 —— 同一個答案 <code>2</code>(中心高度 8 的格從不進入最佳路徑)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · UNION-FIND / KRUSKAL(邊照 |Δ| 加入)</div>
+      <canvas id="va-canvas" class="sc-viz__canvas" style="height:520px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ B · DIJKSTRA 變形(從起點探索 effort)</div>
+      <canvas id="vb-canvas" class="sc-viz__canvas" style="height:500px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ C · 二分答案 + BFS(門檻可達性)</div>
+      <canvas id="vc-canvas" class="sc-viz__canvas" style="height:480px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vc-reset">Reset</button><button class="sc-btn" id="vc-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vc-play">Play</button><button class="sc-btn" id="vc-next">Next</button>
+        <span class="sc-viz__step" id="vc-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="vc-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 三種寫法對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">三種寫法對照<span class="sc-section__title-en">// A vs B vs C</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>A · Union-Find</th><th>B · Dijkstra</th><th>C · 二分+BFS</th></tr></thead>
+      <tbody>
+        <tr><td>核心</td><td>邊照 |Δ| 加入 + union</td><td>min-heap 取最小 effort</td><td>二分 mid,BFS 驗可達</td></tr>
+        <tr><td>何時得解</td><td>src↔dst 連通那刻</td><td>彈出終點時</td><td>二分收斂到最小可行 mid</td></tr>
+        <tr><td>成本函數</td><td>加入順序 = 邊權 |Δ|</td><td><code>max(d, |Δ|)</code></td><td>門檻 |Δ| ≤ mid</td></tr>
+        <tr><td>複雜度</td><td>O(mn·log(mn))</td><td>O(mn·log(mn))</td><td>O(mn·log(maxΔ))</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight">
+      與 778「上升水位」是<strong>同一類題</strong>:最小化路徑瓶頸。差別只在成本 —— 778 是<strong>格子高度</strong>,1631 是<strong>相鄰格高度差</strong>(邊權)。
+      看到「最小化最大值」就想這三招。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(mn · log(mn))</strong>　　S = <strong>O(mn)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        邊數 ≈ 2mn。A/B 的 log 來自排序 / heap;C 的 log 來自二分值域(<code>0..10⁶</code>),每輪 BFS O(mn)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>Time</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>A · Union-Find</td><td class="mono">O(mn·log(mn))</td><td class="mono">O(mn)</td></tr>
+        <tr><td>B · Dijkstra</td><td class="mono">O(mn·log(mn))</td><td class="mono">O(mn)</td></tr>
+        <tr><td>C · 二分 + BFS</td><td class="mono">O(mn·log(maxΔ))</td><td class="mono">O(mn)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      effort 只看路徑上<strong>最陡的一步</strong>。把「相鄰高度差」當邊權,答案就是<strong>最小化最大邊權</strong>的瓶頸路徑 ——
+      Union-Find、max-Dijkstra、二分答案三招通吃。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">三種寫法與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">邊權 = |高度差|,最小化路徑最大邊權:Union-Find / max-Dijkstra / 二分+BFS。</div>
+    <div class="sc-summary-bar__detail">MINIMAX (BOTTLENECK) PATH · THREE WAYS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1631-kruskal.js"></script>
+  <script src="../../../../assets/js/viz/p1631-dijkstra.js"></script>
+  <script src="../../../../assets/js/viz/p1631-binary.js"></script>
+</body>
+</html>

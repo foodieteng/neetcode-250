@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1631 · Path With Minimum Effort // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1631</span>
+    <span><a href="https://leetcode.com/problems/path-with-minimum-effort/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小體力路徑</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1631</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>最小化路徑上<strong>相鄰高度差 |Δ| 的最大值</strong>(minimax)</td></tr>
+        <tr><td>A · Union-Find</td><td>邊照 |Δ| 加入 + union,連通那刻的權重 = 答案</td></tr>
+        <tr><td>B · Dijkstra</td><td>effort = <code>max(d, |Δ|)</code>,彈出終點即答案</td></tr>
+        <tr><td>C · 二分+BFS</td><td>可達性對門檻單調,二分最小可行 effort</td></tr>
+        <tr><td>與 778 關係</td><td>同型;成本從「格子高度」換成「相鄰高度差」</td></tr>
+        <tr><td>易錯</td><td>當成「邊權和最小」;Dijkstra 誤用 <code>+</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼答案是路徑上 <code>|Δ|</code> 的<strong>最大值</strong>的最小值,而不是 <code>|Δ|</code> 的<strong>總和</strong>的最小值?</div>
+    <div class="qa"><strong>Q2.</strong> 寫法 A 為什麼「src 與 dst 第一次連通」那刻的邊權就是答案?</div>
+    <div class="qa"><strong>Q3.</strong> 寫法 B 的 Dijkstra 為什麼鬆弛用 <code>max(d, |Δ|)</code> 而不是 <code>d + |Δ|</code>?</div>
+    <div class="qa"><strong>Q4.</strong> 寫法 C 為什麼能二分?二分的<strong>上界</strong>該設多少、為什麼?</div>
+    <div class="qa"><strong>Q5.</strong> 這題和 778 Swim in Rising Water 有什麼關係?本質差別在哪?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace · A Union-Find<span class="sc-section__title-en">// [[1,2,2],[3,8,2],[5,3,5]] → 2</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// GRID (值 = 高度) · src=(0,0) dst=(2,2)</span>
+   1  2  2
+   3  8  2
+   5  3  5
+邊權 = 相鄰兩格 |高度差|。照 |Δ| 由小到大加入、union。</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// KRUSKAL 加邊(依 |Δ|)</span>
+|Δ|=0  (0,1)-(0,2)、(0,2)-(1,2)   → 一座島
+|Δ|=1  (0,0)-(0,1)               → src 併入該島
+|Δ|=2  (0,0)-(1,0)、(1,0)-(2,0)、(2,0)-(2,1)、(2,1)-(2,2)
+       加到 (2,1)-(2,2) 時 <span class="sc-trace__out">dst 併入 → src↔dst 連通!</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+最佳路徑沿邊界:1→2→2→(2)→3→5 … 最大 |Δ| = 2
+中心高度 8 的格(|Δ| 到鄰居 = 5、6)完全沒用到
+<span class="sc-trace__out">// OUTPUT: 2</span></div>
+
+    <div class="sc-insight">
+      答案 <strong>2</strong> = 這條低起伏路徑上最陡的一步。高聳的中心格(8)被繞開 —— 這就是「最小化最陡瓶頸」:
+      只要那條最平緩的通道跨得過去即可。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若允許<strong>八方向</strong>(含斜向)移動,三種寫法各要改哪裡?複雜度會變嗎?</div>
+    <div class="qa"><strong>App 2.</strong> 若同一個 grid 要回答很多次「effort ≤ t 能否到達」的<strong>單一查詢</strong>,哪種前處理最划算?</div>
+    <div class="qa"><strong>App 3.</strong> 若不只要 effort 值,還要<strong>輸出最佳路徑本身</strong>,三種寫法哪個最好加、怎麼加?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為「體力」的定義是「路上<strong>最累的一步</strong>」—— 只要有一步高度差很大,那條路的 effort 就被它決定,跟其他步走幾步、差多少無關。所以要最小化的是<strong>路徑最大邊權</strong>(瓶頸),不是總和。這類「最小化最大值」和一般「最短路徑和」是不同的目標函數。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 邊照 <code>|Δ|</code> 由小到大加入,等於「門檻逐步放寬」。當加入某條權重 <code>w</code> 的邊後 src 與 dst <strong>首次連通</strong>,代表<strong>存在一條全程邊權 ≤ w 的路</strong>;而在加入它之前不連通,代表<strong>沒有全程 &lt; w 的路</strong>。所以 <code>w</code> 正是能連通的<strong>最小</strong>瓶頸 = 答案。這就是 Kruskal「加邊到連通」。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為路徑成本是「沿途<strong>最大</strong>邊權」,不是總和。到鄰居的 effort = <code>max(到我這格的 effort, 我與鄰居的 |Δ|)</code> —— 走過去只會被「更陡的那一步」卡住。Dijkstra 的貪心(每次取當前 effort 最小的點)在 <code>max</code> 這個單調運算下依然成立,所以彈出終點時它的 effort 就是最小值。用 <code>+</code> 會變成求邊權和,答案錯。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 可達性對門檻 <code>mid</code> 單調:<code>mid</code> 越大能跨的邊越多,可達的格子只增不減。所以「<code>mid</code> 能到終點」若成立,則所有更大的門檻也成立 → false…false true…true,可二分。<strong>上界</strong>設為全網格的<strong>最大 |Δ|</strong>:再大也不會有邊被擋,一定可達;下界 0(相鄰全等高時 effort=0)。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 兩題都是<strong>最小化路徑瓶頸(minimax path)</strong>,解法三招完全一樣(Union-Find / max-Dijkstra / 二分)。差別只在<strong>成本放哪</strong>:778 的成本是<strong>格子本身的高度</strong>(node 權),1631 的成本是<strong>相鄰兩格的高度差</strong>(edge 權)。778 想成「淹格」、1631 想成「跨邊」,骨架相同。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 只需把 <code>dirs</code> 從 4 方向改成 <strong>8 方向</strong>(加四個斜向),邊變多但三種寫法主體都不變。複雜度<strong>量級不變</strong>(每格鄰居 4→8 只是常數),仍是 <code>O(mn·log)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 用<strong>寫法 A 的離線做法</strong>:把邊依 <code>|Δ|</code> 排序、逐步 union,記錄「src 與 dst 在門檻多少時連通」(即答案 <code>ans</code>)。之後每個「effort ≤ t 能否到」查詢只要比較 <code>t ≥ ans</code>,<code>O(1)</code> 回答,不必每次重跑 BFS。若查詢是任意兩點,可在 union 過程建 Kruskal 重構樹,查詢兩點 LCA 上的最大邊權。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> <strong>寫法 B(Dijkstra)</strong>最好加:鬆弛成功更新 <code>dist[nr][nc]</code> 時,同時記 <code>prev[nr][nc] = (r,c)</code>;最後從終點沿 <code>prev</code> 回溯到起點、反轉即得路徑。Union-Find / 二分只給 effort 值,要回溯路徑得額外再跑一次 BFS(只走 <code>|Δ| ≤ ans</code> 的邊)並記父節點。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">三種寫法與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「邊權=|Δ|、最小化最大邊權、三招、與 778 同型」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 1631 · PATH WITH MINIMUM EFFORT</div>
+  </div>
+
+</body>
+</html>

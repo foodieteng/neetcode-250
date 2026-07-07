@@ -252,7 +252,7 @@ PROBLEMS = {
         ('p127', 'Word Ladder',                                          'word-ladder',                                          'hard','todo'),
     ],
     '12': [  # Advanced Graphs
-        ('p1631','Path With Minimum Effort',                                        'path-with-minimum-effort',                                        'med', 'todo'),
+        ('p1631','Path With Minimum Effort',                                        'path-with-minimum-effort',                                        'med', 'done'),
         ('p743', 'Network Delay Time',                                              'network-delay-time',                                              'med', 'done'),
         ('p332', 'Reconstruct Itinerary',                                           'reconstruct-itinerary',                                           'hard','done'),
         ('p1584','Min Cost to Connect All Points',                                  'min-cost-to-connect-all-points',                                  'med', 'todo'),
