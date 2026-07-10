@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>752 · Open the Lock // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P752</span>
+    <span><a href="https://leetcode.com/problems/open-the-lock/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">打開轉盤鎖</h1>
+    <p class="sc-mast__subtitle">// CODE · BFS 實作 + char 陷阱</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 752</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · 逐層 BFS<span class="sc-section__title-en">// LEVEL = TURN</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p752.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">openLock</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> deadends<span class="p">,</span> <span class="t">string</span> target<span class="p">)</span> <span class="p">{</span>
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> dead<span class="p">(</span>deadends<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> deadends<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+        <span class="k">if</span> <span class="p">(</span>dead<span class="p">.</span><span class="f">count</span><span class="p">(</span><span class="s">"0000"</span><span class="p">))</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>          <span class="c">// 起點就死 → 開不了</span>
+        <span class="k">if</span> <span class="p">(</span>target <span class="p">==</span> <span class="s">"0000"</span><span class="p">)</span> <span class="k">return</span> <span class="n">0</span><span class="p">;</span>            <span class="c">// 起點就是目標</span>
+
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> seen<span class="p">;</span>
+        <span class="t">queue</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> q<span class="p">;</span>
+        seen<span class="p">.</span><span class="f">insert</span><span class="p">(</span><span class="s">"0000"</span><span class="p">);</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span><span class="s">"0000"</span><span class="p">);</span>
+        <span class="t">int</span> step <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(!</span>q<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="t">int</span> sz <span class="p">=</span> q<span class="p">.</span><span class="f">size</span><span class="p">();</span>                       <span class="c">// 這一層(轉這一次)的所有狀態</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> _ <span class="p">=</span> <span class="n">0</span><span class="p">;</span> _ <span class="p">&lt;</span> sz<span class="p">;</span> _<span class="p">++)</span> <span class="p">{</span>
+                <span class="k">auto</span> u <span class="p">=</span> q<span class="p">.</span><span class="f">front</span><span class="p">();</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+                <span class="k">if</span> <span class="p">(</span>u <span class="p">==</span> target<span class="p">)</span> <span class="k">return</span> step<span class="p">;</span>          <span class="c">// 第一次出隊 = 最短</span>
+
+                <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> <span class="n">4</span><span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+                    <span class="t">string</span> cache <span class="p">=</span> u<span class="p">;</span>
+
+                    u<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="p">(</span>cache<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="s">'9'</span><span class="p">)</span> <span class="p">?</span> <span class="s">'0'</span> <span class="p">:</span> cache<span class="p">[</span>i<span class="p">]</span> <span class="p">+</span> <span class="n">1</span><span class="p">;</span>  <span class="c">// 上轉:ASCII 直接 +1</span>
+                    <span class="k">if</span> <span class="p">(!</span>dead<span class="p">.</span><span class="f">count</span><span class="p">(</span>u<span class="p">)</span> <span class="p">&amp;&amp;</span> <span class="p">!</span>seen<span class="p">.</span><span class="f">count</span><span class="p">(</span>u<span class="p">))</span> <span class="p">{</span> seen<span class="p">.</span><span class="f">insert</span><span class="p">(</span>u<span class="p">);</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>u<span class="p">);</span> <span class="p">}</span>
+
+                    u<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="p">(</span>cache<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="s">'0'</span><span class="p">)</span> <span class="p">?</span> <span class="s">'9'</span> <span class="p">:</span> cache<span class="p">[</span>i<span class="p">]</span> <span class="p">-</span> <span class="n">1</span><span class="p">;</span>  <span class="c">// 下轉:ASCII 直接 −1</span>
+                    <span class="k">if</span> <span class="p">(!</span>dead<span class="p">.</span><span class="f">count</span><span class="p">(</span>u<span class="p">)</span> <span class="p">&amp;&amp;</span> <span class="p">!</span>seen<span class="p">.</span><span class="f">count</span><span class="p">(</span>u<span class="p">))</span> <span class="p">{</span> seen<span class="p">.</span><span class="f">insert</span><span class="p">(</span>u<span class="p">);</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>u<span class="p">);</span> <span class="p">}</span>
+
+                    u <span class="p">=</span> cache<span class="p">;</span>                          <span class="c">// ★ 還原,再換下一個輪</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            step<span class="p">++;</span>                                    <span class="c">// 清完一層 = 轉了一次</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>                                   <span class="c">// 走不到 target</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(10⁴)</strong>　　S = <strong>O(10⁴)</strong></div>
+      <p class="sc-formula__hint">
+        狀態至多 <code>10⁴</code> 個,每個產生 <code>4×2=8</code> 個鄰居、每個鄰居 <code>O(4)</code> 比較與雜湊。常數倍,整體 <code>O(10⁴)</code>。空間為 <code>seen</code> + 佇列。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建 dead 集合</td><td class="mono">O(D)</td><td>D = deadends 數</td></tr>
+        <tr><td>逐層 BFS</td><td class="mono">O(10⁴)</td><td>每狀態進出佇列一次</td></tr>
+        <tr><td>額外空間</td><td class="mono">O(10⁴)</td><td>seen + queue</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 注意 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">注意 · 邊界與陷阱<span class="sc-section__title-en">// CAUTION · PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td><strong>char 運算</strong> <code>char(c - '0' + 1)</code></td><td class="fail">得到控制字元、非數字</td><td>ASCII 直接 <code>c + 1</code>,或補 <code>+ '0'</code></td></tr>
+        <tr><td>忘了 <code>u = cache;</code> 還原</td><td class="fail">多輪疊加、鄰居錯</td><td>每個輪產生完鄰居把 <code>u</code> 復原</td></tr>
+        <tr><td>沒特判 <code>"0000"</code> 在 dead</td><td class="fail">從死狀態出發</td><td>開頭 <code>if (dead.count("0000")) return -1;</code></td></tr>
+        <tr><td>沒用 <code>sz = q.size()</code> 分層</td><td class="fail">step 算錯</td><td>每輪鎖定<strong>這一層</strong>,清完才 <code>step++</code></td></tr>
+        <tr><td>9↔0 環繞沒處理</td><td class="fail">'9'+1 變 ':'</td><td>三元:<code>'9'→'0'</code>、<code>'0'→'9'</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 錯誤筆記 走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">錯誤筆記 · char 運算<span class="sc-section__title-en">// WRONG vs RIGHT</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ✗ 我原本的寫法</span>
+u[i] = (cache[i] == '9') ? '0' : char(cache[i] - '0' + 1);
+以 cache[i] = '5'(ASCII 53)為例:
+  cache[i] - '0' = 5      ← 轉成「數字值」
+  + 1            = 6
+  char(6)        = ASCII 6 控制字元,<span class="sc-trace__out">不是 '6'(ASCII 54)</span>
+少了把數字轉回字元的 + '0'</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ✓ 正解</span>
+u[i] = (cache[i] == '9') ? '0' : cache[i] + 1;   // ASCII 直接 +1
+  '5' + 1 = 54 = '6'  ✓
+或補回轉換:char(cache[i] - '0' + 1 + '0') 也對
+下轉同理:'0'→'9',否則 cache[i] - 1</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 為什麼那個 bug 會「跑不完」</span>
+鄰居字串塞了控制字元 → 不是合法鎖狀態
+它們不在 dead、也不在 seen → 被當新狀態入隊
+BFS 於是在一大片「垃圾字串」的狀態空間裡亂走
+不只答案錯,狀態爆開,幾乎跑不完(超時)
+另外漏 u = cache 會讓下一個輪建在已改過的 u 上,鄰居也錯</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// KEY LESSON</div>
+    <div class="sc-summary-bar__body">狀態當節點逐層 BFS;char「上/下轉」用 ASCII 直接 ±1(別 −'0' 卻忘 +'0'),每輪還原 u。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 752 · OPEN THE LOCK</div>
+  </div>
+
+</body>
+</html>

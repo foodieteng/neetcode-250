@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>752 · Open the Lock // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P752</span>
+    <span><a href="https://leetcode.com/problems/open-the-lock/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">打開轉盤鎖</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 狀態圖上的最短路 BFS</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 752</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BFS SHORTEST PATH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        4 個轉輪的鎖,每輪 <code>0..9</code> 可環繞(<code>9→0</code>、<code>0→9</code>)。每次<strong>轉一個輪一格</strong>。從 <code>"0000"</code> 出發,
+        <code>deadends</code> 是不能停留的死鎖狀態。求轉到 <code>target</code> 的<strong>最少轉數</strong>,無法到達回 <code>-1</code>。
+      </p>
+    </div>
+
+    <p>
+      把每個 <strong>4 位密碼</strong>看成圖上一個<strong>節點</strong>,一次轉輪 ±1 連到 8 個鄰居(每輪上/下)。「最少轉數」=「起點到終點的<strong>最短路徑長度</strong>」,而且<strong>每條邊權重都是 1</strong>(轉一次算一步)——
+      這正是 <strong>BFS</strong> 的主場:一層一層往外擴,<strong>第一次碰到 target 的層數</strong>就是答案。<code>deadends</code> 當作不能進的牆、<code>seen</code> 避免重複。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 BFS ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 BFS<span class="sc-section__title-en">// WHY BFS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">DFS 找路徑</span>
+            <span class="sc-ko-card__o">非最短</span>
+          </div>
+          <div class="sc-ko-card__body">DFS 一頭鑽到底,先找到的不保證最短,要窮舉所有路徑再取最短 → 指數爆炸。最短路不該用 DFS。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 非最短</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">Dijkstra</span>
+            <span class="sc-ko-card__o">殺雞牛刀</span>
+          </div>
+          <div class="sc-ko-card__body">Dijkstra 處理<strong>不同邊權</strong>;這題每條邊都是 1(轉一次),用 heap 是多餘。BFS 就是邊權 1 的 Dijkstra。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 過度</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">BFS(逐層 = 逐次轉)</span>
+          <span class="sc-ko-card__o">O(狀態數)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          從 <code>"0000"</code> 逐層擴展:每層把當前狀態的 8 個鄰居(未死、未訪)入隊。<strong>一層 = 轉一次</strong>,
+          第一次讓 <code>target</code> 出隊時的層數 = 最少轉數。狀態最多 <code>10⁴</code> 個,每個常數鄰居 → <code>O(10⁴)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · SHORTEST</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>特判</strong>:<code>"0000"</code> 在 deadends → <code>-1</code>;<code>target == "0000"</code> → <code>0</code>。</li>
+      <li><strong>逐層 BFS</strong>:佇列放狀態、<code>seen</code> 去重。每輪用 <code>sz = q.size()</code> 清完<strong>這一層</strong>;每個狀態產生 8 個鄰居(4 輪 × 上下),<strong>不在 dead、不在 seen</strong> 才入隊。</li>
+      <li><strong>計層數</strong>:每清完一層 <code>step++</code>;<code>u == target</code> 時回傳當下 <code>step</code>;佇列空還沒到 → <code>-1</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · BFS 最短路<span class="sc-section__title-en">// target 0202 → 6</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      沿 BFS 找到的最短路徑一步步轉(珊瑚 = 本步轉動的輪)。每轉一次 <code>step+1</code>,第一次碰到 <code>0202</code> 時 <code>step=6</code> = 最少轉數;全程避開 deadends。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ BFS 開鎖 · 逐層 = 逐次轉</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:370px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 錯誤筆記 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">錯誤筆記 · char 運算的坑<span class="sc-section__title-en">// MY BUG NOTE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">注意 · 「數字值 +1」不等於「下一個數字字元」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          我原本把「輪 +1」寫成 <code>u[i] = char(cache[i] - '0' + 1)</code> —— <strong>錯</strong>。<code>cache[i]</code> 是<strong>字元</strong>(如 <code>'5'</code> = ASCII 53)。<code>cache[i] - '0'</code> = <code>5</code>(轉成數字值),<code>+ 1</code> = <code>6</code>,而 <code>char(6)</code> 是 <strong>ASCII 6 的控制字元</strong>,<strong>不是</strong>字元 <code>'6'</code>(ASCII 54)。少了把數字<strong>轉回字元</strong>的 <code>+ '0'</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>後果:</strong>產生的鄰居字串塞進了亂碼控制字元,根本不是合法的鎖狀態。BFS 於是在一堆<strong>垃圾狀態</strong>裡亂走(它們也不在 dead/seen),不但答案錯,狀態空間還爆開、<strong>幾乎跑不完</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>正解:</strong>直接用 ASCII 運算 <code>cache[i] + 1</code>(<code>'5'+1</code> = <code>'6'</code>),或補回轉換 <code>char(cache[i] - '0' + 1 + '0')</code>。另外別忘 <code>u = cache;</code> <strong>還原</strong> —— 每個輪產生完鄰居要把 <code>u</code> 復原,否則下一個輪會建在「已被轉過」的字串上,變成多輪同時轉的錯鄰居。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(10⁴ · 8 · 4)</strong>　　S = <strong>O(10⁴)</strong></div>
+      <p class="sc-formula__hint">
+        狀態最多 <code>10⁴</code> 個,每個產生 8 個鄰居、每個鄰居比較 4 個字元。都是常數倍,整體 <code>O(10⁴)</code>。空間為 <code>seen</code> + 佇列。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(10⁴)</td><td>每狀態常數次鄰居擴展</td></tr>
+        <tr><td>Space</td><td class="mono">O(10⁴)</td><td>seen 集合 + BFS 佇列</td></tr>
+        <tr><td>邊權</td><td class="mono">1</td><td>轉一次 = 一步 → BFS 即最短</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「最少幾步從 A 變到 B」+「每步代價相同」= <strong>把狀態當節點、BFS 找最短</strong>。
+      逐層擴、第一次到就是最短;deadends 是牆、seen 防重複。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">狀態當節點、轉一格是邊(權1),BFS 逐層找最短;char 運算要 ASCII 直接 +1,別忘還原 u。</div>
+    <div class="sc-summary-bar__detail">BFS ON STATE GRAPH · SHORTEST TURNS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p752-bfs.js"></script>
+</body>
+</html>
