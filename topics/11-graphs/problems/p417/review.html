@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>417 · Pacific Atlantic Water Flow // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P417</span>
+    <span><a href="https://leetcode.com/problems/pacific-atlantic-water-flow/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">太平洋大西洋水流</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 417</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>找「能同時流到兩海」的格 = 兩次可達的<strong>交集</strong></td></tr>
+        <tr><td>核心翻轉</td><td>不對每格搜,<strong>反向從海邊往高處淹</strong></td></tr>
+        <tr><td>淹沒條件</td><td>只走 <code>heights[鄰] ≥ 當前</code>(逆水向上)</td></tr>
+        <tr><td>邊界</td><td>太平洋=上緣+左緣;大西洋=下緣+右緣</td></tr>
+        <tr><td>兩個 seen</td><td><code>p_set</code>、<code>a_set</code> 各一;最後取交集</td></tr>
+        <tr><td>複雜度</td><td><code>O(mn)</code>,取代對每格搜的 <code>O((mn)²)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「反向從海邊淹沒」比「對每個格子各搜一次到兩海」好?複雜度分別是多少?</div>
+    <div class="qa"><strong>Q2.</strong> 淹沒時推進條件是 <code>heights[nr][nc] ≥ heights[r][c]</code>(否則 <code>continue</code>)。用「正向水流」解釋為什麼反向要用 <code>≥</code>。</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼太平洋和大西洋要用<strong>兩個獨立</strong>的 <code>seen</code>(<code>p_set</code>、<code>a_set</code>)?如果共用一個會怎樣?</div>
+    <div class="qa"><strong>Q4.</strong> 太平洋、大西洋各對應網格的哪些邊界?程式的兩個 <code>for</code> 迴圈分別從哪些格子啟動 DFS?</div>
+    <div class="qa"><strong>Q5.</strong> 為什麼淹沒用 <code>≥</code>(含相等)而不是嚴格 <code>&gt;</code>?相鄰兩格<strong>同高</strong>時應該怎麼處理?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 5×5 → 7 cells</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 高度網格(太平洋=上/左,大西洋=下/右)</span>
+ 1 2 2 3 5
+ 3 2 3 4 4
+ 2 4 5 3 1
+ 6 7 1 4 5
+ 5 1 1 2 4</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 兩次淹沒(1=可達)</span>
+p_set(太平洋)          a_set(大西洋)
+ 1 1 1 1 1              . . . . 1
+ 1 1 1 1 1              . . . 1 1
+ 1 1 1 . .              . . 1 1 1
+ 1 1 . . .              1 1 1 1 1
+ 1 . . . .              1 1 1 1 1</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 交集 = 兩邊都是 1</span>
+ . . . . B      B 的座標(row-major):
+ . . . B B      [0,4] [1,3] [1,4] [2,2]
+ . . B . .      [3,0] [3,1] [4,0]
+ B B . . .
+ B . . . .      <span class="sc-trace__out">// OUTPUT: 7 格</span></div>
+
+    <div class="sc-insight">
+      看 <code>[2,2]=5</code>(中央最高):它往四周都是下坡,水能流向各方 → 兩海都到得了。
+      而角落低地若被高牆圍住,可能只通一邊。<strong>交集</strong>精準挑出「兩邊都通」的格。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 把 DFS 換成 <strong>BFS</strong> 淹沒怎麼做?把所有邊界格一起入隊有什麼好處(和多源 BFS 的關聯)?</div>
+    <div class="qa"><strong>App 2.</strong> 若只問「能流到<strong>太平洋</strong>」的所有格子,程式怎麼簡化?還需要取交集嗎?</div>
+    <div class="qa"><strong>App 3.</strong> 若水流規則改成「只能流到<strong>嚴格更低</strong>」(<code>&lt;</code> 不是 <code>≤</code>),反向淹沒的推進條件要改成什麼?同高的格子還連通嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 「對每格各搜一次」要跑 <code>mn</code> 次搜尋、每次 <code>O(mn)</code> → <code>O((mn)²)</code>,會 TLE。反向只需<strong>從海邊各淹一次</strong>(太平洋、大西洋共 2 次),每次是一趟 <code>O(mn)</code> 的 DFS/BFS,把「所有能到這片海的格」一次全標好 → 總計 <code>O(mn)</code>。省下的關鍵是:反向讓「一個源頭」的一趟走訪,就涵蓋了「所有格到這個海」的可達性。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 正向水流:從 <code>A</code> 流到 <code>B</code> 需要 <code>height[B] ≤ height[A]</code>(往低或平)。我們要判斷的是「<code>X</code> 能不能<strong>順流到海</strong>」。把每條邊<strong>反過來</strong>:從海邊出發,若 <code>height[鄰] ≥ height[當前]</code>,代表水本來可以從那個更高的鄰居<strong>流下來到這</strong>,所以逆流上得去。於是「從海邊逆流能到 <code>X</code>」⟺「<code>X</code> 順流能到海」。反向的推進條件正是正向條件的鏡像:<code>≥</code>。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為要分別知道「能到太平洋」和「能到大西洋」兩件<strong>獨立</strong>的事,最後才能取交集。若共用一個 <code>seen</code>,兩次淹沒的標記會混在一起,無法區分某格是被太平洋淹到、還是大西洋淹到、還是兩者 —— 交集就失去意義。必須 <code>p_set</code>、<code>a_set</code> 各記各的。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <strong>太平洋 = 上緣(第 0 列每格)+ 左緣(第 0 行每格)</strong>;<strong>大西洋 = 下緣(第 m−1 列)+ 右緣(第 n−1 行)</strong>。程式:第一個 <code>for i∈[0,m)</code> 從 <code>(i,0)</code> 淹太平洋、<code>(i,n−1)</code> 淹大西洋(左右兩緣);第二個 <code>for i∈[0,n)</code> 從 <code>(0,i)</code> 淹太平洋、<code>(m−1,i)</code> 淹大西洋(上下兩緣)。四條邊都當起點種進去。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 因為題目的水流規則是「流到高度 <strong>≤</strong> 當前」的鄰格 —— <strong>包含相等</strong>,平地之間水可以互流。反向後,相鄰同高的兩格彼此都滿足 <code>≥</code>,所以要能<strong>互相淹到</strong>,推進條件必須用 <code>≥</code>。若寫成嚴格 <code>&gt;</code>,同高的格會被漏掉,答案錯(少算)。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> BFS 版:把該海<strong>所有邊界格</strong>一次全部入隊(這就是<strong>多源 BFS</strong>),再逐格出隊,往 <code>≥</code> 的未訪鄰居擴散並入隊、標 <code>seen</code>。好處是不必遞迴、避免超深網格<strong>爆堆疊</strong>,且「所有源一起擴」和從邊界一起淹的語意天然吻合。做兩次(兩海)再取交集,同樣 <code>O(mn)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 只留 <strong>太平洋</strong>那一次淹沒:從上緣+左緣 DFS 標 <code>p_set</code>,最後把 <code>p_set</code> 為真的格全收集即可,<strong>不需要</strong> <code>a_set</code>、也不用取交集。這就是把本題砍成「單源可達」的簡化版。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 若正向是「只能流到<strong>嚴格更低</strong>」(<code>height[B] &lt; height[A]</code>),反向推進條件就變成 <code>height[鄰] &gt; height[當前]</code>(嚴格大於)。此時<strong>同高的格不再連通</strong> —— 水在平地流不動,反向也淹不過去。這會讓可達區域縮小,答案通常變少;也提醒「條件的等號」直接對應「平地能否互流」。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「反向從海邊淹、條件 ≥ 的由來、兩個 seen 取交集、四邊歸屬、O(mn) vs O((mn)²)」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 417 · PACIFIC ATLANTIC WATER FLOW</div>
+  </div>
+
+</body>
+</html>
