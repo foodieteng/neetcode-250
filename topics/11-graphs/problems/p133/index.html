@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>133 · Clone Graph // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P133</span>
+    <span><a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">複製圖</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · DFS + map(原→新)深拷貝</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 133</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DFS · HASH MAP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一個<strong>連通無向圖</strong>裡某個節點的參考,回傳這張圖的<strong>深拷貝(deep copy)</strong>。
+        每個 <code>Node</code> 有 <code>val</code> 和鄰居串列 <code>neighbors</code>。複製後的圖必須是<strong>全新的節點</strong>,但結構(連線)與原圖一模一樣。
+      </p>
+    </div>
+
+    <p>
+      難點是圖有<strong>環</strong>:直接遞迴複製會在環上<strong>無限繞</strong>,或把同一個節點複製很多份、連線接錯。
+      解法是用一張 <code>map</code>(<strong>原節點 → 新節點</strong>):走訪時<strong>每個節點只複製一次</strong>,遇到已複製過的節點就從 map 取用,不再新建。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼要 map ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼一定要 map<span class="sc-section__title-en">// WHY THE MAP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">只複製 val,共用原鄰居</span>
+            <span class="sc-ko-card__o">不是深拷貝</span>
+          </div>
+          <div class="sc-ko-card__body">若新節點的 <code>neighbors</code> 還指向<strong>原圖</strong>的節點,就不是獨立的複本 —— 改動會互相影響。必須連鄰居都是新節點。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 假複製</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">遞迴複製,但不記錄</span>
+            <span class="sc-ko-card__o">死圈</span>
+          </div>
+          <div class="sc-ko-card__body">圖有環:複製 A 要先複製鄰居 B,B 又要複製 A…… <strong>無限遞迴</strong>;就算不爆,也會把同一節點複製成很多份。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 無限迴圈</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">DFS/BFS + map(原→新)</span>
+          <span class="sc-ko-card__o">O(V+E)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          走訪圖;每個節點<strong>第一次遇到</strong>才新建複本並存進 <code>map[原]=新</code>,<strong>已在 map</strong> 就直接回傳既有複本。
+          這樣每個節點恰好複製一次,環上的回邊自動接到<strong>正確的既有複本</strong>,不死圈、不重複。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(V+E)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><code>node</code> 為空 → 回 <code>nullptr</code>。準備一張 <code>map</code>(原節點 → 新節點)。</li>
+      <li><strong>dfs(node)</strong>:若 <code>node</code> 已在 <code>map</code> → 直接回傳 <code>map[node]</code>(關鍵:切斷環、避免重複)。</li>
+      <li>否則<strong>先</strong>建複本 <code>copy</code>、<strong>立刻</strong>存 <code>map[node]=copy</code>,再對每個鄰居遞迴 <code>copy.neighbors.push_back(dfs(nei))</code>。回傳 <code>copy</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示(兩段) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [[2,4],[1,3],[2,4],[1,3]]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>A</strong> 看複製機制:DFS 逐個複製、環上回邊<strong>重用 map</strong> 的既有複本。<strong>B</strong> 看 follow-up:把 map 從 hashmap 換成<strong>以 val 為索引的固定陣列</strong> → 空間 O(1)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · 複製機制(DFS + map)</div>
+      <canvas id="va-canvas" class="sc-viz__canvas" style="height:480px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ B · Follow-up · 映射 O(1)(固定 val 陣列)</div>
+      <canvas id="vb-canvas" class="sc-viz__canvas" style="height:420px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · Follow-up · 空間 O(1) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">Follow-up · 空間能到 O(1) 嗎<span class="sc-section__title-en">// CAN SPACE BE O(1)?</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">注意 · 「O(1) 空間」到底指什麼</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>真正的 O(1) 總空間,對一般圖是做不到的。</strong> 任何圖走訪都得記「哪些點訪過」,那本身就是 <code>O(V)</code>(遞迴堆疊或 BFS 佇列)。這和 <strong>138 複製含隨機指標的鏈結串列</strong>不同:鏈結串列靠 <code>next</code> 免費列舉所有節點,才能用「穿插複本」做到真 O(1);<strong>圖沒有這種免費列舉</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>所以這裡的「O(1)」= 省掉 hashmap。</strong> 因為題目保證 <code>val</code> <strong>唯一且 1..100</strong>,可把 <code>unordered_map</code>(隨 V 長大 → <code>O(V)</code>)換成<strong>固定 101 格、以 val 為索引</strong>的陣列 <code>Node* clone[101]</code>:大小與節點數無關 → <strong>O(1)</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>結論:</strong>map 結構可壓到 <code>O(1)</code>,但走訪的堆疊 / 佇列仍是 <code>O(V)</code>,無法再省 —— 這正是這題和 138 的關鍵差異。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(V + E)</strong>　　S = <strong>O(V)</strong></div>
+      <p class="sc-formula__hint">
+        每個節點複製一次、每條邊看一次,<code>O(V+E)</code>。空間:map <code>O(V)</code> + 走訪堆疊 <code>O(V)</code>。Follow-up 把 map 降到 <code>O(1)</code>,但走訪仍 <code>O(V)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>Time</th><th>Space(map + 走訪)</th></tr></thead>
+      <tbody>
+        <tr><td>A · hashmap DFS</td><td class="mono">O(V+E)</td><td class="mono">O(V) + O(V)</td></tr>
+        <tr><td>B · val 陣列 DFS</td><td class="mono">O(V+E)</td><td class="mono">O(1) + O(V)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      複製有環的圖,靠一張「原→新」的 map:<strong>每點只建一次、回邊重用既有複本</strong>。
+      map 可用 val 索引壓到 O(1),但圖走訪的 O(V) 省不掉。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種寫法與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">DFS + map(原→新)深拷貝:每點只建一次、回邊重用;val 陣列可把 map 壓到 O(1)。</div>
+    <div class="sc-summary-bar__detail">DEEP COPY WITH CYCLES · HASH MAP</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p133-clone.js"></script>
+  <script src="../../../../assets/js/viz/p133-map.js"></script>
+</body>
+</html>

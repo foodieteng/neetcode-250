@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>133 · Clone Graph // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P133</span>
+    <span><a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">複製圖</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 133</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>有環的圖的<strong>深拷貝</strong>(全新節點、結構相同)</td></tr>
+        <tr><td>核心</td><td>一張 <code>map</code> 原→新:每點只建一次、回邊重用</td></tr>
+        <tr><td>關鍵順序</td><td><strong>先</strong> <code>map[node]=copy</code> <strong>再</strong>遞迴鄰居(切斷環)</td></tr>
+        <tr><td>Follow-up</td><td>val 唯一≤100 → <code>map</code> 換<strong>固定 101 陣列</strong> → O(1)</td></tr>
+        <tr><td>注意</td><td>真 O(1) 總空間<strong>做不到</strong>;走訪必須 O(V)</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(V+E)</code>,空間 <code>O(V)</code>(A)/ map O(1)(B)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼複製圖<strong>一定要</strong>一張 map?如果沒有它、直接遞迴複製,圖有環時會發生什麼?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼要「<strong>先</strong>把 <code>copy</code> 存進 map,<strong>再</strong>去遞迴鄰居」?順序反過來會怎樣?</div>
+    <div class="qa"><strong>Q3.</strong> 什麼叫「深拷貝」?若只 <code>new</code> 出新節點、但 <code>neighbors</code> 還指向原圖的節點,為什麼不算?</div>
+    <div class="qa"><strong>Q4.</strong>(follow-up)這題的「O(1) 空間」到底省掉了什麼?為什麼一般圖<strong>做不到</strong>真正 O(1) 的總空間?</div>
+    <div class="qa"><strong>Q5.</strong> 這題和 <strong>138 複製含隨機指標的鏈結串列</strong>看起來很像,關鍵差別在哪?為什麼 138 能真 O(1)、133 不行?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [[2,4],[1,3],[2,4],[1,3]] → 4-環</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 原圖 · 4 節點成環</span>
+1—2      1 鄰居 {2,4}   2 鄰居 {1,3}
+|  |      3 鄰居 {2,4}   4 鄰居 {1,3}
+4—3      (正方形四邊,有環)</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// DFS(1) · 先存 map 再遞迴</span>
+dfs(1):新建 1',map[1]=1'。走鄰居:
+  dfs(2):新建 2',map[2]=2'。走鄰居:
+    dfs(1):<span class="sc-trace__out">1 已在 map → 回傳 1'(不新建、切斷環)</span>
+    dfs(3):新建 3',map[3]=3'。走鄰居:
+      dfs(2):2 已在 map → 回傳 2'
+      dfs(4):新建 4',map[4]=4'。走鄰居 1、3 皆在 map → 回傳既有
+  dfs(4):4 已在 map → 回傳 4'</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+map = {1→1', 2→2', 3→3', 4→4'};每個原節點恰好一個新節點
+新圖連線:1'-2'-3'-4'-1'(與原圖相同,全是新節點)
+<span class="sc-trace__out">// OUTPUT: 1'(新圖的起點)</span></div>
+
+    <div class="sc-insight">
+      整個過程每個節點只「新建」一次(共 4 次),其餘遇到都從 map 取用。
+      <strong>map 就是「切斷環、避免重複」的那把鑰匙</strong> —— 拿掉它,環會讓遞迴永遠回不了頭。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 把 DFS 換成 <strong>BFS(queue)</strong> 怎麼寫?先做什麼、迴圈裡做什麼?</div>
+    <div class="qa"><strong>App 2.</strong> 若 <code>val</code> <strong>不唯一</strong>或範圍很大(例如 <code>10⁹</code>),follow-up 的「val 陣列」還能用嗎?退回什麼做法?</div>
+    <div class="qa"><strong>App 3.</strong> 若圖<strong>不保證連通</strong>(可能有多個分量,給你所有節點的列表),複製流程要改哪裡?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> map 做兩件事:① <strong>去重</strong> —— 每個原節點只對應<strong>一個</strong>新節點,不會複製出很多份;② <strong>切斷環</strong> —— 遇到已複製的節點直接回傳既有複本,不再往下遞迴。沒有 map,圖有環時複製 A 要先複製 B、複製 B 又要複製 A……<strong>無限遞迴爆堆疊</strong>;就算僥倖不爆,也會產生重複節點、連線接錯。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為要在遞迴鄰居<strong>之前</strong>就讓 <code>node</code> 在 map 裡「掛號」。假設環 A→B→A:若先遞迴 B、還沒存 A,則複製 B 時走到鄰居 A,發現 A 不在 map → 又新建一個 A → 再遞迴 B → 死圈。<strong>先存後遞</strong>:B 遞迴回來看到 A 已在 map,直接取用,環被切斷。這一行順序是正確性的關鍵。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 深拷貝 = 複製出的圖是<strong>完全獨立</strong>的一份,改動它不影響原圖。若新節點的 <code>neighbors</code> 還指向<strong>原圖</strong>的節點,那新舊兩圖<strong>共用</strong>了部分結構 —— 改新圖會牽動原圖,這只是「淺拷貝」。所以每個鄰居也必須換成 <code>dfs(nei)</code> 產生的<strong>新</strong>節點,整張圖的節點與邊都是全新的。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 省掉的是 <strong>map 這個資料結構</strong>:從隨節點數長大的 <code>unordered_map</code>(<code>O(V)</code>)換成<strong>固定 101 格</strong>、以 val 為索引的陣列(<code>O(1)</code>,靠 val 唯一且 ≤100)。但<strong>走訪</strong>本身要記錄「訪過哪些節點」(遞迴堆疊 / BFS 佇列 / visited),這至少 <code>O(V)</code>,<strong>省不掉</strong>。所以總空間仍是 <code>O(V)</code>;「O(1)」只針對 map 結構。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 138 是<strong>鏈結串列</strong>,有 <code>next</code> 指標可以<strong>免費、線性地列舉</strong>所有節點,所以能用「把複本穿插在原節點之後(A→A'→B→B'…)」的技巧,不需額外 map、不需 visited → 真 <code>O(1)</code> 額外空間。<strong>133 是一般圖</strong>,沒有這種天然的線性列舉,任何走訪都得靠堆疊/佇列/visited 記錄進度,<strong>至少 O(V)</strong>。這就是「圖不能像鏈結串列那樣真 O(1)」的根本原因。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 先處理起點:<code>map[node]=new Node(node-&gt;val)</code>,把 <code>node</code> 入佇列。迴圈:取出 <code>cur</code>,對每個鄰居 <code>nei</code> —— 若 <code>nei</code> 不在 map,新建其複本並入佇列;然後把 <code>map[nei]</code> 接到 <code>map[cur]-&gt;neighbors</code>。佇列空了就完成。BFS 用佇列取代遞迴堆疊,適合超深的圖避免 stack overflow。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 不能用。val 陣列的前提是「val 唯一、範圍小(當索引)」。若 val 重複,不同節點會撞同一格;若範圍到 <code>10⁹</code>,陣列開不下。這時退回用 <strong><code>unordered_map&lt;Node*, Node*&gt;</code></strong>(以節點<strong>指標</strong>為鍵,永遠唯一、不受 val 影響),空間回到 <code>O(V)</code> —— 也就是主解法 A。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 單一起點的 DFS/BFS 只能走遍<strong>一個</strong>連通分量。若不保證連通、且給你<strong>所有節點的列表</strong>,就<strong>外層再包一層迴圈</strong>:對每個節點,若它還沒在 map 裡,就從它啟動一次複製(共用同一張 map)。這樣每個分量各被複製一次,和「島嶼數量」外層掃描的思路相同。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">兩種寫法與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「map 切斷環、先存後遞、深拷貝、val 陣列壓 map、走訪 O(V) 省不掉、與 138 差別」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 133 · CLONE GRAPH</div>
+  </div>
+
+</body>
+</html>
