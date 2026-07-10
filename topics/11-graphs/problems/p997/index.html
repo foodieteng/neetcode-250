@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>997 · Find the Town Judge // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P997</span>
+    <span><a href="https://leetcode.com/problems/find-the-town-judge/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">找出城鎮法官</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 入度 n−1、出度 0 的唯一節點</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 997</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>IN / OUT DEGREE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        鎮上有 <code>n</code> 人(編號 <code>1..n</code>)。若存在<strong>法官</strong>,則:① 法官<strong>誰都不信任</strong>;② <strong>其他每個人都信任法官</strong>;③ 恰好一人同時滿足 ①②。
+        給 <code>trust[i] = [a, b]</code> 表示 <code>a</code> 信任 <code>b</code>,回傳法官編號,不存在回傳 <code>-1</code>。
+      </p>
+    </div>
+
+    <p>
+      把信任看成<strong>有向圖</strong>:邊 <code>a→b</code> = 「a 信任 b」。法官就是唯一「<strong>入度 in = n−1</strong>(被其他所有人指向)、且<strong>出度 out = 0</strong>(自己不指向任何人)」的節點。
+      只要數每個人的 in / out 度,再掃一遍找符合者即可。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用度數計數<span class="sc-section__title-en">// WHY DEGREE COUNT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">對每個候選人掃整個 trust 驗證</span>
+            <span class="sc-ko-card__o">O(n·m)</span>
+          </div>
+          <div class="sc-ko-card__body">對每個人都掃一遍 <code>trust</code> 確認「被所有人信任、且不信任別人」。<code>n</code> 個候選 × <code>m</code> 條邊,重複掃太慢。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 慢</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">建鄰接表 + BFS/DFS 找入度</span>
+            <span class="sc-ko-card__o">殺雞牛刀</span>
+          </div>
+          <div class="sc-ko-card__body">建整張圖再走訪,可行但這題根本不用走訪 —— 答案只跟「每個點的 in / out 度」有關,不需要路徑或連通性。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 過度</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">in[] / out[] 度數計數</span>
+          <span class="sc-ko-card__o">O(n + m)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          掃一次 <code>trust</code> 累加 <code>out[a]++, in[b]++</code>。再掃 <code>1..n</code> 找 <code>out[i]==0 && in[i]==n−1</code> 的人 —— 這正是法官,唯一且直接。
+          <strong>不需要建圖、不需要走訪</strong>,兩個計數陣列搞定。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · LINEAR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>兩個計數陣列</strong>:<code>in[1..n]</code>、<code>out[1..n]</code> 全設 0。</li>
+      <li><strong>累加度數</strong>:對每條 <code>[a, b]</code>,<code>out[a]++</code>(a 信任了人)、<code>in[b]++</code>(b 被信任)。</li>
+      <li><strong>找法官</strong>:掃 <code>1..n</code>,第一個 <code>out[i]==0 && in[i]==n−1</code> 就回傳 <code>i</code>;都不符合回傳 <code>-1</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 圖示(一次全顯示) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">圖示 · 一次全顯示<span class="sc-section__title-en">// n=3 · trust=[[1,3],[2,3]] → 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      整張圖一次呈現:P1、P2 都指向 P3(信任),P3 不指向任何人。<strong>P3 的 in=2=n−1、out=0</strong> → 唯一符合法官條件 → 回傳 <code>3</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 信任關係圖 · in / out 度 · 判定</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:450px;"></canvas>
+      <div class="sc-viz__label" id="viz-label">法官 = 被所有人信任(in=n−1)且自己不信任任何人(out=0);唯一符合者即答案,否則 −1。</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「一個條件」就夠<span class="sc-section__title-en">// WHY IT'S UNIQUE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · in==n−1 且 out==0 → 唯一法官</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>out[i]==0</code> 保證 <code>i</code> 不信任任何人(條件 ①);<code>in[i]==n−1</code> 保證<strong>其他 n−1 人全都</strong>信任 <code>i</code>(條件 ②)。兩者合起來正是法官定義。
+        </p>
+        <p style="margin:0;">
+          為什麼唯一?若有兩人 <code>x, y</code> 都滿足,則 <code>x</code> 要被所有人信任、<code>y</code> 也得信任 <code>x</code> → <code>out[y]≥1</code>,和 <code>out[y]==0</code> 矛盾。所以最多一人符合,<strong>掃到就是答案</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n + m)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        <code>m = trust.size()</code>。掃一次邊累加度數 <code>O(m)</code>,再掃 <code>1..n</code> 找法官 <code>O(n)</code>。空間為兩個長度 <code>n+1</code> 的計數陣列。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n + m)</td><td>一次累加 + 一次掃描</td></tr>
+        <tr><td>Space</td><td class="mono">O(n)</td><td>in[] 與 out[] 兩陣列</td></tr>
+        <tr><td>可優化</td><td class="mono">O(n)</td><td>合成一個 <code>net = in − out</code>,找 <code>net==n−1</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      法官 = 有向圖裡<strong>入度 n−1、出度 0</strong> 的唯一節點。答案只跟度數有關 ——
+      不用建圖、不用走訪,兩個計數陣列一掃就有。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">法官 = 入度 n−1、出度 0 的唯一節點;數 in/out 度再掃一遍即可,O(n+m)。</div>
+    <div class="sc-summary-bar__detail">IN / OUT DEGREE COUNT · NO TRAVERSAL NEEDED</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p997-degree.js"></script>
+</body>
+</html>
