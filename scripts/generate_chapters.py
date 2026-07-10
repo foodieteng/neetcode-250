@@ -470,6 +470,20 @@ def chapter_quick_index(cat_id, cat_slug, probs):
         else:
             title_cell = f'<span style="color:var(--concrete)">{title}</span>'
 
+        # self-editable, localStorage-persisted columns (time / date / my-difficulty)
+        track_cells = (
+            f'<td><input class="trk-input" type="text" inputmode="text" '
+            f'data-trk="time" data-pid="{num}" placeholder="—" aria-label="花費時間" /></td>'
+            f'<td><input class="trk-date" type="date" '
+            f'data-trk="date" data-pid="{num}" aria-label="上次日期" /></td>'
+            f'<td><select class="trk-select" data-trk="diff" data-pid="{num}" aria-label="我的難度">'
+            f'<option value="">—</option>'
+            f'<option value="easy">Easy</option>'
+            f'<option value="med">Med</option>'
+            f'<option value="hard">Hard</option>'
+            f'</select></td>'
+        )
+
         rows.append(
             f'            <tr>'
             f'<td>{diff_chip(difficulty)}</td>'
@@ -478,6 +492,7 @@ def chapter_quick_index(cat_id, cat_slug, probs):
             f'<td><a href="{source}" target="_blank" rel="noopener" '
             f'style="color:var(--rust-bright);border:none;">原題 ↗</a></td>'
             f'<td>{status_html}</td>'
+            f'{track_cells}'
             f'</tr>'
         )
     rows_html = '\n'.join(rows)
@@ -488,14 +503,16 @@ def chapter_quick_index(cat_id, cat_slug, probs):
           <span>SUMMARY</span>
           <span>{len(probs)} PROBLEMS</span>
         </div>
+        <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>難度</th><th>#</th><th>題目</th><th>原題</th><th>狀態</th></tr>
+            <tr><th>難度</th><th>#</th><th>題目</th><th>原題</th><th>狀態</th><th class="trk-th">時間</th><th class="trk-th">日期</th><th class="trk-th">自評</th></tr>
           </thead>
           <tbody>
 {rows_html}
           </tbody>
         </table>
+        </div>
       </article>'''
 
 
@@ -594,6 +611,7 @@ def chapter_page(cat_id, slug, title, subtitle, count):
   <link rel="stylesheet" href="{base}assets/css/base.css" />
   <link rel="stylesheet" href="{base}assets/css/components.css" />
   <link rel="stylesheet" href="{base}assets/css/problem.css" />
+  <link rel="stylesheet" href="{base}assets/css/tracker.css" />
 </head>
 <body>
 
@@ -668,6 +686,8 @@ def chapter_page(cat_id, slug, title, subtitle, count):
     <div><a href="{base}index.html">← BACK TO INDEX</a></div>
     <div>SERIAL_NO. NC-{cat_id}-2026</div>
   </footer>
+
+  <script src="{base}assets/js/progress-tracker.js"></script>
 
 </body>
 </html>
