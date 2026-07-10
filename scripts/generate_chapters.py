@@ -233,7 +233,7 @@ PROBLEMS = {
         ('p953', 'Verifying an Alien Dictionary',                        'verifying-an-alien-dictionary',                        'easy','done'),
         ('p997', 'Find the Town Judge',                                  'find-the-town-judge',                                  'easy','done'),
         ('p200', 'Number of Islands',                                    'number-of-islands',                                    'med', 'done'),
-        ('p695', 'Max Area of Island',                                   'max-area-of-island',                                   'med', 'todo'),
+        ('p695', 'Max Area of Island',                                   'max-area-of-island',                                   'med', 'done'),
         ('p133', 'Clone Graph',                                          'clone-graph',                                          'med', 'todo'),
         ('p286', 'Walls and Gates',                                      'walls-and-gates',                                      'med', 'todo'),
         ('p994', 'Rotting Oranges',                                      'rotting-oranges',                                      'med', 'todo'),

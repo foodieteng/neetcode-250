@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>695 · Max Area of Island // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P695</span>
+    <span><a href="https://leetcode.com/problems/max-area-of-island/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">島嶼的最大面積</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · DFS 一邊沉島一邊數格子</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 695</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>GRID DFS · AREA</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>m×n</code> 的 0/1 矩陣,<code>1</code> 是陸地、<code>0</code> 是水。<strong>上下左右</strong>相連的陸地組成一座島。
+        一座島的<strong>面積</strong> = 島內陸地格的<strong>數量</strong>。求所有島中<strong>最大</strong>的面積(沒有島回傳 <code>0</code>)。
+      </p>
+    </div>
+
+    <p>
+      這是 <strong>200 島嶼數量</strong>的<strong>孿生題</strong>:同樣掃描 + DFS 沉島,只是把「數<em>幾座</em>島」換成「量<em>每座多大</em>、取最大」。
+      DFS 沉一座島時<strong>順便數走過幾格</strong>(面積),主流程用 <code>maxArea = max(maxArea, curArea)</code> 記住最大的一座。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼 DFS 回面積<span class="sc-section__title-en">// WHY DFS-AREA</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">先數島數、再回頭量每座</span>
+            <span class="sc-ko-card__o">多掃一趟</span>
+          </div>
+          <div class="sc-ko-card__body">分兩階段沒必要 —— 沉一座島的<strong>同一趟</strong> DFS 就能順手把格子數出來,不用重掃。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 冗餘</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">Union-Find + 每根計 size</span>
+            <span class="sc-ko-card__o">可行</span>
+          </div>
+          <div class="sc-ko-card__body">DSU 併相鄰陸地、每個根記 size,最後取最大 size。正確,但要維護 size 陣列;DFS 回面積更短。</div>
+          <div class="sc-ko-card__verdict">△ OK · 較繁</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">DFS 沉島時累加面積</span>
+          <span class="sc-ko-card__o">O(m·n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          掃到未訪陸地 <code>1</code> 就啟動 DFS:每沉一格 <code>curArea++</code>,整座島沉完 <code>curArea</code> = 面積。
+          回到主流程 <code>maxArea = max(maxArea, curArea)</code>。一趟掃描搞定,<code>O(mn)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · ONE PASS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>雙迴圈掃描</strong>每格;遇到 <code>grid[i][j] == 0</code> 直接跳過。</li>
+      <li>遇到陸地 <code>1</code>:開一個 <code>curArea = 0</code>,呼叫 <code>dfs(i, j, curArea)</code>。</li>
+      <li><strong>dfs 沉島 + 計數</strong>:出界或踩到 <code>0</code> 就 return;否則 <code>grid[r][c]=0</code>(立刻沉)、<code>curArea++</code>,再遞迴四方向。回主流程後 <code>maxArea = max(maxArea, curArea)</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · DFS 量面積<span class="sc-section__title-en">// 藍島 3 · 棕島 2 → 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每座島 DFS 沉掉時<strong>數走過幾格</strong>(格內數字 = DFS 序)。藍島 3 格、棕島 2 格;<code>maxArea = max(3, 2) = 3</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ DFS 沉島 + curArea + maxArea</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:430px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 注意 · CAUTION ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">注意 · 和 200 的關鍵差別<span class="sc-section__title-en">// CAUTION</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">注意 · 這題最容易踩的坑</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>① 這題 grid 是 <code>int</code>,不是 <code>char</code>!</strong> 和 200 的 <code>char '1'/'0'</code> 不同,這裡用<strong>整數</strong> <code>0</code>/<code>1</code>,所以 <code>grid[r][c] == 0</code>、<code>grid[r][c] = 0</code> <strong>不帶引號</strong>才對。搬 200 的寫法過來、誤加引號會型別錯。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>② <code>curArea</code> 要「傳參考」(<code>int&amp;</code>)。</strong> 讓所有遞迴共用同一個計數器;若傳值(<code>int</code>),各層自己加自己的,回不到上層,面積算不對。或改成 <strong>DFS 回傳面積</strong> <code>1 + Σdfs(鄰)</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>③ 進 dfs 就<em>立刻</em>沉掉並計數。</strong> 先標 <code>0</code>、<code>curArea++</code>,再遞迴鄰居;否則相鄰互遞迴 → 無限迴圈,且同一格<strong>重複計數</strong>面積偏大。
+        </p>
+        <p style="margin:0;">
+          <strong>④ 沒有島要回 <code>0</code>。</strong> <code>maxArea</code> 初值設 <code>0</code>,全水時不會啟動任何 DFS,自然回 <code>0</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m·n)</strong>　　S = <strong>O(m·n)</strong></div>
+      <p class="sc-formula__hint">
+        每格最多被掃一次、被 DFS 沉一次(順便計面積)。空間為遞迴堆疊深度,最壞(整張圖一座蛇形大島)可達 <code>O(mn)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(m·n)</td><td>每格常數次造訪</td></tr>
+        <tr><td>Space</td><td class="mono">O(m·n)</td><td>遞迴堆疊最壞深度</td></tr>
+        <tr><td>面積計數</td><td class="mono">O(1)</td><td>curArea 沉一格 +1</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      和 200 同一個 DFS 沉島骨架,只多做一件事:<strong>沉一格就 +1 數面積</strong>,每座島量完取最大。
+      「數幾座」→「量多大」,換湯不換藥。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">DFS 沉島時 curArea++ 數面積,maxArea 取最大;注意 grid 是 int(不帶引號)、curArea 傳參考。</div>
+    <div class="sc-summary-bar__detail">FLOOD FILL · LARGEST COMPONENT SIZE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p695-dfs.js"></script>
+</body>
+</html>
