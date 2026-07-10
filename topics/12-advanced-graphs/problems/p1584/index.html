@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1584 · Min Cost to Connect All Points // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1584</span>
+    <span><a href="https://leetcode.com/problems/min-cost-to-connect-all-points/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">連接所有點的最小成本</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 曼哈頓距離的最小生成樹(MST)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1584</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MST · PRIM / KRUSKAL</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        平面上 <code>n</code> 個點 <code>points[i] = (x, y)</code>。任兩點之間可連一條邊,成本 = 兩點的<strong>曼哈頓距離</strong>
+        <code>|x₁−x₂| + |y₁−y₂|</code>。求把<strong>所有點連通</strong>(任兩點間有路徑)所需的<strong>最小總成本</strong>。
+      </p>
+    </div>
+
+    <p>
+      「用最小總成本把所有點連成一片、且不需要環」——這正是<strong>最小生成樹(Minimum Spanning Tree)</strong>的定義。
+      把每個點看成頂點、任兩點的曼哈頓距離看成邊權,答案 = 這張<strong>完全圖</strong>的 MST 權重和。<code>n−1</code> 條邊剛好連通 <code>n</code> 個點。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼是 MST ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「最小生成樹」<span class="sc-section__title-en">// WHY MST</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉所有連法</span>
+            <span class="sc-ko-card__o">指數級</span>
+          </div>
+          <div class="sc-ko-card__body">可連的邊有 <code>n(n−1)/2</code> 條,子集組合爆炸,無法枚舉。TLE。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">當成「最短路徑」跑 Dijkstra</span>
+            <span class="sc-ko-card__o">目標錯</span>
+          </div>
+          <div class="sc-ko-card__body">最短路是「單源到各點的最短距離」;這題要的是「連通<strong>整體</strong>的最小總邊權」,是不同問題。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 目標函數錯</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">最小生成樹 → Prim 或 Kruskal</span>
+          <span class="sc-ko-card__o">O(n²·log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>① Prim(lazy)</strong>:從一個點開始長樹,min-heap 每次取「樹→樹外」最便宜的跨邊,把新點併入。
+          <strong>② Kruskal(Union-Find)</strong>:所有邊照權重由小到大取出,不成環就加(union),加滿 <code>n−1</code> 條為止。
+          兩者都是貪心且都保證最優,皆 <code>O(n²·log n)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 2 WAYS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建模</strong>:頂點 = 各點;邊權 = 任兩點的曼哈頓距離。要在這張完全圖上求 MST。</li>
+      <li><strong>兩種算法(見下一頁完整碼)</strong>:
+        <ul>
+          <li>A · <strong>Prim</strong>:<code>inMST</code> 標記已在樹中的點。從 <code>(0, 起點)</code> 出發,min-heap 反覆彈出最小跨邊;若目標點已在樹中(過期條目)就跳過,否則併入、累加權重、把它到其他點的邊入堆。連滿 <code>n</code> 點結束。</li>
+          <li>B · <strong>Kruskal</strong>:把<strong>所有</strong>點對的邊丟進 min-heap(或排序)。逐條取最小,用 <code>Union-Find</code> 檢查兩端是否已同集合:不同就 union、累加;相同(成環)就丟棄。加到 <code>n−1</code> 條即完成。</li>
+        </ul>
+      </li>
+      <li><strong>收尾</strong>:Prim 連滿 <code>n</code> 點、Kruskal 加滿 <code>n−1</code> 條邊時,累計的邊權和就是答案。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示(兩種寫法各一段) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 兩種寫法各一段<span class="sc-section__title-en">// [[0,0],[2,2],[3,10],[5,2],[7,0]] → 20</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      同一組 5 個點,兩種算法各跑一遍長出<strong>同一棵</strong> MST(邊 <code>P0–P1=4 · P1–P3=3 · P3–P4=4 · P1–P2=9</code>,共 <strong>20</strong>)。
+      <strong>A</strong> 從 P0 長樹、每步挑最便宜的跨邊;<strong>B</strong> 把所有邊排序、由小到大加、成環就跳過。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · PRIM(min-heap 長樹)</div>
+      <canvas id="va-canvas" class="sc-viz__canvas" style="height:480px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ B · KRUSKAL(Union-Find + 排序邊)</div>
+      <canvas id="vb-canvas" class="sc-viz__canvas" style="height:480px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 兩種寫法對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩種寫法對照<span class="sc-section__title-en">// PRIM vs KRUSKAL</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>A · Prim</th><th>B · Kruskal</th></tr></thead>
+      <tbody>
+        <tr><td>成長方式</td><td>從一個點長樹(點導向)</td><td>全域挑最小邊(邊導向)</td></tr>
+        <tr><td>資料結構</td><td>min-heap + <code>inMST[]</code></td><td>min-heap/排序 + Union-Find</td></tr>
+        <tr><td>去除無效邊</td><td>彈出時檢查 <code>inMST</code>(lazy)</td><td><code>Union</code> 成環回傳 false 即丟棄</td></tr>
+        <tr><td>結束條件</td><td>連滿 <code>n</code> 個點</td><td>加滿 <code>n−1</code> 條邊</td></tr>
+        <tr><td>複雜度</td><td>O(n²·log n)</td><td>O(n²·log n)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight">
+      這題是<strong>完全圖</strong>(邊數 ≈ n²/2)。因為稠密,Prim「每步挑最小跨邊」和 Kruskal「全域挑最小邊」殊途同歸,
+      都得到<strong>同一棵</strong> MST。挑你順手的那個寫法即可。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(n² · log n)</strong>　　S = <strong>O(n²)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        完全圖有 <code>≈ n²/2</code> 條邊。Kruskal 要處理全部邊(排序/堆),Prim lazy 也會把 <code>O(n²)</code> 條邊入堆,故都是 <code>O(n²·log n)</code>。
+        <strong>稠密圖的最優</strong>是 Prim 用陣列(不用 heap)的 <code>O(n²)</code> 版本。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>Time</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>A · Prim(lazy heap)</td><td class="mono">O(n²·log n)</td><td class="mono">O(n²)</td></tr>
+        <tr><td>B · Kruskal(Union-Find)</td><td class="mono">O(n²·log n)</td><td class="mono">O(n²)</td></tr>
+        <tr><td>Prim(陣列稠密最優)</td><td class="mono">O(n²)</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      看到「把所有點<strong>用最小總成本連通</strong>」就是 <strong>MST</strong>。邊權 = 曼哈頓距離,套 Prim 或 Kruskal 直接解 ——
+      關鍵是別把它誤當成「最短路徑」。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種寫法與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">邊權 = 曼哈頓距離,求完全圖的最小生成樹:Prim(長樹)或 Kruskal(Union-Find)。</div>
+    <div class="sc-summary-bar__detail">MINIMUM SPANNING TREE · TWO WAYS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1584-prim.js"></script>
+  <script src="../../../../assets/js/viz/p1584-kruskal.js"></script>
+</body>
+</html>

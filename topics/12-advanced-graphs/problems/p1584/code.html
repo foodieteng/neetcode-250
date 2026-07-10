@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1584 · Min Cost to Connect All Points // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1584</span>
+    <span><a href="https://leetcode.com/problems/min-cost-to-connect-all-points/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">連接所有點的最小成本</h1>
+    <p class="sc-mast__subtitle">// CODE · 兩種寫法與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1584</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · A · Prim ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">寫法 A · Prim(lazy · min-heap)<span class="sc-section__title-en">// GROW THE TREE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1584_prim.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">minCostConnectPoints</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> points<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> manhattan <span class="p">=</span> <span class="p">[&amp;](</span><span class="t">int</span> u<span class="p">,</span> <span class="t">int</span> v<span class="p">)</span> <span class="p">{</span>          <span class="c">// 兩點成本 = 曼哈頓距離</span>
+            <span class="k">return</span> <span class="f">abs</span><span class="p">(</span>points<span class="p">[</span>u<span class="p">][</span><span class="n">0</span><span class="p">]</span> <span class="p">-</span> points<span class="p">[</span>v<span class="p">][</span><span class="n">0</span><span class="p">])</span> <span class="p">+</span> <span class="f">abs</span><span class="p">(</span>points<span class="p">[</span>u<span class="p">][</span><span class="n">1</span><span class="p">]</span> <span class="p">-</span> points<span class="p">[</span>v<span class="p">][</span><span class="n">1</span><span class="p">]);</span>
+        <span class="p">};</span>
+
+        <span class="t">int</span> n <span class="p">=</span> points<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> inMST<span class="p">(</span>n<span class="p">,</span> <span class="k">false</span><span class="p">);</span>            <span class="c">// 已在生成樹中的點</span>
+        <span class="k">using</span> <span class="t">P</span> <span class="p">=</span> <span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;;</span>              <span class="c">// (權重, 目標點)</span>
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">P</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">P</span><span class="p">&gt;,</span> <span class="t">greater</span><span class="p">&lt;</span><span class="t">P</span><span class="p">&gt;&gt;</span> pq<span class="p">;</span>  <span class="c">// min-heap</span>
+
+        pq<span class="p">.</span><span class="f">push</span><span class="p">({</span><span class="n">0</span><span class="p">,</span> <span class="n">0</span><span class="p">});</span>                        <span class="c">// 從 0 號點、成本 0 起長樹</span>
+        <span class="t">int</span> total <span class="p">=</span> <span class="n">0</span><span class="p">,</span> cnt <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">&amp;&amp;</span> cnt <span class="p">&lt;</span> n<span class="p">)</span> <span class="p">{</span>
+            <span class="k">auto</span> <span class="p">[</span>w<span class="p">,</span> u<span class="p">]</span> <span class="p">=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">();</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span>inMST<span class="p">[</span>u<span class="p">])</span> <span class="k">continue</span><span class="p">;</span>              <span class="c">// lazy:過期條目直接略過</span>
+
+            inMST<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>                   <span class="c">// u 併入樹</span>
+            total <span class="p">+=</span> w<span class="p">;</span> cnt<span class="p">++;</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">=</span> <span class="n">0</span><span class="p">;</span> v <span class="p">&lt;</span> n<span class="p">;</span> v<span class="p">++)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span>inMST<span class="p">[</span>v<span class="p">]</span> <span class="p">||</span> u <span class="p">==</span> v<span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+                pq<span class="p">.</span><span class="f">push</span><span class="p">({</span><span class="f">manhattan</span><span class="p">(</span>u<span class="p">,</span> v<span class="p">),</span> v<span class="p">});</span>   <span class="c">// u→樹外各點的跨邊入堆</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> total<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · B · Kruskal ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">寫法 B · Kruskal(Union-Find)<span class="sc-section__title-en">// PICK SMALLEST EDGE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1584_kruskal.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> parent<span class="p">;</span>                       <span class="c">// parent[x]&lt;0:根,值 = −集合大小</span>
+
+    <span class="t">int</span> <span class="f">Find</span><span class="p">(</span><span class="t">int</span> x<span class="p">)</span> <span class="p">{</span>                         <span class="c">// 路徑壓縮</span>
+        <span class="k">return</span> parent<span class="p">[</span>x<span class="p">]</span> <span class="p">&lt;</span> <span class="n">0</span> <span class="p">?</span> x <span class="p">:</span> parent<span class="p">[</span>x<span class="p">]</span> <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>parent<span class="p">[</span>x<span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">Union</span><span class="p">(</span><span class="t">int</span> x<span class="p">,</span> <span class="t">int</span> y<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> rootX <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>x<span class="p">),</span> rootY <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>y<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>rootX <span class="p">==</span> rootY<span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>       <span class="c">// 已同集合 → 成環,不合併</span>
+        <span class="k">if</span> <span class="p">(-</span>parent<span class="p">[</span>rootX<span class="p">]</span> <span class="p">&lt;</span> <span class="p">-</span>parent<span class="p">[</span>rootY<span class="p">])</span> <span class="f">swap</span><span class="p">(</span>rootX<span class="p">,</span> rootY<span class="p">);</span> <span class="c">// 按大小合併</span>
+        parent<span class="p">[</span>rootX<span class="p">]</span> <span class="p">+=</span> parent<span class="p">[</span>rootY<span class="p">];</span>
+        parent<span class="p">[</span>rootY<span class="p">]</span> <span class="p">=</span> rootX<span class="p">;</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">minCostConnectPoints</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> points<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> manhattan <span class="p">=</span> <span class="p">[&amp;](</span><span class="t">int</span> u<span class="p">,</span> <span class="t">int</span> v<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="f">abs</span><span class="p">(</span>points<span class="p">[</span>u<span class="p">][</span><span class="n">0</span><span class="p">]</span> <span class="p">-</span> points<span class="p">[</span>v<span class="p">][</span><span class="n">0</span><span class="p">])</span> <span class="p">+</span> <span class="f">abs</span><span class="p">(</span>points<span class="p">[</span>u<span class="p">][</span><span class="n">1</span><span class="p">]</span> <span class="p">-</span> points<span class="p">[</span>v<span class="p">][</span><span class="n">1</span><span class="p">]);</span>
+        <span class="p">};</span>
+
+        <span class="t">int</span> n <span class="p">=</span> points<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        parent<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">);</span>
+        <span class="k">using</span> <span class="t">T</span> <span class="p">=</span> <span class="t">tuple</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;;</span>         <span class="c">// (權重, u, v)</span>
+        <span class="k">auto</span> cmp <span class="p">=</span> <span class="p">[&amp;](</span><span class="k">auto</span> t1<span class="p">,</span> <span class="k">auto</span> t2<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="f">get</span><span class="p">&lt;</span><span class="n">0</span><span class="p">&gt;(</span>t1<span class="p">)</span> <span class="p">&gt;</span> <span class="f">get</span><span class="p">&lt;</span><span class="n">0</span><span class="p">&gt;(</span>t2<span class="p">);</span>    <span class="c">// 依權重做 min-heap</span>
+        <span class="p">};</span>
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">T</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">T</span><span class="p">&gt;,</span> <span class="k">decltype</span><span class="p">(</span>cmp<span class="p">)&gt;</span> pq<span class="p">(</span>cmp<span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> j <span class="p">=</span> i <span class="p">+</span> <span class="n">1</span><span class="p">;</span> j <span class="p">&lt;</span> n<span class="p">;</span> j<span class="p">++)</span> <span class="p">{</span>
+                pq<span class="p">.</span><span class="f">push</span><span class="p">({</span><span class="f">manhattan</span><span class="p">(</span>i<span class="p">,</span> j<span class="p">),</span> i<span class="p">,</span> j<span class="p">});</span>   <span class="c">// 所有點對的邊</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="t">int</span> total <span class="p">=</span> <span class="n">0</span><span class="p">,</span> add <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span>add <span class="p">&lt;</span> n <span class="p">-</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span>                    <span class="c">// 加滿 n−1 條邊即完成</span>
+            <span class="k">auto</span> <span class="p">[</span>w<span class="p">,</span> u<span class="p">,</span> v<span class="p">]</span> <span class="p">=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">();</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">Union</span><span class="p">(</span>u<span class="p">,</span> v<span class="p">))</span> <span class="p">{</span>                   <span class="c">// 不成環才收</span>
+                total <span class="p">+=</span> w<span class="p">;</span> add<span class="p">++;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> total<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 對照 + 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">對照與陷阱<span class="sc-section__title-en">// COMPARE + PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>A · Prim</th><th>B · Kruskal</th></tr></thead>
+      <tbody>
+        <tr><td>去環方式</td><td>彈出時 <code>if (inMST[u]) continue;</code></td><td><code>Union</code> 同根回傳 false</td></tr>
+        <tr><td>結束條件</td><td><code>cnt == n</code></td><td><code>add == n − 1</code></td></tr>
+        <tr><td>heap 內容</td><td>(權重, 目標點)</td><td>(權重, u, v)</td></tr>
+        <tr><td>複雜度</td><td>O(n²·log n)</td><td>O(n²·log n)</td></tr>
+      </tbody>
+    </table>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>Prim 忘了 <code>if (inMST[u]) continue;</code></td><td class="fail">重複計邊、答案偏大</td><td>lazy 刪除:彈出已在樹中的點就跳過</td></tr>
+        <tr><td>把它當「最短路」跑 Dijkstra</td><td class="fail">目標函數錯</td><td>要的是 MST(連通整體最小總邊權)</td></tr>
+        <tr><td>Kruskal 用 <code>&lt;</code>(max-heap)</td><td class="fail">先取大邊,錯</td><td>比較子 <code>get&lt;0&gt;(t1) &gt; get&lt;0&gt;(t2)</code> 才是 min-heap</td></tr>
+        <tr><td>結束後仍繼續 pop 空堆</td><td class="fail">UB / crash</td><td>用 <code>cnt&lt;n</code> / <code>add&lt;n−1</code> 及時收手</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · 為什麼 Prim 每步挑「最小跨邊」是對的</span>
+切分定理(cut property):把點分成「樹內」與「樹外」兩群
+橫跨兩群的所有邊裡,最小的那條一定屬於某棵 MST
+min-heap 每次彈出的正是這條最小跨邊 → 貪心安全
+lazy:同一個點可能被多條邊推入堆,彈到已 inMST 的就丟</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// B · 為什麼 Kruskal 由小到大加、成環就跳</span>
+邊照權重由小到大考慮
+兩端不同集合 → 這條邊連起兩塊、不可能更省 → union 收下
+兩端已同集合 → 收了會成環(多餘)→ 丟棄
+加滿 n−1 條 → n 個點恰好連成一棵樹 → 完成</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// Union-Find · parent 的負數技巧</span>
+parent[x] &lt; 0 表示 x 是根,其值 = −(該集合大小)
+Find 用三元 + 路徑壓縮:parent[x] = Find(parent[x])
+Union 按大小掛小樹到大樹(-parent 比較大小),樹更扁
+回傳 bool:true = 真的合併了,false = 早已同根</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// TWO WAYS, ONE MST</div>
+    <div class="sc-summary-bar__body">Prim 從點長樹、Kruskal 從邊挑起,都得同一棵最小生成樹,皆 O(n²·log n)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 1584 · MIN COST TO CONNECT ALL POINTS</div>
+  </div>
+
+</body>
+</html>
