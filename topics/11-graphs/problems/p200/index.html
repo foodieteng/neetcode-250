@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>200 · Number of Islands // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P200</span>
+    <span><a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">島嶼數量</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 掃到 1 就 +1 並沉掉整座島</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 200</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>GRID DFS · FLOOD FILL</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>m×n</code> 網格,<code>'1'</code> 是陸地、<code>'0'</code> 是水。<strong>上下左右</strong>相連的陸地組成一座島(斜角不算)。
+        求島的<strong>數量</strong>。
+      </p>
+    </div>
+
+    <p>
+      把網格看成圖:每個陸地格是節點,和上下左右的陸地格相鄰。島 = 一個<strong>連通分量</strong>。
+      逐格掃描,每碰到一個「還沒被訪過的陸地」,就代表發現一座<strong>新島</strong> → <strong>count +1</strong>,並用 DFS 把整座相連的島<strong>沉掉</strong>(標記已訪),避免同一座島被重複計數。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「掃描 + 沉島」<span class="sc-section__title-en">// WHY FLOOD FILL</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">只數陸地格數 / 只找 1</span>
+            <span class="sc-ko-card__o">答錯</span>
+          </div>
+          <div class="sc-ko-card__body">島數不是陸地<strong>格數</strong>,也不是 <code>1</code> 的個數。一座島可能有很多格,關鍵是「有幾個<strong>連通塊</strong>」。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 想錯</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">Union-Find 併相鄰陸地</span>
+            <span class="sc-ko-card__o">可行</span>
+          </div>
+          <div class="sc-ko-card__body">把相鄰陸地 union,最後數不同的根。正確,但要寫 DSU;這題用 DFS/BFS 沉島更直接、程式碼更短。</div>
+          <div class="sc-ko-card__verdict">△ OK · 較繁</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">掃描 + DFS 沉島(flood fill)</span>
+          <span class="sc-ko-card__o">O(m·n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          雙迴圈掃每一格;遇到<strong>未訪的陸地 <code>'1'</code></strong> 就 <code>count++</code>,然後 DFS 把整座相連的島全部標成 <code>'0'</code>(沉掉)。
+          <strong>啟動 DFS 的次數 = 島的數量</strong>。每格最多被訪一次,<code>O(mn)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · LINEAR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>雙迴圈掃描</strong>每一格 <code>(i, j)</code>。</li>
+      <li>遇到 <code>grid[i][j] == '1'</code>:<code>count++</code>(發現新島),呼叫 <code>dfs(i, j)</code>。</li>
+      <li><strong>dfs 沉島</strong>:出界或踩到 <code>'0'</code> 就 return;否則把 <code>grid[r][c] = '0'</code>(<strong>立刻標記</strong>),再對上下左右各遞迴一次。整座島沉完才回到掃描。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · DFS 沉島<span class="sc-section__title-en">// 3 ISLANDS → 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      逐格掃描,每發現一座新島就 <code>count++</code> 並沉掉整座(不同顏色代表不同島)。掃完網格,<strong>count = 3</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 掃描 + DFS 沉島 · count</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:430px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 注意 · CAUTION ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">注意 · 小心的地方<span class="sc-section__title-en">// CAUTION</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">注意 · 這題最容易踩的四個坑</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>① 是字元 <code>'1'</code>/<code>'0'</code>,不是整數。</strong> 網格型別是 <code>char</code>,比較與賦值都要用<strong>單引號</strong>:<code>grid[r][c] == '0'</code>、<code>grid[r][c] = '0'</code>。寫成 <code>== 0</code> 會比到 ASCII 0(空字元),永遠不成立。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>② 進 dfs 就<em>立刻</em>標記 <code>'0'</code>。</strong> 必須在遞迴鄰居<strong>之前</strong>把當前格沉掉;否則相鄰兩格會互相遞迴呼叫 → <strong>無限迴圈 / 爆堆疊</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>③ 這個寫法會<em>改動輸入</em> grid。</strong> 沉島 = 把陸地覆寫成水,原網格被破壞。若題目要求<strong>不可修改</strong>輸入,改用額外的 <code>visited</code> 陣列。
+        </p>
+        <p style="margin:0;">
+          <strong>④ 遞迴深度風險。</strong> 最壞情況整張圖都是陸地(<code>300×300 = 90000</code> 格),DFS 遞迴可能<strong>堆疊溢位</strong>。超大網格改用 <strong>BFS(queue)</strong> 或迭代式 DFS 較安全。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m·n)</strong>　　S = <strong>O(m·n)</strong></div>
+      <p class="sc-formula__hint">
+        每格最多被掃一次、被 DFS 沉一次,總工作量與格數成正比。空間是 DFS 遞迴堆疊深度,最壞(整張圖是一座蛇形島)可達 <code>O(mn)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(m·n)</td><td>每格常數次造訪</td></tr>
+        <tr><td>Space</td><td class="mono">O(m·n)</td><td>遞迴堆疊最壞深度</td></tr>
+        <tr><td>就地標記</td><td class="mono">'0'</td><td>免 visited 陣列(但改動了輸入)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      島數 = 網格的<strong>連通分量</strong>個數。掃到一個未訪陸地就 <code>+1</code> 並 DFS 沉掉整座 ——
+      <strong>啟動 DFS 幾次,就有幾座島</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">掃到未訪陸地就 count++ 並 DFS 沉掉整座島;啟動 DFS 的次數 = 島數,O(mn)。</div>
+    <div class="sc-summary-bar__detail">FLOOD FILL · CONNECTED COMPONENTS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p200-dfs.js"></script>
+</body>
+</html>
