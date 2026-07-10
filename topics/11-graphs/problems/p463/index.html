@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>463 · Island Perimeter // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P463</span>
+    <span><a href="https://leetcode.com/problems/island-perimeter/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">島嶼周長</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 踩出島 = +1 的 DFS flood</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 463</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>GRID DFS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>m×n</code> 網格,<code>1</code> 是陸地、<code>0</code> 是水,恰好<strong>一座島</strong>(陸地四連通、無湖)。
+        求這座島的<strong>周長</strong> —— 也就是島的外圍一圈有幾條單位邊。
+      </p>
+    </div>
+
+    <p>
+      關鍵翻譯:一格陸地有 4 條邊,一條邊只要<strong>朝向水或朝向網格外</strong>就是周長的一部分;朝向另一塊陸地的邊則是內部、不算。
+      所以<strong>周長 = 每個陸地格「朝外的邊」數量的總和</strong>。用 DFS 走遍島、每次「踩出島」就 <code>+1</code>,加起來就是答案。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼(含錯誤筆記) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「檢查要放進遞迴」<span class="sc-section__title-en">// WHY · MY BUG NOTE</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">把邊界判斷寫在 dfs 呼叫「前」</span>
+            <span class="sc-ko-card__o">我的錯</span>
+          </div>
+          <div class="sc-ko-card__body">在鄰居迴圈裡先檢查 <code>grid[nr][nc]</code> 合不合法、是水就 <code>continue</code> 不遞迴。這樣<strong>根本不會踩進水/出界那格</strong>,那條周長邊就永遠沒被 <code>+1</code> → 周長<strong>偏小</strong>。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 漏算周長</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">直接數:每格 4 − 2×(相鄰陸地對)</span>
+            <span class="sc-ko-card__o">也可</span>
+          </div>
+          <div class="sc-ko-card__body">雙迴圈掃每個陸地格,每格 <code>+4</code>,每一對「右鄰/下鄰也是陸地」就 <code>−2</code>。正確、<code>O(mn)</code>,但這裡想練 grid DFS。</div>
+          <div class="sc-ko-card__verdict">△ ALSO OK · 非 DFS</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">DFS:邊界判斷當 base case</span>
+          <span class="sc-ko-card__o">O(mn)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          遞迴<strong>先照樣往鄰居走</strong>,把「出界 / 踩到水」的判斷放進 <code>dfs</code> 的<strong>開頭(base case)</strong>:一旦踩出島就 <code>res += 1; return;</code>。
+          踩到已訪陸地(<code>-1</code>)就 <code>return</code>;踩到新陸地就標記 <code>-1</code> 並繼續 flood 四方向。這樣<strong>每一條朝外的邊都會被真正「踩到」一次</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 踩出島 = +1</div>
+      </div>
+    </div>
+
+    <div class="sc-insight">
+      <strong>錯誤筆記</strong>:這題的巧妙點就是「<strong>踩進水/出界</strong>」這件事本身要被執行到才數得到。把檢查寫在呼叫前(pre-guard)會把這一步<strong>攔掉</strong>,邊就漏算了。
+      判斷必須在 <code>dfs</code> 內當 base case,<strong>不能</strong>當呼叫前的守衛。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>找起點</strong>:雙迴圈掃到第一個 <code>grid[i][j] == 1</code>,對它呼叫 <code>dfs</code>(島連通,一次就走遍全島)。</li>
+      <li><strong>dfs base case(先寫)</strong>:<code>if</code> 出界 <strong>或</strong> <code>grid[r][c] == 0</code> → <code>res += 1; return;</code>(踩出島,記一條周長邊)。</li>
+      <li><strong>去重</strong>:<code>if (grid[r][c] == -1) return;</code>(已訪,不重複)。否則把 <code>grid[r][c] = -1</code> 標記,再對<strong>上下左右</strong>各遞迴一次。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · DFS flood<span class="sc-section__title-en">// PLUS ISLAND → 12</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      DFS 逐格訪問這座「十字島」。每格點亮它<strong>朝向水/出界</strong>的邊(珊瑚)= 那格對周長的貢獻;正中央那格四周全是陸地,貢獻 <strong>0</strong>。
+      累積起來的珊瑚外框就是<strong>周長 12</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ DFS · 踩出島 = +1</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:500px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「踩出島 = 一條邊」<span class="sc-section__title-en">// WHY IT COUNTS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 一次遞迴呼叫 = 穿過一條邊</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          從陸地格 <code>(r,c)</code> 往某方向 <code>dfs(nr,nc)</code>,就是「試著穿過 <code>(r,c)</code> 與該方向之間的那一條邊」。
+        </p>
+        <p style="margin:0 0 10px;">
+          · 若對面是<strong>水或網格外</strong> → 這條邊是島的<strong>邊界</strong> → base case <code>res += 1</code>。<br>
+          · 若對面是<strong>陸地</strong> → 這條邊是<strong>內部</strong> → 不加,繼續往裡 flood。<br>
+          · 若對面是<strong>已訪陸地</strong>(<code>-1</code>)→ 走過了 → 直接 <code>return</code>,避免無限遞迴。
+        </p>
+        <p style="margin:0;">
+          每個陸地格恰被<strong>標記一次</strong>(<code>-1</code>),但它的<strong>四個方向都各被「踩」一次</strong> —— 所以每條朝外的邊都恰好被 <code>+1</code> 一次,不多不少。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">
+        T = <strong>O(m·n)</strong>　　S = <strong>O(m·n)</strong>
+      </div>
+      <p class="sc-formula__hint">
+        每格最多被標記一次、被四個鄰居各「踩」一次,總工作量與格數成正比。空間是遞迴堆疊深度,最壞(整格是島、蛇形)可達 <code>O(mn)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(m·n)</td><td>每格常數次造訪</td></tr>
+        <tr><td>Space</td><td class="mono">O(m·n)</td><td>DFS 遞迴堆疊最壞深度</td></tr>
+        <tr><td>就地標記</td><td class="mono">-1</td><td>免額外 visited 陣列(改動了輸入)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      周長 = 島「朝外的邊」總數。DFS 讓「踩出島」這件事真的被<strong>執行</strong>到,才數得到那條邊 ——
+      所以邊界判斷要當 <strong>base case</strong>,而不是呼叫前的守衛。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">周長 = 島朝外的邊數;DFS 踩出界/踩到水就 +1 —— 判斷放進 base case,不是呼叫前守衛。</div>
+    <div class="sc-summary-bar__detail">ISLAND PERIMETER · GRID DFS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p463-dfs.js"></script>
+</body>
+</html>

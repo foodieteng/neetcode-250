@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>463 · Island Perimeter // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P463</span>
+    <span><a href="https://leetcode.com/problems/island-perimeter/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">島嶼周長</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 463</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>周長 = 每個陸地格<strong>朝向水/出界的邊</strong>總數</td></tr>
+        <tr><td>DFS 機制</td><td>踩出界 / 踩到水 → <code>res += 1</code>;踩到新陸地 → 標 <code>-1</code> 續走</td></tr>
+        <tr><td>錯誤筆記</td><td>判斷要當 <strong>base case</strong>,不能寫在 dfs 呼叫前(pre-guard 會漏算)</td></tr>
+        <tr><td>去重</td><td><code>grid[r][c] == -1</code> 直接 return,避免重複與爆堆疊</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(mn)</code>,空間 <code>O(mn)</code>(遞迴堆疊)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「周長」等於每個陸地格<strong>朝外邊</strong>的總和?內部邊為什麼不算?</div>
+    <div class="qa"><strong>Q2.</strong>(錯誤筆記)為什麼邊界判斷要放進 <code>dfs</code> 的 base case,而不是在鄰居迴圈裡呼叫前就 <code>continue</code> 掉?會怎麼錯?</div>
+    <div class="qa"><strong>Q3.</strong> <code>grid[r][c] = -1</code> 這行的作用是什麼?如果拿掉,程式會發生什麼?</div>
+    <div class="qa"><strong>Q4.</strong> 外層雙迴圈掃到第一個陸地格就 DFS —— 為什麼一次 DFS 就能算完整座島?後面的陸地格會被重複處理嗎?</div>
+    <div class="qa"><strong>Q5.</strong> base case 裡「出界檢查」和「<code>grid[r][c] == 0</code>」的順序能不能對調?為什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [[1,1],[1,0]] → 8</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// GRID · 1=陸地 0=水</span>
+   1  1
+   1  0
+從 (0,0) 開始 DFS。dirs 順序 = 上、下、左、右。</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// DFS 展開(每條「踩出島」記 +1)</span>
+dfs(0,0)  標 -1
+  上(-1,0) 出界        res=1
+  下(1,0) 陸地 → dfs(1,0) 標 -1
+      上(0,0)=-1 已訪   return
+      下(2,0) 出界      res=2
+      左(1,-1) 出界     res=3
+      右(1,1) 水        res=4
+  左(0,-1) 出界        res=5
+  右(0,1) 陸地 → dfs(0,1) 標 -1
+      上(-1,1) 出界     res=6
+      下(1,1) 水        res=7
+      左(0,0)=-1 已訪   return
+      右(0,2) 出界      res=8</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+三個陸地格各自朝外的邊:(0,0)→2、(1,0)→3、(0,1)→3
+<span class="sc-trace__out">// OUTPUT: 2 + 3 + 3 = 8</span></div>
+
+    <div class="sc-insight">
+      注意 <code>dfs(1,0)</code> 往上踩回 <code>(0,0)</code> 時,因為已標 <code>-1</code> 而 <code>return</code>(不加也不重走);而往「水」和「出界」的每一步都確實走進 base case、各 <code>+1</code>。這就是為什麼判斷要放在 dfs <strong>裡面</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若網格有<strong>多座島</strong>,要求所有島的周長<strong>總和</strong>,這份程式要改嗎?為什麼?</div>
+    <div class="qa"><strong>App 2.</strong> 若面試官不准你<strong>改動輸入 grid</strong>(它是 <code>const</code>),你會怎麼調整去重的做法?</div>
+    <div class="qa"><strong>App 3.</strong> 把 DFS 換成<strong>不遞迴</strong>的「直接數」:雙迴圈掃每個陸地格、看右鄰與下鄰。怎麼寫、為什麼只看兩個方向就夠?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 每格陸地有 4 條邊。一條邊若兩側都是陸地,它被<strong>兩個</strong>相鄰陸地格共用,是島的<strong>內部</strong>,不在外圍;一條邊若另一側是水或網格外,就沒有鄰居共用它,它就是<strong>外圍</strong>的一段周長。把每個陸地格「另一側非陸地」的邊加起來,正好數到、且只數到所有外圍邊 → 等於周長。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為要數的東西正是「<strong>從陸地踩進水/出界</strong>」這個<strong>事件</strong>——它必須真的被執行到才數得到。如果在呼叫前就 <code>if (出界 || grid[nr][nc]==0) continue;</code>,那一步被攔在遞迴之外,<code>res += 1</code> 永遠不會跑,朝外的邊全部漏算,周長偏小。正確做法是<strong>照樣</strong> <code>dfs(nr,nc)</code>,把判斷放進 <code>dfs</code> 開頭的 base case,讓「踩出島」真的發生一次、加一次。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> <code>grid[r][c] = -1</code> 把走過的陸地標成「已訪」。少了它,兩個相鄰陸地格會<strong>互相無限遞迴</strong>(A 走到 B、B 又走回 A…),堆疊爆掉;就算不爆,同一格也會被重複展開、把內部邊誤當外邊數,答案錯。<code>-1</code> 讓每個陸地格只被展開一次。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為題目保證<strong>只有一座島、且陸地四連通</strong>,從任一陸地格 DFS 都能走遍整座島,並在過程把<strong>所有</strong>陸地格標成 <code>-1</code>。等外層雙迴圈繼續掃到後面的陸地格時,它們已經是 <code>-1</code>(<code>!= 1</code>)而被 <code>continue</code> 跳過,不會重複 DFS。(即使有多島,這寫法也仍正確——見 App 1。)</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> <strong>不能對調</strong>。C++ 的 <code>||</code> 是<strong>短路</strong>求值:必須<strong>先</strong>確認 <code>r,c</code> 在界內,<strong>才</strong>能安全讀 <code>grid[r][c]</code>。若把 <code>grid[r][c] == 0</code> 放前面,對一個出界的 <code>(r,c)</code> 就會先做越界存取 → UB / crash。所以出界檢查一定在讀陣列<strong>之前</strong>。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <strong>不用改</strong>。外層雙迴圈會對「還沒被標 <code>-1</code> 的每個陸地格」各起一次 DFS;不同島彼此不連通,各自被獨立走遍,<code>res</code> 一路累加就是所有島的周長總和。這份程式天生就支援多島。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 用一個獨立的 <code>vector&lt;vector&lt;bool&gt;&gt; seen</code> 取代就地 <code>-1</code>:base case 判斷 <code>出界 || grid==0</code> 照舊(讀不寫),進入陸地格時檢查/設定 <code>seen[r][c]</code> 而不是改 <code>grid</code>。代價是多 <code>O(mn)</code> 空間,但輸入保持不變。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 掃每個陸地格,先 <code>res += 4</code>;若<strong>右鄰</strong>是陸地 <code>res -= 2</code>,若<strong>下鄰</strong>是陸地 <code>res -= 2</code>。只看右和下,是因為每一對相鄰陸地只會被「左上那個」數到一次(共用邊被扣 2:雙方各少一條外邊),不重不漏。無遞迴、<code>O(mn)</code> 時間、<code>O(1)</code> 額外空間,是最省的寫法;DFS 版則更貼近「圖走訪」的通用模板。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「周長=朝外邊、踩出島+1、判斷放 base case 而非 pre-guard」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 463 · ISLAND PERIMETER</div>
+  </div>
+
+</body>
+</html>

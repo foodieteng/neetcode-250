@@ -229,7 +229,7 @@ PROBLEMS = {
         ('p212', 'Word Search II',                            'word-search-ii',                            'hard','todo'),
     ],
     '11': [  # Graphs
-        ('p463', 'Island Perimeter',                                     'island-perimeter',                                     'easy','todo'),
+        ('p463', 'Island Perimeter',                                     'island-perimeter',                                     'easy','done'),
         ('p953', 'Verifying an Alien Dictionary',                        'verifying-an-alien-dictionary',                        'easy','todo'),
         ('p997', 'Find the Town Judge',                                  'find-the-town-judge',                                  'easy','todo'),
         ('p200', 'Number of Islands',                                    'number-of-islands',                                    'med', 'todo'),
