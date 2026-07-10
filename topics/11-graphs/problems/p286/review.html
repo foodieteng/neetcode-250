@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>286 · Walls and Gates // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P286</span>
+    <span><a href="https://leetcode.com/problems/walls-and-gates/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">牆與門</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 286</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>每格到<strong>最近一個源(門)</strong>的最短距離</td></tr>
+        <tr><td>核心</td><td><strong>所有門一起入隊</strong>做多源 BFS,一波一波擴</td></tr>
+        <tr><td>最短性</td><td>所有門同時擴 → 第一次碰到 = 最近門</td></tr>
+        <tr><td><code>!= INF</code></td><td>一行同時擋牆(−1)、門(0)、已填 → 免 visited</td></tr>
+        <tr><td>距離</td><td><code>rooms[r][c] + 1</code>,就地寫回網格</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(mn)</code>,空間 <code>O(mn)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼把<strong>所有門一起入隊</strong>的多源 BFS,填出來的就是「最近」門的距離?一句話說出關鍵。</div>
+    <div class="qa"><strong>Q2.</strong> <code>rooms[nr][nc] != INF</code> 這一行擋掉了<strong>哪三種</strong>格子?為什麼有它就不必另開 <code>visited</code> 陣列?</div>
+    <div class="qa"><strong>Q3.</strong> 某個空房被<strong>最近</strong>的門填了值之後,更遠的門也走到它時,為什麼<strong>不會</strong>把它覆蓋成更大的距離?</div>
+    <div class="qa"><strong>Q4.</strong> 新填的距離為什麼是 <code>rooms[r][c] + 1</code>,而不是「目前第幾波」的固定數字?</div>
+    <div class="qa"><strong>Q5.</strong> 程式裡 <code>int sz = q.size()</code> 那層「一次處理一整波」的迴圈,<strong>能不能省</strong>?為什麼這題距離不靠波次計數?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 4×4 · 2 gates</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 初始(-1=牆 0=門 ∞=空房)</span>
+ ∞ -1  0 ∞
+ ∞  ∞  ∞ -1
+ ∞ -1  ∞ -1
+ 0 -1  ∞ ∞
+門:(0,2) 與 (3,0) → 兩個都先入隊</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 一波一波擴散(距離)</span>
+第1波:(1,2)=1 (0,3)=1 (2,0)=1
+第2波:(2,2)=2 (1,1)=2 (1,0)=2
+第3波:(3,2)=3 (0,0)=3
+第4波:(3,3)=4
+每格只在「還是 ∞」時才填 → 最近的門先到、先填</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// RESULT</span>
+ 3 -1  0  1
+ 2  2  1 -1
+ 1 -1  2 -1
+ 0 -1  3  4
+<span class="sc-trace__out">// OUTPUT: 每個空房 = 到最近門的距離</span></div>
+
+    <div class="sc-insight">
+      看 <code>(0,0)</code>:離 <code>(0,2)</code> 那扇門要繞牆走 3 步、離 <code>(3,0)</code> 也是往下再往上… BFS 自動幫它挑<strong>最短的那條(3)</strong> ——
+      因為第 3 波才第一次碰到它,而那一波來自最近的門。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 這題和 <strong>994 腐爛橘子</strong>本質相同,都是多源 BFS。994 問的是什麼?它為什麼需要「波次計數」而這題不用?</div>
+    <div class="qa"><strong>App 2.</strong> 若不填每格、只要回傳「離門<strong>最遠</strong>的空房距離」(可達的),程式怎麼改最省?</div>
+    <div class="qa"><strong>App 3.</strong> 若改用 <strong>DFS</strong> 從每個門填距離,行不行?為什麼容易算出<strong>非最短</strong>的值、要怎麼補救?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 把所有門當成<strong>一個「超級源」</strong>放進第 0 波,BFS 一層一層擴,第 <code>k</code> 波的格離超級源恰好 <code>k</code> 步 = 離<strong>最近那扇門</strong> <code>k</code> 步。所以每格第一次被碰到時填的,就是它到最近門的最短距離。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 擋掉三種:<strong>牆 <code>-1</code></strong>(不可走)、<strong>門 <code>0</code></strong>(它是源、不用再填)、<strong>已填的空房 <code>1,2,3…</code></strong>(最近的門已先到)。因為這三種都 <code>!= INF</code>,一個條件就全過濾掉;唯一會被填的只有「還是 INF 的空房」。所以 <code>!= INF</code> 本身就是「visited / 可填」判斷,不必另開陣列。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為它一旦被填就 <code>!= INF</code>,之後任何路徑(包含更遠的門)再走到它時,都會在 <code>!= INF</code> 那行被 <code>continue</code> 跳過,<strong>不會重新賦值</strong>。而 BFS 的擴散順序保證<strong>最近</strong>的門<strong>最先</strong>到達 —— 先到先填、後到不改,自然就是最小值。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為距離是<strong>相對於把它填進來的那一格</strong>:當前格 <code>(r,c)</code> 已經是「到最近門的距離」,它的鄰居再多走一步就是 <code>+1</code>。用 <code>rooms[r][c]+1</code> 讓每一格都從「上一格的正確距離」延伸,不需要另外追蹤現在是第幾波 —— 距離資訊已經藏在網格值裡。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> <strong>可以省。</strong> <code>sz</code> 那層是「一次清空一整波」的寫法,常用在<strong>需要知道經過幾層</strong>的題(如 994 要回傳分鐘數)。但這題距離已<strong>存在格子裡</strong>(<code>rooms[r][c]+1</code>),不靠波次計數,所以直接 <code>while</code> 逐格 pop、處理鄰居,結果完全一樣。保留 <code>sz</code> 只是讓「一波一波」的語意更清楚。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <strong>994</strong> 問「所有新鮮橘子都腐爛需要幾<strong>分鐘</strong>(或 −1)」。它把所有<strong>腐爛橘子</strong>當多源、BFS 往外擴,每一波 = 一分鐘,答案是<strong>波次數</strong>,所以需要 <code>sz</code> 那層來數層數;286 只要每格的距離值、不需總層數,故可不數。兩題骨架都是「所有源一起入隊的多源 BFS」。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 照樣跑多源 BFS,但邊填邊記 <code>ans = max(ans, rooms[nr][nc])</code>;或用 <code>sz</code> 波次寫法、每處理完一整波 <code>ans++</code>,最後一波的層數就是最遠距離。兩種都 <code>O(mn)</code>,只是把「填每格」順手收斂成一個最大值。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> DFS 從門往外填會<strong>算錯</strong>:DFS 沿一條路徑深入,可能<strong>繞遠路</strong>先到某格、填了較大的值;之後短路徑到達時,若沒有「新值更小才更新」的判斷,就覆蓋不回來。要補救得改成「<code>if (newDist &lt; rooms[nr][nc]) 才更新並繼續</code>」,而且同一格可能被<strong>多次重訪</strong>,最壞退化。BFS 天生按距離分層、先到即最短,才是這題的自然解。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「所有門一起入隊、超級源、第一次碰到=最近、!= INF 當 visited、與 994 同型」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 286 · WALLS AND GATES</div>
+  </div>
+
+</body>
+</html>

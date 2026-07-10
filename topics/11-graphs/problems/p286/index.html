@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>286 · Walls and Gates // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P286</span>
+    <span><a href="https://leetcode.com/problems/walls-and-gates/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">牆與門</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 所有門一起擴散的多源 BFS</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 286</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MULTI-SOURCE BFS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>m×n</code> 網格三種格子:<code>-1</code> = 牆(不可走)、<code>0</code> = 門、<code>INF</code>(<code>2³¹−1</code>)= 空房。
+        把<strong>每個空房</strong>填上「到<strong>最近一扇門</strong>的距離」(上下左右移動);到不了任何門就維持 <code>INF</code>。
+      </p>
+    </div>
+
+    <p>
+      對<strong>每個空房</strong>各自找最近的門會重複計算。反過來想:讓<strong>所有門「同時」往外擴散</strong> ——
+      這正是<strong>多源 BFS</strong>。把所有門一起丟進佇列當起點,一層一層往外走,某個空房<strong>第一次</strong>被碰到的那一波,就是離它最近的門 → 最短距離。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼多源 BFS ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用多源 BFS<span class="sc-section__title-en">// WHY MULTI-SOURCE</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">對每個空房各跑一次 BFS 找最近門</span>
+            <span class="sc-ko-card__o">O((mn)²)</span>
+          </div>
+          <div class="sc-ko-card__body">每個空房都從自己出發 BFS 一次,格數 <code>mn</code> 個房間 × 每次 <code>O(mn)</code>,平方級,TLE。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">每扇門各跑一次 BFS,取 min</span>
+            <span class="sc-ko-card__o">O(門·mn)</span>
+          </div>
+          <div class="sc-ko-card__body">從每個門各做一次 BFS、每格取最小距離。正確,但門很多時要掃很多遍,重複工作。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 重複掃</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">多源 BFS(所有門一起入隊)</span>
+          <span class="sc-ko-card__o">O(mn)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          先把<strong>所有門</strong>一起放進佇列,再一層一層 BFS。所有門<strong>同時</strong>往外擴,某空房第一次被碰到 = 離它最近的門。
+          用 <code>!= INF</code> 當「已訪」判斷,每格只填一次。<strong>一趟</strong> <code>O(mn)</code> 全部搞定。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · ONE PASS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>種下所有源</strong>:掃一遍網格,把每個 <code>0</code>(門)的座標都 <code>push</code> 進佇列。</li>
+      <li><strong>逐層 BFS</strong>:每次取出佇列裡的一格 <code>(r,c)</code>,看四個鄰居 <code>(nr,nc)</code>。</li>
+      <li><strong>只填 INF</strong>:若鄰居出界、是牆/門/已填(<code>!= INF</code>)就跳過;否則 <code>rooms[nr][nc] = rooms[r][c] + 1</code> 並入隊。佇列空即完成。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 多源 BFS 波次<span class="sc-section__title-en">// 2 GATES · WAVES</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      兩扇門<strong>同時</strong>往外一波一波擴散(距離 1、2、3、4)。每格只在<strong>第一次被碰到</strong>時填值 —— 那一波來自<strong>最近</strong>的門,自動就是最短距離。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 多源 BFS · 門一起擴散</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:480px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「第一次碰到」= 最近<span class="sc-section__title-en">// WHY SHORTEST</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 多源 BFS 的最短性</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          BFS 按「與源的距離」<strong>一層一層</strong>擴展:第 <code>k</code> 波處理的所有格,離最近的源恰好 <code>k</code> 步。把<strong>所有門</strong>都放進第 0 波,等於把它們看成一個<strong>超級源</strong> —— 每格到「超級源」的距離,就是到<strong>最近那扇門</strong>的距離。
+        </p>
+        <p style="margin:0;">
+          <strong><code>!= INF</code> 就是 visited。</strong> 某格第一次被填時,是<strong>最近</strong>的門先到;之後更遠的門再走到它,因為它已 <code>!= INF</code> 而被跳過,不會被覆蓋成更大的值。牆(<code>-1</code>)、門(<code>0</code>)也都 <code>!= INF</code>,自動被略過。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m·n)</strong>　　S = <strong>O(m·n)</strong></div>
+      <p class="sc-formula__hint">
+        每格最多入隊、出隊一次(第一次被填時),四個鄰居檢查是常數。總工作量與格數成正比。空間為 BFS 佇列,最壞 <code>O(mn)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(m·n)</td><td>每格常數次造訪</td></tr>
+        <tr><td>Space</td><td class="mono">O(m·n)</td><td>BFS 佇列最壞大小</td></tr>
+        <tr><td>就地填值</td><td class="mono">rooms</td><td>距離直接寫回網格,免額外 dist 陣列</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「每個點到<strong>最近的多個源</strong>之一的最短距離」 = <strong>多源 BFS</strong>:把所有源一起入隊,一趟擴散。
+      看到「最近的任一 X」就想這招。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">所有門一起入隊做多源 BFS;第一次碰到 = 最近門的最短距離,!= INF 當 visited,O(mn)。</div>
+    <div class="sc-summary-bar__detail">MULTI-SOURCE BFS · NEAREST GATE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p286-bfs.js"></script>
+</body>
+</html>

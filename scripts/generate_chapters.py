@@ -235,7 +235,7 @@ PROBLEMS = {
         ('p200', 'Number of Islands',                                    'number-of-islands',                                    'med', 'done'),
         ('p695', 'Max Area of Island',                                   'max-area-of-island',                                   'med', 'done'),
         ('p133', 'Clone Graph',                                          'clone-graph',                                          'med', 'done'),
-        ('p286', 'Walls and Gates',                                      'walls-and-gates',                                      'med', 'todo'),
+        ('p286', 'Walls and Gates',                                      'walls-and-gates',                                      'med', 'done'),
         ('p994', 'Rotting Oranges',                                      'rotting-oranges',                                      'med', 'todo'),
         ('p417', 'Pacific Atlantic Water Flow',                          'pacific-atlantic-water-flow',                          'med', 'todo'),
         ('p130', 'Surrounded Regions',                                   'surrounded-regions',                                   'med', 'todo'),
