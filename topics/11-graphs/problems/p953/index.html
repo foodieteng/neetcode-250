@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>953 · Verifying an Alien Dictionary // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P953</span>
+    <span><a href="https://leetcode.com/problems/verifying-an-alien-dictionary/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">驗證外星語字典</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · rank 映射 + 相鄰對比較</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 953</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>RANK + COMPARE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        外星語用同樣 26 個小寫字母,但字母順序是給定的 <code>order</code>(一個 26 字母的排列)。
+        給一組 <code>words</code>,判斷它們是否<strong>已依這個外星字母序排好</strong>(由小到大)。是回傳 <code>true</code>,否則 <code>false</code>。
+      </p>
+    </div>
+
+    <p>
+      關鍵:<code>order</code> <strong>已經給了</strong>,不用去「推導」字母順序。只要把 <code>order</code> 轉成一張 <code>rank[26]</code>(每個字母排第幾),
+      再檢查<strong>每一對相鄰單字</strong>是否遞增即可 —— 這其實不是圖走訪,而是<strong>rank 映射 + 相鄰對比較</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼不用拓撲/排序<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">跑拓撲排序推字母順序</span>
+            <span class="sc-ko-card__o">搞錯題</span>
+          </div>
+          <div class="sc-ko-card__body">那是 <strong>269 Alien Dictionary</strong>(要你<strong>推</strong>出 order)。這題 <code>order</code> <strong>已給</strong>,不必推導,拓撲是殺雞用牛刀還答非所問。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 想錯題</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">用 comparator 排完再比對原序</span>
+            <span class="sc-ko-card__o">多餘</span>
+          </div>
+          <div class="sc-ko-card__body">自訂 comparator 把 <code>words</code> 排一次,看是否等於原順序。可行但 <code>O(n log n · L)</code>,而且「是否已排好」只要線性掃相鄰對就知道。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 過度</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">rank[] + 相鄰對逐欄比較</span>
+          <span class="sc-ko-card__o">O(總字元)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          先建 <code>rank[c] =</code> 字母 <code>c</code> 在 <code>order</code> 的位置(<code>O(26)</code>)。再對<strong>每對相鄰單字</strong>逐欄比較:
+          第一個不同的字元由 <code>rank</code> 決定大小(前者 rank 較大就違規);若一路相同、<strong>前者較長</strong>(是後者的前綴超出)也違規。全程 <code>O(所有字元總長)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · LINEAR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建 rank</strong>:<code>for i in 0..25: rank[order[i]-'a'] = i</code>。之後比任意兩字母大小 = 比它們的 <code>rank</code>。</li>
+      <li><strong>掃相鄰對</strong>:對每組 <code>(words[i], words[i+1])</code> 逐欄比較,取到 <code>minLen</code> 為止:
+        <ul>
+          <li>字元相同 → 看下一欄。</li>
+          <li>字元不同 → 若 <code>rank[前] &gt; rank[後]</code> → <code>return false</code>;否則這對 OK,<strong>break</strong> 去看下一對。</li>
+        </ul>
+      </li>
+      <li><strong>前綴規則</strong>:若比到 <code>minLen</code> 都相同(沒 break),而<strong>前者比後者長</strong> → <code>return false</code>(如 <code>"apple"</code> 排在 <code>"app"</code> 前是錯的)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 相鄰對比較<span class="sc-section__title-en">// ["word","world"] · order「worldabc…」→ false</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      這組最能看出「外星序翻轉正常字典序」:正常 <code>d &lt; l</code>,但在 <code>order = worldabc…</code> 裡 <code>l</code> 的 rank(3)排在 <code>d</code>(4)<strong>之前</strong> →
+      <code>d &gt; l</code> → <code>word</code> 應排在 <code>world</code> <strong>之後</strong> → 沒排好 → <code>false</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ CHECK · rank 決定第一個不同的字元</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:460px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「只檢查相鄰對」就夠<span class="sc-section__title-en">// WHY ADJACENT ONLY</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 相鄰皆遞增 ⇒ 整體有序</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          「已排序」在任何全序下都有<strong>遞移性</strong>:若 <code>w0 ≤ w1</code> 且 <code>w1 ≤ w2</code>,則 <code>w0 ≤ w2</code>。
+          所以只要<strong>每一對相鄰</strong>都成立 <code>words[i] ≤ words[i+1]</code>,整個 list 就是有序的 —— 不必比較所有 <code>O(n²)</code> 對。
+        </p>
+        <p style="margin:0;">
+          兩字比較就是<strong>字典序</strong>,只是字母大小改看 <code>rank</code>:第一個不同的字元定勝負;若一方是另一方的<strong>前綴</strong>,<strong>短的較小</strong>。這兩條規則涵蓋所有情況。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(Σ|words|)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        建 <code>rank</code> 是 <code>O(26)</code>。每對相鄰只比到第一個不同的字元;所有比較的字元加起來不超過全部字元總長 <code>S = Σ|words[i]|</code>。空間只有固定的 <code>rank[26]</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(Σ|words|)</td><td>掃過所有字元一次(最壞)</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>固定 26 格 rank 表</td></tr>
+        <tr><td>建 rank</td><td class="mono">O(26)</td><td>order 是 26 字母排列</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      order 已給 → 把字母大小換成 <code>rank</code>,問題退化成「檢查相鄰兩字是否字典序遞增」。
+      別和 <strong>269</strong>(要<strong>推</strong>順序、才需拓撲)搞混。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">order 已給 → rank[] 映射,只需線性檢查每對相鄰單字是否字典序遞增(含前綴規則)。</div>
+    <div class="sc-summary-bar__detail">RANK MAP + ADJACENT COMPARE · NOT A TRAVERSAL</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p953-check.js"></script>
+</body>
+</html>

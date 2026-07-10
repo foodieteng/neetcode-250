@@ -230,7 +230,7 @@ PROBLEMS = {
     ],
     '11': [  # Graphs
         ('p463', 'Island Perimeter',                                     'island-perimeter',                                     'easy','done'),
-        ('p953', 'Verifying an Alien Dictionary',                        'verifying-an-alien-dictionary',                        'easy','todo'),
+        ('p953', 'Verifying an Alien Dictionary',                        'verifying-an-alien-dictionary',                        'easy','done'),
         ('p997', 'Find the Town Judge',                                  'find-the-town-judge',                                  'easy','todo'),
         ('p200', 'Number of Islands',                                    'number-of-islands',                                    'med', 'todo'),
         ('p695', 'Max Area of Island',                                   'max-area-of-island',                                   'med', 'todo'),
