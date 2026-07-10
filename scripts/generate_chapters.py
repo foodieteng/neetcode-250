@@ -238,7 +238,7 @@ PROBLEMS = {
         ('p286', 'Walls and Gates',                                      'walls-and-gates',                                      'med', 'done'),
         ('p994', 'Rotting Oranges',                                      'rotting-oranges',                                      'med', 'done'),
         ('p417', 'Pacific Atlantic Water Flow',                          'pacific-atlantic-water-flow',                          'med', 'done'),
-        ('p130', 'Surrounded Regions',                                   'surrounded-regions',                                   'med', 'todo'),
+        ('p130', 'Surrounded Regions',                                   'surrounded-regions',                                   'med', 'done'),
         ('p752', 'Open the Lock',                                        'open-the-lock',                                        'med', 'todo'),
         ('p207', 'Course Schedule',                                      'course-schedule',                                      'med', 'todo'),
         ('p210', 'Course Schedule II',                                   'course-schedule-ii',                                   'med', 'todo'),
