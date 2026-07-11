@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>323 · Connected Components // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P323</span>
+    <span><a href="https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">連通分量數量</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · DFS 洪水填充 / Union-Find</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 323</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>CONNECTED COMPONENTS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>n</code> 個節點(<code>0..n−1</code>)、一批無向邊 <code>edges</code>。
+        求圖裡有<strong>幾個連通分量</strong>(彼此相連的一團團)。
+      </p>
+    </div>
+
+    <p>
+      兩種經典解都要會:<strong>① DFS/BFS 洪水填充</strong> —— 對每個沒訪過的點開一趟 DFS、<code>cnt++</code>,一趟把整片染掉;
+      <strong>② Union-Find</strong> —— 逐邊合併,最後數「還是根」的數量。這題是 <a href="../p261/index.html">261 合法樹</a> 的近親(同一套並查集)。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 兩種解法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">兩種解法<span class="sc-section__title-en">// TWO WAYS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">DFS / BFS 洪水填充</span>
+            <span class="sc-ko-card__o">O(V+E)</span>
+          </div>
+          <div class="sc-ko-card__body">建鄰接表。外層掃每個點,遇到<strong>未訪</strong>就 <code>cnt++</code> 並 DFS 把整片標訪。DFS 次數 = 分量數。</div>
+          <div class="sc-ko-card__verdict">● 直觀</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">Union-Find(並查集)</span>
+            <span class="sc-ko-card__o">O(E·α)</span>
+          </div>
+          <div class="sc-ko-card__body">逐邊 <code>union</code>。最後數 <code>parent[i] &lt; 0</code>(還是根)的數量 = 分量數。或 <code>cnt = n − 合併成功次數</code>。</div>
+          <div class="sc-ko-card__verdict">● 增量友善</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:14px;font-size:13.5px;color:#4a4a44;">
+      兩者都 <code>O(V+E)</code> 等級。<strong>DFS</strong> 直觀好寫;<strong>Union-Find</strong> 在「邊會一條條進來、要隨時回答分量數」的<strong>動態</strong>場景更省。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>A · DFS</strong>:建無向鄰接表;<code>for i in 0..n−1</code>,若 <code>i</code> 未訪 → <code>cnt++</code>、<code>dfs(i)</code> 染整片。</li>
+      <li><strong>B · Union-Find</strong>:<code>parent</code> 全 <code>−1</code>;逐邊 <code>Union(u,v)</code>;最後統計 <code>parent[i] &lt; 0</code> 的個數。</li>
+      <li>兩者本質一樣:把「彼此相連」的點歸成一組,數共有幾組。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示(兩段) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// n=5 · [[0,1],[1,2],[3,4]]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      同一張圖(<code>{0,1,2}</code> 一團、<code>{3,4}</code> 一團):<strong>A</strong> 用 DFS 一趟趟染色數塊;<strong>B</strong> 用並查集合併後數根。答案都是 <strong>2</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · DFS 洪水填充</div>
+      <canvas id="va-canvas" class="sc-viz__canvas" style="height:420px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ B · Union-Find(數根)</div>
+      <canvas id="vb-canvas" class="sc-viz__canvas" style="height:420px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩種寫法的核心<span class="sc-section__title-en">// TWO CORES</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 數 DFS 次數 & 數根</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>DFS:</strong>外層 <code>for</code> 只有在碰到「<strong>還沒被任何一趟 DFS 染到</strong>」的點時才 <code>cnt++</code>。那一趟 DFS 會把<strong>整個相連的塊</strong>全部標訪,所以同一塊不會被數第二次。<strong>cnt = 啟動 DFS 的次數 = 塊數。</strong>
+        </p>
+        <p style="margin:0;">
+          <strong>Union-Find:</strong>每個連通塊在並查集裡剛好對應<strong>一個根</strong>。初始 <code>n</code> 個孤點 = <code>n</code> 個根 = <code>n</code> 塊;每次<strong>成功合併</strong>把兩個根併成一個 → 少一塊。所以最後「根的數量」= 塊數,也 = <code>n − 成功合併次數</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>Time</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>A · DFS/BFS</td><td class="mono">O(V+E)</td><td class="mono">O(V+E)</td></tr>
+        <tr><td>B · Union-Find</td><td class="mono">O(V+E·α(n))</td><td class="mono">O(V)</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:12px;font-size:13.5px;color:#4a4a44;">
+      Union-Find 空間只需一個 <code>parent</code> 陣列(不必存整張圖),<code>α(n)</code> 視為常數。
+    </p>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      數連通塊 = <strong>數「有幾團」</strong>。DFS:每碰到未訪點就開一趟、<code>cnt++</code>;Union-Find:合併完<strong>數根</strong>。
+      兩者都 O(V+E) 等級,和 <a href="../p261/index.html">261</a> 共用同一套並查集。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p261/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 合法樹 261</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種寫法與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">數連通塊:DFS 每碰未訪點開一趟 cnt++;或 Union-Find 合併後數根(cnt=n−合併次數)。皆 O(V+E)。</div>
+    <div class="sc-summary-bar__detail">CONNECTED COMPONENTS · TWO WAYS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p323-dfs.js"></script>
+  <script src="../../../../assets/js/viz/p323-uf.js"></script>
+</body>
+</html>

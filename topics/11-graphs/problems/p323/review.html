@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>323 · Connected Components // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P323</span>
+    <span><a href="https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">連通分量數量</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 323</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>數圖裡有幾團互相連通的點</td></tr>
+        <tr><td>A · DFS</td><td>每個未訪點開一趟、<code>cnt++</code>,染整片</td></tr>
+        <tr><td>B · Union-Find</td><td>逐邊合併,最後數根 / <code>n−合併次數</code></td></tr>
+        <tr><td>無向圖</td><td>建圖<strong>雙向</strong>都 push</td></tr>
+        <tr><td>孤立點</td><td>沒有邊也算一塊,別漏</td></tr>
+        <tr><td>與 261</td><td>同一套並查集,261 判樹、323 數塊</td></tr>
+        <tr><td>複雜度</td><td><code>O(V+E)</code> 等級</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> DFS 版為什麼「啟動 DFS 的次數」剛好等於連通塊數?為什麼同一塊不會被重複數?</div>
+    <div class="qa"><strong>Q2.</strong> Union-Find 版為什麼「根的數量」= 連通塊數?<code>cnt = n − 合併次數</code> 又是怎麼來的?</div>
+    <div class="qa"><strong>Q3.</strong> 無向圖建鄰接表時只 <code>push</code> 單向會怎樣?為什麼分量數會<strong>偏大</strong>?</div>
+    <div class="qa"><strong>Q4.</strong> 一個<strong>完全沒有邊</strong>的孤立點算不算一個連通塊?兩種寫法會不會自動處理?</div>
+    <div class="qa"><strong>Q5.</strong> 什麼情境下你會選 Union-Find 而不是 DFS?反過來呢?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// n=5</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入</span>
+n = 5
+edges = [[0,1],[1,2],[3,4]]
+圖:  0—1—2   (一團)      3—4  (一團)
+預期:2 個連通塊</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · DFS</span>
+i=0 未訪 → cnt=1;dfs 標 {0,1,2}
+i=1,2 已訪 → skip
+i=3 未訪 → cnt=2;dfs 標 {3,4}
+i=4 已訪 → skip
+<span class="sc-trace__out">return 2</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// B · Union-Find</span>
+parent 初始 [-1,-1,-1,-1,-1]  (5 根)
+union(0,1) union(1,2) → 0 這棵含 {0,1,2}
+union(3,4)           → 3 這棵含 {3,4}
+parent = [-3,0,0,-2,3]
+數 &lt;0 的:index 0、3 → <span class="sc-trace__out">cnt=2</span></div>
+
+    <div class="sc-insight">
+      兩種寫法從不同角度數同一件事:<strong>DFS 數「我啟動了幾趟」</strong>,<strong>Union-Find 數「合併後剩幾個根」</strong>。
+      每個連通塊在 DFS 裡對應一趟起點、在並查集裡對應一個根 —— 一一對應,所以答案一致。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若邊會<strong>一條一條動態加入</strong>,每加一條就要回報「現在剩幾塊」,哪種寫法幾乎不用改?怎麼即時維護?</div>
+    <div class="qa"><strong>App 2.</strong> 若還要回報<strong>最大連通塊的大小</strong>,兩種寫法各怎麼加?(提示:UF 的 <code>−parent[root]</code>)</div>
+    <div class="qa"><strong>App 3.</strong> 把這題搬到<strong>二維網格</strong>(島嶼數量,<a href="../p200/index.html">200</a>),DFS 版幾乎照搬;此時還需要顯式建鄰接表嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 外層 <code>for</code> 只有在碰到「<strong>還沒被任何一趟 DFS 標訪</strong>」的點時才 <code>cnt++</code> 並啟動 DFS。而那一趟 DFS 會沿著邊把<strong>整個和它相連的塊</strong>全部標成 visited。所以塊內其他點之後在外層迴圈都會被 <code>visit[i]==true</code> 跳過,<strong>不會再啟動新的一趟</strong>。於是「啟動次數」和「塊數」一一對應。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 並查集裡每個連通塊<strong>恰好一個根</strong>(該塊所有點最終都指向它)。所以掃一遍 <code>parent</code>、數 <code>parent[i] &lt; 0</code> 的個數就是塊數。至於 <code>n − 合併次數</code>:一開始 <code>n</code> 個孤點 = <code>n</code> 塊;每次<strong>成功</strong>的 <code>Union</code>(兩個不同根)會把兩塊併成一塊、少一個根。合併 <code>k</code> 次就剩 <code>n − k</code> 塊。兩種算法給同一個數。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 無向邊 <code>(u,v)</code> 代表 <code>u</code>、<code>v</code> 互通,DFS 從任一端都要能走到另一端。若只 <code>graph[u].push_back(v)</code> 而漏了反向,從 <code>v</code> 出發時看不到 <code>u</code>,本來連通的塊可能被<strong>拆開數兩次</strong> → 分量數<strong>偏大</strong>。所以無向圖一定要 <code>graph[u].push_back(v)</code> <strong>且</strong> <code>graph[v].push_back(u)</code>。(Union-Find 沒這問題,<code>Union(u,v)</code> 本身對稱。)</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 算,一個孤立點自成一個連通塊。兩種寫法<strong>都會自動處理</strong>:DFS 版外層掃到那個沒被訪過的孤點時 <code>cnt++</code>、跑一趟只標它自己;Union-Find 版那個點從沒被 <code>Union</code> 過,<code>parent[i]</code> 仍是 <code>−1</code>(自己是根),數根時被算進去。所以只要外層<strong>掃每個 <code>i</code></strong>(而非只掃邊),孤立點就不會漏。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 選 <strong>Union-Find</strong>:邊<strong>動態進來</strong>、要邊加邊回答連通性 / 分量數(online);或只想省空間(不必存整張圖)。選 <strong>DFS/BFS</strong>:圖是<strong>一次性給定</strong>、還要順便做別的走訪(找路徑、算塊大小、標記);或圖以<strong>網格 / 隱式</strong>形式出現(鄰居用座標推,不必建表)。兩者都 <code>O(V+E)</code> 等級,選順手、貼合場景的。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <strong>Union-Find 幾乎不用改</strong>:維護一個計數 <code>comp</code>,初始 <code>n</code>;每次加邊呼叫 <code>Union(u,v)</code>,若這次<strong>真的合併了兩個不同根</strong>就 <code>comp−−</code>。任何時刻直接回報 <code>comp</code> 即可,每次 <code>O(α(n))</code>。DFS 版每加一條邊都要重掃整圖,成本高得多 —— 這正是動態場景 UF 完勝的地方。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> <strong>Union-Find</strong>:因為 <code>−parent[root]</code> 就是該塊 size,合併後順手 <code>maxSize = max(maxSize, −parent[newRoot])</code> 即可,<code>O(1)</code> 維護。<strong>DFS</strong>:每趟 DFS 回傳它染了幾個點(遞迴累加),外層取最大。兩種都只是在原本的骨架上加一個「大小」的統計,不影響複雜度。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 對,<a href="../p200/index.html">島嶼數量(200)</a>本質就是「網格上的連通分量數」。DFS 版照搬:外層雙重迴圈掃每格,遇到<strong>陸地且未訪</strong> → <code>cnt++</code>、DFS 把整座島標掉。<strong>不需要顯式鄰接表</strong>:鄰居直接用座標 <code>(r±1,c)</code>、<code>(r,c±1)</code> 推出來(隱式圖),省下建表的空間。這也是為什麼「網格連通塊」常比一般圖更省 —— 結構規則、鄰居可算。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「DFS 數啟動次數、UF 數根=n−合併、無向要雙向、孤點也算一塊、動態選 UF」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 323 · CONNECTED COMPONENTS</div>
+  </div>
+
+</body>
+</html>
