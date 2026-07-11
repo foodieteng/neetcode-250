@@ -39,7 +39,7 @@
   const POS = {};
   let step = 0, timer = null;
   function fit(){ const dpr=Math.min(Math.max(window.devicePixelRatio||1,2),3); const rc=canvas.getBoundingClientRect();
-    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||440; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
+    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||484; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
     if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh;} ctx.setTransform(dpr,0,0,dpr,0,0); }
   function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function rootOf(parent,x){ while(parent[x]>=0) x=parent[x]; return x; }
@@ -47,7 +47,7 @@
   function draw(){
     fit(); const s=steps[step]; const w=canvas.clientWidth,h=canvas.clientHeight,PAD=26; const cx=w/2;
     ctx.fillStyle=COLOR.paper; ctx.fillRect(0,0,w,h);
-    POS[0]=[cx-120,96]; POS[1]=[cx-210,196]; POS[2]=[cx-30,196]; POS[3]=[cx+150,150];
+    POS[0]=[cx-150,112]; POS[1]=[cx-232,234]; POS[2]=[cx-68,234]; POS[3]=[cx+178,173];
     const single=(step===0);
 
     // ── BAND 1 · email nodes
@@ -62,7 +62,7 @@
       ctx.fillStyle=COLOR.dim; ctx.font='600 10px "JetBrains Mono", monospace'; ctx.fillText('id '+id, x, y-33); }
 
     // ── BAND 2 · id map + parent + acct
-    let by=272;
+    let by=304;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · email→id · parent[](負值=根)· 目前帳號', PAD, by);
     const cell=44, gx=PAD+62, cy=by+14;
