@@ -249,7 +249,7 @@ PROBLEMS = {
         ('p721', 'Accounts Merge',                                       'accounts-merge',                                       'med', 'done'),
         ('p399', 'Evaluate Division',                                    'evaluate-division',                                    'med', 'done'),
         ('p310', 'Minimum Height Trees',                                 'minimum-height-trees',                                 'med', 'done'),
-        ('p127', 'Word Ladder',                                          'word-ladder',                                          'hard','todo'),
+        ('p127', 'Word Ladder',                                          'word-ladder',                                          'hard','done'),
     ],
     '12': [  # Advanced Graphs
         ('p1631','Path With Minimum Effort',                                        'path-with-minimum-effort',                                        'med', 'done'),
