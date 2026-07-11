@@ -39,7 +39,7 @@
   const POS = {};
   let step = 0, timer = null;
   function fit(){ const dpr=Math.min(Math.max(window.devicePixelRatio||1,2),3); const rc=canvas.getBoundingClientRect();
-    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||484; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
+    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||500; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
     if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh;} ctx.setTransform(dpr,0,0,dpr,0,0); }
   function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function rootOf(parent,x){ while(parent[x]>=0) x=parent[x]; return x; }
@@ -65,18 +65,20 @@
     let by=304;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · email→id · parent[](負值=根)· 目前帳號', PAD, by);
-    const cell=44, gx=PAD+62, cy=by+14;
+    const cell=44, gx=PAD+62, cy=by+18, cellY=cy+22, cellMid=cellY+15;
+    // header row (email label + column headers)
     ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('email', PAD, cy);
     for(let j=0;j<4;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(LABEL[j]+'='+j, gx+j*cell+cell/2-2, cy); }
-    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cy+16);
+    // cell row (pushed down for clear gap below headers)
+    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cellMid);
     for(let j=0;j<4;j++){ const x=gx+j*cell; const val=s.parent[j]; const isRoot=val<0;
-      rr(x+4,cy+2,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.coral:'#a9c4da'; ctx.stroke();
-      ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2, cy+16); }
+      rr(x+4,cellY,cell-8,30,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.coral:'#a9c4da'; ctx.stroke();
+      ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2, cellMid); }
     // current account
-    if(s.acct){ ctx.fillStyle=COLOR.text; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('acct: '+s.acct, gx+4*cell+18, cy+16); }
+    if(s.acct){ ctx.fillStyle=COLOR.text; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('acct: '+s.acct, gx+4*cell+18, cellMid); }
 
     // ── BAND 3 · note
-    const ty=cy+58, done=!!s.done;
+    const ty=cellY+62, done=!!s.done;
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 3 · 為什麼「共用 email」= 自動合併', PAD, ty);
     const box=ty+12; rr(PAD,box,w-PAD*2,40,6); ctx.fillStyle=done?CC[0].f:'#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=done?CC[0].s:COLOR.grid; ctx.stroke();

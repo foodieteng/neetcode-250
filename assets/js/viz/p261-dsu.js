@@ -39,7 +39,7 @@
   const POS = {};
   let step = 0, timer = null;
   function fit(){ const dpr=Math.min(Math.max(window.devicePixelRatio||1,2),3); const rc=canvas.getBoundingClientRect();
-    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||460; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
+    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||476; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
     if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh;} ctx.setTransform(dpr,0,0,dpr,0,0); }
   function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function arrow(ax,ay,bx,by,color,wdt,dash){ const dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,R=23;
@@ -77,16 +77,16 @@
     const cell=46, gx=PAD+64, cy=by+16;
     ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('idx', PAD, cy);
     for(let j=0;j<5;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(String(j), gx+j*cell+cell/2-3, cy); }
-    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cy+16);
+    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cy+30);
     for(let j=0;j<5;j++){ const x=gx+j*cell; const val=s.parent[j]; const isRoot=val<0;
-      rr(x+3,cy+2,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
-      ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2-1, cy+16); }
+      rr(x+3,cy+16,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
+      ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2-1, cy+30); }
     // add counter
-    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('add =', gx+5*cell+16, cy+16);
-    ctx.fillStyle=s.done?COLOR.onT:COLOR.text; ctx.font='700 18px "JetBrains Mono", monospace'; ctx.fillText(s.add+' / 4', gx+5*cell+66, cy+16);
+    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('add =', gx+5*cell+16, cy+30);
+    ctx.fillStyle=s.done?COLOR.onT:COLOR.text; ctx.font='700 18px "JetBrains Mono", monospace'; ctx.fillText(s.add+' / 4', gx+5*cell+66, cy+30);
 
     // ── BAND 3 · note
-    const ty=cy+58, done=!!s.done;
+    const ty=cy+70, done=!!s.done;
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 3 · 合法樹的兩個條件', PAD, ty);
     const box=ty+12; rr(PAD,box,w-PAD*2,40,6); ctx.fillStyle=done?COLOR.on:'#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=done?COLOR.onS:COLOR.grid; ctx.stroke();
