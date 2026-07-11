@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>310 · Minimum Height Trees // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P310</span>
+    <span><a href="https://leetcode.com/problems/minimum-height-trees/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小高度樹</h1>
+    <p class="sc-mast__subtitle">// CODE · 剝葉子 BFS(度數層剝)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 310</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 解法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">剝葉子找中心<span class="sc-section__title-en">// peel leaves layer by layer</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p310.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">findMinHeightTrees</span><span class="p">(</span><span class="t">int</span> n<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> edges<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>n <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="p">{</span><span class="n">0</span><span class="p">};</span>          <span class="c">// 特例</span>
+        <span class="k">if</span> <span class="p">(</span>n <span class="p">==</span> <span class="n">2</span><span class="p">)</span> <span class="k">return</span> <span class="p">{</span><span class="n">0</span><span class="p">,</span> <span class="n">1</span><span class="p">};</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> graph<span class="p">(</span>n<span class="p">);</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> deg<span class="p">(</span>n<span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> e <span class="p">:</span> edges<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> a <span class="p">=</span> e<span class="p">[</span><span class="n">0</span><span class="p">],</span> b <span class="p">=</span> e<span class="p">[</span><span class="n">1</span><span class="p">];</span>
+            graph<span class="p">[</span>a<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>b<span class="p">);</span> graph<span class="p">[</span>b<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>a<span class="p">);</span>
+            deg<span class="p">[</span>a<span class="p">]++;</span> deg<span class="p">[</span>b<span class="p">]++;</span>
+        <span class="p">}</span>
+
+        <span class="t">queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> q<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span>
+            <span class="k">if</span> <span class="p">(</span>deg<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="n">1</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>i<span class="p">);</span>       <span class="c">// 初始葉子</span>
+
+        <span class="k">while</span> <span class="p">(</span>n <span class="p">&gt;</span> <span class="n">2</span><span class="p">)</span> <span class="p">{</span>                    <span class="c">// 剩 &gt; 2 才繼續剝</span>
+            <span class="t">int</span> sz <span class="p">=</span> q<span class="p">.</span><span class="f">size</span><span class="p">();</span>              <span class="c">// 綁定「這一層」</span>
+            n <span class="p">-=</span> sz<span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> _ <span class="p">=</span> <span class="n">0</span><span class="p">;</span> _ <span class="p">&lt;</span> sz<span class="p">;</span> _<span class="p">++)</span> <span class="p">{</span>
+                <span class="t">int</span> u <span class="p">=</span> q<span class="p">.</span><span class="f">front</span><span class="p">();</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+                <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span>
+                    <span class="k">if</span> <span class="p">(--</span>deg<span class="p">[</span>v<span class="p">]</span> <span class="p">==</span> <span class="n">1</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>v<span class="p">);</span>   <span class="c">// 降到 1 = 下一層的葉</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> ans<span class="p">;</span>
+        <span class="k">while</span> <span class="p">(!</span>q<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span> ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>q<span class="p">.</span><span class="f">front</span><span class="p">());</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span> <span class="p">}</span>  <span class="c">// 剩 1~2 = 中心</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 關鍵行 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">關鍵行<span class="sc-section__title-en">// KEY LINES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>行</th><th>意義</th></tr></thead>
+      <tbody>
+        <tr><td><code>if (n==1 / n==2)</code></td><td>特例:剝不動,直接回全部</td></tr>
+        <tr><td><code>deg[i]==1 → push</code></td><td>初始葉子入隊</td></tr>
+        <tr><td><code>while (n &gt; 2)</code></td><td>剩 ≤ 2 就停(那是中心)</td></tr>
+        <tr><td><code>int sz = q.size()</code></td><td>把「同一層」的葉綁一起剝(關鍵!)</td></tr>
+        <tr><td><code>--deg[v] == 1</code></td><td>鄰居度數降到 1 → 變新葉</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>沒處理 <code>n==1</code>/<code>n==2</code></td><td class="fail">沒有葉子(或 while 不進)→ 回錯</td><td>先特判回全部</td></tr>
+        <tr><td>不用 <code>sz</code> 綁層,逐個剝</td><td class="fail">把不同層混在一起,剝過頭</td><td><code>sz = q.size()</code> 一次剝整層</td></tr>
+        <tr><td>while 條件寫 <code>!q.empty()</code></td><td class="fail">把中心也剝掉,答案空</td><td>用剩餘 <code>n &gt; 2</code></td></tr>
+        <tr><td>degree 減成 0 才入隊</td><td class="fail">中心永遠不入隊,漏</td><td>降到 <strong>1</strong> 就入隊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 範例 trace  path 0-1-2-3-4-5</span>
+deg = [1,2,2,2,2,1]   初始葉 q={0,5}   n=6
+剝層1:移除 0,5(sz=2)→ n=4;deg[1],deg[4]→1 → q={1,4}
+剝層2:n=4&gt;2,移除 1,4(sz=2)→ n=2;deg[2],deg[3]→1 → q={2,3}
+n=2,while 停 → ans = <span class="sc-trace__out">{2,3}</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 為什麼用「剩餘 n &gt; 2」而不是「q 空」當條件</span>
+若寫 while(!q.empty()) 會把中心也一起剝掉,答案變空
+中心的 deg 也會降到 1、進佇列,但我們<strong>不該再剝它</strong>
+用「剩餘節點數 n」控制:剝到剩 ≤ 2 就收手,佇列裡的就是中心</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 為什麼降到 1(不是 0)入隊</span>
+剝掉一個葉,鄰居少一條邊、deg−1
+若鄰居 deg 從 2 → 1,代表它現在也變成葉(只剩一條邊)
+→ 它是下一層要剝的,入隊
+deg 降到 0 是「被孤立」,那是中心被過度剝的訊號(用 n 控制避免)</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// PEEL TO THE CENTER</div>
+    <div class="sc-summary-bar__body">特判 n≤2;葉子(deg==1)入隊,用 sz 綁層逐層剝,剩餘 n≤2 停,佇列裡即中心。O(n)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 310 · MINIMUM HEIGHT TREES</div>
+  </div>
+
+</body>
+</html>

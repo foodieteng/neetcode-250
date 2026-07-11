@@ -248,7 +248,7 @@ PROBLEMS = {
         ('p684', 'Redundant Connection',                                 'redundant-connection',                                 'med', 'done'),
         ('p721', 'Accounts Merge',                                       'accounts-merge',                                       'med', 'done'),
         ('p399', 'Evaluate Division',                                    'evaluate-division',                                    'med', 'done'),
-        ('p310', 'Minimum Height Trees',                                 'minimum-height-trees',                                 'med', 'todo'),
+        ('p310', 'Minimum Height Trees',                                 'minimum-height-trees',                                 'med', 'done'),
         ('p127', 'Word Ladder',                                          'word-ladder',                                          'hard','todo'),
     ],
     '12': [  # Advanced Graphs
