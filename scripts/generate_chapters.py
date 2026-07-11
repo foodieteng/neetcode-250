@@ -247,7 +247,7 @@ PROBLEMS = {
         ('p323', 'Number of Connected Components in an Undirected Graph','number-of-connected-components-in-an-undirected-graph','med', 'done'),
         ('p684', 'Redundant Connection',                                 'redundant-connection',                                 'med', 'done'),
         ('p721', 'Accounts Merge',                                       'accounts-merge',                                       'med', 'done'),
-        ('p399', 'Evaluate Division',                                    'evaluate-division',                                    'med', 'todo'),
+        ('p399', 'Evaluate Division',                                    'evaluate-division',                                    'med', 'done'),
         ('p310', 'Minimum Height Trees',                                 'minimum-height-trees',                                 'med', 'todo'),
         ('p127', 'Word Ladder',                                          'word-ladder',                                          'hard','todo'),
     ],

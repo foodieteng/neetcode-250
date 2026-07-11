@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>399 · Evaluate Division // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P399</span>
+    <span><a href="https://leetcode.com/problems/evaluate-division/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">除法求值</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 399</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>加權圖上求兩點間<strong>路徑邊權連乘</strong></td></tr>
+        <tr><td>建圖</td><td><code>A/B=v</code> → <code>A→B:v</code>、<code>B→A:1/v</code></td></tr>
+        <tr><td>查詢</td><td>BFS 帶累積權重,命中終點回乘積</td></tr>
+        <tr><td>連乘正確性</td><td>中間項相消:<code>a/b·b/c = a/c</code></td></tr>
+        <tr><td>−1 情況</td><td>變數未定義 / 不連通 → 走不到</td></tr>
+        <tr><td>複雜度</td><td><code>O(q·(V+E))</code>,空間 <code>O(V+E)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「沿路徑把邊權連乘」就等於 <code>C/D</code>?用一條 3 段路徑說明中間項怎麼消掉。</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼一條等式 <code>A/B=v</code> 要建<strong>兩條</strong>邊?反向那條的權重為什麼是 <code>1/v</code>?</div>
+    <div class="qa"><strong>Q3.</strong> <code>x/x</code>(<code>x</code> 沒出現在任何等式)該回 <code>1.0</code> 還是 <code>-1.0</code>?為什麼?</div>
+    <div class="qa"><strong>Q4.</strong> 題目說「保證無矛盾」。這個保證讓我們<strong>不必做</strong>哪件事?若<strong>可能</strong>矛盾又該怎麼辦?</div>
+    <div class="qa"><strong>Q5.</strong> 累積權重的初始值為什麼是 <code>1.0</code> 而不是 <code>0</code>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// a/b=2, b/c=3</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 建圖</span>
+graph[a][b]=2   graph[b][a]=0.5
+graph[b][c]=3   graph[c][b]=0.333…</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 幾個查詢</span>
+a/c:a →(×2) b →(×3) c        = <span class="sc-trace__out">6.0</span>
+b/a:b →(×0.5) a              = <span class="sc-trace__out">0.5</span>
+a/a:start==end               = <span class="sc-trace__out">1.0</span>
+a/e:e 不在圖裡               = <span class="sc-trace__out">-1.0</span>
+x/x:x 不在圖裡               = <span class="sc-trace__out">-1.0</span></div>
+
+    <div class="sc-insight">
+      注意 <code>x/x = -1</code> 而 <code>a/a = 1</code> 的差別:關鍵不是「分子分母相等」,而是<strong>這個變數有沒有被定義過</strong>(出現在等式裡)。
+      沒定義的變數,連 <code>1</code> 都不能回 —— 它根本不在我們的知識範圍內。<code>start==end</code> 的特判<strong>擺在「兩者都在圖裡」之後</strong>才安全。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改用 <strong>DFS</strong> 求同樣的路徑乘積怎麼寫?和 BFS 比,哪個在「找任一條路徑」時更省心?</div>
+    <div class="qa"><strong>App 2.</strong> 若查詢<strong>非常多</strong>(遠大於變數數),怎麼<strong>預處理</strong>讓每次查詢降到 O(1)?(提示:Floyd-Warshall 傳遞閉包 / 帶權並查集)</div>
+    <div class="qa"><strong>App 3.</strong> 若題目<strong>不保證無矛盾</strong>(可能給 <code>a/b=2</code> 又 <code>a/b=3</code>,或環上乘起來 ≠ 1),要怎麼偵測矛盾?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 一條路徑 <code>C → x → y → D</code>,每條邊權重都是「起點除以終點」:<code>C/x</code>、<code>x/y</code>、<code>y/D</code>。相乘:<code>(C/x)·(x/y)·(y/D)</code>。把它寫成分數連乘,分子是 <code>C·x·y</code>、分母是 <code>x·y·D</code>,中間的 <code>x</code>、<code>y</code> <strong>各出現一次分子、一次分母</strong>,約掉後只剩 <code>C/D</code>。所以不論中間經過哪些變數,乘積永遠是頭尾之比。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為除法<strong>雙向可推</strong>:知道 <code>A/B=v</code> 就同時知道 <code>B/A=1/v</code>。查詢可能從任一端出發,若只建 <code>A→B</code>,想算 <code>B/…</code> 就走不出去。反向權重是 <code>1/v</code> 正因為 <code>B/A = 1 ÷ (A/B) = 1/v</code>。建雙向邊讓圖在兩個方向都連得通,BFS 才能自由走。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 回 <strong><code>-1.0</code></strong>。判準是「變數<strong>有沒有被定義</strong>」——即有沒有出現在任何等式裡。<code>x</code> 從未出現 → 它<strong>不在圖裡</strong> → 我們對它一無所知,連 <code>x/x</code> 都不能宣稱是 1。程式先檢查 <code>!graph.count(start) || !graph.count(end)</code> 回 <code>-1</code>,<strong>再</strong>檢查 <code>start==end</code> 回 <code>1</code>。順序不能反,否則 <code>x/x</code> 會被誤判成 1。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 「無矛盾」保證任兩點間<strong>所有路徑的乘積都相同</strong>,所以我們<strong>不必比較多條路徑、也不必檢查一致性</strong> —— BFS 找到<strong>任一條</strong>路徑就能直接回答。若<strong>可能矛盾</strong>,就得改成:把每個連通塊的所有點都算出「相對某個基準點的比值」,建表時若發現同一對點被賦予<strong>不同比值</strong>(超過浮點誤差)就是矛盾;或用<strong>帶權並查集</strong>,在 union 時檢查兩點既有的相對比值是否和新等式衝突。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 因為答案是<strong>連乘</strong>,乘法的單位元是 <code>1</code>。起點到自己「什麼都還沒乘」時,比值是 <code>start/start = 1</code>。之後每經過一條邊乘上邊權,累積值才慢慢變成 <code>start/當前點</code>。若起始給 <code>0</code>,無論後面乘什麼都是 <code>0</code>,全錯。(對比:如果是<strong>加權求和</strong>類的題,初始才給 <code>0</code>。)</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> DFS 版:<code>dfs(cur, target, acc, visited)</code>,若 <code>cur==target</code> 回 <code>acc</code>;否則標訪、對每個鄰居 <code>dfs(nb, target, acc*w, …)</code>,任一支回非 <code>-1</code> 就往上傳。找「<strong>任一條</strong>路徑」時 BFS、DFS 都行、複雜度一樣;DFS 遞迴寫起來更短,BFS 用佇列更好控制、且天然是<strong>最短(邊數最少)</strong>的路徑(這題不影響答案,但少乘幾次浮點更穩)。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> <strong>Floyd-Warshall</strong>:把「可達 + 比值」當傳遞閉包,<code>d[i][j] = d[i][k]·d[k][j]</code> 三重迴圈預算所有配對,<code>O(V³)</code> 建表、每次查 <code>O(1)</code>。或<strong>帶權並查集</strong>:每個點存「到其 root 的比值」,<code>find</code> 時做路徑壓縮並累乘比值,同組兩點 <code>x/y = ratio[x]/ratio[y]</code>,近乎 <code>O(1)</code> 查。查詢遠多於變數時,這兩種比「每查一次 BFS」划算。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 用<strong>帶權並查集</strong>最自然:每個點記 <code>ratio[x]</code>(= <code>x/root</code>)。處理 <code>a/b=v</code> 時,若 <code>a</code>、<code>b</code> <strong>已在同一組</strong>,就檢查既有的 <code>ratio[a]/ratio[b]</code> 是否等於 <code>v</code>(容許浮點誤差);不等 → <strong>矛盾</strong>。若不同組才 union,並據 <code>v</code> 調整其中一棵樹的 ratio 使兩邊自洽。這樣建圖過程順便就把矛盾抓出來了。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「路徑連乘中間項相消、建 v 與 1/v、x/x=−1 而 a/a=1、累積起始 1.0、多查詢改 Floyd/帶權 DSU」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 399 · EVALUATE DIVISION</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>399 · Evaluate Division // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P399</span>
+    <span><a href="https://leetcode.com/problems/evaluate-division/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">除法求值</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 加權圖 BFS(邊權連乘)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 399</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>WEIGHTED BFS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一批等式:<code>equations[i] = [A, B]</code> 搭配 <code>values[i]</code> 表示 <code>A / B = values[i]</code>。
+        再給一批查詢 <code>[C, D]</code>,求 <code>C / D = ?</code>。若無法從已知等式推出(變數沒出現、或兩者不連通),回 <code>-1.0</code>。
+      </p>
+    </div>
+
+    <p>
+      把變數當<strong>節點</strong>、等式當<strong>加權有向邊</strong>:<code>A/B=v</code> 建 <code>A→B</code> 權重 <code>v</code>、反向 <code>B→A</code> 權重 <code>1/v</code>。
+      那麼 <code>C/D</code> 就是<strong>沿任一條 C 到 D 的路徑,把邊權連乘</strong> —— 因為中間項會像電話接龍一樣相消:<code>a/b · b/c = a/c</code>。用 <strong>BFS/DFS</strong> 帶著累積權重走即可。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 核心觀察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心觀察<span class="sc-section__title-en">// KEY IDEA</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">建圖</span>
+            <span class="sc-ko-card__title">A/B=v → 兩條有向邊</span>
+            <span class="sc-ko-card__o">v 與 1/v</span>
+          </div>
+          <div class="sc-ko-card__body"><code>graph[A][B]=v</code>、<code>graph[B][A]=1/v</code>。除法可逆,反向就是倒數。</div>
+          <div class="sc-ko-card__verdict">◆ 加權邊</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">查詢</span>
+            <span class="sc-ko-card__title">路徑邊權連乘</span>
+            <span class="sc-ko-card__o">中間項相消</span>
+          </div>
+          <div class="sc-ko-card__body"><code>C/D</code> = 沿路徑 <code>C/x₁ · x₁/x₂ · … · xₖ/D</code>,中間全消 = <code>C/D</code>。</div>
+          <div class="sc-ko-card__verdict">◆ 連乘</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">BFS 帶累積權重找 C→D</span>
+          <span class="sc-ko-card__o">O(q·(V+E))</span>
+        </div>
+        <div class="sc-ko-card__body">
+          每個查詢從 <code>C</code> 出發 BFS,佇列存 <code>(節點, 累積權重)</code>;每走一條邊就<strong>乘上邊權</strong>。碰到 <code>D</code> 回累積值;走不到 / 變數未定義回 <code>-1</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 加權 BFS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建圖</strong>:對每個 <code>A/B=v</code>,<code>graph[A][B]=v</code>、<code>graph[B][A]=1/v</code>(巢狀 hashmap)。</li>
+      <li><strong>邊界</strong>:查詢 <code>C/D</code> 時,若 <code>C</code> 或 <code>D</code> <strong>不在圖裡</strong> → <code>-1</code>;若 <code>C==D</code> → <code>1.0</code>。</li>
+      <li><strong>BFS</strong>:佇列存 <code>(節點, 累積權重)</code>,起點 <code>(C, 1.0)</code>;用 <code>visit</code> 防重複。</li>
+      <li><strong>命中</strong>:遇到鄰居 == <code>D</code> → 回 <code>累積 × 邊權</code>;佇列空還沒到 → <code>-1</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// a/b=2, b/c=3 · query a/c</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      鏈 <code>a→b→c</code>(權重 2、3)。查 <code>a/c</code>:BFS 帶著累積權重走,<code>1 → ×2 → ×3</code>,到 <code>c</code> 得 <strong>6</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 加權 BFS · 邊權連乘</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:420px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼連乘 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「連乘」就對<span class="sc-section__title-en">// TELESCOPING</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 中間項相消</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          一條從 <code>C</code> 到 <code>D</code> 的路徑 <code>C → x₁ → x₂ → … → D</code>,每條邊的權重就是<strong>頭除以尾</strong>:<code>C/x₁</code>、<code>x₁/x₂</code>、…、<code>xₖ/D</code>。把它們<strong>全部相乘</strong>:
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;text-align:center;color:#e8b96a;">
+          (C/x₁) · (x₁/x₂) · … · (xₖ/D) = C/D
+        </p>
+        <p style="margin:0;">
+          中間每個變數都<strong>出現一次分子、一次分母</strong>,剛好相消,只留下 <code>C/D</code>。所以「沿路徑連乘邊權」<strong>不管走哪條路徑、經過幾個中間變數,結果都是 <code>C/D</code></strong>(題目保證無矛盾,所以每條路徑給同一個值)。這就是為什麼 BFS 找到<strong>任一條</strong>路徑即可回答。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(q · (V + E))</strong>　　S = <strong>O(V + E)</strong></div>
+      <p class="sc-formula__hint">
+        <code>V</code> = 變數數、<code>E</code> = 等式數、<code>q</code> = 查詢數。每個查詢一次 BFS 走遍圖。空間為鄰接表 + visit + 佇列。
+      </p>
+    </div>
+
+    <p style="margin-top:12px;font-size:13.5px;color:#4a4a44;">
+      進階:若查詢<strong>非常多</strong>,可先用 <strong>Floyd-Warshall</strong> 預算所有配對(<code>O(V³)</code> 建表、每查 O(1)),或用<strong>並查集帶權</strong>(把每點壓到根、存「到根的比值」)。這裡 V、q 都 ≤ 20,直接 BFS 最省事。
+    </p>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      除法查詢 = <strong>加權圖上的路徑連乘</strong>。<code>A/B=v</code> 建 <code>v</code> 與 <code>1/v</code> 兩條邊;BFS 帶累積權重走,
+      到終點回乘積、走不到回 −1。中間項相消是它成立的關鍵。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p721/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 帳號合併 721</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">A/B=v 建 v 與 1/v 兩條邊;C/D = 沿路徑邊權連乘(中間項相消)。BFS 帶累積權重,走不到回 −1。</div>
+    <div class="sc-summary-bar__detail">WEIGHTED GRAPH · PATH PRODUCT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p399-bfs.js"></script>
+</body>
+</html>

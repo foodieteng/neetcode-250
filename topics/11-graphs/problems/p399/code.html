@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>399 · Evaluate Division // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P399</span>
+    <span><a href="https://leetcode.com/problems/evaluate-division/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">除法求值</h1>
+    <p class="sc-mast__subtitle">// CODE · 加權圖 BFS</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 399</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 解法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">加權圖 BFS<span class="sc-section__title-en">// build v & 1/v · carry product</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p399.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">double</span><span class="p">&gt;</span> <span class="f">calcEquation</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&gt;&amp;</span> equations<span class="p">,</span>
+            <span class="t">vector</span><span class="p">&lt;</span><span class="t">double</span><span class="p">&gt;&amp;</span> values<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&gt;&amp;</span> queries<span class="p">)</span> <span class="p">{</span>
+        <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">string</span><span class="p">,</span> <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">string</span><span class="p">,</span> <span class="t">double</span><span class="p">&gt;&gt;</span> graph<span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> equations<span class="p">.</span><span class="f">size</span><span class="p">();</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="t">string</span> a <span class="p">=</span> equations<span class="p">[</span>i<span class="p">][</span><span class="n">0</span><span class="p">],</span> b <span class="p">=</span> equations<span class="p">[</span>i<span class="p">][</span><span class="n">1</span><span class="p">];</span>
+            <span class="t">double</span> v <span class="p">=</span> values<span class="p">[</span>i<span class="p">];</span>
+            graph<span class="p">[</span>a<span class="p">][</span>b<span class="p">]</span> <span class="p">=</span> v<span class="p">;</span>              <span class="c">// a/b = v</span>
+            graph<span class="p">[</span>b<span class="p">][</span>a<span class="p">]</span> <span class="p">=</span> <span class="n">1.0</span> <span class="p">/</span> v<span class="p">;</span>        <span class="c">// b/a = 1/v(可逆)</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">double</span><span class="p">&gt;</span> ans<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> q <span class="p">:</span> queries<span class="p">)</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span><span class="f">bfs</span><span class="p">(</span>graph<span class="p">,</span> q<span class="p">[</span><span class="n">0</span><span class="p">],</span> q<span class="p">[</span><span class="n">1</span><span class="p">]));</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">double</span> <span class="f">bfs</span><span class="p">(</span><span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">string</span><span class="p">,</span> <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">string</span><span class="p">,</span> <span class="t">double</span><span class="p">&gt;&gt;&amp;</span> graph<span class="p">,</span>
+               <span class="t">string</span> start<span class="p">,</span> <span class="t">string</span> end<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span>graph<span class="p">.</span><span class="f">count</span><span class="p">(</span>start<span class="p">)</span> <span class="p">||</span> <span class="p">!</span>graph<span class="p">.</span><span class="f">count</span><span class="p">(</span>end<span class="p">))</span> <span class="k">return</span> <span class="n">-1.0</span><span class="p">;</span>  <span class="c">// 未定義</span>
+        <span class="k">if</span> <span class="p">(</span>start <span class="p">==</span> end<span class="p">)</span> <span class="k">return</span> <span class="n">1.0</span><span class="p">;</span>
+
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> visit<span class="p">;</span>
+        <span class="t">queue</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">string</span><span class="p">,</span> <span class="t">double</span><span class="p">&gt;&gt;</span> q<span class="p">;</span>
+        q<span class="p">.</span><span class="f">push</span><span class="p">({</span>start<span class="p">,</span> <span class="n">1.0</span><span class="p">});</span>              <span class="c">// (節點, 累積權重)</span>
+        visit<span class="p">.</span><span class="f">insert</span><span class="p">(</span>start<span class="p">);</span>
+
+        <span class="k">while</span> <span class="p">(!</span>q<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">auto</span> <span class="p">[</span>u<span class="p">,</span> w<span class="p">]</span> <span class="p">=</span> q<span class="p">.</span><span class="f">front</span><span class="p">();</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span>v<span class="p">,</span> nw<span class="p">]</span> <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span>v <span class="p">==</span> end<span class="p">)</span> <span class="k">return</span> w <span class="p">*</span> nw<span class="p">;</span>       <span class="c">// 命中 → 累積 × 邊權</span>
+                <span class="k">if</span> <span class="p">(</span>visit<span class="p">.</span><span class="f">count</span><span class="p">(</span>v<span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+                visit<span class="p">.</span><span class="f">insert</span><span class="p">(</span>v<span class="p">);</span>
+                q<span class="p">.</span><span class="f">push</span><span class="p">({</span>v<span class="p">,</span> w <span class="p">*</span> nw<span class="p">});</span>            <span class="c">// 沿路乘上去</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">-1.0</span><span class="p">;</span>                        <span class="c">// 走不到 → 無法determine</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 關鍵行 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">關鍵行<span class="sc-section__title-en">// KEY LINES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>行</th><th>意義</th></tr></thead>
+      <tbody>
+        <tr><td><code>graph[a][b]=v; graph[b][a]=1/v</code></td><td>一條等式 → 兩條加權邊(除法可逆)</td></tr>
+        <tr><td><code>!count(start) || !count(end)</code></td><td>變數未定義 → 直接 −1</td></tr>
+        <tr><td><code>push({start, 1.0})</code></td><td>累積權重從 1 起算(<code>start/start</code>)</td></tr>
+        <tr><td><code>w * nw</code></td><td>每走一條邊就乘上邊權</td></tr>
+        <tr><td><code>if (v == end) return w*nw</code></td><td>碰到終點,回累積乘積</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>只建 <code>a→b</code>,漏反向</td><td class="fail">很多查詢走不到</td><td>同時建 <code>b→a = 1/v</code></td></tr>
+        <tr><td>沒判變數是否在圖裡</td><td class="fail">查未定義變數回錯值 / 崩</td><td><code>!count(start)||!count(end) → −1</code></td></tr>
+        <tr><td>忘了 <code>start==end</code></td><td class="fail">自己除自己沒回 1</td><td>先特判回 <code>1.0</code></td></tr>
+        <tr><td>沒 visit 去重</td><td class="fail">環上無窮繞</td><td>入隊前標 visit</td></tr>
+        <tr><td>累積權重起始給 0</td><td class="fail">連乘永遠 0</td><td>起始 <code>1.0</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 建圖  a/b=2, b/c=3</span>
+graph[a][b]=2    graph[b][a]=0.5
+graph[b][c]=3    graph[c][b]=1/3
+節點 {a,b,c},邊都是有向 + 帶權</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 查 a/c  BFS</span>
+push (a, 1.0)         visit={a}
+pop  (a, 1):鄰居 b → 1×2=2,push (b,2)  visit={a,b}
+pop  (b, 2):鄰居 c == end → return 2×3 = <span class="sc-trace__out">6</span>
+(a/b · b/c = a/c,中間的 b 相消)</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 各種 -1 / 特例</span>
+查 a/e:e 不在圖裡 → -1
+查 x/x:x 不在圖裡 → -1(未定義,不是 1!)
+查 a/a:a 在圖裡且 start==end → 1.0
+查 兩個各自定義但不連通的變數 → BFS 走不到 → -1</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// BUILD v & 1/v · CARRY PRODUCT</div>
+    <div class="sc-summary-bar__body">每等式建兩條邊(v、1/v);BFS 帶累積權重,命中終點回乘積。變數未定義 / 走不到回 −1。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 399 · EVALUATE DIVISION</div>
+  </div>
+
+</body>
+</html>
