@@ -245,7 +245,7 @@ PROBLEMS = {
         ('p261', 'Graph Valid Tree',                                     'graph-valid-tree',                                     'med', 'done'),
         ('p1462','Course Schedule IV',                                   'course-schedule-iv',                                   'med', 'done'),
         ('p323', 'Number of Connected Components in an Undirected Graph','number-of-connected-components-in-an-undirected-graph','med', 'done'),
-        ('p684', 'Redundant Connection',                                 'redundant-connection',                                 'med', 'todo'),
+        ('p684', 'Redundant Connection',                                 'redundant-connection',                                 'med', 'done'),
         ('p721', 'Accounts Merge',                                       'accounts-merge',                                       'med', 'todo'),
         ('p399', 'Evaluate Division',                                    'evaluate-division',                                    'med', 'todo'),
         ('p310', 'Minimum Height Trees',                                 'minimum-height-trees',                                 'med', 'todo'),
