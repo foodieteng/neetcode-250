@@ -65,7 +65,7 @@
     let by=304;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · email→id · parent[](負值=根)· 目前帳號', PAD, by);
-    const cell=44, gx=PAD+62, cy=by+18, cellY=cy+22, cellMid=cellY+15;
+    const cell=44, gx=PAD+62, cy=by+16, cellY=cy+30, cellMid=cellY+16;
     // header row (email label + column headers)
     ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('email', PAD, cy);
     for(let j=0;j<4;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(LABEL[j]+'='+j, gx+j*cell+cell/2-2, cy); }
