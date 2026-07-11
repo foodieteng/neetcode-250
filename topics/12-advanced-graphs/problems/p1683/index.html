@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCC · Planets and Kingdoms // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / SCC</span>
+    <span><a href="https://cses.fi/problemset/task/1683" target="_blank" rel="noopener">原題 ↗ CSES</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">強連通分量 · SCC</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · Kosaraju 兩趟 DFS</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>CSES · Planets and Kingdoms</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>KOSARAJU SCC</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>n</code> 個星球、<code>m</code> 條<strong>單向</strong>傳送門構成有向圖。把星球分成若干「王國」:
+        <strong>同一王國內任兩個星球都能互相到達</strong>。求王國數 <code>k</code>,並輸出每個星球屬於哪個王國。
+      </p>
+    </div>
+
+    <p>
+      「彼此都能互達」= 有向圖的<strong>強連通分量(Strongly Connected Component, SCC)</strong>。
+      標準解 <strong>Kosaraju</strong>:<strong>兩趟 DFS</strong> —— 第一趟在原圖依完成時間排序,第二趟在<strong>反圖</strong>上依序 DFS,每棵樹剛好框住一個 SCC。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼兩趟 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼要兩趟<span class="sc-section__title-en">// WHY TWO PASSES</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">對每個點各跑一次雙向可達</span>
+            <span class="sc-ko-card__o">O(V·(V+E))</span>
+          </div>
+          <div class="sc-ko-card__body">對每對點檢查「能否互達」,重複遍歷、慢;點多時不可行。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 慢</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">1st</span>
+            <span class="sc-ko-card__title">原圖 DFS · 記完成時間</span>
+            <span class="sc-ko-card__o">post-order</span>
+          </div>
+          <div class="sc-ko-card__body">DFS 結束一個節點就壓 stack。完成<strong>最晚</strong>的在頂端 = 位於「源頭」SCC。</div>
+          <div class="sc-ko-card__verdict">◆ 排序</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">2nd</span>
+          <span class="sc-ko-card__title">反圖 DFS · 依 stack 順序,每樹一個 SCC</span>
+          <span class="sc-ko-card__o">O(V+E)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          把邊全部<strong>反向</strong>,從 stack 頂端逐個彈出當起點 DFS。因為在反圖上,從「源頭 SCC」的點<strong>只到得了自己這一組</strong>,一次 DFS 剛好框住一個 SCC。共兩趟 <code>O(V+E)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(V+E)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建正反兩張圖</strong>:<code>g</code>(原圖)與 <code>rg</code>(每條邊反向)。</li>
+      <li><strong>第一趟(g)</strong>:對每個點 DFS;遞迴完所有後代後把自己 <code>push</code> 進 <code>order</code> stack(後序 = 完成時間序)。</li>
+      <li><strong>第二趟(rg)</strong>:反覆從 <code>order</code> 頂端彈出 <code>u</code>;若尚未分派,<code>k++</code> 並在反圖上 DFS 把整個可達團標成第 <code>k</code> 組。</li>
+      <li><strong>輸出</strong>:<code>k</code> 與每點的 <code>comp[i]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 1→2→3→1, 3→4, 4→5</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      環 <code>1→2→3→1</code> 加尾巴 <code>3→4→5</code>。看兩趟 DFS 怎麼把它切成 <strong>{1,2,3}、{4}、{5}</strong> 三個 SCC。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Kosaraju · 兩趟 DFS</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:480px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼順序對 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼這樣就對<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 完成時間 + 反圖</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          把每個 SCC 縮成一個點,得到的「縮圖(condensation)」一定是 <strong>DAG</strong>。第一趟 DFS 的<strong>完成時間最晚</strong>的節點,必定落在這個 DAG 的<strong>源頭 SCC</strong>(沒有其他 SCC 指進來的那一組)。
+        </p>
+        <p style="margin:0;">
+          第二趟改走<strong>反圖</strong>:在反圖裡,源頭 SCC 變成「匯點」——從它的點出發,<strong>只走得到自己這一組</strong>,跨不到別的 SCC。所以一次 DFS 恰好框住一整個 SCC。標記完就把它移除,stack 上的下一個未分派點又是剩餘圖的源頭,如此類推。<strong>完成序保證了每次都從「當前源頭」開始。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(V + E)</strong>　　S = <strong>O(V + E)</strong></div>
+      <p class="sc-formula__hint">
+        兩趟 DFS,各走遍每點每邊。空間為正反兩張鄰接表 + <code>visit/comp</code> + <code>order</code> stack。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>演算法</th><th>特點</th><th>複雜度</th></tr></thead>
+      <tbody>
+        <tr><td>Kosaraju(本頁)</td><td>兩趟 DFS,直觀好記,需反圖</td><td class="mono">O(V+E)</td></tr>
+        <tr><td>Tarjan SCC</td><td>一趟 DFS + 堆疊 + onStack,不需反圖</td><td class="mono">O(V+E)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      SCC = 有向圖裡<strong>彼此互達</strong>的一團。Kosaraju:<strong>原圖排完成序 → 反圖依序 DFS</strong>,
+      每棵樹一個 SCC。核心是「完成最晚的在源頭、反圖上框得住自己」。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p1192/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← Tarjan 求橋</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">Kosaraju SCC:第一趟原圖排完成序,第二趟反圖依序 DFS,每棵樹一個強連通分量,O(V+E)。</div>
+    <div class="sc-summary-bar__detail">KOSARAJU · TWO-PASS DFS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1683-kosaraju.js"></script>
+</body>
+</html>

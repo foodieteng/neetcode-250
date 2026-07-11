@@ -262,6 +262,8 @@ PROBLEMS = {
         ('p1489','Find Critical and Pseudo Critical Edges in Minimum Spanning Tree','find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree','hard','done'),
         ('p2392','Build a Matrix With Conditions',                                  'build-a-matrix-with-conditions',                                  'hard','done'),
         ('p2709','Greatest Common Divisor Traversal',                               'greatest-common-divisor-traversal',                               'hard','done'),
+        ('p1192','Critical Connections in a Network (Tarjan 求橋)',                  'critical-connections-in-a-network',                               'hard','done'),
+        ('p1683','Planets and Kingdoms (CSES · SCC / Kosaraju)',                    'https://cses.fi/problemset/task/1683',                            'hard','done'),
     ],
     '13': [  # 1-D Dynamic Programming
         ('p70',  'Climbing Stairs',               'climbing-stairs',               'easy','todo'),
@@ -408,7 +410,9 @@ def resolve_problem_link(cat_slug, pid):
 
 
 def leetcode_url(url_slug):
-    """Original LeetCode problem URL for the '原題 ↗' link."""
+    """Original problem URL for the '原題 ↗' link. Full URLs (e.g. CSES) pass through."""
+    if url_slug.startswith('http'):
+        return url_slug
     return f'https://leetcode.com/problems/{url_slug}/'
 
 

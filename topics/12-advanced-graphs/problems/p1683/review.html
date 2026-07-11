@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCC · Planets and Kingdoms // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / SCC</span>
+    <span><a href="https://cses.fi/problemset/task/1683" target="_blank" rel="noopener">原題 ↗ CSES</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">強連通分量 · SCC</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>CSES · Planets and Kingdoms</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>有向圖<strong>強連通分量</strong>:一團彼此互達的點</td></tr>
+        <tr><td>第一趟</td><td>原圖 DFS,後序壓 stack(完成時間序)</td></tr>
+        <tr><td>第二趟</td><td><strong>反圖</strong> DFS,依 stack 頂端起,每樹一 SCC</td></tr>
+        <tr><td>為何對</td><td>完成最晚在源頭 SCC;反圖上只框得住自己</td></tr>
+        <tr><td>縮圖</td><td>SCC 縮點後是 DAG</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(V+E)</code>,空間 <code>O(V+E)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 第二趟為什麼一定要走<strong>反圖</strong>?若還是走原圖會發生什麼?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼第一趟「<strong>完成時間最晚</strong>」的節點一定在縮圖的<strong>源頭 SCC</strong>?</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼要按 stack 順序(完成序反過來)取起點?隨便挑一個未訪點當起點不行嗎?</div>
+    <div class="qa"><strong>Q4.</strong> 把每個 SCC 縮成一點後,得到的圖為什麼一定是 <strong>DAG</strong>(無環)?</div>
+    <div class="qa"><strong>Q5.</strong> Kosaraju 和 <strong>Tarjan SCC</strong> 差在哪?各自的優缺點?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// cycle + tail</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入</span>
+n = 5
+邊(原圖 g):  1→2, 2→3, 3→1, 3→4, 4→5
+反圖(rg):    2→1, 3→2, 1→3, 4→3, 5→4
+預期:{1,2,3} 互達成一組,4、5 各自一組</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第一趟(g)完成序</span>
+dfs1(1): 1→2→3→(1 訪過,退)→ 3 再走 4→5
+完成順序(先完成先壓底):5, 4, 3, 2, 1
+order:  底 5,4,3,2,1 頂  →  top = 1</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第二趟(rg)</span>
+彈 1 → dfs2 在反圖:1→3→2(繞回 1 訪過)→ {1,2,3} = SCC 1
+彈 2,3:已分派 → skip
+彈 4 → dfs2:4→3(已分派)→ {4} = SCC 2
+彈 5 → dfs2:5→4(已分派)→ {5} = SCC 3
+輸出  k = 3   comp = [1,1,1,2,3]  (節點 1..5)
+<span class="sc-trace__out">// {1,2,3} · {4} · {5}</span></div>
+
+    <div class="sc-insight">
+      關鍵一眼:<code>4</code> 和 <code>5</code> 雖然在原圖<strong>連得到後面</strong>(<code>3→4→5</code>),但<strong>回不去</strong>(沒有 <code>5→…→1</code> 的路),所以它們不和環同組。
+      SCC 要的是<strong>雙向</strong>互達 —— 反圖那一趟正是在驗證「回得去嗎」。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 求出所有 SCC 後,怎麼建<strong>縮圖(condensation DAG)</strong>?接著可以在上面做什麼經典題?</div>
+    <div class="qa"><strong>App 2.</strong> <strong>2-SAT</strong> 怎麼用 SCC 解?(提示:變數 <code>x</code> 與 <code>¬x</code> 若在同一個 SCC 代表什麼?)</div>
+    <div class="qa"><strong>App 3.</strong> 若只想知道「整張圖是不是一個大 SCC(任兩點互達)」,需要完整跑 Kosaraju 嗎?有沒有更省的判法?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為要靠反圖來「隔離」出單一 SCC。第一趟後,完成最晚的點在源頭 SCC。<strong>在原圖上</strong>從源頭出發能一路走到下游好幾個 SCC,一次 DFS 會把它們全染成同一組,錯。<strong>反圖</strong>把所有邊反向後,源頭 SCC 變成「匯點」——從它出發<strong>只到得了自己這一組</strong>,跨不出去,一次 DFS 剛好框住一個 SCC。所以第二趟非反圖不可。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 考慮縮圖(每個 SCC 縮成一點)的兩個 SCC <code>A→B</code>(A 有邊指向 B)。可以證明 <strong>A 裡的最大完成時間 &gt; B 裡的最大完成時間</strong>:DFS 若先進 A,會在離開 A 前把 B 也走完,A 的根最後才完成;若先進 B,B 走完回不到 A(單向),A 之後才被訪、完成更晚。無論如何 A 完成更晚。推廣:全圖完成時間最大的點,必在<strong>沒有任何 SCC 指進來</strong>的源頭 SCC。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 不行,順序是正確性的關鍵。若隨便挑起點,可能挑到縮圖的<strong>匯點 SCC</strong>,在反圖上它反而變成源頭、能走到別組,又染錯。按 stack(完成序反過來)取,保證<strong>每次都從當前剩餘圖的源頭</strong>開始;把它那組移除後,下一個未分派的 top 又是新的源頭。這個「由源頭往下剝」的順序,正是 Kosaraju 成立的核心。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 反證:若縮圖有環,例如 SCC <code>A→B→…→A</code>,那 A 裡任一點能到 B 裡任一點、B 又能回到 A,代表 <strong>A、B 其實彼此互達</strong>,依定義它們該是<strong>同一個</strong> SCC,矛盾(SCC 是「極大」的互達集合)。所以縮圖不可能有環 → 一定是 DAG。這也是為什麼可以在縮圖上做拓撲排序、DP 等。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 兩者都 <code>O(V+E)</code>。<strong>Kosaraju</strong>:兩趟 DFS + 一張反圖,邏輯分兩段(排序、染色)非常<strong>直觀好記、好講</strong>,代價是要存反圖、掃兩遍。<strong>Tarjan SCC</strong>:一趟 DFS,用 <code>dfn/low</code> + 顯式堆疊 + <code>onStack</code> 標記,當 <code>low[u]==dfn[u]</code> 時彈出一整個 SCC,<strong>不需反圖、只掃一遍</strong>常數更小,但實作較精巧、容易寫錯。面試想穩、想解釋清楚 → Kosaraju;想炫技或效能吃緊 → Tarjan。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 先用 Kosaraju 得到每點的 <code>comp[]</code>。<strong>掃每條原邊 <code>u→v</code></strong>,若 <code>comp[u] != comp[v]</code> 就在縮圖裡加一條 <code>comp[u] → comp[v]</code>(去重)。得到的縮圖是 DAG,接著可做:<strong>拓撲排序</strong>、DAG 上<strong>最長路 / DP</strong>、統計「能被多少點到達」等。很多「有環的有向圖」題,第一步就是縮 SCC 變 DAG。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> <strong>2-SAT</strong>:每個布林變數 <code>x</code> 拆成兩個點 <code>x</code>、<code>¬x</code>,把每個子句 <code>(a ∨ b)</code> 轉成兩條蘊含邊 <code>¬a→b</code>、<code>¬b→a</code>,建成「蘊含圖」。跑 SCC 後:<strong>若某個 <code>x</code> 與 <code>¬x</code> 落在同一個 SCC,代表 <code>x</code> 同時要真又要假 → 無解</strong>。否則有解,並可依 SCC 的拓撲序(誰的 comp 較晚/較早)決定每個變數取值。SCC 把 2-SAT 從 NP 印象變成線性可解。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 不用跑完整分組。「整張圖是單一 SCC」⟺ <strong>從任一點 <code>s</code> 出發,在原圖能到所有點,且在反圖也能到所有點</strong>。所以只要:① 在 <code>g</code> 上從 <code>s</code> BFS/DFS,看是否覆蓋全部;② 在 <code>rg</code> 上從 <code>s</code> 再一次,看是否覆蓋全部。兩次都 yes 就是一個大 SCC。兩趟遍歷、<code>O(V+E)</code>,比完整 Kosaraju 更省心(不必記完成序與分組)。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 12 · Advanced Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「SCC=雙向互達、第一趟排完成序、第二趟反圖依序、完成最晚在源頭、縮圖是 DAG、2-SAT 應用」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">CSES · PLANETS AND KINGDOMS</div>
+  </div>
+
+</body>
+</html>

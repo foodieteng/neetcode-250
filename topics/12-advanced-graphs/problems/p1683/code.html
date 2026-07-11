@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCC · Planets and Kingdoms // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / SCC</span>
+    <span><a href="https://cses.fi/problemset/task/1683" target="_blank" rel="noopener">原題 ↗ CSES</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">強連通分量 · SCC</h1>
+    <p class="sc-mast__subtitle">// CODE · Kosaraju 兩趟 DFS</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>CSES · Planets and Kingdoms</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 解法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">Kosaraju 兩趟 DFS<span class="sc-section__title-en">// finish-order → reverse graph</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">scc_kosaraju.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="c">#include &lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span> <span class="k">namespace</span> std<span class="p">;</span>
+<span class="t">int</span> <span class="f">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="t">int</span> n<span class="p">,</span> m<span class="p">;</span>
+    <span class="k">if</span> <span class="p">(!(</span>cin <span class="p">&gt;&gt;</span> n <span class="p">&gt;&gt;</span> m<span class="p">))</span> <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> g<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">),</span> rg<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">);</span>   <span class="c">// g 原圖 · rg 反圖</span>
+    <span class="k">while</span> <span class="p">(</span>m<span class="p">--)</span> <span class="p">{</span>
+        <span class="t">int</span> a<span class="p">,</span> b<span class="p">;</span> cin <span class="p">&gt;&gt;</span> a <span class="p">&gt;&gt;</span> b<span class="p">;</span>
+        g<span class="p">[</span>a<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>b<span class="p">);</span> rg<span class="p">[</span>b<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>a<span class="p">);</span>          <span class="c">// a→b 反向 = b→a</span>
+    <span class="p">}</span>
+
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> visit<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> comp<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">);</span>
+    <span class="t">stack</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> order<span class="p">;</span>
+
+    <span class="k">auto</span> dfs1 <span class="p">=</span> <span class="p">[&amp;](</span><span class="k">auto</span><span class="p">&amp;&amp;</span> self<span class="p">,</span> <span class="t">int</span> u<span class="p">)</span> <span class="p">{</span>       <span class="c">// 第一趟(原圖):壓完成序</span>
+        <span class="k">if</span> <span class="p">(</span>visit<span class="p">[</span>u<span class="p">])</span> <span class="k">return</span><span class="p">;</span>
+        visit<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> v <span class="p">:</span> g<span class="p">[</span>u<span class="p">])</span> <span class="f">self</span><span class="p">(</span>self<span class="p">,</span> v<span class="p">);</span>
+        order<span class="p">.</span><span class="f">push</span><span class="p">(</span>u<span class="p">);</span>                             <span class="c">// 後代都做完才壓自己</span>
+    <span class="p">};</span>
+    <span class="k">auto</span> dfs2 <span class="p">=</span> <span class="p">[&amp;](</span><span class="k">auto</span><span class="p">&amp;&amp;</span> self<span class="p">,</span> <span class="t">int</span> u<span class="p">,</span> <span class="t">int</span> k<span class="p">)</span> <span class="p">{</span> <span class="c">// 第二趟(反圖):標同組</span>
+        <span class="k">if</span> <span class="p">(</span>comp<span class="p">[</span>u<span class="p">])</span> <span class="k">return</span><span class="p">;</span>
+        comp<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> k<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> v <span class="p">:</span> rg<span class="p">[</span>u<span class="p">])</span>
+            <span class="k">if</span> <span class="p">(!</span>comp<span class="p">[</span>v<span class="p">])</span> <span class="f">self</span><span class="p">(</span>self<span class="p">,</span> v<span class="p">,</span> k<span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="f">dfs1</span><span class="p">(</span>dfs1<span class="p">,</span> i<span class="p">);</span>       <span class="c">// 建完成序</span>
+
+    <span class="t">int</span> k <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(!</span>order<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="t">int</span> u <span class="p">=</span> order<span class="p">.</span><span class="f">top</span><span class="p">();</span> order<span class="p">.</span><span class="f">pop</span><span class="p">();</span>          <span class="c">// 由完成最晚的開始</span>
+        <span class="k">if</span> <span class="p">(</span>comp<span class="p">[</span>u<span class="p">])</span> <span class="k">continue</span><span class="p">;</span>
+        k<span class="p">++;</span> <span class="f">dfs2</span><span class="p">(</span>dfs2<span class="p">,</span> u<span class="p">,</span> k<span class="p">);</span>                       <span class="c">// 一棵樹 = 一個 SCC</span>
+    <span class="p">}</span>
+
+    cout <span class="p">&lt;&lt;</span> k <span class="p">&lt;&lt;</span> <span class="s">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> n<span class="p">;</span> i<span class="p">++)</span> cout <span class="p">&lt;&lt;</span> comp<span class="p">[</span>i<span class="p">]</span> <span class="p">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+<span class="p">}</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 逐段拆解 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">四個關鍵段落<span class="sc-section__title-en">// KEY PARTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>段落</th><th>在做什麼</th></tr></thead>
+      <tbody>
+        <tr><td><code>g</code> / <code>rg</code></td><td>同時建原圖與反圖(一條邊兩邊各記一次)</td></tr>
+        <tr><td><code>dfs1</code> · <code>order.push(u)</code></td><td>第一趟後序:完成時間序壓 stack</td></tr>
+        <tr><td><code>dfs2</code>(在 <code>rg</code> 上)</td><td>第二趟:把反圖上可達的一團標成同組 <code>k</code></td></tr>
+        <tr><td><code>order.top()</code> 開始</td><td>由完成最晚(源頭 SCC)依序取</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>第二趟走<strong>原圖</strong> g</td><td class="fail">一次 DFS 會跨多個 SCC</td><td>第二趟必須走<strong>反圖</strong> rg</td></tr>
+        <tr><td>不按完成序、隨便挑起點</td><td class="fail">可能從匯點出發、框錯</td><td>依 <code>order</code> 頂端(源頭)開始</td></tr>
+        <tr><td>只從一點 dfs1</td><td class="fail">不連通時漏節點</td><td>對每個 <code>i</code> 都 <code>dfs1</code></td></tr>
+        <tr><td>遞迴太深爆堆疊</td><td class="fail">大圖 RE</td><td>調大遞迴上限或改顯式堆疊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第一趟完成序(原圖)</span>
+邊:1→2, 2→3, 3→1, 3→4, 4→5
+dfs1(1): 1→2→3→(1 訪過)→4→5
+完成順序(先完成先壓):5, 4, 3, 2, 1
+order stack:  top = 1  (完成最晚)</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第二趟(反圖)依序彈出</span>
+反圖:2→1, 3→2, 1→3, 4→3, 5→4
+彈 1(未分派)→ dfs2 走反圖 → 1,3,2 → <span class="sc-trace__out">SCC#1 = {1,2,3}</span>
+彈 2、3:已分派,跳過
+彈 4 → dfs2 → 4→3 已分派 → 只有 4 → <span class="sc-trace__out">SCC#2 = {4}</span>
+彈 5 → dfs2 → 5→4 已分派 → 只有 5 → <span class="sc-trace__out">SCC#3 = {5}</span>
+k = 3</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// Kosaraju vs Tarjan(都 O(V+E))</span>
+Kosaraju:兩趟 DFS + 反圖,直觀好記(本題)
+Tarjan  :一趟 DFS + 堆疊 + onStack + low,省一張反圖
+兩者都在有向圖上,和 <a href="../p1192/index.html">1192 無向求橋</a> 的 low 語意不同</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// TWO PASSES</div>
+    <div class="sc-summary-bar__body">第一趟原圖排完成序 → 第二趟反圖依序 DFS,每棵樹一個 SCC,O(V+E)。第二趟務必走反圖。</div>
+    <div class="sc-summary-bar__detail">CSES · PLANETS AND KINGDOMS</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1192 · Critical Connections // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">12 · ADVANCED GRAPHS</a> / P1192</span>
+    <span><a href="https://leetcode.com/problems/critical-connections-in-a-network/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">關鍵連線 · 求橋</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1192</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>無向圖求<strong>橋</strong>(刪掉會斷連的邊)</td></tr>
+        <tr><td>dfn</td><td>發現時間(DFS 第幾個訪到),固定不變</td></tr>
+        <tr><td>low</td><td>不走父邊,子樹能回到的<strong>最早 dfn</strong></td></tr>
+        <tr><td>判定</td><td><code>low[v] &gt; dfn[u]</code>(嚴格)⟹ <code>(u,v)</code> 是橋</td></tr>
+        <tr><td>樹邊 vs 回邊</td><td>樹邊 <code>min(low[v])</code>;回邊 <code>min(dfn[v])</code></td></tr>
+        <tr><td>擋回頭</td><td>用<strong>邊 id</strong>,不是父節點(防重邊)</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(V+E)</code>,空間 <code>O(V+E)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 用一句話說 <code>low[u]</code> 的定義。為什麼要特別強調「<strong>不經過通往父親那條邊</strong>」?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼判定式是 <code>low[v] &gt; dfn[u]</code> 而不是 <code>low[v] &gt;= dfn[u]</code>?差一個等號會怎樣?</div>
+    <div class="qa"><strong>Q3.</strong> 回邊更新 low 時,為什麼用鄰居的 <code>dfn[v]</code> 而不是 <code>low[v]</code>?兩者差在哪?</div>
+    <div class="qa"><strong>Q4.</strong> 為什麼「用父節點擋回頭」遇到<strong>重邊</strong>會出錯?用邊 id 為什麼就對了?</div>
+    <div class="qa"><strong>Q5.</strong> 若題目改成求<strong>割點(cut vertex)</strong>而非橋,判定式要怎麼改?根節點有什麼特例?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// triangle + tail</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入</span>
+n = 4
+connections = [[0,1],[1,2],[2,0],[1,3]]
+  邊 id:  e0:0-1  e1:1-2  e2:2-0  e3:1-3
+圖:三角 0-1-2(互有備援)+ 尾巴 1-3</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// DFS 從 0(pe=-1)</span>
+dfs(0,-1): dfn[0]=low[0]=0
+ dfs(1,e0): dfn[1]=low[1]=1
+  dfs(2,e1): dfn[2]=low[2]=2
+   e2 到 0(已訪,回邊)→ low[2]=min(2,dfn[0]=0)=0
+  回 1: low[1]=min(1,0)=0;判 e1(1,2): low[2]=0 > dfn[1]=1 ? 否 → 非橋
+  dfs(3,e3): dfn[3]=low[3]=3(3 無其他鄰居)
+  回 1: 判 e3(1,3): low[3]=3 > dfn[1]=1 ? 是 → <span class="sc-trace__out">橋 (1,3)</span>
+ 回 0: low[0]=min(0,0)=0
+dfn=[0,1,2,3]  low=[0,0,0,3]  答案:[[1,3]]</div>
+
+    <div class="sc-insight">
+      三角形 <code>0-1-2</code> 裡每條邊都有<strong>另一條路備援</strong>(繞另外兩邊),所以 <code>low</code> 都能壓到 0、沒有橋。
+      只有尾巴 <code>1-3</code> 是<strong>單一通道</strong>:<code>3</code> 除了這條邊哪都去不了,<code>low[3]=3</code> 壓不下來 → 判成橋。<strong>橋的本質就是「沒有備援路」的邊。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 求<strong>割點</strong>:非根節點 <code>u</code> 是割點的條件是什麼?(提示:<code>low[v] &gt;= dfn[u]</code>)根節點怎麼特判?</div>
+    <div class="qa"><strong>App 2.</strong> 若要把圖切成<strong>邊雙連通分量(2-edge-connected components)</strong>,和求橋有什麼關係?</div>
+    <div class="qa"><strong>App 3.</strong> 這題和 <strong>SCC(強連通分量)</strong>都叫 Tarjan,兩者的 <code>low</code> 語意一樣嗎?差在哪?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> <code>low[u]</code> = 從 <code>u</code> 的子樹出發、<strong>不走「u 通往它父親的那條樹邊」</strong>,靠樹邊往下加回邊往上,能到達的<strong>最小 dfn</strong>。強調「不走父邊」是因為:橋的判定要問「子樹<strong>能不能繞過這條邊</strong>回到上面」,如果允許走父邊那當然能回去,就問不出這條邊是不是唯一通道了。禁掉父邊,<code>low[v]</code> 才真正反映「子樹靠自己的回邊能爬多高」。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 必須<strong>嚴格大於</strong>。<code>low[v] == dfn[u]</code> 代表 <code>v</code> 的子樹有回邊能跳<strong>回到 u 本身</strong> —— 那就存在另一條路(經那條回邊)連回 u,刪掉 <code>(u,v)</code> 仍連通,<strong>不是橋</strong>。只有 <code>low[v]</code> 嚴格超過 <code>dfn[u]</code>(連 u 都跳不回、更別說 u 的祖先)才表示除了 <code>(u,v)</code> 沒有別的出口。寫成 <code>&gt;=</code> 會把「還連得回 u」的非橋誤判成橋。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 回邊指向的 <code>v</code> 是<strong>已訪的祖先</strong>,我們沒有(也不該)再遞迴進 <code>v</code>,所以拿不到、也不能用 <code>low[v]</code>。回邊的意義只是「<code>u</code> 能<strong>一步跳到 <code>v</code> 這個時間點</strong>」,所以用 <code>dfn[v]</code>。若誤用 <code>low[v]</code>,可能把 <code>v</code> 尚未定型、或屬於別條路徑的資訊混進來,破壞 <code>low</code> 的正確性。<strong>樹邊用 low、回邊用 dfn</strong> 是鐵律。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 「父節點法」<code>if (v == parent) continue;</code> 的本意是別走回父親。但當 <code>u—v</code> 之間有<strong>兩條平行邊</strong> <code>e0,e1</code> 時,從 <code>u</code> 沿 <code>e0</code> 到 <code>v</code>,<code>v</code> 看到通回 <code>u</code> 的 <code>e1</code>,因為 <code>e1</code> 的另一端也是 <code>parent=u</code>,就被 <strong>skip 掉了</strong> —— 但 <code>e1</code> 其實是一條真正的<strong>備援回邊</strong>,不該忽略。結果 <code>low[v]</code> 壓不下來、<code>(u,v)</code> 被誤判成橋。用<strong>邊 id</strong> <code>pe</code> 只 skip「<strong>走過來的那一條</strong>」<code>e0</code>,<code>e1</code> 仍當回邊處理、正確更新 <code>low</code>,就不會誤判。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 求<strong>割點</strong>把判定改成 <code>low[v] &gt;= dfn[u]</code>(注意變成<strong>含等號</strong>:割點是「刪掉這個<em>點</em>會斷連」,<code>v</code> 繞不過 <code>u</code> 就靠 <code>u</code> 撐著)。<strong>根節點</strong>要特判:根不能用這條式子,規則是「根若有<strong>兩棵以上子樹(DFS 樹上 ≥2 個 child)</strong>」才是割點。此外割點是對「點」計數、可能重複觸發,要去重。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 非根 <code>u</code> 是割點 ⟺ 存在某棵子樹 <code>v</code> 使 <code>low[v] &gt;= dfn[u]</code>(子樹繞不到 <code>u</code> 的上面,只能靠 <code>u</code> 連出去,拿掉 <code>u</code> 就斷)。橋用 <code>&gt;</code>、割點用 <code>&gt;=</code>,差別正是「刪邊」和「刪點」:刪點時 <code>u</code> 自己也沒了,所以「只能回到 <code>u</code>」也算被切斷。<strong>根節點</strong>特判為「DFS 樹上有 ≥2 個直接 child」。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 密切相關:把<strong>所有橋刪掉</strong>後,圖剩下的每個連通塊就是一個<strong>邊雙連通分量</strong>(裡面任兩點至少有兩條邊不重複的路徑、刪任一條邊都不斷)。所以求橋是切 2-edge-connected components 的第一步:先 Tarjan 找橋,再對「去掉橋的圖」做連通塊標記即可。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 名字都叫 Tarjan、都用 <code>dfn/low</code>,但語意不同。<strong>橋/割點</strong>在<strong>無向圖</strong>上,<code>low</code> = 不走父邊能回到的最早 dfn,不需要堆疊。<strong>SCC</strong> 在<strong>有向圖</strong>上,<code>low</code> = 經由「還在<strong>堆疊上</strong>」的節點能回到的最早 dfn,需要一個 <code>onStack</code> 標記和顯式堆疊,當 <code>low[u]==dfn[u]</code> 時彈出一整個強連通分量。無向求橋是「有沒有備援路」,有向 SCC 是「能不能互相到達」,兩者的 <code>low</code> 更新規則因此不同。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../p1683/index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">→ SCC · Kosaraju</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「low 不走父邊的最早 dfn、low[v]&gt;dfn[u] 嚴格判橋、樹邊用 low 回邊用 dfn、邊 id 防重邊、割點改 &gt;=」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 1192 · CRITICAL CONNECTIONS</div>
+  </div>
+
+</body>
+</html>
