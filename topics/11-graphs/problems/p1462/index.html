@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1462 · Course Schedule IV // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P1462</span>
+    <span><a href="https://leetcode.com/problems/course-schedule-iv/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">課程表 IV</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 傳遞閉包(拓撲序 + 前驅傳遞)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1462</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TRANSITIVE CLOSURE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>numCourses</code> 門課。<code>prerequisites[i] = [a, b]</code> 表示 <strong>a 是 b 的直接先修</strong>(要上 b 得先上 a)。
+        再給一批查詢 <code>queries[j] = [u, v]</code>,問 <strong>u 是不是 v 的先修</strong>(直接或間接皆算)。回傳每個查詢的 <code>true/false</code>。
+      </p>
+    </div>
+
+    <p>
+      這題不再只問「有沒有環」(<a href="../p207/index.html">207</a>),而是問<strong>任兩點之間可不可達</strong> —— 也就是有向圖的<strong>傳遞閉包</strong>。
+      題目保證是 DAG。關鍵:<strong>先把「誰能到誰」全部算好存進 <code>table[i][j]</code>,之後每個查詢就是 O(1) 查表</strong>。
+    </p>
+
+    <div style="margin-top:16px;border-left:4px solid #d98a3e;background:#fbf1e4;border-radius:0 8px 8px 0;padding:12px 16px;font-size:13.5px;line-height:1.7;">
+      <strong style="color:#a8621c;">⚠ 邊的方向和 207/210 相反</strong><br>
+      這裡 <code>[a, b]</code> 是 <strong>a → b</strong>(先修 a 指向後修 b);207/210 的 <code>[a, b]</code> 是「要上 a 先上 b」即 b→a。讀題先確認方向!
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼傳遞閉包 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼這樣做<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每個查詢各跑一次 BFS/DFS</span>
+            <span class="sc-ko-card__o">O(q·(V+E))</span>
+          </div>
+          <div class="sc-ko-card__body">查詢多時重複遍歷同一張圖,浪費;同樣的可達關係被算了很多遍。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 重複</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">Floyd-Warshall 傳遞閉包</span>
+            <span class="sc-ko-card__o">O(V³)</span>
+          </div>
+          <div class="sc-ko-card__body"><code>reach[i][j] |= reach[i][k] &amp;&amp; reach[k][j]</code>。三重迴圈,寫法短、直觀,V 小(≤100)時很夠用。</div>
+          <div class="sc-ko-card__verdict">○ OK · 可用</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">拓撲序 + 前驅傳遞</span>
+          <span class="sc-ko-card__o">O(V·(V+E))</span>
+        </div>
+        <div class="sc-ko-card__body">
+          Kahn 拓撲序處理每個 <code>u</code>:對直接邊 <code>u→v</code> 設 <code>table[u][v]=T</code>,再把「<strong>所有 u 的先修</strong>」一併複製成 v 的先修。一趟建好整張 <code>table</code>,查詢 O(1)。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 一趟建表</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建圖 + 入度</strong>:邊 <code>a→b</code>(<code>graph[a].push_back(b)</code>、<code>indeg[b]++</code>)。<code>table</code> 是 <code>V×V</code> 布林矩陣,初始全 false。</li>
+      <li><strong>Kahn 拓撲序</strong>:indeg==0 入隊,逐個出隊處理。</li>
+      <li><strong>處理 u</strong>:對每條出邊 <code>u→v</code>:① <code>table[u][v]=true</code>(直接);② 對所有 <code>table[i][u]==true</code> 的 <code>i</code>,設 <code>table[i][v]=true</code>(<strong>傳遞</strong>)。<code>--indeg[v]==0</code> 時入隊。</li>
+      <li><strong>查詢</strong>:每個 <code>[u,v]</code> 直接回 <code>table[u][v]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// chain 0→1→2→3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      用一條鏈 <code>0→1→2→3</code> 看 <code>table</code> 怎麼<strong>逐步補成完整可達關係</strong> —— 每處理一個節點,就把它先修的「先修身分」往後傳一格。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 拓撲序 + 前驅傳遞</div>
+      <canvas id="viz-canvas" class="sc-viz__canvas" style="height:470px;"></canvas>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼順序對了就能傳<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 拓撲序保證前驅已完備</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          在 Kahn 裡,<code>u</code> 被出隊代表<strong>它所有的先修(前驅)都已經先出隊處理完</strong>。而每個前驅 <code>p</code> 被處理時,已經把「<code>p</code> 以及 <code>p</code> 的所有先修」都寫進了 <code>table[*][u]</code>。所以輪到 <code>u</code> 時,<code>table[i][u]</code> 這一整欄<strong>已經是完整的</strong>。
+        </p>
+        <p style="margin:0;">
+          於是對每條 <code>u→v</code>,我們能安心地說:「凡是 <code>u</code> 的先修,也都是 <code>v</code> 的先修」,一次把整欄複製過去(<code>table[i][u] → table[i][v]</code>),外加 <code>u</code> 自己(<code>table[u][v]</code>)。<strong>順序對了,傳遞才不會漏。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(V·(V + E))</strong>　　S = <strong>O(V²)</strong></div>
+      <p class="sc-formula__hint">
+        每條邊處理時,內層對 <code>V</code> 個可能的前驅做傳遞 → <code>O(V·E)</code>;拓撲本身 <code>O(V+E)</code>。<code>table</code> 佔 <code>O(V²)</code>。查詢每筆 <code>O(1)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>做法</th><th>建表</th><th>每次查詢</th></tr></thead>
+      <tbody>
+        <tr><td>拓撲序 + 傳遞(本頁)</td><td class="mono">O(V·(V+E))</td><td class="mono">O(1)</td></tr>
+        <tr><td>Floyd-Warshall</td><td class="mono">O(V³)</td><td class="mono">O(1)</td></tr>
+        <tr><td>每查詢各跑 BFS</td><td class="mono">—</td><td class="mono">O(V+E)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「u 是不是 v 的(間接)先修」= <strong>DAG 可達性 / 傳遞閉包</strong>。拓撲序處理,把每個節點的
+      「先修集合」<strong>往後繼複製</strong>,一趟建好 <code>table</code>,查詢 O(1)。是 207/210 判環的<strong>可達性升級版</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">DAG 傳遞閉包:拓撲序處理 u,把 u 的先修整欄複製給後繼 v,一趟建 table[i][j],查詢 O(1)。</div>
+    <div class="sc-summary-bar__detail">TRANSITIVE CLOSURE · TOPO PROPAGATION</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1462-topo.js"></script>
+</body>
+</html>

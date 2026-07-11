@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1462 · Course Schedule IV // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P1462</span>
+    <span><a href="https://leetcode.com/problems/course-schedule-iv/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">課程表 IV</h1>
+    <p class="sc-mast__subtitle">// CODE · 拓撲序 + 傳遞閉包</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1462</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 解法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">拓撲序 + 前驅傳遞<span class="sc-section__title-en">// TOPO + PROPAGATE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1462.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> <span class="f">checkIfPrerequisite</span><span class="p">(</span><span class="t">int</span> numCourses<span class="p">,</span>
+            <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> prerequisites<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> queries<span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;&gt;</span> table<span class="p">(</span>numCourses<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;(</span>numCourses<span class="p">,</span> <span class="k">false</span><span class="p">));</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> graph<span class="p">(</span>numCourses<span class="p">);</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> indeg<span class="p">(</span>numCourses<span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> pre <span class="p">:</span> prerequisites<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> a <span class="p">=</span> pre<span class="p">[</span><span class="n">0</span><span class="p">],</span> b <span class="p">=</span> pre<span class="p">[</span><span class="n">1</span><span class="p">];</span>
+            graph<span class="p">[</span>a<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>b<span class="p">);</span>              <span class="c">// 邊 a→b(a 是 b 的先修)</span>
+            indeg<span class="p">[</span>b<span class="p">]++;</span>
+        <span class="p">}</span>
+
+        <span class="t">queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> q<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> numCourses<span class="p">;</span> i<span class="p">++)</span>
+            <span class="k">if</span> <span class="p">(</span>indeg<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>i<span class="p">);</span>
+
+        <span class="k">while</span> <span class="p">(!</span>q<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="t">int</span> u <span class="p">=</span> q<span class="p">.</span><span class="f">front</span><span class="p">();</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span> <span class="p">{</span>
+                table<span class="p">[</span>u<span class="p">][</span>v<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>                <span class="c">// 直接:u 是 v 的先修</span>
+                <span class="k">if</span> <span class="p">(--</span>indeg<span class="p">[</span>v<span class="p">]</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>v<span class="p">);</span>
+
+                <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> numCourses<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+                    <span class="k">if</span> <span class="p">(</span>i <span class="p">==</span> u <span class="p">||</span> <span class="p">!</span>table<span class="p">[</span>i<span class="p">][</span>u<span class="p">])</span> <span class="k">continue</span><span class="p">;</span>
+                    table<span class="p">[</span>i<span class="p">][</span>v<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>            <span class="c">// 傳遞:i 是 u 的先修 → 也是 v 的</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> ans<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> qy <span class="p">:</span> queries<span class="p">)</span> ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>table<span class="p">[</span>qy<span class="p">[</span><span class="n">0</span><span class="p">]][</span>qy<span class="p">[</span><span class="n">1</span><span class="p">]]);</span>   <span class="c">// O(1) 查表</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 逐段拆解 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">三個關鍵段落<span class="sc-section__title-en">// KEY PARTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>段落</th><th>在做什麼</th></tr></thead>
+      <tbody>
+        <tr><td><code>table[u][v]=true</code></td><td>u 直接指向 v → u 是 v 的直接先修</td></tr>
+        <tr><td>內層 <code>for i</code></td><td>把「所有 u 的先修 <code>i</code>」複製成 v 的先修(<strong>傳遞</strong>)</td></tr>
+        <tr><td><code>--indeg[v]==0</code></td><td>v 的前置全處理完 → 入隊(維持拓撲序)</td></tr>
+        <tr><td>查詢 <code>table[a][b]</code></td><td>建表後每筆查詢 O(1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>邊建反(當成 <code>b→a</code>)</td><td class="fail">整個先修關係顛倒</td><td>本題 <code>[a,b]</code> 是 <strong>a→b</strong></td></tr>
+        <tr><td>沒按拓撲序,亂序傳遞</td><td class="fail"><code>table[i][u]</code> 還沒算完 → 漏傳</td><td>必須<strong>拓撲序</strong>處理才能保證前驅完備</td></tr>
+        <tr><td>傳遞時忘了 <code>i==u</code> / 未命中就 continue</td><td class="fail">多做無用功或自我指涉</td><td>只複製真正 <code>table[i][u]</code> 的 i</td></tr>
+        <tr><td>每個查詢各跑一次搜尋</td><td class="fail">查詢多時重複遍歷</td><td>先<strong>建表</strong>再 O(1) 查</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 為什麼「拓撲序」是傳遞正確的前提</span>
+u 出隊 ⟺ u 的所有前置都已先出隊、處理完
+每個前置 p 處理時,已把 p 及 p 的先修寫進 table[*][u]
+→ 輪到 u 時,table[i][u] 這一「欄」已完整
+→ 對每條 u→v,可放心把整欄複製給 v(table[i][u]→table[i][v])</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// chain 0→1→2→3 逐步</span>
+處理 0:table[0][1]=T
+處理 1:table[1][2]=T;傳遞 table[0][1] → table[0][2]=T
+處理 2:table[2][3]=T;傳遞 table[0][2],table[1][2]
+        → table[0][3]=T, table[1][3]=T
+<span class="sc-trace__out">// table 補成下三角 = 完整可達關係</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 與 207 / 210 的關係</span>
+207:圖有沒有環(bool)
+210:輸出一個拓撲序(vector)
+1462:任兩點可不可達(傳遞閉包 table)
+<span class="sc-trace__out">// 都以拓撲序為骨架,問的東西一題比一題細</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// BUILD ONCE, QUERY O(1)</div>
+    <div class="sc-summary-bar__body">邊 a→b;拓撲序處理 u,把 u 的先修整欄複製給後繼 v,建好 table 後查詢 O(1)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 1462 · COURSE SCHEDULE IV</div>
+  </div>
+
+</body>
+</html>
