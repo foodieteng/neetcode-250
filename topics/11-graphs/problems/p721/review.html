@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>721 · Accounts Merge // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P721</span>
+    <span><a href="https://leetcode.com/problems/accounts-merge/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">帳號合併</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 721</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>共用 email 就合併 = 集合合併(並查集)</td></tr>
+        <tr><td>關鍵轉念</td><td>節點是 <strong>email</strong>,不是帳號</td></tr>
+        <tr><td>映射</td><td>每個 email → 唯一 id;同 email 同 id</td></tr>
+        <tr><td>union</td><td>星形:<code>acc[1]</code> 連其餘,O(k)</td></tr>
+        <tr><td>輸出</td><td>依 root 分組、email 排序、掛 <code>owner[root]</code></td></tr>
+        <tr><td>複雜度</td><td><code>O(N·α + N log N)</code>,瓶頸在排序</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼要把 <strong>email</strong> 當節點,而不是把<strong>帳號</strong>當節點?後者要多做什麼?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼<strong>星形</strong> union(<code>acc[1]</code> 連其餘)就夠?和<strong>兩兩相連</strong>差在哪?</div>
+    <div class="qa"><strong>Q3.</strong> 映射迴圈從 <code>i=1</code>、union 迴圈從 <code>i=2</code>,為什麼差一格?若映射也從 <code>i=2</code> 會漏掉什麼?</div>
+    <div class="qa"><strong>Q4.</strong> 輸出時 <code>owner[root]</code> 為什麼可以隨便取 root 的名字?同一組會不會有不同名字?</div>
+    <div class="qa"><strong>Q5.</strong> 複雜度的瓶頸為什麼是<strong>排序</strong>而不是 union?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// merge via shared email</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入</span>
+accounts = [
+  ["John", a, b],   // a=johnsmith, b=john_ny
+  ["John", a, c],   // a 重複! c=john00
+  ["Mary", d],      // d=mary(單獨)
+]</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ① 映射  email→id</span>
+a=0 b=1 c=2 d=3
+owner = [John, John, John, Mary]
+parent = [-1,-1,-1,-1]</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ② 星形 union</span>
+帳號0:union(a,b) = union(0,1)  → {0,1}
+帳號1:union(a,c) = union(0,2)  → a 已和 b 同組 → {0,1,2}
+帳號2:只有 d,不 union         → {3}
+parent 大致 [-3,0,0,-1]</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ③ 分組輸出</span>
+buf[0] = {a,b,c} → sort → [a,b,c] → 掛 John
+buf[3] = {d}     → [d]           → 掛 Mary
+<span class="sc-trace__out">ans = [[John,a,b,c], [Mary,d]]</span></div>
+
+    <div class="sc-insight">
+      合併的<strong>發動點</strong>是共用的 email <code>a</code>:帳號0、帳號1 各自 union 到 <code>a</code> 的<strong>同一個 id</strong>,兩帳號就被串在一起。
+      名字、排序都是收尾;真正的核心只有一句「同 email 同 id → union 到它就合併」。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 不用並查集,改用 <strong>DFS/BFS</strong> 也能做:怎麼建圖?節點與邊各是什麼?複雜度一樣嗎?</div>
+    <div class="qa"><strong>App 2.</strong> 若<strong>不同人可能剛好同名</strong>(名字不能當合併依據),本題的做法要不要改?為什麼仍然正確?</div>
+    <div class="qa"><strong>App 3.</strong> 這題和 <a href="../p200/index.html">200 島嶼數量</a>、<a href="../p323/index.html">323 連通分量</a> 本質上都是「數/併連通塊」。三者最大的差別在哪一步?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為「合併」的判準是<strong>共用 email</strong>,而 email 是天然的連結鍵。把 email 當節點、每個不同 email 對到<strong>唯一 id</strong>,那麼「兩帳號共用 email」就直接體現在「它們都 union 到那個 id」——不必額外計算。若把<strong>帳號</strong>當節點,得先掃一遍建「email → 有哪些帳號用它」的反查表,再對共用同一 email 的帳號兩兩連邊,多一層前處理。email 當節點把「共用」編碼進 id 映射,最直接。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 並查集只在乎「這些元素<strong>最終在同一組</strong>」,不在乎它們內部怎麼連。要讓 <code>acc[1..k]</code> 全同組,只要每個都和<strong>同一個代表</strong>(<code>acc[1]</code>)union 一次 —— 星形,共 <code>k−1</code> 次、<code>O(k)</code>。傳遞性(a~b、a~c ⇒ b~c)自動保證 b、c 也同組。<strong>兩兩相連</strong>要 <code>C(k,2)=O(k²)</code> 次 union,多做且無必要。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> <strong>映射</strong>要涵蓋帳號裡的<strong>每一個</strong> email(<code>acc[1]</code> 也要有 id),所以從 <code>i=1</code>。<strong>union</strong> 是「<code>acc[1]</code> 當星心去連其餘」,星心自己不用連自己,所以從 <code>i=2</code>。若映射也從 <code>i=2</code>,<code>acc[1]</code> 這個 email 就<strong>沒被註冊 id</strong>,之後 <code>id[acc[1]]</code> 取不到、甚至漏掉「只有一個 email」的帳號(它的唯一 email 正是 <code>acc[1]</code>)。差這一格很關鍵。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 可以隨便取,因為<strong>同一組的所有 email 一定屬於同一個人</strong>。合併只會發生在「共用 email」時,而題目保證共用 email 的帳號名字相同;所以一個並查集組裡的每個 email,其原始帳號名字都一致。取 root 的 <code>owner</code> 只是「挑其中一個」,不會錯。(反過來也說明:名字只是<strong>附帶資料</strong>,不是合併依據。)</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> union / find 有路徑壓縮 + 按 size,每次<strong>近乎 O(1)</strong>(反阿克曼),總 <code>O(N·α(N)) ≈ O(N)</code>。但輸出時每組 email 要<strong>字典序排序</strong>,所有組加起來共 <code>N</code> 個 email,排序是 <code>O(N log N)</code>,壓過了近線性的並查集。所以整體瓶頸在<strong>排序</strong>,總複雜度 <code>O(N log N)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <strong>建圖</strong>:節點是 email;對每個帳號,把 <code>acc[1]</code> 和其餘 email <strong>連無向邊</strong>(星形,和 union 對應)。然後對每個沒訪過的 email 起 <strong>DFS/BFS</strong>,收集整個連通塊的 email、記下起點帳號的名字,排序後輸出。複雜度同樣是 <code>O(N log N)</code>(排序主導)。並查集版通常程式更短、常數更小,但 DFS 版更直觀,兩者都是標準解。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> <strong>不用改,仍然正確。</strong>本題的合併完全靠<strong>共用 email</strong>驅動,名字從頭到尾<strong>沒有參與合併判斷</strong>(union 只看 email 的 id)。名字只在最後輸出時,從該組 root 的 <code>owner</code> 取一個貼上。就算兩個「John」是不同人,只要他們<strong>沒有共用任何 email</strong>,就會落在不同的並查集組、各自輸出,不會被錯併。名字同不同名根本不影響結果。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 三者核心都是「連通塊」,差別在<strong>節點/邊怎麼定義</strong>與<strong>要輸出什麼</strong>。<strong>200 島嶼</strong>:節點是網格格子、邊是上下左右相鄰的陸地(隱式圖),輸出<strong>塊數</strong>。<strong>323</strong>:節點/邊直接給定,輸出<strong>塊數</strong>。<strong>721</strong>:節點是 email、邊靠「同帳號」與「共用 email」建立,輸出<strong>每一塊的完整內容</strong>(排序 + 名字)。最大差別是 721 需要<strong>把每組的成員蒐集並格式化輸出</strong>,而非只數個數 —— 所以多了「映射」和「分組排序」兩步。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「email 當節點、同 email 同 id、星形 union O(k)、i=1 vs i=2、owner 取 root、瓶頸在排序」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 721 · ACCOUNTS MERGE</div>
+  </div>
+
+</body>
+</html>
