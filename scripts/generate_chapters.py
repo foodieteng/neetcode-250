@@ -241,7 +241,7 @@ PROBLEMS = {
         ('p130', 'Surrounded Regions',                                   'surrounded-regions',                                   'med', 'done'),
         ('p752', 'Open the Lock',                                        'open-the-lock',                                        'med', 'done'),
         ('p207', 'Course Schedule',                                      'course-schedule',                                      'med', 'todo'),
-        ('p210', 'Course Schedule II',                                   'course-schedule-ii',                                   'med', 'todo'),
+        ('p210', 'Course Schedule II',                                   'course-schedule-ii',                                   'med', 'done'),
         ('p261', 'Graph Valid Tree',                                     'graph-valid-tree',                                     'med', 'todo'),
         ('p1462','Course Schedule IV',                                   'course-schedule-iv',                                   'med', 'todo'),
         ('p323', 'Number of Connected Components in an Undirected Graph','number-of-connected-components-in-an-undirected-graph','med', 'todo'),

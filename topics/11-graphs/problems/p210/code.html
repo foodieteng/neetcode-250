@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>210 · Course Schedule II // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P210</span>
+    <span><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">課程表 II</h1>
+    <p class="sc-mast__subtitle">// CODE · DFS 後序 + BFS Kahn</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 210</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · A · DFS 後序 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">寫法 A · DFS 後序反轉<span class="sc-section__title-en">// POST-ORDER + REVERSE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p210_dfs.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">findOrder</span><span class="p">(</span><span class="t">int</span> numCourses<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> prerequisites<span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> visit<span class="p">(</span>numCourses<span class="p">,</span> <span class="n">0</span><span class="p">),</span> order<span class="p">;</span>   <span class="c">// visit:0未訪/1進行中/2完成</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> graph<span class="p">(</span>numCourses<span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> p <span class="p">:</span> prerequisites<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> a <span class="p">=</span> p<span class="p">[</span><span class="n">0</span><span class="p">],</span> b <span class="p">=</span> p<span class="p">[</span><span class="n">1</span><span class="p">];</span>
+            graph<span class="p">[</span>b<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>a<span class="p">);</span>              <span class="c">// 邊 b→a(先修 b 指向 a)</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> numCourses<span class="p">;</span> i<span class="p">++)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">hasCycle</span><span class="p">(</span>graph<span class="p">,</span> visit<span class="p">,</span> order<span class="p">,</span> i<span class="p">))</span> <span class="k">return</span> <span class="p">{};</span>   <span class="c">// 有環 → 回空</span>
+
+        <span class="f">reverse</span><span class="p">(</span>order<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> order<span class="p">.</span><span class="f">end</span><span class="p">());</span>          <span class="c">// 後序反轉 = 拓撲序</span>
+        <span class="k">return</span> order<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">hasCycle</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> graph<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> visit<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> order<span class="p">,</span> <span class="t">int</span> u<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>visit<span class="p">[</span>u<span class="p">]</span> <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>          <span class="c">// 回到「進行中」的節點 → 環</span>
+        <span class="k">if</span> <span class="p">(</span>visit<span class="p">[</span>u<span class="p">]</span> <span class="p">==</span> <span class="n">2</span><span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>         <span class="c">// 已完成,不必再走</span>
+
+        visit<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span>                            <span class="c">// 進行中(在當前遞迴路徑上)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">hasCycle</span><span class="p">(</span>graph<span class="p">,</span> visit<span class="p">,</span> order<span class="p">,</span> v<span class="p">))</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+        visit<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="n">2</span><span class="p">;</span>                            <span class="c">// 完成</span>
+
+        order<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>u<span class="p">);</span>                       <span class="c">// 後序:所有後代排完才加自己</span>
+        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · B · BFS Kahn ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">寫法 B · BFS / Kahn(入度)<span class="sc-section__title-en">// INDEGREE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p210_kahn.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">findOrder</span><span class="p">(</span><span class="t">int</span> numCourses<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> prerequisites<span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> indeg<span class="p">(</span>numCourses<span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> graph<span class="p">(</span>numCourses<span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> p <span class="p">:</span> prerequisites<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> b <span class="p">=</span> p<span class="p">[</span><span class="n">1</span><span class="p">],</span> a <span class="p">=</span> p<span class="p">[</span><span class="n">0</span><span class="p">];</span>
+            graph<span class="p">[</span>b<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>a<span class="p">);</span>
+            indeg<span class="p">[</span>a<span class="p">]++;</span>                          <span class="c">// a 多一個前置</span>
+        <span class="p">}</span>
+
+        <span class="t">queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> q<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> numCourses<span class="p">;</span> i<span class="p">++)</span>
+            <span class="k">if</span> <span class="p">(</span>indeg<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>i<span class="p">);</span>          <span class="c">// 沒前置的先上</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> order<span class="p">;</span>
+        <span class="k">while</span> <span class="p">(!</span>q<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="t">int</span> u <span class="p">=</span> q<span class="p">.</span><span class="f">front</span><span class="p">();</span> q<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            order<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>u<span class="p">);</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span>
+                <span class="k">if</span> <span class="p">(--</span>indeg<span class="p">[</span>v<span class="p">]</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span> q<span class="p">.</span><span class="f">push</span><span class="p">(</span>v<span class="p">);</span>      <span class="c">// 前置全上完 → 可上</span>
+        <span class="p">}</span>
+        <span class="k">return</span> order<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> numCourses <span class="p">?</span> order <span class="p">:</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;();</span>  <span class="c">// 少了 = 有環</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:12px;font-size:13px;color:#6a3c2e;">
+      Kahn 不需要 <code>sz = q.size()</code> 分層 —— 這題不數層數,直接一個一個 pop 即可(和 994 要數分鐘不同)。若要層數才用 <code>sz</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 對照 + 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">對照與陷阱<span class="sc-section__title-en">// COMPARE + PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>A · DFS 後序</th><th>B · BFS / Kahn</th></tr></thead>
+      <tbody>
+        <tr><td>核心</td><td>後代排完才 push,最後反轉</td><td>入度 0 入隊,逐個剝</td></tr>
+        <tr><td>判環</td><td>三態:走到「進行中(1)」</td><td>order 長度 &lt; numCourses</td></tr>
+        <tr><td>順序來源</td><td>後序完成序<strong>反轉</strong></td><td>出隊順序<strong>即</strong>拓撲序</td></tr>
+      </tbody>
+    </table>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>邊建反(<code>a→b</code>)</td><td class="fail">順序整個顛倒</td><td>要 <code>b→a</code>(先修指向後修)</td></tr>
+        <tr><td>DFS 忘了<strong>反轉</strong> order</td><td class="fail">拿到反拓撲序</td><td>後序完成序要 <code>reverse</code></td></tr>
+        <tr><td>只用兩態(訪過/沒訪)判環</td><td class="fail">誤判 DAG 有環</td><td>要<strong>三態</strong>:1=在當前路徑、2=已完成</td></tr>
+        <tr><td>Kahn 沒檢查 order 長度</td><td class="fail">有環也回半套順序</td><td><code>size() == numCourses</code> 才合法</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · 為什麼「後序反轉」= 拓撲序</span>
+一個節點只有在「所有後代都 push 進 order」後,自己才 push
+→ 在 order(後序)裡,它排在所有後代「之後」
+反轉後 → 它排在後代「之前」= 拓撲序要的「前置在前」
+判環三態:0未訪 / 1當前路徑上 / 2完成
+走到 1 = 沿當前遞迴路徑繞回自己 → 有環</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// B · 為什麼 Kahn 能判環</span>
+indeg[x] = x 還有幾個前置沒上;==0 才能上、入隊
+上完一門 → 它的後繼各少一個前置(indeg−1),歸零就入隊
+環上的節點:彼此互為前置,indeg 永遠 >0 → 進不了佇列
+所以有環時 order 收不滿 → size() < numCourses → 判環</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 兩者都對:順序可能不同,都合法</span>
+DAG 的拓撲序通常不唯一(有多個合法答案)
+DFS 反轉給一種、Kahn 給另一種,LeetCode 都接受
+挑順手的寫:面試想展示遞迴 → DFS;想直觀、免遞迴 → Kahn</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// TWO WAYS, ONE TOPO</div>
+    <div class="sc-summary-bar__body">邊 b→a;DFS 後序反轉(三態判環)或 Kahn 入度 0 剝(order 收不滿=環),皆 O(V+E)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 210 · COURSE SCHEDULE II</div>
+  </div>
+
+</body>
+</html>

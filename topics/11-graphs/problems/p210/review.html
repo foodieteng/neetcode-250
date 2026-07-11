@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>210 · Course Schedule II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P210</span>
+    <span><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">課程表 II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 210</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>問題本質</td><td>給依賴關係,排出一條「前置在前」的合法上課順序</td></tr>
+        <tr><td>建圖方向</td><td><code>[a,b]</code>:修 a 前先修 b → 邊 <strong>b→a</strong></td></tr>
+        <tr><td>A · DFS</td><td>後序完成序<strong>反轉</strong> = 拓撲序;三態判環</td></tr>
+        <tr><td>B · Kahn</td><td>indeg==0 入隊、逐個剝;出隊序即拓撲序</td></tr>
+        <tr><td>判環</td><td>DFS:走到「進行中」;Kahn:order 收不滿</td></tr>
+        <tr><td>與 207</td><td>207 只問<strong>能不能</strong>(bool);210 要<strong>回順序</strong></td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(V+E)</code>,空間 <code>O(V+E)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼 DFS 的<strong>後序</strong>要<strong>反轉</strong>才是拓撲序?不反轉是什麼順序?</div>
+    <div class="qa"><strong>Q2.</strong> 判環為什麼要<strong>三態</strong>(0/1/2)?只用「訪過/沒訪過」兩態會怎麼誤判?</div>
+    <div class="qa"><strong>Q3.</strong> Kahn 為什麼「有環」時 order 一定<strong>收不滿</strong>?環上的節點卡在哪?</div>
+    <div class="qa"><strong>Q4.</strong> 邊要建 <code>b→a</code> 還是 <code>a→b</code>?建反了會發生什麼?怎麼一眼看出方向?</div>
+    <div class="qa"><strong>Q5.</strong> 同一張 DAG,DFS 和 Kahn 給的順序<strong>可能不一樣</strong>,兩個都對嗎?為什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// DIAMOND DAG</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入</span>
+numCourses = 4
+prerequisites = [[1,0],[2,0],[3,1],[3,2]]
+  修 1 前先修 0 → 邊 0→1
+  修 2 前先修 0 → 邊 0→2
+  修 3 前先修 1 → 邊 1→3
+  修 3 前先修 2 → 邊 2→3
+圖:  0 →(1, 2)→ 3   (鑽石形 DAG,無環)</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · DFS 後序(從 0 出發)</span>
+0 →1 →3   3 無後代,最先完成    finish=[3]
+回到 1,後代 3 已完成          finish=[3,1]
+回到 0,走另一支 0→2(→3 已完成) finish=[3,1,2]
+0 的後代全完成,最後完成 0      finish=[3,1,2,0]
+反轉 → <span class="sc-trace__out">[0,2,1,3]</span>  ← 0 在最前、3 在最後</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// B · Kahn 入度</span>
+indeg = [0,1,1,2]   只有 0 是 0 → queue=[0]
+pop 0 → order=[0];1,2 各 −1 → 都 0 → queue=[1,2]
+pop 1 → order=[0,1];3: 2→1(未 0)
+pop 2 → order=[0,1,2];3: 1→0 → queue=[3]
+pop 3 → order=[0,1,2,3]  size==4 → <span class="sc-trace__out">[0,1,2,3]</span></div>
+
+    <div class="sc-insight">
+      兩條答案 <code>[0,2,1,3]</code> 與 <code>[0,1,2,3]</code> <strong>都合法</strong> —— 因為 1 和 2 之間<strong>沒有依賴</strong>,誰先誰後都行。拓撲序常常<strong>不唯一</strong>,LeetCode 兩個都收。共同點:<strong>0 一定最前、3 一定最後</strong>,那才是真正被依賴關係鎖死的部分。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若把 210 改成 <strong>207(只問能不能修完)</strong>,DFS 和 Kahn 各要拿掉/改哪一行?</div>
+    <div class="qa"><strong>App 2.</strong> 若要在有多個合法解時回傳<strong>字典序最小</strong>的順序,Kahn 要怎麼改?(提示:把 queue 換成什麼?)</div>
+    <div class="qa"><strong>App 3.</strong> 若題目<strong>保證無環</strong>,DFS 版可以省掉什麼?還需要三態嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 後序是「<strong>後代全排完才輪到自己</strong>」——所以在 finish 裡,一個節點永遠排在它<strong>所有後代之後</strong>。但拓撲序要的是「前置(被依賴者)在前」,也就是節點要排在後代<strong>之前</strong>,方向剛好相反。反轉 finish 後,每個節點就跑到它後代前面,正好是拓撲序。不反轉的話拿到的是<strong>反拓撲序</strong>(把依賴倒著讀)。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 兩態分不清「<strong>正在當前遞迴路徑上</strong>」和「<strong>早就完成、只是又被別人指到</strong>」。DAG 裡一個節點被多條路徑共享很正常(菱形的 3 就被 1、2 都指到),兩態會把「第二次遇到已完成的 3」誤當成環。三態用 <code>1=進行中</code> 專門標「在當前 DFS 堆疊上」,只有<strong>再次踩到 1</strong> 才是真的繞回來 = 環;踩到 <code>2=完成</code> 只是重複到達,直接 return 不算環。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> Kahn 靠「indeg 歸零才入隊」推進。環上的節點<strong>互相是彼此的前置</strong>——A 等 B、B 等 A(或更長的圈),沒有人能先歸零,於是<strong>誰都進不了佇列</strong>,永遠留在環裡。佇列空掉時,這些節點都沒被 pop 進 order,所以 <code>order.size() &lt; numCourses</code>,以此判環、回空。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 建 <strong><code>b→a</code></strong>:<code>[a,b]</code> 意思是「修 a 前先修 b」,b 是前置、要先上,所以箭頭<strong>從前置指向後修</strong>(b 指 a)。建反成 <code>a→b</code> 會讓整個拓撲序<strong>顛倒</strong>(輸出反過來)。一眼判斷法:<strong>箭頭方向 = 上課的時間順序</strong>,先上的在箭尾、後上的在箭頭;Kahn 的 <code>indeg[a]++</code> 也印證 a 有一個前置。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 都對。DAG 的拓撲序<strong>本來就常常不唯一</strong>:只要兩個節點之間沒有(直接或間接)依賴,它們的相對順序就自由。DFS 反轉和 Kahn 只是用不同規則在這些「自由度」上做了不同選擇,但都<strong>不違反任何一條依賴</strong>,所以都是合法拓撲序,LeetCode 用特判接受任一組。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> DFS:不需要 <code>order</code> 了,<code>hasCycle</code> 只判有沒有環,主函式 <code>for i: if hasCycle(i) return false; return true;</code>(不必反轉、不必 push)。Kahn:不必收 <code>order</code> 陣列,只要一個計數 <code>cnt</code>,每 pop 一個 <code>cnt++</code>,最後 <code>return cnt == numCourses;</code>。核心的建圖、三態/入度邏輯完全一樣——這正是 <strong>207 與 210 的關係</strong>:同一套骨架,一個回 bool、一個回順序。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 把普通 <code>queue</code> 換成<strong>最小堆(priority_queue / min-heap)</strong>。每次不是取「任意一個 indeg==0」,而是取<strong>編號最小</strong>的那個入 order,如此在每一步的可選集合裡都挑最小,得到字典序最小的拓撲序。代價是每次取出從 <code>O(1)</code> 變 <code>O(log V)</code>,總複雜度 <code>O(V log V + E)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 保證無環時可以省掉<strong>判環</strong>:DFS 不必再區分「進行中」和「完成」——只要一個 <code>visited</code> 布林(兩態)防重複遞迴即可,不會有繞回自己的情況。後序 + 反轉照舊。Kahn 同理可以省掉最後 <code>size() == numCourses</code> 的檢查(必然相等)。三態只是為了<strong>判環</strong>而存在,無環就用不上。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 11 · Graphs</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「邊 b→a、DFS 後序反轉、三態判環、Kahn 入度 0 剝、order 收不滿=環、順序不唯一」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 210 · COURSE SCHEDULE II</div>
+  </div>
+
+</body>
+</html>
