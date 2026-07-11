@@ -242,7 +242,7 @@ PROBLEMS = {
         ('p752', 'Open the Lock',                                        'open-the-lock',                                        'med', 'done'),
         ('p207', 'Course Schedule',                                      'course-schedule',                                      'med', 'done'),
         ('p210', 'Course Schedule II',                                   'course-schedule-ii',                                   'med', 'done'),
-        ('p261', 'Graph Valid Tree',                                     'graph-valid-tree',                                     'med', 'todo'),
+        ('p261', 'Graph Valid Tree',                                     'graph-valid-tree',                                     'med', 'done'),
         ('p1462','Course Schedule IV',                                   'course-schedule-iv',                                   'med', 'done'),
         ('p323', 'Number of Connected Components in an Undirected Graph','number-of-connected-components-in-an-undirected-graph','med', 'todo'),
         ('p684', 'Redundant Connection',                                 'redundant-connection',                                 'med', 'todo'),

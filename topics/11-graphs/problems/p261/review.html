@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>261 · Graph Valid Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">11 · GRAPHS</a> / P261</span>
+    <span><a href="https://leetcode.com/problems/graph-valid-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合法樹判定</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 261</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>樹的條件</td><td><strong>n−1 條邊</strong> 且 <strong>連通(無環)</strong>,缺一不可</td></tr>
+        <tr><td>並查集</td><td>逐邊 union;同根 = 環 → 非樹</td></tr>
+        <tr><td>parent 陣列</td><td>負值=根、<code>−值</code>=size;非負=父節點</td></tr>
+        <tr><td>路徑壓縮</td><td><code>parent[x]=Find(parent[x])</code></td></tr>
+        <tr><td>按 size 合併</td><td>小樹掛大樹,避免長高</td></tr>
+        <tr><td>判定</td><td>成功合併 <code>add == n−1</code></td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(E·α(n))≈O(E)</code>,空間 <code>O(n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「合法樹」必須<strong>同時</strong>滿足「n−1 條邊」和「連通」?各舉一個只滿足其中一個卻不是樹的例子。</div>
+    <div class="qa"><strong>Q2.</strong> 並查集裡「一條邊的兩端 <code>find</code> 同根」為什麼就代表<strong>成環</strong>?</div>
+    <div class="qa"><strong>Q3.</strong> <code>parent</code> 一個陣列怎麼同時表示「父指標」和「size」?負值和非負值各代表什麼?</div>
+    <div class="qa"><strong>Q4.</strong> <strong>路徑壓縮</strong>和<strong>按 size 合併</strong>各自解決什麼問題?只做其中一個夠快嗎?</div>
+    <div class="qa"><strong>Q5.</strong> 若已經有 <code>edges.size() == n−1</code> 的前置檢查,最後的 <code>add == n−1</code> 還有必要嗎?兩者關係是什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// valid vs cycle</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ✓ 合法樹  n=5, edges=[[0,1],[0,2],[0,3],[1,4]]</span>
+edges=4 == n-1 ✓
+union(0,1)✓ union(0,2)✓ union(0,3)✓ union(1,4)✓
+add=4 == n-1 → <span class="sc-trace__out">true</span>
+最終一棵樹:0 為根,1/2/3/4 皆掛在 0 下</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ✗ 有環  n=4, edges=[[0,1],[1,2],[2,0]]</span>
+edges=3 == n-1=3 ✓(邊數過關,但…)
+union(0,1)✓  union(1,2)✓
+union(2,0):find(2)=find(0) 同根 → <strong>false</strong>(環!)
+add=2 &lt; n-1=3 → <span class="sc-trace__out">false</span>
+(3 是孤點,{0,1,2} 成環又漏了 3 → 非樹)</div>
+
+    <div class="sc-insight">
+      同樣 <code>3</code> 條邊,合法樹會「每條都接上新節點」;有環的那組會在某條邊上<strong>撞見同根</strong>,<code>union</code> 回 <code>false</code>。
+      <strong>「成功合併次數」正好在數:我究竟把幾個獨立塊接成了一塊。</strong>接滿 <code>n−1</code> 次才是一棵覆蓋全部的樹。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若把問題改成求<strong>連通分量數量</strong>(<a href="../p323/index.html">323</a>),同一套並查集怎麼改?最後怎麼數?</div>
+    <div class="qa"><strong>App 2.</strong> 若要<strong>動態</strong>地一邊加邊、一邊隨時回答「現在是不是森林(無環)」,並查集為什麼特別適合?</div>
+    <div class="qa"><strong>App 3.</strong> 用 <strong>DFS/BFS</strong> 而非並查集判合法樹要怎麼寫?判環在有向 vs 無向圖有什麼不同?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 樹是「連通且無環」的圖,而「<code>n</code> 點的連通無環圖恰好有 <code>n−1</code> 條邊」。<strong>只連通不夠</strong>:三角形 <code>[[0,1],[1,2],[2,0]]</code> 連通但有 3 條邊(&gt; n−1)→ 有環,不是樹。<strong>只有 n−1 條邊也不夠</strong>:<code>n=4, [[0,1],[1,0]?]</code>… 更清楚的例子 <code>n=4, [[0,1],[2,3],[?]]</code> —— 若兩條邊各自成一組、第三條在其中一組內成環,就是「3 條邊(=n−1)但一邊成環、另一邊斷開」→ 不連通、非樹。兩條件合起來才等價於樹。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 並查集裡「同根」代表 <code>u</code> 和 <code>v</code> <strong>早就在同一個連通塊</strong>裡 —— 意思是它們之間<strong>已經存在一條路徑</strong>相連。這時再加一條直接邊 <code>(u,v)</code>,等於在既有路徑之外多開一條路,兩條路徑構成一個<strong>環</strong>。所以 <code>find(u)==find(v)</code> 的邊必定製造環,<code>union</code> 回 <code>false</code>、不計入 <code>add</code>。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 約定:<code>parent[x] &lt; 0</code> 表示 <code>x</code> <strong>是根</strong>,而且 <code>−parent[x]</code> 就是這棵樹的 <strong>size</strong>(所以初始 <code>−1</code> = 根 + size 1);<code>parent[x] &gt;= 0</code> 表示 <code>x</code> <strong>不是根</strong>,值就是它的<strong>父節點</strong>編號。合併時 <code>parent[大根] += parent[小根]</code> 是兩個負數相加,size 正確累加;<code>parent[小根] = 大根</code> 把小樹掛上去。一個陣列省掉額外的 <code>size[]</code>,是常見的省空間寫法。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <strong>路徑壓縮</strong>解決「查詢路徑太長」:Find 時把沿途節點全部直接指向根,樹被壓扁,下次幾乎一步到根。<strong>按 size(或 rank)合併</strong>解決「合併把樹接歪、越長越高」:永遠讓小樹掛到大樹下,樹高受控。<strong>兩者合用</strong>才有攤還近乎 <code>O(1)</code>(反阿克曼 <code>α(n)</code>)的保證;只做其中一個能到 <code>O(log n)</code>,已很快但非最優。實務兩個都寫、程式碼也沒長多少。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 兩者其實<strong>等價於同一件事</strong>,可視為互相印證。前置 <code>edges.size()==n−1</code> 先擋掉「邊數根本不對」的情況、提早回 false(剪枝)。在<strong>已知邊數 = n−1</strong> 的前提下,「<code>add == n−1</code>」⟺「沒有任何一條邊成環」⟺「n−1 條邊全部有效地把圖接成一塊」= 樹。所以嚴格說留一個判斷也能對(例如只保留 <code>add==n−1</code> 並額外確認邊數),但<strong>兩個一起寫語意最清楚、也最好講</strong>:先數量、後結構。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 幾乎不用改:一樣逐邊 <code>Union</code>(不需要回傳 bool),跑完後<strong>數有幾個根</strong>即為連通分量數 —— 掃 <code>parent</code>,<code>parent[i] &lt; 0</code> 的就是一個根,累加即可。初始 <code>n</code> 個孤立點就是 <code>n</code> 個分量,每成功合併一次分量少一個,所以也可用 <code>cnt = n − 成功合併次數</code>。這正是 <a href="../p323/index.html">323</a> 的並查集寫法。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 因為並查集是<strong>增量(online)</strong>結構:每加一條邊只做一次近乎 O(1) 的 <code>union</code>,並能<strong>當場</strong>判斷這條邊是否連接兩個不同塊。「加邊後仍是森林(無環)」⟺「每次 union 都成功(沒撞同根)」。相比之下 DFS/BFS 每次加邊都要重跑整張圖判環,成本高。所以「動態連通性 / 動態判環」是並查集的主場。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> DFS 版:先檢查 <code>edges==n−1</code>,建無向鄰接表,從 <code>0</code> 開始 DFS 數能訪到幾個點,<strong>訪到 n 個</strong>就連通(配合邊數即為樹)。<strong>無向圖判環</strong>:DFS 時記錄「來時的父節點」,若遇到<strong>已訪且非父</strong>的鄰居 → 有環(注意要用父<em>節點/邊</em>避免把回頭誤判)。這和<strong>有向圖</strong>判環不同:有向圖要用<strong>三態</strong>(0/1/2),走回「進行中(1)」才是環(見 <a href="../p207/index.html">207</a>)。無向只需「已訪且非父」即可。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../p323/index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">→ 連通分量數 323</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「樹=n−1 邊+連通、同根邊=環、parent 兼職父+size、路徑壓縮+按 size、add==n−1」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 261 · GRAPH VALID TREE</div>
+  </div>
+
+</body>
+</html>
