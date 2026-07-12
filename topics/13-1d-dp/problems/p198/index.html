@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>198 · House Robber // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P198</span>
+    <span><a href="https://leetcode.com/problems/house-robber/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">打家劫舍</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 一維 DP(搶 or 不搶)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 198</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>1-D DP · 選/不選</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一排房子,<code>nums[i]</code> 是第 <code>i</code> 間的現金。<strong>相鄰兩間不能同一晚都搶</strong>(會觸發警報)。求今晚不驚動警察能搶到的<strong>最多金額</strong>。
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p70/index.html">70 爬樓梯</a> 的<strong>「最佳化」表親</strong>:爬樓梯是「數方法數(相加)」,這題是「取最大值(max)」。核心是對每間房做一個決定 —— <strong>搶它,還是跳過它</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 DP ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 DP<span class="sc-section__title-en">// WHY DP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">貪心:每次搶當下最大的一間</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">局部最大不等於全域最大:<code>[2,1,1,2]</code> 貪心搶中間會漏掉頭尾的 <code>2+2=4</code>。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 反例</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">枚舉所有「不相鄰子集」</span>
+            <span class="sc-ko-card__o">O(2ⁿ)</span>
+          </div>
+          <div class="sc-ko-card__body">每間搶/不搶兩種,窮舉正確但指數爆炸;有大量重疊子問題。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · TLE</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">一維 DP:每間房「搶 or 不搶」取 max</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>dp[i]</code> = 到第 <code>i</code> 間為止能搶的最多錢。<strong>搶</strong> i:接 <code>dp[i−2]</code> 再加 <code>nums[i]</code>;<strong>不搶</strong> i:沿用 <code>dp[i−1]</code>。取兩者 max。只依賴前兩項 → <code>O(1)</code> 空間。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義狀態</strong>:<code>dp[i]</code> = 只考慮前 <code>i</code> 間房、且不觸發警報時的最大金額。</li>
+      <li><strong>轉移(二選一)</strong>:<code>dp[i] = max(dp[i−1], dp[i−2] + nums[i])</code> —— 不搶 vs 搶。</li>
+      <li><strong>base + 答案</strong>:<code>dp[0]=nums[0]</code>、<code>dp[1]=max(nums[0],nums[1])</code>;答案是最後一格。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// nums=[2,7,9,3,1] → 12</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看每格 <code>dp[i]</code> 怎麼在<strong>「不搶(沿用 dp[i−1])」與「搶(dp[i−2]+nums[i])」</strong>之間取較大者,一路填到答案 <code>12</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 一維 DP · 搶 or 不搶,取 max</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:352px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵推導 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">關鍵推導<span class="sc-section__title-en">// WHY dp[i-2]</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 搶了 i 就只能接 dp[i−2]</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          考慮第 <code>i</code> 間房,只有兩種可能,且<strong>互斥又窮盡</strong>:
+        </p>
+        <p style="margin:0 0 10px;">
+          ① <strong>不搶 i</strong>:那前 <code>i</code> 間的最優,就等於前 <code>i−1</code> 間的最優 = <code>dp[i−1]</code>。<br />
+          ② <strong>搶 i</strong>:則 <code>i−1</code> <strong>絕對不能搶</strong>(相鄰),所以最多只能延續到 <code>i−2</code>,金額 = <code>dp[i−2] + nums[i]</code>。
+        </p>
+        <p style="margin:0;">
+          兩種情況取 max 就是 <code>dp[i]</code>。關鍵是②:一旦搶 <code>i</code>,<code>i−1</code> 被禁掉,合法的接續起點必須退到 <code>i−2</code> —— 這就是為什麼是 <code>dp[i−2]</code> 而不是 <code>dp[i−1]</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong> → 可優化 <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        單一迴圈掃過每間房,每格常數次比較。只用到前兩項 → 兩個變數 → <strong>O(1) 空間</strong>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      爬樓梯把「最後一步」二選一<strong>相加</strong>;打家劫舍把「這間房」搶/不搶二選一<strong>取 max</strong>。
+      同一套一維 DP 骨架,<code>+</code> 換成 <code>max(…, dp[i−2]+nums[i])</code> 就從「數方法」變成「求最大」。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p1137/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 泰波那契 1137</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i]=max(dp[i−1], dp[i−2]+nums[i]);搶了就只能接 dp[i−2]。O(n)、可 O(1)。</div>
+    <div class="sc-summary-bar__detail">1-D DP · HOUSE ROBBER</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p198-dp.js"></script>
+</body>
+</html>

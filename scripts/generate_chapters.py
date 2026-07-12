@@ -269,7 +269,7 @@ PROBLEMS = {
         ('p70',  'Climbing Stairs',               'climbing-stairs',               'easy','done'),
         ('p746', 'Min Cost Climbing Stairs',      'min-cost-climbing-stairs',      'easy','done'),
         ('p1137','N-th Tribonacci Number',        'n-th-tribonacci-number',        'easy','done'),
-        ('p198', 'House Robber',                  'house-robber',                  'med', 'todo'),
+        ('p198', 'House Robber',                  'house-robber',                  'med', 'done'),
         ('p213', 'House Robber II',               'house-robber-ii',               'med', 'todo'),
         ('p5',   'Longest Palindromic Substring', 'longest-palindromic-substring', 'med', 'todo'),
         ('p647', 'Palindromic Substrings',        'palindromic-substrings',        'med', 'todo'),
