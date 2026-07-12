@@ -274,7 +274,7 @@ PROBLEMS = {
         ('p5',   'Longest Palindromic Substring', 'longest-palindromic-substring', 'med', 'done'),
         ('p647', 'Palindromic Substrings',        'palindromic-substrings',        'med', 'done'),
         ('p91',  'Decode Ways',                   'decode-ways',                   'med', 'done'),
-        ('p322', 'Coin Change',                   'coin-change',                   'med', 'todo'),
+        ('p322', 'Coin Change',                   'coin-change',                   'med', 'done'),
         ('p152', 'Maximum Product Subarray',      'maximum-product-subarray',      'med', 'todo'),
         ('p139', 'Word Break',                    'word-break',                    'med', 'todo'),
         ('p300', 'Longest Increasing Subsequence','longest-increasing-subsequence','med', 'todo'),
