@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>300 · Longest Increasing Subsequence // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P300</span>
+    <span><a href="https://leetcode.com/problems/longest-increasing-subsequence/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長遞增子序列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 300</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>DP 狀態</td><td><code>dp[i]</code> = 以 <code>nums[i]</code> 結尾的 LIS 長度</td></tr>
+        <tr><td>DP 轉移</td><td><code>dp[i]=1+max(dp[j] : j&lt;i, nums[j]&lt;nums[i])</code>,答案 <code>max(dp)</code></td></tr>
+        <tr><td>tails 定義</td><td><code>tails[k]</code> = 長度 <code>k+1</code> 遞增子序列的最小結尾</td></tr>
+        <tr><td>tails 操作</td><td><code>lower_bound</code>:接長(push)或覆蓋;長度 = LIS</td></tr>
+        <tr><td>嚴格 vs 非遞減</td><td><code>lower_bound</code>(嚴格)/ <code>upper_bound</code>(允許相等)</td></tr>
+        <tr><td>複雜度</td><td>DP <code>O(n²)</code> / tails <code>O(n log n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> DP 版為什麼回傳 <code>max(dp)</code> 而不是 <code>dp[n−1]</code>?</div>
+    <div class="qa"><strong>Q2.</strong> tails 解法中,「<strong>覆蓋</strong>某個位置」為什麼不會讓最終長度變短?它到底改善了什麼?</div>
+    <div class="qa"><strong>Q3.</strong> <code>tails</code> 陣列的<strong>內容</strong>是否就是一條真正的 LIS?若不是,為什麼它的<strong>長度</strong>還是對的?</div>
+    <div class="qa"><strong>Q4.</strong> 把 <code>lower_bound</code> 換成 <code>upper_bound</code> 會得到什麼?用 <code>[7,7,7,7]</code> 說明兩者答案差在哪、為什麼。</div>
+    <div class="qa"><strong>Q5.</strong> tails 為什麼<strong>永遠保持遞增</strong>?這個性質對 <code>O(n log n)</code> 為什麼是必要的?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// nums=[10,9,2,5,3,7,101,18]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// tails 版逐步(答案應為 4)</span>
+10 : push            tails=[10]
+ 9 : 覆蓋 pos0        tails=[9]
+ 2 : 覆蓋 pos0        tails=[2]
+ 5 : push            tails=[2,5]
+ 3 : 覆蓋 pos1(5→3)  tails=[2,3]
+ 7 : push            tails=[2,3,7]
+101: push            tails=[2,3,7,101]
+18 : 覆蓋 pos3(101→18) tails=[2,3,7,18]
+<span class="sc-trace__out">return tails.size() = 4</span></div>
+
+    <div class="sc-insight">
+      注意最後 <code>tails=[2,3,7,18]</code> 剛好是一條真的 LIS,但這是<strong>巧合</strong> —— 中途 <code>tails</code> 曾是 <code>[2,3,7,101]</code>,把 101 覆蓋成 18 讓「長度 4 的最小結尾」更小。
+      <strong>長度</strong>一路都對(4),但 <code>tails</code> 的<strong>內容</strong>只保證「各長度的最小可能結尾」,不保證是某條實際子序列。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/russian-doll-envelopes/" target="_blank" rel="noopener">354 俄羅斯套娃信封</a>:二維 <code>(w,h)</code> 要嚴格巢狀。為什麼先按 <code>w</code> 升冪、<code>w</code> 相同時 <code>h</code> <strong>降冪</strong>排序,再對 <code>h</code> 跑 LIS?那個「降冪」是為了什麼?</div>
+    <div class="qa"><strong>App 2.</strong> 若還要<strong>還原出一條實際的 LIS</strong>(不只長度),tails 解法要額外記什麼?或改用哪種解法比較好回溯?</div>
+    <div class="qa"><strong>App 3.</strong> <a href="https://leetcode.com/problems/number-of-longest-increasing-subsequence/" target="_blank" rel="noopener">673 最長遞增子序列的個數</a>:要數有<strong>幾條</strong>最長的。O(n²) DP 要多維護什麼陣列?轉移怎麼分「更長」與「等長」兩種情況?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為 <code>dp[i]</code> 只算「<strong>以 <code>i</code> 結尾</strong>的 LIS」,而真正的最長遞增子序列可能<strong>結尾在中間某個位置</strong>,不一定是最後一個元素。例如遞增段在前、後面接一堆小數,LIS 結尾在中段。所以要掃過整條 <code>dp</code> 取最大值。<code>dp[n−1]</code> 只反映「必須用到最後一個元素」的情況,會漏掉更長的解。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 覆蓋只把「長度 <code>k+1</code> 的<strong>結尾值</strong>」換成更小的 <code>num</code>,<strong>長度 <code>k+1</code> 這件事不變</strong>。改善的是「潛力」:結尾越小,之後越容易有元素比它大、能接上去繼續變長。所以覆蓋不減長度、只讓未來更可能接長 —— 是純粹的優化,不會弄短答案。真正增加長度的是 <code>push_back</code>(遇到比所有結尾都大的 num)。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> <strong>不是</strong>,<code>tails</code> 的內容通常不是一條實際存在的 LIS(見範例:<code>[2,3,7,18]</code> 雖巧合成立,但中途覆蓋會混入不同子序列的結尾)。但它的<strong>長度</strong>永遠正確,因為可以證明:<code>tails[k]</code> 始終等於「所有長度 <code>k+1</code> 的遞增子序列中最小的結尾」這個量,是良好定義且單調的;每次操作都正確維護它,所以 <code>tails.size()</code>(最大的有效 <code>k+1</code>)就是 LIS 長度。長度對、內容不一定對。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 換成 <code>upper_bound</code> 會得到最長<strong>非遞減</strong>(允許相等)子序列。差別在遇到與現有結尾相等的 <code>num</code>:<code>lower_bound</code> 指向那個相等值(第一個 ≥ num)並覆蓋 → 長度不增(不允許相等,嚴格);<code>upper_bound</code> 跳過相等、指向第一個更大的或尾端 → 相等的 num 可接長(允許相等)。<code>[7,7,7,7]</code>:<code>lower_bound</code> 每個 7 都覆蓋第 0 格 → 長度 <strong>1</strong>;<code>upper_bound</code> 每個 7 都 push → 長度 <strong>4</strong>。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 因為每次操作要嘛 <code>push_back</code> 一個「比全部大」的值(尾端仍最大,保持遞增),要嘛把某位置覆蓋成 <code>num</code>,而 <code>num</code> 恰好 <code>≥</code> 前一格(它是第一個 <code>≥ num</code> 的位置,代表前一格 <code>&lt; num</code>)且 <code>&lt;</code> 原值(更小),覆蓋後仍夾在中間 → 遞增不破。這個<strong>單調性</strong>正是能用二分的前提:唯有已排序的陣列,<code>lower_bound</code> 才是 <code>O(log n)</code>,整體才 <code>O(n log n)</code>。若 tails 不遞增,就只能線性掃、退回 <code>O(n²)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 排序後對 <code>h</code> 跑 LIS,是把二維巢狀降成一維遞增。<code>w</code> 升冪保證後面的信封 <code>w</code> 不小於前面;但<strong>相同 <code>w</code> 不能巢狀</strong>(要嚴格大)。若相同 <code>w</code> 的 <code>h</code> 也升冪,LIS 可能把兩個同 <code>w</code>、<code>h</code> 遞增的信封當成可套 —— 但它們 <code>w</code> 相等,不合法。把相同 <code>w</code> 的 <code>h</code> 排成<strong>降冪</strong>,同 <code>w</code> 群內 <code>h</code> 遞減,LIS 就<strong>最多只取一個</strong>(因為要遞增),自動排除「同寬」的假巢狀。這是用排序技巧把一維的約束編碼進去。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> tails 解法<strong>不利於回溯</strong>(內容非真序列)。要還原一條 LIS,常用 <code>O(n²)</code> DP + <strong>parent 指標</strong>:算 <code>dp[i]</code> 時記錄「是從哪個 <code>j</code> 接來的」<code>prev[i]=j</code>,最後從 <code>max(dp)</code> 的位置沿 <code>prev</code> 往回走、反轉即得序列。或在 tails 版額外記每個 num 被放進 tails 時的「位置索引」與前驅,能在 <code>O(n log n)</code> 內重建,但實作較繁 —— 面試要序列通常給 <code>O(n²)</code> + parent 最清楚。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 多維護 <code>count[i]</code> = 以 <code>i</code> 結尾的最長遞增子序列<strong>條數</strong>。轉移時對每個 <code>j&lt;i</code> 且 <code>nums[j]&lt;nums[i]</code>:若 <code>dp[j]+1 &gt; dp[i]</code>(發現<strong>更長</strong>)→ <code>dp[i]=dp[j]+1; count[i]=count[j]</code>(長度刷新,條數繼承 j 的);若 <code>dp[j]+1 == dp[i]</code>(<strong>等長</strong>)→ <code>count[i] += count[j]</code>(多一批同長的接法)。最後把所有 <code>dp[i]==maxLen</code> 的 <code>count[i]</code> 加總。核心是把「最佳值」與「達到最佳值的方法數」<strong>分開兩個陣列</strong>同步維護 —— 這是「最優值 + 計數」型 DP 的通用套路。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 13 · 1-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「max(dp)、覆蓋降結尾、tails 長度對內容不一定、lower vs upper、tails 遞增才能二分」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 300 · LONGEST INCREASING SUBSEQUENCE</div>
+  </div>
+
+</body>
+</html>

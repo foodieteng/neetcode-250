@@ -277,7 +277,7 @@ PROBLEMS = {
         ('p322', 'Coin Change',                   'coin-change',                   'med', 'done'),
         ('p152', 'Maximum Product Subarray',      'maximum-product-subarray',      'med', 'todo'),
         ('p139', 'Word Break',                    'word-break',                    'med', 'todo'),
-        ('p300', 'Longest Increasing Subsequence','longest-increasing-subsequence','med', 'todo'),
+        ('p300', 'Longest Increasing Subsequence','longest-increasing-subsequence','med', 'done'),
         ('p416', 'Partition Equal Subset Sum',    'partition-equal-subset-sum',    'med', 'done'),
         ('p377', 'Combination Sum IV',            'combination-sum-iv',            'med', 'todo'),
         ('p279', 'Perfect Squares',               'perfect-squares',               'med', 'todo'),
