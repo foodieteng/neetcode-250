@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>70 · Climbing Stairs // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P70</span>
+    <span><a href="https://leetcode.com/problems/climbing-stairs/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">爬樓梯</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 一維 DP(費氏數列)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 70</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>1-D DP · 入門</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        爬一座 <code>n</code> 階的樓梯。每次可以爬 <strong>1 階或 2 階</strong>。問有<strong>幾種不同的方法</strong>能爬到頂?
+      </p>
+    </div>
+
+    <p>
+      這是<strong>一維 DP 的入門題</strong>。關鍵一問:「到第 <code>i</code> 階的最後一步是怎麼跨的?」——只可能是<strong>從第 <code>i−1</code> 階跨 1 階</strong>,或<strong>從第 <code>i−2</code> 階跨 2 階</strong>。
+      這兩群走法<strong>不重疊、也不遺漏</strong>,所以 <code>到 i 的方法數 = 到 i−1 的 + 到 i−2 的</code> → <code>dp[i] = dp[i−1] + dp[i−2]</code>。正是<strong>費氏數列</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 DP ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 DP<span class="sc-section__title-en">// WHY DP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">純遞迴 climb(i)=climb(i-1)+climb(i-2)</span>
+            <span class="sc-ko-card__o">O(2ⁿ)</span>
+          </div>
+          <div class="sc-ko-card__body">同一個 <code>climb(k)</code> 被重複算指數多次(重疊子問題),<code>n</code> 大就爆。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">遞迴 + 記憶化</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">存每個 <code>climb(k)</code> 避免重算,可行;但有遞迴堆疊、寫法較繞。</div>
+          <div class="sc-ko-card__verdict">○ OK · 可用</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">自底向上填 dp 表</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          從 <code>dp[0]=dp[1]=1</code> 開始,由小到大 <code>dp[i]=dp[i−1]+dp[i−2]</code> 一路填到 <code>dp[n]</code>。
+          每項只算一次,無遞迴。因為只依賴<strong>前兩項</strong>,還能壓到 <code>O(1)</code> 空間。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義狀態</strong>:<code>dp[i]</code> = 爬到第 <code>i</code> 階的方法數。</li>
+      <li><strong>轉移</strong>:<code>dp[i] = dp[i−1] + dp[i−2]</code>(最後一步跨 1 或跨 2)。</li>
+      <li><strong>base + 順序</strong>:<code>dp[0]=dp[1]=1</code>;由小到大填到 <code>dp[n]</code>,回傳 <code>dp[n]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// n = 5 → 8</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>dp[]</code> 怎麼從 <code>[1,1]</code> 一路相加填到 <code>dp[5]=8</code> —— 每一格都是前兩格之和(費氏數列)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 一維 DP · 自底向上填表</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:290px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼相加 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼是「相加」而非「相乘」<span class="sc-section__title-en">// THE COUNT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 最後一步分類、不重不漏</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          把「爬到第 <code>i</code> 階的所有走法」依<strong>最後一步</strong>分成兩類:① 最後一步<strong>跨 1 階</strong>(前面已站在 <code>i−1</code>);② 最後一步<strong>跨 2 階</strong>(前面已站在 <code>i−2</code>)。這兩類<strong>互斥</strong>(最後一步只能是其中一種)且<strong>窮盡</strong>(沒有第三種跨法),所以總數 = 兩類之和 = <code>dp[i−1] + dp[i−2]</code>。
+        </p>
+        <p style="margin:0;">
+          相加是因為在數「有幾種<strong>選擇</strong>」(加法原理);若是要走「先做 A <em>再</em> 做 B」的<strong>連續步驟</strong>才會相乘。這題最後一步二選一,是分類加總。base <code>dp[0]=1</code> 代表「站在原地不動也算一種」,讓 <code>dp[2]=dp[1]+dp[0]=2</code> 剛好對(兩種:1+1、2)。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong> → 可優化 <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        一個迴圈從 <code>2</code> 填到 <code>n</code>,每格 O(1)。<code>dp</code> 陣列佔 O(n);因為只用到前兩項,可改用兩個變數 → <strong>O(1) 空間</strong>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>做法</th><th>Time</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>純遞迴</td><td class="mono">O(2ⁿ)</td><td class="mono">O(n)</td></tr>
+        <tr><td>dp 陣列(本頁)</td><td class="mono">O(n)</td><td class="mono">O(n)</td></tr>
+        <tr><td>滾動兩變數</td><td class="mono">O(n)</td><td class="mono">O(1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      問「到第 i 階的最後一步怎麼跨」→ 跨 1 或跨 2 → <code>dp[i]=dp[i−1]+dp[i−2]</code>(費氏數列)。
+      DP 的起手式:<strong>用「最後一步」把大問題拆成更小的同類子問題</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i]=到第 i 階方法數;最後一步跨 1 或 2 → dp[i]=dp[i−1]+dp[i−2]。費氏數列,O(n)、可 O(1) 空間。</div>
+    <div class="sc-summary-bar__detail">1-D DP · CLIMBING STAIRS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p70-dp.js"></script>
+</body>
+</html>

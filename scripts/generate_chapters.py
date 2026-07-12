@@ -266,7 +266,7 @@ PROBLEMS = {
         ('p1683','Planets and Kingdoms (CSES · SCC / Kosaraju)',                    'https://cses.fi/problemset/task/1683',                            'hard','done'),
     ],
     '13': [  # 1-D Dynamic Programming
-        ('p70',  'Climbing Stairs',               'climbing-stairs',               'easy','todo'),
+        ('p70',  'Climbing Stairs',               'climbing-stairs',               'easy','done'),
         ('p746', 'Min Cost Climbing Stairs',      'min-cost-climbing-stairs',      'easy','todo'),
         ('p1137','N-th Tribonacci Number',        'n-th-tribonacci-number',        'easy','todo'),
         ('p198', 'House Robber',                  'house-robber',                  'med', 'todo'),
