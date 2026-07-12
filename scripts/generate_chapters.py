@@ -268,7 +268,7 @@ PROBLEMS = {
     '13': [  # 1-D Dynamic Programming
         ('p70',  'Climbing Stairs',               'climbing-stairs',               'easy','done'),
         ('p746', 'Min Cost Climbing Stairs',      'min-cost-climbing-stairs',      'easy','done'),
-        ('p1137','N-th Tribonacci Number',        'n-th-tribonacci-number',        'easy','todo'),
+        ('p1137','N-th Tribonacci Number',        'n-th-tribonacci-number',        'easy','done'),
         ('p198', 'House Robber',                  'house-robber',                  'med', 'todo'),
         ('p213', 'House Robber II',               'house-robber-ii',               'med', 'todo'),
         ('p5',   'Longest Palindromic Substring', 'longest-palindromic-substring', 'med', 'todo'),
