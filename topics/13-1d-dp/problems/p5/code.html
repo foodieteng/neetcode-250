@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5 · Longest Palindromic Substring // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P5</span>
+    <span><a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長回文子字串</h1>
+    <p class="sc-mast__subtitle">// CODE · 區間 DP + 中心擴展</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 5</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 區間 DP ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">寫法 A · 區間 DP(2-D 表)<span class="sc-section__title-en">// INTERVAL DP</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p5.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">string</span> <span class="f">longestPalindrome</span><span class="p">(</span><span class="t">string</span> s<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;&gt;</span> dp<span class="p">(</span>n<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;(</span>n<span class="p">,</span> <span class="k">false</span><span class="p">));</span>
+        <span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;</span> ans <span class="p">=</span> <span class="p">{-</span><span class="n">1</span><span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">};</span>
+
+        <span class="c">// base ①:長度 1 一定回文</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            dp<span class="p">[</span>i<span class="p">][</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+            ans <span class="p">=</span> <span class="p">{</span>i<span class="p">,</span> <span class="n">1</span><span class="p">};</span>
+        <span class="p">}</span>
+
+        <span class="c">// base ②:長度 2,頭尾相同即回文</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n <span class="p">-</span> <span class="n">1</span><span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>s<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> s<span class="p">[</span>i <span class="p">+</span> <span class="n">1</span><span class="p">])</span> <span class="p">{</span>
+                dp<span class="p">[</span>i<span class="p">][</span>i <span class="p">+</span> <span class="n">1</span><span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+                ans <span class="p">=</span> <span class="p">{</span>i<span class="p">,</span> <span class="n">2</span><span class="p">};</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c">// 轉移:長度由小到大,內層 dp[i+1][j-1] 已就緒</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> L <span class="p">=</span> <span class="n">3</span><span class="p">;</span> L <span class="p">&lt;=</span> n<span class="p">;</span> L<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">+</span> L <span class="p">-</span> <span class="n">1</span> <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+                <span class="t">int</span> j <span class="p">=</span> i <span class="p">+</span> L <span class="p">-</span> <span class="n">1</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span>s<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> s<span class="p">[</span>j<span class="p">]</span> <span class="p">&amp;&amp;</span> dp<span class="p">[</span>i <span class="p">+</span> <span class="n">1</span><span class="p">][</span>j <span class="p">-</span> <span class="n">1</span><span class="p">])</span> <span class="p">{</span>
+                    dp<span class="p">[</span>i<span class="p">][</span>j<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+                    ans <span class="p">=</span> <span class="p">{</span>i<span class="p">,</span> L<span class="p">};</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>ans<span class="p">.</span>first<span class="p">,</span> ans<span class="p">.</span>second<span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      <code>ans = {起點, 長度}</code>。因為外層按長度遞增掃,越晚更新的 <code>ans</code> 長度越大,結束時自然是最長解。用 <code>substr(起點, 長度)</code> 取出答案。
+    </p>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 中心擴展 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">寫法 B · 中心擴展<span class="sc-section__title-en">// EXPAND · O(1) SPACE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p5_expand.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">string</span> <span class="f">longestPalindrome</span><span class="p">(</span><span class="t">string</span> s<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> start <span class="p">=</span> <span class="n">0</span><span class="p">,</span> best <span class="p">=</span> <span class="n">1</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> center <span class="p">=</span> <span class="n">0</span><span class="p">;</span> center <span class="p">&lt;</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>s<span class="p">.</span><span class="f">size</span><span class="p">();</span> center<span class="p">++)</span> <span class="p">{</span>
+            <span class="f">expand</span><span class="p">(</span>s<span class="p">,</span> center<span class="p">,</span> center<span class="p">,</span> start<span class="p">,</span> best<span class="p">);</span>       <span class="c">// 奇數長度中心</span>
+            <span class="f">expand</span><span class="p">(</span>s<span class="p">,</span> center<span class="p">,</span> center <span class="p">+</span> <span class="n">1</span><span class="p">,</span> start<span class="p">,</span> best<span class="p">);</span>   <span class="c">// 偶數長度中心</span>
+        <span class="p">}</span>
+        <span class="k">return</span> s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>start<span class="p">,</span> best<span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">expand</span><span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> s<span class="p">,</span> <span class="t">int</span> left<span class="p">,</span> <span class="t">int</span> right<span class="p">,</span> <span class="t">int</span><span class="p">&amp;</span> start<span class="p">,</span> <span class="t">int</span><span class="p">&amp;</span> best<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="k">while</span> <span class="p">(</span>left <span class="p">&gt;=</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> right <span class="p">&lt;</span> n <span class="p">&amp;&amp;</span> s<span class="p">[</span>left<span class="p">]</span> <span class="p">==</span> s<span class="p">[</span>right<span class="p">])</span> <span class="p">{</span>
+            left<span class="p">--;</span> right<span class="p">++;</span>
+        <span class="p">}</span>
+        <span class="t">int</span> len <span class="p">=</span> right <span class="p">-</span> left <span class="p">-</span> <span class="n">1</span><span class="p">;</span>           <span class="c">// while 多退一步,故 -1</span>
+        <span class="k">if</span> <span class="p">(</span>len <span class="p">&gt;</span> best<span class="p">)</span> <span class="p">{</span> best <span class="p">=</span> len<span class="p">;</span> start <span class="p">=</span> left <span class="p">+</span> <span class="n">1</span><span class="p">;</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:12px;font-size:13px;color:#6a3c2e;">
+      同樣 <code>O(n²)</code> 時間,但<strong>不需要 DP 表</strong> → 空間 <code>O(1)</code>。每個位置當中心往外擴:<code>(center, center)</code> 抓奇數長度、<code>(center, center+1)</code> 抓偶數長度。迴圈停下時 <code>left/right</code> 各多走一步,所以長度是 <code>right − left − 1</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n²)</strong>　　S = <strong>O(n²)</strong>(A) / <strong>O(1)</strong>(B)</div>
+      <p class="sc-formula__hint">
+        A:填 <code>O(n²)</code> 格表,每格 <code>O(1)</code>。B:<code>n</code> 個中心 × 每次最多擴 <code>O(n)</code> = <code>O(n²)</code>,只用幾個變數。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>按 <code>i,j</code> 順序填表</td><td class="fail">算 <code>dp[i][j]</code> 時內層還沒算</td><td>外層跑<strong>長度 L</strong> 由小到大</td></tr>
+        <tr><td>漏長度 2 的 base</td><td class="fail">偶數回文全判 false</td><td>單獨處理 <code>dp[i][i+1]</code></td></tr>
+        <tr><td>中心擴展只做奇中心</td><td class="fail">漏掉 <code>"bb"</code> 這類偶回文</td><td>奇 + 偶兩種中心都做</td></tr>
+        <tr><td>擴展後長度算錯</td><td class="fail">多算或少算兩端</td><td><code>len = right − left − 1</code></td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px;font-size:13px;color:#4a4a44;">
+      註:<code>vector&lt;vector&lt;bool&gt;&gt;</code> 是位元壓縮特化,存取稍慢但省空間;<code>n ≤ 1000</code> 下 <code>O(n²)</code> 完全夠用。
+    </p>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 填表 s="abba"(區間 DP)</span>
+base 長度1:dp[0][0]=dp[1][1]=dp[2][2]=dp[3][3]=true
+base 長度2:dp[1][2]=(b==b)=true → "bb";其餘 false
+長度3:dp[0][2]=(a==b)? no;dp[1][3]=(b==a)? no
+長度4:dp[0][3]=(a==a) 且 dp[1][2]=true → true → "abba"
+<span class="sc-trace__out">ans={0,4} → return "abba"</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 中心擴展 s="babad"</span>
+center=1('a'),奇:向外 b(0)==b(2)? yes → "bab" 長度3
+center=2('b'),奇:向外 a(1)==a(3)? yes → "aba" 長度3
+偶中心都無法擴(相鄰不同)
+best=3
+<span class="sc-trace__out">return "bab"(或 "aba",同長皆可)</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 為什麼靠內層那格</span>
+"abba" 是回文 ⟸ 頭尾都是 a 且 中間 "bb" 是回文
+"bb"(dp[1][2])在長度2 就先算好了
+所以填 dp[0][3] 時,只要查那一格即可 → O(1) 轉移</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與 Trace</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// FILL BY LENGTH</div>
+    <div class="sc-summary-bar__body">dp[i][j]=s[i]==s[j] && dp[i+1][j-1];外層跑長度 L 由小到大。或中心擴展 O(1) 空間。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 5 · LONGEST PALINDROMIC SUBSTRING</div>
+  </div>
+
+</body>
+</html>

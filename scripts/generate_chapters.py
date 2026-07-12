@@ -271,7 +271,7 @@ PROBLEMS = {
         ('p1137','N-th Tribonacci Number',        'n-th-tribonacci-number',        'easy','done'),
         ('p198', 'House Robber',                  'house-robber',                  'med', 'done'),
         ('p213', 'House Robber II',               'house-robber-ii',               'med', 'done'),
-        ('p5',   'Longest Palindromic Substring', 'longest-palindromic-substring', 'med', 'todo'),
+        ('p5',   'Longest Palindromic Substring', 'longest-palindromic-substring', 'med', 'done'),
         ('p647', 'Palindromic Substrings',        'palindromic-substrings',        'med', 'todo'),
         ('p91',  'Decode Ways',                   'decode-ways',                   'med', 'todo'),
         ('p322', 'Coin Change',                   'coin-change',                   'med', 'todo'),
