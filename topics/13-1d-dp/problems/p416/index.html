@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>416 · Partition Equal Subset Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P416</span>
+    <span><a href="https://leetcode.com/problems/partition-equal-subset-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">分割等和子集</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 0/1 背包(子集和)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 416</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>1-D DP · 0/1 背包</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>nums</code>,問能否把它分成<strong>兩個子集,且兩邊總和相等</strong>。能則回傳 <code>true</code>,否則 <code>false</code>。
+      </p>
+    </div>
+
+    <p>
+      關鍵轉化:兩邊相等 ⟺ 每邊都是<strong>總和的一半</strong>。所以總和必須是<strong>偶數</strong>,問題變成:<strong>能不能挑出一個子集,其和恰為 <code>target = 總和 / 2</code>?</strong> 這正是經典的 <strong>0/1 背包(子集和)</strong> —— 每個數只能選或不選一次。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 DP ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 0/1 背包<span class="sc-section__title-en">// WHY DP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉所有子集</span>
+            <span class="sc-ko-card__o">O(2ⁿ)</span>
+          </div>
+          <div class="sc-ko-card__body"><code>n</code> 到 200,<code>2²⁰⁰</code> 完全不可能。大量子集和重複。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">貪心:湊近 target 就好</span>
+            <span class="sc-ko-card__o">錯</span>
+          </div>
+          <div class="sc-ko-card__body">子集和沒有貪心結構,<code>[1,5,11,5]</code> 這類要精準命中 target,不是「接近」。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 反例</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">0/1 背包:dp[s] = 和 s 是否可達</span>
+          <span class="sc-ko-card__o">O(n × target)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>dp[s]</code> = 用已看過的數能否湊出和 <code>s</code>。每放一個 <code>num</code>,凡 <code>dp[s−num]</code> 可達 → <code>dp[s]</code> 也可達。內層<strong>由大到小</strong>掃保證每個數只用一次。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n·T)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>轉化</strong>:總和為奇數 → 直接 <code>false</code>;否則 <code>target = 總和 / 2</code>。</li>
+      <li><strong>0/1 背包</strong>:<code>dp[0]=true</code>;對每個 <code>num</code>,<code>s</code> 從 <code>target</code> 到 <code>num</code>(<strong>由大到小</strong>),<code>dp[s] |= dp[s−num]</code>。</li>
+      <li><strong>回傳</strong>:<code>dp[target]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// nums=[1,2,3,4] → true</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      總和 10、<code>target=5</code>。看「可達的和」的集合怎麼隨著放入 <code>1、2、3</code> 逐步變大,直到<strong>碰到 target=5</strong>(子集 <code>{2,3}</code>)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 0/1 背包 · 湊出 target 的子集和</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:320px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵推導 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">關鍵推導<span class="sc-section__title-en">// WHY SWEEP DOWN</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 由大到小掃 = 每個數只用一次</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          放入 <code>num</code> 時要更新 <code>dp[s] |= dp[s−num]</code>。若內層 <code>s</code> <strong>由大到小</strong>掃,算 <code>dp[s]</code> 時 <code>dp[s−num]</code> 還是「<strong>尚未放入本個 num</strong>」的舊值 —— 所以這個 <code>num</code> 對每個 <code>s</code> 至多貢獻一次,正是 <strong>0/1 背包</strong>(每個數選或不選)。
+        </p>
+        <p style="margin:0;">
+          反之若<strong>由小到大</strong>掃,<code>dp[s−num]</code> 會是「已放過本 num」的新值,同一個數就能被<strong>重複</strong>累加 —— 那是<a href="../p322/index.html">完全背包(322)</a>。同一份轉移式,<strong>只靠內層掃描方向</strong>就切換「各一次 ↔ 無限量」。這是背包家族最該記牢的開關。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n × target)</strong>　　S = <strong>O(target)</strong></div>
+      <p class="sc-formula__hint">
+        <code>target ≤ 總和/2 ≤ 200×100/2 = 10⁴</code>,<code>n ≤ 200</code> → 至多約 <code>2×10⁶</code>,很快。空間為布林陣列 <code>O(target)</code>。用 <code>bitset</code> 可再快約 64 倍。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「平分成兩半」= 「挑子集湊出總和的一半」= <strong>0/1 背包子集和</strong>。
+      <code>dp[s] |= dp[s−num]</code>,內層<strong>由大到小</strong>掃 → 每個數只用一次。和 <a href="../p322/index.html">322</a> 只差掃描方向。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p322/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 零錢兌換 322</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">平分 ⟺ 子集和 = 總和/2。dp[s]|=dp[s−num],內層由大到小 = 0/1 背包。奇數和直接 false。</div>
+    <div class="sc-summary-bar__detail">1-D DP · PARTITION EQUAL SUBSET SUM</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p416-dp.js"></script>
+</body>
+</html>
