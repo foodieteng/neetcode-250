@@ -474,7 +474,7 @@ def chapter_quick_index(cat_id, cat_slug, probs):
         else:
             title_cell = f'<span style="color:var(--concrete)">{title}</span>'
 
-        # self-editable, localStorage-persisted columns (time / date / my-difficulty)
+        # self-editable, localStorage-persisted columns (time / date / my-difficulty / note)
         track_cells = (
             f'<td><input class="trk-input" type="text" inputmode="text" '
             f'data-trk="time" data-pid="{num}" placeholder="—" aria-label="花費時間" /></td>'
@@ -486,6 +486,8 @@ def chapter_quick_index(cat_id, cat_slug, probs):
             f'<option value="med">Med</option>'
             f'<option value="hard">Hard</option>'
             f'</select></td>'
+            f'<td><input class="trk-note" type="text" inputmode="text" '
+            f'data-trk="note" data-pid="{num}" placeholder="—" aria-label="註記" /></td>'
         )
 
         rows.append(
@@ -510,7 +512,7 @@ def chapter_quick_index(cat_id, cat_slug, probs):
         <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>難度</th><th>#</th><th>題目</th><th>原題</th><th>狀態</th><th class="trk-th">時間</th><th class="trk-th">日期</th><th class="trk-th">自評</th></tr>
+            <tr><th>難度</th><th>#</th><th>題目</th><th>原題</th><th>狀態</th><th class="trk-th">時間</th><th class="trk-th">日期</th><th class="trk-th">自評</th><th class="trk-th">註記</th></tr>
           </thead>
           <tbody>
 {rows_html}

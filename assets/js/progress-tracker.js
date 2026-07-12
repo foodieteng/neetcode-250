@@ -4,6 +4,7 @@
      · time  — how long the problem took (free text, e.g. "25m")
      · date  — last attempted (native date picker)
      · diff  — my own difficulty rating (Easy / Med / Hard)
+     · note  — free-text remark (e.g. "revisit dp", "用了提示")
    Persisted in localStorage, keyed by LeetCode number, so the same
    problem's data shows on every category page. No backend needed.
    ============================================================ */
@@ -44,7 +45,8 @@
         var d = load();                 // re-read so parallel tabs don't clobber
         if (!d[pid]) d[pid] = {};
         d[pid][field] = el.value;
-        if (!d[pid].time && !d[pid].date && !d[pid].diff) delete d[pid];
+        // drop the record only when every tracked field is empty (generic — new fields auto-covered)
+        if (Object.keys(d[pid]).every(function (k) { return !d[pid][k]; })) delete d[pid];
         save(d);
         reflect(el, field);
       });
