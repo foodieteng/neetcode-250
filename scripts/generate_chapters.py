@@ -272,7 +272,7 @@ PROBLEMS = {
         ('p198', 'House Robber',                  'house-robber',                  'med', 'done'),
         ('p213', 'House Robber II',               'house-robber-ii',               'med', 'done'),
         ('p5',   'Longest Palindromic Substring', 'longest-palindromic-substring', 'med', 'done'),
-        ('p647', 'Palindromic Substrings',        'palindromic-substrings',        'med', 'todo'),
+        ('p647', 'Palindromic Substrings',        'palindromic-substrings',        'med', 'done'),
         ('p91',  'Decode Ways',                   'decode-ways',                   'med', 'todo'),
         ('p322', 'Coin Change',                   'coin-change',                   'med', 'todo'),
         ('p152', 'Maximum Product Subarray',      'maximum-product-subarray',      'med', 'todo'),
