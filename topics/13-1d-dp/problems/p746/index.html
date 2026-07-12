@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>746 · Min Cost Climbing Stairs // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P746</span>
+    <span><a href="https://leetcode.com/problems/min-cost-climbing-stairs/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小花費爬樓梯</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 一維 DP(取 min)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 746</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>1-D DP · 最優化</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>cost[i]</code> 是第 <code>i</code> 階的費用。<strong>付了該階的費用後</strong>可以往上爬 1 或 2 階。
+        可從第 <code>0</code> 階<strong>或</strong>第 <code>1</code> 階起步。求爬到<strong>頂樓</strong>(最後一階再上一格)的<strong>最小總花費</strong>。
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p70/index.html">70 爬樓梯</a> 的<strong>最優化版</strong>:把「數方法數(相加)」換成「求最小花費(取 <code>min</code>)」。
+      關鍵一問一樣:「到位置 <code>i</code> 的<strong>最後一步</strong>從哪來?」——從 <code>i−1</code>(付 <code>cost[i−1]</code>)或從 <code>i−2</code>(付 <code>cost[i−2]</code>),兩條路取較省的 →
+      <code>dp[i] = min(dp[i−1]+cost[i−1], dp[i−2]+cost[i−2])</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 DP ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 DP<span class="sc-section__title-en">// WHY DP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">貪心:每步挑當下較便宜的</span>
+            <span class="sc-ko-card__o">會錯</span>
+          </div>
+          <div class="sc-ko-card__body">局部最便宜不代表整體最省 —— 一步貪小便宜可能逼你走進後面更貴的路。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 貪心錯</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">純遞迴枚舉所有路徑</span>
+            <span class="sc-ko-card__o">O(2ⁿ)</span>
+          </div>
+          <div class="sc-ko-card__body">同一位置的最小花費被重算指數多次(重疊子問題)。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">自底向上 DP,每格取 min</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>dp[i]</code> = 到位置 <code>i</code> 的最小花費;由小到大 <code>dp[i]=min(dp[i−1]+cost[i−1], dp[i−2]+cost[i−2])</code> 填到 <code>dp[n]</code>。
+          每格只算一次;只依賴前兩項 → 可壓到 <code>O(1)</code> 空間。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義狀態</strong>:<code>dp[i]</code> = 到達位置 <code>i</code> 的最小花費(<code>i</code> 從 <code>0</code> 到 <code>n</code>,<code>n</code> = 頂樓)。</li>
+      <li><strong>轉移</strong>:<code>dp[i] = min(dp[i−1]+cost[i−1], dp[i−2]+cost[i−2])</code> —— 從下一階或下兩階上來,付「離開那階」的費用。</li>
+      <li><strong>base + 答案</strong>:<code>dp[0]=dp[1]=0</code>(從 0 或 1 免費起步);回傳 <code>dp[n]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// cost=[10,15,20] → 15</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>dp[]</code> 怎麼一格格<strong>取 min</strong> 填到頂樓 <code>dp[3]=15</code> —— 每格都在「從 i−1 上來」與「從 i−2 上來」之間挑較省的。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 一維 DP · 每格取 min</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:310px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 02</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵細節<span class="sc-section__title-en">// TWO DETAILS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · dp[i] 對誰付費 & 頂樓在哪</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>付費時機:</strong>費用是「<strong>離開</strong>某階時才付」。所以到位置 <code>i</code>,你是從 <code>i−1</code> 或 <code>i−2</code> 跨上來的,要付的是<strong>那個來源階</strong>的費用 —— 因此是 <code>dp[i−1] + cost[i−1]</code> 或 <code>dp[i−2] + cost[i−2]</code>,<strong>不是</strong> <code>cost[i]</code>。<code>dp[0]=dp[1]=0</code> 因為「站上起點免費」,費用只在起步往上跨時才產生。
+        </p>
+        <p style="margin:0;">
+          <strong>頂樓 = 位置 n:</strong>樓梯有 <code>n</code> 階(索引 <code>0..n−1</code>),而「頂」是<strong>最後一階再上一格</strong> = 位置 <code>n</code>。所以答案是 <code>dp[n]</code>,不是 <code>dp[n−1]</code>。從最後一或倒數第二階都能跨到頂,這正對應 <code>dp[n]=min(dp[n−1]+cost[n−1], dp[n−2]+cost[n−2])</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong> → 可優化 <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        一個迴圈從 <code>2</code> 填到 <code>n</code>,每格一次 <code>min</code>。只用到前兩項 → 兩變數即可 → <strong>O(1) 空間</strong>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      70 的「相加數方法」→ 這題換成「取 <code>min</code> 求最省」。同一套線性 DP 骨架,
+      只是<strong>聚合方式</strong>從加法變成最優化 —— 費用在「離開該階」時付,頂樓是位置 <code>n</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p70/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 爬樓梯 70</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i]=到位置 i 的最小花費=min(dp[i−1]+cost[i−1], dp[i−2]+cost[i−2]);base 0,答案 dp[n]。O(n)、可 O(1)。</div>
+    <div class="sc-summary-bar__detail">1-D DP · MIN COST</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p746-dp.js"></script>
+</body>
+</html>
