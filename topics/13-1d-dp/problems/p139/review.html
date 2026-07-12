@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>139 · Word Break // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P139</span>
+    <span><a href="https://leetcode.com/problems/word-break/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">單字拆分</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 139</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i]</code> = 前 <code>i</code> 字元 <code>s[0..i−1]</code> 能否切開</td></tr>
+        <tr><td>轉移</td><td><code>dp[i] = OR over 詞 w ( dp[i−L] && s[i−L..i]==w )</code></td></tr>
+        <tr><td>base</td><td><code>dp[0]=true</code>(空字串)</td></tr>
+        <tr><td>迴圈順序</td><td><strong>位置 i 外層(升冪)、詞內層</strong></td></tr>
+        <tr><td>為何位置外層</td><td>片段落在固定位置、會交錯 → 先把所有更短前綴定案</td></tr>
+        <tr><td>分型</td><td>序列切割 → 位置外;背包 → 物品外</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 用一句話說出「什麼時候位置當外層、什麼時候物品當外層」的判準。</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼「詞當外層、位置內層」單趟會錯?用 <code>s="applepenapple", dict={apple,pen}</code> 具體說明它在哪一步漏掉解。</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼「詞外層」的答案會<strong>隨字典裡詞的順序改變</strong>?這說明了它的什麼本質問題?</div>
+    <div class="qa"><strong>Q4.</strong> <code>dp[0]=true</code> 代表什麼?若忘了設,整個 DP 會怎樣?</div>
+    <div class="qa"><strong>Q5.</strong> 這題(序列切割)和 <a href="../p322/index.html">322 完全背包</a> 都是「一維、可重複使用元素」,為什麼一個位置外層、一個物品外層?差在問題結構的哪一點?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// s="applepenapple"</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 位置外層填表 dict={apple(5),pen(3)}</span>
+n=13, dp[0]=T
+i=5 : "apple" → dp[0]=T 且 s[0..5]="apple" ✓ → dp[5]=T
+i=8 : "pen"   → dp[5]=T 且 s[5..8]="pen"   ✓ → dp[8]=T
+i=13: "apple" → dp[8]=T 且 s[8..13]="apple"✓ → dp[13]=T
+<span class="sc-trace__out">return dp[13] = true(apple | pen | apple)</span></div>
+
+    <div class="sc-insight">
+      關鍵在 <code>i=13</code>:它靠 <code>dp[8]</code>,而 <code>dp[8]</code> 是 <code>i=8</code> 時用 <code>"pen"</code> 設真的。
+      <strong>位置外層</strong>保證掃到 <code>i=13</code> 前,<code>i=8</code> 早已處理完 —— 所以 <code>dp[8]</code> 是可靠的真。詞外層則會在 <code>dp[8]</code> 變真<strong>之前</strong>就掃過 <code>i=13</code>,錯過這條路。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/word-break-ii/" target="_blank" rel="noopener">140 單字拆分 II</a>:要<strong>列出所有</strong>切法(不只 true/false)。還適合用這個布林 DP 嗎?該搭配什麼?複雜度為何可能爆炸?</div>
+    <div class="qa"><strong>App 2.</strong> <a href="../p91/index.html">91 解碼方法</a> 也是序列切割(每步切 1 或 2 位)。它的外層是什麼?和本題的「位置外層」是不是同一個道理?</div>
+    <div class="qa"><strong>App 3.</strong> 若把「能否切開」改成「<strong>最少切成幾段</strong>」或「<strong>有幾種切法</strong>」,轉移的聚合運算要各自換成什麼?外層還是位置嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 看答案的形狀:若是「把<strong>序列切成有順序、落在固定位置的片段</strong>」(詞會交錯)→ <strong>位置當外層</strong>,每個位置試所有選擇;若是「<strong>挑一堆物品湊數、順序無關</strong>」(背包)→ <strong>物品當外層</strong>,容量掃描方向決定重複。一句話:<strong>有序切割用位置外層,無序組合用物品外層。</strong></div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 詞外層先跑 <code>"apple"</code>:單趟由小到大掃位置,掃到 <code>i=13</code> 時要看 <code>dp[8]</code>,但此刻 <code>dp[8]</code> 還是 false(它要靠 <code>"pen"</code> 才會真,而 <code>"pen"</code> 還沒輪到)→ <code>dp[13]</code> 被判 false。接著跑 <code>"pen"</code>,在 <code>i=8</code> 把 <code>dp[8]</code> 設真 —— 但迴圈<strong>不會回頭重掃 <code>i=13</code></strong>,所以 <code>dp[13]</code> 永遠卡在 false。漏掉了 <code>apple|pen|apple</code> 這條合法切法。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為詞外層下,<code>dp[i]</code> 是否被設真,取決於「它依賴的 <code>dp[j]</code> 有沒有在<strong>更早處理的詞</strong>裡先變真」。把字典順序一換,哪些 <code>dp[j]</code> 先就緒就變了,結果跟著變:<code>{"ca","rs"}</code> 對、<code>{"rs","ca"}</code> 錯。<strong>正確的 DP 不該對輸入順序敏感</strong> —— 會敏感,就代表它違反了「用到子問題時子問題已定案」的前提,是結構性錯誤,不是調一調就好。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <code>dp[0]=true</code> 代表「<strong>空字串可以被切開</strong>」(切成零個詞),是遞推的<strong>錨點</strong>:每個 <code>dp[i]</code> 最終都要回溯到某個 <code>dp[0]</code> —— 第一個詞的前綴就是 <code>dp[0]</code>。若忘了設,<code>dp[i−L]</code> 永遠找不到一個為真的起點,整張表全 false,任何字串都被判「不能切」。它就是 base case,少了它整個 DP 塌掉。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 差在<strong>「元素有沒有固定位置」</strong>。完全背包挑的是<strong>無序的硬幣多重集合</strong> —— 用了 3 個 1 元、2 個 5 元,先放哪個都一樣,所以可以「一種硬幣處理完再換下一種」(物品外層),用容量升冪允許重複。Word Break 的詞卻<strong>各自佔據字串上一段固定位置、會交錯</strong>(apple 在 0–5、pen 在 5–8、apple 又在 8–13),不能重排成「所有 apple 再所有 pen」,所以無法用物品外層,必須<strong>位置外層</strong>逐格把所有更短前綴定案。核心分野:<strong>組合(無序)可物品外層,切割(有序、定位)必須位置外層。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 布林 DP 只回答「能不能」,不記路徑,<strong>不適合直接列舉</strong>。要列出所有切法,常用 <strong>DFS / 回溯 + 記憶化</strong>:先用本題的 <code>dp</code>(或反向可達性)剪枝「這個位置往後還切得完嗎」,再 DFS 枚舉每個切點收集答案。複雜度可能<strong>指數級</strong> —— 如 <code>s="aaaa...", dict={a,aa,aaa,...}</code> 切法數本身就指數多,光輸出就爆。所以 140 的重點是「用 DP 判可行性剪枝 + 回溯列舉」,而非單純 DP。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 是同一個道理。<a href="../p91/index.html">91</a> 的 <code>dp[i]</code> = 前 <code>i</code> 位的解碼方法數,外層就是<strong>位置 <code>i</code></strong>(由小到大),內層是「這一步切 1 位還是 2 位」的<strong>選擇</strong>。它也是序列切割:片段(1 位碼 / 2 位碼)落在固定位置、會交錯,所以位置外層。139 的「詞」對應 91 的「切 1/2 位」,骨架完全一致 —— 只是 91 的「字典」是固定的兩種切法。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 只換<strong>聚合運算</strong>,外層仍是位置。① <strong>最少切幾段</strong>:<code>dp[i]</code> 存最小段數,<code>dp[i] = min over w ( dp[i−L] + 1 )</code>,base <code>dp[0]=0</code>、其餘 <code>∞</code>。② <strong>有幾種切法</strong>:<code>dp[i]</code> 存方法數,<code>dp[i] += dp[i−L]</code>(對每個吻合的詞累加),base <code>dp[0]=1</code>。可行性用 <code>OR</code>、最優用 <code>min</code>、計數用 <code>+</code> —— 這正是 1-D DP 家族「同骨架、換聚合」的共性,而序列切割的<strong>位置外層</strong>三者通用。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 13 · 1-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「有序切割→位置外層、無序組合→物品外層、詞外層順序相依會錯、dp[0]=true、換聚合通用」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 139 · WORD BREAK</div>
+  </div>
+
+</body>
+</html>

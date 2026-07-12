@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>139 · Word Break // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P139</span>
+    <span><a href="https://leetcode.com/problems/word-break/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">單字拆分</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 序列切割 DP + 迴圈順序心法</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 139</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>1-D DP · 序列切割</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給字串 <code>s</code> 和字典 <code>wordDict</code>,問 <code>s</code> 能否被切成<strong>一段段字典裡的詞</strong>(詞可重複使用)。能則 <code>true</code>。
+      </p>
+    </div>
+
+    <p>
+      <code>dp[i]</code> = 前 <code>i</code> 個字元 <code>s[0..i−1]</code> 能否被完整切開。答案 <code>dp[n]</code>。這是「<strong>序列切割 DP</strong>」的代表題 —— 也是最多人在<strong>迴圈順序</strong>上寫錯的一題。下面先把心法講清楚。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 迴圈順序心法(重點) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">迴圈順序心法<span class="sc-section__title-en">// THE LOOP-ORDER PATTERN</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">核心一問 · 「dp[i] 依賴誰?那些子問題必須先算好」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          寫這類 DP 前,先回答三件事:<br />
+          ① <strong>狀態是什麼</strong>(dp 的 index 代表什麼)?<br />
+          ② <strong>dp[i] 依賴哪些更小的 dp[j]</strong>?<br />
+          ③ 這些依賴要<strong>怎麼掃</strong>才能保證「用到時已算好」?
+        </p>
+        <p style="margin:0;">
+          <strong>答案就決定了外層迴圈</strong>:外層 = 掃「狀態維度」、把依賴先鋪好;內層 = 枚舉「這一步的選擇」。搞反了,就會拿到「還沒算好」的子問題,答案時對時錯。
+        </p>
+      </div>
+    </div>
+
+    <p style="margin:16px 0 8px;font-weight:600;">三種最常見的型,一張表分清楚:</p>
+    <table class="sc-table">
+      <thead><tr><th>型</th><th>狀態 dp[i]</th><th>外層</th><th>內層</th><th>方向 / 原因</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>序列切割</strong><br>139 · 91 · 70</td>
+          <td>前綴 <code>i</code> 的性質</td>
+          <td><strong>位置 i</strong></td>
+          <td>選擇(詞 / 切幾位)</td>
+          <td><code>i</code> <strong>升冪</strong>:某個 i 可由多種選擇到達,必須先把<strong>所有</strong> j&lt;i 定案</td>
+        </tr>
+        <tr>
+          <td><strong>完全背包</strong><br><a href="../p322/index.html">322</a></td>
+          <td>容量 <code>i</code> 的最優</td>
+          <td>物品 / 硬幣</td>
+          <td>容量 i</td>
+          <td>容量<strong>升冪</strong>:接<strong>同層</strong> dp[i−w] → 每種可<strong>重複</strong></td>
+        </tr>
+        <tr>
+          <td><strong>0/1 背包</strong><br><a href="../p416/index.html">416</a></td>
+          <td>容量 <code>i</code> 可達</td>
+          <td>物品</td>
+          <td>容量 i</td>
+          <td>容量<strong>降冪</strong>:接<strong>舊層</strong> dp[i−w] → 每種<strong>只用一次</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin:14px 0 0;font-size:14px;">
+      <strong>怎麼分序列切割 vs 背包?</strong>問自己:答案是「<strong>把序列切成有順序的片段</strong>」還是「<strong>挑一堆物品湊數(順序無關)</strong>」?
+    </p>
+    <ul style="margin:8px 0 0;">
+      <li><strong>序列切割</strong>(139/91):每個詞落在<strong>固定位置</strong>、會<strong>交錯</strong>,不能「一種詞處理完再換下一種」→ 必須 <strong>位置當外層</strong>,每個位置試所有詞。</li>
+      <li><strong>背包</strong>(322/416):挑的是<strong>無序組合</strong>,可以「一種物品一種物品地加」→ <strong>物品當外層</strong>,容量掃描方向決定重複與否。</li>
+    </ul>
+  </section>
+
+  <!-- ════════════ 3 · 你的 bug 在哪 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">為什麼「詞當外層」會錯<span class="sc-section__title-en">// THE COMMON BUG</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">✗</span>
+            <span class="sc-ko-card__title">詞外層、位置內層(單趟)</span>
+            <span class="sc-ko-card__o">錯</span>
+          </div>
+          <div class="sc-ko-card__body"><code>for word: for i…</code>。處理某個詞、掃到位置 <code>i</code> 時,它依賴的 <code>dp[i−L]</code> 可能要靠<strong>還沒處理的別的詞</strong>才會變真 → 漏解。且答案會<strong>隨字典順序改變</strong>。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 順序相依</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">●</span>
+            <span class="sc-ko-card__title">位置外層、詞內層</span>
+            <span class="sc-ko-card__o">O(n·k·L)</span>
+          </div>
+          <div class="sc-ko-card__body"><code>for i: for word…</code>。算 <code>dp[i]</code> 時,所有 <code>dp[j] (j&lt;i)</code> 都已被<strong>全部詞</strong>考慮過、定案 → 穩定正確。</div>
+          <div class="sc-ko-card__verdict">● ADOPT · 位置外層</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:16px;">
+      <div class="sc-dark-box__title">實測 · 詞外層真的會錯</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;"><code>s="applepenapple", dict={"apple","pen"}</code>:</p>
+        <p style="margin:0 0 8px;">
+          詞外層先處理 <code>"apple"</code>:掃到 <code>i=13</code> 時要 <code>dp[8]</code>,但 <code>dp[8]</code> 要靠 <code>"pen"</code>(還沒處理)才會真 → <code>dp[13]</code> 被判 false。等處理 <code>"pen"</code> 讓 <code>dp[8]</code> 變真時,<strong>早就掃過 i=13 了、不會回頭</strong>。
+        </p>
+        <p style="margin:0;">
+          結果:<strong>位置外層 = true(正確)、詞外層 = false(錯)</strong>。把字典從 <code>{"rs","ca"}</code> 改成 <code>{"ca","rs"}</code>,詞外層的答案還會跟著變 —— 這就是「順序相依」的鐵證。你當初那版除了語法(<code>i</code> 沒宣告、迴圈條件不完整)之外,<strong>骨架也選錯了外層</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>狀態 + base</strong>:<code>dp[i]</code> = 前 <code>i</code> 字元可切;<code>dp[0]=true</code>(空字串)。</li>
+      <li><strong>位置外層</strong>:<code>i</code> 從 <code>0</code> 到 <code>n</code>;<strong>詞內層</strong>:每個詞 <code>w</code>(長 <code>L</code>)。</li>
+      <li><strong>轉移</strong>:若 <code>i−L≥0 && dp[i−L] && s[i−L..i]==w</code> → <code>dp[i]=true</code>。回傳 <code>dp[n]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 5 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// s="leetcode", dict={leet,code}</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>dp[]</code> 怎麼<strong>依位置 i 由小到大</strong>填。每個 <code>i</code> 試每個詞:能接上(前綴為真 + 字串吻合)就把 <code>dp[i]</code> 設真。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 序列切割 · 位置外層填表</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n × k × L)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        <code>n</code> 個位置 × <code>k</code> 個詞 × 每次比對 <code>L</code>。<code>n≤300</code>、<code>k≤1000</code>、<code>L≤20</code>。把字典放進 <code>unordered_set</code>、內層改枚舉「切點 <code>j</code>」查子串,可寫成 <code>O(n²·L)</code>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      序列切割題的鐵律:<strong>位置當外層(升冪)、選擇當內層</strong>。
+      因為片段落在固定位置、會交錯,算 dp[i] 前必須先把<strong>所有</strong>更短前綴定案 —— 這正是背包(物品外層)分不清時最容易踩的雷。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p152/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 乘積最大子陣列 152</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i]=前 i 字元可切;位置外層(升冪)、詞內層。序列切割 → 位置外;背包 → 物品外。</div>
+    <div class="sc-summary-bar__detail">1-D DP · WORD BREAK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p139-dp.js"></script>
+</body>
+</html>
