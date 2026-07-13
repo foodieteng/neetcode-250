@@ -281,7 +281,7 @@ PROBLEMS = {
         ('p416', 'Partition Equal Subset Sum',    'partition-equal-subset-sum',    'med', 'done'),
         ('p377', 'Combination Sum IV',            'combination-sum-iv',            'med', 'done'),
         ('p279', 'Perfect Squares',               'perfect-squares',               'med', 'done'),
-        ('p343', 'Integer Break',                 'integer-break',                 'med', 'todo'),
+        ('p343', 'Integer Break',                 'integer-break',                 'med', 'done'),
         ('p1406','Stone Game III',                'stone-game-iii',                'hard','todo'),
     ],
     '14': [  # 2-D Dynamic Programming
