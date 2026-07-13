@@ -279,7 +279,7 @@ PROBLEMS = {
         ('p139', 'Word Break',                    'word-break',                    'med', 'done'),
         ('p300', 'Longest Increasing Subsequence','longest-increasing-subsequence','med', 'done'),
         ('p416', 'Partition Equal Subset Sum',    'partition-equal-subset-sum',    'med', 'done'),
-        ('p377', 'Combination Sum IV',            'combination-sum-iv',            'med', 'todo'),
+        ('p377', 'Combination Sum IV',            'combination-sum-iv',            'med', 'done'),
         ('p279', 'Perfect Squares',               'perfect-squares',               'med', 'todo'),
         ('p343', 'Integer Break',                 'integer-break',                 'med', 'todo'),
         ('p1406','Stone Game III',                'stone-game-iii',                'hard','todo'),
