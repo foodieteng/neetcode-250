@@ -285,7 +285,7 @@ PROBLEMS = {
         ('p1406','Stone Game III',                'stone-game-iii',                'hard','done'),
     ],
     '14': [  # 2-D Dynamic Programming
-        ('p62',  'Unique Paths',                                 'unique-paths',                                 'med', 'todo'),
+        ('p62',  'Unique Paths',                                 'unique-paths',                                 'med', 'done'),
         ('p63',  'Unique Paths II',                              'unique-paths-ii',                              'med', 'todo'),
         ('p64',  'Minimum Path Sum',                             'minimum-path-sum',                             'med', 'todo'),
         ('p1143','Longest Common Subsequence',                   'longest-common-subsequence',                   'med', 'todo'),
