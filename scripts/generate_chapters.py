@@ -287,7 +287,7 @@ PROBLEMS = {
     '14': [  # 2-D Dynamic Programming
         ('p62',  'Unique Paths',                                 'unique-paths',                                 'med', 'done'),
         ('p63',  'Unique Paths II',                              'unique-paths-ii',                              'med', 'done'),
-        ('p64',  'Minimum Path Sum',                             'minimum-path-sum',                             'med', 'todo'),
+        ('p64',  'Minimum Path Sum',                             'minimum-path-sum',                             'med', 'done'),
         ('p1143','Longest Common Subsequence',                   'longest-common-subsequence',                   'med', 'todo'),
         ('p1049','Last Stone Weight II',                         'last-stone-weight-ii',                         'med', 'todo'),
         ('p309', 'Best Time to Buy and Sell Stock with Cooldown','best-time-to-buy-and-sell-stock-with-cooldown','med', 'todo'),
