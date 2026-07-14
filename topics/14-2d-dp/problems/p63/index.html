@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>63 · Unique Paths II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P63</span>
+    <span><a href="https://leetcode.com/problems/unique-paths-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">不同路徑 II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 網格 DP + 障礙</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 63</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>2-D DP · 障礙</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        和 <a href="../p62/index.html">62 不同路徑</a> 一樣,機器人只能往右/下走。但這次網格裡有<strong>障礙</strong>(值 <code>1</code>),不能經過。求左上到右下的路徑數。
+      </p>
+    </div>
+
+    <p>
+      就是 62 的<strong>障礙版</strong>。骨架不變 —— <code>dp[i][j] = dp[i−1][j] + dp[i][j−1]</code>(上 + 左),只多一條規則:<strong>障礙格 <code>dp=0</code></strong>(此路不通),讓它自然貢獻 0、路徑繞開。這正是<strong>「DP 通用、組合公式失效」</strong>的分水嶺。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 唯一差別 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">和 62 的唯一差別<span class="sc-section__title-en">// OBSTACLE = 0</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">核心 · 障礙格 dp = 0</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          轉移完全照搬 62,只加一句:<strong>若 <code>(i,j)</code> 是障礙,<code>dp[i][j]=0</code>,不做累加</strong>。因為走不到那格,它給下、右鄰的貢獻自然是 0,路徑就繞開了。
+        </p>
+        <p style="margin:0;">
+          <strong>要小心 base(第一列/行)</strong>:62 是全 1,但這裡<strong>一旦遇到障礙,其後全變 0</strong> —— 第一列只能一路往右,被擋住就過不去,後面全到不了。所以不能無腦把邊界填 1;必須「遇障礙即停,之後保持 0」。用整格從 0 起算 + 障礙設 0 的寫法可自動處理這件事。
+        </p>
+      </div>
+    </div>
+
+    <p style="margin:14px 0 0;font-size:14px;">
+      這也是為什麼 <strong>62 的組合公式 <code>C(m+n−2, m−1)</code> 在這裡失效</strong>:公式假設每格都能走、每條路等價,一有障礙就沒有封閉解 —— 只能回到逐格 DP。<strong>DP 才是網格路徑問題的通用骨架。</strong>
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · padding 技巧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">你的 padding 技巧<span class="sc-section__title-en">// 1-INDEXED PAD</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      你的版本開 <code>(m+1)×(n+1)</code> 的 <code>dp</code>、從 <code>1</code> 開始索引,還設 <code>dp[1][1]=1</code>。這是<strong>加一圈 0 的哨兵邊界</strong>技巧:
+    </p>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">為什麼 padding 省事</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          多一列 <code>dp[0][*]</code>、一行 <code>dp[*][0]</code> 全 <code>0</code>,當作<strong>「界外」哨兵</strong>。這樣算 <code>dp[i][j]=dp[i−1][j]+dp[i][j−1]</code> 時,<strong>第一列/行也能用同一條式子</strong> —— 它們的「上」或「左」自動是哨兵 0,不必特別寫邊界判斷。
+        </p>
+        <p style="margin:0;">
+          起點 <code>dp[1][1]=1</code> 當種子(對應真正格子 <code>(0,0)</code>)。之後每格 <code>dp[i][j] += dp[i−1][j] + dp[i][j−1]</code>,障礙格 <code>continue</code>(保持 0)。<strong>padding 把邊界特判消掉,程式更乾淨</strong> —— 這是網格 DP 常見的實作小技巧。答案在 <code>dp[m][n]</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>特判</strong>:起點或終點是障礙 → 直接回傳 <code>0</code>。</li>
+      <li><strong>轉移</strong>:非障礙格 <code>dp[i][j] = dp[i−1][j] + dp[i][j−1]</code>;障礙格 <code>dp=0</code>(跳過)。</li>
+      <li><strong>base</strong>:起點 = 1;邊界遇障礙後保持 0(或用 padding 哨兵處理)。答案右下角。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 5 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 3×3 中央障礙 → 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      中央 <code>(1,1)</code> 是障礙(深灰✗)。看它怎麼把 <code>0</code> 貢獻給下、右鄰,逼路徑<strong>繞外圈</strong>,最後右下角 = <code>2</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 網格 DP · 障礙格 dp = 0</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:320px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(mn)</strong>　　S = <strong>O(mn)</strong> → 可壓成 <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每格算一次。可用一維滾動壓到 <code>O(n)</code>(障礙格把 <code>dp[j]</code> 設 0 即可)。答案 <code>≤ 2×10⁹</code>,略大 —— 用 <code>int</code> 剛好(&lt;2³¹),保險可用 <code>long</code>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      62 加上障礙:<strong>骨架「上 + 左」不變,障礙格設 0</strong> 就繞開。
+      邊界遇障礙後全 0(過不去);組合公式失效 → <strong>DP 才是通用解</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p62/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 不同路徑 62</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">= 62 + 障礙:dp[i][j]=上+左,障礙格 dp=0。邊界遇障礙後全 0。padding 消邊界特判。</div>
+    <div class="sc-summary-bar__detail">2-D DP · UNIQUE PATHS II</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p63-grid.js"></script>
+</body>
+</html>

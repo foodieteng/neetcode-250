@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>63 · Unique Paths II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P63</span>
+    <span><a href="https://leetcode.com/problems/unique-paths-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">不同路徑 II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 63</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>= <a href="../p62/index.html">62</a> + 障礙</td></tr>
+        <tr><td>轉移</td><td>非障礙 <code>dp[i][j]=dp[i−1][j]+dp[i][j−1]</code></td></tr>
+        <tr><td>障礙</td><td><code>dp[i][j]=0</code>(此路不通)</td></tr>
+        <tr><td>base 陷阱</td><td>第一列/行遇障礙後<strong>全 0</strong>,不能填 1</td></tr>
+        <tr><td>padding</td><td>加一圈 0 哨兵 → 消掉邊界特判</td></tr>
+        <tr><td>公式失效</td><td>有障礙 → 組合數 <code>C</code> 無用,只能 DP</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 和 <a href="../p62/index.html">62</a> 相比,程式<strong>只多了哪一句</strong>?那句在做什麼?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼「第一列/行一旦遇到障礙,其後的格子都是 0」?這和 62 全 1 差在哪?</div>
+    <div class="qa"><strong>Q3.</strong> 你的版本開 <code>(m+1)×(n+1)</code>、從索引 1 開始。這個 padding 哨兵解決了什麼麻煩?</div>
+    <div class="qa"><strong>Q4.</strong> 為什麼 62 的組合公式 <code>C(m+n−2, m−1)</code> 在有障礙時<strong>完全用不了</strong>?</div>
+    <div class="qa"><strong>Q5.</strong> 一維滾動版裡,為什麼「障礙格要把 <code>dp[j]=0</code>」而不是 <code>continue</code> 保留舊值?兩者差在哪?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 4×4 有兩個障礙</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// grid（X = 障礙 1）</span>
+0 0 0 0        dp:  1 1 1 1
+0 X 0 0             1 0 1 2
+0 0 0 X             1 1 2 0    ← (2,3) 障礙 → 0
+0 0 0 0             1 2 4 4
+dp[2][2]=上1+左1=2;(2,3)障礙→0;dp[3][3]=上0+左4=4
+<span class="sc-trace__out">return dp[3][3] = 4</span></div>
+
+    <div class="sc-insight">
+      注意 <code>(2,3)</code> 的障礙讓 <code>dp[2][3]=0</code>,於是 <code>dp[3][3]</code> 的「上」變成 0 —— 右下角只能<strong>靠「左」<code>dp[3][2]=4</code></strong>接上。
+      障礙就像在網格上挖洞:洞格貢獻 0,逼所有路徑改道。DP 逐格累加,自然把改道算進去。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank" rel="noopener">64 Minimum Path Sum</a>:每格有成本,求最小成本路徑。若同時有障礙,轉移要怎麼合併「取 min」與「障礙 = ∞」?</div>
+    <div class="qa"><strong>App 2.</strong> 若允許機器人<strong>往右、下、右下(斜)</strong>三向移動,且有障礙,轉移要加哪一項?邊界哨兵還管用嗎?</div>
+    <div class="qa"><strong>App 3.</strong> 若要<strong>列出一條</strong>實際可行路徑(不只數量),怎麼從 <code>dp</code> 回溯?障礙會讓回溯出什麼問題?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 只多一句:<strong>「若 <code>(i,j)</code> 是障礙就把 <code>dp[i][j]</code> 設 0(或 <code>continue</code> 保持 0)」</strong>。它把障礙格標成「走不到」,於是它給下、右鄰的貢獻是 0,路徑自動繞開。轉移主體 <code>dp[i][j]=上+左</code> 與 62 一字不差 —— <strong>障礙只是把某些格「關掉」</strong>。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為第一列只能<strong>一路往右</strong>、第一行只能<strong>一路往下</strong>,沒有別條路可繞。一旦中間卡了一個障礙,後面的格子就<strong>再也到不了</strong>(唯一的直線通道被切斷),路徑數是 0。62 沒有障礙,直線通道永遠暢通,所以邊界全是 1。<strong>差別就在「直線唯一通道會不會被擋」</strong> —— 62 不會、63 會。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> padding 解決<strong>「第一列/行沒有『上』或『左』鄰居」的邊界特判</strong>。加一圈全 0 的哨兵(第 0 列、第 0 行)後,真正的第一列/行(索引 1)在算 <code>dp[i][j]=dp[i−1][j]+dp[i][j−1]</code> 時,它們的「上」或「左」自動落在哨兵 0 上,<strong>不必寫 <code>if (i==0)</code> / <code>if (j==0)</code> 這類判斷</strong>。程式因此更短、更不易出錯。代價只是多一圈記憶體。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為 <code>C(m+n−2, m−1)</code> 的推導<strong>假設每一格都可走、每條「下/右序列」都是合法路徑</strong>,答案才等於「在 <code>m+n−2</code> 步裡選 <code>m−1</code> 步往下」的組合數。一旦有障礙,某些「下/右序列」會穿過障礙 → <strong>不合法</strong>,但組合數把它們照算不誤,無法扣除;而障礙的分布沒有簡潔封閉式能描述「有多少序列避開所有障礙」。所以只能回到<strong>逐格 DP</strong>,讓障礙格自然貢獻 0。這就是 DP 通用、公式只是無障礙特例的原因。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 在一維滾動裡,<code>dp[j]</code> 進入第 <code>i</code> 列時<strong>還帶著上一列(第 <code>i−1</code> 列)的值</strong>。若 <code>(i,j)</code> 是障礙,這格<strong>本身走不到</strong>,它對第 <code>i</code> 列的貢獻必須是 0 —— 所以要<strong>主動把 <code>dp[j]=0</code></strong>,清掉那個「上一列殘留值」。若只 <code>continue</code>(不清零),<code>dp[j]</code> 會保留上一列的舊值,等於把障礙格<strong>誤當成可走</strong>、還把上一列的路徑數帶下去,答案偏大。二維版可以 <code>continue</code>(因為 <code>dp[i][j]</code> 本來就是新的一格、初值 0);一維版<strong>共用同一格</strong>,所以必須顯式歸零。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 64 求最小成本:<code>dp[i][j] = grid[i][j] + min(dp[i−1][j], dp[i][j−1])</code>。若再加障礙,把障礙格的 <code>dp</code> 設成 <strong><code>∞</code>(極大值)</strong>,代表「不可能經過」;取 <code>min</code> 時它自然不會被選,且會把「經過它的路徑」推成 ∞ 而作廢。要小心用足夠大的哨兵(避免 <code>∞ + cost</code> 溢位,或加 <code>if</code> 跳過)。核心:計數版障礙用 <strong>0</strong>(加法單位)、最小化版障礙用 <strong>∞</strong>(min 的單位)—— 障礙的「屏蔽值」隨聚合運算而不同。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 加左上斜向來源:<code>dp[i][j] = dp[i−1][j] + dp[i][j−1] + dp[i−1][j−1]</code>(障礙格仍設 0)。邊界哨兵<strong>照樣管用</strong> —— 第 0 列/行的 0 讓斜向 <code>dp[i−1][j−1]</code> 在邊界也能安全取到 0。二維版直接加項即可;一維滾動要多留一個變數存「更新前的左上角(舊 <code>dp[j−1]</code>)」,因為它會在更新 <code>dp[j−1]</code> 後被覆蓋 —— 這和編輯距離/LCS 壓維的處理同源。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 從終點 <code>(m−1,n−1)</code> 往回走:在 <code>(i,j)</code> 看它是從「上」還是「左」來 —— 哪個鄰格的 <code>dp</code> &gt; 0 且能構成 <code>dp[i][j]</code> 就往那邊退(計數版任選一個非零來源即可;若要字典序最小可固定優先順序)。障礙的問題:回溯時要<strong>跳過 <code>dp=0</code> 的格子</strong>(它們不可能在路徑上);若某步兩個來源都是 0,代表根本無路(應在一開始就判掉)。另外 <code>dp</code> 一維滾動版丟了逐格歷史,回溯需要保留<strong>二維表</strong>或額外記每格的來源方向。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「障礙設 0、邊界遇障礙後全 0、padding 消特判、公式失效只能 DP、1D 障礙要歸零」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 63 · UNIQUE PATHS II</div>
+  </div>
+
+</body>
+</html>
