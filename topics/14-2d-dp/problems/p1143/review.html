@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1143 · Longest Common Subsequence // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P1143</span>
+    <span><a href="https://leetcode.com/problems/longest-common-subsequence/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長公共子序列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1143</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i][j]</code> = 前 <code>i</code>、前 <code>j</code> 字的 LCS 長度</td></tr>
+        <tr><td>相同</td><td><code>dp[i][j] = dp[i−1][j−1] + 1</code>(左上斜)</td></tr>
+        <tr><td>不同</td><td><code>dp[i][j] = max(dp[i−1][j], dp[i][j−1])</code></td></tr>
+        <tr><td>base</td><td>第一列/行 = 0(和空字串)</td></tr>
+        <tr><td>答案</td><td><code>dp[m][n]</code>(右下角)</td></tr>
+        <tr><td>1D 壓維</td><td>需 <code>prev</code> 留住左上斜</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 字元相同時為什麼看<strong>左上斜</strong> <code>dp[i−1][j−1]</code>,而不是 <code>max(上, 左)+1</code>?</div>
+    <div class="qa"><strong>Q2.</strong> 字元不同時為什麼是 <code>max(上, 左)</code>?「上」和「左」各自代表「丟掉哪個字」?</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼第一列、第一行都是 0?這對應什麼情況?</div>
+    <div class="qa"><strong>Q4.</strong> 一維壓維時,為什麼要用一個 <code>prev</code> 變數?它存的是二維的哪一格?不留會怎樣?</div>
+    <div class="qa"><strong>Q5.</strong> LCS 和「最長公共<strong>子字串</strong>(要連續)」的 DP 差在哪?為什麼一個答案在右下角、一個要取全表最大?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "bl" × "yby" → 1</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 填表</span>
+      ∅  y  b  y
+ ∅    0  0  0  0
+ b    0  0  1  1     b==b → dp[0][1]+1=1
+ l    0  0  1  1     l≠… → max(上,左)
+<span class="sc-trace__out">return dp[2][3] = 1(LCS = "b")</span></div>
+
+    <div class="sc-insight">
+      只有一個公共字元 <code>b</code>,所以 LCS = 1。注意最後一列的 <code>l</code> 和誰都不同,整列靠 <code>max(上, 左)</code> 把前面的 <code>1</code> <strong>沿用下來</strong> ——
+      這就是「不同時不新增、但把已有的最好結果帶過來」的機制,確保右下角是全域最優。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener">72 編輯距離</a>:把 <code>a</code> 改成 <code>b</code> 的最少「插入/刪除/替換」次數。轉移和 LCS 有多像?相同、不同時各是什麼?</div>
+    <div class="qa"><strong>App 2.</strong> <a href="https://leetcode.com/problems/delete-operation-for-two-strings/" target="_blank" rel="noopener">583 兩個字串的刪除操作</a>:只能刪字,問讓兩字串相同的最少刪除數。怎麼用 LCS 一步得到答案?</div>
+    <div class="qa"><strong>App 3.</strong> 若要<strong>還原出一條 LCS 字串</strong>(不只長度),怎麼從 <code>dp</code> 表回溯?回溯時「相同」和「不同」各往哪走?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為相同的這兩個字元<strong>配成一對加進 LCS</strong> 後,它們<strong>都被用掉</strong>了,剩下的子問題是「<code>text1</code> 前 <code>i−1</code> 字 與 <code>text2</code> 前 <code>j−1</code> 字」的 LCS —— 那正是<strong>左上斜</strong> <code>dp[i−1][j−1]</code>,再 <code>+1</code> 算上這對。若寫 <code>max(上,左)+1</code>,<code>上</code>=<code>dp[i−1][j]</code> 只退了 text1、text2 的第 <code>j</code> 字還在,可能<strong>把同一個字元重複配對</strong>,算出過大的長度。所以相同必用斜對角。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 字元不同,代表這兩個字<strong>不可能同時</strong>出現在 LCS 的結尾(它們不相等),所以至少要<strong>捨棄其中一個</strong>。<code>dp[i−1][j]</code>(上)= 「<strong>丟掉 text1 的第 <code>i</code> 字</strong>、看剩下的 LCS」;<code>dp[i][j−1]</code>(左)= 「<strong>丟掉 text2 的第 <code>j</code> 字</strong>」。兩種捨棄取<strong>較好的</strong>(max),就是不同時的最優。不新增長度(這步沒配到對),只是繼承。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為 <code>dp[0][j]</code> 代表「<strong>text1 取空字串</strong> 與 text2 前 <code>j</code> 字」的 LCS,空字串和任何東西都<strong>沒有共同子序列</strong> → 長度 0;同理 <code>dp[i][0]=0</code>。這圈 0 是遞迴的錨點:所有 <code>dp[i][j]</code> 最終都回溯到某個和空字串比較的 base。padding 成 <code>(m+1)×(n+1)</code> 讓這圈 0 自然存在,內部格也能無邊界特判地套轉移。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <code>prev</code> 存的是<strong>左上斜</strong> <code>dp[i−1][j−1]</code>。在一維滾動裡,掃到第 <code>j</code> 格時,<code>dp[j−1]</code> <strong>已經被本列(第 <code>i</code> 列)更新</strong>成新值了,不再是我們要的「上一列的 <code>j−1</code>」。所以要在更新 <code>dp[j−1]</code> <strong>之前</strong>先把它(其實是上一輪存下的 <code>dp[j]</code>)記在 <code>prev</code>。作法:每格先 <code>tmp = dp[j]</code>(這是這一格的舊值 = 下一格的左上斜),算完再 <code>prev = tmp</code>。不留 <code>prev</code> 就會用到被覆蓋的新值,相同情形算錯。這是「需要斜對角」的 DP 壓維通用技巧。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 差在「不同 / 不匹配時怎麼辦」與「答案在哪」。<strong>LCS(子序列,可不連續)</strong>:不同時 <code>max(上,左)</code> —— 把已累積的最好結果<strong>繼承下去</strong>,所以 <code>dp</code> 單調不減,最終最優落在<strong>右下角 <code>dp[m][n]</code></strong>。<strong>最長公共子字串(要連續)</strong>:一旦字元不同就<strong>斷開歸 0</strong>(連續性中斷,不能繼承),<code>dp[i][j]</code> 只表示「以 <code>i</code>、<code>j</code> 結尾的公共後綴長度」,所以最長可能出現在<strong>任何一格</strong>,要<strong>取全表最大</strong>。同一張表、同樣「相同 → 斜 +1」,但不同時的處理(繼承 vs 歸零)決定了兩種語意。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 72 幾乎同構。<code>dp[i][j]</code> = 把 <code>a</code> 前 <code>i</code> 字改成 <code>b</code> 前 <code>j</code> 字的最少操作。相同:<code>dp[i][j]=dp[i−1][j−1]</code>(不用動,直接繼承斜對角);不同:<code>dp[i][j]=1+min(dp[i−1][j−1] 替換, dp[i−1][j] 刪除, dp[i][j−1] 插入)</code>。base 是 <code>dp[i][0]=i</code>、<code>dp[0][j]=j</code>(全刪/全插)。骨架和 LCS 一樣(依賴上、左、左上斜),只是相同時「繼承斜對角」、不同時「三選一 +1」——LCS 是它的近親。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 直接用 LCS:兩字串各自要刪到只剩「公共部分」,而能保留的最長公共部分就是 <strong>LCS</strong>。所以最少刪除數 = <code>(m − LCS) + (n − LCS)</code> = <code>m + n − 2·LCS</code>。先算 <code>L = longestCommonSubsequence(a,b)</code>,答案就是 <code>m + n − 2L</code>。這是 LCS 的經典應用:凡是「刪字使兩串相等 / 相似度」的題,常先求 LCS 再換算。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 從右下角 <code>(m,n)</code> 往回走:① 若 <code>text1[i−1]==text2[j−1]</code>(相同),這個字元<strong>在 LCS 裡</strong> → 記下它,往<strong>左上斜</strong> <code>(i−1,j−1)</code> 退;② 若不同,往 <code>dp</code> 較大的那個鄰格走(<code>dp[i−1][j]</code> vs <code>dp[i][j−1]</code>,相等任選)—— 因為當初就是從那裡繼承來的。一路退到邊界,把記下的字元<strong>反轉</strong>就是一條 LCS。要回溯需保留<strong>二維 <code>dp</code> 表</strong>(一維滾動丟了歷史)。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「相同用斜對角、不同丟一字取大、base=0、1D 要 prev、子字串版不同歸零取全表最大」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 1143 · LONGEST COMMON SUBSEQUENCE</div>
+  </div>
+
+</body>
+</html>
