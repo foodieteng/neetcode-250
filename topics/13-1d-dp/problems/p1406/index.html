@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1406 · Stone Game III // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">13 · 1-D DP</a> / P1406</span>
+    <span><a href="https://leetcode.com/problems/stone-game-iii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">石子遊戲 III</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 賽局 DP(相對分差)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1406</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>1-D DP · 賽局</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一排石頭,各有分數。Alice 先手,兩人輪流從<strong>最前面</strong>拿 <strong>1、2 或 3</strong> 顆,分數累加。雙方都最優下,回傳 <code>"Alice"</code> / <code>"Bob"</code> / <code>"Tie"</code>。
+      </p>
+    </div>
+
+    <p>
+      這是<strong>賽局 DP</strong> 的代表題。核心技巧:<strong>不分別記兩人分數,只記「相對分差」</strong> —— <code>dp[i]</code> = 輪到我、從第 <code>i</code> 顆起,我能<strong>領先對手</strong>的最大差值。這招把兩人的 minimax 壓成一個一維陣列。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 相關練習 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">相關練習 · 同一招<span class="sc-section__title-en">// PRACTICE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">「相對分差」賽局 DP 三連發</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          下面兩題和本題是<strong>同一個心法</strong>(<code>dp</code> 存「當前玩家減對手」的最優差值,遞迴時<strong>減去</strong>對手的最優),很適合連著練:
+        </p>
+        <p style="margin:0 0 8px;">
+          ● <a href="https://leetcode.com/problems/predict-the-winner/" target="_blank" rel="noopener" style="color:#e0b37a;font-weight:600;">LC 486 · Predict the Winner ↗</a><br />
+          <span style="color:#c9cdd6;">從<strong>兩端</strong>任拿一顆。<code>dp[i][j]</code> = 面對區間 <code>[i,j]</code> 的最大分差 = <code>max(a[i]−dp[i+1][j], a[j]−dp[i][j−1])</code>。二維區間版的同一招。</span>
+        </p>
+        <p style="margin:0;">
+          ● <a href="https://leetcode.com/problems/stone-game-vii/" target="_blank" rel="noopener" style="color:#e0b37a;font-weight:600;">LC 1690 · Stone Game VII ↗</a><br />
+          <span style="color:#c9cdd6;">也是<strong>兩端</strong>拿,但得分是「拿走後<strong>剩餘</strong>石頭的總和」。<code>dp[i][j] = max(sum(i+1,j)−dp[i+1][j], sum(i,j−1)−dp[i][j−1])</code>,配前綴和。相對分差 + 區間 DP。</span>
+        </p>
+      </div>
+    </div>
+
+    <p style="margin:12px 0 0;font-size:13.5px;">
+      三題共通:<strong>把「兩人各自最優」化成「一個人的最大分差」,對手的貢獻用『減』帶入</strong>。差別只在「怎麼拿」(前面 1–3 顆 / 兩端一顆)與「得分定義」。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 相對分差為什麼要減 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心 · 為什麼「減」dp[next]<span class="sc-section__title-en">// THE MINUS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 換人 = 對手的領先要扣回來</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>dp[i]</code> = 「輪到我、從 <code>i</code> 起」我能領先的最大差值。我拿走 <code>i..i+j</code>(和 <code>take</code>)後,<strong>換對手</strong>從 <code>i+j+1</code> 開始 —— 這時<strong>「我」變成他</strong>,他能領先的最大差值就是 <code>dp[i+j+1]</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          那個 <code>dp[i+j+1]</code> 是<strong>對手</strong>相對於<strong>我</strong>的領先,對我來說是<strong>扣分</strong>。所以我這步的淨分差 =
+        </p>
+        <div class="sc-formula" style="margin:10px 0;">
+          <div class="sc-formula__main"><strong>dp[i] = max<sub>j∈{0,1,2}</sub> ( take(i..i+j) − dp[i+j+1] )</strong></div>
+        </div>
+        <p style="margin:0;">
+          「<strong>減</strong>」就是 minimax 的精髓:我最大化「我的所得 − 對手之後能拉開的差」。<code>base dp[n]=0</code>(沒石頭,平)。由後往前填,最後 <code>dp[0]</code> 就是 Alice 相對 Bob 的最終分差:<code>&gt;0 Alice、&lt;0 Bob、=0 Tie</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>狀態</strong>:<code>dp[i]</code> = 從第 <code>i</code> 顆起、當前玩家能領先的最大分差;<code>dp[n]=0</code>。</li>
+      <li><strong>由後往前</strong>:<code>i</code> 從 <code>n−1</code> 到 <code>0</code>;累加 <code>take</code>,試拿 1/2/3 顆。</li>
+      <li><strong>轉移</strong>:<code>dp[i] = max(dp[i], take − dp[i+j+1])</code>;看 <code>dp[0]</code> 判勝負。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 5 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,2,3,7] → Bob</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>dp[]</code> 由後往前填。每個 <code>i</code> 試拿 1/2/3 顆,算 <code>take − dp[next]</code> 取 max。留意那個<strong>被減的 <code>dp[next]</code></strong>(對手的領先)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 賽局 DP · 相對分差(minimax)</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:328px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong> → 可優化 <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每個 <code>i</code> 只試 3 種拿法 → 常數 → 總 <code>O(n)</code>。<code>dp[i]</code> 只依賴 <code>dp[i+1..i+3]</code> → 留 3 個變數即可 <code>O(1)</code> 空間。<code>n ≤ 5×10⁴</code>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      賽局 DP 的萬用招:<strong>只記「相對分差」,對手的最優用『減』帶入</strong>。
+      <code>dp[i] = max(take − dp[next])</code> —— 一個陣列搞定兩人 minimax。486、1690 同招。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p343/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 整數拆分 343</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i]=max(take − dp[i+j+1]);相對分差,對手用減帶入。dp[0]>0 Alice。同招:486、1690。</div>
+    <div class="sc-summary-bar__detail">1-D DP · STONE GAME III</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1406-game.js"></script>
+</body>
+</html>

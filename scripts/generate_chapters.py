@@ -282,7 +282,7 @@ PROBLEMS = {
         ('p377', 'Combination Sum IV',            'combination-sum-iv',            'med', 'done'),
         ('p279', 'Perfect Squares',               'perfect-squares',               'med', 'done'),
         ('p343', 'Integer Break',                 'integer-break',                 'med', 'done'),
-        ('p1406','Stone Game III',                'stone-game-iii',                'hard','todo'),
+        ('p1406','Stone Game III',                'stone-game-iii',                'hard','done'),
     ],
     '14': [  # 2-D Dynamic Programming
         ('p62',  'Unique Paths',                                 'unique-paths',                                 'med', 'todo'),
