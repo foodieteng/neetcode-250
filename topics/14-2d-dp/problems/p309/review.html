@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>309 · Stock with Cooldown // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P309</span>
+    <span><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">買賣股票含冷凍期</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 309</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>hold</code>(持有)· <code>sold</code>(剛賣,明天不能買)· <code>rest</code>(空手可買)</td></tr>
+        <tr><td>為何拆兩個「空手」</td><td>兩者<strong>接下來能做的事不同</strong> → 不能合併</td></tr>
+        <tr><td>冷凍期在哪</td><td><code>hold[i] = max(hold[i−1], <strong>rest</strong>[i−1] − p[i])</code> —— 買進碰不到 <code>sold</code></td></tr>
+        <tr><td><code>sold</code> 沒有 max</td><td>它的定義就是「今天賣了」,不賣屬於別的狀態</td></tr>
+        <tr><td>答案</td><td><code>max(sold[n−1], rest[n−1])</code> —— <strong>不含 <code>hold</code></strong></td></tr>
+        <tr><td>壓縮</td><td>只讀 <code>i−1</code> → 三個變數,<code>O(1)</code>;三行<strong>一律</strong>用 <code>prev_*</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「空手」要拆成 <code>sold</code> 和 <code>rest</code> <strong>兩個</strong>狀態?兩個狀態什麼時候該合併、什麼時候不能?</div>
+    <div class="qa"><strong>Q2.</strong> 冷凍期<strong>具體體現在哪一行、哪一個字</strong>?把那個字改掉會變成哪一題?<code>[1,2,3,0,2]</code> 的答案會變多少?</div>
+    <div class="qa"><strong>Q3.</strong> <code>sold[i] = hold[i−1] + p[i]</code> 為什麼<strong>沒有 <code>max</code></strong>?其他兩條都有,這條憑什麼不用?</div>
+    <div class="qa"><strong>Q4.</strong> 最後為什麼是 <code>max(sold, rest)</code> 而<strong>不含 <code>hold</code></strong>?</div>
+    <div class="qa"><strong>Q5.</strong> O(1) 版裡 <code>hold = max(prev_hold, <strong>reset</strong> − prices[i])</code> 用的是 <code>reset</code> 不是 <code>prev_reset</code>。這樣<strong>對嗎</strong>?為什麼?該不該改?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,0,2]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 完整表(實跑輸出)</span>
+day        0    1    2    3    4
+price      1    2    3    0    2
+hold      -1   -1   -1    1    1
+sold       0    1    2   -1    3
+rest       0    0    1    2    2
+<span class="sc-trace__out">answer = max(sold[4], rest[4]) = max(3, 2) = 3</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 逐格對照策略</span>
+sold[1] = hold[0] + 2 = -1 + 2 = 1      第 0 天買(1)、第 1 天賣(2) → 賺 1
+rest[2] = max(rest[1], sold[1])
+        = max(0, 1) = 1                 第 2 天冷凍期,獲利 1 轉進 rest
+hold[3] = max(hold[2], rest[2] - 0)
+        = max(-1, 1) = 1                第 3 天用「冷凍完的錢」買價 0 的股票
+sold[4] = hold[3] + 2 = 1 + 2 = 3       第 4 天賣(2) → 總獲利 3
+<span class="sc-trace__out">DP 表和最佳策略逐格吻合</span></div>
+
+    <div class="sc-insight">
+      注意 <code>sold[3] = −1</code> 是個<strong>爛狀態</strong>(第 3 天用價 0 賣掉手上的股票 = 白虧),
+      但它<strong>不會害到答案</strong> —— <code>max</code> 自然會把它淘汰。
+      <strong>DP 不需要你避開爛選擇,只需要你把選擇<strong>列全</strong>。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若冷凍期變成 <strong><code>k</code> 天</strong>,狀態機要怎麼改?空間變多少?</div>
+    <div class="qa"><strong>App 2.</strong> 若每筆交易要收 <strong>手續費 <code>fee</code></strong>(= <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/" target="_blank" rel="noopener">LC 714</a>,無冷凍期),狀態機長什麼樣?幾個狀態就夠?</div>
+    <div class="qa"><strong>App 3.</strong> 若限制<strong>最多交易 2 次</strong>(<a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/" target="_blank" rel="noopener">LC 123</a>),為什麼不能只靠 hold/sold/rest?要加什麼?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為「空手」這個描述<strong>資訊不足</strong>:明天能不能買,取決於「<strong>是不是今天才賣的</strong>」。<code>sold</code>(今天剛賣)明天<strong>不能</strong>買、<code>rest</code>(空手且非剛賣)明天<strong>可以</strong>買 —— 兩者現金可能一樣,但<strong>可選動作不同</strong>。<br />
+    <strong>通則</strong>:兩個處境能不能合併成同一個狀態,看的<strong>不是</strong>「現在的值像不像」,而是「<strong>接下來能做的事一不一樣</strong>」。一樣 → 可合併;不一樣 → 必須拆開。冷凍期的全部資訊,就是靠這個拆分承載的 —— <strong>沒有任何一行程式碼在「數冷凍幾天」</strong>,它被編碼進狀態本身。這是狀態機 DP 最核心的設計直覺。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 在 <code>hold</code> 那一行,那個字是 <strong><code>rest</code></strong>:<br />
+    <code>hold[i] = max(hold[i−1], <strong>rest</strong>[i−1] − p[i])</code><br />
+    買進的資金<strong>只能來自 <code>rest</code></strong>,碰不到 <code>sold</code>。昨天剛賣的錢必須<strong>先花一天走到 <code>rest</code></strong> 才能再買 —— 那一天就是冷凍期。<br />
+    把它放寬成 <code>max(rest[i−1], sold[i−1]) − p[i]</code>,冷凍期就消失,題目退化成 <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank" rel="noopener">LC 122</a>(無限次交易、無冷凍)。<strong>實測</strong>:放寬版和 122 的標準解(累加所有正價差)在 505 筆隨機測資上<strong>完全吻合,0 筆不同</strong>。<code>[1,2,3,0,2]</code> 從 <strong>3 變成 4</strong>;<code>[6,1,3,2,4,7]</code> 從 <strong>6 變成 7</strong>。<strong>一個字,換一道題。</strong></div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為 <code>sold[i]</code> 的<strong>定義</strong>就是「第 <code>i</code> 天<strong>賣掉了</strong>」。既然賣了,就<strong>只有一種來路</strong>:昨天必然持有(<code>hold[i−1]</code>),今天以 <code>p[i]</code> 出手。<strong>沒有第二個選項可以 max</strong>。<br />
+    「今天不賣」這件事<strong>不屬於 <code>sold</code></strong> —— 它屬於 <code>hold</code>(繼續抱)。這正是狀態機的乾淨之處:<strong>每個狀態只負責自己那件事</strong>,選擇由狀態<strong>之間</strong>的 <code>max</code> 完成,不是在狀態<strong>內部</strong>。<br />
+    如果你在這裡寫了 <code>max(sold[i−1], hold[i−1] + p[i])</code>,語意就被污染成「今天賣<strong>或以前賣過</strong>」,和 <code>rest</code> 的職責重疊,狀態機就爛掉了。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為 <code>hold[n−1]</code> 代表「最後一天<strong>還抱著股票</strong>」——那筆錢<strong>沒有兌現</strong>,而且 <code>hold</code> 是<strong>扣掉買入成本後</strong>的現金。抱著不賣<strong>沒有任何好處</strong>:同樣的局面,賣掉只會更多(或至少不會更少)。<br />
+    形式上:<code>sold[n−1] = hold[n−2] + p[n−1] ≥ hold[n−2]</code>(價格非負),而 <code>hold[n−1] ≥ hold[n−2]</code> 也成立,但 <code>hold[n−1]</code> 手上的股票沒算進現金 —— 它<strong>永遠不是</strong>最大值。<br />
+    寫 <code>max(hold, sold, rest)</code> 不會錯(只是多餘),但<strong>能講出「為什麼 hold 不可能贏」比較加分</strong> —— 那代表你知道每個狀態的值到底是什麼單位。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> <strong>對,但理由很脆弱,建議改掉。</strong><br />
+    它正確,<strong>純粹因為 <code>reset</code> 在第 3 行才被賦值</strong> —— 第 1 行讀到的 <code>reset</code> 剛好還是昨天的值,等於 <code>prev_reset</code>。所以結果對(實測 711 筆全過)。但這是「<strong>順序剛好</strong>」,不是「<strong>邏輯保證</strong>」。<br />
+    <strong>實測地雷</strong>:把 <code>reset = max(prev_reset, prev_sold)</code> 那行搬到<strong>最前面</strong>(三行都用 <code>prev_*</code> 快照,看起來順序無所謂),<code>hold</code> 就會讀到<strong>新的</strong> <code>reset</code>,等於允許「昨天賣、今天買」→ <strong>冷凍期消失</strong>。<code>[1,2,3,0,2]</code> 從 <strong>3 變 4</strong>、<code>[6,1,3,2,4,7]</code> 從 <strong>6 變 7</strong>、<code>[1,4,2,8]</code> 從 <strong>7 變 9</strong>。<br />
+    <strong>修法</strong>:第 1 行寫 <code>prev_reset</code>。你既然特地抓了三個快照,它們的<strong>意義</strong>就是「這一輪只准讀昨天」—— <strong>抓了就全部用</strong>,不要留一個漏網之魚。這樣三行順序才<strong>真的</strong>無所謂,日後自己或別人重排也不會踩雷。<strong>「碰巧對」和「保證對」在面試裡是兩件事</strong>,後者才叫寫得好。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 冷凍 <code>k</code> 天 = 「賣出後要等 <code>k</code> 天才能買」。<br />
+    <strong>做法一(直觀)</strong>:把 <code>rest</code> 拆成 <code>k</code> 個階段 <code>rest_1 … rest_k</code>(冷凍第 1 天、第 2 天…),依序流動,最後一個才接回 <code>hold</code>。狀態數 <code>O(k)</code>,空間 <code>O(k)</code>。<br />
+    <strong>做法二(更簡潔)</strong>:直接回到陣列版,把轉移改成 <code>hold[i] = max(hold[i−1], rest[i−k−1] − p[i])</code>,也就是「往回看 <code>k+1</code> 天」。這時<strong>不能只留三個變數</strong> —— 必須保留最近 <code>k+1</code> 天的歷史,空間 <code>O(k)</code>(或用環形緩衝)。<br />
+    <strong>重點</strong>:本題能壓到 <code>O(1)</code> 的<strong>唯一原因</strong>就是 <code>k=1</code>(只依賴 <code>i−1</code>)。<code>k</code> 一變大,<code>O(1)</code> 就沒了 —— 這也提醒我們:空間壓縮是<strong>依賴結構</strong>的結果,不是隨手可套的技巧。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/" target="_blank" rel="noopener">LC 714</a> 沒有冷凍期,所以 <code>sold</code> 和 <code>rest</code> <strong>可以合併</strong>(依 A1 的準則:兩者明天都能買,能做的事一樣)→ <strong>只要兩個狀態</strong>:<br />
+    <code>hold = max(hold, cash − p[i])</code><br />
+    <code>cash = max(cash, hold + p[i] − fee)</code><br />
+    答案 <code>cash</code>。手續費在賣出時扣一次即可(買賣各扣一半也行,只要別重複算)。<br />
+    <strong>這題正好反過來印證 309 為什麼需要三個</strong>:少了冷凍期這個限制,那個區分就不再有資訊價值,狀態立刻塌成兩個。<strong>狀態的數量,是被「規則」逼出來的,不是憑感覺選的。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 因為 hold/sold/rest <strong>不記得你交易過幾次</strong> —— 「最多 2 次」是個<strong>資源限制</strong>,必須<strong>進到狀態裡</strong>,否則 DP 無從知道還剩幾次額度。<br />
+    <strong>做法</strong>:加一維交易次數 → <code>dp[i][j][holding]</code>(第 <code>i</code> 天、已用 <code>j</code> 次、是否持有),<code>j ∈ {0,1,2}</code>。或展開成 5 個經典狀態:<code>buy1 / sell1 / buy2 / sell2</code>(+ 初始),每天依序更新。時間 <code>O(n·k)</code>、空間 <code>O(k)</code>,<code>k=2</code> 時就是 <code>O(n)</code>/<code>O(1)</code>。<br />
+    再一般化就是 <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/" target="_blank" rel="noopener">LC 188</a>(最多 <code>k</code> 次)。<br />
+    <strong>整個股票家族的統一觀</strong>:全部都是同一台狀態機,差別只在「<strong>規則往狀態裡加了什麼</strong>」—— 121 = 只能 1 次 · 122 = 無限次 · 123/188 = 加「次數」維 · <strong>309 = 加「冷凍」狀態</strong> · 714 = 加手續費(不加狀態)。<strong>先問「規則需要記住什麼」,狀態就設計出來了。</strong></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「空手拆兩個因為能做的事不同、冷凍期=hold 只讀 rest、sold 沒 max、答案不含 hold、prev_* 要全用」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 309 · STOCK WITH COOLDOWN</div>
+  </div>
+
+</body>
+</html>
