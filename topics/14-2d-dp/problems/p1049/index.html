@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1049 · Last Stone Weight II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P1049</span>
+    <span><a href="https://leetcode.com/problems/last-stone-weight-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最後一塊石頭的重量 II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 化成 0/1 背包子集和</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1049</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>2-D DP · 0/1 背包</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一堆石頭,每次挑<strong>兩顆相撞</strong>:重的減輕的,差值留下(相等則都消失)。最後至多剩一顆,求它<strong>最小可能的重量</strong>。
+      </p>
+    </div>
+
+    <p>
+      看似模擬遊戲,其實是<strong>偽裝的 0/1 背包</strong>。關鍵轉化:每顆石頭最終被算成 <strong><code>+</code> 或 <code>−</code></strong>,剩下的重量 = <code>|帶號總和|</code>。要最小 → 把石頭<strong>分兩堆、讓兩堆和盡量接近</strong> → 找「不超過 <code>total/2</code> 的最大子集和」。這正是 <a href="../../13-1d-dp/problems/p416/index.html">416 分割等和子集</a> 的同一招。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 轉化 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">關鍵轉化 · 砸石頭 = 分兩堆<span class="sc-section__title-en">// THE REDUCTION</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 每次相減 ⟺ 給每顆一個 ± 號</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          每次「<code>y − x</code>」的相撞,展開到最後,等於把每顆石頭前面配一個 <code>+</code> 或 <code>−</code>,最終剩下 <code>|Σ ± stone|</code>(可證明任意 ± 組合都能由某種相撞順序達成)。
+        </p>
+        <p style="margin:0 0 10px;">
+          設 <strong>正號那堆和 = P</strong>、<strong>負號那堆和 = N</strong>,則 <code>P + N = total</code>、剩重 = <code>|P − N| = |total − 2N|</code>。要最小化,就讓 <strong>N(某一堆)盡量接近 <code>total/2</code></strong>。
+        </p>
+        <p style="margin:0;">
+          於是問題變成:<strong>用 0/1 背包找「≤ <code>total/2</code> 的最大子集和 <code>best</code>」</strong>,答案 = <code>total − 2·best</code>。<code>best</code> 越接近一半,兩堆越平衡,剩重越小。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>目標</strong>:<code>total = Σstones</code>、<code>target = total / 2</code>。</li>
+      <li><strong>0/1 背包</strong>:<code>dp[s]</code> = 子集和 <code>s</code> 是否可達;每顆石頭內層<strong>由大到小</strong>掃(各用一次),同步記最大可達 <code>best</code>。</li>
+      <li><strong>回傳</strong>:<code>total − 2·best</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,3,4] → 1</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>total=9</code>、<code>target=4</code>。看 0/1 背包把「可達子集和」逐步點亮,找到 ≤ 4 的最大 <code>best=4</code>,答案 = <code>9 − 2×4 = 1</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 0/1 背包 · 子集和最接近一半</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:308px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 和 416 的關係 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">和 416 的關係<span class="sc-section__title-en">// SAME TABLE</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>題</th><th>問</th><th>用同一張子集和 dp</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../../13-1d-dp/problems/p416/index.html">416</a></td><td>能否分成<strong>兩等堆</strong></td><td>看 <code>dp[total/2]</code> 是否可達</td></tr>
+        <tr><td><strong>1049</strong></td><td>兩堆<strong>最接近</strong>時的差</td><td>找 <strong>≤ total/2 的最大可達 best</strong>,答 <code>total−2·best</code></td></tr>
+        <tr><td><a href="https://leetcode.com/problems/target-sum/" target="_blank" rel="noopener">494</a></td><td>± 湊出 target 的<strong>方法數</strong></td><td>子集和 <strong>計數</strong>(用 <code>+</code> 不是 OR)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:12px 0 0;font-size:14px;">
+      三題共用「<strong>把 ± 分堆化成子集和</strong>」的框架 —— 416 問<strong>存在性</strong>(能不能剛好一半)、1049 問<strong>最接近</strong>(差多少)、494 問<strong>計數</strong>(幾種)。認得這個轉化,一次通吃。
+    </p>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n × total)</strong>　　S = <strong>O(total)</strong></div>
+      <p class="sc-formula__hint">
+        <code>n ≤ 30</code>、<code>stone ≤ 100</code> → <code>total ≤ 3000</code>、<code>target ≤ 1500</code>。約 <code>30×1500 = 4.5×10⁴</code>,瞬殺。<code>bitset</code> 可再快約 64 倍。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      砸石頭 = 給每顆 ± 號 = <strong>分兩堆</strong>,剩重 = 兩堆差。
+      讓一堆盡量接近 <code>total/2</code> → <strong>0/1 背包子集和</strong>(同 416),答案 <code>total − 2·best</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p1143/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 最長公共子序列 1143</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">砸石頭=分兩堆;找 ≤ total/2 最大子集和 best;答 total−2·best。0/1 背包(同 416)。</div>
+    <div class="sc-summary-bar__detail">2-D DP · LAST STONE WEIGHT II</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1049-dp.js"></script>
+</body>
+</html>
