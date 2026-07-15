@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>97 · Interleaving String // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P97</span>
+    <span><a href="https://leetcode.com/problems/interleaving-string/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">交錯字串</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 97</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i][j]</code> = s1 前 i + s2 前 j 能否交錯成 s3 前 i+j</td></tr>
+        <tr><td>s3 索引</td><td><strong><code>k = i+j−1</code></strong>(第三維被綁死 → 消掉)</td></tr>
+        <tr><td>拿 s1(上)</td><td><code>dp[i−1][j] && s1[i−1]==s3[k]</code></td></tr>
+        <tr><td>拿 s2(左)</td><td><code>dp[i][j−1] && s2[j−1]==s3[k]</code></td></tr>
+        <tr><td>合併</td><td>兩者 <code>OR</code>;先擋 <code>m+n != s3.size()</code></td></tr>
+        <tr><td>壓維</td><td>只靠上/左 → <code>O(n)</code>,<strong>不需 prev</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼 <code>s3</code> 的索引是 <code>i+j−1</code>?為什麼<strong>不需要第三個維度</strong>來記「填到 s3 哪裡」?</div>
+    <div class="qa"><strong>Q2.</strong> 轉移為什麼是「<code>dp[前一格] && 字元相等</code>」而不是只看字元相等?只看字元會錯在哪?</div>
+    <div class="qa"><strong>Q3.</strong> 「上」和「左」分別代表什麼決定?為什麼兩者是 <code>OR</code> 而不是 <code>AND</code>?</div>
+    <div class="qa"><strong>Q4.</strong> 一維版裡,為什麼<strong>不用</strong>像 <a href="../p1143/index.html">1143 LCS</a> 那樣留一個 <code>prev</code>?兩題的依賴差在哪?</div>
+    <div class="qa"><strong>Q5.</strong> 一維版每列開頭那句 <code>dp[0] = dp[0] && s1[i−1]==s3[i−1]</code> 在做什麼?拿掉會怎樣?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "aa" × "ab" → "aaba"</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 邊界(第一列/第一行 = 只用單一字串)</span>
+dp[0][0] = T
+dp[0][1]: s2[0]='a' == s3[0]='a' ✓            → T
+dp[0][2]: dp[0][1]=T 但 s2[1]='b' ≠ s3[1]='a' → F
+dp[1][0]: s1[0]='a' == s3[0]='a' ✓            → T
+dp[2][0]: dp[1][0]=T 且 s1[1]='a' == s3[1]='a' ✓ → T</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 內部格(每格 k = i+j−1)</span>
+dp[1][1]: k=1, s3[1]='a'
+          上 dp[0][1]=T 且 s1[0]='a'=='a' ✓   → T
+dp[1][2]: k=2, s3[2]='b'
+          上 dp[0][2]=F ✗ ; 左 dp[1][1]=T 且 s2[1]='b'=='b' ✓ → T
+dp[2][1]: k=2, s3[2]='b'
+          上 dp[1][1]=T 但 s1[1]='a'≠'b' ✗
+          左 dp[2][0]=T 但 s2[0]='a'≠'b' ✗    → F
+dp[2][2]: k=3, s3[3]='a'
+          上 dp[1][2]=T 且 s1[1]='a'=='a' ✓   → T</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 完成表</span>
+        ∅  a  b
+   ∅    T  T  F
+   a    T  T  T
+   a    T  F  T
+<span class="sc-trace__out">return dp[2][2] = true　　取法(回溯):s2'a' · s1'a' · s2'b' · s1'a' → "aaba"</span></div>
+
+    <div class="sc-insight">
+      注意 <code>dp[2][1] = F</code> 卻不影響答案 —— <strong>死路可以存在</strong>,只要有<strong>一條</strong>路通到右下角就是 <code>true</code>。
+      有<strong>重複字元</strong>(兩個 <code>a</code>)時「該從 s1 還是 s2 拿」無法貪心決定,<code>OR</code> 讓<strong>兩種可能同時活著</strong>,這正是要 DP 的理由。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若要回報<strong>一種實際的交錯方式</strong>(哪些字取自 s1、哪些取自 s2),怎麼從 <code>dp</code> 回溯?</div>
+    <div class="qa"><strong>App 2.</strong> 若把「能否」改成「<strong>有幾種</strong>交錯方式能組出 s3」,DP 要怎麼改?聚合換成什麼?</div>
+    <div class="qa"><strong>App 3.</strong> 若改成<strong>三個</strong>字串交錯成 <code>s4</code>,狀態要幾維?第幾維可以省掉?複雜度變多少?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 因為交錯的定義要求<strong>每個字都要用掉、且都填進 s3</strong>,沒有「跳過不用」這回事。所以「用了 <code>i</code> 個 s1 字 + <code>j</code> 個 s2 字」<strong>必然</strong>剛好填滿 <code>s3</code> 的前 <code>i+j</code> 位 —— 下一個待配的字元固定是 <code>s3[i+j−1]</code>(0-indexed)。<strong>第三維是前兩維的函數</strong>(<code>k = i+j</code>),沒有額外資訊,可以直接消掉 → 二維就夠。這是 DP 降維的常見手法:發現某維可由其他維算出,就砍掉它。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為「字元對上」只保證<strong>這一步</strong>能接,不保證<strong>前面</strong>真的能交錯出來。<code>dp[i−1][j]</code> 為 <code>true</code> 才代表「用 s1 前 <code>i−1</code> 字 + s2 前 <code>j</code> 字確實能組出 s3 前 <code>i+j−1</code> 字」;在那個基礎上再接一個對得上的 <code>s1[i−1]</code>,才真的成立。只看字元相等,會把「前面根本接不起來」的死路誤判成可行 —— 例如某條路早就在中間卡住了,後面字元湊巧對上也沒用。<strong>兩個條件必須 <code>&&</code>。</strong></div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 「上」<code>dp[i−1][j]</code> = 「<strong>s3 的這個字從 s1 拿</strong>」(s1 多用一個字、s2 不變);「左」<code>dp[i][j−1]</code> = 「<strong>從 s2 拿</strong>」。這是兩種<strong>互斥但都可能</strong>的走法 —— 只要<strong>其中一種</strong>能成立,<code>dp[i][j]</code> 就是 <code>true</code>,所以用 <code>OR</code>。用 <code>AND</code> 會變成「兩種都要成立」,那是錯的語意(s3 的某個字不可能同時來自 s1 和 s2)。<strong>可行性 DP 的分支是 OR,不是 AND。</strong></div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為交錯只依賴<strong>「上」<code>dp[i−1][j]</code> 與「左」<code>dp[i][j−1]</code></strong>,<strong>沒有斜對角</strong> <code>dp[i−1][j−1]</code>。一維滾動裡:<code>dp[j]</code>(未更新)天然就是「上」、<code>dp[j−1]</code>(已更新)天然就是「左」—— 兩個都能直接取到,不會被覆蓋掉。<a href="../p1143/index.html">1143 LCS</a> 相同字元時要用<strong>斜對角</strong>,而 <code>dp[j−1]</code> 已被本列覆蓋,所以必須用 <code>prev</code> 先存住舊值。<strong>要不要 prev,就看轉移有沒有用到斜對角。</strong></div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 那是在更新<strong>第一行</strong>(<code>j=0</code>,完全不用 s2、只用 s1 的情形):<code>dp[0]</code> 代表 <code>dp[i][0]</code> = 「s1 前 <code>i</code> 字能否單獨組成 s3 前 <code>i</code> 字」。它只有「上」一個來源(左邊界外),所以是 <code>舊 dp[0](= dp[i−1][0]) && s1[i−1]==s3[i−1]</code>。<strong>拿掉的話</strong>,<code>dp[0]</code> 會一直停在上一列的值(甚至永遠是 <code>true</code>),讓「只用 s1 其實接不下去」的情形被誤判可行,整列都跟著錯。二維版對應的就是那個獨立的 <code>dp[i][0]</code> 邊界迴圈。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 從 <code>(m,n)</code> 往回走:在 <code>(i,j)</code> 檢查兩個來源 —— 若 <code>dp[i−1][j] && s1[i−1]==s3[i+j−1]</code> 成立,代表這個字<strong>取自 s1</strong>,記下並退到 <code>(i−1,j)</code>;否則(必然是 <code>dp[i][j−1] && s2[j−1]==s3[i+j−1]</code>)取自 s2,退到 <code>(i,j−1)</code>。一路退到 <code>(0,0)</code>,把記錄反轉就是一種取法。若兩個來源都成立,任選一個即可(有多種交錯方式)。要回溯必須保留<strong>二維表</strong>(一維滾動丟了歷史)。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 把布林換成<strong>計數</strong>:<code>dp[i][j]</code> = 交錯方式數,轉移從 <code>OR</code> 換成<strong>加法</strong>:<code>dp[i][j] = (s1[i−1]==s3[k] ? dp[i−1][j] : 0) + (s2[j−1]==s3[k] ? dp[i][j−1] : 0)</code>,base <code>dp[0][0]=1</code>。這就是「可行性用 <code>OR</code>、計數用 <code>+</code>」的老規矩(和 <a href="../p62/index.html">62/63</a> 的網格計數同源)。注意方法數可能很大,要留意溢位或取模。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 三個字串交錯成 <code>s4</code>:狀態 <code>dp[i][j][k]</code> = s1 前 i、s2 前 j、s3 前 k 能否交錯成 s4 前 <code>i+j+k</code> 字 —— <strong>三維</strong>。而「s4 的位置」<strong>第四維一樣可以省掉</strong>(同 A1 的理由:<code>= i+j+k</code>)。轉移是三種來源 <code>OR</code>(從 s1/s2/s3 各拿一字)。複雜度 <code>O(|s1|·|s2|·|s3|)</code>,空間可壓成 <code>O(|s2|·|s3|)</code>(滾掉第一維)。<strong>規律:交錯 k 個字串 → k 維狀態,「目標字串位置」永遠是那個可省的維度。</strong></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「k=i+j−1 消掉第三維、前一格 && 字元、上/左是 OR、無斜對角故不需 prev、dp[0] 每列要更新」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 97 · INTERLEAVING STRING</div>
+  </div>
+
+</body>
+</html>

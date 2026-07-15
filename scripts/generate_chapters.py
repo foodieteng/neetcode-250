@@ -293,7 +293,7 @@ PROBLEMS = {
         ('p309', 'Best Time to Buy and Sell Stock with Cooldown','best-time-to-buy-and-sell-stock-with-cooldown','med', 'todo'),
         ('p518', 'Coin Change II',                               'coin-change-ii',                               'med', 'todo'),
         ('p494', 'Target Sum',                                   'target-sum',                                   'med', 'todo'),
-        ('p97',  'Interleaving String',                          'interleaving-string',                          'med', 'todo'),
+        ('p97',  'Interleaving String',                          'interleaving-string',                          'med', 'done'),
         ('p877', 'Stone Game',                                   'stone-game',                                   'med', 'todo'),
         ('p1140','Stone Game II',                                'stone-game-ii',                                'med', 'todo'),
         ('p329', 'Longest Increasing Path in a Matrix',          'longest-increasing-path-in-a-matrix',          'hard','todo'),
