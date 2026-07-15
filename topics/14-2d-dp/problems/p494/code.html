@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>494 · Target Sum // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P494</span>
+    <span><a href="https://leetcode.com/problems/target-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">目標和</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 494</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// O(n·P) TIME · O(P) SPACE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p494.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">findTargetSumWays</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">,</span> <span class="t">int</span> target<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> total <span class="p">=</span> <span class="f">accumulate</span><span class="p">(</span>nums<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> nums<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>
+        <span class="t">int</span> sum <span class="p">=</span> target <span class="p">+</span> total<span class="p">;</span>
+
+        <span class="c">// 守門 1:目標超出 [−total, total] → 不可能</span>
+        <span class="c">// 守門 2:sum 是奇數 → P 不是整數 → 不可能</span>
+        <span class="k">if</span> <span class="p">(</span>total <span class="p">&lt;</span> <span class="f">abs</span><span class="p">(</span>target<span class="p">)</span> <span class="p">||</span> sum <span class="p">&amp;</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="t">int</span> plus <span class="p">=</span> sum <span class="p">/</span> <span class="n">2</span><span class="p">;</span>            <span class="c">// P = (target + total) / 2,常數</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">unsigned</span> <span class="t">int</span><span class="p">&gt;</span> dp<span class="p">(</span>plus <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        dp<span class="p">[</span><span class="n">0</span><span class="p">]</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span>                  <span class="c">// 空集合:湊出和 0 有 1 種</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> num <span class="p">:</span> nums<span class="p">)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> plus<span class="p">;</span> i <span class="p">&gt;=</span> num<span class="p">;</span> i<span class="p">--)</span> <span class="p">{</span>   <span class="c">// 由大到小:每個數字只用一次</span>
+                <span class="k">if</span> <span class="p">(</span>dp<span class="p">[</span>i <span class="p">-</span> num<span class="p">]</span> <span class="p">!=</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>            <span class="c">// 純加速,可省</span>
+                    dp<span class="p">[</span>i<span class="p">]</span> <span class="p">+=</span> dp<span class="p">[</span>i <span class="p">-</span> num<span class="p">];</span>        <span class="c">// 計數:用 + 不是 OR</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>dp<span class="p">[</span>plus<span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      骨架和 <a href="../p416/code.html">416</a> 一模一樣 —— 唯一的差別是 <code>dp[i] = dp[i] || dp[i−num]</code> 換成 <code>dp[i] += dp[i−num]</code>。
+      <strong>「能不能」用 <code>OR</code>、「幾種」用 <code>+</code></strong>,其餘(內層由大到小、<code>dp[0]</code> 當種子)完全共用。
+    </p>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · unsigned 在這題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">這題的 unsigned:可留,但<strong>不是必要</strong><span class="sc-section__title-en">// vs. 377</span></h2>
+    </div>
+
+    <p>
+      你在 <a href="../../../13-1d-dp/problems/p377/code.html">377 組合總和 IV</a> 用 <code>unsigned int</code> 是<strong>不得不</strong> —— 那題的真實答案會超過 <code>INT_MAX</code>,靠 <code>unsigned</code> 的 mod 2³² 環繞行為讓中間值不觸發 UB。
+      這題<strong>不一樣</strong>,值得分清楚:
+    </p>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">上界 · 為什麼 494 永遠不會溢位</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          答案 = 符合條件的 ± 組合數,而<strong>總共</strong>才 <code>2ⁿ</code> 種組合。題目給 <code>n ≤ 20</code>,所以:
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.9;">
+          　答案 ≤ <code>2²⁰</code> = <strong>1,048,576</strong><br />
+          　<code>INT_MAX</code> = 2,147,483,647<br />
+          　<span style="color:#9094a0;">→ 只用掉 <strong>0.05%</strong> 的範圍</span>
+        </p>
+        <p style="margin:0;">
+          中間過程也不會超過(每格的 <code>dp[i]</code> 都是某種子集數,同樣 ≤ <code>2²⁰</code>)。
+          所以 <code>int</code> 就夠,<code>unsigned int</code> 只是<strong>多的保險</strong> —— 留著沒錯,但別以為是它救了你。
+          <strong>這兩題的差別是「真實答案的上界」,不是「用哪個型別比較安全」。</strong>
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>377 組合總和 IV</th><th>494 目標和(本題)</th></tr></thead>
+      <tbody>
+        <tr><td>真實答案上界</td><td>可達 <code>~3.8×10⁹</code>(超過 INT_MAX)</td><td><code>2²⁰ ≈ 10⁶</code></td></tr>
+        <tr><td><code>int</code> 會怎樣</td><td><strong>有號溢位 = UB</strong>,答案變負數</td><td>完全沒事</td></tr>
+        <tr><td><code>unsigned</code> 角色</td><td><strong>必要</strong> —— 定義良好的 mod 2³²,湊出題目要的截斷值</td><td>可有可無</td></tr>
+        <tr><td>教訓</td><td colspan="2">先<strong>估答案的上界</strong>,再選型別 —— 不是反過來</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <code>unsigned</code> 的溢位是<strong>定義良好的 mod 2³²</strong>;<code>int</code> 的溢位是 <strong>UB</strong>。
+      377 需要前者、494 兩者都不會碰到。面試講得出「<strong>答案上界是 2ⁿ ≤ 2²⁰,所以 int 就夠</strong>」,比默默寫 <code>unsigned</code> 有說服力得多。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>accumulate</code></td><td><code>O(n)</code></td><td>一次掃過</td></tr>
+        <tr><td>兩道守門</td><td><code>O(1)</code></td><td>提早擋掉不可能的輸入</td></tr>
+        <tr><td>開 dp</td><td><code>O(P)</code></td><td><code>P ≤ (1000+1000)/2 = 1000</code></td></tr>
+        <tr><td>雙層迴圈</td><td><code>O(n·P)</code></td><td>n 個數字 × 每個掃 P 格</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n · P)</strong> ≤ 20 × 1000 = <strong>2×10⁴</strong>　　S = <strong>O(P)</strong> ≤ 1001</div>
+      <p class="sc-formula__hint">
+        <strong>偽多項式</strong>:成本跟 <code>P</code> 的<strong>數值</strong>成正比,不是跟它的位元數。
+        若題目改成 <code>nums[i] ≤ 10⁹</code>、<code>n</code> 仍 ≤ 20,背包就<strong>不可行</strong>了(P 太大開不了表),
+        那時候該換 <strong>meet-in-the-middle</strong>(兩半各 <code>2¹⁰</code> 再合併)。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>症狀</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>沒擋 <code>total &lt; |target|</code></strong></td>
+          <td><code>P</code> 算出<strong>負數</strong> → <code>vector</code> 開負長度,直接爆</td>
+          <td>先判 <code>total &lt; abs(target)</code> → 回 0</td>
+        </tr>
+        <tr>
+          <td><strong>沒擋奇偶</strong></td>
+          <td><code>sum/2</code> 無聲捨去 → 算出<strong>錯的 P</strong>,回錯答案。<code>[2,2]</code>、<code>target=1</code> 應為 0</td>
+          <td><code>sum &amp; 1</code> → 回 0</td>
+        </tr>
+        <tr>
+          <td><strong>內層由小到大</strong></td>
+          <td>同一個數字被<strong>重複使用</strong> → 變完全背包,答案偏大</td>
+          <td>必須 <code>for (i = plus; i &gt;= num; i--)</code></td>
+        </tr>
+        <tr>
+          <td><strong><code>nums</code> 含 0</strong></td>
+          <td>以為要特判 —— 其實<strong>不用</strong>。每個 0 讓答案 ×2(<code>+0</code>/<code>−0</code> 是兩個不同算式)</td>
+          <td><code>dp[i] += dp[i−0]</code> 自動 ×2,程式碼原封不動</td>
+        </tr>
+        <tr>
+          <td><strong>忘了 <code>dp[0]=1</code></strong></td>
+          <td>整張表全 0,答案永遠 0</td>
+          <td>空集合湊出和 0 有 1 種,是計數的種子</td>
+        </tr>
+        <tr>
+          <td><strong>誤用 <code>OR</code></strong></td>
+          <td>抄 416 抄過頭,得到「能不能」而不是「幾種」</td>
+          <td>計數要 <code>+=</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// GUARD: 運算子優先順序沒問題</span>
+total &lt; abs(target) || sum &amp; 1
+
+C++ 優先順序:  &lt;  (關係)  &gt;  &amp;  (位元)  &gt;  ||  (邏輯)
+實際解析成:   (total &lt; abs(target)) || ((sum) &amp; 1)     ← 正是想要的
+
+而且短路求值幫了忙:
+  第一項成立就 return,不會進到第二項
+  → 到 sum &amp; 1 時保證 sum ≥ 0,不會對負數做位元判斷</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ZEROS: 為什麼 nums 含 0 不用特判</span>
+num = 0 時,內層 for (i = plus; i &gt;= 0; i--):
+    dp[i] += dp[i - 0]
+    dp[i] += dp[i]        ← 讀自己!
+    dp[i] *= 2
+
+語意剛好對:一個 0 可以掛 +0 或 −0,是「兩個不同算式、同一個和」
+          → 每個 0 讓所有方法數 ×2
+
+nums=[1,0], target=1:
+  total=1, sum=2, plus=1
+  放 1 → dp=[1,1]
+  放 0 → dp=[2,2]        ← 每格 ×2
+  return dp[1] = 2        ✓  ("+1+0" 和 "+1-0")
+
+註:這裡「由大到小」不是關鍵 —— num=0 的每格只讀自己,順序無關。</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// MAIN: [1,1,1,1,1], target=3 —— 每列都是二項式係數</span>
+total = 5, sum = 3+5 = 8(偶數 ✓), plus = 4
+
+            和:  0   1   2   3   4
+初始            [ 1,  0,  0,  0,  0 ]
+放第 1 個 1     [ 1,  1,  0,  0,  0 ]   = C(1,s)
+放第 2 個 1     [ 1,  2,  1,  0,  0 ]   = C(2,s)
+放第 3 個 1     [ 1,  3,  3,  1,  0 ]   = C(3,s)
+放第 4 個 1     [ 1,  4,  6,  4,  1 ]   = C(4,s)
+放第 5 個 1     [ 1,  5, 10, 10,  5 ]   = C(5,s)
+<span class="sc-trace__out">return dp[4] = 5     ← C(5,4):5 個 1 挑 4 個給正號,剩 1 個給負號 → 4−1 = 3 ✓</span></div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      <strong>為什麼是巴斯卡三角</strong>:<code>dp[i] += dp[i−1]</code> 正是 <code>C(k,s) = C(k−1,s) + C(k−1,s−1)</code> ——
+      「這個 1 不選」+「這個 1 選」。全 1 的輸入讓背包退化成組合數,是驗算時很好用的一組測資。
+    </p>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與策略</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩道守門(負 P / 奇偶)→ dp[0]=1 → 每個 num 由大到小 dp[i] += dp[i−num] → 回 dp[P]。含 0 不用特判。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 494 · TARGET SUM</div>
+  </div>
+
+</body>
+</html>

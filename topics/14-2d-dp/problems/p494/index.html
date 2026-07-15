@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>494 · Target Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P494</span>
+    <span><a href="https://leetcode.com/problems/target-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">目標和</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · ± 號 → 0/1 背包計數</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 494</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>0/1 背包 · 計數</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給 <code>nums</code> 和 <code>target</code>。在<strong>每個</strong>數字前面加上 <code>+</code> 或 <code>−</code>,問有<strong>幾種</strong>加法組合會等於 <code>target</code>。
+        例 <code>nums=[1,1,1,1,1]</code>、<code>target=3</code> → <code>5</code> 種。
+      </p>
+    </div>
+
+    <p>
+      <code>n ≤ 20</code>、<code>sum(nums) ≤ 1000</code>。表面上是「枚舉 <code>2ⁿ</code> 種符號」,
+      但只要做一個<strong>代數改寫</strong>,它會塌成一題你已經做過的 —— <a href="../p416/index.html">416 分割等和子集</a>的<strong>計數版</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 核心改寫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心改寫 · 這題的全部<span class="sc-section__title-en">// THE REFRAME</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · ± 號 = 分兩堆 ⇒ 正號堆的和是「固定值」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          給每個數字一個符號 = 把它們<strong>分成兩堆</strong>:正號堆(和記為 <code>P</code>)與負號堆(和記為 <code>N</code>)。於是:
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:2;">
+          　<code>P − N = target</code>　<span style="color:#9094a0;">← 算式的值</span><br />
+          　<code>P + N = total</code>　<span style="color:#9094a0;">← 所有數字的總和(固定)</span><br />
+          <span style="color:#9094a0;">─────────────────── 兩式相加,N 消掉</span><br />
+          　<code>2P = target + total</code>　⇒　<strong><code>P = (target + total) / 2</code></strong>
+        </p>
+        <p style="margin:0;">
+          <strong>關鍵在於:<code>P</code> 是一個算得出來的常數</strong> —— 它只跟輸入有關,不是變數。
+          所以「有幾種 ± 組合湊出 <code>target</code>」<strong>完全等價於</strong>「<code>nums</code> 有<strong>幾個子集</strong>的和 <code>= P</code>」。
+          後者就是標準 <strong>0/1 背包計數</strong>。原本 <code>2²⁰</code> 的符號枚舉,變成 <code>O(n·P)</code> 的填表。
+        </p>
+      </div>
+    </div>
+
+    <p style="margin-top:14px;">
+      <strong>和 <a href="../p1049/index.html">1049 石頭重量 II</a> 是同一個改寫</strong>,只差最後要什麼:
+      1049 要「兩堆差最小」→ 找<strong>最接近</strong> <code>total/2</code> 的可達和;
+      494 要「湊出指定 target 的方法數」→ <code>P</code> 直接算出來,數<strong>方法數</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 為什麼用背包 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">為什麼用背包<span class="sc-section__title-en">// KNOCKOUT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__card sc-ko__card--mid">
+        <div class="sc-ko__verdict">△ REJECT · 2ⁿ</div>
+        <div class="sc-ko__title">暴力枚舉每個符號</div>
+        <div class="sc-ko__body">
+          DFS 走 <code>2²⁰ ≈ 10⁶</code> 條路 —— <strong>這題剛好能過</strong>,但完全靠 <code>n ≤ 20</code> 撐著。
+          <code>n</code> 一變 40 就直接爆。而且它沒看出結構,只是把題目念一遍。
+        </div>
+      </div>
+
+      <div class="sc-ko__card sc-ko__card--mid">
+        <div class="sc-ko__verdict">△ REJECT · CLUMSY</div>
+        <div class="sc-ko__title">記憶化 (索引, 目前和)</div>
+        <div class="sc-ko__body">
+          可行,但「目前和」範圍是 <code>[−1000, 1000]</code>,得<strong>偏移</strong>成非負索引才能開表,
+          狀態數是背包版的兩倍,還多一層遞迴。能寫,但不是這題想教的。
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH MISS THE STRUCTURE · ADOPT</div>
+
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n·P)</div>
+        <div class="sc-ko__title">改寫成子集和 → 0/1 背包計數</div>
+        <div class="sc-ko__body">
+          <code>P = (target+total)/2</code> 算出來後,問題只剩「幾個子集和 = P」。
+          一維 <code>dp[i] += dp[i−num]</code>,內層<strong>由大到小</strong>。
+          <code>20 × 1000 = 2 萬</code>格,而且<strong>不依賴 n 很小</strong> —— 這才是真正的解法。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>算 P</strong>:<code>total = sum(nums)</code>,<code>P = (target + total) / 2</code>。</li>
+      <li><strong>兩道守門</strong>:<code>total &lt; |target|</code> → 湊不到,回 <code>0</code>;<code>(target+total)</code> 是<strong>奇數</strong> → <code>P</code> 不是整數,回 <code>0</code>。</li>
+      <li><strong>0/1 背包計數</strong>:<code>dp[0]=1</code>;每個 <code>num</code> 由大到小跑 <code>dp[i] += dp[i−num]</code>;答案 <code>dp[P]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 5 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,1,1,1,1] · target = 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>total=5</code>、<code>P=(3+5)/2=4</code> → 數「和 = 4 的子集」有幾個。每放入一個數字,整排 dp 就是一列<strong>二項式係數</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Target Sum · ± → 子集和計數</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:348px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 兩道守門 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩道守門為什麼必要<span class="sc-section__title-en">// THE TWO GUARDS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">GUARD · 沒擋的話會拿到<strong>負數索引</strong>或<strong>錯答案</strong></div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          ● <strong><code>total &lt; |target|</code> → 回 0</strong><br />
+          <span style="color:#c9cdd6;">全部給正號最多也才 <code>total</code>、全給負號最少 <code>−total</code>。目標超出這個區間就<strong>不可能</strong>。
+          不擋的話 <code>P = (target+total)/2</code> 會是<strong>負數</strong>,<code>vector</code> 開負長度直接炸。</span>
+        </p>
+        <p style="margin:0 0 10px;">
+          ● <strong><code>(target + total)</code> 是奇數 → 回 0</strong><br />
+          <span style="color:#c9cdd6;">因為 <code>P = (target+total)/2</code> 必須是<strong>整數</strong>(它是一堆整數的和)。
+          奇數代表根本湊不出來 —— 例 <code>nums=[2,2]</code>、<code>target=1</code>:<code>±2±2</code> 永遠是偶數。
+          不擋的話整數除法會<strong>無聲地捨去</strong>,算出一個錯的 <code>P</code>,回傳錯答案。</span>
+        </p>
+        <p style="margin:0;">
+          兩道守門的<strong>順序也有意義</strong>:先擋 <code>total &lt; |target|</code>,才保證 <code>target+total ≥ 0</code>,
+          後面 <code>sum &amp; 1</code> 的位元判斷才不會碰到負數。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n · P)</strong>　　S = <strong>O(P)</strong>　　P = (target+total)/2 ≤ 1000</div>
+      <p class="sc-formula__hint">
+        最壞 <code>20 × 1000 = 2 萬</code>次更新。對比暴力的 <code>2²⁰ ≈ 100 萬</code> —— 快 50 倍,而且<strong>不隨 n 指數成長</strong>。
+        這是<strong>偽多項式</strong>(pseudo-polynomial):成本跟<strong>數值大小</strong> <code>P</code> 走,不是跟位元數走。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td><code>O(n·P)</code></td><td>n 個數字 × 每個掃過 P 格</td></tr>
+        <tr><td>Space</td><td><code>O(P)</code></td><td>一維滾動,不需二維表</td></tr>
+        <tr><td>答案上界</td><td><code>2²⁰</code></td><td>≤ 1,048,576 —— 遠小於 <code>INT_MAX</code>,不會溢位</td></tr>
+        <tr><td>常數</td><td>極小</td><td>只有一次加法;<code>dp[i−num]==0</code> 時可跳過</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <code>P − N = target</code> 且 <code>P + N = total</code> ⇒ <strong><code>P = (target+total)/2</code> 是常數</strong>。
+      ± 號問題就此塌成「<strong>數出和 = P 的子集有幾個</strong>」—— 416 的計數版,<code>OR</code> 換成 <code>+</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p97/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 交錯字串 97</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">P=(target+total)/2 是常數 → 數「和=P 的子集」有幾個 → 0/1 背包計數,內層由大到小。</div>
+    <div class="sc-summary-bar__detail">0/1 KNAPSACK · COUNTING · TARGET SUM</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p494-dp.js"></script>
+</body>
+</html>
