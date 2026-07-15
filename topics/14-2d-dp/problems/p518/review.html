@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>518 · Coin Change II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P518</span>
+    <span><a href="https://leetcode.com/problems/coin-change-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">零錢兌換 II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 518</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧 · 背包全家福<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <p style="margin-top:0;">
+      這張表是<strong>整個背包家族</strong>的索引。每一題都在這四格裡:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>題目</th><th>外層</th><th>內層方向</th><th>聚合</th><th>意義</th></tr></thead>
+      <tbody>
+        <tr><td><strong>518</strong>(本題)</td><td>硬幣</td><td>遞增</td><td><code>+</code></td><td>完全背包 · <strong>組合</strong>數</td></tr>
+        <tr><td><a href="../../../13-1d-dp/problems/p377/index.html">377</a></td><td><strong>金額</strong></td><td>遞增</td><td><code>+</code></td><td>完全背包 · <strong>排列</strong>數</td></tr>
+        <tr><td><a href="../../../13-1d-dp/problems/p322/index.html">322</a></td><td>硬幣</td><td>遞增</td><td><code>min</code></td><td>完全背包 · 最少枚數<span style="font-size:12px;">(<code>min</code> 對順序免疫,外層誰都行)</span></td></tr>
+        <tr><td><a href="../p416/index.html">416</a></td><td>物品</td><td><strong>遞減</strong></td><td><code>OR</code></td><td>0/1 背包 · 可行性</td></tr>
+        <tr><td><a href="../p494/index.html">494</a></td><td>物品</td><td><strong>遞減</strong></td><td><code>+</code></td><td>0/1 背包 · 組合數</td></tr>
+        <tr><td><a href="../../../13-1d-dp/problems/p139/index.html">139</a></td><td><strong>位置</strong></td><td>—</td><td><code>OR</code></td><td>序列<strong>切割</strong>(有序,字典不能外層)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩軸口訣</strong>:<br />
+      ● <strong>外層</strong> —— 物品外層 = <strong>組合</strong>(不管順序);容量/位置外層 = <strong>排列/切割</strong>(順序算數)<br />
+      ● <strong>內層</strong> —— <strong>遞增</strong> = 完全背包(無限用);<strong>遞減</strong> = 0/1 背包(用一次)<br />
+      ● <strong>聚合</strong> —— <code>OR</code>=能不能 · <code>+</code>=幾種 · <code>min/max</code>=最佳(且<strong>對順序免疫</strong>)
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 把 <code>for (int coin : coins)</code> 和 <code>for (int i ...)</code> <strong>對調</strong>,答案會怎樣?用 <code>coins=[1,2,5]</code>、<code>amount=5</code> 給出<strong>具體數字</strong>,並說明多出來的是什麼。</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼「硬幣外層」<strong>自動</strong>就不會重複計數?請講<strong>機制</strong>(<code>dp[i]</code> 在第 k 輪代表什麼),不要只講口訣。</div>
+    <div class="qa"><strong>Q3.</strong> 內層若改成<strong>遞減</strong>會得到什麼?為什麼?<code>[1,2,5]/5</code> 會變成多少?</div>
+    <div class="qa"><strong>Q4.</strong> <a href="../../../13-1d-dp/problems/p322/index.html">322 Coin Change</a>(最少枚數)的外層放硬幣或金額<strong>都對</strong>。為什麼它<strong>不怕</strong>順序,518 卻怕?</div>
+    <div class="qa"><strong>Q5.</strong> 題目保證「最終答案放得進 int」,那為什麼用 <code>unsigned int</code> 仍然是<strong>好判斷</strong>?<a href="../p494/code.html">494</a> 的 <code>unsigned</code> 又為什麼是多餘的?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// coins=[1,2], amount=4 —— 最小可辨例</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · 硬幣外層(正解)</span>
+              金額:  0   1   2   3   4
+初始                [ 1,  0,  0,  0,  0 ]
+coin=1  (i=1→4)     [ 1,  1,  1,  1,  1 ]
+coin=2  (i=2→4)     [ 1,  1,  2,  2,  3 ]
+<span class="sc-trace__out">return dp[4] = 3   →  {1,1,1,1}  {1,1,2}  {2,2}</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// B · 金額外層(交換後)</span>
+              金額:  0   1   2   3   4
+                    [ 1,  1,  2,  3,  5 ]
+
+dp[2] = dp[1] + dp[0] = 2       ← 1+1、2
+dp[3] = dp[2] + dp[1] = 3       ← 1+1+1、1+2、2+1      (1+2 和 2+1 重複!)
+dp[4] = dp[3] + dp[2] = 5       ← 1+1+1+1、1+1+2、1+2+1、2+1+1、2+2
+<span class="sc-trace__out">return dp[4] = 5   →  多了 1+2+1、2+1+1(都和 1+1+2 是同一個組合)</span></div>
+
+    <div class="sc-insight">
+      <strong>3 vs 5</strong> —— 這是最小的能一眼看穿的例子。
+      寫完 code 之後拿 <code>coins=[1,2]</code>、<code>amount=4</code> 跑一次:<strong>得 3 就是 518,得 5 就是 377</strong>。
+      比背口訣可靠得多。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若每種硬幣<strong>最多只能用 3 枚</strong>(有界背包),程式要怎麼改?有沒有比「把每種硬幣複製 3 份」更好的做法?</div>
+    <div class="qa"><strong>App 2.</strong> 若要輸出<strong>其中一種</strong>組合(不只是數量),要改什麼?若要輸出<strong>全部</strong>組合呢?複雜度會變怎樣?</div>
+    <div class="qa"><strong>App 3.</strong> 面試官說「<code>amount</code> 可以到 <code>10⁹</code>,但 <code>coins.length ≤ 3</code>」。背包還能用嗎?該往哪個方向想?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 答案會從 <strong>4 變成 9</strong>(<code>coins=[1,2,5]</code>、<code>amount=5</code>)。<strong>它不再算組合,而是算排列。</strong><br />
+    正確的 4 種組合:<code>{5}</code>、<code>{1,1,1,1,1}</code>、<code>{1,1,1,2}</code>、<code>{1,2,2}</code>。<br />
+    交換後多出來的 5 個,是把後兩種的<strong>不同順序</strong>當成不同答案:<code>{1,1,1,2}</code> 的 2 可以在 4 個位置 → 算 <strong>4</strong> 種;<code>{1,2,2}</code> 的 1 可以在 3 個位置 → 算 <strong>3</strong> 種。合計 <code>1 + 1 + 4 + 3 = 9</code>。<br />
+    <strong>這不是 bug 是換題</strong>:9 正是 <a href="../../../13-1d-dp/problems/p377/index.html">LC 377 組合總和 IV</a> 的正解(那題雖然叫「組合」,要的其實是排列)。<strong>同一份 code,外層放誰,決定你在解哪一題。</strong></div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 機制在於<strong><code>dp[i]</code> 的語意會隨著輪次演進</strong>:跑完第 <code>k</code> 種硬幣那一輪,<code>dp[i]</code> 的意思是「<strong>只用前 <code>k</code> 種硬幣</strong>湊出 <code>i</code> 的組合數」。這其實是二維 <code>dp[k][i]</code> 滾掉第一維的結果。<br />
+    因為硬幣是<strong>依固定索引順序</strong>一輪一輪進表的,當你在 <code>coin=2</code> 那輪加上一枚 2,它<strong>只能接在「1 已經處理完」的狀態後面</strong> —— 程式<strong>沒有任何路徑</strong>能產生「2 排在 1 前面」的寫法。於是每個組合被綁定到<strong>唯一一種標準順序</strong>(硬幣索引由小到大),<strong>只會被數到一次</strong>。<br />
+    反之,金額外層時 <code>dp[i]</code> 的語意是「湊出 <code>i</code> 的<strong>序列</strong>數」——每個 <code>i</code> 都讓<strong>每一枚硬幣</strong>當一次「最後一枚」,<code>1+2</code> 和 <code>2+1</code> 是兩條不同的路,兩條都算。<strong>去重不是靠程式碼,是靠「固定考慮順序」這件事本身。</strong></div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 會變成 <strong>0/1 背包</strong> —— 每種硬幣<strong>最多拿一枚</strong>。<code>[1,2,5]/5</code> 實測會得到 <strong>1</strong>(只剩 <code>{5}</code>;<code>1+2=3</code>、<code>1+2+5=8</code>,都湊不出 5)。<br />
+    <strong>原因</strong>:算 <code>dp[i]</code> 時要讀 <code>dp[i−coin]</code>。<strong>遞增</strong>時 <code>dp[i−coin]</code> 在<strong>同一輪已經更新過</strong>,值裡<strong>已經含有「用了本輪這枚硬幣」</strong>的情況 → 再加一次就是拿第二枚、第三枚 → <strong>完全背包</strong>。<strong>遞減</strong>時 <code>dp[i−coin]</code> <strong>還是上一輪的舊值</strong> —— 乾淨的「沒用過本輪硬幣」狀態 → 每個最多用一次 → <strong>0/1 背包</strong>。<br />
+    這題硬幣是「無限多枚」,所以必須<strong>遞增</strong>。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為 <strong><code>min</code> 對順序免疫,計數(<code>+</code>)不免疫</strong>。<br />
+    322 求「最少幾枚」。同一個組合 <code>{1,2}</code> 不管以 <code>1+2</code> 還是 <code>2+1</code> 的路徑被算到,得到的<strong>枚數都是 2</strong> —— 重複計算只是<strong>把同一個值再取一次 min</strong>,<code>min(2,2)=2</code>,<strong>不影響結果</strong>。<code>min</code> 是<strong>冪等</strong>的。<br />
+    518 求「幾種」。同一個組合被走到兩次,<code>+</code> 就會<strong>老老實實加兩次</strong> → 答案膨脹。加法<strong>不是冪等</strong>的。<br />
+    <strong>通則:最佳化型(min/max)不怕重複走,計數型(+)怕。</strong>所以 322 外層放誰都對、518 只能放硬幣。這也解釋了 <a href="../../../13-1d-dp/problems/p139/index.html">139</a> 的 <code>OR</code>(也是冪等)為什麼<strong>另有原因</strong>不能把字典放外層 —— 那題是「有序切割」,連可行性都會被順序改變,是更強的限制。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 因為題目保證的是「<strong>final answer</strong> 放得進 int」,<strong>沒有保證中間值</strong>。<br />
+    <strong>實測反例</strong>(完全合法):<code>coins=[2,4,6,…,300]</code>、<code>amount=4999</code>。硬幣全偶、金額為奇 → <code>dp[4999]=0</code>,<strong>答案完全符合保證</strong>;但過程中 <code>dp[4998]</code> 是天文數字,<strong>5000 格裡有 2378 格超過 <code>INT_MAX</code></strong>。用 <code>int</code> 寫,那些 <code>+=</code> 就是<strong>有號溢位 = UB</strong> —— 拿 <code>-fsanitize=signed-integer-overflow</code> 一跑當場報 <code>runtime error: signed integer overflow</code>。<code>unsigned int</code> 的溢位則是<strong>定義良好的 mod 2³²</strong>,不是 UB。所以這裡的 <code>unsigned</code> 是<strong>真的有用</strong>。<br />
+    <a href="../p494/code.html"><strong>494 則相反</strong></a>:答案是 ± 組合數,總共才 <code>2ⁿ</code> 種,<code>n ≤ 20</code> ⇒ 答案<strong>和每個中間值</strong>都 ≤ <code>2²⁰ ≈ 10⁶</code>,連 <code>INT_MAX</code> 的 0.1% 都不到 → <code>unsigned</code> 純屬多餘。<br />
+    <strong>方法論(三題三種)</strong>:<a href="../../../13-1d-dp/problems/p377/code.html">377</a> = 答案本身溢位(<code>unsigned</code> <strong>必要</strong>)· <strong>518 = 只有中間值溢位</strong>(<code>unsigned</code> <strong>好判斷</strong>)· 494 = 都不溢位(<code>unsigned</code> <strong>多餘</strong>)。永遠先問兩句:<strong>答案的上界?中間值的上界?</strong></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 這是<strong>有界背包</strong>(bounded knapsack)。<br />
+    <strong>最笨但可行</strong>:把每種硬幣複製 3 份當成 3 個不同物品,跑 0/1 背包(內層<strong>遞減</strong>)。時間 <code>O(3n·amount)</code> —— 能用,但複製份數大時會爛掉。<br />
+    <strong>更好</strong>:加一維數量 <code>dp[i][j]</code> = 湊出 <code>i</code> 且本種硬幣用了 <code>j</code> 枚,或直接對每種硬幣做「<strong>枚數 0..3</strong>」的轉移:<code>dp_new[i] = Σ_{t=0..3} dp_old[i − t·coin]</code>。<br />
+    <strong>最好</strong>:當上限 <code>K</code> 很大時用<strong>二進位拆分</strong> —— 把 <code>K</code> 枚拆成 <code>1,2,4,…</code> 份物品(<code>O(log K)</code> 個),再跑 0/1 背包,可組出 <code>0..K</code> 任意枚數。時間 <code>O(n·log K·amount)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong>
+      <strong>輸出一種</strong>:一維表丟失了歷史,要保留<strong>二維</strong> <code>dp[k][i]</code>,從 <code>(n, amount)</code> 回溯 —— 在每格判斷這個組合是「不用第 k 種硬幣」(退到 <code>dp[k−1][i]</code>)還是「用了一枚」(退到 <code>dp[k][i−coin]</code>),記下決策直到 <code>(0,0)</code>。<code>O(n + amount)</code> 回溯。<br />
+      <strong>輸出全部</strong>:那就<strong>不能只靠 DP</strong> —— 輸出量本身就是 <code>O(組合數 × 平均長度)</code>,而組合數可以是指數級。直接 DFS 枚舉即可(用「硬幣索引不回頭」來保證只產生組合、不產生排列 —— <strong>和迴圈外層放硬幣是同一個道理</strong>)。<strong>計數比列舉容易</strong>,這是 DP 的典型價值。
+    </div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> <strong>背包不能用</strong> —— <code>O(n·amount)</code> 是<strong>偽多項式</strong>,<code>amount = 10⁹</code> 表根本開不出來。但 <code>coins.length ≤ 3</code> 是強烈暗示:<strong>換成數學</strong>。<br />
+    3 種硬幣 <code>a,b,c</code> 求 <code>ax+by+cz = amount</code> 的<strong>非負整數解個數</strong>:枚舉 <code>x</code>(<code>0..amount/a</code>)還是太多,所以要用<strong>兩層化簡</strong> —— 固定 <code>z</code> 後解二元 <code>ax+by = R</code>,那是<strong>線性丟番圖方程</strong>,解數有<strong>閉式</strong>(用擴展歐幾里得找一組特解,再數區間內的解個數)。整體可壓到 <code>O(amount / c)</code> 甚至更好。<br />
+    再一般化,<code>k</code> 種固定面額的組合數對 <code>amount</code> 是個<strong>準多項式</strong>(Ehrhart / Popoviciu 定理),理論上有閉式。<strong>判斷準則:<code>amount</code> 大而 <code>n</code> 小 → 數論/閉式;<code>amount</code> 小而 <code>n</code> 大 → 背包。</strong>和 <a href="../p494/review.html">494</a> 的 meet-in-the-middle 是同一種思路 —— <strong>當偽多項式的那一維爆掉,就要換一個維度下手。</strong></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「外層硬幣=組合(交換變 9=377)、內層遞增=完全背包(改遞減變 1)、min 免疫順序、unsigned 擋中間值 UB」,背包家族就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 518 · COIN CHANGE II</div>
+  </div>
+
+</body>
+</html>

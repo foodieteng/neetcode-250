@@ -291,7 +291,7 @@ PROBLEMS = {
         ('p1143','Longest Common Subsequence',                   'longest-common-subsequence',                   'med', 'done'),
         ('p1049','Last Stone Weight II',                         'last-stone-weight-ii',                         'med', 'done'),
         ('p309', 'Best Time to Buy and Sell Stock with Cooldown','best-time-to-buy-and-sell-stock-with-cooldown','med', 'todo'),
-        ('p518', 'Coin Change II',                               'coin-change-ii',                               'med', 'todo'),
+        ('p518', 'Coin Change II',                               'coin-change-ii',                               'med', 'done'),
         ('p494', 'Target Sum',                                   'target-sum',                                   'med', 'done'),
         ('p97',  'Interleaving String',                          'interleaving-string',                          'med', 'done'),
         ('p877', 'Stone Game',                                   'stone-game',                                   'med', 'todo'),
