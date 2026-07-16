@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>877 · Stone Game // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P877</span>
+    <span><a href="https://leetcode.com/problems/stone-game/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">石頭遊戲</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 區間 DP · 淨勝分博弈</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 877</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>區間 DP · 博弈</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- 類似題連結 -->
+  <div class="sc-dark-box" style="margin-bottom:22px;">
+    <div class="sc-dark-box__title">🔗 同型別練習 · 拿完就換人的區間博弈</div>
+    <div class="sc-dark-box__body">
+      <p style="margin:0;">
+        這題的「<strong>淨勝分</strong>」框架是一整類博弈 DP 的模板,兩題很值得一起練:<br />
+        ● <a href="https://leetcode.com/problems/predict-the-winner/" target="_blank" rel="noopener" style="color:#e0b37a;">LC 486 · Predict the Winner</a> —— 幾乎<strong>同一題</strong>,只是堆數不限奇偶、值不限,<code>dp[0][n−1] ≥ 0</code> 即先手不輸。<br />
+        ● <a href="https://leetcode.com/problems/stone-game-vii/" target="_blank" rel="noopener" style="color:#e0b37a;">LC 1690 · Stone Game VII</a> —— 得分改成「拿走後<strong>剩下的總和</strong>」,轉移要配合<strong>前綴和</strong>,是淨勝分框架的進階變形。
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一排石頭堆 <code>piles</code>(偶數堆、總和為奇)。Alice、Bob 輪流從<strong>最左或最右</strong>拿走一整堆,Alice 先手。
+        兩人都最優,問 Alice 能不能拿到<strong>比較多</strong>石頭(回傳 <code>true</code>/<code>false</code>)。
+      </p>
+    </div>
+
+    <p>
+      「輪流從兩端拿、拿完換人」是<strong>區間博弈</strong>的招牌。這題有兩個層次值得學:
+      標準的 <strong>區間 DP</strong>(以及它漂亮的「<strong>淨勝分</strong>」改寫),還有一個一行解的<strong>數學捷徑</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 淨勝分改寫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 「淨勝分」改寫<span class="sc-section__title-en">// SCORE DIFFERENCE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">關鍵 · 別分開記兩人分數,只記「差」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          直覺會想開 <code>dp[i][j][誰的回合]</code> 記兩人各自的分。但有個更省的視角:
+          <strong><code>dp[i][j]</code> = 輪到某人、面對 <code>piles[i..j]</code> 這段時,他能拿到的「<strong>淨勝分</strong>」(自己 − 對手)。</strong>
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>為什麼可以不管「是誰」?</strong>因為博弈是對稱的 —— 不論輪到 Alice 還是 Bob,面對同一段石頭,最優策略和能拿到的<strong>淨勝分</strong>都一樣。所以狀態<strong>不需要記玩家</strong>,只跟區間 <code>[i,j]</code> 有關。
+        </p>
+        <p style="margin:0;">
+          先手拿左端 <code>piles[i]</code> 後,<strong>換對手</strong>在 <code>piles[i+1..j]</code> 當先手 —— 對手的淨勝分是 <code>dp[i+1][j]</code>,<strong>對我而言是負的</strong>。所以:
+        </p>
+        <p style="margin:10px 0 0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.9;text-align:center;">
+          <code>dp[i][j] = max( piles[i] − dp[i+1][j],　piles[j] − dp[i][j−1] )</code>
+        </p>
+      </div>
+    </div>
+
+    <p style="margin-top:14px;">
+      那個<strong>減號</strong>是整題的靈魂:它把「對手也會最優反擊」這件事,<strong>優雅地折進同一個 <code>dp</code></strong> ——
+      不用第二張表、不用記玩家。最後 <code>dp[0][n−1] &gt; 0</code> ⇔ Alice 淨勝 ⇔ <code>true</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 區間 DP 填法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 依「區間長度」填<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>base</strong>:<code>dp[i][i] = piles[i]</code> —— 只剩一堆,先手全拿,淨勝 = 該堆值。</li>
+      <li><strong>填表順序</strong>:按<strong>區間長度 <code>L</code> 由小到大</strong>(<code>L=2,3,…,n</code>)。因為 <code>dp[i][j]</code> 依賴<strong>更短</strong>的 <code>dp[i+1][j]</code>、<code>dp[i][j−1]</code>,短的必須先算好。</li>
+      <li><strong>轉移</strong>:<code>dp[i][j] = max(piles[i] − dp[i+1][j], piles[j] − dp[i][j−1])</code>;答案 <code>dp[0][n−1] &gt; 0</code>。</li>
+    </ol>
+
+    <p style="margin-top:12px;font-size:13.5px;">
+      這就是<strong>區間 DP</strong> 的標準骨架:狀態是一個<strong>區間 <code>[i,j]</code></strong>,轉移看更短的子區間,<strong>按長度遞增</strong>填。
+      填出來的是一張<strong>上三角</strong>表。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [5,3,4,5] → true</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      上三角表按對角線(區間長度 <code>L</code>)一條條填。每格 = <code>max(拿左, 拿右)</code>,兩項都<strong>減去</strong>對手在剩下那段的淨勝分。最後一步還會給出<strong>數學捷徑</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 區間 DP · 淨勝分</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:330px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 數學捷徑 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">數學捷徑 · 其實 Alice 永遠贏<span class="sc-section__title-en">// return true;</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 偶數堆 + 總和為奇 ⇒ 先手必勝</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          把堆依 index 分成兩組:<strong>奇數位</strong>(1,3,5…)和<strong>偶數位</strong>(0,2,4…)。因為堆數是<strong>偶數</strong>,兩端剛好一個奇位、一個偶位。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>Alice 先手可以「鎖定」其中一組</strong>:如果她決定只拿偶位,每次對手拿掉一端後,暴露出來的<strong>另一端永遠是偶位</strong>(反之亦然)。所以她能<strong>整組</strong>拿到「全偶位」或「全奇位」——由她挑。
+        </p>
+        <p style="margin:0;">
+          兩組總和相加 = 全部石頭 = <strong>奇數</strong>,所以兩組<strong>不可能相等</strong>,必有一組較大。Alice 挑大的那組 → <strong>穩贏</strong>。
+          所以在本題約束下,答案<strong>恆為 <code>true</code></strong>,一行 <code>return true;</code> 就對。<strong>實測 9976 組(偶堆、奇和)全部 <code>true</code>。</strong>
+        </p>
+      </div>
+    </div>
+
+    <p style="margin-top:14px;">
+      <strong>但別只寫捷徑。</strong>面試想看的是<strong>區間 DP</strong> —— 因為換成 <a href="https://leetcode.com/problems/predict-the-winner/" target="_blank" rel="noopener">486</a>(堆數任意、可平手)或 <a href="https://leetcode.com/problems/stone-game-vii/" target="_blank" rel="noopener">1690</a>(改變計分)時,捷徑就失效,只有 DP 撐得住。<strong>捷徑當彩蛋、DP 當正解。</strong>
+    </p>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">DP:T = <strong>O(n²)</strong>　S = <strong>O(n²)</strong>　　捷徑:T = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        區間 DP 填上三角 <code>~n²/2</code> 格,每格 <code>O(1)</code> → <code>O(n²)</code>,<code>n ≤ 500</code> 輕鬆。
+        空間可壓成 <code>O(n)</code>(滾動一維,只留上一條對角線)。數學捷徑則是 <code>O(1)</code> 一行解。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>只記「淨勝分」不記玩家</strong>:<code>dp[i][j] = max(piles[i] − dp[i+1][j], piles[j] − dp[i][j−1])</code>。
+      那個<strong>減號</strong>把對手的最優反擊折進同一張表。答案 <code>dp[0][n−1] &gt; 0</code>(本題約束下恆真)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p329/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 最長遞增路徑 329</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i][j]=淨勝分=max(piles[i]−dp[i+1][j], piles[j]−dp[i][j−1])。減號折進對手反擊。捷徑:偶堆奇和 → 恆 true。</div>
+    <div class="sc-summary-bar__detail">區間 DP · 博弈 · STONE GAME</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p877-interval.js"></script>
+</body>
+</html>

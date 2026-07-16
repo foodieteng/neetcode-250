@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>877 · Stone Game // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P877</span>
+    <span><a href="https://leetcode.com/problems/stone-game/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">石頭遊戲</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 877</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i][j]</code> = 先手面對 <code>piles[i..j]</code> 的<strong>淨勝分</strong>(自己 − 對手)</td></tr>
+        <tr><td>不記玩家</td><td>博弈對稱,淨勝分只跟區間有關</td></tr>
+        <tr><td>轉移</td><td><code>max(piles[i] − dp[i+1][j], piles[j] − dp[i][j−1])</code></td></tr>
+        <tr><td>減號</td><td>換對手當先手 → 對手淨勝分對我為負</td></tr>
+        <tr><td>填法</td><td>對角線 base,<strong>依區間長度 L 遞增</strong>填上三角</td></tr>
+        <tr><td>答案</td><td><code>dp[0][n−1] &gt; 0</code>;本題約束下恆真</td></tr>
+        <tr><td>捷徑</td><td>偶堆 + 奇和 ⇒ 先手鎖定全奇/全偶位 ⇒ 必勝</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼 <code>dp[i][j]</code> <strong>不需要</strong>記「現在輪到誰」?這個省略靠的是什麼性質?</div>
+    <div class="qa"><strong>Q2.</strong> 轉移為什麼是 <code>piles[i] − dp[i+1][j]</code> 的<strong>減號</strong>,而不是加?若寫成加會算出什麼?</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼填表要<strong>按區間長度 <code>L</code></strong>,不能直接雙層 <code>for i, for j</code>?</div>
+    <div class="qa"><strong>Q4.</strong> 證明捷徑:為什麼「偶數堆 + 總和為奇」保證先手必勝?先手怎麼「鎖定」一整組?</div>
+    <div class="qa"><strong>Q5.</strong> 這題答案用 <code>dp[0][n−1] &gt; 0</code>。換成 <a href="https://leetcode.com/problems/predict-the-winner/" target="_blank" rel="noopener">486 Predict the Winner</a>(可平手、先手不輸即算贏)要改成什麼?為什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [3,7,2,3] → true</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// dp 上三角(實跑,piles=[3,7,2,3])</span>
+        j=0  j=1  j=2  j=3
+ i=0     3    4   −2    5
+ i=1     .    7    5    6
+ i=2     .    .    2    1
+ i=3     .    .    .    3
+
+L=2: dp[0][1]=max(3−7, 7−3)=4   dp[1][2]=max(7−2, 2−7)=5   dp[2][3]=max(2−3, 3−2)=1
+L=3: dp[0][2]=max(3−dp[1][2], 2−dp[0][1])=max(3−5, 2−4)=−2   ← 負的!
+     dp[1][3]=max(7−dp[2][3], 3−dp[1][2])=max(7−1, 3−5)=6
+L=4: dp[0][3]=max(3−dp[1][3], 3−dp[0][2])=max(3−6, 3−(−2))=max(−3, 5)=5
+<span class="sc-trace__out">dp[0][3] = 5 &gt; 0 → Alice 淨勝 5 分 → return true</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對照捷徑:全奇位 vs 全偶位</span>
+piles = [3, 7, 2, 3]     index:  0  1  2  3
+偶位(0,2): 3 + 2 = 5
+奇位(1,3): 7 + 3 = 10
+10 ≠ 5(總和 15 為奇)→ Alice 鎖定奇位,拿 10 &gt; 5 → 淨勝 10 − 5 = 5
+<span class="sc-trace__out">= dp[0][3] = 5,DP 與捷徑指向同一策略</span></div>
+
+    <div class="sc-insight">
+      注意 <code>dp[0][2] = <strong>−2</strong></code>:單看 <code>piles[0..2]=[3,7,2]</code> 這段,<strong>先手其實會輸 2 分</strong>(拿不到中間的 7)。
+      負的淨勝分完全合法 —— 它是「這個子局面對先手不利」的誠實記錄。<code>dp[0][3]</code> 用到它時 <code>3−(−2)=5</code>,<strong>負負得正</strong>反而幫了 Alice:把對手在那段的劣勢<strong>轉成自己的優勢</strong>。這正是減號框架的精妙處。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/predict-the-winner/" target="_blank" rel="noopener">486 Predict the Winner</a>:堆數<strong>任意</strong>、值任意、可平手,先手不輸算贏。程式要動哪裡?捷徑還能用嗎?</div>
+    <div class="qa"><strong>App 2.</strong> 若要回傳先手<strong>實際多拿幾分</strong>(不只 true/false),程式怎麼改?若還要<strong>印出</strong>先手每一步拿左還拿右呢?</div>
+    <div class="qa"><strong>App 3.</strong> <a href="https://leetcode.com/problems/stone-game-vii/" target="_blank" rel="noopener">1690 Stone Game VII</a>:每次拿一端,<strong>得分 = 拿完後剩下堆的總和</strong>。淨勝分框架要怎麼配合<strong>前綴和</strong>改寫?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 靠<strong>博弈的對稱性</strong>:不論輪到 Alice 還是 Bob,面對<strong>同一段</strong> <code>piles[i..j]</code>,可用的動作(拿左 / 拿右)和最優策略<strong>完全一樣</strong>,能拿到的「淨勝分」也一樣。玩家的身分<strong>不影響</strong>這段的最優值,所以狀態只需要區間 <code>[i,j]</code>,不需要「誰的回合」這一維。<br />
+    這是博弈 DP 的關鍵簡化:只要把分數記成「<strong>當前行動者相對於對手</strong>」的差,玩家維度就消失了,三維降二維。反之,如果你記的是「Alice 的絕對分數」,那就<strong>非</strong>記玩家不可 —— 因為同一段對 Alice 是進攻、對 Bob 是防守,值不同。<strong>選對「相對」的視角,是省掉一維的前提。</strong></div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為拿完左端 <code>piles[i]</code> 後,<strong>換對手</strong>在 <code>piles[i+1..j]</code> 當先手。<code>dp[i+1][j]</code> 是「<strong>對手</strong>在那段的淨勝分」——對手贏多少 = 我輸多少,所以從我的角度是 <code>−dp[i+1][j]</code>。我的總淨勝 = 剛拿的 <code>piles[i]</code> 減去對手接下來的優勢 = <code>piles[i] − dp[i+1][j]</code>。<br />
+    <strong>寫成加會怎樣</strong>:<code>piles[i] + dp[i+1][j]</code> 等於假設「對手也幫我加分」——那是<strong>兩人合作</strong>把總分最大化,不是對抗。算出來的是「兩人聯手能湊多少」,和誰贏無關,完全錯題。<strong>減號 = 對抗;加號 = 合作。</strong>這個符號就是「minimax」的化身。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 因為 <code>dp[i][j]</code> 依賴<strong>更短</strong>的兩個子區間 <code>dp[i+1][j]</code>(去掉左端)和 <code>dp[i][j−1]</code>(去掉右端)。這兩者的長度都是 <code>L−1</code>,必須<strong>先於</strong> <code>L</code> 算好。<br />
+    直接 <code>for i = 0..n, for j = i..n</code> 的話,算 <code>dp[0][3]</code> 時會用到 <code>dp[1][3]</code> —— 但 <code>i=1</code> 那列還沒開始跑,<code>dp[1][3]</code> 還是 0,<strong>用到未初始化的值</strong>,結果錯。<br />
+    <strong>正確順序</strong>:外層跑<strong>區間長度 <code>L=2..n</code></strong>,內層跑左端 <code>i</code>。這保證「所有長度 <code>&lt; L</code> 的區間都已填好」。這是<strong>區間 DP 的通用填法</strong> —— 凡是「狀態是區間、轉移看子區間」的題(戳氣球 <a href="https://leetcode.com/problems/burst-balloons/" target="_blank" rel="noopener">312</a>、矩陣鏈乘…)都這樣按長度填。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 把 <code>n</code> 堆(<code>n</code> 偶)依 index 分兩組:<strong>偶位</strong> {0,2,4,…} 和<strong>奇位</strong> {1,3,5,…},各 <code>n/2</code> 堆。<br />
+    <strong>先手能鎖定任一組</strong>:開局兩端是 index <code>0</code>(偶)和 <code>n−1</code>(奇,因 <code>n</code> 偶)。假設 Alice 想要全偶位 —— 她先拿 index 0。現在剩 <code>[1, n−1]</code>,兩端 index 1、<code>n−1</code>(都奇)。Bob 不管拿哪端,拿的都是<strong>奇位</strong>,而且會<strong>再暴露出一個偶位</strong>在某一端。Alice 下一步又能拿偶位。如此每一輪,Alice 恆拿偶位、Bob 恆拿奇位。她也可以反過來全拿奇位。<br />
+    <strong>因為總和是奇數</strong>,偶位和 + 奇位和 = 奇數 → 兩組<strong>不可能相等</strong>,必有一組嚴格較大。Alice 開局<strong>先算哪組大就鎖哪組</strong> → 拿到嚴格過半 → 必勝。所以本題答案恆 <code>true</code>。<strong>「偶堆」給了鎖定的機制,「奇和」排除了平手。</strong></div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 改成 <code>dp[0][n−1] &gt;= 0</code>。<br />
+    <strong>差別在「平手算誰贏」</strong>。877 保證總和為奇 → 淨勝分永不為 0,<code>&gt;0</code> 和 <code>&gt;=0</code> 結果一樣。但 486 <strong>可以平手</strong>(淨勝分 = 0),而題目定義「先手<strong>不輸</strong>就算 Player 1 贏」(平手也回 true)。所以要放寬成 <code>&gt;= 0</code>。<br />
+    <strong>其餘完全不用改</strong> —— 淨勝分 DP 的轉移、填法一模一樣,486 只是拿掉了「偶堆奇和」約束(所以捷徑失效,只能靠 DP),並把判定邊界從 <code>&gt;0</code> 調成 <code>&gt;=0</code>。<strong>這就是為什麼面試要寫 DP 不寫捷徑:同一份 DP 改一個比較符號就解了 486,捷徑卻整個報廢。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <strong>程式幾乎不動</strong>:轉移 <code>dp[i][j]=max(piles[i]−dp[i+1][j], piles[j]−dp[i][j−1])</code> 和填法<strong>完全共用</strong>,只把回傳從 <code>dp[0][n−1] &gt; 0</code> 改成 <code>&gt;= 0</code>(平手算先手贏)。<br />
+    <strong>捷徑不能用</strong>:486 沒有「偶堆 + 奇和」約束 —— 堆數可奇可偶、可能平手,「鎖定一組」的論證垮掉。例 <code>[1,5,2]</code>(3 堆)先手其實會輸。所以 486 <strong>只有 DP 一條路</strong>。這正是 877 該練 DP 而非背捷徑的理由:DP 是<strong>可遷移</strong>的能力,捷徑是<strong>一次性</strong>的巧合。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong>
+      <strong>回傳分差</strong>:<code>dp[0][n−1]</code> 本身<strong>就是</strong>先手比對手多拿的淨分,直接回傳那個 <code>int</code> 即可(不用改任何轉移)。想要各自實際得分:先手 = <code>(total + dp[0][n−1]) / 2</code>、對手 = <code>(total − dp[0][n−1]) / 2</code>(因為兩人和 = total、差 = dp)。<br />
+      <strong>印出每步決策</strong>:要保留完整 <code>dp</code> 表,從 <code>(0, n−1)</code> 正向回放 —— 在 <code>(i,j)</code> 比較 <code>piles[i]−dp[i+1][j]</code> 和 <code>piles[j]−dp[i][j−1]</code> 哪個等於 <code>dp[i][j]</code>,相等的那邊就是這步的選擇(拿左 → 走 <code>(i+1,j)</code>;拿右 → 走 <code>(i,j−1)</code>),交替印出雙方動作直到區間空。<code>O(n)</code> 回放。<strong>DP 表本身就記錄了最優決策,回放只是讀它。</strong>
+    </div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 1690 的計分不是「拿走那堆的值」,而是「<strong>拿完後剩下堆的總和</strong>」。用<strong>前綴和</strong> <code>pre</code> 表示區間和 <code>sum(i,j)=pre[j+1]−pre[i]</code>。<br />
+    在 <code>piles[i..j]</code> 拿<strong>左端</strong> <code>i</code>:得分 = 剩下 <code>[i+1, j]</code> 的和 = <code>sum(i+1, j)</code>,然後對手在 <code>[i+1,j]</code> 當先手,淨勝 = <code>sum(i+1,j) − dp[i+1][j]</code>。拿<strong>右端</strong>同理 = <code>sum(i,j−1) − dp[i][j−1]</code>。取 max:<br />
+    <code>dp[i][j] = max(sum(i+1,j) − dp[i+1][j], sum(i,j−1) − dp[i][j−1])</code>,base <code>dp[i][i]=0</code>(只剩一堆,拿完剩 0 分)。<br />
+    <strong>骨架和 877 一模一樣</strong> —— 一樣的「淨勝分 + 減號 + 按長度填」,只是「當前這步的得分」從 <code>piles[端]</code> 換成 <code>sum(剩下)</code>,靠前綴和 <code>O(1)</code> 取得。<strong>這說明淨勝分不是一題的技巧,是一整類輪流博弈的框架 —— 換計分規則,只換「這步得幾分」那一項。</strong></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「淨勝分免玩家維、減號=換對手、按長度填、486 改 &gt;=0、1690 配前綴和、捷徑偶堆奇和必勝」,這類博弈就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 877 · STONE GAME</div>
+  </div>
+
+</body>
+</html>
