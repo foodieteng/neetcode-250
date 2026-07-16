@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>329 · Longest Increasing Path // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P329</span>
+    <span><a href="https://leetcode.com/problems/longest-increasing-path-in-a-matrix/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">矩陣中最長遞增路徑</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 329</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>核心洞察</td><td>嚴格遞增 ⇒ 網格是 <strong>DAG</strong>(無環)⇒ 最長路徑可多項式求</td></tr>
+        <tr><td>A 狀態</td><td><code>dp[r][c]</code> = 從此格出發的最長遞增路徑</td></tr>
+        <tr><td>A 轉移</td><td><code>1 + max(更大鄰居的 dp)</code>,memo 快取</td></tr>
+        <tr><td>B 做法</td><td>Kahn:indeg=更小鄰居數,剝層,<strong>層數=答案</strong></td></tr>
+        <tr><td>不用 visited</td><td>嚴格 <code>&gt;</code> 天生防環</td></tr>
+        <tr><td>複雜度</td><td>兩者 <code>O(mn)</code> / <code>O(mn)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼這題可以 <code>O(mn)</code> 解,而「一般圖的最長路徑」是 NP-hard?關鍵性質是什麼?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼<strong>不需要</strong> <code>visited</code> 陣列?如果把嚴格 <code>&gt;</code> 改成 <code>&gt;=</code> 會發生什麼?</div>
+    <div class="qa"><strong>Q3.</strong> memo 的哨兵用 <code>0</code> 代表「還沒算」為什麼安全?什麼情況下這個技巧會出錯?</div>
+    <div class="qa"><strong>Q4.</strong> Kahn 版裡,為什麼「<strong>層數</strong>」剛好等於最長路徑長?一個格子憑什麼要等到它的第幾層才被剝?</div>
+    <div class="qa"><strong>Q5.</strong> A 的 <code>dp</code> 表和 B 的層數表<strong>數字不一樣</strong>(A 是 <code>3 4 2</code> 那格最大,B 是 <code>4</code> 在左上),為什麼<strong>答案卻相同</strong>?它們各自算的是什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [[3,4,5],[3,2,6],[2,2,1]] → 4</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 另一個官方例 —— DFS memo 表(實跑)</span>
+matrix          memo(dp = 從此格出發最長)
+3 4 5           4 3 2
+3 2 6     →     1 4 1
+2 2 1           2 1 2
+
+最大 dp = 4,出現在左上角 3 這格(也在中間 2 那格)
+dp[3(左上)] = 1 + dp[4] = 1 + (1 + dp[5]) = 1 + 1 + (1 + dp[6]) = 4
+<span class="sc-trace__out">答案 = max(memo) = 4</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 驗證:最長遞增路徑之一</span>
+3 → 4 → 5 → 6      (第一列 3,4,5 再到 (1,2)=6)
+座標 (0,0)→(0,1)→(0,2)→(1,2)
+值   3  &lt; 4  &lt; 5  &lt; 6   ✓  長度 4
+<span class="sc-trace__out">確實 4 格,和 dp 表最大值一致</span></div>
+
+    <div class="sc-insight">
+      這題「答案」只是一個<strong>數字</strong>(最長長度),不用還原路徑。
+      但 memo 表其實<strong>藏了完整資訊</strong>:從最大 dp 的格子出發,每步挑「<code>dp = 當前 −1</code> 且更大」的鄰居,就能<strong>還原出實際路徑</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若要<strong>印出</strong>其中一條最長路徑(不只長度),用 memo 表怎麼回溯?</div>
+    <div class="qa"><strong>App 2.</strong> 若允許走<strong>八方向</strong>(含斜角),或改成「非遞減」(<code>≥</code> 也能走),解法要怎麼改?哪個改動會破壞正確性?</div>
+    <div class="qa"><strong>App 3.</strong> 若矩陣是 <code>10⁵ × 10⁵</code> 但<strong>大部分格子相等</strong>(遞增路徑很短),兩種解法誰更省?為什麼?能不能只用 <code>O(1)</code> 額外空間(不算輸入)?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 關鍵是「<strong>嚴格遞增</strong>」讓整張圖<strong>無環</strong>(DAG)。把每格連「小→大」的邊,走一步值必變大,不可能回到起點 —— 沒有環。<br />
+    一般圖的最長(簡單)路徑要求「不重複經過節點」,環的存在讓這變成 NP-hard(等價於 Hamiltonian path 之類)。但 <strong>DAG 沒有環,就沒有「不重複」的顧慮</strong> —— 任何路徑本來就不會重訪節點,於是可以用 DP / 拓撲排序在 <code>O(V+E)</code> 解決。這題 <code>V=mn</code>、<code>E≤4mn</code>,所以 <code>O(mn)</code>。<strong>「無環」不是細節,是這題可解的全部理由。</strong></div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為<strong>嚴格遞增本身就防環</strong> —— DFS 只會往「更大」走,絕不可能沿路走回一個已在當前路徑上的格子(那要求某值 <code>&gt;</code> 自己)。傳統圖 DFS 需要 <code>visited</code> 來擋環,這裡環根本不存在,<code>visited</code> 是多餘的;更糟的是,加了它可能<strong>擋掉合法的重訪</strong> —— 不同起點的路徑會共用同一段尾巴,那段該被<strong>重複走過</strong>(靠 memo 快取,不是靠 visited 封鎖)。<br />
+    改成 <code>&gt;=</code>:相等的相鄰格會<strong>互相連邊</strong>(<code>A≥B</code> 且 <code>B≥A</code>)→ <strong>出現環</strong> → DFS 無窮遞迴(或 memo 邏輯崩壞)。這也是為什麼題目強調「strictly increasing」—— 那個 strict 是正確性的命脈。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 安全,因為<strong>真實答案永遠 ≥ 1</strong>(任何格子自己就是長度 1 的路徑)。所以 <code>memo[r][c]==0</code> 不可能是一個「算完的合法值」,拿它當「還沒算」的哨兵不會誤判。<br />
+    <strong>什麼時候會出錯</strong>:如果某題的 dp 合法值<strong>可能是 0</strong>(例如「最多能拿幾個」而答案可以是 0),用 0 當哨兵就會把「算出 0」誤認成「還沒算」,每次都重算甚至邏輯錯誤。那時要改用 <code>-1</code> 當哨兵,或另開一個 <code>bool computed[][]</code>。<strong>哨兵值必須落在合法答案的範圍之外</strong> —— 這題剛好 0 就在範圍外,是幸運也是要想清楚的點。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 在 Kahn 裡,一個格子<strong>只有當它所有「更小的前驅」都被剝掉之後</strong>才會 <code>indeg</code> 歸零、進入佇列。所以它被剝的<strong>層數 = 從某個源點到它的最長鏈長度</strong> —— 它必須等到<strong>最深的那條前驅鏈</strong>整條剝完。<br />
+    形式上:層數滿足 <code>layer[v] = 1 + max(layer[u])</code>,對所有邊 <code>u→v</code>(<code>u</code> 更小)。這正是 DAG 最長路徑的遞推式,只是用 BFS 分層「自動」算出來。所以剝到最後一層時的<strong>總層數</strong> = 整張圖最長鏈的格數 = 答案。<strong>「等最深前驅」這件事,就是最長路徑的定義。</strong></div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 因為兩者<strong>算的是最長鏈的兩端</strong>:<br />
+    ● <strong>A 的 <code>dp[r][c]</code></strong> = 「從這格<strong>往後</strong>還能走多長」(往更大的方向)。所以<strong>最小值</strong>的格子 dp 最大(它是整條鏈的<strong>起點</strong>),例 1 裡值 <code>1</code> 那格 dp=4。<br />
+    ● <strong>B 的層數</strong> = 「到這格<strong>為止</strong>已經走了多長」(從最小值數過來)。所以<strong>最大值</strong>的格子層數最大(它是鏈的<strong>終點</strong>),例 1 裡值 <code>9</code> 那格層=4。<br />
+    一個從尾巴倒數、一個從頭正數,但同一條最長鏈的<strong>總長度是同一個數</strong>。A 取 <code>max(dp)</code>、B 取<strong>總層數</strong>,都命中那條鏈的長度 4。<strong>兩個表是同一座山的兩側等高線 —— 峰頂高度(答案)當然一樣。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> memo 表足以回溯。<strong>步驟</strong>:先找 <code>dp</code> 最大的格子當<strong>起點</strong>(它的 dp = 答案 = 鏈長)。然後在當前格 <code>(r,c)</code>,找一個<strong>更大</strong>且 <code>dp[鄰居] == dp[r][c] − 1</code> 的鄰居,走過去、記錄;重複直到 <code>dp==1</code>(鏈尾,沒有更大鄰居)。<br />
+    正確性:<code>dp[r][c] = 1 + dp[下一步]</code> 保證了「<code>dp − 1</code>」的鄰居一定存在且在最長鏈上。<code>O(鏈長)</code> 回溯,<code>O(1)</code> 額外空間。<strong>DP 表天然是一張「決策圖」,回溯只是順著它走。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong>
+      <strong>八方向</strong>:只要把 <code>DIR</code> 從 4 個改成 8 個(加四個斜角),<strong>其餘完全不變</strong> —— 邊多了但仍是「小→大」的 DAG,無環性質不受影響,<code>O(mn)</code> 照舊(常數變 2 倍)。<strong>正確性不破壞。</strong><br />
+      <strong>改成「非遞減」(<code>≥</code> 也能走)</strong>:<strong>會破壞正確性</strong> —— 相等的相鄰格互相連邊 → <strong>成環</strong> → 不再是 DAG，memo/Kahn 都失效(DFS 無窮迴圈、Kahn 有格子永遠 indeg&gt;0 剝不掉)。若題目真要「非遞減最長路徑」,得先把<strong>相等的連通塊縮成一個超級節點</strong>(縮點),再在縮點後的 DAG 上跑 —— 難度整個升一級。<strong>strict 與否，決定了它還是不是 DAG。</strong>
+    </div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 兩者都是 <code>O(mn)</code> <em>時間</em>,和路徑長短無關(每格都要碰一次)。但論<strong>空間</strong>與<strong>穩健性</strong>:<br />
+    ● <strong>記憶化 DFS</strong> 的隱憂是<strong>遞迴深度</strong> = 最長路徑長。這題「路徑很短」的前提下,遞迴很淺,DFS 反而<strong>安全又省</strong>。但若換成「一條長蛇」矩陣,深度 <code>O(mn)</code> 會爆 stack —— 那時 <strong>Kahn 更穩</strong>(無遞迴)。<br />
+    ● <strong>額外空間</strong>:兩者都要一張 <code>O(mn)</code> 輔助表(memo / indeg)。想壓到 <code>O(1)</code> 額外空間,可以<strong>把 dp 值直接編碼進原矩陣</strong>(例如用高位 bit 存 dp、低位存原值),省掉 memo 表 —— 但這是 hacky 技巧,面試講得出思路即可,不必真寫。<br />
+    <strong>判斷準則</strong>:路徑淺 → DFS 簡潔夠用;可能很深 / 怕爆 stack → Kahn。時間都一樣,選的是<strong>穩健性和可讀性</strong>。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「嚴格遞增=DAG=可多項式、memo 每格算一次、不用 visited、Kahn 層數=答案、&gt;= 會成環」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 329 · LONGEST INCREASING PATH</div>
+  </div>
+
+</body>
+</html>
