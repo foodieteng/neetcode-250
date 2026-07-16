@@ -295,7 +295,7 @@ PROBLEMS = {
         ('p494', 'Target Sum',                                   'target-sum',                                   'med', 'done'),
         ('p97',  'Interleaving String',                          'interleaving-string',                          'med', 'done'),
         ('p877', 'Stone Game',                                   'stone-game',                                   'med', 'done'),
-        ('p1140','Stone Game II',                                'stone-game-ii',                                'med', 'todo'),
+        ('p1140','Stone Game II',                                'stone-game-ii',                                'med', 'done'),
         ('p329', 'Longest Increasing Path in a Matrix',          'longest-increasing-path-in-a-matrix',          'hard','done'),
         ('p115', 'Distinct Subsequences',                        'distinct-subsequences',                        'hard','done'),
         ('p72',  'Edit Distance',                                'edit-distance',                                'med', 'todo'),

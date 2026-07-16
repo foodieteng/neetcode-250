@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1140 · Stone Game II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P1140</span>
+    <span><a href="https://leetcode.com/problems/stone-game-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">石頭遊戲 II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · dp[i][m] + 後綴和</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1140</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>博弈 DP · 後綴和</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一排石頭堆 <code>piles</code>。Alice、Bob 輪流,Alice 先手。當前參數 <code>M</code>(初始 <code>1</code>),每回合可拿<strong>最前面 <code>X</code> 堆</strong>,<code>1 ≤ X ≤ 2M</code>,拿完後 <code>M</code> 更新為 <code>max(M, X)</code>。兩人最優,求 Alice 最多拿多少石頭。
+      </p>
+    </div>
+
+    <p>
+      和 <a href="../p877/index.html">877 石頭遊戲</a>同屬博弈 DP,但這裡有兩個新東西:
+      狀態多了一個<strong>參數 <code>M</code></strong>(能拿幾堆會變),而且拿的是<strong>前綴</strong>(只從<strong>一端</strong>拿、可拿多堆)。
+      這兩點讓狀態變成 <code>dp[i][m]</code>,並且很自然地用上<strong>後綴和</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 狀態定義 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · dp[i][m] 與那個恆等式<span class="sc-section__title-en">// THE STATE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">狀態 · dp[i][m] = 我從 piles[i..] 能拿的最多石頭</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>dp[i][m]</code> = 「輪到<strong>我</strong>、面對 <code>piles[i..n−1]</code>、當前參數 <code>M=m</code> 時,我能拿到的<strong>最多石頭</strong>」。
+          和 877 一樣<strong>不記玩家</strong>(誰面對這個局面都一樣),但多了 <code>m</code> 這一維,因為「能拿幾堆」會隨遊戲變。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>關鍵恆等式(整題的靈魂)</strong>:我拿走前 <code>x</code> 堆後,對手在 <code>piles[i+x..]</code> 玩同一個遊戲,拿到 <code>dp[i+x][max(m,x)]</code>。
+          而從第 <code>i</code> 堆之後,<strong>不是對手拿的,全是我的</strong>。所以:
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.7;text-align:center;">
+          我的 = <code>suffixSum[i] − dp[i+x][max(m,x)]</code>
+        </p>
+        <p style="margin:0;">
+          <code>suffixSum[i]</code> = <code>piles[i..]</code> 的總和。這一步把「我拿的 + 我從剩下再拿的」<strong>合併</strong>成
+          「剩下總共 <strong>減</strong> 對手拿的」—— 和 <a href="../p877/code.html">877 的減號</a>是<strong>同一個把戲</strong>,只是這裡用<strong>後綴和</strong>表達「剩下總共」。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · base + general ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">兩個分支 · base 與 general<span class="sc-section__title-en">// BASE + GENERAL</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">分支 · 拿得到底就全拿,否則枚舉拿幾堆</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 12px;">
+          <strong>● BASE:<code>i + 2m ≥ n</code></strong><br />
+          <span style="color:#c9cdd6;">當前能拿的堆數 <code>2m</code> 已經<strong>覆蓋到最後一堆</strong> —— 直接<strong>一次全拿</strong>,對手沒東西可拿:</span><br />
+          　<code>dp[i][m] = suffixSum[i]</code>
+        </p>
+        <p style="margin:0;">
+          <strong>● GENERAL:否則枚舉 <code>x = 1..2m</code></strong><br />
+          <span style="color:#c9cdd6;">拿前 <code>x</code> 堆,對手接手 <code>max(m,x)</code> 的參數,取讓<strong>我最多</strong>的 <code>x</code>:</span><br />
+          　<code>dp[i][m] = max( suffixSum[i] − dp[i+x][max(m,x)] )</code>
+        </p>
+      </div>
+    </div>
+
+    <p style="margin-top:14px;">
+      <strong>為什麼 base 是必要的、不能只寫 general?</strong>因為 general 的迴圈 <code>x=1..2m</code> 會存取 <code>dp[i+x][…]</code>,
+      當 <code>i+x</code> 超出範圍就爆。base 正是「<code>x</code> 能一路拿到底」的情形 —— 那時答案直接是 <code>suffixSum[i]</code>,
+      <strong>連遞迴都不用</strong>。這就是你標的「<strong>base + general</strong>」:一個收尾、一個推進。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,7,9,4,4] → 10</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      先看 <strong>base</strong>(拿得到底就全拿),再看 <strong>general</strong> 求 <code>dp[0][1]</code>:比較「拿 1 堆」和「拿 2 堆」，每個都用 <code>suffixSum[0] − 對手</code> 算我的。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ dp[i][m] · 後綴和</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 貪心陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「多拿」不一定好<span class="sc-section__title-en">// THE TRADE-OFF</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">拿越多 → 對手的 M 越大 → 對手能搶越多</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          動畫裡 <code>dp[0][1]</code>:拿 <strong>1</strong> 堆得 <code>10</code>、拿 <strong>2</strong> 堆只得 <code>9</code>。<strong>拿少的反而多!</strong>
+        </p>
+        <p style="margin:0;">
+          因為拿 <code>x</code> 堆會把對手的參數推到 <code>max(m, x)</code> —— <strong>你拿越多,對手下一步能拿的上限 <code>2·max(m,x)</code> 就越大</strong>,
+          可能一口氣把後面的大堆全掃走。所以這不是貪心「能拿多少拿多少」,而是<strong>權衡</strong>:眼前多吃一點 vs 給對手更大的胃口。
+          <strong>這正是要 DP、不能貪心的原因。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n³)</strong>　　S = <strong>O(n²)</strong></div>
+      <p class="sc-formula__hint">
+        狀態 <code>dp[i][m]</code> 有 <code>O(n²)</code> 個(<code>i,m ≤ n</code>),每個 general 分支枚舉 <code>x</code> 最多 <code>2m = O(n)</code> → <strong><code>O(n³)</code></strong>。
+        <code>n ≤ 100</code>,<code>10⁶</code> 級,穩過。<strong>後綴和</strong>讓「剩下總共多少」變 <code>O(1)</code> 查詢,是能壓到這個複雜度的關鍵。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>我的 = suffixSum[i] − 對手的</strong>(和 877 減號同源,用後綴和表達「剩下總共」)。
+      狀態多一維 <code>m</code>(能拿幾堆);<strong>base</strong>(<code>i+2m≥n</code>)全拿收尾、<strong>general</strong> 枚舉 <code>x</code> 推進。多拿會養大對手 → 要 DP 權衡。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p877/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 石頭遊戲 877</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i][m]=我從 piles[i..] 最多拿。base i+2m≥n 全拿;general max(suffixSum[i]−dp[i+x][max(m,x)])。多拿養大對手。</div>
+    <div class="sc-summary-bar__detail">博弈 DP · 後綴和 · STONE GAME II</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1140-suffix.js"></script>
+</body>
+</html>
