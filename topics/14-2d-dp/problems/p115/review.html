@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>115 · Distinct Subsequences // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P115</span>
+    <span><a href="https://leetcode.com/problems/distinct-subsequences/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">相異子序列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 115</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i][j]</code> = s 前 i 字裡,子序列 = t 前 j 字的<strong>個數</strong></td></tr>
+        <tr><td>相等</td><td><code>dp[i−1][j]</code>(不拿)<code>+ dp[i−1][j−1]</code>(拿)</td></tr>
+        <tr><td>不等</td><td><code>dp[i−1][j]</code> —— <strong>只有「上」,沒有「左」</strong></td></tr>
+        <tr><td>base</td><td><strong>整欄</strong> <code>dp[i][0]=1</code>(空 t 一種湊法)</td></tr>
+        <tr><td>依賴</td><td>上 + 左上 → 壓一維要 <code>prev</code> 或右往左</td></tr>
+        <tr><td>型別</td><td><code>unsigned long long</code> —— 中間值(二項式中段)會爆 int,即使答案合法</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 字元<strong>相等</strong>時為什麼要 <code>dp[i−1][j] + dp[i−1][j−1]</code>?兩項分別代表什麼決定?為什麼「相等了還要算不拿」?</div>
+    <div class="qa"><strong>Q2.</strong> 為什麼這題<strong>沒有「左」<code>dp[i][j−1]</code></strong>,而 <a href="../p1143/index.html">LCS</a> 不等時要比較上和左?差別的根源是什麼?</div>
+    <div class="qa"><strong>Q3.</strong> 題目保證「答案放得進 int32」,你卻用 <code>unsigned long long</code>。給一個<strong>合法輸入</strong>證明 <code>int</code> 會出事。</div>
+    <div class="qa"><strong>Q4.</strong> <code>base</code> 為什麼是<strong>整欄</strong> <code>dp[i][0]=1</code> 而不只是 <code>dp[0][0]=1</code>?<code>dp[0][j]</code>(<code>j≥1</code>)又該是多少、為什麼?</div>
+    <div class="qa"><strong>Q5.</strong> 要把空間壓成 <code>O(n)</code>,內層 <code>j</code> 要<strong>往哪個方向</strong>掃?為什麼?和 <a href="../p97/code.html">97</a> 為何不同?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "babgbag" × "bag" → 5</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 完整表(實跑輸出)</span>
+          ""   b   a   g
+    ""     1   0   0   0
+    b      1   1   0   0
+    a      1   1   1   0
+    b      1   2   1   0
+    g      1   2   1   1
+    b      1   3   1   1
+    a      1   3   4   1
+    g      1   3   4   5
+<span class="sc-trace__out">return dp[7][3] = 5</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 答案那一步 dp[7][3]</span>
+s[6]='g' 配 t[2]='g':
+    dp[7][3] = 上 dp[6][3](1) + 左上 dp[6][2](4) = 5
+
+左上 dp[6][2]=4 = 「湊出 ba 有 4 種」(3 個 b 各接倒數第 2 個 a,再加…)
+上   dp[6][3]=1 = 「不用最後這個 g,前面已湊出的 bag」= 第一個 g 收尾那條
+→ 4 + 1 = 5</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 手動列出 5 種 "bag"(用 s 的 index 標記)</span>
+s = b a b g b a g
+    0 1 2 3 4 5 6
+
+1)  b0  a1  g3
+2)  b0  a5  g6
+3)  b2  a5  g6
+4)  b4  a5  g6
+5)  b0  a1  g6
+<span class="sc-trace__out">5 種不同的 index 組合 = dp 表算出的 5,一個不多一個不少</span></div>
+
+    <div class="sc-insight">
+      DP 數的是「<strong>不同的 index 挑法</strong>」,不是「不同的字串」——
+      這 5 種挑出來都是字串 <code>"bag"</code>,但用到的<strong>位置</strong>不同,所以算 5 種。
+      「distinct subsequences」的 distinct 指的是<strong>子序列(位置集合)</strong>相異,不是字串相異。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若要的不是「幾種」而是「<strong>存不存在</strong> <code>t</code> 為 <code>s</code> 的子序列」(<a href="https://leetcode.com/problems/is-subsequence/" target="_blank" rel="noopener">LC 392</a>),還需要 DP 嗎?最省的做法是什麼、複雜度多少?</div>
+    <div class="qa"><strong>App 2.</strong> 若允許 <code>t</code> 裡出現<strong>萬用字元 <code>?</code></strong>(配任意單一字元),轉移要怎麼改?若是 <code>*</code>(配任意長度)呢?這會把題目推向哪一題?</div>
+    <div class="qa"><strong>App 3.</strong> 若要<strong>真的印出</strong>其中一種挑法(而非只數數量),二維表夠嗎?能不能只用 <code>O(n)</code> 空間做到?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 兩項是<strong>對 <code>s[i−1]</code> 的兩種處置</strong>:<br />
+    ● <code>dp[i−1][j−1]</code> = 「<strong>拿</strong>」—— 用 <code>s[i−1]</code> 去配掉 <code>t[j−1]</code>,兩邊各退一格,方法數繼承自「更短的 s 配更短的 t」。<br />
+    ● <code>dp[i−1][j]</code> = 「<strong>不拿</strong>」—— 跳過 <code>s[i−1]</code>,<code>t</code> 目標不變,用 <code>s</code> 前面的字元去湊 <code>t</code> 的前 <code>j</code> 字。<br />
+    <strong>為什麼相等了還要算「不拿」?</strong>因為即使 <code>s[i−1]</code> <em>能</em> 配 <code>t[j−1]</code>,你<strong>不一定要用它</strong> —— 也許改用 <code>s</code> 前面另一個相同字元,那是<strong>不同的子序列</strong>,得分開數。<code>rabbbit</code> 的三個 <code>b</code>:每多一個 <code>b</code>,「拿新的」和「用舊的」都成立,方法數就 <code>1→2→3</code> 疊上去。<strong>漏掉「不拿」= 把不同挑法當成同一種,直接少算。</strong></div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 根源是<strong>兩個字串的地位不對等</strong>。<br />
+    115 把 <code>t</code> 當成<strong>固定目標</strong>去 <code>s</code> 裡數:<code>t</code> 的<strong>每個字都必須被配掉</strong>,不能跳過;只有 <code>s</code> 可以跳。所以「跳過某字」只有一種方向 ——「跳 <code>s</code>」,對應 <code>dp[i−1][j]</code>(上)。<strong>「跳 t」不存在,所以沒有「左」<code>dp[i][j−1]</code>。</strong><br />
+    <a href="../p1143/index.html">LCS</a> 兩個字串<strong>對等</strong>:找的是共同子序列,<em>兩邊都可以</em>跳過字元。所以不等時要<strong>比較</strong>「跳 s(上)」和「跳 t(左)」哪個更長 → <code>max(dp[i−1][j], dp[i][j−1])</code>。<br />
+    <strong>一句話:誰能被跳過,決定你有幾個來源。</strong>115 只有 s 能跳 → 只有上;LCS 兩邊能跳 → 上和左都要看。這也是為什麼 115 的表<strong>不對稱</strong>(換 s、t 答案會變),LCS 對稱。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 取 <code>s = 35 個 'a'</code>、<code>t = 30 個 'a'</code> —— <code>m,n ≤ 1000</code>,<strong>完全合法</strong>。全同字元時 <code>dp[i][j] = C(i,j)</code>。<br />
+    ● 最終答案 <code>dp[35][30] = C(35,30) = C(35,5) = 324,632</code> → <strong>放得進 int32</strong>,題目的保證成立。<br />
+    ● 但中間 <code>dp[35][17] = C(35,17) = 4,537,567,650</code> → <strong>超過 <code>INT_MAX</code></strong>(2.1×10⁹)。整張表有 <strong>11 格</strong>爆掉。<br />
+    原因:中間欄數的是<strong>較短的 t 前綴</strong>,二項式係數在正中間 <code>j≈m/2</code> 最大,答案落在遞減側反而較小。<br />
+    用 <code>int</code>,那些 <code>+</code> 是<strong>有號溢位 = UB</strong>,<code>-fsanitize=signed-integer-overflow</code> 實測當場報 <code>signed integer overflow: 1166803110 + 1037158320</code>。所以 <code>unsigned long long</code> 是<strong>對的、必要的</strong> —— 和 <a href="../p518/code.html">518</a> 同一個道理:<strong>題目只保證答案,沒保證中間值。</strong></div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <code>dp[i][0]</code> = 「s 前 <code>i</code> 字裡,有幾個子序列等於<strong>空字串</strong>」。空字串的湊法<strong>只有一種:什麼都不選</strong> —— 不管 <code>s</code> 多長都成立,所以<strong>整欄都是 1</strong>。只設 <code>dp[0][0]=1</code> 會讓 <code>dp[1][0]…dp[m][0]</code> 停在 0,而它們是每一列轉移的<strong>左上來源</strong>,一旦是 0,配對格永遠加不進「拿」那條,整張表崩掉。<br />
+    <code>dp[0][j]</code>(<code>j≥1</code>)= 「<strong>空的 s</strong> 裡有幾個子序列等於非空 <code>t</code>」= <strong>0</strong>(空字串生不出非空目標)。這由 <code>vector</code> 初始化的 0 自動成立,不用手設。<strong>兩個邊界合起來:空 t 給 1、空 s 給 0,計數的種子就齊了。</strong></div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 內層 <code>j</code> 要<strong>由大到小(右往左)</strong>掃。<br />
+    壓一維時 <code>dp[j]</code> 同時扮演「這一列的新值」和「上一列的舊值」。轉移要用 <strong>左上</strong> <code>dp[i−1][j−1]</code>,也就是「上一列、左邊一格」。若 <code>j</code> 由小到大,<code>dp[j−1]</code> 在算 <code>dp[j]</code> 之前<strong>已經被本列覆蓋</strong>,左上就丟了。<strong>由大到小</strong>掃,算 <code>dp[j]</code> 時 <code>dp[j−1]</code> 還是舊值(左上完好),更新完 <code>dp[j]</code> 才輪到更小的 <code>j</code>。<br />
+    (或者仿 <a href="../p1143/code.html">1143</a> 保留一個 <code>prev</code> 變數存左上,那樣左往右也行。)<br />
+    <strong>和 <a href="../p97/code.html">97</a> 的差別</strong>:97 交錯字串只依賴<strong>上</strong>和<strong>左</strong>,<strong>沒有左上</strong>,所以壓一維時無腦左往右就對、不用 <code>prev</code>。<strong>要不要小心掃描方向,取決於轉移有沒有碰「左上」。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <strong>不需要 DP。</strong>「存不存在」是可行性,不用數方法,用<strong>雙指標貪心</strong>:<code>i</code> 掃 <code>s</code>、<code>j</code> 掃 <code>t</code>,<code>s[i]==t[j]</code> 就 <code>j++</code>,最後看 <code>j</code> 是否走完 <code>t</code>。時間 <code>O(m)</code>、空間 <code>O(1)</code>。<br />
+    貪心正確的原因:配 <code>t</code> 的某個字時,<strong>選最早能配的 <code>s</code> 位置永不吃虧</strong>(留最多後路給後面的字)—— 這是子序列匹配的經典交換論證。<br />
+    對比很有啟發:<strong>「有沒有」<code>O(m)</code> 貪心就夠,「有幾個」才要 <code>O(mn)</code> DP。</strong>計數把問題變難了一個量級 —— 這也是 <a href="https://leetcode.com/problems/is-subsequence/" target="_blank" rel="noopener">392</a> 是 Easy、115 是 Hard 的原因。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong>
+      <strong><code>?</code>(配任意單一字元)</strong>:把「字元相等」的條件放寬成 <code>s[i−1]==t[j−1] || t[j−1]=='?'</code>,轉移完全不變。因為 <code>?</code> 一定「用掉一個 s 字、消一個 t 字」,和普通配對的結構一樣。<br />
+      <strong><code>*</code>(配任意長度,含空)</strong>:結構就變了 —— <code>*</code> 可以吃 0 個或多個 s 字。轉移要加「<code>*</code> 不吃(<code>dp[i][j−1]</code>)」和「<code>*</code> 多吃一個(<code>dp[i−1][j]</code>)」兩條。這正是把題目推向 <a href="https://leetcode.com/problems/wildcard-matching/" target="_blank" rel="noopener">LC 44 萬用字元匹配</a> / <a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="noopener">LC 10 正則匹配</a> 的家族 —— 從「計數」轉成「可行性」,但<strong>格子仍是 <code>dp[i][j]</code>、仍看上/左/左上的組合</strong>,只是聚合換成 <code>OR</code>、來源隨萬用字元語意增加。<strong>整個兩字串 DP 家族共用同一張表,差別只在「每格怎麼合」。</strong>
+    </div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> <strong>印一種挑法要保留完整二維表</strong>(<code>O(mn)</code> 空間)—— 一維滾動丟了歷史,無法回溯。<br />
+    <strong>回溯法</strong>:從 <code>(m, n)</code> 往回走。在 <code>(i, j)</code>:若 <code>s[i−1]==t[j−1]</code> 且 <code>dp[i−1][j−1] &gt; 0</code>,可以「<strong>拿</strong>」——記下 <code>s</code> 的 index <code>i−1</code>,退到 <code>(i−1, j−1)</code>;否則(或你想要另一種)走「不拿」退到 <code>(i−1, j)</code>。走到 <code>j==0</code> 就得到一組完整的 index。<code>O(m)</code> 步。<br />
+    <strong>能不能只用 <code>O(n)</code> 空間還印得出來?</strong>可以,但要用<strong>分治回溯</strong>(Hirschberg 的手法):在中間切一刀,兩半各算一次一維 DP 決定分界點,再遞迴 —— 時間仍 <code>O(mn)</code>、空間降到 <code>O(n)</code>。這是「<strong>計數只需 <code>O(n)</code>、但輸出方案通常要 <code>O(mn)</code> 或更巧的分治</strong>」的經典取捨,和 <a href="../p1143/index.html">LCS</a> 要印出實際子序列時遇到的問題一模一樣。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「相等=上+左上(拿+不拿)、只有 s 能跳所以沒有左、base 整欄 1、ull 擋中間值 UB、壓維要右往左」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 115 · DISTINCT SUBSEQUENCES</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>115 · Distinct Subsequences // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P115</span>
+    <span><a href="https://leetcode.com/problems/distinct-subsequences/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">相異子序列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 子序列計數 DP</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 115</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>兩字串 DP · 計數</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給兩字串 <code>s</code>、<code>t</code>,問 <code>t</code> 在 <code>s</code> 裡以<strong>子序列</strong>出現<strong>幾次</strong>(可以跳過字元,但保持順序)。
+        例 <code>s="rabbbit"</code>、<code>t="rabbit"</code> → <code>3</code>(三個 <code>b</code> 挑兩個,有 3 種挑法)。
+      </p>
+    </div>
+
+    <p>
+      關鍵字是「<strong>幾次</strong>」—— 這是<strong>計數</strong>題,不是「能不能」也不是「最長多少」。
+      跟 <a href="../p1143/index.html">1143 LCS</a>(求<strong>長度</strong>)、<a href="../p97/index.html">97 交錯字串</a>(求<strong>可行性</strong>)同屬兩字串 DP 家族,
+      但這題數的是<strong>方法數</strong>,所以聚合是<strong>加法</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 拿或不拿 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 每個 s 字元「拿或不拿」<span class="sc-section__title-en">// TAKE or SKIP</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">狀態 · dp[i][j] = s 前 i 字裡,有幾個子序列 = t 前 j 字</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          站在 <code>s</code> 的第 <code>i</code> 個字元 <code>s[i−1]</code>,問它<strong>要不要拿來配 <code>t[j−1]</code></strong>:
+        </p>
+        <p style="margin:0 0 10px;">
+          ● <strong>字元相等</strong> <code>s[i−1] == t[j−1]</code> → <strong>兩條路都可以,相加</strong>:<br />
+          　　<code>dp[i][j] = dp[i−1][j]</code>　<span style="color:#c9cdd6;">(<strong>不拿</strong>:跳過這個 s 字元,用前面的湊)</span><br />
+          　　　　　　<code>+ dp[i−1][j−1]</code>　<span style="color:#c9cdd6;">(<strong>拿</strong>:用它配掉 t[j−1],兩邊各退一格)</span>
+        </p>
+        <p style="margin:0 0 10px;">
+          ● <strong>字元不等</strong> <code>s[i−1] != t[j−1]</code> → <strong>只能跳過</strong>:<br />
+          　　<code>dp[i][j] = dp[i−1][j]</code>　<span style="color:#c9cdd6;">(這個 s 字元派不上用場,直接丟掉)</span>
+        </p>
+        <p style="margin:0;">
+          <strong>為什麼相等時「不拿」也要算?</strong>因為就算 <code>s[i−1]</code> 能配 <code>t[j−1]</code>,你<strong>也可以選擇不用它</strong>、
+          改用 <code>s</code> 前面某個一樣的字元 —— 那是<strong>不同的子序列</strong>,得分開數。<code>rabbbit</code> 的三個 <code>b</code> 就是這樣各算一種。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · base 與方向 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>base</strong>:<code>dp[i][0] = 1</code> —— 空的 <code>t</code> 永遠有<strong>一種</strong>湊法(什麼都不選)。第一行 <code>dp[0][j]=0</code>(<code>j≥1</code>):空的 <code>s</code> 湊不出非空 <code>t</code>。</li>
+      <li><strong>轉移</strong>:相等 → <code>dp[i−1][j] + dp[i−1][j−1]</code>;不等 → <code>dp[i−1][j]</code>。</li>
+      <li><strong>答案</strong>:<code>dp[m][n]</code>。只依賴<strong>上</strong>(<code>i−1,j</code>)與<strong>左上</strong>(<code>i−1,j−1</code>)—— 沒有「左」。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// "babgbag" × "bag" → 5</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      一列一列填。留意每個配對格 = <strong>上</strong>(不拿)+ <strong>左上</strong>(拿)。三個 <code>b</code> 讓 <code>dp[·][1]</code> 一路長到 3,再各接 <code>a</code>、<code>g</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 子序列計數 · 拿/不拿 s[i−1]</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:440px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 對照 LCS ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">和 LCS 的一線之隔<span class="sc-section__title-en">// vs 1143</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">同骨架,差在「相等時做什麼」與「不等時看幾個來源」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>115(本題,計數)</strong><br />
+          　相等:<code>dp[i−1][j] + dp[i−1][j−1]</code>　　不等:<code>dp[i−1][j]</code>　<span style="color:#c9cdd6;">(只看「上」)</span>
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong><a href="../p1143/index.html" style="color:inherit;">1143 LCS(長度)</a></strong><br />
+          　相等:<code>dp[i−1][j−1] + 1</code>　　不等:<code>max(dp[i−1][j], dp[i][j−1])</code>　<span style="color:#c9cdd6;">(看「上」和「左」取大)</span>
+        </p>
+        <p style="margin:0;">
+          <strong>差別的本質</strong>:LCS 兩個字串<strong>對等</strong>(誰跳過都行),所以不等時要比較「跳 s」和「跳 t」;
+          115 是把 <code>t</code> <strong>當成固定目標</strong>去 <code>s</code> 裡數 —— <strong>只有 <code>s</code> 能跳過</strong>,<code>t</code> 的每個字都必須被配掉,
+          所以不等時<strong>只有「跳 s」一條路</strong>(只看「上」)。留意 115 <strong>沒有「左」<code>dp[i][j−1]</code></strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(mn)</strong>　　S = <strong>O(mn)</strong> → 可壓成 <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        <code>m,n ≤ 1000</code> → 最壞 <code>10⁶</code> 格。因為只讀<strong>上</strong>與<strong>左上</strong>,一維滾動時要像 <a href="../p1143/code.html">1143</a> 一樣留一個 <code>prev</code> 暫存左上
+        (和 <a href="../p97/code.html">97</a> 不同 —— 97 沒有左上,不用暫存)。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      每個 <code>s</code> 字元問「<strong>拿去配 t、還是跳過</strong>」。相等時<strong>兩條都算(相加)</strong>,不等時只能跳過。
+      <code>t</code> 是固定目標、只有 <code>s</code> 能跳 → <strong>沒有「左」,只有上 + 左上</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p309/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 含冷凍期 309</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp[i][j]=s前i字裡=t前j字的子序列數。相等:上+左上(不拿+拿)。不等:只有上。答案 dp[m][n]。</div>
+    <div class="sc-summary-bar__detail">兩字串 DP · 計數 · DISTINCT SUBSEQUENCES</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p115-count.js"></script>
+</body>
+</html>
