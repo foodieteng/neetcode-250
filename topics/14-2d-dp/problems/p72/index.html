@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>72 · Edit Distance // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P72</span>
+    <span><a href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">編輯距離</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 兩字串 DP · 三方向=三操作</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 72</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>字串 DP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給兩字串 <code>word1</code>、<code>word2</code>,問把 <code>word1</code> 改成 <code>word2</code> 的<strong>最少操作數</strong>。
+        允許三種操作:<strong>插入</strong>一個字元、<strong>刪除</strong>一個字元、<strong>替換</strong>一個字元。
+        例 <code>horse → ros</code> → <code>3</code>。
+      </p>
+    </div>
+
+    <p>
+      經典的 <strong>Levenshtein 編輯距離</strong>,兩字串 DP 家族的代表作(和 <a href="../p1143/index.html">1143 LCS</a>、<a href="../p10/index.html">10 正則</a> 同源)。
+      最漂亮的地方:<strong>三種操作剛好對應 dp 表的三個方向</strong> —— 上、左、左上。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 三方向=三操作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 三個方向 = 三種操作<span class="sc-section__title-en">// 3 DIRECTIONS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">狀態 · dp[i][j] = word1 前 i 字 → word2 前 j 字的最少操作</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 12px;">
+          當 <code>word1[i−1] != word2[j−1]</code>,看三個鄰居、各代表一種操作,取<strong>最省的 + 1</strong>:
+        </p>
+        <p style="margin:0 0 10px;">
+          ● <strong>上 <code>dp[i−1][j]</code> → 刪除</strong><br />
+          <span style="color:#c9cdd6;">刪掉 <code>word1[i−1]</code>,word1 少一個字(<code>i−1</code>)、word2 不變。</span>
+        </p>
+        <p style="margin:0 0 10px;">
+          ● <strong>左 <code>dp[i][j−1]</code> → 插入</strong><br />
+          <span style="color:#c9cdd6;">在 word1 插入 <code>word2[j−1]</code> 配上 word2 這個字,word2 少一個要配(<code>j−1</code>)、word1 不變。</span>
+        </p>
+        <p style="margin:0;">
+          ● <strong>左上 <code>dp[i−1][j−1]</code> → 替換</strong><br />
+          <span style="color:#c9cdd6;">把 <code>word1[i−1]</code> 換成 <code>word2[j−1]</code>,兩邊各消一個字。</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">字元相同時 · 免費對角線</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          當 <code>word1[i−1] == word2[j−1]</code>,這個字<strong>不用動</strong> —— 直接沿用左上 <code>dp[i−1][j−1]</code>,<strong>不 +1</strong>。
+          相同字元是「白撿的對齊」,零成本走對角線。這是編輯距離和 <a href="../p1143/index.html">LCS</a> 都有的核心對角線。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>base</strong>:<code>dp[i][0] = i</code>(word2 空 → 把 word1 的 i 個字<strong>全刪</strong>);<code>dp[0][j] = j</code>(word1 空 → <strong>插入</strong> j 個字)。</li>
+      <li><strong>相同</strong>:<code>dp[i][j] = dp[i−1][j−1]</code>(免費對角線)。</li>
+      <li><strong>不同</strong>:<code>dp[i][j] = 1 + min(上, 左, 左上)</code>(刪 / 插 / 換,挑最省);答案 <code>dp[m][n]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// "horse" → "ros" → 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 base(全刪 / 全插)、相同字元(免費對角線)、不同字元(三方向取 min)。右側對照三個方向各是哪種操作。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Edit Distance · 三方向</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼是這三個方向 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼恰好是這三個方向<span class="sc-section__title-en">// WHY THESE 3</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">每種操作「消耗」哪個字串,決定 index 往哪走</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          三種操作的本質是「<strong>對齊 word1[i−1] 和 word2[j−1] 的最後一個字</strong>」的三種方式:
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.95;">
+          刪除:word1 這個字不要了 → <strong>i 退一步</strong>、j 不動 → 上<br />
+          插入:word2 這個字用「插」補上 → <strong>j 退一步</strong>、i 不動 → 左<br />
+          替換:兩個字對成一對 → <strong>i、j 都退</strong> → 左上
+        </p>
+        <p style="margin:0;">
+          <strong>「操作消耗哪個字串,index 就往哪個方向退。」</strong>刪除只動 word1、插入只動 word2、替換兩個都動 ——
+          三種消耗組合,剛好是上、左、左上三個來源。這也解釋了為什麼<strong>沒有第四個方向</strong>:三種操作窮盡了所有對齊方式。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(mn)</strong>　　S = <strong>O(mn)</strong> → 可壓 <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        填 <code>(m+1)(n+1)</code> 格、每格 <code>O(1)</code>。<code>m,n ≤ 500</code> → <code>25 萬</code>格,穩過。
+        因為只依賴<strong>上一列</strong>(上 / 左上)和<strong>本列左鄰</strong>(左),可壓成一維 <code>O(n)</code>,但要用 <code>prev</code> 暫存左上(同 <a href="../p1143/code.html">1143</a>)。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>三方向 = 三操作</strong>:上=刪、左=插、左上=換。相同字元走<strong>免費對角線</strong>,不同則 <code>1 + min(三者)</code>。
+      base 是「對空字串全刪 / 全插」。操作消耗哪個字串,index 就往哪退。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p10/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 正則匹配 10</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">相同→免費左上;不同→1+min(上刪, 左插, 左上換)。base:dp[i][0]=i、dp[0][j]=j。答案 dp[m][n]。</div>
+    <div class="sc-summary-bar__detail">兩字串 DP · EDIT DISTANCE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p72-edit.js"></script>
+</body>
+</html>

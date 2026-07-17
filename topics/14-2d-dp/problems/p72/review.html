@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>72 · Edit Distance // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P72</span>
+    <span><a href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">編輯距離</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 72</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i][j]</code> = word1 前 i 字 → word2 前 j 字的最少操作</td></tr>
+        <tr><td>相同</td><td><code>dp[i−1][j−1]</code>(免費對角線,<strong>不 +1</strong>)</td></tr>
+        <tr><td>不同</td><td><code>1 + min(上, 左, 左上)</code></td></tr>
+        <tr><td>上 = 刪</td><td><code>dp[i−1][j]</code>,刪 word1[i−1]</td></tr>
+        <tr><td>左 = 插</td><td><code>dp[i][j−1]</code>,插 word2[j−1]</td></tr>
+        <tr><td>左上 = 換</td><td><code>dp[i−1][j−1]</code></td></tr>
+        <tr><td>base</td><td><code>dp[i][0]=i</code>(全刪)、<code>dp[0][j]=j</code>(全插)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 三個方向(上 / 左 / 左上)各對應哪種操作?為什麼「操作消耗哪個字串,index 就往哪退」?</div>
+    <div class="qa"><strong>Q2.</strong> 字元<strong>相同</strong>時為什麼只取左上、而且<strong>不 +1</strong>?可不可以還是走上或左?</div>
+    <div class="qa"><strong>Q3.</strong> <code>base</code> 為什麼是 <code>dp[i][0]=i</code> 和 <code>dp[0][j]=j</code>?這兩條的操作各是什麼?</div>
+    <div class="qa"><strong>Q4.</strong> 「插入」和「刪除」為什麼是<strong>對稱</strong>的?這對稱性讓 dp 表呈現什麼性質?</div>
+    <div class="qa"><strong>Q5.</strong> 這題和 <a href="../p1143/index.html">1143 LCS</a> 都有「相同 → 左上」的對角線。兩題的<strong>相同分支</strong>和<strong>不同分支</strong>各差在哪?為什麼一個求 min、一個求 max?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "intention" → "execution" → 5</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 官方例二,答案 5</span>
+intention → inention  (刪 t)
+          → enention  (替換 i→e)
+          → exention  (替換 n→x)
+          → exection  (替換 n→c)
+          → execution (插入 u)
+<span class="sc-trace__out">5 步:1 刪 + 3 替換 + 1 插入,dp[9][9] = 5</span></div>
+
+    <div class="sc-insight">
+      注意最優解<strong>混用了三種操作</strong> —— 不是全靠替換。DP 的 <code>min</code> 會在每一格<strong>自動</strong>挑當下最省的那種,
+      不需要你事先規劃「哪裡刪、哪裡插、哪裡換」。<strong>把選擇權交給 <code>min</code>,最優序列自己浮現。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若三種操作<strong>成本不同</strong>(刪=1、插=2、替換=3),程式怎麼改?轉移式長什麼樣?</div>
+    <div class="qa"><strong>App 2.</strong> 若<strong>不准替換</strong>(只能插入 / 刪除),這題會退化成哪一題?答案和 word1、word2 的什麼量有關?</div>
+    <div class="qa"><strong>App 3.</strong> 若要<strong>還原</strong>具體的操作序列(不只距離),要怎麼從 dp 表回溯?為什麼一維滾動版做不到?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> <strong>上 = 刪除、左 = 插入、左上 = 替換</strong>(相同時免費)。<br />
+    ● <strong>刪除</strong> 只丟掉 word1 的字 → <code>i</code> 退一步、<code>j</code> 不動 → 來自<strong>上</strong> <code>dp[i−1][j]</code>。<br />
+    ● <strong>插入</strong> 在 word1 補一個字去配 word2 → 消化掉 word2 的一個字、word1 索引不變 → <code>j</code> 退一步、<code>i</code> 不動 → 來自<strong>左</strong> <code>dp[i][j−1]</code>。<br />
+    ● <strong>替換</strong> 把 word1 的字改成 word2 的字 → 兩個字對成一對,各消一個 → <code>i、j</code> 都退 → 來自<strong>左上</strong> <code>dp[i−1][j−1]</code>。<br />
+    <strong>「操作消耗哪個字串,index 就往那個方向退」</strong>:刪除吃 word1(動 <code>i</code>=垂直=上)、插入吃 word2(動 <code>j</code>=水平=左)、替換兩個都吃(斜著退=左上)。三種消耗組合窮盡了「怎麼對齊兩字串最後一個字」的所有方式,所以恰好三個方向、沒有第四個。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 相同時,<code>word1[i−1]</code> 和 <code>word2[j−1]</code> 這對字元<strong>本來就對得上</strong>,不需要任何操作就能對齊 → 直接繼承「兩邊都少一個字」的子問題 <code>dp[i−1][j−1]</code>,成本<strong>不變(不 +1)</strong>。這是整個 DP 唯一的<strong>零成本</strong>轉移,也是「距離」能小於 <code>max(m,n)</code> 的原因。<br />
+    <strong>可以走上或左嗎</strong>:可以「嘗試」,但那代表「明明能免費對齊,卻硬要刪一個再插一個」—— 一定<strong>不會更省</strong>(至少多 1 步)。所以相同時<strong>直接鎖定左上</strong>,連 <code>min</code> 都不用比;硬寫 <code>min(上,左,左上)</code> 也不會錯(左上必然最小),但<strong>白算</strong>。<strong>相同 = 免費對齊,是貪心安全的一步。</strong></div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> base 是「把一個字串變成<strong>空字串</strong>」或「<strong>從空字串</strong>生出一個字串」的距離:<br />
+    ● <code>dp[i][0] = i</code>:<code>word2</code> 是空的,要把 <code>word1</code> 前 <code>i</code> 個字全部清掉 → <strong><code>i</code> 次刪除</strong>。<br />
+    ● <code>dp[0][j] = j</code>:<code>word1</code> 是空的,要從無到有打出 <code>word2</code> 前 <code>j</code> 個字 → <strong><code>j</code> 次插入</strong>。<br />
+    ● <code>dp[0][0] = 0</code>:空到空,零操作。<br />
+    這兩條邊是所有內部格子遞迴的<strong>終點</strong> —— 任何 <code>dp[i][j]</code> 一路退 <code>i、j</code>,最後都會落到某條邊界。漏設(留 0)= 告訴程式「把 5 個字的字串變成空字串只要 0 步」,整張表的刪/插成本全錯。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為「<strong>在 word1 插入一個字</strong>」和「<strong>在 word2 刪除一個字</strong>」是<strong>同一件事的兩種說法</strong> —— 都是讓兩字串在該位置「錯開一格」。所以編輯距離是<strong>對稱</strong>的:<code>editDist(A, B) == editDist(B, A)</code>,把兩個字串互換,答案不變。<br />
+    在 dp 表上,這對稱性表現為:交換 word1、word2 相當於<strong>把整張表沿主對角線轉置</strong>,而「上(刪)」和「左(插)」剛好互換位置 —— 兩個方向對稱地站在對角線兩側。<br />
+    <strong>實用價值</strong>:因為對稱,你可以<strong>讓較短的字串當內層</strong>(壓一維時維度取 <code>min(m,n)</code>),省空間。也是驗算的好工具:<code>minDistance(a,b)</code> 和 <code>minDistance(b,a)</code> 應該相等。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 兩題共用「相同 → 左上對角線」的骨架,但<strong>做的事相反</strong>:<br />
+    ● <strong>相同分支</strong>:LCS 是 <code>dp[i−1][j−1] <strong>+ 1</strong></code>(找到一個共同字元,長度<strong>加一</strong>);72 是 <code>dp[i−1][j−1]</code>(對齊成功,成本<strong>不加</strong>)。一個「+1 獎勵」、一個「+0 免費」。<br />
+    ● <strong>不同分支</strong>:LCS 是 <code>max(上, 左)</code>(跳過某字串一個字,<strong>只有兩個方向</strong>、求<strong>最長</strong>);72 是 <code>1 + min(上, 左, 左上)</code>(三種操作、求<strong>最少</strong>,<strong>多了左上「替換」</strong>)。<br />
+    <strong>為什麼一 max 一 min</strong>:LCS 要「<strong>最長</strong>的共同子序列」→ 求<strong>大</strong>;72 要「<strong>最少</strong>的操作」→ 求<strong>小</strong>。<strong>目標是最大化還是最小化,決定聚合是 max 還是 min</strong> —— 同一張表、同一條對角線,換個聚合方向就是另一題。這是兩字串 DP 家族的統一觀。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 把「+1」換成<strong>各操作各自的成本</strong>:<br />
+    <code>dp[i][j] = min( dp[i−1][j] + costDel,　　// 刪</code><br />
+    <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i][j−1] + costIns,　　// 插</code><br />
+    <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i−1][j−1] + costRep )// 換</code>,相同時仍是 <code>dp[i−1][j−1]</code>(免費)。base 也要跟著改:<code>dp[i][0] = i × costDel</code>、<code>dp[0][j] = j × costIns</code>。<br />
+    這叫<strong>加權編輯距離</strong>,是拼寫糾正、DNA 比對的實際模型(不同突變成本不同)。<strong>骨架不變,只是每個方向帶自己的價碼</strong> —— 說明這題的結構比「+1」更通用。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 不准替換 → 只剩<strong>插入 / 刪除</strong>,退化成 <strong>LCS 的變形</strong>。<br />
+    此時 <code>dp[i][j] = 相同 ? dp[i−1][j−1] : 1 + min(上, 左)</code>(拿掉左上那支)。答案 = <code>m + n − 2 × LCS(word1, word2)</code> —— 因為<strong>共同子序列的部分不用動</strong>,剩下的 word1 獨有字元要<strong>刪</strong>(<code>m − LCS</code> 個)、word2 獨有字元要<strong>插</strong>(<code>n − LCS</code> 個)。<br />
+    <strong>直覺</strong>:沒有替換這個「一步搞定不同字元」的捷徑,你只能靠一刪一插(兩步)處理每個不匹配。所以答案和 <a href="../p1143/index.html">LCS</a> 直接掛鉤 —— <strong>這兩題本就是一家人</strong>,替換操作是 72 比 LCS 多出來的那把利器。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 要保留<strong>完整二維表</strong>,從 <code>(m, n)</code> 回溯:<br />
+    在 <code>(i, j)</code>,看 <code>dp[i][j]</code> 是從哪個鄰居來的 —— 若 <code>word1[i−1]==word2[j−1]</code> 且 <code>dp[i][j]==dp[i−1][j−1]</code>,是「保留(免費)」,退到 <code>(i−1,j−1)</code>;否則比對三個來源,哪個 <code>+1</code> 等於 <code>dp[i][j]</code> 就是這步的操作(<code>上→刪</code>、<code>左→插</code>、<code>左上→換</code>),記下並退到對應格。走到邊界為止,<strong>反轉</strong>就是操作序列。<code>O(m+n)</code> 回溯。<br />
+    <strong>為什麼一維版做不到</strong>:回溯需要<strong>每一格</strong>「當初從哪來」的資訊,而一維滾動<strong>只留最後一列、把歷史覆蓋掉了</strong> —— 求「距離」夠,但「怎麼走到的」沒了。這是<strong>「算最優值只要 O(n) 空間、還原最優解通常要 O(mn)」</strong>的經典取捨,和 <a href="../p1143/review.html">LCS 印出子序列</a>、<a href="../p312/index.html">312</a> 印出戳法完全同型。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「上刪左插左上換、相同免費、base 全刪全插、插刪對稱、min vs LCS 的 max、去替換=m+n−2·LCS」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 72 · EDIT DISTANCE</div>
+  </div>
+
+</body>
+</html>
