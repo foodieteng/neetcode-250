@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>312 · Burst Balloons // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P312</span>
+    <span><a href="https://leetcode.com/problems/burst-balloons/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">戳氣球</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 區間 DP · 最後一顆爆</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 312</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>區間 DP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一排氣球 <code>nums</code>。戳破第 <code>i</code> 顆得 <code>nums[i−1] × nums[i] × nums[i+1]</code> 金幣(越界的鄰居當作 <code>1</code>)。
+        戳破後兩邊<strong>相鄰</strong>。求全部戳完的<strong>最多</strong>金幣。例 <code>[3,1,5,8]</code> → <code>167</code>。
+      </p>
+    </div>
+
+    <p>
+      難點在<strong>戳破會改變鄰居</strong> —— 每一步的得分依賴「當下還剩哪些氣球」,順序彼此牽動,狀態糾纏。
+      直接想「先戳哪顆」會陷入死路。這題的<strong>神來一筆</strong>是換個問法:<strong>「最後戳哪顆」</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 最後一顆的反轉 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 枚舉「最後爆的那顆」<span class="sc-section__title-en">// THINK LAST</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">為什麼「先戳」不行、「最後戳」才行</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>「先戳 k」的災難</strong>:戳掉 <code>k</code> 後,它<strong>左右兩邊變成相鄰</strong> —— 左半和右半<strong>接起來了</strong>,之後的得分互相影響,兩邊<strong>無法獨立</strong>。子問題糾纏,DP 拆不開。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>「最後戳 k」的美妙</strong>:如果 <code>k</code> 是某段區間<strong>最後</strong>才爆的,那爆它的<strong>那一刻</strong>,區間內<strong>其他氣球早就全沒了</strong> —— <code>k</code> 的左右鄰居<strong>正好是這段區間的兩個邊界</strong>(那兩顆還沒爆、是固定的)。所以爆 <code>k</code> 的得分是<strong>確定的</strong> <code>nums[i] × nums[k] × nums[j]</code>。
+        </p>
+        <p style="margin:0;">
+          更關鍵:因為 <code>k</code> 撐到最後,它像一道<strong>牆</strong>把區間<strong>隔成左右兩段</strong> —— 左段 <code>(i,k)</code> 和右段 <code>(k,j)</code> 各自爆光、<strong>互不干擾</strong>(中間永遠隔著沒爆的 <code>k</code>)。於是拆成<strong>兩個獨立子問題</strong>:<code>dp[i][k] + dp[k][j]</code>。
+        </p>
+      </div>
+    </div>
+
+    <p style="margin-top:14px;">
+      這就是整題的鑰匙:<strong>「先戳」讓兩側合併、糾纏;「最後戳」讓兩側隔開、獨立。</strong>
+      換個枚舉方向,一個 NP 味十足的排列問題,就塌成乾淨的<strong>區間 DP</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 狀態與轉移 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 開區間 DP<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">狀態 · dp[i][j] = 開區間 (i,j) 全爆的最大金幣</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          先在原陣列<strong>兩端補 <code>1</code></strong>(當永不越界的邊界)。<code>dp[i][j]</code> = 把<strong>開區間 <code>(i,j)</code></strong> 裡的氣球全爆的最大金幣 —— <strong>注意 <code>i</code>、<code>j</code> 本身不爆</strong>,它們是兩側固定的牆。
+        </p>
+        <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.9;text-align:center;">
+          <code>dp[i][j] = max<sub>i&lt;k&lt;j</sub>( dp[i][k] + dp[k][j] + nums[i]·nums[k]·nums[j] )</code>
+        </p>
+      </div>
+    </div>
+
+    <ol style="margin-top:14px;">
+      <li><strong>補邊界</strong>:<code>nums</code> 兩端各插一個 <code>1</code>,index 變 <code>0..n+1</code>。</li>
+      <li><strong>按區間長度 L 填</strong>(和 <a href="../p877/index.html">877</a> 同):<code>k</code> 是「最後爆」,把 <code>(i,j)</code> 拆成 <code>(i,k)</code> 與 <code>(k,j)</code> 兩個更短區間。</li>
+      <li><strong>答案</strong>:<code>dp[0][n+1]</code> —— 整個開區間(補了邊界的頭尾之間)全爆。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [3,1,5,8] → 167</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      求 <code>dp[0][5]</code>:枚舉「最後爆的 <code>k</code>」。每個 <code>k</code> 的鄰居固定是邊界 <code>i,j</code>,兩側 <code>dp[0][k]、dp[k][5]</code> 獨立相加。<code>k=4</code>(值 8)勝出。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 最後一顆爆的是誰</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 開區間的巧思 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼用「開區間」<span class="sc-section__title-en">// OPEN INTERVAL</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">開區間讓「拆成兩段」剛好接得起來</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>dp[i][j]</code> 定成<strong>開區間</strong>(<code>i,j</code> 不爆),是為了讓拆分<strong>天衣無縫</strong>:當 <code>k</code> 最後爆,
+          左段是 <code>dp[i][k]</code>(開區間 <code>(i,k)</code>,以 <code>i</code> 和 <strong>k</strong> 為牆)、右段是 <code>dp[k][j]</code>(以 <strong>k</strong> 和 <code>j</code> 為牆)。
+        </p>
+        <p style="margin:0;">
+          <strong><code>k</code> 同時當了左段的右牆、右段的左牆</strong> —— 它在兩個子問題裡都是「還沒爆的邊界」,語意完全一致,拼起來剛好覆蓋整個 <code>(i,j)</code>,不重不漏。
+          若用閉區間,邊界歸屬會打架。<strong>開區間 + 補 1，是讓這個拆分乾淨的配套設計。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n³)</strong>　　S = <strong>O(n²)</strong></div>
+      <p class="sc-formula__hint">
+        <code>O(n²)</code> 個區間 <code>[i,j]</code>,每個枚舉「最後爆的 <code>k</code>」是 <code>O(n)</code> → <strong><code>O(n³)</code></strong>。
+        <code>n ≤ 300</code> → <code>2.7×10⁷</code>,穩過。對比暴力枚舉所有戳法是 <code>O(n!)</code> —— 換個枚舉方向,階乘變立方。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      別問「先戳哪顆」(兩側合併、糾纏),要問「<strong>最後戳哪顆 k</strong>」——
+      那時 <code>k</code> 的鄰居<strong>固定是邊界 i、j</strong>,兩側 <code>dp[i][k]、dp[k][j]</code> <strong>獨立</strong>。開區間 + 補 1,<code>O(n!)</code> → <code>O(n³)</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p1140/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 石頭遊戲 II 1140</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">枚舉「最後爆的 k」→ 鄰居固定是邊界 i,j → 兩側獨立。dp[i][j]=max(dp[i][k]+dp[k][j]+nums[i]·nums[k]·nums[j])。</div>
+    <div class="sc-summary-bar__detail">區間 DP · BURST BALLOONS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p312-lastburst.js"></script>
+</body>
+</html>

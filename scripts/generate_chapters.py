@@ -299,7 +299,7 @@ PROBLEMS = {
         ('p329', 'Longest Increasing Path in a Matrix',          'longest-increasing-path-in-a-matrix',          'hard','done'),
         ('p115', 'Distinct Subsequences',                        'distinct-subsequences',                        'hard','done'),
         ('p72',  'Edit Distance',                                'edit-distance',                                'med', 'todo'),
-        ('p312', 'Burst Balloons',                               'burst-balloons',                               'hard','todo'),
+        ('p312', 'Burst Balloons',                               'burst-balloons',                               'hard','done'),
         ('p10',  'Regular Expression Matching',                  'regular-expression-matching',                  'hard','todo'),
     ],
     '15': [  # Greedy
