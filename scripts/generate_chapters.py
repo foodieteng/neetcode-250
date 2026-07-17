@@ -298,7 +298,7 @@ PROBLEMS = {
         ('p1140','Stone Game II',                                'stone-game-ii',                                'med', 'done'),
         ('p329', 'Longest Increasing Path in a Matrix',          'longest-increasing-path-in-a-matrix',          'hard','done'),
         ('p115', 'Distinct Subsequences',                        'distinct-subsequences',                        'hard','done'),
-        ('p72',  'Edit Distance',                                'edit-distance',                                'med', 'todo'),
+        ('p72',  'Edit Distance',                                'edit-distance',                                'med', 'done'),
         ('p312', 'Burst Balloons',                               'burst-balloons',                               'hard','done'),
         ('p10',  'Regular Expression Matching',                  'regular-expression-matching',                  'hard','done'),
     ],
@@ -363,14 +363,30 @@ DIFF_COLOR = {'easy': '#6ba368', 'med': '#d4a017', 'hard': '#c1440e'}
 # ============================================================
 #  Sidebar
 # ============================================================
+def chapter_complete(cid, count):
+    """A chapter is complete when every one of its `count` problems is built
+    and marked done/demo (i.e. no todos left)."""
+    probs = PROBLEMS.get(cid, [])
+    done = sum(1 for p in probs if p[-1] in ('done', 'demo'))
+    return count > 0 and done >= count
+
+
 def sidebar_html(active_cat, base):
     """Render the curriculum sidebar nav. base is path back to root, eg '../../' """
     items = []
     for cid, slug, title, _, count in CHAPTERS:
-        cls = ' class="is-active"' if cid == active_cat else ''
+        classes = []
+        if cid == active_cat:
+            classes.append('is-active')
+        done = chapter_complete(cid, count)
+        if done:
+            classes.append('is-complete')
+        cls = f' class="{" ".join(classes)}"' if classes else ''
+        check = '<span class="nav-check">✓</span>' if done else ''
         items.append(
             f'          <li><a href="{base}topics/{slug}/index.html"{cls}>'
-            f'{cid} · {title} <span class="tag">{count:02d}</span></a></li>'
+            f'<span class="nav-title">{check}{cid} · {title}</span> '
+            f'<span class="tag">{count:02d}</span></a></li>'
         )
     items_html = '\n'.join(items)
     return f'''      <div class="nav-label">// NEETCODE 250</div>
