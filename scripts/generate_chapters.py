@@ -300,7 +300,7 @@ PROBLEMS = {
         ('p115', 'Distinct Subsequences',                        'distinct-subsequences',                        'hard','done'),
         ('p72',  'Edit Distance',                                'edit-distance',                                'med', 'todo'),
         ('p312', 'Burst Balloons',                               'burst-balloons',                               'hard','done'),
-        ('p10',  'Regular Expression Matching',                  'regular-expression-matching',                  'hard','todo'),
+        ('p10',  'Regular Expression Matching',                  'regular-expression-matching',                  'hard','done'),
     ],
     '15': [  # Greedy
         ('p860', 'Lemonade Change',                      'lemonade-change',                      'easy','todo'),

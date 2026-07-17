@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10 · Regular Expression Matching // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">14 · 2-D DP</a> / P10</span>
+    <span><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">正規表達式匹配</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 10</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>狀態</td><td><code>dp[i][j]</code> = s 前 i 字能否被 p 前 j 字<strong>完整</strong>匹配</td></tr>
+        <tr><td>字母 / .</td><td>對上 → 左上 <code>dp[i−1][j−1]</code></td></tr>
+        <tr><td><code>*</code> 零次</td><td><code>dp[i][j−2]</code>(丟掉 <code>x*</code>,<strong>無條件</strong>,左跳 2)</td></tr>
+        <tr><td><code>*</code> 一次以上</td><td><code>(p[j−2]配 s[i−1]) && dp[i−1][j]</code>(吃輸入,上跳 1)</td></tr>
+        <tr><td>第一列</td><td>空 s 只有 <code>x*</code>(零次)存活,單獨初始化</td></tr>
+        <tr><td>兩箭頭</td><td>零次動 p(<code>j−2</code>)· 一次動 s(<code>i−1</code>)</td></tr>
+        <tr><td>複雜度</td><td><code>O(mn)</code>;純遞迴無 memo 會指數爆</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>'*'</code> 的兩條分支「零次」和「一次以上」分別對應 dp 表的哪個方向(<code>j−2</code>?<code>i−1</code>?)?為什麼是這兩個方向?</div>
+    <div class="qa"><strong>Q2.</strong> 「一次以上」為什麼要先檢查 <code>p[j−2] == s[i−1]</code>,「零次」卻不用檢查任何字元?</div>
+    <div class="qa"><strong>Q3.</strong> <code>a*</code> 要配<strong>兩個</strong> a,dp 表是怎麼「連吃兩次」的?哪個索引在動、哪個不動?</div>
+    <div class="qa"><strong>Q4.</strong> 為什麼第一列 <code>dp[0][j]</code> 要<strong>單獨</strong>初始化?不設會漏掉哪種匹配?<code>dp[0][j]</code> 為什麼從 <code>j=2</code> 開始?</div>
+    <div class="qa"><strong>Q5.</strong> 這題和 <a href="../p97/index.html">97 交錯字串</a> 都是兩字串 DP。為什麼 97 只看「上 / 左」、10 卻要看「左上 / 左跳 2 / 上跳 1」這麼多方向?根源差在哪?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// s="ab", p=".*"</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// .* = 「任意字元的零或多個」= 配任何字串</span>
+        ''   .   *
+  ''    T   F   T
+  a     F   T   T
+  b     F   F   T
+
+dp[0][2]=T : .* 取零次 → dp[0][0]=T
+dp[1][1]=T : '.'配 s[0]='a' → 左上 dp[0][0]=T
+dp[1][2]=T : .* 吃第一個('.' 配 a) → 上 dp[0][2]=T
+dp[2][2]=T : .* 再吃第二個('.' 配 b) → 上 dp[1][2]=T
+<span class="sc-trace__out">return dp[2][2] = true —— .* 靠 '.' 通配 + 往上連吃,配掉整個 "ab"</span></div>
+
+    <div class="sc-insight">
+      <code>.*</code> 是最強的模式:<code>'.'</code> 讓「一次以上」的字元檢查<strong>永遠通過</strong>(通配),<code>'*'</code> 讓它能<strong>往上無限吃</strong>。
+      兩者合體 = 配任意字串。理解 <code>.*</code> 怎麼在表上「一路往上吃到底」,就抓到了 <code>'*'</code> 機制的精髓。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/wildcard-matching/" target="_blank" rel="noopener">LC 44 Wildcard Matching</a> 的 <code>'*'</code> 是「配任意長度<strong>任意</strong>字元」(不綁前一字元),<code>'?'</code> 配任意單一字元。轉移和本題差在哪?哪個其實更簡單?</div>
+    <div class="qa"><strong>App 2.</strong> 若要把空間壓成 <code>O(n)</code>(一維滾動),要注意什麼?<code>'*'</code> 的「上跳 1」<code>dp[i−1][j]</code> 會不會有麻煩?</div>
+    <div class="qa"><strong>App 3.</strong> 若改成<strong>記憶化遞迴</strong>寫,函式怎麼設?為什麼有人覺得遞迴版比填表版<strong>更好想</strong>?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong>
+      ● <strong>零次 → <code>dp[i][j−2]</code>(左跳 2)</strong>:把 <code>"x*"</code> 當作不存在,等於<strong>刪掉 <code>p</code> 的最後兩個字元</strong>(<code>x</code> 和 <code>*</code>),而 <code>s</code> 完全沒動 → <code>j</code> 減 2、<code>i</code> 不變。<br />
+      ● <strong>一次以上 → <code>dp[i−1][j]</code>(上跳 1)</strong>:<code>"x*"</code> 吃掉一個 <code>s</code> 字 <code>s[i−1]</code> → <code>i</code> 減 1;但 <code>"x*"</code> <strong>還沒用完</strong>、留在原地繼續(<code>j</code> 不變)。<br />
+      <strong>為什麼是這兩個方向</strong>:<code>'*'</code> 的語意是「前一元素的<strong>零或多個</strong>」。「零個」= 不用它 = 動模式;「多個」= 反覆用它吃字元 = 動輸入、模式不變。<strong>零次橫跳(丟模式)、一次直跳(吃輸入)</strong>,兩個方向 OR 起來,剛好覆蓋「零 or 一 or 二 or …」所有可能。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為「一次以上」的動作是<strong>真的拿 <code>x*</code> 去配一個 <code>s</code> 字</strong> —— 那當然要求 <code>x</code>(即 <code>p[j−2]</code>)配得上這個字 <code>s[i−1]</code>(相等或 <code>x</code> 是 <code>'.'</code>)。少了這個檢查,<code>a*</code> 會去吃 <code>b、c</code> 任意字元,退化成 <code>.*</code>,亂配一通。反例 <code>s="b"</code>、<code>p="a*"</code>:正確是 <code>false</code>(<code>a*</code> 只配 a 或空),漏檢查會錯判 <code>true</code>。<br />
+    而「零次」的動作是<strong>把 <code>x*</code> 整組丟掉、根本不碰 <code>s</code></strong> —— 既然不拿它配任何字,就<strong>沒有「配得上嗎」的問題</strong>,無條件看 <code>dp[i][j−2]</code> 即可。<br />
+    <strong>一句話:吃字元才驗字元,丟模式不驗。</strong>兩條分支的字元檢查有無,正好反映它們「碰不碰 s」的本質差異。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 靠「<strong>上跳 1、<code>j</code> 不動</strong>」<strong>連續兩次</strong>。以 <code>p="c*a*b"</code>、<code>s="aab"</code> 為例,<code>a*</code> 在第 <code>j=4</code> 欄:<br />
+    ● <code>dp[1][4]</code>(配第一個 a):<code>'a'</code> 配 <code>s[0]='a'</code> && <code>dp[0][4]=T</code> → T<br />
+    ● <code>dp[2][4]</code>(配第二個 a):<code>'a'</code> 配 <code>s[1]='a'</code> && <code>dp[1][4]=T</code> → T<br />
+    每往下一列(<code>i</code> 加 1 = 多吃一個 s 字),都指回<strong>同一欄的上一格</strong> <code>dp[i−1][4]</code>。<strong><code>i</code> 一直在動(吃輸入)、<code>j</code> 釘死在 4(<code>a*</code> 沒用完)</strong>。想吃幾個就往上連幾格 —— 這就是 <code>'*'</code> 用「上跳 1」表達「零或<strong>多</strong>個」的機制。<strong>模式不動、輸入前進,是「重複使用同一個 <code>x*</code>」的 DP 化身。</strong></div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 第一列 <code>dp[0][j]</code> = 「<strong>空的 s</strong> 能否被 p 前 j 字配上」。空 s 要被配,<code>p</code> 就只能是一串<strong>全取零次的 <code>x*</code></strong>(任何實體字元都會多出東西)。這條路<strong>不會被主迴圈算到</strong> —— 主迴圈從 <code>i=1</code> 起(至少一個 s 字),所以「<code>p</code> 開頭一串 <code>x*</code> 全取零」這個起點<strong>必須手動初始化</strong>。<br />
+    <strong>不設會漏</strong>:例 <code>p="a*b"</code> 配 <code>s="b"</code> —— 需要 <code>a*</code> 取零、再用 <code>b</code> 配 <code>s</code> 的 b。而 <code>b</code> 那格會回頭讀 <code>dp[0][2]</code>(<code>a*</code> 取零配空);若 <code>dp[0][2]</code> 沒設成 T,這條就斷了。<br />
+    <strong>為什麼從 <code>j=2</code></strong>:<code>x*</code> 至少要 2 個字元(<code>x</code> + <code>*</code>),所以 <code>j=1</code> 不可能是完整的 <code>x*</code>(<code>dp[0][1]</code> 恆 false:單一實體字元配不了空 s)。從 <code>j=2</code> 起才有 <code>p[j−1]=='*'</code> 且能讀 <code>dp[0][j−2]</code>。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 根源是<strong>「一個模式字元消耗多少輸入」不同</strong>。<br />
+    ● <strong>97 交錯字串</strong>:每一步固定「拿一個字配一個字」—— 要嘛從 s1 拿(上)、要嘛從 s2 拿(左),<strong>一對一、長度固定</strong>。所以只有上 / 左兩個方向,而且<strong>沒有左上</strong>(它不比較兩字串的同一字元)。<br />
+    ● <strong>10 正則</strong>:模式字元和輸入<strong>不是一對一</strong> —— 字母/<code>.</code> 是一對一(左上),但 <code>'*'</code> 可以配<strong>零個</strong>(模式吃 2 格、輸入吃 0 → 左跳 2)或<strong>多個</strong>(模式吃 0、輸入吃 1 → 上跳 1)。<strong>「一個模式能對應變長的輸入」</strong>逼出了多個方向。<br />
+    <strong>通則:轉移方向的數量 = 一步能有幾種「消耗組合」。</strong>一對一 → 方向少(97);變長匹配(<code>*</code>)→ 方向多(10)。這也是 10 是 Hard、97 是 Medium 的本質原因 —— <code>'*'</code> 的變長性是全部難度所在。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <a href="https://leetcode.com/problems/wildcard-matching/" target="_blank" rel="noopener">LC 44</a> 的 <code>'*'</code> <strong>不綁前一字元</strong>,自己就是「任意長度任意字元」。轉移:遇 <code>'*'</code> → <code>dp[i][j] = dp[i][j−1](配零個) || dp[i−1][j](多吃一個 s 字)</code> —— <strong>「多吃」不用檢查字元</strong>(<code>*</code> 通配任何字),這反而比本題<strong>簡單</strong>;<code>'?'</code> 或字母相等 → 左上 <code>dp[i−1][j−1]</code>。<br />
+    <strong>關鍵差異</strong>:本題 <code>'*'</code> 是「<strong>前一字元</strong>的零或多個」(綁定、要驗字元、左跳 2 取零);44 的 <code>'*'</code> 是「<strong>任意字元</strong>的零或多個」(獨立、不驗字元、左跳 1 取零)。<strong>10 的 <code>*</code> 更受限,反而更難寫對</strong>(那個字元檢查和 <code>j−2</code> 都是坑)。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 可以壓成 <code>O(n)</code>,但要小心 <code>'*'</code> 的「上跳 1」<code>dp[i−1][j]</code>。一維滾動時 <code>dp[j]</code> 同時是「本列新值」和「上列舊值」:<br />
+    ● <strong>左上</strong> <code>dp[i−1][j−1]</code> 和 <strong>左跳 2</strong> <code>dp[i][j−2]</code> 用一般手法(存 <code>prev</code> 對角、左往右掃)可處理。<br />
+    ● <strong>上跳 1</strong> <code>dp[i−1][j]</code> = 「同一欄、上一列」= 一維裡 <code>dp[j]</code> <strong>更新前</strong>的舊值 —— 剛好還沒被本列覆蓋,<strong>直接讀就對</strong>(和 <a href="../p97/code.html">97</a> 讀「上」一樣)。<br />
+    所以真正要小心的是<strong>左上</strong>(會被本列左鄰覆蓋,需 <code>prev</code> 暫存)和<strong>更新順序</strong>。實務上 <code>m,n≤20</code>,二維表最清楚,面試講得出「只依賴 <code>i−1</code> 列 → 可壓一維」即可,不必硬寫。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 記憶化遞迴:<code>bool dp(i, j)</code> = 「<code>s[i..]</code> 能否配 <code>p[j..]</code>」(用<strong>後綴</strong>視角最順)。<br />
+    <code>if (j == n) return i == m;</code>（模式用完,輸入也要剛好用完)<br />
+    <code>bool first = i &lt; m && (p[j]==s[i] || p[j]=='.');</code><br />
+    <code>if (j+1 &lt; n && p[j+1]=='*') return dp(i, j+2) || (first && dp(i+1, j));</code>（零次 OR 一次以上）<br />
+    <code>return first && dp(i+1, j+1);</code>（字母/.）<br />
+    用 <code>memo[i][j]</code> 快取。<br />
+    <strong>為什麼更好想</strong>:遞迴<strong>直接照著 <code>'*'</code> 的定義寫</strong> ——「試零次或試吃一個」几乎是題目語意的翻譯,不用先想「依賴方向對不對、要不要單獨初始化第一列」。填表版的威力是常數小、無遞迴開銷,但要<strong>自己保證填表順序</strong>；記憶化把順序交給遞迴、memo 去重,<strong>心智負擔更低</strong>。兩者同 <code>O(mn)</code>,是<strong>同一個 DP 的兩種驅動</strong>(和 <a href="../p329/index.html">329</a> 的 memo DFS vs Kahn 同理)。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 14 · 2-D DP</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「零次左跳2丟模式、一次上跳1吃輸入且要驗字元、第一列單獨設、a* 靠往上連吃、變長匹配才需多方向」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 10 · REGULAR EXPRESSION MATCHING</div>
+  </div>
+
+</body>
+</html>
