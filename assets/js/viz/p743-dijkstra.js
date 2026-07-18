@@ -10,8 +10,8 @@
      1→2:2 · 1→3:5 · 2→3:1 · 2→4:7 · 3→4:2 · 4→5:1 · 3→5:6
    ⇒ dist = [_,0,2,3,5,6]，答案 = max = 6。
    Style: white paper, solid fills, three tidy bands:
-     BAND 1  圖（綠=已定案 · coral=本步彈出 · tan=起點 · coral 邊=本步鬆弛）
-     BAND 2  dist[] 陣列（剛更新 coral · 已定案綠 · ∞ 灰）
+     BAND 1  圖（綠=已定案 · 紅=本步彈出 · tan=起點 · 紅邊=本步鬆弛）
+     BAND 2  dist[] 陣列（剛更新 紅 · 已定案綠 · ∞ 灰）
      BAND 3  min-heap 內容（top→，灰=惰性刪除的過期項）+ 動作/答案
    ============================================================ */
 
@@ -184,7 +184,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 1 · 圖（tan=src 起點 · 綠=已定案 · coral=本步彈出的點 · coral 邊=本步鬆弛）', PAD, 24);
+    ctx.fillText('BAND 1 · 圖（tan=src 起點 · 綠=已定案 · 紅=本步彈出的點 · 紅邊=本步鬆弛）', PAD, 24);
 
     const innerW = w - PAD * 2;
     const gTop = 44, gBot = 214, midY = (gTop + gBot) / 2;
@@ -241,7 +241,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 2 · dist[]（coral=本步更新 · 綠=已定案 · 灰=∞）', PAD, b2y);
+    ctx.fillText('BAND 2 · dist[]（紅=本步更新 · 綠=已定案 · 灰=∞）', PAD, b2y);
 
     const cols = N;
     const labW = 48;

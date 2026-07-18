@@ -161,7 +161,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 1 · 航線圖（綠=src 起點 · tan=dst 終點 · coral=本步鬆弛的邊 · 灰虛線=被 temp 凍結擋掉）', PAD, 24);
+    ctx.fillText('BAND 1 · 航線圖（綠=src 起點 · tan=dst 終點 · 紅=本步鬆弛的邊 · 灰虛線=被 temp 凍結擋掉）', PAD, 24);
 
     const gTop = 46, gBot = 214;
     const midY = (gTop + gBot) / 2;
@@ -220,7 +220,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 2 · dist[]（正在更新）與 temp[]（本輪凍結快照）· tan=被讀的來源 · coral=剛更新 · 灰=∞', PAD, b2y);
+    ctx.fillText('BAND 2 · dist[]（正在更新）與 temp[]（本輪凍結快照）· tan=被讀的來源 · 紅=剛更新 · 灰=∞', PAD, b2y);
 
     const cols = N;
     const labW = 58;

@@ -158,7 +158,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 1 · 航線圖（綠=src · tan=dst · coral=本步鬆弛的邊 · 灰虛線=需 2 中轉、被層數擋掉）', PAD, 24);
+    ctx.fillText('BAND 1 · 航線圖（綠=src · tan=dst · 紅=本步鬆弛的邊 · 灰虛線=需 2 中轉、被層數擋掉）', PAD, 24);
 
     const gTop = 46, gBot = 214, midY = (gTop + gBot) / 2;
     const pos = [
@@ -216,7 +216,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 2 · dist[]（coral=本步更新 · 灰=∞）', PAD, b2y);
+    ctx.fillText('BAND 2 · dist[]（紅=本步更新 · 灰=∞）', PAD, b2y);
     const cols = N, labW = 58;
     const cell = Math.min(64, (w - PAD * 2 - labW) / cols);
     const gx0 = PAD + labW;
@@ -252,7 +252,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 3 · queue（coral=本層 frontier · 綠=剛 push 下一層 · 灰=超過 k 不處理）', PAD, b3y);
+    ctx.fillText('BAND 3 · queue（紅=本層 frontier · 綠=剛 push 下一層 · 灰=超過 k 不處理）', PAD, b3y);
     const chY = b3y + 12, chH = 32, chGap = 10;
     let cx = PAD;
     if (s.q.length === 0) {
