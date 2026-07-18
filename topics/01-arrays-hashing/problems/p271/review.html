@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>271 · Encode and Decode Strings // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P271</span>
+    <span><a href="https://leetcode.com/problems/encode-and-decode-strings/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">編碼與解碼字串</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 271</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>長度前綴</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>編碼格式</td><td>每段 <code>len + '@' + payload</code> 接起來</td></tr>
+        <tr><td>解碼</td><td>讀長度 → <code>substr(j+1, len)</code> 按長度切</td></tr>
+        <tr><td>分幀符</td><td>用<strong>非數字</strong>(如 <code>'@'</code>),隔開長度與內容</td></tr>
+        <tr><td>不變量</td><td><code>i</code> 永遠指向一段的長度數字開頭</td></tr>
+        <tr><td>任意字元</td><td>按長度讀,內容不參與掃描 → 安全</td></tr>
+        <tr><td>vs 分隔符</td><td>分隔符讓內容參與界線判斷 → 撞車</td></tr>
+        <tr><td>複雜度</td><td>encode / decode 皆 <code>O(L)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼「按長度讀」能支援任意字元,而「用分隔符切」不行?本質差別在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>decode 用 <code>find('@', i)</code> 找分幀符。為什麼保證找到的是分幀符、不是內容裡的 <code>'@'</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>分幀符能不能改用數字(如 <code>'5'</code>)?為什麼一定要用非數字?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>空字串 <code>""</code> 怎麼被編碼與還原?會不會出問題?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>連分幀符 <code>'@'</code> 都可能出現在內容裡,為什麼用它當分幀符仍然安全?這和「用逗號當分隔符」有何不同?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 含空字串 ["", "a@b", ""]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 空字串 + 含 '@' 的內容,雙重考驗</span>
+encode(["", "a@b", ""])  →  "0@" + "3@a@b" + "0@"  =  "0@3@a@b0@"
+
+decode("0@3@a@b0@"):
+ i=0 : find('@',0)=1  len=0  substr(2,0)=""    i=2   → ""
+ i=2 : find('@',2)=3  len=3  substr(4,3)="a@b" i=7   → "a@b"
+ i=7 : find('@',7)=8  len=0  substr(9,0)=""    i=9   → ""
+ i=9 = n → 結束
+<span class="sc-trace__out">["", "a@b", ""]</span></div>
+
+    <div class="sc-insight">
+      <code>len=0</code> 時 <code>substr(j+1, 0)</code> 天然回空字串,空字串<strong>不必特判</strong>。
+      含 <code>'@'</code> 的 <code>"a@b"</code> 靠 <code>len=3</code> 整段抓下,內部 <code>'@'</code> 全是資料。<strong>空字串和含分幀符的內容,兩個最容易崩的邊界,長度前綴都自動正確。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>固定寬度長度</strong>:改用「每段長度固定佔 4 個位元組」而非「數字 + 分幀符」。這樣連 <code>'@'</code> 都不需要。優缺點各是什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 297 序列化二元樹</strong>:把樹編成字串再還原。和本題共通的是什麼思路?樹的「結構」怎麼像這裡一樣「自帶界線」?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>巢狀結構(list of lists of strings)</strong>:如果要編碼「字串陣列的陣列」,長度前綴怎麼遞迴套用?為什麼它天然支援巢狀?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      本質差別是<strong>「內容有沒有參與界線判斷」</strong>。分隔符法靠「掃到分隔符就切」—— 內容一旦含分隔符,就會被誤當界線。長度前綴法<strong>先聲明長度、再按長度數過去</strong>,內容只是「被數過的 len 個位元組」,<strong>完全不參與界線決策</strong>。把「結構(多長)」和「資料(是什麼)」<strong>分層</strong>,資料愛是什麼字元都不影響結構,所以任意字元安全。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為<strong>迴圈不變量</strong>:每輪開頭 <code>i</code> 都指向「一段的長度數字第一位」。長度是純數字(不含 <code>'@'</code>),所以從 <code>i</code> 往後第一個 <code>'@'</code> 必定是「數字結束、內容開始」的那個分幀符。內容裡的 <code>'@'</code> 位置都 <code>≥ j+1</code>,在讀完長度、按 len 抓完內容後就被 <code>i = j+1+len</code> 一步跳過,<code>find</code> 根本沒機會掃到它。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      不能用數字。分幀符的職責是「標記長度數字的結尾」,<code>find</code> 靠它知道長度到哪為止。若分幀符也是數字,就<strong>和長度本身混在一起</strong> —— <code>"12@"</code> 你分不清是「長度 12」還是「長度 1、分幀符 2」。所以分幀符必須是<strong>長度表示法(數字)裡不會出現的字元</strong>。<code>'@'</code>、<code>'#'</code>、任何非數字都行。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <code>""</code> 編成 <code>"0@"</code>(長度 0 + 分幀符 + 空內容)。解碼時 <code>len=0</code>,<code>substr(j+1, 0)</code> 回空字串,<code>i = j+1+0</code> 跳到下一段。<strong>完全不必特判空字串</strong> —— 長度 0 就是「讀 0 個字元」,自然正確。這是長度前綴優雅的地方:空字串、含分幀符的字串,都落在同一套規則裡。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      關鍵是 <code>'@'</code> 在這裡<strong>只負責「分開長度和內容」,不負責「分開兩段」</strong>。段與段的界是靠<strong>長度</strong>切的,不是靠 <code>'@'</code>。所以內容裡的 <code>'@'</code> 不會被誤認 —— 它出現在「已經按長度框好的內容區」內,decode 根本不會對它呼叫 <code>find</code>。而「用逗號當分隔符」是讓逗號<strong>直接決定段界</strong>,內容裡的逗號就會冒充段界。<strong>同樣是特殊字元,職責不同:一個分「欄位」、一個分「記錄」,前者安全、後者危險。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>固定寬度</strong>:每段前面用固定 4 位元組(big-endian)存長度,不需分幀符。<strong>優點</strong>:decode 更快(直接讀 4 位元組轉 int,免 <code>find</code> 掃描)、格式更規整、無需「非數字分幀符」的假設。<strong>缺點</strong>:短字串也要付 4 位元組長度(空間略浪費),且長度上限被寬度綁死(4 位元組 ≤ 4GB)。這正是網路協定常用的定長長度前綴。文字版的 <code>len@</code> 好讀好 debug,定長版更緊湊快速。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 297</strong>:同樣是「把結構壓成字串、再無歧義還原」。樹用<strong>前序遍歷 + 空節點標記</strong>(如 <code>#</code>)自帶界線:每個節點後面接它的左右子樹,<code>null</code> 用哨兵標出,decode 時前序重建就知道每棵子樹在哪結束。共通思路:<strong>編碼時把「還原所需的結構資訊」一起寫進去</strong> —— 271 寫長度、297 寫節點順序 + null 標記,都讓 decode 能唯一地切分。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>巢狀</strong>:長度前綴天然遞迴。編碼「字串陣列的陣列」時,把每個內層陣列<strong>先用本題的 encode 編成一個字串</strong>,再把這些字串當成「外層的元素」<strong>再套一層長度前綴</strong>。decode 時外層按長度切出每個內層編碼串,對每串再跑一次 decode。因為長度前綴把「一個元素」框成獨立單位,<strong>元素內部是什麼(包括另一層編碼)都不影響外層界線</strong> —— 這種「可組合性」正是長度前綴分幀的威力。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">長度前綴把「結構(多長)」和「資料」分層 → 任意字元安全。分幀符只分欄位不分記錄。空字串/含@ 都免特判。可組合(巢狀)、通往 297 序列化。定長長度前綴更快。</div>
+    <div class="sc-summary-bar__detail">長度前綴 · ENCODE AND DECODE STRINGS</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>271 · Encode and Decode Strings // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P271</span>
+    <span><a href="https://leetcode.com/problems/encode-and-decode-strings/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">編碼與解碼字串</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 長度前綴分幀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 271</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>設計 · 字串</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計 <code>encode</code> 把一個字串陣列<strong>編成單一字串</strong>(送過網路),再用 <code>decode</code> <strong>還原成原陣列</strong>。
+        不可用內建 serialize。字串可含<strong>任意 256 個 ASCII 字元</strong>。追問:能否對<strong>任何字元集</strong>都通用?
+      </p>
+    </div>
+
+    <p>
+      難點在<strong>「界線」</strong>:把多個字串接成一條後,decode 怎麼知道每個字串<strong>從哪開始、到哪結束</strong>?
+      因為字串可含任意字元(包括你想用的分隔符),單純「用某個符號隔開」會出事。
+      經典解法是<strong>長度前綴分幀</strong>:每段前面先寫「這段有多長」,decode 就<strong>按長度精準切</strong>,永不誤判。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼長度前綴 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「長度前綴」而非「分隔符」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · 界線崩壞</div>
+          <div class="sc-ko__name">用分隔符 join(如逗號)</div>
+          <p><code>"a,b,c"</code>。但字串<strong>本身可能含逗號</strong> → <code>["a,b"]</code> 被拆成 <code>["a","b"]</code>。分隔符和資料撞車。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ WORKS · 麻煩</div>
+          <div class="sc-ko__name">跳脫(escape)分隔符</div>
+          <p>把資料裡的分隔符跳脫(<code>\,</code>),跳脫字元自己也要跳脫(<code>\\</code>)。對,但規則繁瑣、易錯、效能差。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">CLEAN · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · length-prefix</div>
+        <div class="sc-ko__name">len@payload · 按長度讀,不掃描</div>
+        <p>
+          每段編成 <code>長度 + '@' + 內容</code>,接起來。decode:讀到第一個 <code>'@'</code> → 前面是長度數字 → <strong>往後讀「剛好 len 個字元」</strong>當內容,跳到下一段。
+          因為是<strong>按長度切、不靠掃描分隔符</strong>,內容裡有 <code>'@'</code> 或數字都只當資料 —— <strong>任意字元都不會斷幀</strong>,直接解決 follow-up。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 編/解<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>encode</strong> —— 每個字串寫成 <code>to_string(len) + "@" + str</code>,全部接起來。</li>
+      <li><strong>decode · 讀長度</strong> —— 從 <code>i</code> 起找第一個 <code>'@'</code>(位置 <code>j</code>),<code>len = stoi(s[i..j-1])</code>。</li>
+      <li><strong>decode · 按長度取</strong> —— 內容 = <code>s.substr(j+1, len)</code>;<code>i = j + 1 + len</code> 跳到下一段。重複到字串盡頭。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// LENGTH-PREFIX FRAMING</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      解碼 <code>"3@cat3@n@p2@hi"</code>。注意第 2 段 <code>"n@p"</code> <strong>內含 <code>@</code></strong> —— 卻不會斷幀,因為 decode 是<strong>按長度 3 跳過去</strong>,那個 <code>@</code> 只當資料。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 長度前綴分幀 · 按長度讀不掃描</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:255px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼任意字元都安全 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼任意字元都不會斷幀<span class="sc-section__title-en">// THE FOLLOW-UP</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">關鍵:'@' 只用來「分開長度和內容」,不用來「分開兩段」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          decode 的迴圈裡,<code>i</code> 永遠指向<strong>一段的開頭 = 長度數字的第一位</strong>。長度是<strong>純數字</strong>,不含 <code>'@'</code>,
+          所以「從 <code>i</code> 找到的第一個 <code>'@'</code>」<strong>一定是那段的分幀符</strong>,絕不會是內容裡的 <code>'@'</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          讀到長度後,內容是<strong>「往後數 len 個字元」</strong>抓的,<strong>完全不看內容長什麼樣</strong> —— 裡面有 <code>'@'</code>、有數字、有換行、有 NUL 全都是資料。
+          讀完直接 <code>i = j + 1 + len</code> 跳過整段內容,下一輪 <code>i</code> 又落在下一段的長度數字上。
+        </p>
+        <p style="margin:0;">
+          這就是它<strong>對任意字元集通用</strong>的原因:<strong>「按長度讀」把「內容」和「結構」徹底分離</strong>。分隔符法之所以崩,正是因為它讓內容(可含分隔符)去參與結構判斷。
+          這也是網路協定裡 <strong>TLV(Type-Length-Value)/ 長度前綴幀</strong> 的核心思想。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">encode = <strong>O(L)</strong>　　decode = <strong>O(L)</strong>　　(L = 總字元數)</div>
+      <p class="sc-formula__hint">
+        兩者都線性掃過所有字元一次。decode 每段做一次 <code>find('@')</code> + 一次 <code>substr</code>,總計仍是 <code>O(L)</code>(每個字元只被讀常數次)。額外空間 <code>O(L)</code> 存輸出。長度前綴的開銷極小(每段多幾個位元組的長度 + 分隔符)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>操作</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>encode</td><td><code>O(L)</code></td><td>逐段接上 len@payload</td></tr>
+        <tr><td>decode</td><td><code>O(L)</code></td><td>逐段讀長度 + 按長度切</td></tr>
+        <tr><td>空間</td><td><code>O(L)</code></td><td>編碼串 / 還原列表</td></tr>
+        <tr><td>任意字元</td><td>支援</td><td>按長度讀,內容不參與結構</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      要把多段資料塞進一條、又能無歧義還原 → <strong>長度前綴分幀</strong>:每段前寫長度,decode <strong>按長度精準切、不掃描分隔符</strong>。
+      內容因此永不參與結構判斷,<strong>任意字元都安全</strong>。這就是網路協定 TLV / 長度前綴幀的精神。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">長度前綴分幀:每段編成 len@payload。decode 讀長度、按長度精準切(不掃描分隔符)→ 內容含任意字元都不斷幀。TLV 精神。O(L)。</div>
+    <div class="sc-summary-bar__detail">長度前綴 · ENCODE AND DECODE STRINGS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p271-lenprefix.js"></script>
+</body>
+</html>
