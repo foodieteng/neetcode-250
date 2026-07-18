@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>347 · Top K Frequent Elements // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P347</span>
+    <span><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">前 K 個高頻元素</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 347</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · 頻率桶排序<span class="sc-section__title-en">// O(n)</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p347.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">topKFrequent</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">,</span> <span class="t">int</span> k<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> nums<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;</span> counts<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> x <span class="p">:</span> nums<span class="p">)</span> counts<span class="p">[</span>x<span class="p">]++;</span>              <span class="c">// ① 計數</span>
+
+        <span class="c">// ② 桶:buckets[f] = 出現 f 次的所有值(大小 n+1,最高頻可能是 n)</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> buckets<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">auto</span> <span class="k">const</span><span class="p">&amp;</span> <span class="p">[</span>val<span class="p">,</span> freq<span class="p">]</span> <span class="p">:</span> counts<span class="p">)</span>
+            buckets<span class="p">[</span>freq<span class="p">].</span><span class="f">push_back</span><span class="p">(</span>val<span class="p">);</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> result<span class="p">;</span>
+        <span class="c">// ③ 從最高頻的桶往回收集</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> n<span class="p">;</span> i <span class="p">&gt;=</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> result<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&lt;</span> k<span class="p">;</span> <span class="p">--</span>i<span class="p">)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> num <span class="p">:</span> buckets<span class="p">[</span>i<span class="p">])</span> <span class="p">{</span>
+                result<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>num<span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span>result<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> k<span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> result<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三段一氣呵成</strong>:計數 → 分桶 → 由高往低收集。外層 <code>for i = n..0</code> 讓「先掃到的桶」就是「頻率最高的桶」,索引本身完成了排序。
+      迴圈條件 <code>result.size() &lt; k</code> + 內層 <code>break</code> <strong>雙重保險</strong>,湊滿 k 立刻停,不多掃低頻桶。
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 對照:最小堆版 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">對照寫法 · 大小 k 的最小堆<span class="sc-section__title-en">// O(n log k)</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 維持 k 個「最高頻」的最小堆:堆頂是門檻,較大者擠掉它</span>
+vector&lt;int&gt; topKFrequent(vector&lt;int&gt;&amp; nums, int k) {
+    unordered_map&lt;int,int&gt; counts;
+    for (int x : nums) counts[x]++;
+
+    // 最小堆存 (freq, val);超過 k 個就丟掉頻率最小的
+    priority_queue&lt;pair&lt;int,int&gt;, vector&lt;pair&lt;int,int&gt;&gt;, greater&lt;&gt;&gt; pq;
+    for (auto&amp; [val, freq] : counts) {
+        pq.push({freq, val});
+        if ((int)pq.size() &gt; k) pq.pop();   // 擠掉最低頻
+    }
+    vector&lt;int&gt; res;
+    while (!pq.empty()) { res.push_back(pq.top().second); pq.pop(); }
+    return res;
+}
+<span class="sc-trace__out">O(n log k) 時間、O(n+k) 空間;k 遠小於 n 或串流情境時常用</span></div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      <strong>最小堆為什麼是「最小」而非最大堆</strong>:我們只想留 k 個最高頻,用<strong>大小 k 的最小堆</strong>,堆頂就是「目前第 k 高的門檻」;新來的頻率若比堆頂大就擠掉堆頂。這樣堆永遠 ≤ k 個,每次操作 <code>O(log k)</code>。
+      桶排序不帶 log,但堆在「<strong>k 很小</strong>」或「<strong>資料是串流、頻率上限未知</strong>」時更合適。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>症狀</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>桶陣列開 n(非 n+1)</strong></td>
+          <td>頻率 = n 時 <code>buckets[n]</code> 越界</td>
+          <td>大小 <code>n + 1</code>(頻率 0..n)</td>
+        </tr>
+        <tr>
+          <td><strong>從低頻往高掃</strong></td>
+          <td>收到的是最低頻 → 答案相反</td>
+          <td><code>for i = n; i&gt;=0; --i</code></td>
+        </tr>
+        <tr>
+          <td><strong>忘了湊滿就停</strong></td>
+          <td>把整桶都塞進去 → 超過 k 個</td>
+          <td><code>size&lt;k</code> 條件 + 內層 break</td>
+        </tr>
+        <tr>
+          <td><strong>用最大堆裝全部</strong></td>
+          <td>堆大小 n → <code>O(n log n)</code>,失去 log k 優勢</td>
+          <td>用<strong>大小 k 的最小堆</strong></td>
+        </tr>
+        <tr>
+          <td><strong>結構化綁定型別</strong></td>
+          <td><code>[val,freq]</code> 順序記反 → 桶放錯</td>
+          <td>map 是 <code>{值 → 頻率}</code>,別搞反</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums=[1,1,1,2,2,3], k=2, n=6</span>
+① counts = {1:3, 2:2, 3:1}
+
+② buckets(大小 7):
+   buckets[1] = [3]      (值 3 出現 1 次)
+   buckets[2] = [2]      (值 2 出現 2 次)
+   buckets[3] = [1]      (值 1 出現 3 次)
+   其餘空
+
+③ i=6→3: 桶 6,5,4 空;桶 3=[1] → result=[1]
+   i=2   : 桶 2=[2]      → result=[1,2]  size==k → 停
+<span class="sc-trace__out">[1, 2]</span></div>
+
+    <div class="sc-insight">
+      值 <code>1</code> 因為頻率 3 最高,住在<strong>索引最大</strong>的桶 <code>buckets[3]</code>,所以最先被收。掃到桶 2 收下值 <code>2</code> 就湊滿 k=2 —— <strong>桶 1(值 3)根本不用看</strong>。
+      「索引 = 頻率」把「誰頻率高」直接編碼成「誰在後面」,掃的方向就決定了取的順序。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與策略</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">counts → buckets[freq](大小 n+1)→ for i=n..0 收集湊滿 k。索引=頻率天然有序。堆版 O(n log k) 用大小 k 最小堆,適合小 k / 串流。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 347 · TOP K FREQUENT ELEMENTS</div>
+  </div>
+
+</body>
+</html>

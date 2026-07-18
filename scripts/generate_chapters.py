@@ -79,7 +79,7 @@ PROBLEMS = {
         ('p706', 'Design HashMap',                    'design-hashmap',                    'easy','done'),
         ('p912', 'Sort an Array',                     'sort-an-array',                     'med', 'todo'),
         ('p75',  'Sort Colors',                       'sort-colors',                       'med', 'todo'),
-        ('p347', 'Top K Frequent Elements',           'top-k-frequent-elements',           'med', 'todo'),
+        ('p347', 'Top K Frequent Elements',           'top-k-frequent-elements',           'med', 'done'),
         ('p271', 'Encode and Decode Strings',         'encode-and-decode-strings',         'med', 'done'),
         ('p304', 'Range Sum Query 2D - Immutable',    'range-sum-query-2d-immutable',      'med', 'done'),
         ('p238', 'Product of Array Except Self',      'product-of-array-except-self',      'med', 'done'),

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>347 · Top K Frequent Elements // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P347</span>
+    <span><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">前 K 個高頻元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 依頻率桶排序</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 347</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>桶排序 · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>nums</code> 和整數 <code>k</code>,回傳<strong>出現頻率前 <code>k</code> 高</strong>的元素(順序不拘,答案保證唯一)。
+        例:<code>nums=[1,1,1,2,2,3], k=2 → [1,2]</code>。進階目標:優於 <code>O(n log n)</code>。
+      </p>
+    </div>
+
+    <p>
+      先數頻率是必然的(<a href="../p560/index.html">雜湊計數</a>)。難點在「取前 k 高」:直接<strong>排序</strong>是 <code>O(n log n)</code>、<strong>堆</strong>是 <code>O(n log k)</code>。
+      但這裡有個關鍵性質 —— <strong>頻率最多只到 <code>n</code></strong>,是個小範圍整數。於是可以用<strong>桶排序(以頻率當索引)</strong>,把取前 k 壓到 <strong>O(n)</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼桶排序 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「依頻率桶排序」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">△ WORKS · O(n log n)</div>
+          <div class="sc-ko__name">依頻率排序全部</div>
+          <p>把 (值,頻率) 全排序再取前 k。對,但比較排序 <code>O(n log n)</code>,沒達到進階目標。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ WORKS · O(n log k)</div>
+          <div class="sc-ko__name">大小 k 的最小堆</div>
+          <p>維持 k 個最高頻的最小堆,每個元素 <code>O(log k)</code> 進出。<code>O(n log k)</code> —— 好,但仍帶 log。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">FREQ ≤ n · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n) bucket</div>
+        <div class="sc-ko__name">頻率當索引分桶,由高往低掃</div>
+        <p>
+          <code>buckets[f]</code> = 所有出現 <code>f</code> 次的值。因為<strong>頻率是 0..n 的小整數</strong>,可直接當陣列索引 —— <strong>索引本身就是排好序的頻率</strong>,不用比較排序。
+          從 <code>f=n</code> 往下掃桶,收集到湊滿 k 個即停。計數 + 分桶 + 掃描全是 <strong>O(n)</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>計數</strong> —— <code>counts[val]++</code> 數每個值出現幾次(雜湊表)。</li>
+      <li><strong>分桶</strong> —— <code>buckets[freq].push_back(val)</code>,桶陣列大小 <code>n+1</code>(頻率最高到 n)。</li>
+      <li><strong>由高往低收集</strong> —— <code>for i = n..0</code>,把 <code>buckets[i]</code> 的值加進答案,湊滿 <code>k</code> 就停。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// BUCKET BY FREQUENCY</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[1,1,1,2,2,3], k=2</code>:計數 <code>{1:3, 2:2, 3:1}</code> → 分桶 <code>buckets[3]=[1]、[2]=[2]、[1]=[3]</code>。
+      從高頻往低掃,收 <code>1</code>(桶 3)、<code>2</code>(桶 2)→ 湊滿 2 → <strong>[1,2]</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 依頻率桶排序 · 由高往低收集</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:260px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼桶排序可行 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼能桶排序<span class="sc-section__title-en">// KEY · BOUNDED FREQ</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">頻率是 0..n 的小整數 → 可當索引</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          桶排序(counting/bucket sort)能做到線性的前提是:<strong>要排序的鍵落在一個已知的小範圍整數裡</strong>,才能拿它當陣列索引、跳過比較。
+          這題的鍵是「頻率」,而<strong>任何值的頻率最多是 <code>n</code></strong>(全部一樣時)、最少是 1。所以開一個 <code>n+1</code> 大小的桶陣列,頻率 <code>f</code> 的值就丟進 <code>buckets[f]</code>。
+        </p>
+        <p style="margin:0;">
+          <strong>「陣列索引 = 頻率」意味著桶已經按頻率排好序</strong> —— 從高索引往低索引掃,就是從高頻往低頻取。這把「排序」外包給了「陣列的天然順序」,免掉 <code>log n</code> 因子。
+          這正是 <a href="../p128/index.html">128</a>(值當索引)、<a href="../p41/index.html">41</a>(值歸位)同一家族的思想:<strong>當鍵是小範圍整數,用索引取代比較</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">桶排序:T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        計數 <code>O(n)</code>、分桶 <code>O(不同值數) ≤ O(n)</code>、掃桶收集 <code>O(n)</code>(桶總元素數 = 不同值數)。空間 <code>O(n)</code>(counts + buckets)。相比堆 <code>O(n log k)</code>、排序 <code>O(n log n)</code>,桶排序在此題最快。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>做法</th><th>時間</th><th>適用時機</th></tr></thead>
+      <tbody>
+        <tr><td><strong>桶排序</strong>(本解)</td><td><code>O(n)</code></td><td>頻率範圍已知(≤ n)</td></tr>
+        <tr><td>最小堆(size k)</td><td><code>O(n log k)</code></td><td>k 遠小於 n、串流</td></tr>
+        <tr><td>依頻率排序</td><td><code>O(n log n)</code></td><td>最直觀、好寫</td></tr>
+        <tr><td>Quickselect</td><td><code>O(n)</code> 均攤</td><td>只要前 k、不需有序</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「取前 k 高頻」→ 數頻率後,因為<strong>頻率 ≤ n 是小整數</strong>,用<strong>頻率當桶索引</strong>做桶排序:索引天然有序,由高往低收集 k 個即停。
+      <strong>鍵是小範圍整數時,用索引取代比較排序</strong> —— 把 <code>O(n log n)</code> 打成 <code>O(n)</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">數頻率 → 因頻率≤n 是小整數,用頻率當桶索引(桶排序),由高往低收集 k 個。索引取代比較 → O(n),勝過堆 O(n log k)、排序 O(n log n)。</div>
+    <div class="sc-summary-bar__detail">頻率桶排序 · TOP K FREQUENT ELEMENTS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p347-bucket.js"></script>
+</body>
+</html>

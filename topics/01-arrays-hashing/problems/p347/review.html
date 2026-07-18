@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>347 · Top K Frequent Elements // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P347</span>
+    <span><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">前 K 個高頻元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 347</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>頻率桶排序</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>三步</td><td>計數 → 依頻率分桶 → 由高往低收集 k 個</td></tr>
+        <tr><td>桶排序前提</td><td>頻率是 <code>0..n</code> 小整數 → 可當索引</td></tr>
+        <tr><td>索引即排序</td><td>「索引 = 頻率」→ 桶天然按頻率有序</td></tr>
+        <tr><td>桶大小</td><td><code>n + 1</code>(頻率最高可到 n)</td></tr>
+        <tr><td>提早停</td><td>湊滿 k 立刻停,不掃低頻桶</td></tr>
+        <tr><td>複雜度</td><td>桶 <code>O(n)</code> / 堆 <code>O(n log k)</code> / 排序 <code>O(n log n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>桶排序能達到 <code>O(n)</code> 的前提是什麼?這題的哪個量滿足了這個前提?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼桶陣列大小要 <code>n + 1</code> 而不是 <code>n</code>?什麼輸入會讓 <code>buckets[n]</code> 真的被用到?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>堆版為什麼用「大小 k 的<strong>最小</strong>堆」而不是「裝全部的最大堆」?兩者複雜度差在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>桶排序 <code>O(n)</code> 明明比堆 <code>O(n log k)</code> 快,為什麼實務上還常看到用堆?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>這題和 <a href="../p169/index.html">169 多數元素</a>、<a href="../p128/index.html">128 最長連續序列</a> 有什麼共通的「用索引取代比較」精神?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 頻率 = n 的極端例</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums=[7,7,7,7], k=1 —— 唯一值,頻率剛好 = n</span>
+n=4
+① counts = {7:4}
+② buckets 大小 = 5(索引 0..4)
+   buckets[4] = [7]        ← 頻率 4 = n,用到最後一格!
+③ i=4: 桶 4=[7] → result=[7]  size==k=1 → 停
+<span class="sc-trace__out">[7]</span></div>
+
+    <div class="sc-insight">
+      這個例子正是「桶大小要 <code>n+1</code>」的原因:當所有元素相同,某個值的頻率<strong>剛好等於 n</strong>,會落在 <code>buckets[n]</code>。
+      若桶只開 <code>n</code> 格(索引 0..n−1),<code>buckets[n]</code> 就越界。多開一格,把「頻率 n」也容納進來。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 692 前 K 個高頻單字</strong>:同頻率時要按<strong>字典序</strong>排。桶排序還能用嗎?桶裡的值要怎麼處理才滿足 tie-break?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>Quickselect 版</strong>:另一個 <code>O(n)</code> 均攤解。它和桶排序各自的優缺點?什麼時候 quickselect 更合適?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>資料流 top-k</strong>:元素一個個進來,隨時要回報當前 top-k。桶排序(需知道 n)還適合嗎?該用什麼結構?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      桶/計數排序達到線性的前提是:<strong>要排序的鍵落在一個已知的小範圍整數區間</strong>,才能拿鍵當陣列索引、跳過兩兩比較。這題排序的鍵是<strong>頻率</strong>,而頻率一定落在 <code>[1, n]</code>(甚至可含 0)—— 是個上界為 <code>n</code> 的小整數。所以能開 <code>n+1</code> 個桶,用頻率當索引直接歸位,無需比較。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為頻率的<strong>最大值是 <code>n</code></strong>(當所有元素都相同,某個值出現 n 次)。索引要涵蓋 <code>0..n</code> 共 <code>n+1</code> 個值,所以陣列大小是 <code>n+1</code>。輸入 <code>[7,7,7,7]</code>(n=4)就會用到 <code>buckets[4]</code>。開成 <code>n</code> 格(索引 0..n−1)時,<code>buckets[n]</code> 越界崩潰。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      用「大小 k 的最小堆」是為了把每次操作壓到 <code>O(log k)</code> 而非 <code>O(log n)</code>。最小堆只保留<strong>目前最高頻的 k 個</strong>,堆頂是「第 k 高的門檻」;新頻率若大於堆頂就 push 再 pop 掉最小的,堆大小恆 ≤ k。總時間 <code>O(n log k)</code>。若改用「裝全部 n 個的最大堆」再彈 k 次,建堆 + 操作是 <code>O(n log n)</code> —— 反而更慢,失去用堆的意義。<strong>要前 k 大,就維持大小 k 的最小堆</strong>,是通用套路。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      幾個現實理由:<strong>(1) 空間</strong>——桶排序要開 <code>n+1</code> 個桶,當<strong>不同值很少、n 很大</strong>時(如 10⁹ 個元素但只有 100 種),桶陣列浪費;堆只需 <code>O(k)</code>。<strong>(2) 串流</strong>——資料一個個來、n 未知或無限時,無法預先開桶;大小 k 最小堆能邊來邊維護。<strong>(3) k 很小</strong>——<code>log k</code> 幾乎是常數,堆的簡潔勝過桶的額外記憶體。桶排序在「n 明確、頻率密集」時最優,堆在「串流 / 稀疏 / 小 k」時更實用。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      共通精神是<strong>「當鍵是小範圍整數,用陣列索引取代比較 / 雜湊」</strong>：347 用<strong>頻率</strong>當索引(桶排序);<a href="../p128/index.html">128</a> 用<strong>值的存在性</strong>做集合、只從段首擴展;<a href="../p169/index.html">169</a> / <a href="../p41/index.html">41</a> 用<strong>值本身</strong>當位置(投票 / 歸位)。核心都是<strong>把「排序 / 查找」問題轉成「陣列定址」問題</strong>,用 <code>O(1)</code> 索引換掉 <code>O(log)</code> 比較,達到線性。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 692</strong>:桶排序仍可用,但每個桶裡的單字要按<strong>字典序</strong>排序後再輸出,以滿足「同頻率按字典序」的 tie-break。做法:分桶後,從高頻桶往低掃,對每個桶內的單字 <code>sort</code>(字典序),依序取直到湊滿 k。或直接用<strong>自訂比較的堆</strong>(頻率為主、字典序為輔)更直觀。純桶排序失去了 tie-break 的天然順序,得在桶內補一次排序。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>Quickselect</strong>:對 (值,頻率) 陣列做「第 k 大」的分割,把前 k 高頻的一堆挪到一邊,<code>O(n)</code> 均攤(最壞 <code>O(n²)</code>,可隨機化避免)。<strong>優點</strong>:只需 <code>O(不同值數)</code> 空間,不像桶要開 n+1 格;不需頻率上界。<strong>缺點</strong>:結果<strong>無序</strong>(只保證前 k,不保證彼此排序)、最壞退化、實作較繁瑣。桶排序穩定 <code>O(n)</code> 且好寫;quickselect 在<strong>不同值多、想省空間、不在意順序</strong>時勝出。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>資料流</strong>:桶排序需要預知 n(才能開桶)且要看完全部才能分桶,<strong>不適合串流</strong>。改用<strong>雜湊表(值→頻率)+ 大小 k 的最小堆</strong>:更新某值頻率後,維護堆內是否該值、是否擠掉堆頂。若要「近似」top-k 且記憶體有限,用 <strong>Count-Min Sketch + heap</strong> 或 <strong>Space-Saving 演算法</strong>。核心:串流下無法「事後分桶」,得<strong>增量維護</strong>一個 top-k 結構。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">頻率≤n 是小整數 → 桶索引=頻率、天然有序、O(n)。桶大小 n+1(頻率可達 n)。堆 O(n log k) 適合串流/稀疏/小 k。同家族:169/128/41 都用索引取代比較。</div>
+    <div class="sc-summary-bar__detail">頻率桶排序 · TOP K FREQUENT ELEMENTS</div>
+  </div>
+
+</body>
+</html>
