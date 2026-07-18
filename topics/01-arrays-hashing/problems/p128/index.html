@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>128 · Longest Consecutive Sequence // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P128</span>
+    <span><a href="https://leetcode.com/problems/longest-consecutive-sequence/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長連續序列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 雜湊集合 + 只從左端起算</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 128</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雜湊集合 · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給未排序整數陣列 <code>nums</code>,回傳<strong>最長連續元素序列</strong>的長度。序列的數不必在陣列中相鄰,但數值要連續(如 <code>1,2,3,4</code>)。
+        <strong>必須 O(n) 時間</strong>。例:<code>[100,4,200,1,3,2] → 4</code>(序列 <code>1,2,3,4</code>)。
+      </p>
+    </div>
+
+    <p>
+      「O(n) 時間」這個硬性要求是全題的樞紐 —— 它把最直覺的<strong>排序</strong>(<code>O(n log n)</code>)擋在門外。
+      正解:丟進<strong>雜湊集合</strong>,再用一個「<strong>只從每段連續數的最左端起算</strong>」的技巧,把看似 <code>O(n²)</code> 的巢狀迴圈壓成<strong>攤還 O(n)</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼集合 + 起點法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「集合 + 起點法」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n log n)</div>
+          <div class="sc-ko__name">排序後數連段</div>
+          <p>排序後掃一遍數最長連續段。對、好寫,但 <code>O(n log n)</code> —— 違反題目的 O(n) 要求。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">× REJECT · O(n²)</div>
+          <div class="sc-ko__name">集合但「每個數都往右數」</div>
+          <p>丟進集合後,對<strong>每個</strong>數都 <code>while(x+1 in set)</code> 往右數。<code>[1,2,…,n]</code> 時每個數都重數整段 → <code>O(n²)</code>。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">FIX WITH START-CHECK · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n)</div>
+        <div class="sc-ko__name">集合 + 只從最左端起算</div>
+        <p>
+          丟進 <code>unordered_set</code>(去重 + O(1) 查)。對每個數 <code>x</code>,<strong>只有當 <code>x−1</code> 不在集合</strong>(x 是某段的最左端)才往右數;
+          <code>x−1</code> 在集合就跳過。這樣<strong>每段只被它的起點數一次</strong>,內層 while 的總步數 = 所有段長相加 = <code>n</code>。攤還 <strong>O(n)</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>建集合</strong> —— 把所有數丟進 <code>unordered_set</code>,自動去重、O(1) 查詢。</li>
+      <li><strong>找起點</strong> —— 遍歷集合,只處理「<code>x−1</code> 不在集合」的 <code>x</code>(它是一段的最左端);否則跳過。</li>
+      <li><strong>往右數</strong> —— 從起點 <code>while(x+1 in set)</code> 累加長度,更新最長。回傳最長。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// SET + START-CHECK</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      集合 <code>{1,2,3,4,6,7,8}</code>:只有 <code>1</code>(0 不在)和 <code>6</code>(5 不在)是起點,各往右數出 <strong>4</strong> 和 <strong>3</strong>;
+      其餘 <code>2,3,4,7,8</code> 因為左鄰在集合而<strong>直接跳過</strong>。答案 <strong>4</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 雜湊集合 + 只從左端起算</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:240px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · O(n) 證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼巢狀迴圈仍是 O(n)<span class="sc-section__title-en">// LEMMA · AMORTIZED</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">每個數最多被「碰」兩次</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          乍看「<code>for</code> 裡有 <code>while</code>」像 <code>O(n²)</code>,但關鍵在 <strong><code>if (seen.count(s-1)) continue;</code></strong> 這道守衛:
+        </p>
+        <p style="margin:0 0 10px;">
+          ‧ 外層 <code>for</code>:每個數被<strong>檢視一次</strong>(判斷是不是起點)。<br />
+          ‧ 內層 <code>while</code>:<strong>只有起點</strong>會進入往右數;而每個數<strong>屬於恰好一段</strong>,只會被那段的起點在 while 裡走過<strong>一次</strong>。
+        </p>
+        <p style="margin:0;">
+          所以所有內層 while 的步數加總 = 每段長度相加 = <strong>n</strong>。加上外層 n 次檢視,總共 <code>2n</code> 次操作 → <strong>O(n)</strong>。
+          守衛擋掉了「非起點也往右數」的重複工作 —— 沒有它,<code>[1..n]</code> 這種輸入就會退化成 <code>O(n²)</code>。<strong>這一行 <code>continue</code> 就是 O(n) 的全部祕密。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        建集合 <code>O(n)</code>、遍歷 + 攤還往右數 <code>O(n)</code>。空間是集合存 n 個數。注意 <code>unordered_set</code> 是<strong>均攤</strong> O(1) 查詢(最壞碰撞退化,但隨機資料下穩定)。用排序則是 <code>O(n log n)</code> 時間、<code>O(1)~O(n)</code> 空間,換取不同取捨。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建集合</td><td><code>O(n)</code></td><td>插入 n 個數</td></tr>
+        <tr><td>遍歷 + 往右數</td><td><code>O(n)</code></td><td>攤還:每數最多碰兩次</td></tr>
+        <tr><td>空間</td><td><code>O(n)</code></td><td>集合存所有數</td></tr>
+        <tr><td>vs 排序</td><td><code>O(n log n)</code></td><td>更省空間但不達 O(n) 時間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      要 O(n) 又和「連續值」有關 → 丟進<strong>雜湊集合</strong>,再<strong>只從每段最左端(<code>x−1</code> 不在集合)往右數</strong>。
+      守衛 <code>continue</code> 保證每個數只被走一次,巢狀迴圈攤還成 O(n)。這是「攤還分析」最漂亮的入門例子。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">丟進 hash set,只從「x−1 不在集合」的最左端往右數。守衛 continue → 每數走一次 → 攤還 O(n)。排序 O(n log n) 不達標。</div>
+    <div class="sc-summary-bar__detail">雜湊集合 · LONGEST CONSECUTIVE SEQUENCE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p128-consecutive.js"></script>
+</body>
+</html>

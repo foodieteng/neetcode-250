@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>128 · Longest Consecutive Sequence // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P128</span>
+    <span><a href="https://leetcode.com/problems/longest-consecutive-sequence/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長連續序列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 128</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雜湊集合</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>資料結構</td><td><code>unordered_set</code>:去重 + O(1) 查存在</td></tr>
+        <tr><td>起點法</td><td>只從「<code>x−1</code> 不在集合」的最左端往右數</td></tr>
+        <tr><td>守衛</td><td><code>if (count(s−1)) continue;</code> —— O(n) 的靈魂</td></tr>
+        <tr><td>攤還論證</td><td>每數被檢視一次 + 被某起點走一次 = O(n)</td></tr>
+        <tr><td>遍歷對象</td><td>遍歷 <strong>set</strong>(非 nums),重複值不弄髒論證</td></tr>
+        <tr><td>vs 排序</td><td>排序 O(n log n) 正確但不達 O(n) 要求</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> 時間 / <code>O(n)</code> 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼「<code>for</code> 裡有 <code>while</code>」卻是 <code>O(n)</code> 而非 <code>O(n²)</code>?攤還論證的核心是什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>拿掉 <code>if (count(s−1)) continue;</code> 這行,程式還對嗎?哪種輸入會讓它退化成 <code>O(n²)</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>為什麼判斷起點用「<code>x−1</code> 不在集合」而不是「<code>x+1</code> 不在集合」?反過來(從右端往左數)可以嗎?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>為什麼遍歷 <code>seen</code> 而不是原 <code>nums</code>?對重複值多的輸入差在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>題目沒要求 O(n) 的話,排序法 <code>O(n log n)</code> 有什麼優點?什麼時候反而更好?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 攤還:每數只被走一次</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// seen={1,2,3,4,6,7,8},標出「誰在 while 裡走過誰」</span>
+起點 1 → while 走過 1,2,3,4   (curL=4)
+起點 6 → while 走過 6,7,8     (curL=3)
+非起點 2,3,4 → continue(不進 while)
+非起點 7,8   → continue(不進 while)
+
+while 總步數 = 4 + 3 = 7 = 集合大小
+外層 for 檢視 = 7 次
+合計 ≈ 2×7 → O(n)
+<span class="sc-trace__out">最長 = 4</span></div>
+
+    <div class="sc-insight">
+      把每個數塗成「它屬於哪段」:<code>1,2,3,4</code> 屬第一段、<code>6,7,8</code> 屬第二段。
+      <strong>每段的 while 只由該段起點跑一次,走過該段所有成員</strong>。所以 while 全部步數加起來 = 每段長度和 = n。
+      這就是為何巢狀迴圈的總工作量是線性 —— 攤還到每個數頭上只有常數次。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>回傳序列本身</strong>:不只長度,還要回傳最長那段的所有數。怎麼在起點法上加最少的東西?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>Union-Find 版</strong>:也能用並查集把「相鄰數」union 起來,最後找最大連通塊。這比集合起點法好還是差?複雜度和常數各如何?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>LC 298 二元樹最長連續序列</strong>:值連續但要沿樹的父子路徑。這裡「連續」的鄰接關係從「數值 ±1」變成「樹邊 + 值 +1」,DFS 怎麼帶狀態?和本題共通的抽象是什麼?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      核心是<strong>攤還</strong>:守衛讓只有「段的最左端」進入 while,而每個數<strong>屬於恰好一段</strong>,只會被那段起點在 while 裡走過一次。所以所有 while 的步數加總 = 各段長度和 = <code>n</code>,加上外層 n 次檢視,共 <code>O(n)</code>。「單一 while 可能很長」不代表總量平方 —— 要看全程加總。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      <strong>還是對的</strong>(答案正確),但會慢。輸入 <code>[1,2,3,…,n]</code>:少了守衛,每個數都會往右數整段 —— <code>1</code> 數 n 個、<code>2</code> 數 n−1 個…總和 <code>O(n²)</code>。守衛把「非起點也往右數」的重複工作剪掉,是正確性以外、專為<strong>複雜度</strong>而存在的一行。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      兩者對稱,都可行 —— 重點是<strong>「只從段的其中一端起算,保證每段只數一次」</strong>。用 <code>x−1</code> 不在 → x 是最左端、往右數;也可以用 <code>x+1</code> 不在 → x 是最右端、往左數。只要固定挑一端當起點即可,不能兩端都當起點(那會數兩次、破壞攤還)。習慣上用左端 + 往右,讀起來自然。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      遍歷 <code>seen</code> 讓<strong>每個 distinct 值只被檢視一次</strong>。若遍歷 <code>nums</code>,重複值(如三個 <code>2</code>)會被各檢視一次;雖然它們都不是起點、會被 continue 擋掉不影響正確性,但「檢視次數」變成 <code>O(nums 長度)</code> 而非 <code>O(distinct 數)</code>,讓攤還論證不再乾淨(極端重複時多做無用功)。遍歷 set 最穩。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      排序法 <code>O(n log n)</code> 的優點:<strong>空間可到 <code>O(1)</code></strong>(就地排序,不需額外雜湊表),而且<strong>沒有雜湊碰撞的最壞退化風險</strong>(unordered_set 理論最壞 O(n) 單次查詢)。當<strong>記憶體吃緊</strong>、或要<strong>穩定最壞複雜度保證</strong>、或資料本來就接近有序時,排序法反而更實在。集合法勝在達到 O(n) 平均時間。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      在更新 <code>maxL</code> 時,順便記下<strong>該段的起點值和長度</strong>(<code>bestStart</code>、<code>bestLen</code>)。最後從 <code>bestStart</code> 連續輸出 <code>bestLen</code> 個數即可重建序列,<code>O(bestLen)</code> 額外、<code>O(1)</code> 額外空間。不必存下每段,只留最佳的起點+長度。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>Union-Find</strong>:把每個數和 <code>x+1</code>(若存在)union,最後統計最大集合大小。正確,但<strong>常數更大</strong>(路徑壓縮 + 按秩合併是 <code>O(α(n))</code> 近常數,實務仍比純雜湊查慢),且要多一個 value→id 的映射。集合起點法更簡潔、常數更小,是本題首選;Union-Find 是「連通分量」思維的通用武器,殺雞用牛刀但概念可遷移。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 298</strong>:鄰接從「值差 1」改為「父子邊 <strong>且</strong> child = parent+1」。DFS 回傳「以當前節點為起點、向下的最長連續長度」:若某子節點值 = 當前值+1,則 <code>1 + dfs(child)</code>,否則該分支重置為 1;全程更新全域最大。<strong>共通抽象:定義好「連續的鄰接關係」,再找這個關係下的最長鏈</strong> —— 128 的鄰接是 ±1,298 的鄰接是樹邊 +1。換了圖,套路不變。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">set + 只從最左端(x−1 不在)往右數。守衛 continue 讓每數走一次 → 攤還 O(n)。遍歷 set 保論證乾淨。抽象:定義連續鄰接關係、找最長鏈(298 換成樹邊)。</div>
+    <div class="sc-summary-bar__detail">雜湊集合 · LONGEST CONSECUTIVE SEQUENCE</div>
+  </div>
+
+</body>
+</html>
