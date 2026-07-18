@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>169 · Majority Element // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P169</span>
+    <span><a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">多數元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 169</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>直覺</td><td>不同兩票互相抵銷,多數元素(&gt; n/2)抵銷不完</td></tr>
+        <tr><td>狀態</td><td>候選人 <code>candidate</code> + 票數 <code>cnt</code></td></tr>
+        <tr><td>規則</td><td><code>cnt==0</code> 換人、同票 <code>+1</code>、異票 <code>-1</code></td></tr>
+        <tr><td>cnt 意義</td><td>領先淨差,<strong>不是</strong>真實出現次數</td></tr>
+        <tr><td>候選人</td><td>可中途換好幾次,但多數元素撐到最後</td></tr>
+        <tr><td>不保證存在</td><td>要第二遍數 candidate 真實次數驗證</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> 時間 · <code>O(1)</code> 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 用「配對抵銷」的直覺,說明為什麼多數元素(&gt; n/2)一定會是最後的 candidate。</div>
+    <div class="qa"><strong>Q2.</strong> <code>cnt</code> 到底代表什麼?它<strong>不是</strong>什麼?為什麼它可以中途歸零?</div>
+    <div class="qa"><strong>Q3.</strong> 若題目<strong>不保證</strong>多數元素存在,這段程式會回什麼?要怎麼補救?</div>
+    <div class="qa"><strong>Q4.</strong> 排序法為什麼 <code>nums[n/2]</code> 直接就是答案?這性質對「出現恰好 n/2 次」的元素還成立嗎?</div>
+    <div class="qa"><strong>Q5.</strong> 若改成找「出現次數 &gt; <code>⌊n/3⌋</code>」的元素(<a href="https://leetcode.com/problems/majority-element-ii/" target="_blank" rel="noopener">LC 229</a>),最多有幾個?Boyer-Moore 要怎麼推廣?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [6,5,5]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 多數元素在後面才出現,也照樣勝出</span>
+num=6  cnt==0 → candidate=6, cnt=1
+num=5  異票   → cnt=0            ← 6 被打平
+num=5  cnt==0 → candidate=5, cnt=1
+<span class="sc-trace__out">return 5   (5 出現 2 次 > 3/2)</span></div>
+
+    <div class="sc-insight">
+      即使非多數元素 <code>6</code> <strong>先出現</strong>、先當上候選人,只要多數元素 <code>5</code> 夠多,<strong>一定能把它抵銷掉再取而代之</strong>。
+      演算法<strong>不在乎多數元素出現的位置</strong> —— 它靠的是「總量優勢」,不是「先來後到」。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/majority-element-ii/" target="_blank" rel="noopener">LC 229 多數元素 II</a>:找所有出現 &gt; <code>⌊n/3⌋</code> 次的。維護<strong>幾個</strong>候選人?為什麼是那個數?最後為什麼一定要驗證?</div>
+    <div class="qa"><strong>App 2.</strong> 若要的不是「值」而是「多數元素的<strong>任一索引</strong>」,或要它的<strong>出現次數</strong>,程式怎麼補?</div>
+    <div class="qa"><strong>App 3.</strong> Boyer-Moore 能不能用在<strong>資料流(stream)</strong>——資料一個個來、無法存下全部、也不能回頭?這體現它的什麼特性?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 把演算法想成「<strong>兩兩對消</strong>」:每次 <code>cnt--</code> 等於「candidate 一票<strong>和一個異票同歸於盡</strong>」——各消掉一個。<br />
+    設多數元素有 <code>M</code> 個(<code>M &gt; n/2</code>),其他所有元素合計 <code>n − M</code> 個(<code>&lt; n/2 &lt; M</code>)。<strong>每次抵銷最多消掉一個多數元素,但同時要付一個非多數元素當代價。</strong>非多數元素總共只有 <code>n − M</code> 個「彈藥」,而多數元素有 <code>M</code> 個 —— 因為 <code>M &gt; n − M</code>,<strong>就算非多數元素全部拿去抵銷多數元素,也消不完</strong>,至少剩 <code>M − (n − M) = 2M − n &gt; 0</code> 個多數元素。<br />
+    所以掃到最後,<code>cnt</code> 一定停在一段「多數元素」上、以正值收尾,<code>candidate</code> 就是它。<strong>「總量過半」直接翻譯成「抵銷後必有剩」</strong> —— 這就是正確性的全部。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> <code>cnt</code> 是「<strong>從上次歸零到現在,candidate 陣營比對手多出的淨票數(領先幅度)</strong>」。<br />
+    <strong>它不是</strong>:candidate 在整個陣列的真實出現次數。舉例 <code>[2,2,1,1,1,2,2]</code> 結束時 <code>cnt=1</code>,但 <code>2</code> 出現了 <strong>4</strong> 次 —— <code>cnt</code> 遠小於真實次數,因為中途被 1 抵銷、又歸零重算過。<br />
+    <strong>為什麼能歸零</strong>:歸零代表「這一段裡 candidate 和對手<strong>剛好打平</strong>、票數互相抵光」。既然平手,<strong>這段對「誰是全局多數」不再有貢獻</strong>(等量抵消),可以整段丟棄、從下一個元素<strong>重開一局</strong>。每個被丟棄的段落都是「等量多數 + 非多數」,消耗的非多數彈藥記在帳上;最終撐住的那段,必然因為多數元素彈藥更多而屬於它。<strong>「淨差」而非「次數」,是允許歸零換人卻仍正確的關鍵。</strong></div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 會回一個 <code>candidate</code>,但<strong>它不保證真的過半</strong> —— 只是「碰巧撐到最後的那個」。例如 <code>[1,2,3]</code>(無多數元素):跑完 candidate 可能是 <code>3</code>,但 3 只出現 1 次,不過半。<br />
+    <strong>補救:加第二遍驗證</strong>。第一遍照跑 Boyer-Moore 找出 candidate;第二遍<strong>數一次 candidate 的真實出現次數</strong>,判斷 <code>occur &gt; n/2</code> 才回它,否則回「不存在」(如 <code>-1</code>)。仍是 <code>O(n)</code> 時間、<code>O(1)</code> 空間。<br />
+    <strong>要點</strong>:Boyer-Moore 的保證是「<strong>如果</strong>有多數元素,它<strong>一定</strong>是這個 candidate」——它能<strong>排除</strong>其他所有可能,但不能<strong>斷言</strong>存在。本題明說保證存在,才能安全省掉第二遍;變體題不保證時,漏了驗證就是常見 bug。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 因為多數元素出現 <strong>&gt; n/2 次</strong>,排序後這些相同的值會<strong>連成一段長度 &gt; n/2 的連續區塊</strong>。一段超過總長一半的連續區塊,<strong>無論它從哪裡開始,都必然覆蓋正中央的位置 <code>n/2</code></strong>(它太長了,躲不開中點)。所以 <code>nums[n/2]</code> 一定落在這段裡,就是多數元素。<br />
+    <strong>對「恰好 n/2 次」還成立嗎</strong>:<strong>不一定</strong>。「多數元素」的定義是<strong>嚴格大於</strong> <code>⌊n/2⌋</code>;若某元素只出現<strong>恰好</strong> n/2 次(偶數 n),它排序後是長度 n/2 的區塊,<strong>可能不覆蓋中點</strong>(例 <code>[1,1,2,2]</code>,<code>nums[2]=2</code> 但 1、2 都只出現 2 次,無多數元素)。所以 <code>nums[n/2]</code> 這招<strong>只在「真有嚴格多數」時保證正確</strong> —— 和 Boyer-Moore 一樣,都吃「嚴格過半」這個前提。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 出現 &gt; <code>⌊n/3⌋</code> 次的元素<strong>最多 2 個</strong>(若有 3 個都 &gt; n/3,總數就 &gt; n,矛盾)。<br />
+    <strong>推廣的 Boyer-Moore</strong>:維護<strong>兩組</strong>候選人 <code>(c1, cnt1)</code>、<code>(c2, cnt2)</code>。對每個 <code>num</code>:若等於 <code>c1</code> → <code>cnt1++</code>;等於 <code>c2</code> → <code>cnt2++</code>;否則若 <code>cnt1==0</code> → 收 <code>c1=num</code>;否則若 <code>cnt2==0</code> → 收 <code>c2=num</code>;<strong>都不是就 <code>cnt1--, cnt2--</code></strong>(這一票同時抵銷兩個候選人)。<br />
+    <strong>最後一定要驗證</strong>:因為「&gt; n/3」<strong>不保證真的有兩個(甚至一個)</strong>滿足 —— 第二遍數 <code>c1、c2</code> 的真實次數,只回真的 &gt; n/3 的。<br />
+    <strong>通則</strong>:找「&gt; n/k」的元素最多 <code>k−1</code> 個,用 <code>k−1</code> 組候選人抵銷(一張異票同時扣所有組),<strong>最後必須驗證</strong>。169 是 <code>k=2</code> 的特例(1 組候選人),而且因為題目保證存在才免驗。<strong>Boyer-Moore 的本質是「用 k−1 個計數器過濾出候選,再驗證」。</strong></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> <a href="https://leetcode.com/problems/majority-element-ii/" target="_blank" rel="noopener">229</a> 找 &gt; <code>⌊n/3⌋</code> 的:<strong>最多 2 個</strong>(如 A5),所以維護<strong>兩組</strong>候選人 + 兩個計數器。規則見 A5(等於某候選就加;有空位就收;都不是就<strong>兩個計數器都減</strong>)。<br />
+    <strong>為什麼一定要驗證</strong>:第一遍只保證「<strong>若</strong>存在 &gt; n/3 的元素,它們<strong>一定</strong>在這兩個候選裡」,但候選<strong>不一定真的過 n/3</strong>(例 <code>[1,2,3]</code> 沒有任何元素 &gt; 1)。所以<strong>第二遍數 c1、c2 的真實次數</strong>,只把 &gt; n/3 的放進答案。169 因題目保證存在可省驗證,229 沒這保證 → <strong>驗證不可省</strong>。這正是「候選 vs 確認」兩階段的典型。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong>
+      <strong>要索引</strong>:Boyer-Moore 本身只給「值」。拿到 candidate 後,再<strong>掃一遍找任一個 <code>nums[i]==candidate</code> 回傳 <code>i</code></strong> 即可(<code>O(n)</code>)。<br />
+      <strong>要出現次數</strong>:同樣第二遍<strong>數一次</strong> <code>candidate</code> 出現幾次。<br />
+      <strong>為什麼不能在第一遍順便記</strong>:因為第一遍的 <code>cnt</code> 是「領先淨差」不是真實次數(見 A2),中途歸零換人時該資訊就丟了。所以<strong>凡是要「真實次數 / 位置」的,都得在確定 candidate 後再補一遍統計</strong>。這也呼應 A3:Boyer-Moore 是「<strong>先過濾出候選</strong>」的演算法,任何「精確計量」都留給第二遍 —— 但兩遍都 <code>O(n)</code>、空間仍 <code>O(1)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> <strong>能</strong>——這正是 Boyer-Moore 最漂亮的特性之一。它<strong>只需要維護兩個變數</strong>(candidate、cnt)、<strong>每個元素只看一次、看完就丟</strong>、<strong>從不回頭</strong>。所以資料一個個流進來時,直接更新這兩個變數即可,<strong>不需要存下整個資料流</strong> —— 是天然的<strong>單遍串流(one-pass streaming)</strong>演算法,<code>O(1)</code> 空間。<br />
+    <strong>唯一的限制</strong>:若要<strong>驗證</strong>候選是否真過半(不保證存在時),需要<strong>第二遍</strong>——但串流無法回頭。此時要嘛題目保證存在(如 169,一遍即可)、要嘛能重播資料流一次、要嘛接受「機率型 / 近似」的答案。<br />
+    <strong>啟示</strong>:「<strong>用 <code>O(1)</code> 狀態總結一整條資料流</strong>」是串流演算法的核心追求,Boyer-Moore 是最經典的入門例子(同類還有蓄水池抽樣、Count-Min Sketch 等)。看到「<strong>資料太大存不下 / 只能掃一遍</strong>」,就該想到這種「維護極少量狀態」的思路。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 · 陣列與雜湊</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「配對抵銷過半必剩、cnt=淨差非次數可歸零、不保證存在要驗、排序 nums[n/2]、&gt;n/k 用 k−1 組候選、可串流」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 169 · MAJORITY ELEMENT</div>
+  </div>
+
+</body>
+</html>

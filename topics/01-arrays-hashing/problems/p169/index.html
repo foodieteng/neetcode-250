@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>169 · Majority Element // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P169</span>
+    <span><a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">多數元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · Boyer-Moore 投票抵銷</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 169</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>投票演算法</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給大小為 <code>n</code> 的陣列 <code>nums</code>,找出<strong>多數元素</strong> —— 出現次數<strong>超過 <code>⌊n/2⌋</code></strong> 的那個(保證存在)。
+        例 <code>[2,2,1,1,1,2,2]</code> → <code>2</code>(出現 4 次 &gt; 7/2)。
+      </p>
+    </div>
+
+    <p>
+      follow-up 問「能不能 <strong>線性時間、<code>O(1)</code> 空間</strong>?」——雜湊計數是 <code>O(n)</code> 時間但 <code>O(n)</code> 空間、排序取中位是 <code>O(n log n)</code>。
+      真正漂亮的答案是 <strong>Boyer-Moore 投票演算法</strong>:一個計數器、一個候選人,一遍掃描,<code>O(1)</code> 空間。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 抵銷的直覺 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 不同的兩票互相抵銷<span class="sc-section__title-en">// PAIR &amp; CANCEL</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">關鍵直覺 · 多數元素抵銷不完</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          想像一場「<strong>兩兩對消</strong>」的遊戲:把<strong>兩個不同</strong>的元素配成一對、一起丟掉(它們互相抵銷)。不斷這樣配對消除,直到剩下的都相同。
+        </p>
+        <p style="margin:0;">
+          <strong>多數元素出現 &gt; n/2 次,比「其他所有元素加起來」還多。</strong>所以就算讓它和每個非多數元素<strong>一對一抵銷</strong>,對面的「彈藥」也不夠消光它 —— <strong>最後一定有多數元素剩下來</strong>。Boyer-Moore 就是把這個「配對抵銷」用<strong>一個計數器</strong>模擬出來,不用真的兩兩配。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 演算法規則 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 候選人 + 票數<span class="sc-section__title-en">// CANDIDATE + COUNT</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>維護</strong>一個<strong>候選人 <code>candidate</code></strong> 和<strong>票數 <code>cnt</code></strong>(初始 0)。</li>
+      <li><strong>掃每個 <code>num</code></strong>:<br />
+        　● <code>cnt == 0</code> → 沒有候選人了,<strong>讓 <code>num</code> 當新候選人</strong>,<code>cnt = 1</code>。<br />
+        　● <code>num == candidate</code> → 同一陣營,<strong><code>cnt++</code></strong>(加持)。<br />
+        　● <code>num != candidate</code> → 敵對票,<strong><code>cnt--</code></strong>(一對一抵銷)。</li>
+      <li><strong>掃完回傳 <code>candidate</code></strong>。因為多數元素抵銷不完,最後留下的一定是它。</li>
+    </ol>
+
+    <p style="margin-top:12px;font-size:13.5px;">
+      <code>cnt</code> 不是「candidate 的真實出現次數」,而是「<strong>candidate 目前領先對手多少票</strong>」。<code>cnt</code> 歸零代表「打平了」,此時<strong>換人重新開始</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,2,1,1,1,2,2] → 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      候選人會<strong>中途換人</strong>:2 →(被 1 抵銷歸零)→ 1 →(又歸零)→ 2。但因為 2 是多數,最後一定回到 2。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Boyer-Moore 投票</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:288px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼一定對 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼保證正確<span class="sc-section__title-en">// WHY IT WORKS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">每次 cnt-- 都「消掉一個多數 + 一個非多數」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          把每次 <code>cnt--</code> 看成「<strong>candidate 一票</strong> 和 <strong>當前這個異票</strong> 同歸於盡」。<strong>能抵銷掉一個多數元素,就得付出一個非多數元素當代價</strong>。而非多數元素<strong>總共 &lt; n/2 個</strong>,多數元素<strong>&gt; n/2 個</strong> —— 對面的彈藥不足以消光多數元素。所以無論候選人怎麼換,<strong>最後 <code>cnt</code> 一定停在某段「多數元素」上、以正值收尾</strong>,<code>candidate</code> 就是它。<br />
+          <strong>但注意</strong>:這只在「多數元素<strong>確實存在</strong>(&gt; n/2)」時保證正確。若不保證存在,演算法會回一個「候選人」,但它不一定真的過半 —— 需要<strong>第二遍驗證</strong>它的次數(見下一頁)。本題題目保證存在,所以一遍就夠。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        一遍掃描、每步 <code>O(1)</code>。只用<strong>兩個變數</strong>(候選人 + 票數)→ <code>O(1)</code> 空間,完美回答 follow-up。
+        對比:雜湊計數 <code>O(n)</code>/<code>O(n)</code>、排序取中位 <code>O(n log n)</code>/<code>O(1)</code> —— Boyer-Moore 兩者兼得。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>不同的兩票互相抵銷,多數元素抵銷不完</strong>。用一個候選人 + 票數模擬:<code>cnt==0</code> 換人、同票 <code>+1</code>、異票 <code>-1</code>。
+      <code>cnt</code> 是「領先幅度」不是真次數。<code>O(n)</code> 時間、<code>O(1)</code> 空間。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p27/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 移除元素 27</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">Boyer-Moore:cnt==0 換候選人、同票 +1、異票 -1。多數元素抵銷不完必勝出。O(n) 時間、O(1) 空間。</div>
+    <div class="sc-summary-bar__detail">投票演算法 · MAJORITY ELEMENT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p169-boyer.js"></script>
+</body>
+</html>
