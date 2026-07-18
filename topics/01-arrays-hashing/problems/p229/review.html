@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>229 · Majority Element II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P229</span>
+    <span><a href="https://leetcode.com/problems/majority-element-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">多數元素 II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 229</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>Boyer-Moore II</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>答案上限</td><td><code>&gt; ⌊n/3⌋</code> 的元素<strong>最多 2 個</strong>(3 個就超過 n)</td></tr>
+        <tr><td>資料結構</td><td>2 個 (候選, 票數) 槽 → O(1) 空間</td></tr>
+        <tr><td>投票規則</td><td>命中加票 → 空槽收編 → 第三種值兩邊各減 1</td></tr>
+        <tr><td>比對優先序</td><td><code>==c1 → ==c2 → cnt1==0 → cnt2==0 → 減兩票</code></td></tr>
+        <tr><td>驗證</td><td><strong>必做</strong>:第二趟真數,篩 <code>&gt; n/3</code>(嚴格)</td></tr>
+        <tr><td>一般化</td><td><code>&gt; n/k</code> → <code>k−1</code> 個候選槽</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> / <code>O(1)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼超過 <code>⌊n/3⌋</code> 的元素最多只有 2 個?用一句話證明。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼 229 <strong>一定</strong>要驗證,而 <a href="../p169/index.html">169</a>(在保證存在眾數時)可以不驗證?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>「遇到第三種相異值就兩槽各減 1」為什麼不會把真答案的票減光?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>比對時把 <code>cnt1==0</code>(收編)判斷排在 <code>num==c2</code> 之前,會出什麼錯?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>若題目改成「找出現 <code>&gt; ⌊n/4⌋</code> 次的元素」,要開幾個候選槽?投票的「減票」規則怎麼改?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,3] · 驗證刷掉湊數候選</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 一個「候選 2 撐到最後卻不合格」的小例子,n=4, ⌊n/3⌋=1</span>
+投票:
+ num=1 收編c1  c1=1(1) c2=0(0)
+ num=2 收編c2  c1=1(1) c2=2(1)
+ num=3 減兩票  c1=1(0) c2=2(0)
+ num=3 c1空收編 c1=3(1) c2=2(0)
+候選 = {3, 2}
+
+驗證(⌊4/3⌋=1):
+ count(3)=2 → 2 &gt; 1 ? 是 → 收下
+ count(2)=1 → 1 &gt; 1 ? 否 → 刷掉
+<span class="sc-trace__out">[3]</span></div>
+
+    <div class="sc-insight">
+      候選 <code>2</code> 在 <code>c2</code> 槽裡待到最後(票數 0、值還在),但真實只出現 1 次 —— 不 &gt; 1,被驗證刷掉。
+      若省略驗證直接回 <code>{3,2}</code> 就錯了。<strong>投票 = 縮小嫌疑犯,驗證 = 定罪</strong>,兩步缺一不可。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 169 回顧</strong>:同樣是 Boyer-Moore,但只 1 個候選、門檻 <code>&gt; n/2</code>。169 的 <code>&gt; n/2</code> 保證候選一定合格,為什麼 229 的 <code>&gt; n/3</code> 不保證?差在哪?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p>一般化「找所有 <code>&gt; ⌊n/k⌋</code> 的元素」(摩爾投票的 k 版)。用 <code>k−1</code> 個候選槽,時間 <code>O(nk)</code>。這比雜湊表 <code>O(n)</code> 慢,什麼情境下仍值得用?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>資料流版</strong>:元素一個個到、無法回頭再掃第二趟驗證(串流)。這時 Boyer-Moore 還能用嗎?能給出「近似」的高頻元素嗎?(提示:Misra-Gries / heavy hitters)</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      反證:若有 3 個不同值各出現 <code>&gt; n/3</code> 次,總出現次數 <code>&gt; 3 × (n/3) = n</code>,超過陣列長度 n,不可能。故至多 2 個。同理 <code>&gt; n/k</code> 至多 <code>k−1</code> 個。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      169 的門檻是 <code>&gt; n/2</code>,那個眾數的票數<strong>嚴格多於其他所有元素票數之和</strong>,抵銷到最後一定剩它 —— 若題目保證存在,候選必合格。
+      229 門檻只有 <code>&gt; n/3</code>,一個合格元素<strong>不足以壓過另外兩種值的總和</strong>;投票只能保證「若有答案就在這 2 個候選裡」,但候選也可能是靠局部聚集湊上來的假貨(如 trace 裡的 2)。所以 229 必須第二趟真數確認。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      「兩槽各減 1」發生在遇到第三種相異值時,等於<strong>一次丟掉三個互不相同的值</strong>(當前這個 + 兩槽各一票)。設某答案 <code>x</code> 出現 <code>&gt; n/3</code> 次,而這種「三個一組」的抵銷最多發生 <code>n/3</code> 次(每次消耗 3 個),每次至多消掉 <code>x</code> 一票 → <code>x</code> 最多被消 <code>n/3</code> 票,但它有 <code>&gt; n/3</code> 票,<strong>必有剩餘</strong>,一定活到最後成為候選。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      會漏票。假設 <code>c2</code> 的值是 <code>4</code> 但 <code>cnt2</code> 剛好被減到 <code>0</code>,此時來一個 <code>num=4</code>:若先判 <code>cnt1==0/cnt2==0</code> 收編,就會把 <code>4</code> 當成「新值」重新收編(cnt2 重設為 1),等於<strong>丟掉它本該累積的既有票勢</strong>。正確做法是先比 <code>num==c2</code>,即使 cnt2=0 也直接 <code>cnt2++</code>,讓「值還在、票數暫 0」的候選能東山再起(動畫 i=4 正是此情形)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <code>&gt; ⌊n/4⌋</code> 至多 <code>4−1 = 3</code> 個答案 → 開 <strong>3 個候選槽</strong>。減票規則變成:遇到「和三個候選都不同」的第四種值時,<strong>三槽各減 1</strong>(一次抵銷四個相異值)。一樣最後要驗證 3 個候選。通式:<code>&gt; n/k</code> → <code>k−1</code> 槽,遇第 k 種相異值就 k−1 槽各減 1。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      169 只有 1 個候選、門檻 <code>&gt; n/2</code>。關鍵在「一個 &gt; n/2 的元素票數 &gt; 其餘全部之和」,配對抵銷後必勝出,存在即合格。229 的 <code>&gt; n/3</code> 元素票數壓不過其他兩種的總和,所以投票只縮候選、不保證合格 —— 這就是 229 多一趟驗證的根本原因。差別的本質是<strong>門檻與「其餘之和」的大小關係</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      k 版摩爾投票用 <code>k−1</code> 個 (候選,票數),每個元素最多和 <code>k−1</code> 個候選比對 → <code>O(nk)</code> 時間、<code>O(k)</code> 空間。當 <strong>k 是小常數</strong>(如 3、4)時 O(nk)=O(n),且 <strong>O(k) 空間遠小於雜湊表的 O(n)</strong> —— 記憶體吃緊、或值域極大(雜湊開銷高)時,投票法更划算。雜湊表勝在 k 很大或要精確全頻率統計。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      串流無法回頭驗證,所以<strong>拿不到精確答案</strong>,但投票的第一階段(Misra-Gries / heavy hitters 的核心)照樣能跑:維持 <code>k−1</code> 個計數器,規則同投票。它給出的是<strong>「候選集合」——保證所有真正 &gt; n/k 的元素都在裡面(無漏報),但可能含偽陽性</strong>。若之後能再過一遍資料就能精確化;純單趟串流只能給這個「上界候選集」。這正是投票法在大數據 heavy-hitters 問題的實用價值。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">&gt;n/3 至多 2 個 → 2 候選槽投票 + 必驗證(候選未必合格)。減兩票=丟三相異值,真答案撐得住。169 保證合格、229 不保證。通式 &gt;n/k → k−1 槽。</div>
+    <div class="sc-summary-bar__detail">Boyer-Moore II · MAJORITY ELEMENT II</div>
+  </div>
+
+</body>
+</html>
