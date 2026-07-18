@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>912 · Sort an Array // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P912</span>
+    <span><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">排序陣列 · 九大排序總覽</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 912</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>排序演算法</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>三大類</td><td>簡單 O(n²) / 比較 O(n log n) / 非比較 O(n)</td></tr>
+        <tr><td>比較下界</td><td><code>O(n log n)</code>(區分 n! 種排列的決策樹深度)</td></tr>
+        <tr><td>穩定</td><td>氣泡、插入、合併、基數;不穩:選擇、希爾、快排、堆積</td></tr>
+        <tr><td>原地 O(1)</td><td>氣泡、選擇、插入、希爾、堆積(快排 O(log n) 棧)</td></tr>
+        <tr><td>最壞保證</td><td>合併、堆積 = <code>O(n log n)</code>;快排、桶 = <code>O(n²)</code></td></tr>
+        <tr><td>非比較關鍵</td><td>值當索引跳過比較(基數逐位穩定、桶靠分布)</td></tr>
+        <tr><td>工業級</td><td>introsort = 快排 + 堆積(防最壞)+ 插入(小段)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>「穩定排序」是什麼意思?為什麼<strong>選擇排序不穩定</strong>但<strong>插入排序穩定</strong>?舉個相等元素的例子。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼比較排序無法快過 <code>O(n log n)</code>?基數 / 桶怎麼繞過這個下界?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>快排平均 <code>O(n log n)</code> 卻可能 <code>O(n²)</code>。什麼輸入會觸發最壞?怎麼避免?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>基數排序每一位為什麼<strong>必須用穩定的</strong>計數排序?若某一位用不穩定排序會怎樣?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>合併與堆積都是 <code>O(n log n)</code> 且最壞有保證。為什麼實務上快排常比它們快?各自的取捨是什麼?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 基數排序含負數(本題解法)</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// radixSort([-5, 53, -8, 24, 6]) —— 負數如何處理</span>
+拆分:  pos = [53, 24, 6]      neg = [5, 8]   (存絕對值 |-5|=5, |-8|=8)
+
+pos 基數(個位→十位):
+  個位: 53→3, 24→4, 6→6      → [53, 24, 6]
+  十位: 53→5, 24→2, 6→0      → [6, 24, 53]
+
+neg 基數(絕對值,個位):
+  個位: 5→5, 8→8             → [5, 8]
+
+組裝: reverse(neg)=[8,5] → 取負 [-8,-5] 放前面;pos 接後面
+       [-8, -5] + [6, 24, 53]
+<span class="sc-trace__out">[-8, -5, 6, 24, 53]</span></div>
+
+    <div class="sc-insight">
+      負數的巧思:基數只認非負數字位,所以<strong>把負數變成絕對值來排</strong>。排好後 <code>[5,8]</code> 是「絕對值小→大」,但作為負數應該是「−5 &gt; −8」,所以要<strong>反轉</strong>成 <code>[8,5]</code>、<strong>取負</strong>成 <code>[-8,-5]</code>,才是「最負在最前」。這是把「無法直接處理的輸入」轉成「能處理的形式、再轉回來」的通用套路。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>該選哪個排序?</strong>(a) 需要穩定且要外部排序(資料放不進記憶體);(b) 記憶體極省、要最壞保證;(c) 值都是 0–10⁶ 的整數。各選一個並說明。</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>快排的 partition 變形</strong>:本題用 Lomuto(單指針)。Hoare partition(雙指針對撞)有什麼優點?為什麼實務上更常用?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>std::sort 是什麼?</strong>C++ 的 <code>std::sort</code> 用 introsort。為什麼要混合快排 + 堆積 + 插入三種?各自負責什麼?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      <strong>穩定</strong>= 值相等的元素排序後<strong>維持原本的相對順序</strong>。例 <code>[(2,a),(1,x),(2,b)]</code> 依數字排,穩定排序保證 <code>(2,a)</code> 仍在 <code>(2,b)</code> 前。<strong>插入穩定</strong>:只在 <code>a[j] &gt; key</code>(嚴格大於)才右移,相等時停手插在後面 → 不越過相等元素。<strong>選擇不穩定</strong>:每趟把最小值 <code>swap</code> 到前面,這個遠距交換可能把某個元素<strong>跳過另一個相等元素</strong>,打亂相對順序(如 <code>[2a,2b,1]</code> 選 1 換到前 → <code>[1,2b,2a]</code>,兩個 2 順序反了)。穩定性在「多關鍵字排序」時很重要。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      只靠比較的排序等價於走一棵<strong>決策樹</strong>:每次比較二選一,把可能排列砍半。要區分 <code>n</code> 個元素的 <code>n!</code> 種排列,樹至少 <code>log₂(n!) = Θ(n log n)</code> 層深 → 最壞至少 <code>O(n log n)</code>。<strong>基數 / 桶不做比較</strong>:它們用「值本身當陣列索引」直接定位元素(計數排序、桶號),繞過決策樹。代價是<strong>只適用小範圍整數 / 定長鍵</strong>(才能當索引),不是萬用。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      最壞發生在<strong>每次 partition 都極度不平衡</strong> —— 用「固定取最右為 pivot」時,對<strong>已排序(或逆序)</strong>陣列,pivot 每次都是最大/最小,一邊 0 個一邊 n−1 個 → 遞迴深度 <code>n</code>、總 <code>O(n²)</code>,還可能爆遞迴棧。避免:<strong>隨機化 pivot</strong>(隨機挑一個和最右交換)或<strong>三數取中</strong>(取 l/mid/r 的中位數),讓最壞情況機率極低;工業級再加「遞迴太深就轉堆積排序」(introsort)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      因為基數是「<strong>從低位到高位</strong>,一位一位排」,靠<strong>後面的高位排序時不破壞前面低位已排好的相對順序</strong>來累積正確性。這只有在每一位都<strong>穩定</strong>時才成立:高位相同的元素,要保留它們在低位排序後的先後。若某位用不穩定排序,高位相同的兩個數可能被亂序,低位資訊就丟了 → 整體錯誤。程式裡「由後往前 + 前綴和計數」正是為了穩定(相同位的數維持原順序)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <strong>快排常最快</strong>是因為:<strong>原地、快取友善</strong>(連續存取、少額外配置),常數因子小,平均 <code>O(n log n)</code> 但常數比合併小。<strong>合併</strong>:穩定、最壞保證,但需 <code>O(n)</code> 額外空間 + 資料搬移多,常數較大;不過它是<strong>外部排序</strong>(資料放不進記憶體)與<strong>連結串列排序</strong>的首選。<strong>堆積</strong>:原地、最壞保證,但存取跳躍(不快取友善),實務常數大。取捨:<strong>要速度用快排、要穩定用合併、要原地+最壞保證用堆積</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>(a) 穩定 + 外部排序 → 合併排序</strong>:天然穩定,且能分塊排序後合併(外部歸併),適合資料放不進記憶體。
+      <strong>(b) 記憶體極省 + 最壞保證 → 堆積排序</strong>:<code>O(1)</code> 原地、最壞仍 <code>O(n log n)</code>,不像快排會退化。
+      <strong>(c) 0–10⁶ 整數 → 基數 / 計數排序</strong>:值域是小整數,可用值當索引達 <code>O(n)</code>,快過任何比較排序。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>Hoare partition</strong>:左右兩指針對撞,各自找到「該換到另一邊」的元素就交換。相較 Lomuto,它<strong>平均交換次數少約 3 倍</strong>、對已排序輸入更友善,常數更小,所以工業實作(含經典 introsort)多用 Hoare 或其變形。缺點:Hoare 的 pivot 最終不保證落在正確位置(返回的是分界,不是 pivot 就位處),遞迴邊界要小心寫。Lomuto 較直觀、好教學,但效能略遜。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>introsort</strong>(introspective sort)混合三種,各補彼此的短板:<strong>快排</strong>當主力(平均最快、原地、快取友善);當<strong>遞迴深度超過 <code>~2 log n</code></strong>(偵測到快排要退化成 O(n²))就切換到<strong>堆積排序</strong>保證最壞 <code>O(n log n)</code>;當<strong>子區間很小</strong>(如 ≤ 16)就改用<strong>插入排序</strong>(小陣列常數最小、快取最佳)。三者合體 → 平均快、最壞有保證、小段高效,這就是 <code>std::sort</code> 又快又穩健的秘密。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">九種實作與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">穩定=相等元素保序;比較下界 O(n log n)(決策樹);快排最壞 O(n²) 用隨機 pivot 避;基數逐位須穩定 + 負數拆絕對值;std::sort=introsort(快排+堆積+插入)。</div>
+    <div class="sc-summary-bar__detail">九大排序 · SORT AN ARRAY</div>
+  </div>
+
+</body>
+</html>

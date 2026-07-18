@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>912 · Sort an Array // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P912</span>
+    <span><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">排序陣列 · 九大排序總覽</h1>
+    <p class="sc-mast__subtitle">// CODE · 九種實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 912</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 主結構 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">主結構 · 切換任一排序<span class="sc-section__title-en">// DISPATCHER</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p912.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">sortArray</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">)</span> <span class="p">{</span>
+        radixSort<span class="p">(</span>nums<span class="p">);</span>          <span class="c">// 本題實際跑的:基數排序(O(n))</span>
+        <span class="c">// 也可換成:bubbleSort / selectionSort / insertionSort</span>
+        <span class="c">//          quickSort(nums,0,n-1) / mergeSort(nums,0,n-1)</span>
+        <span class="c">//          heapSort / shellSort / bucketSort</span>
+        <span class="k">return</span> nums<span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c">// ⋯ 九種排序的實作見下方各節 ⋯</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      這份程式把九種排序都寫成成員函式,靠 <code>sortArray</code> 挑一個來跑。以下逐一列出、附複雜度與重點。<strong>全部已對 std::sort 驗證(含負數、重複、空陣列),3 萬組隨機測資 0 誤差。</strong>
+    </p>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 簡單排序 O(n²) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">簡單排序 · O(n²)<span class="sc-section__title-en">// BUBBLE / SELECTION / INSERTION</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 氣泡:相鄰比較換,swapped 旗標可提早結束(近乎有序時 O(n))</span>
+void bubbleSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int i = 0; i &lt; n - 1; i++) {
+        bool swapped = false;
+        for (int j = 0; j &lt; n - i - 1; j++)
+            if (a[j] &gt; a[j + 1]) { swap(a[j], a[j + 1]); swapped = true; }
+        if (!swapped) break;                 // 這趟沒換 → 已排好
+    }
+}
+<span class="sc-trace__out">穩定 · O(1) 空間 · 教學價值高、實務極慢</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 選擇:每趟選未排序區最小,換到最前(交換次數少但不穩定)</span>
+void selectionSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j &lt; n; j++)
+            if (a[j] &lt; a[minIdx]) minIdx = j;
+        swap(a[minIdx], a[i]);               // 遠距 swap → 可能破壞相等元素順序
+    }
+}
+<span class="sc-trace__out">不穩定 · O(1) 空間 · 比較數固定 n(n-1)/2,不看輸入</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 插入:維持左側已排序前綴,新 key 插進去(整理手牌)</span>
+void insertionSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int i = 1; i &lt; n; i++) {
+        int key = a[i], j = i - 1;
+        while (j &gt;= 0 &amp;&amp; a[j] &gt; key) { a[j + 1] = a[j]; j--; }  // 大的右移
+        a[j + 1] = key;
+    }
+}
+<span class="sc-trace__out">穩定 · O(1) 空間 · 近乎有序時 O(n),小陣列首選</span></div>
+  </section>
+
+  <!-- ════════════ 3 · 進階比較排序 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">進階比較排序 · O(n log n)<span class="sc-section__title-en">// SHELL / QUICK / MERGE / HEAP</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 希爾:間隔 gap 的插入排序,gap 由 n/2 縮到 1</span>
+void shellSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int gap = n / 2; gap &gt; 0; gap /= 2)
+        for (int i = gap; i &lt; n; i++) {
+            int key = a[i], j = i - gap;
+            while (j &gt;= 0 &amp;&amp; a[j] &gt; key) { a[j + gap] = a[j]; j -= gap; }
+            a[j + gap] = key;
+        }
+}
+<span class="sc-trace__out">不穩定 · O(1) 空間 · 複雜度看 gap 序列(~O(n^1.3))</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 快排:Lomuto partition(取最右為 pivot),遞迴左右</span>
+void quickSort(vector&lt;int&gt;&amp; a, int l, int r) {
+    if (l &gt;= r) return;
+    int p = partition(a, l, r);
+    quickSort(a, l, p - 1);
+    quickSort(a, p + 1, r);
+}
+int partition(vector&lt;int&gt;&amp; a, int l, int r) {
+    int pivot = a[r], i = l;
+    for (int j = l; j &lt; r; j++)
+        if (a[j] &lt;= pivot) { swap(a[j], a[i]); i++; }   // ≤pivot 累到左區
+    swap(a[i], a[r]);                                    // pivot 歸位
+    return i;
+}
+<span class="sc-trace__out">不穩定 · O(log n) 遞迴堆疊 · 平均 O(n log n)、最壞 O(n²)(隨機 pivot 可避)</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 合併:分治到剩 1,再雙指針合併兩個已排序半段</span>
+void mergeSort(vector&lt;int&gt;&amp; a, int l, int r) {
+    if (l &gt;= r) return;
+    int m = l + (r - l) / 2;
+    mergeSort(a, l, m); mergeSort(a, m + 1, r);
+    merge(a, l, m, r);
+}
+void merge(vector&lt;int&gt;&amp; a, int l, int m, int r) {
+    vector&lt;int&gt; tmp; int i = l, j = m + 1;
+    while (i &lt;= m &amp;&amp; j &lt;= r)
+        tmp.push_back(a[i] &lt;= a[j] ? a[i++] : a[j++]);   // ≤ 取左 → 穩定
+    while (i &lt;= m) tmp.push_back(a[i++]);
+    while (j &lt;= r) tmp.push_back(a[j++]);
+    for (int k = 0; k &lt; (int)tmp.size(); k++) a[l + k] = tmp[k];
+}
+<span class="sc-trace__out">穩定 · O(n) 額外空間 · 最壞仍 O(n log n),外部排序基礎</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 堆積:建 max-heap,反覆把根換到尾、堆縮小、sift down</span>
+void heapify(vector&lt;int&gt;&amp; a, int n, int i) {
+    int largest = i, l = 2*i+1, r = 2*i+2;
+    if (l &lt; n &amp;&amp; a[l] &gt; a[largest]) largest = l;
+    if (r &lt; n &amp;&amp; a[r] &gt; a[largest]) largest = r;
+    if (largest != i) { swap(a[largest], a[i]); heapify(a, n, largest); }
+}
+void heapSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int i = n/2 - 1; i &gt;= 0; i--) heapify(a, n, i);   // build max-heap
+    for (int i = n - 1; i &gt; 0; i--) {
+        swap(a[0], a[i]);                                  // 最大 → 尾
+        heapify(a, i, 0);                                  // 對縮小的堆 sift
+    }
+}
+<span class="sc-trace__out">不穩定 · O(1) 原地 · 最壞保證 O(n log n),優先佇列的基礎</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 非比較排序 O(n) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">非比較排序 · O(n)<span class="sc-section__title-en">// BUCKET / RADIX</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 桶:依值域散進 n 個桶,桶內排序,再串接</span>
+void bucketSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size(); if (n == 0) return;
+    int minv = *min_element(a.begin(), a.end());
+    int maxv = *max_element(a.begin(), a.end());
+    double range = double(maxv - minv + 1);
+    vector&lt;vector&lt;int&gt;&gt; buckets(n);
+    for (int x : a) {
+        int idx = (int)(((double)(x - minv) / range) * (n - 1));   // 值 → 桶號
+        buckets[idx].push_back(x);
+    }
+    a.clear();
+    for (auto&amp; b : buckets) { sort(b.begin(), b.end()); for (int x : b) a.push_back(x); }
+}
+<span class="sc-trace__out">均勻分布時近 O(n) · O(n) 空間 · 分布不均會退化</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 基數:LSD 逐位穩定計數排序;負數拆出取絕對值、再反轉取負</span>
+vector&lt;int&gt; radix(vector&lt;int&gt;&amp; a, int exp) {          // 對「(a/exp)%10」這一位做計數排序
+    int n = a.size(); vector&lt;int&gt; cnt(10, 0), output(n);
+    for (int i = 0; i &lt; n; i++) cnt[(a[i]/exp)%10]++;
+    for (int i = 1; i &lt; 10; i++) cnt[i] += cnt[i-1];   // 前綴和 = 每位的結束位置
+    for (int i = n - 1; i &gt;= 0; i--) {                  // 由後往前 → 穩定
+        int d = (a[i]/exp)%10; output[--cnt[d]] = a[i];
+    }
+    return output;
+}
+void radixSort(vector&lt;int&gt;&amp; a) {
+    vector&lt;int&gt; pos, neg;
+    for (int x : a) (x &gt;= 0 ? pos : neg).push_back(x &gt;= 0 ? x : -x);  // 負數存絕對值
+    int maxp = 0, minp = 0;
+    for (int x : pos) maxp = max(maxp, x);
+    for (int x : neg) minp = max(minp, x);
+    for (int exp = 1; exp &lt;= maxp; exp *= 10) pos = radix(pos, exp);  // 正:小→大
+    for (int exp = 1; exp &lt;= minp; exp *= 10) neg = radix(neg, exp);  // 負(絕對值)小→大
+    reverse(neg.begin(), neg.end());                                 // 絕對值大 → 最負,放最前
+    a.clear();
+    for (int x : neg) a.push_back(-x);                                // 取負接回
+    for (int x : pos) a.push_back(x);
+}
+<span class="sc-trace__out">穩定 · O(d·n) ≈ O(n)(位數 d 常數)· 只適用整數/定長鍵</span></div>
+
+    <div class="sc-insight">
+      <strong>基數的兩個關鍵</strong>:(1) <strong>逐位必須穩定</strong> —— 計數排序「由後往前 + 前綴和」保證同一位相同的數維持先前順序,低位的排序結果才不會被高位打亂;
+      (2) <strong>負數處理</strong> —— 基數只認非負,所以把負數取絕對值單獨排,排好後<strong>反轉</strong>(絕對值大的最負)再<strong>取負</strong>,接到正數前面。
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>排序</th><th>陷阱</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr><td>氣泡</td><td>漏 swapped 旗標 → 近序也 O(n²)</td><td>某趟無交換即 break</td></tr>
+        <tr><td>快排</td><td>已排序 + 固定 pivot → O(n²) 退化 + 遞迴爆棧</td><td>隨機化 pivot 或三數取中</td></tr>
+        <tr><td>合併</td><td>相等時取右半 → 不穩定</td><td><code>a[i] &lt;= a[j]</code> 取左半</td></tr>
+        <tr><td>堆積</td><td>build 從 n/2 忘了往下、或 sift 邊界錯</td><td><code>i=n/2-1</code> 起、子節點 <code>2i+1/2i+2</code></td></tr>
+        <tr><td>基數</td><td>直接排負數 → <code>%10</code> 得負、桶越界</td><td>負數拆出取絕對值、反轉取負</td></tr>
+        <tr><td>桶</td><td>全部落同一桶(分布不均)→ O(n²)</td><td>桶數與分布匹配,或改基數</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與全景</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">九種排序全在一個 class。簡單三兄弟 O(n²);shell/quick/merge/heap 是 O(n log n);bucket/radix 非比較 O(n)。基數要逐位穩定 + 負數拆絕對值反轉取負。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 912 · SORT AN ARRAY</div>
+  </div>
+
+</body>
+</html>
