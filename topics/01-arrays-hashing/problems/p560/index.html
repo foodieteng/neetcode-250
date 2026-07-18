@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>560 · Subarray Sum Equals K // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P560</span>
+    <span><a href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">和為 K 的子陣列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 前綴和 + 雜湊計數</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 560</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>前綴和 · 雜湊表</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>nums</code> 和整數 <code>k</code>,回傳<strong>和剛好等於 <code>k</code> 的連續子陣列個數</strong>。
+        子陣列是<strong>連續、非空</strong>的一段。例:<code>nums=[1,1,1], k=2 → 2</code>;<code>nums=[1,2,3], k=3 → 2</code>。
+        注意 <code>nums[i]</code> <strong>可能是負數</strong>。
+      </p>
+    </div>
+
+    <p>
+      有負數這件事很關鍵 —— <strong>不能用滑動視窗</strong>(和不是單調遞增,右指針擴張時和可能變小,無法判斷何時該收縮左指針)。
+      正解是把它轉成一道<strong>「前綴和之差 = k」</strong>的計數題,用雜湊表一趟解決。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼是前綴和+雜湊 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「前綴和 + 雜湊」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · TLE</div>
+          <div class="sc-ko__name">雙層迴圈枚舉所有子陣列</div>
+          <p>對每個起點累加到每個終點,判斷是否 = k。<code>O(n²)</code>,<code>n=2×10⁴</code> 時約 4 億次 —— 會超時。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">× REJECT · 負數失效</div>
+          <div class="sc-ko__name">滑動視窗</div>
+          <p>視窗要靠「和單調」才能決定何時收縮左界。<strong>有負數 → 和非單調</strong>,右移不一定讓和變大,視窗無從判斷。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n)</div>
+        <div class="sc-ko__name">前綴和 + 雜湊計數</div>
+        <p>
+          設 <code>prefix[j]</code> = 前 j 項的和。子陣列 <code>(i, j]</code> 的和 = <code>prefix[j] − prefix[i]</code>。
+          要它 = <code>k</code>,等價於<strong>存在一個更早的前綴 <code>prefix[i] = prefix[j] − k</code></strong>。
+          於是「以 j 結尾、和為 k 的子陣列數」= 之前 <code>prefix = prefix[j]−k</code> 出現過幾次。
+          邊掃邊用雜湊表記錄「每個前綴和出現的次數」,<strong>O(n) 時間、O(n) 空間</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>種子</strong> —— <code>freq[0] = 1</code>,代表「空前綴和 = 0」出現一次,讓「從頭開始」的子陣列也算得到。</li>
+      <li><strong>邊掃邊查</strong> —— 累加 <code>prefix += num</code> 後,先 <code>cnt += freq[prefix − k]</code>(把所有能配對的更早前綴一次算進)。</li>
+      <li><strong>再登記</strong> —— <code>freq[prefix]++</code>。<strong>順序不能反</strong>:先查再記,否則會把「長度 0 的自己」誤算進去(當 <code>k=0</code> 時尤其致命)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// PREFIX + MAP</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[1,-1,1,-1], k=0</code>:前綴和走 <code>0→1→0→1→0</code>,<code>0</code> 重複出現。到最後一步 <code>freq[0]=2</code>,
+      所以 <code>cnt += 2</code> —— 這就是<strong>為什麼要「加次數」而不是「加 1」</strong>。答案 <strong>4</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 前綴和 + 雜湊計數 · cnt += freq[prefix−k]</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 恆等式 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">核心恆等式<span class="sc-section__title-en">// THE IDENTITY</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">子陣列和 = 兩個前綴和之差</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.9;">
+          　sum(i..j) = prefix[j] − prefix[i−1]<br />
+          　要 = k　⇔　prefix[i−1] = prefix[j] − k
+        </p>
+        <p style="margin:0;">
+          固定右端 <code>j</code>,問題變成「有幾個更早的前綴等於 <code>prefix[j] − k</code>」。這正是雜湊表最擅長的<strong>「數某個值出現幾次」</strong>。
+          把減法搜尋轉成 <strong>O(1) 查表</strong>,是這題從 <code>O(n²)</code> 降到 <code>O(n)</code> 的全部魔法。
+          <strong>種子 <code>freq[0]=1</code></strong> 對應 <code>prefix[i−1]</code> 可以是「第 0 項之前」的空前綴 —— 少了它,凡「從 index 0 開始」的合法子陣列都會被漏數。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        單趟掃描,每步一次雜湊查詢 + 一次更新,均攤 <code>O(1)</code>。空間是雜湊表最多存 <code>n+1</code> 個不同前綴和。相比 <code>O(n²)</code> 暴力,這是拿 O(n) 空間換一個數量級的時間。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>掃描</td><td><code>O(n)</code></td><td>每個元素處理一次</td></tr>
+        <tr><td>每步查表 + 更新</td><td><code>O(1)</code></td><td>unordered_map 均攤常數</td></tr>
+        <tr><td>雜湊表空間</td><td><code>O(n)</code></td><td>最多 n+1 種前綴和</td></tr>
+        <tr><td>負數</td><td>不影響</td><td>前綴和差不需要單調性</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「連續子陣列和 = k」+ 有負數 → 想到<strong>前綴和之差</strong>:<code>prefix[j] − prefix[i] = k</code>。
+      把它翻成「查 <code>prefix[j] − k</code> 出現過幾次」,用雜湊表把 <code>O(n²)</code> 打成 <code>O(n)</code>。
+      種子 <code>freq[0]=1</code>、先查後記,兩個細節缺一不可。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">子陣列和=前綴和之差:cnt += freq[prefix−k],再 freq[prefix]++。種子 freq[0]=1、先查後記。有負數 → 前綴和+雜湊(非滑窗)。O(n)。</div>
+    <div class="sc-summary-bar__detail">前綴和 + 雜湊 · SUBARRAY SUM EQUALS K</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p560-prefixmap.js"></script>
+</body>
+</html>

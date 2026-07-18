@@ -87,7 +87,7 @@ PROBLEMS = {
         ('p128', 'Longest Consecutive Sequence',      'longest-consecutive-sequence',      'med', 'todo'),
         ('p122', 'Best Time to Buy and Sell Stock II','best-time-to-buy-and-sell-stock-ii','med', 'todo'),
         ('p229', 'Majority Element II',               'majority-element-ii',               'med', 'todo'),
-        ('p560', 'Subarray Sum Equals K',             'subarray-sum-equals-k',             'med', 'todo'),
+        ('p560', 'Subarray Sum Equals K',             'subarray-sum-equals-k',             'med', 'done'),
         ('p41',  'First Missing Positive',            'first-missing-positive',            'hard','done'),
     ],
     '02': [  # Two Pointers

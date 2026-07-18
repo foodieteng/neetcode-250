@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>560 · Subarray Sum Equals K // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P560</span>
+    <span><a href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">和為 K 的子陣列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 560</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>前綴和 + 雜湊</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心恆等式</td><td><code>sum(i..j) = prefix[j] − prefix[i−1]</code>,要 = k ⇔ <code>prefix[i−1] = prefix[j] − k</code></td></tr>
+        <tr><td>雜湊表存什麼</td><td>前綴和 → <strong>出現次數</strong>(不是存在性)</td></tr>
+        <tr><td>種子</td><td><code>freq[0]=1</code>,空前綴,救「從頭開始」的子陣列</td></tr>
+        <tr><td>順序</td><td><strong>先查 <code>cnt += freq[prefix−k]</code> 再記 <code>freq[prefix]++</code></strong></td></tr>
+        <tr><td>加多少</td><td>加 <code>freq[prefix−k]</code> 這個「次數」,不是加 1</td></tr>
+        <tr><td>為何不用滑窗</td><td>有負數 → 和非單調 → 視窗收縮邏輯失效</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> 時間、<code>O(n)</code> 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼這題<strong>不能</strong>用滑動視窗?哪個假設被負數打破了?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p><code>freq[0]=1</code> 這個種子的意義是什麼?拿掉它,<code>[1,2,3],k=3</code> 會算成幾?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>為什麼是 <code>cnt += freq[prefix−k]</code>(加次數)而非 <code>cnt += 1</code>?給一個會出錯的輸入。</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>把「先查後記」的兩行對調會怎樣?哪個 <code>k</code> 值最容易暴露這個 bug?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>如果題目改成問「和為 k 的子陣列的<strong>最大長度</strong>」(LC 325),雜湊表要改存什麼?查詢邏輯怎麼變?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3], k=3</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 種子救「從頭開始」的子陣列 [1,2]</span>
+freq={0:1}  prefix=0  cnt=0
+
+num=1: prefix=1  need=1-3=-2  freq[-2]?無  cnt+=0=0   freq={0:1,1:1}
+num=2: prefix=3  need=3-3=0   freq[0]=1    cnt+=1=1   freq={0:1,1:1,3:1}  → [1,2]
+num=3: prefix=6  need=6-3=3   freq[3]=1    cnt+=1=2   freq={...,3:1,6:1}  → [3]
+<span class="sc-trace__out">2</span></div>
+
+    <div class="sc-insight">
+      <code>[1,2]</code> 之所以被算到,全靠 <code>need=0</code> 命中種子的 <code>freq[0]=1</code> —— 那個 <code>0</code> 代表「第一個元素之前的空前綴」。
+      沒有種子,這條「頂到左邊界」的子陣列就永遠配不到對,答案會少 1。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 974 Subarray Sums Divisible by K</strong>:數「和能被 k 整除」的子陣列。前綴和的雜湊 key 該存什麼?負數取模要怎麼修正?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 523 Continuous Subarray Sum</strong>:問是否存在長度 ≥ 2、和為 k 倍數的子陣列。雜湊表存「餘數 → <strong>最早出現的 index</strong>」而非次數,為什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>LC 930 Binary Subarrays With Sum</strong>:0/1 陣列數和為 goal 的子陣列。除了前綴和雜湊,還能用「恰好 = goal」= 「≤ goal」−「≤ goal−1」的滑窗兩次差分,為什麼這裡滑窗又能用了?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      滑動視窗要求「擴張右界 → 視窗和單調變化」,才能靠「和太大就收左界」來搜尋。<strong>有負數時,右移可能讓和變小</strong>,於是「和超過 k 就收縮」不再成立 —— 可能收過頭、也可能該收不收。前綴和 + 雜湊完全不依賴單調性,對負數天然成立。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      <code>freq[0]=1</code> 代表「還沒加任何元素時,前綴和 = 0 已出現一次」。它讓<strong>「從 index 0 開始」的子陣列</strong>能配對:當某個 <code>prefix[j] = k</code>,<code>need = k−k = 0</code> 正好命中種子。拿掉它,<code>[1,2,3],k=3</code> 會把 <code>[1,2]</code>(prefix=3, need=0)漏掉,答案變 <strong>1</strong>(只剩 <code>[3]</code> 靠 <code>need=3</code> 配到)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      同一個前綴和值可能出現<strong>多次</strong>(有負數或 0 時),每一次都是一個能配對的左端點。<code>[1,-1,1,-1],k=0</code>:走到最後 <code>prefix=0</code>,而 <code>0</code> 之前出現過 2 次 → 一次配出 2 條子陣列。若寫 <code>cnt+=1</code> 只會得 3,漏掉一條。必須加「那個前綴和累積的次數」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      對調成「先 <code>freq[prefix]++</code> 再查」,會把<strong>當前這一步的自己</strong>也算成一個可配對的左端點 → 多算「長度 0 的空子陣列」。<code>k=0</code> 最致命:每個位置 <code>need=prefix</code> 都會命中剛登記的自己,答案暴增 n。順序必須是先查後記。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <strong>LC 325 求最大長度</strong>:雜湊表改存「前綴和 → <strong>最早出現的 index</strong>」(只記第一次,越早 index 越能拉長)。掃到 <code>j</code> 時查 <code>prefix−k</code> 是否出現過,若有,用 <code>j − firstIndex[prefix−k]</code> 更新答案最大值。因為要「最長」,所以每個前綴和只保留最早的位置,且<strong>不覆蓋</strong>。這是「計數」→「記位置」的變形。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 974</strong>:key 存<strong>前綴和對 k 的餘數</strong>。兩個前綴和同餘 ⇔ 它們的差能被 k 整除。C++ 的 <code>%</code> 對負數會給負餘數,要修正成 <code>((prefix % k) + k) % k</code> 落到 <code>[0,k)</code>。一樣種子 <code>freq[0]=1</code>、<code>cnt += freq[r]</code> 加次數。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 523</strong>:問「存不存在」且要長度 <code>≥ 2</code>,所以不需次數、要<strong>位置</strong>。存「餘數 → 最早 index」;掃到 <code>j</code> 時若同餘數出現過且 <code>j − firstIndex ≥ 2</code> 就回 <code>true</code>。存最早 index 才能讓長度盡量夠 2;若存最新 index 會漏掉本可成立的較長區間。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 930</strong>:0/1 陣列所有元素 <code>≥ 0</code>,前綴和<strong>單調不減</strong> —— 單調性回來了,所以滑窗又能用。用「和 <code>≤ goal</code> 的子陣列數」減「和 <code>≤ goal−1</code> 的」= 恰好 = goal 的數(atMost(goal) − atMost(goal−1))。當然前綴和 + 雜湊也照樣可解,兩條路都行。關鍵:<strong>非負 → 單調 → 滑窗可用</strong>,這正是 560 有負數時不能用滑窗的反面。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">前綴和之差 = k → 查 freq[prefix−k]。種子 freq[0]=1、先查後記、加次數。負數不能滑窗。家族:974 存餘數、523/325 存最早 index、930 非負可滑窗。</div>
+    <div class="sc-summary-bar__detail">前綴和 + 雜湊 · SUBARRAY SUM EQUALS K</div>
+  </div>
+
+</body>
+</html>
