@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>36 · Valid Sudoku // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P36</span>
+    <span><a href="https://leetcode.com/problems/valid-sudoku/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">有效的數獨</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 36</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雜湊集合</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>三規則</td><td>列、行、宮各自不重複 → 三組獨立條件</td></tr>
+        <tr><td>資料結構</td><td><code>row[9]</code>、<code>col[9]</code>、<code>box[9]</code> 三組集合</td></tr>
+        <tr><td>宮號公式</td><td><code>boxId = r/3*3 + c/3</code>(整數除法,0..8)</td></tr>
+        <tr><td>流程</td><td>每格:算宮號 → 查三組 → 無重複才三組都插</td></tr>
+        <tr><td>短路</td><td><code>||</code> 任一集合已有即 <code>false</code></td></tr>
+        <tr><td>bitmask</td><td>27 個 int 位元運算取代集合,更省更快</td></tr>
+        <tr><td>複雜度</td><td>固定盤 <code>O(1)</code>;一般 <code>O(N²)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>推導 <code>boxId = r/3*3 + c/3</code>:為什麼是這個式子?它和「二維座標壓成一維」的通式什麼關係?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼要「先查三組、後插入」?先插後查會發生什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>為什麼判斷宮不能只靠 <code>(r,c)</code> 座標本身,而要壓成 <code>boxId</code>?兩個座標差很遠的格子怎麼會同宮?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>bitmask 版把集合換成 <code>int</code>。<code>row[r] &amp; bit</code> 和 <code>row[r] |= bit</code> 分別對應集合的哪個操作?為什麼這裡能用位元?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>本題只驗證有效性。<strong>LC 37 數獨求解</strong>需要「填空並保持有效」,會怎麼複用這裡的檢查邏輯?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// boxId 對照表</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 九個格子各自的 boxId(驗證公式)</span>
+(r,c)      r/3  c/3   boxId = r/3*3 + c/3
+(0,0)       0    0    0    ← 左上宮
+(2,2)       0    0    0    ← 同左上宮(和 (0,0) 同宮)
+(0,8)       0    2    2    ← 右上宮
+(4,4)       1    1    4    ← 正中宮
+(8,0)       2    0    6    ← 左下宮
+(8,8)       2    2    8    ← 右下宮
+<span class="sc-trace__out">九個宮各拿到唯一的 0..8</span></div>
+
+    <div class="sc-insight">
+      把宮想成一個 3×3 的「宮陣」:<code>r/3</code> 是宮的列座標、<code>c/3</code> 是宮的行座標。
+      <code>boxId = 宮列 × 3 + 宮行</code> 就是把這個小小 3×3 陣列<strong>逐列攤平</strong>成 0..8 —— 和把二維陣列存成一維陣列的索引公式一模一樣。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>一般化 N²×N² 數獨</strong>(宮是 N×N):<code>boxId</code> 公式怎麼改?這裡的 <code>3</code> 對應什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>單一雜湊集合版</strong>:能不能只用<strong>一個</strong> set,把 row/col/box 的資訊編碼進 key(如 <code>"r3=5"</code>、<code>"c5=5"</code>、<code>"b0=5"</code>)?這樣寫的優缺點?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>LC 37 Sudoku Solver</strong>:要真的把數獨填滿。回溯時每填一個候選數都要檢查有效性 —— 用本題的三組集合當「即時可用性」結構,填/退時如何 O(1) 更新?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      9×9 盤切成 3×3 個宮,宮本身排成 3 列 3 行。<code>r/3</code>(整數除)把行 0–8 壓成宮的列座標 0–2;<code>c/3</code> 把列 0–8 壓成宮的行座標 0–2。要把二維宮座標 <code>(宮列, 宮行)</code> 攤平成一維編號,就用通式 <strong><code>宮列 × 每列宮數 + 宮行</code></strong> = <code>r/3 × 3 + c/3</code>。這和「把 <code>a[i][j]</code> 存進一維陣列時算 <code>i × 寬 + j</code>」是同一個公式。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      必須先查後插。若先把 <code>digit</code> 插進三組再查,查詢一定會查到<strong>剛剛插入的自己</strong>,於是每個格子都被誤判成「重複」,整個盤永遠回 <code>false</code>。順序是「這個數字<strong>之前</strong>出現過嗎?」—— 所以要在插入當前數字之前查。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      因為「同宮」是由 <code>(r/3, c/3)</code> 決定,而不是 <code>(r,c)</code> 相近。<code>(0,0)</code> 和 <code>(2,2)</code> 座標差 2,但 <code>r/3</code>、<code>c/3</code> 都是 0 → 同屬左上宮。若只看 <code>(r,c)</code> 無法把它們歸到一起。<code>boxId</code> 把「屬於同一宮」的所有格子映到<strong>同一個編號</strong>,那個宮的集合才能匯集整宮數字、抓到跨格重複。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <code>row[r] &amp; bit</code> = 集合的「<strong>contains</strong>」(第 d 位是否為 1);<code>row[r] |= bit</code> = 集合的「<strong>insert</strong>」(把第 d 位設為 1)。能用位元是因為<strong>值域小且固定</strong>:數字只有 1–9,用一個 <code>int</code> 的 9 個低位就能表示「哪些數字在集合裡」。集合退化成一個整數,查/插各一條位元指令,零雜湊、零配置。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <strong>LC 37</strong> 用回溯填空:在空格嘗試每個候選數字 1–9,只有「該數字不在 <code>row[r]</code>、<code>col[c]</code>、<code>box[boxId]</code>」時才合法放入,遞迴下一格;回溯時再移除。這裡的三組集合(或 bitmask)正是<strong>判斷候選是否合法的 O(1) 結構</strong> —— 36 驗證的邏輯直接變成 37 的「剪枝條件」。學會 36 就打好了 37 的地基。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      宮是 <code>N×N</code>、整盤 <code>N²×N²</code> 時,<code>boxId = (r / N) * N + (c / N)</code>。原本的 <code>3</code> 就是宮邊長 <code>N</code>(標準數獨 N=3)。集合數量從 9 變成 <code>N²</code> 組。公式的骨架不變:<strong>用宮邊長做整除得宮座標,再攤平</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      可以。把三種歸屬編碼進<strong>不同前綴的字串 key</strong>,全丟進一個 <code>unordered_set&lt;string&gt;</code>:插入 <code>"r"+r+d</code>、<code>"c"+c+d</code>、<code>"b"+boxId+d</code>,插入前檢查是否已存在。優點:只用一個容器、統一邏輯;缺點:每格要組三個字串,<strong>字串雜湊開銷比三個小集合大、也吃更多記憶體</strong>。可讀性 vs 效能的取捨,面試講清楚即可;實務上三組小集合或 bitmask 更快。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 37</strong>:維持三組集合(或 bitmask)當「即時可用性」狀態。填格 <code>(r,c)=d</code> 時:<code>row[r].insert(d)</code>、<code>col[c].insert(d)</code>、<code>box[boxId].insert(d)</code>,全 O(1);回溯移除就 <code>erase</code>(bitmask 版用 <code>^= bit</code> 清位),也 O(1)。嘗試候選前先用 <code>count</code> / <code>&amp; bit</code> 檢查衝突 → O(1) 剪枝。整個回溯的「合法性檢查 + 狀態更新」都建立在 36 這套三組結構上,只是多了填/退的對稱操作。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">三組集合 row/col/box,boxId=r/3*3+c/3 是二維攤平成一維。先查後插、|| 短路。bitmask 用 int 位元。地基通往 37 求解器的 O(1) 剪枝。</div>
+    <div class="sc-summary-bar__detail">三組集合 · VALID SUDOKU</div>
+  </div>
+
+</body>
+</html>

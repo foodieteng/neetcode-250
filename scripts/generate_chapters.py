@@ -83,7 +83,7 @@ PROBLEMS = {
         ('p271', 'Encode and Decode Strings',         'encode-and-decode-strings',         'med', 'todo'),
         ('p304', 'Range Sum Query 2D - Immutable',    'range-sum-query-2d-immutable',      'med', 'todo'),
         ('p238', 'Product of Array Except Self',      'product-of-array-except-self',      'med', 'todo'),
-        ('p36',  'Valid Sudoku',                      'valid-sudoku',                      'med', 'todo'),
+        ('p36',  'Valid Sudoku',                      'valid-sudoku',                      'med', 'done'),
         ('p128', 'Longest Consecutive Sequence',      'longest-consecutive-sequence',      'med', 'done'),
         ('p122', 'Best Time to Buy and Sell Stock II','best-time-to-buy-and-sell-stock-ii','med', 'done'),
         ('p229', 'Majority Element II',               'majority-element-ii',               'med', 'done'),
