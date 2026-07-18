@@ -67,7 +67,7 @@ CHAPTERS = [
 # Order within a category mirrors NeetCode's curated ordering.
 PROBLEMS = {
     '01': [  # Arrays & Hashing
-        ('p1929','Concatenation of Array',            'concatenation-of-array',            'easy','todo'),
+        ('p1929','Concatenation of Array',            'concatenation-of-array',            'easy','done'),
         ('p217', 'Contains Duplicate',                'contains-duplicate',                'easy','todo'),
         ('p242', 'Valid Anagram',                     'valid-anagram',                     'easy','todo'),
         ('p1',   'Two Sum',                           'two-sum',                           'easy','todo'),
