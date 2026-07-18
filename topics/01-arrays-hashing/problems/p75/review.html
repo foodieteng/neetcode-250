@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>75 · Sort Colors // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P75</span>
+    <span><a href="https://leetcode.com/problems/sort-colors/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">顏色分類</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 75</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>荷蘭國旗</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>三指針</td><td><code>l</code>=0 區右界、<code>i</code>=游標、<code>r</code>=2 區左界</td></tr>
+        <tr><td>四段不變量</td><td><code>[0,l)=0 · [l,i)=1 · [i,r]=未看 · (r,n)=2</code></td></tr>
+        <tr><td>遇 0</td><td><code>swap(i,l); l++; i++</code>(換來必是 1)</td></tr>
+        <tr><td>遇 2</td><td><code>swap(i,r); r--</code>,<strong>i 不動</strong>(換來未檢查)</td></tr>
+        <tr><td>遇 1</td><td><code>i++</code></td></tr>
+        <tr><td>本質</td><td>三路快排 partition 的雛形</td></tr>
+        <tr><td>複雜度</td><td>一趟 <code>O(n)</code>、原地 <code>O(1)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼<strong>遇 0 交換後 <code>i++</code></strong>,但<strong>遇 2 交換後 <code>i</code> 不動</strong>?用不變量解釋這個不對稱。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>迴圈條件為什麼是 <code>i &lt;= r</code> 而非 <code>i &lt; r</code>?用 <code>i==r</code> 那一步說明。</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>兩趟計數排序也是 <code>O(n)/O(1)</code>,為什麼追問還要荷蘭國旗?兩者差在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>荷蘭國旗和 <a href="../p912/index.html">快速排序的 partition</a> 是什麼關係?為什麼叫「三路分割」?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>若把「遇 0」分支寫成 <code>swap(i,l); i++;</code>(忘了 <code>l++</code>),會發生什麼?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// i 不動如何救回換來的元素</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums=[2,0,1](l,i,r=0,0,2)—— 看遇 2 後不 i++ 的必要性</span>
+i=0 nums[0]=2 → swap(0,2) [1,0,2] r=1  i=0(不動)
+                ↑ 若這裡 i++,就跳過換來的 nums[0]=1?不,更糟:
+                  看 [2,0,2] 這種,換來的可能是 0,i++ 會漏掉它
+
+i=0 nums[0]=1 → i=1
+i=1 nums[1]=0 → swap(1,0)?l=0 → [0,1,2] l=1 i=2
+i=2 &gt; r=1 → 結束
+<span class="sc-trace__out">[0, 1, 2]</span></div>
+
+    <div class="sc-insight">
+      正因為遇 2 時 <code>i</code> 留在原地,下一輪才會<strong>重新檢查從 <code>r</code> 換來的那個元素</strong>。
+      對 <code>[2,0,2,1,1,0]</code> 第一步換來的是 <code>0</code> —— 若當時 <code>i++</code>,這個 0 會被永遠卡在中間、排不到左邊,結果就錯。<strong>「不前進」= 給換來的未知元素一次被判斷的機會。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>四種顏色 / k 種值</strong>:若不是 3 種而是 4 種、甚至 k 種小整數,荷蘭國旗還能一趟嗎?該用什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>三路快排(LC 912)</strong>:把荷蘭國旗的「0/1/2」換成「&lt;pivot / =pivot / &gt;pivot」,就是三路快排。它在<strong>大量重複元素</strong>時為何遠勝普通兩路快排?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>穩定性</strong>:荷蘭國旗是<strong>不穩定</strong>的(交換會打亂相等元素順序)。若題目要求穩定,且值只有三種,該怎麼做?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      關鍵在<strong>「換來的元素來自哪一段」</strong>。<strong>遇 0 換到 <code>l</code></strong>:<code>l</code> 位置屬於 <code>[l, i)</code> 這個<strong>已掃過的 1 區</strong>,換來的必是 <code>1</code>(或 <code>i==l</code> 時是自己),已知已排好,<code>i</code> 可安全前進。<strong>遇 2 換到 <code>r</code></strong>:<code>r</code> 位置屬於 <code>[i, r]</code> 這個<strong>還沒檢查的未看區</strong>,換來的可能是 0/1/2,必須留 <code>i</code> 原地重判。不對稱來自「左邊已知、右邊未知」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為 <code>i==r</code> 時,<code>nums[i]</code>(= <code>nums[r]</code>)這一格<strong>還沒被歸類</strong>,必須處理。用 <code>i &lt; r</code> 會在 <code>i==r</code> 時就退出,漏掉最後這格 —— 例如 <code>[0]</code>(<code>i=r=0</code>)或收尾時剩一個未看元素會被漏排。<code>i &lt;= r</code> 確保「未看區 <code>[i,r]</code> 非空就繼續」,直到 <code>i</code> 越過 <code>r</code>(未看區空)才停。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      兩者都 <code>O(n)/O(1)</code>,但<strong>趟數與寫入次數不同</strong>。計數排序掃<strong>兩趟</strong>(數 + 覆寫),荷蘭國旗<strong>一趟</strong>(邊掃邊換)。追問明確要 one-pass,考的就是荷蘭國旗這個技巧。實務上兩者都好;但當「讀取代價高」或「只能單次遍歷(如串流的近似)」時,one-pass 更有價值。且荷蘭國旗是「原地交換」,計數排序是「覆寫」—— 若元素是複雜物件(不只是值),交換 vs 重建的成本也不同。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      荷蘭國旗<strong>就是三路快排的 partition</strong>:把「等於 pivot」的元素集中在中間,「小於」丟左、「大於」丟右,一趟切成三段。普通快排是<strong>兩路</strong>(≤pivot / &gt;pivot),等於 pivot 的元素散在兩邊;三路把「=pivot」獨立成一段,遞迴時<strong>跳過中間相等段</strong>,只對左右遞迴。本題的 0/1/2 相當於「pivot=1」的一次三路 partition。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      會壞。<code>l</code> 是「0 區的右界」,每放一個 0 就要 <code>l++</code> 讓界前移。忘了 <code>l++</code>:下一個 0 又會換到<strong>同一個 <code>l</code> 位置</strong>,把剛放好的 0 換走 → 0 區無法增長、元素互相覆蓋,排序錯亂。<code>l</code> 與 0 的個數必須同步:<strong>放一個 0,界就前進一格</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      荷蘭國旗<strong>專為 3 段設計</strong>(l/i/r 剛好切三段);<strong>4 種以上</strong>就無法用單一個 i 一趟切好(段界之間會互相干擾)。此時改用<strong>計數排序</strong>:數每種值幾個,再依序覆寫,<code>O(n + k)</code>,對任意 k 種小整數都一趟數 + 一趟寫。想 one-pass 且 k 種,通常做不到嚴格一趟就地(除非用額外空間);計數排序的兩趟是最乾淨的通解。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>大量重複</strong>時,普通兩路快排會把「等於 pivot」的元素反覆分到子問題裡再排一次 —— 全部相同的陣列會退化成 <code>O(n²)</code>。三路快排把「=pivot」的一整段<strong>一次定位、遞迴時完全跳過</strong>,重複越多、跳過越多,對「少數不同值 + 大量重複」能到接近 <code>O(n)</code>。這是處理重複鍵的標準優化(如 <code>[5,5,5,…,5]</code> 三路直接一趟結束)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      荷蘭國旗靠<strong>交換</strong>,會打亂相等元素的相對順序 → 不穩定(本題值就是全部資訊,看不出差別;但若元素帶附加資料就有差)。要<strong>穩定</strong>又只有三種值:用<strong>計數排序</strong> —— 數完 0/1/2 個數,依序覆寫,同值元素保持原順序(需搭配輸出陣列存原物件才真穩定),<code>O(n)</code> 兩趟。穩定 + 三值 → 計數排序;one-pass 原地但不穩 → 荷蘭國旗。取捨看需求。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">遇 2 不 i++ 因換來的未看;遇 0 才進因換來的必是已看 1。i≤r 涵蓋最後一格。三路快排雛形,重複鍵殺手。要穩定/多種值 → 改計數排序。</div>
+    <div class="sc-summary-bar__detail">荷蘭國旗 · SORT COLORS</div>
+  </div>
+
+</body>
+</html>
