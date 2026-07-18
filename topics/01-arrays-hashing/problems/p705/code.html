@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>705 · Design HashSet // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P705</span>
+    <span><a href="https://leetcode.com/problems/design-hashset/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">設計雜湊集合</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 705</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · 直接定址<span class="sc-section__title-en">// O(1) PER OP</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p705.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">MyHashSet</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> mp<span class="p">;</span>
+
+    <span class="f">MyHashSet</span><span class="p">()</span> <span class="p">{</span>
+        mp<span class="p">.</span><span class="f">assign</span><span class="p">(</span><span class="n">1000001</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>   <span class="c">// 0..10^6 每個 key 一格</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">add</span><span class="p">(</span><span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        mp<span class="p">[</span>key<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">remove</span><span class="p">(</span><span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        mp<span class="p">[</span>key<span class="p">]</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">contains</span><span class="p">(</span><span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> mp<span class="p">[</span>key<span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      <code>vector&lt;bool&gt;</code> 是<strong>位元壓縮</strong>的特化,10⁶ 個布林只佔約 <strong>125 KB</strong>(1 bit/元素),不是 1 MB。<code>remove</code> 不用檢查存在與否 —— 設 <code>false</code> 對「本來就不在」也無害。
+    </p>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 通用版:雜湊 + 桶 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">通用版 · 雜湊函式 + chaining<span class="sc-section__title-en">// UNBOUNDED KEYS</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// key 無界時:固定桶數 + 每桶一條 list 處理碰撞</span>
+class MyHashSet {
+    static const int B = 769;           // 質數桶數(減少碰撞)
+    vector&lt;list&lt;int&gt;&gt; buckets;
+    int h(int key) { return key % B; }  // 雜湊函式
+
+public:
+    MyHashSet() : buckets(B) {}
+
+    void add(int key) {
+        auto&amp; b = buckets[h(key)];
+        for (int x : b) if (x == key) return;   // 已存在就不重複加
+        b.push_back(key);
+    }
+    void remove(int key) {
+        buckets[h(key)].remove(key);            // list::remove 刪所有等值
+    }
+    bool contains(int key) {
+        for (int x : buckets[h(key)]) if (x == key) return true;
+        return false;
+    }
+};
+<span class="sc-trace__out">桶數固定、空間 O(B + 元素數);同桶元素少 → 平均 O(1)、最壞 O(n)</span></div>
+
+    <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
+      <strong>質數桶數</strong>(如 769)讓 <code>key % B</code> 分佈更均勻、減少碰撞。同桶的 key 用 list <strong>串起來(separate chaining)</strong>,<code>add</code> 要<strong>先掃桶避免重複</strong>。這就是 <code>std::unordered_set</code> 的簡化骨架 —— 直接定址表是它「key 能直接當索引、桶數 = 值域、每桶最多一個」的極端特例。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 兩版對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">直接定址 vs 雜湊+桶<span class="sc-section__title-en">// TRADE-OFFS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>直接定址(本題)</th><th>雜湊 + 桶(通用)</th></tr></thead>
+      <tbody>
+        <tr><td>需要 key 有界?</td><td><strong>要</strong>(<code>≤ 10⁶</code>)</td><td>不用</td></tr>
+        <tr><td>雜湊函式</td><td>不需要(key 即索引)</td><td><code>key % B</code></td></tr>
+        <tr><td>碰撞</td><td><strong>永不發生</strong></td><td>會,用 chaining 解</td></tr>
+        <tr><td>時間/op</td><td><code>O(1)</code></td><td>平均 <code>O(1)</code>,最壞 <code>O(n)</code></td></tr>
+        <tr><td>空間</td><td><code>O(值域)</code>(固定 10⁶)</td><td><code>O(桶+元素)</code>(隨用量)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>面試策略</strong>:先寫直接定址(利用題目給的 <code>key ≤ 10⁶</code>),再補一句「若 key 無界,改用固定桶數 + chaining,這也是 <code>unordered_set</code> 的原理」。展現你<strong>既會用捷徑、也懂通用設計</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>症狀</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>陣列開 10⁶ 而非 10⁶+1</strong></td>
+          <td><code>key == 10⁶</code> 時 <code>mp[10⁶]</code> 越界</td>
+          <td>大小 <code>1000001</code>(含上界)</td>
+        </tr>
+        <tr>
+          <td><strong>桶版 add 不查重複</strong></td>
+          <td>同一 key 加兩次 → 桶裡出現兩份</td>
+          <td><code>add</code> 先掃桶,存在就 return</td>
+        </tr>
+        <tr>
+          <td><strong>key 無界卻用直接定址</strong></td>
+          <td>開 <code>2³²</code> 陣列 → 記憶體爆</td>
+          <td>值域無界 → 雜湊 + 桶</td>
+        </tr>
+        <tr>
+          <td><strong>桶數用合數(如 1000)</strong></td>
+          <td>某些分佈碰撞集中,退化嚴重</td>
+          <td>用<strong>質數</strong>桶數(769 等)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 直接定址:一連串操作</span>
+add(1)      → mp[1]=true
+add(2)      → mp[2]=true
+contains(1) → mp[1] = true
+contains(3) → mp[3] = false   (從沒 add)
+add(2)      → mp[2]=true      (已 true,重複 add 無害)
+remove(2)   → mp[2]=false
+contains(2) → mp[2] = false
+<span class="sc-trace__out">全部 O(1),行為和 std::set 完全一致</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 桶版:兩個 key 撞同桶(B=769)</span>
+add(5)    → h(5)=5     桶5: [5]
+add(774)  → h(774)=5   桶5: [5, 774]     ← 碰撞!串在同一桶
+contains(774) → 掃桶5 找到 774 → true
+remove(5) → 桶5: [774]
+contains(5)   → 掃桶5 沒有 5 → false
+<span class="sc-trace__out">碰撞靠「同桶串成 list、逐一比對」化解</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與策略</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">vector&lt;bool&gt;(10⁶+1),mp[key] 存真偽。無界 key 改固定質數桶 + list chaining,add 要查重。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 705 · DESIGN HASHSET</div>
+  </div>
+
+</body>
+</html>

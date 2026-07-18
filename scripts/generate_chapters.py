@@ -75,7 +75,7 @@ PROBLEMS = {
         ('p49',  'Group Anagrams',                    'group-anagrams',                    'med', 'todo'),
         ('p27',  'Remove Element',                    'remove-element',                    'easy','done'),
         ('p169', 'Majority Element',                  'majority-element',                  'easy','done'),
-        ('p705', 'Design HashSet',                    'design-hashset',                    'easy','todo'),
+        ('p705', 'Design HashSet',                    'design-hashset',                    'easy','done'),
         ('p706', 'Design HashMap',                    'design-hashmap',                    'easy','todo'),
         ('p912', 'Sort an Array',                     'sort-an-array',                     'med', 'todo'),
         ('p75',  'Sort Colors',                       'sort-colors',                       'med', 'todo'),
