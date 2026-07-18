@@ -72,7 +72,7 @@ PROBLEMS = {
         ('p242', 'Valid Anagram',                     'valid-anagram',                     'easy','done'),
         ('p1',   'Two Sum',                           'two-sum',                           'easy','done'),
         ('p14',  'Longest Common Prefix',             'longest-common-prefix',             'easy','done'),
-        ('p49',  'Group Anagrams',                    'group-anagrams',                    'med', 'todo'),
+        ('p49',  'Group Anagrams',                    'group-anagrams',                    'med', 'done'),
         ('p27',  'Remove Element',                    'remove-element',                    'easy','done'),
         ('p169', 'Majority Element',                  'majority-element',                  'easy','done'),
         ('p705', 'Design HashSet',                    'design-hashset',                    'easy','done'),

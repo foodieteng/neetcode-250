@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>49 · Group Anagrams // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P49</span>
+    <span><a href="https://leetcode.com/problems/group-anagrams/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">字母異位詞分組</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 排序字串當標準鍵</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 49</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雜湊分組</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給字串陣列 <code>strs</code>,把互為<strong>字母異位詞(anagram)</strong>的字分在同一組,回傳所有組(順序不拘)。
+        例:<code>["eat","tea","tan","ate","nat","bat"]</code> → <code>[["eat","tea","ate"],["tan","nat"],["bat"]]</code>。
+      </p>
+    </div>
+
+    <p>
+      核心只有一句:<strong>兩字互為 anagram ⇔ 把字母排序後完全相同</strong>。
+      於是「排序後的字串」就是每個 anagram 群共有的<strong>指紋(canonical key)</strong> ——
+      拿它當雜湊表的 key,同群的字自然落進同一個桶。這是 <a href="../p242/index.html">242 驗證 anagram</a> 的「分組版」。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼排序當鍵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「排序字串當鍵」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(N²·L)</div>
+          <div class="sc-ko__name">兩兩比較誰是 anagram</div>
+          <p>對每對字檢查是否 anagram,再併組。<code>O(N²)</code> 對比 × 每次 <code>O(L)</code> —— N 到 10⁴ 時退化嚴重。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ OK · 更快的鍵</div>
+          <div class="sc-ko__name">字母計數當鍵</div>
+          <p>用 26 長度的計數陣列(轉成字串)當 key,免排序,每字 <code>O(L)</code>。更快,但寫起來稍繁瑣(見第 5 節)。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SIMPLE &amp; ENOUGH · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · sorted key</div>
+        <div class="sc-ko__name">sorted(w) 當鍵,一趟分桶</div>
+        <p>
+          對每個字 <code>w</code>,把它的字母排序得到 <code>key = sorted(w)</code>,丟進 <code>map[key]</code>。
+          同 anagram 群的字排序後 key 相同 → 落進同一桶;掃完把所有桶收集起來就是答案。
+          單趟 <code>O(N · L log L)</code>,程式極短、最好記。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>算鍵</strong> —— 對每個字 <code>w</code>,<code>key = sorted(w)</code>(把字母排序)。</li>
+      <li><strong>分桶</strong> —— <code>map[key].push_back(w)</code>,把原字放進對應的桶。</li>
+      <li><strong>收集</strong> —— 掃完後,把 map 裡每個桶(<code>value</code>)收進答案陣列。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// SORTED KEY BUCKETING</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>["eat","tea","tan","ate","nat","bat"]</code>:每個字排序成 key(<code>eat→aet</code>),相同 key 併入同桶。
+      最終 <code>aet</code>、<code>ant</code>、<code>abt</code> 三個桶 = <strong>3 群</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 排序當鍵 · 分桶</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 兩種鍵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩種標準鍵的取捨<span class="sc-section__title-en">// SORT vs COUNT KEY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>排序鍵 sorted(w)</th><th>計數鍵 count[26]</th></tr></thead>
+      <tbody>
+        <tr><td>鍵怎麼算</td><td>把字母排序成字串</td><td>數 26 字母次數,拼成字串/tuple</td></tr>
+        <tr><td>每字成本</td><td><code>O(L log L)</code></td><td><code>O(L)</code></td></tr>
+        <tr><td>總時間</td><td><code>O(N·L log L)</code></td><td><code>O(N·L)</code></td></tr>
+        <tr><td>程式</td><td>3 行,最好寫</td><td>要組計數字串,稍長</td></tr>
+        <tr><td>適用</td><td>字串短、要簡潔</td><td>字串長、要極速</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這正是 <a href="../p242/index.html">242</a> 的「排序 vs 計數」之爭搬到分組場景:<strong>兩者都用「anagram 的標準指紋」</strong>,
+      差別只在指紋怎麼算。本題 <code>L ≤ 100</code> 很短,排序鍵完全夠用且最好記;字串很長時計數鍵省下 <code>log L</code> 因子。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">排序鍵:T = <strong>O(N · L log L)</strong>　　S = <strong>O(N · L)</strong></div>
+      <p class="sc-formula__hint">
+        <code>N</code> = 字數、<code>L</code> = 最長字串長。每字排序 <code>O(L log L)</code>、雜湊插入均攤 <code>O(L)</code>(要雜湊整個 key)。空間存下所有字 + 所有 key ≈ <code>O(N·L)</code>。計數鍵版時間降為 <code>O(N·L)</code>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      anagram ⇔ 排序後相同 → <strong>用 <code>sorted(w)</code> 當雜湊 key 分桶</strong>,同群自動聚在一起。
+      「幫每個物件算一個標準指紋、再用雜湊表分組」是通用套路:換成計數鍵可省 <code>log L</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">anagram ⇔ 排序後相同 → sorted(w) 當雜湊 key 分桶,同群自動聚齊。O(N·L log L);計數鍵可降到 O(N·L)。</div>
+    <div class="sc-summary-bar__detail">排序鍵分組 · GROUP ANAGRAMS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p49-anagramkey.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>49 · Group Anagrams // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P49</span>
+    <span><a href="https://leetcode.com/problems/group-anagrams/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">字母異位詞分組</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 49</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雜湊分組</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心等價</td><td>anagram ⇔ 排序後字串相同</td></tr>
+        <tr><td>標準鍵</td><td><code>sorted(w)</code>(或 26 字母計數)當雜湊 key</td></tr>
+        <tr><td>分組手法</td><td><code>map[key].push_back(w)</code>,同群自動同桶</td></tr>
+        <tr><td>計數鍵</td><td>免排序 <code>O(N·L)</code>,但要加 <code>'#'</code> 分隔符</td></tr>
+        <tr><td>複雜度</td><td>排序鍵 <code>O(N·L log L)</code> / <code>O(N·L)</code> 空間</td></tr>
+        <tr><td>通用套路</td><td>算標準指紋 → 雜湊分組,把 O(N²) 比對變 O(N)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼「排序後字串」能唯一代表一個 anagram 群?兩個非 anagram 的字有沒有可能排序後相同?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>計數鍵版為什麼一定要在數字間加分隔符 <code>'#'</code>?不加會撞在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>排序鍵 <code>O(N·L log L)</code> vs 計數鍵 <code>O(N·L)</code>,什麼時候差距才明顯?本題 <code>L ≤ 100</code> 值得為此改用計數鍵嗎?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>若字元不只小寫英文,而是<strong>任意 Unicode</strong>,計數鍵的 26 陣列還能用嗎?哪種鍵更通用?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>這題和 <a href="../p242/index.html">242 驗證 anagram</a> 的關係是什麼?兩者共用的核心觀念是哪一個?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 計數鍵 vs 排序鍵</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// "eat" 兩種鍵的算法</span>
+排序鍵: "eat" → sort → "aet"
+
+計數鍵: e=1,a=1,t=1,其餘 0
+        key = "#1#0#0#0#1#0...#1...#0"   (a 位 1、e 位 1、t 位 1)
+"tea"、"ate" 算出的兩種鍵都和 "eat" 相同 → 同桶
+"tan" 的 t,a,n 計數不同 → 不同桶
+<span class="sc-trace__out">兩種鍵都把 {eat,tea,ate} 綁在一起、把 tan 分開</span></div>
+
+    <div class="sc-insight">
+      不管用排序還是計數,本質都是<strong>「把字正規化成一個與字母順序無關的指紋」</strong>。
+      排序是「重排字母」,計數是「數字母」—— 殊途同歸,都讓 anagram 塌縮成同一個 key。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>質數乘積鍵</strong>:給每個字母一個質數(a=2,b=3,c=5…),把字的字母對應質數<strong>相乘</strong>當 key。為什麼這也是合法的 anagram 指紋?它有什麼隱患?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 249 Group Shifted Strings</strong>:把「位移後相同」的字串分組(如 <code>abc</code>、<code>bcd</code>)。指紋該怎麼設計?(提示:相鄰字母差的序列)</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>找出現次數最多的 anagram 群</strong>:不只要分組,還要回傳最大的那組。在本解法上加什麼最省?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      因為排序<strong>只重排字母、不改變字母的多重集合(哪些字母各幾個)</strong>。兩個字是 anagram 的定義就是「字母多重集合相同」,而排序把同一個多重集合映到<strong>唯一</strong>的字串(字母遞增排列)。所以 anagram ⇔ 排序後相同,是雙向的:不可能有兩個非 anagram 的字排序後相同(那會迫使它們字母集合相同,矛盾)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      不加分隔符,不同計數會拼出同一串。例:<code>count=[1,11,0,…]</code>(a 出現 1 次、b 出現 11 次)拼成 <code>"111…"</code>;而 <code>count=[11,1,0,…]</code> 也拼成 <code>"111…"</code> —— 兩個不同的字母分佈撞成同鍵,把不是 anagram 的字錯併一組。加 <code>'#'</code> 變成 <code>"#1#11#0"</code> vs <code>"#11#1#0"</code>,就能區分。分隔符讓每個計數欄位邊界清楚。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      差距在 <code>log L</code> 因子,只有<strong>字串很長</strong>(L 上千、上萬)時才顯著。本題 <code>L ≤ 100</code>,<code>log L ≈ 7</code>,而排序常數小、程式短,實務上排序鍵完全夠快也更好寫。<strong>不值得為了理論上的 log L 改用更囉嗦的計數鍵</strong> —— 除非題目明確 L 很大或卡常。面試講清楚兩者取捨即可。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      26 固定陣列失效(字元集不再是小寫英文)。這時<strong>排序鍵更通用</strong> —— 對任何可比較的字元序列都能排序成指紋。若要計數,得改用 <code>map&lt;char,int&gt;</code> 或 <code>unordered_map&lt;char32_t,int&gt;</code> 動態計數再序列化成 key,但寫起來比排序麻煩。所以字元集不確定時,首選排序鍵。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <a href="../p242/index.html">242</a> 是「<strong>判斷兩個</strong>字是不是 anagram」,49 是「<strong>把一堆</strong>字按 anagram 分組」。兩者共用同一個核心:<strong>anagram 的標準指紋(排序字串 / 字母計數)</strong>。242 是比對兩個指紋是否相等;49 是拿指紋當雜湊 key 做分組。學會指紋這個觀念,兩題一起通。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>質數乘積</strong>:由算術基本定理,每個正整數有唯一質因數分解,所以「字母→質數→乘積」把每個字母多重集合映到唯一乘積 → 是合法指紋(anagram 乘積相同)。<strong>隱患是溢位</strong>:長字串的乘積會爆 <code>long long</code>(如 100 個字母的乘積遠超 2⁶³)。要用大數或取模(取模又可能碰撞)。所以它是漂亮的理論解,實務上排序 / 計數鍵更穩。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 249</strong>:指紋改成「<strong>相鄰字母的差序列</strong>」(對 26 取模處理繞回)。例 <code>abc</code> 差 <code>[1,1]</code>、<code>bcd</code> 差 <code>[1,1]</code> → 同組;<code>az</code> 差 <code>[25]</code>、<code>ba</code> 差 <code>[(0-1+26)%26=25]</code> → 同組。把差序列轉字串當 key,一樣雜湊分桶。核心不變:<strong>設計一個「對目標等價關係不變」的指紋</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      分桶時順便追蹤「目前最大桶」:每次 <code>push_back</code> 後比較該桶大小,更新一個 <code>best</code> 指標 / key。或分完後掃一遍 map 取 <code>max_element</code> by size。前者省一趟、<code>O(1)</code> 額外;後者更直觀 <code>O(桶數)</code>。都建立在同一個分桶結果上,不必重算指紋。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">anagram 指紋 = 排序字串或字母計數,拿它當雜湊 key 分組。計數鍵要加 '#'。通用套路:設計「對等價關係不變的指紋」再雜湊分桶(249 用差序列)。</div>
+    <div class="sc-summary-bar__detail">排序鍵分組 · GROUP ANAGRAMS</div>
+  </div>
+
+</body>
+</html>
