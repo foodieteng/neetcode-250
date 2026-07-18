@@ -71,7 +71,7 @@ PROBLEMS = {
         ('p217', 'Contains Duplicate',                'contains-duplicate',                'easy','done'),
         ('p242', 'Valid Anagram',                     'valid-anagram',                     'easy','done'),
         ('p1',   'Two Sum',                           'two-sum',                           'easy','done'),
-        ('p14',  'Longest Common Prefix',             'longest-common-prefix',             'easy','todo'),
+        ('p14',  'Longest Common Prefix',             'longest-common-prefix',             'easy','done'),
         ('p49',  'Group Anagrams',                    'group-anagrams',                    'med', 'todo'),
         ('p27',  'Remove Element',                    'remove-element',                    'easy','todo'),
         ('p169', 'Majority Element',                  'majority-element',                  'easy','todo'),

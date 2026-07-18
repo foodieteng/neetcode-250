@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>14 · Longest Common Prefix // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P14</span>
+    <span><a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長共同前綴</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 水平掃描砍前綴</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 14</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>字串 · 掃描</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一組字串 <code>strs</code>,找出它們<strong>全部共有</strong>的最長開頭字串(最長共同前綴)。沒有共同前綴就回空字串 <code>""</code>。
+        例 <code>["flower","flow","flight"]</code> → <code>"fl"</code>;<code>["dog","racecar","car"]</code> → <code>""</code>。
+      </p>
+    </div>
+
+    <p>
+      「共同前綴」= 每個字串<strong>開頭都一樣</strong>的那一段。核心觀察:<strong>答案不可能比任何一個字串長,也不可能比它們共有的部分長</strong>。
+      所以策略是「<strong>先假設一個候選,再一路砍到大家都同意</strong>」。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 水平掃描 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 拿 strs[0] 當候選,越砍越短<span class="sc-section__title-en">// SHRINK</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">水平掃描 · prefix 只會變短、不會變長</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          共同前綴一定是 <code>strs[0]</code> 的前綴(它得是<strong>每個</strong>字串的前綴,當然也是第一個的)。所以直接<strong>拿 <code>strs[0]</code> 當初始候選</strong> <code>prefix</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          接著逐一比對每個字串 <code>str</code>:只要 <code>prefix</code> <strong>不是 <code>str</code> 的開頭</strong>,就<strong>從右邊砍掉一個字元</strong>,砍到它變成 <code>str</code> 的前綴為止。全部比完,剩下的 <code>prefix</code> 就是答案。
+        </p>
+        <p style="margin:0;">
+          <strong>為什麼只砍不加</strong>:每比一個字串,共同的部分只會<strong>更嚴格</strong>(交集越取越小),不可能變長。所以 <code>prefix</code> <strong>單調變短</strong> —— 這保證了演算法會收斂、且最多砍到空字串。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · find 的技巧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">用 <code>str.find(prefix) == 0</code> 判前綴<span class="sc-section__title-en">// THE TRICK</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">find 回傳「首次出現位置」,== 0 就代表在開頭</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>str.find(prefix)</code> 回傳 <code>prefix</code> 在 <code>str</code> 裡<strong>第一次出現的位置</strong>(找不到回 <code>npos</code>)。
+          若它回傳 <code>0</code>,代表 <code>prefix</code> <strong>正好從 str 的開頭開始</strong> —— 也就是 <code>prefix</code> 是 <code>str</code> 的前綴。
+        </p>
+        <p style="margin:0;">
+          所以 <code>while (str.find(prefix) != 0) prefix.pop_back掉一個</code> 的意思是:「只要 <code>prefix</code> 還沒對齊到 str 開頭,就砍尾」。
+          <strong>邊界很漂亮</strong>:當 <code>prefix</code> 砍到<strong>空字串</strong>時,<code>str.find("")</code> 回傳 <code>0</code>(空字串在任何位置都算「找到」),迴圈自然停下 → 再判 <code>prefix.empty()</code> 直接回 <code>""</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// ["flower","flow","flight"] → "fl"</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>prefix</code> 從 <code>"flower"</code> 開始,遇 <code>"flow"</code> 砍成 <code>"flow"</code>、遇 <code>"flight"</code> 在 index 2 分歧砍成 <code>"fl"</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 水平掃描 · 砍前綴</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:270px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 另一種掃法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">另一種視角 · 垂直掃描<span class="sc-section__title-en">// VERTICAL</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">一欄一欄比,遇到第一個不一致就停</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          除了「砍前綴」(水平),還有更直觀的「<strong>逐欄比對</strong>」(垂直):看所有字串的<strong>第 0 個字元</strong>是否全相同、再看第 1 個…直到<strong>某一欄出現不一致、或某個字串到底了</strong>就停,前面對齊的那幾欄就是答案。<br />
+          例 <code>["flower","flow","flight"]</code>:第 0 欄全 <code>f</code>、第 1 欄全 <code>l</code>、第 2 欄 <code>o/o/i</code> <strong>不一致</strong> → 停,答案 <code>"fl"</code>。<br />
+          <strong>垂直法能「一發現分歧就停」,常常更快</strong>(不用把某個字串整個比完);水平法程式更短。兩者都 <code>O(總字元數)</code>,選你順手的。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(S)</strong>(S = 所有字元總數)　　S<sub>space</sub> = <strong>O(1)</strong>*</div>
+      <p class="sc-formula__hint">
+        最壞情況每個字元都要比一次 → <code>O(S)</code>，<code>S = Σ strs[i].length</code>。額外空間只有 <code>prefix</code>(<code>*</code>不計輸出,且它是 <code>strs[0]</code> 的子字串,<code>O(m)</code>,<code>m</code> = 最短/首字串長)。<code>strs.length ≤ 200</code>、每字 <code>≤ 200</code>,非常寬鬆。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      共同前綴一定是 <code>strs[0]</code> 的前綴 → <strong>拿它當候選,一路砍到大家都同意</strong>。
+      <code>str.find(prefix)==0</code> 判「是不是前綴」,<code>prefix</code> <strong>只會變短</strong>,砍到空就回 <code>""</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p1/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 兩數之和 1</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">prefix=strs[0],對每個 str:while(str.find(prefix)!=0) 砍尾。只會變短,空了回 ""。或逐欄比、遇分歧停。</div>
+    <div class="sc-summary-bar__detail">字串掃描 · LONGEST COMMON PREFIX</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p14-lcp.js"></script>
+</body>
+</html>
