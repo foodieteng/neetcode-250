@@ -70,7 +70,7 @@ PROBLEMS = {
         ('p1929','Concatenation of Array',            'concatenation-of-array',            'easy','done'),
         ('p217', 'Contains Duplicate',                'contains-duplicate',                'easy','done'),
         ('p242', 'Valid Anagram',                     'valid-anagram',                     'easy','done'),
-        ('p1',   'Two Sum',                           'two-sum',                           'easy','todo'),
+        ('p1',   'Two Sum',                           'two-sum',                           'easy','done'),
         ('p14',  'Longest Common Prefix',             'longest-common-prefix',             'easy','todo'),
         ('p49',  'Group Anagrams',                    'group-anagrams',                    'med', 'todo'),
         ('p27',  'Remove Element',                    'remove-element',                    'easy','todo'),
