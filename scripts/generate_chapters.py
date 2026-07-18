@@ -68,7 +68,7 @@ CHAPTERS = [
 PROBLEMS = {
     '01': [  # Arrays & Hashing
         ('p1929','Concatenation of Array',            'concatenation-of-array',            'easy','done'),
-        ('p217', 'Contains Duplicate',                'contains-duplicate',                'easy','todo'),
+        ('p217', 'Contains Duplicate',                'contains-duplicate',                'easy','done'),
         ('p242', 'Valid Anagram',                     'valid-anagram',                     'easy','todo'),
         ('p1',   'Two Sum',                           'two-sum',                           'easy','todo'),
         ('p14',  'Longest Common Prefix',             'longest-common-prefix',             'easy','todo'),

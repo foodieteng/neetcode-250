@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>217 · Contains Duplicate // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P217</span>
+    <span><a href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">含有重複元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 雜湊集合一次掃描</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 217</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雜湊集合</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>nums</code>,只要<strong>任一值出現至少兩次</strong>就回傳 <code>true</code>,全部相異則 <code>false</code>。
+        例 <code>[1,2,3,1]</code> → <code>true</code>(<code>1</code> 出現兩次)。
+      </p>
+    </div>
+
+    <p>
+      「有沒有重複」是<strong>雜湊集合(hash set)</strong>的招牌用途:把看過的值丟進集合,<strong>下一個要放的時候先問「已經有了嗎」</strong>。
+      這是整個 Arrays &amp; Hashing 章節的核心工具 —— <code>O(1)</code> 均攤的「看過沒」查詢。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用集合 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用雜湊集合<span class="sc-section__title-en">// KNOCKOUT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__card sc-ko__card--bad">
+        <div class="sc-ko__verdict">× REJECT · O(n²)</div>
+        <div class="sc-ko__title">雙層迴圈兩兩比對</div>
+        <div class="sc-ko__body">
+          對每個元素掃剩下的找相同 → <code>O(n²)</code>。<code>n</code> 到 <code>10⁵</code> 時 <code>10¹⁰</code> 次,直接 TLE。沒用到任何結構。
+        </div>
+      </div>
+
+      <div class="sc-ko__card sc-ko__card--mid">
+        <div class="sc-ko__verdict">△ REJECT · O(n log n)</div>
+        <div class="sc-ko__title">先排序再看相鄰</div>
+        <div class="sc-ko__body">
+          排序後相同值會靠在一起,掃一遍看有無相鄰相等 → <code>O(n log n)</code>。可行,但<strong>破壞原順序</strong>、又比雜湊慢。
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH BEATEN · ADOPT</div>
+
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n)</div>
+        <div class="sc-ko__title">雜湊集合一次掃描</div>
+        <div class="sc-ko__body">
+          <code>unordered_set</code> 記「看過的值」,每個 <code>O(1)</code> 均攤查詢。掃一遍、撞到重複<strong>立刻回</strong> → <code>O(n)</code> 時間、<code>O(n)</code> 空間。<strong>用空間換時間</strong>的典範。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 先查再放<span class="sc-section__title-en">// CHECK THEN INSERT</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>準備</strong>一個空的 <code>unordered_set&lt;int&gt; seen</code>。</li>
+      <li><strong>掃描</strong>每個 <code>nums[i]</code>:先問 <code>seen.count(nums[i])</code> —— <strong>已經在裡面就 <code>return true</code></strong>(找到重複)。</li>
+      <li><strong>否則 <code>insert</code></strong> 進 <code>seen</code>,繼續。全部掃完都沒撞到 → <code>return false</code>。</li>
+    </ol>
+
+    <p style="margin-top:12px;font-size:13.5px;">
+      <strong>順序很重要:先「查」再「放」</strong>。若先放再查,每個值都會查到自己剛放的,永遠回 true。
+      「查」看的是<strong>之前</strong>看過的,「放」是為了<strong>之後</strong>的比對。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,2,3,1] → true</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      掃到第 4 個(值 1)時,集合裡<strong>已經有 1</strong> → 立刻 <code>return true</code>,<strong>不用掃完</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 一次掃描 + 集合</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:290px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 提前結束 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">提前結束的價值<span class="sc-section__title-en">// EARLY EXIT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">找到「一個」重複就夠,不用數幾個</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          題目只問「有沒有」重複,不問「有幾個」。所以撞到<strong>第一個</strong>重複就能 <code>return true</code> —— <strong>剩下的完全不用看</strong>。
+          最好情況(前兩個就重複)是 <code>O(1)</code>;最壞(全相異或重複在最後)才 <code>O(n)</code>。
+          <strong>「存在性問題」通常能提前結束</strong> —— 一旦找到證據就收工,是很常見的加速。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong> 均攤　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每個元素一次 <code>O(1)</code> 均攤的查 + 插。<strong>「均攤」</strong>:雜湊偶爾要 rehash(重新配置桶),但攤到每次操作仍是 <code>O(1)</code>。
+        空間最壞 <code>O(n)</code>(全相異時集合裝下所有值)。想省空間可改<strong>排序法</strong> <code>O(n log n)</code> 時間 / <code>O(1)</code> 空間 —— 時間換空間的取捨。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>雜湊集合 = O(1) 的「看過沒」</strong>。掃一遍,<strong>先查再放</strong>:在集合裡就是重複、立刻回 <code>true</code>(提前結束)。
+      用 <code>O(n)</code> 空間把 <code>O(n²)</code> 壓成 <code>O(n)</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p1929/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 陣列拼接 1929</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">unordered_set 記看過的值,先查再放:seen.count(x) 為真就 return true。O(n) 時間、O(n) 空間、提前結束。</div>
+    <div class="sc-summary-bar__detail">雜湊集合 · CONTAINS DUPLICATE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p217-hashset.js"></script>
+</body>
+</html>
