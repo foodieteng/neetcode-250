@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>304 · Range Sum Query 2D // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P304</span>
+    <span><a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二維區域和檢索</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 304</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>二維前綴和</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>前綴定義</td><td><code>prefix[i][j]</code> = 到 <code>(i-1,j-1)</code> 的左上矩形總和</td></tr>
+        <tr><td>建表容斥</td><td><code>上 + 左 − 左上 + 自己</code></td></tr>
+        <tr><td>查詢容斥</td><td><code>大矩形 − 上長條 − 左長條 + 左上角</code></td></tr>
+        <tr><td>加回左上角</td><td>它被兩長條各減一次 = 減兩次,補回一次</td></tr>
+        <tr><td>0 邊界</td><td>多開一圈 0 + 索引 +1 → 免邊界特判</td></tr>
+        <tr><td>複雜度</td><td>建 <code>O(mn)</code>、查 <code>O(1)</code>、空間 <code>O(mn)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>查詢公式為什麼要「<strong>加回</strong>左上角」?不加會多算還是少算?用容斥解釋。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>建表公式為什麼要「<strong>減去</strong>左上」?它和查詢公式的「加回左上角」是同一個道理嗎?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>為什麼要把 <code>prefix</code> 開成 <code>(m+1)×(n+1)</code> 並多一圈 0?少了這圈,查貼邊矩形(<code>r1=0</code>)會怎樣?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>「每列各存一維前綴和」也能查,單查 <code>O(r2−r1)</code>。它比二維前綴和差在哪?什麼情況下反而夠用?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>這題和 <a href="../p560/index.html">560 一維前綴和</a>、<a href="../p238/index.html">238 前綴積</a> 的共同思路是什麼?二維多了什麼麻煩?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 貼上邊查詢 r1=0</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 查 sumRegion(0,1,2,2):貼著上邊(r1=0),看 0 邊界如何救場</span>
+sum = prefix[3][3] − prefix[0][3] − prefix[3][1] + prefix[0][1]
+
+r1=0 → prefix[0][3] = 0   (上長條是空的)
+       prefix[0][1] = 0   (左上角也退化成空)
+
+sum = prefix[3][3] − 0 − prefix[3][1] + 0
+    = 大矩形 − 左長條         (上長條和左上角都消失)
+<span class="sc-trace__out">貼邊時公式自動退化成正確形式,不必特判 r1==0</span></div>
+
+    <div class="sc-insight">
+      當查詢矩形頂到上邊界,「要減的上長條」本來就不存在 —— 對應的 <code>prefix[0][…]</code> 剛好是那圈 0。
+      <strong>公式一字不改,邊界情況自動正確</strong>。這正是「多開一圈 0」最漂亮的回報:把邊界判斷編碼進資料結構本身。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 308 可變二維(帶 update)</strong>:若矩陣元素會被修改,前綴和每次更新要 O(mn) 重建太慢。該換什麼結構?(提示:二維樹狀陣列 / BIT)</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>子矩形和等於 target 的個數</strong>:結合本題的行前綴 + <a href="../p560/index.html">560 的雜湊計數</a>,如何 <code>O(m²n)</code> 數出和為 target 的子矩形?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>最大子矩形和(2D Kadane)</strong>:找和最大的子矩形。為什麼要「固定上下邊界、壓成一維再跑 Kadane」?前綴和在其中扮演什麼角色?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      不加會<strong>少算</strong>。查詢是「大矩形 − 上長條 − 左長條」,而上長條和左長條<strong>重疊在左上角</strong>那塊;減兩條時,左上角被<strong>減了兩次</strong>。容斥要求「重疊部分只該扣一次」,所以要<strong>加回一次</strong>把多扣的補回。這就是 <code>|A∪B| = |A|+|B|−|A∩B|</code> 的矩形版。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      是同一個道理,方向相反。建表時 <code>prefix[i][j]</code> = 「上矩形 <code>prefix[i-1][j]</code>」+「左矩形 <code>prefix[i][j-1]</code>」,這兩塊<strong>重疊在左上矩形 <code>prefix[i-1][j-1]</code></strong>,被<strong>加了兩次</strong>,所以要<strong>減一次</strong>;再補當前格。查詢是「大矩形減兩長條、加回重疊角」,建表是「兩矩形相加、減掉重疊角」—— 都是容斥處理「重疊被算兩次」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      多一圈 0 是為了讓<strong>邊界項自然歸零、且避免負索引</strong>。查詢公式含 <code>prefix[r1][…]</code>、<code>prefix[…][c1]</code>,當 <code>r1=0</code> 就是 <code>prefix[0][…]</code>。開了 0 邊界,這些項 = 0(空長條),公式直接正確。少了它,<code>r1=0</code> 時你得寫 <code>prefix[r1-1]</code> = <code>prefix[-1]</code> → 越界,或改用一堆 <code>if (r1&gt;0)</code> 特判。0 邊界把邊界邏輯藏進資料結構。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      「每列一維前綴」單查是 <code>O(r2−r1)</code>(要把 <code>r1..r2</code> 每列的區段和加起來),不是 O(1)。當<strong>查詢矩形通常很扁(列數少)</strong>、或查詢次數不多、或想省一半預處理程式碼時,它夠用且更好寫。但本題要求嚴格 O(1)、查詢量大(10⁴),二維前綴和才達標。取捨在「查詢的列數」與「O(1) 硬要求」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      共同思路:<strong>預處理前綴聚合,把區間查詢降成常數次角落運算</strong> —— 560 前綴和、238 前綴積、304 二維前綴和,都是「花一次預處理,換每次 O(1) 查詢」。二維多的麻煩是<strong>「矩形 = 兩維區間的交集」</strong>,單靠相減不夠,重疊的左上角會被重複扣 → 必須用<strong>容斥加回</strong>。維度每升一維,容斥項數翻倍(1D 兩項相減、2D 四項加減、3D 八項)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 308</strong>:元素可改時,靜態前綴和每次 update 要 O(mn) 重建,太慢。改用<strong>二維樹狀陣列(2D BIT / Fenwick)</strong>:update 和區域查詢都 <code>O(log m · log n)</code>。它用「低位技巧」維護部分前綴,支援單點修改 + 前綴矩形查詢,再用同樣的容斥四角組出任意矩形。是「查詢快 vs 支援修改」的經典升級。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>子矩形和 = target 計數</strong>:固定<strong>上下邊界</strong>一對 <code>(top, bottom)</code>(<code>O(m²)</code> 對),把這兩列之間<strong>每一行壓成一個「列和」</strong>(用行前綴 O(1) 取得)→ 問題退化成一維「和為 target 的子陣列數」,正是 <a href="../p560/index.html">560</a> 的雜湊計數 <code>O(n)</code>。合計 <code>O(m²n)</code>。<strong>降維 + 前綴 + 雜湊</strong> 的組合拳。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>最大子矩形和</strong>:枚舉<strong>上下邊界</strong> <code>(top,bottom)</code>,把這兩列之間每一行壓成一個「列和」得到一維陣列,對它跑 <strong>Kadane(最大子陣列和)</strong>。前綴和(或逐步累加)負責 <code>O(1)</code> 算出每一行在 <code>[top,bottom]</code> 的和,讓「壓成一維」變便宜。整體 <code>O(m²n)</code>。核心思想同 App 2:<strong>固定一個維度、把二維壓成一維</strong>,再套成熟的一維演算法。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">2D 前綴和 + 容斥四角(加回重疊左上角)。多開 0 邊界免特判。維度每升一維容斥項翻倍。可變版用 2D BIT;子矩形問題靠「固定上下邊界壓成一維」+ 560/Kadane。</div>
+    <div class="sc-summary-bar__detail">二維前綴和 · RANGE SUM QUERY 2D</div>
+  </div>
+
+</body>
+</html>

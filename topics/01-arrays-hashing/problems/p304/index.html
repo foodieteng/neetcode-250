@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>304 · Range Sum Query 2D // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P304</span>
+    <span><a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二維區域和檢索</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 二維前綴和 · 容斥</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 304</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>前綴和 · O(1) 查詢</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計 <code>NumMatrix</code>:建構時吃一個 2D 矩陣,之後多次查詢 <code>sumRegion(r1,c1,r2,c2)</code> =
+        以 <code>(r1,c1)</code> 為左上角、<code>(r2,c2)</code> 為右下角的<strong>矩形內元素總和</strong>。要求 <code>sumRegion</code> <strong>O(1)</strong>。最多 10⁴ 次查詢。
+      </p>
+    </div>
+
+    <p>
+      「多次查詢 + 每次 O(1)」是經典的<strong>預處理換查詢</strong>訊號:建構時花 <code>O(mn)</code> 算好<strong>二維前綴和</strong>,
+      之後每次查詢用<strong>容斥(加加減減)</strong>四個角落值即可。這是 <a href="../p560/index.html">560 一維前綴和</a> 的二維版。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 2D 前綴和 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「二維前綴和 + 容斥」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · 每查 O(面積)</div>
+          <div class="sc-ko__name">每次查詢直接雙層迴圈加</div>
+          <p>每次 <code>sumRegion</code> 掃整個矩形相加。單查 <code>O(mn)</code>,10⁴ 次 × 4×10⁴ 面積 → 太慢。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ OK · 每查 O(列數)</div>
+          <div class="sc-ko__name">每列各存一維前綴和</div>
+          <p>每列一個前綴和,查詢時把 <code>r1..r2</code> 每列的區段和加起來。<code>O(r2−r1)</code>/查 —— 好一些,但不是 O(1)。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">O(1) QUERY · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · 2D prefix + 容斥</div>
+        <div class="sc-ko__name">prefix[i][j] = 左上矩形總和,查詢四角容斥</div>
+        <p>
+          預處理 <code>prefix[i][j]</code> = 從 <code>(0,0)</code> 到 <code>(i-1,j-1)</code> 的矩形總和。查詢時:
+          <strong>大矩形 − 上長條 − 左長條 + 左上角</strong>(角落被減兩次要加回)。四次查表 + 加減 = <strong>O(1)</strong>,建表 <code>O(mn)</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 建表 + 查詢<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>多開一圈 0 邊界</strong> —— <code>prefix</code> 尺寸 <code>(m+1)×(n+1)</code>,第 0 列/行全 0,省掉邊界判斷。</li>
+      <li><strong>建表(容斥累積)</strong> —— <code>prefix[i][j] = 上 + 左 − 左上 + matrix[i-1][j-1]</code>。</li>
+      <li><strong>查詢(容斥抽取)</strong> —— <code>prefix[r2+1][c2+1] − prefix[r1][c2+1] − prefix[r2+1][c1] + prefix[r1][c1]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// INCLUSION-EXCLUSION</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      查 <code>(2,1)-(4,3)</code>:<strong>大矩形 D</strong>(38)<strong>減</strong> 上長條 B(24)<strong>減</strong> 左長條 C(14)<strong>加回</strong>左上角 A(8)。
+      <code>38 − 24 − 14 + 8 = 8</code> = 矩形總和。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 二維前綴和 · 容斥抽取矩形</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 兩個容斥公式 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個容斥公式<span class="sc-section__title-en">// BUILD & QUERY</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">① 建表:上 + 左 − 左上 + 自己</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:12.5px;">
+          prefix[i][j] = prefix[i-1][j] + prefix[i][j-1] − prefix[i-1][j-1] + matrix[i-1][j-1]
+        </p>
+        <p style="margin:0;">
+          「上方矩形」和「左方矩形」相加時,<strong>左上角那塊被算了兩次</strong>,要減掉一次;最後補上當前格 <code>matrix[i-1][j-1]</code>。這就是容斥。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">② 查詢:大矩形 − 兩長條 + 左上角</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:12.5px;">
+          sum = prefix[r2+1][c2+1] − prefix[r1][c2+1] − prefix[r2+1][c1] + prefix[r1][c1]
+        </p>
+        <p style="margin:0;">
+          要留下的是「右下大矩形<strong>扣掉</strong>上方與左方多出來的部分」。上長條和左長條<strong>重疊在左上角</strong>,那塊被<strong>減了兩次</strong>,所以要<strong>加回一次</strong>。
+          兩條公式其實是<strong>同一個容斥原理</strong>:一個用來「一格一格累積」,一個用來「一次抽出任意矩形」。<strong>邊界那圈 0</strong> 讓 <code>r1=0</code> / <code>c1=0</code> 時的 <code>prefix[0][…]</code>、<code>prefix[…][0]</code> 自然是 0,不必特判。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">建表 = <strong>O(mn)</strong>　　每次查詢 = <strong>O(1)</strong>　　空間 = <strong>O(mn)</strong></div>
+      <p class="sc-formula__hint">
+        建構時掃一遍矩陣填前綴和;之後每次 <code>sumRegion</code> 固定四次查表 + 三次加減。<code>Q</code> 次查詢總成本 <code>O(mn + Q)</code>,遠勝「每查 O(mn)」的 <code>O(Q·mn)</code>。空間多存一個 <code>(m+1)×(n+1)</code> 前綴表。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>階段</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建構(預處理)</td><td><code>O(mn)</code></td><td>填滿前綴表</td></tr>
+        <tr><td>單次 sumRegion</td><td><code>O(1)</code></td><td>四查表 + 加減</td></tr>
+        <tr><td>Q 次查詢</td><td><code>O(mn + Q)</code></td><td>預處理攤到多次查詢</td></tr>
+        <tr><td>空間</td><td><code>O(mn)</code></td><td>(m+1)×(n+1) 前綴表</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      多次矩形和查詢 → 預處理<strong>二維前綴和</strong>(左上矩形總和),查詢用<strong>容斥四角</strong>:大矩形 − 上長條 − 左長條 + 左上角。
+      建表與查詢是<strong>同一容斥</strong>的兩面。多開一圈 0 邊界免特判。建 <code>O(mn)</code>、查 <code>O(1)</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">2D 前綴和:prefix[i][j]=左上矩形和。查詢容斥四角=大矩形−上長條−左長條+左上角。建表與查詢同一容斥,多開 0 邊界免特判。建 O(mn)、查 O(1)。</div>
+    <div class="sc-summary-bar__detail">二維前綴和 · RANGE SUM QUERY 2D</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p304-incexc.js"></script>
+</body>
+</html>
