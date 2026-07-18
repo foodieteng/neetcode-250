@@ -88,7 +88,7 @@ PROBLEMS = {
         ('p122', 'Best Time to Buy and Sell Stock II','best-time-to-buy-and-sell-stock-ii','med', 'todo'),
         ('p229', 'Majority Element II',               'majority-element-ii',               'med', 'todo'),
         ('p560', 'Subarray Sum Equals K',             'subarray-sum-equals-k',             'med', 'todo'),
-        ('p41',  'First Missing Positive',            'first-missing-positive',            'hard','todo'),
+        ('p41',  'First Missing Positive',            'first-missing-positive',            'hard','done'),
     ],
     '02': [  # Two Pointers
         ('p344', 'Reverse String',                     'reverse-string',                     'easy','todo'),
