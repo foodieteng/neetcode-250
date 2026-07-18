@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>122 · Best Time to Buy and Sell Stock II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P122</span>
+    <span><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">買賣股票的最佳時機 II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 貪心:加總每個正日差</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 122</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>貪心 · O(n)/O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>prices[i]</code> 是第 i 天股價。每天可買、可賣,<strong>但任何時刻最多持有 1 股</strong>(可當日先賣再買)。
+        <strong>可以交易任意次數</strong>,求最大利潤。例:<code>[7,1,5,3,6,4] → 7</code>;<code>[1,2,3,4,5] → 4</code>;<code>[7,6,4,3,1] → 0</code>。
+      </p>
+    </div>
+
+    <p>
+      關鍵字是「<strong>任意次數</strong>」—— 這解放了限制,讓答案有一個極簡的貪心形式:
+      <strong>把每一個「今天比昨天貴」的漲幅通通賺下來</strong>。跌的日子什麼都不做。全部相加就是最大利潤。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼貪心 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「加總正日差」就是最優<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">△ WORKS · 太重</div>
+          <div class="sc-ko__name">狀態機 DP(hold / free)</div>
+          <p><code>free = max(free, hold+price)</code>、<code>hold = max(hold, free−price)</code>。完全正確、<code>O(n)</code>,但對「無限次交易」是殺雞用牛刀。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">× REJECT · 想太多</div>
+          <div class="sc-ko__name">枚舉所有「谷買峰賣」區間</div>
+          <p>找每個局部低點買、局部高點賣。對,但要小心處理平段/連漲,實作繁瑣,本質等同貪心卻更易出錯。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SIMPLIFY · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · GREEDY</div>
+        <div class="sc-ko__name">利潤 = Σ max(0, prices[i] − prices[i−1])</div>
+        <p>
+          一趟掃過,只要 <code>prices[i] &gt; prices[i−1]</code> 就把差價 <code>prices[i]−prices[i−1]</code> 加進利潤。
+          等價於「昨天買、今天賣」每個上漲日;下跌日不持有。因為<strong>任何一段低買高賣的獲利,恰好等於這段內每日漲幅的總和</strong>(見第 5 節),
+          抓住每個漲日 = 抓住每段獲利。<strong>O(n) 時間、O(1) 空間</strong>,一行搞定。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 一趟掃描<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>逐日比較</strong> —— 從第 1 天起,看 <code>prices[i]</code> 和前一天 <code>prices[i−1]</code>。</li>
+      <li><strong>賺正差</strong> —— 若 <code>prices[i] &gt; prices[i−1]</code>,把 <code>prices[i]−prices[i−1]</code> 加進 <code>profit</code>;跌則跳過。</li>
+      <li><strong>回傳</strong> —— 掃完的 <code>profit</code> 就是答案。等價於「持有期間的每一天漲幅都收下」。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// GREEDY SWEEP</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[7,1,5,3,6,4]</code>:綠色上漲段(<code>1→5</code> 賺 +4、<code>3→6</code> 賺 +3)全部收下,灰色下跌段略過。利潤 <strong>4+3 = 7</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 貪心 · 加總每個正日差</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:290px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · telescoping 證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼貪心是最優<span class="sc-section__title-en">// LEMMA · TELESCOPING</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">任一段低買高賣的獲利 = 這段每日漲幅的總和</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          假設在第 <code>a</code> 天買、第 <code>b</code> 天賣(<code>a &lt; b</code>),獲利是 <code>prices[b] − prices[a]</code>。把它拆成逐日差(電話線折疊):
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;">
+          prices[b] − prices[a]<br />
+          = (p[a+1]−p[a]) + (p[a+2]−p[a+1]) + … + (p[b]−p[b−1])
+        </p>
+        <p style="margin:0 0 10px;">
+          中間項全部消掉,只剩頭尾 —— 這就是 telescoping。所以「一次長區間交易」的獲利,<strong>完全等於把這區間內每個相鄰日差加起來</strong>。
+        </p>
+        <p style="margin:0;">
+          於是<strong>上界</strong>:任何交易方案的總獲利 ≤ 把所有<strong>正</strong>的日差加起來(負日差只會拖累,不如不持有)。
+          而貪心正好<strong>達到</strong>這個上界 —— 它把每個正日差都收下、每個負日差都跳過。上界可達 ⇒ 貪心最優。<strong>「最多持 1 股」不成限制</strong>:每個正日差對應一次「昨買今賣」,同一時間手上至多一股。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        單趟掃描,每步一次比較 + 可能一次加法。只用 <code>profit</code> 和前一天價格兩個變數。這是整個「買賣股票」系列裡最省的一題 —— 因為「無限次」把 DP 化簡成了純貪心。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>掃描</td><td><code>O(n)</code></td><td>每天處理一次</td></tr>
+        <tr><td>每步</td><td><code>O(1)</code></td><td>一次比較 + 加法</td></tr>
+        <tr><td>空間</td><td><code>O(1)</code></td><td>profit + 前一價</td></tr>
+        <tr><td>對照 DP</td><td>同 O(n)</td><td>但貪心常數更小、更好寫</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「無限次交易」⇒ 利潤 = <strong>Σ 每個正日差</strong>。因為任一段低買高賣 = 該段每日漲幅之和(telescoping),
+      抓住每個上漲日就抓住了全部獲利。跌就不持有。<code>O(n)/O(1)</code>,是股票系列裡最簡的一題。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 01 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">無限次交易 → 利潤 = Σ max(0, prices[i]−prices[i−1])。任段獲利 = 每日漲幅和(telescoping),抓住每個漲日即最優。O(n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">貪心 · BEST TIME TO BUY AND SELL STOCK II</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p122-greedy.js"></script>
+</body>
+</html>

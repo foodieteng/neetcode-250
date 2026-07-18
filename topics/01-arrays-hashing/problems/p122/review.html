@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>122 · Best Time to Buy and Sell Stock II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P122</span>
+    <span><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">買賣股票的最佳時機 II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 122</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>貪心</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心公式</td><td>利潤 = <code>Σ max(0, prices[i] − prices[i−1])</code></td></tr>
+        <tr><td>為何最優</td><td>任段低買高賣 = 該段每日漲幅和(telescoping),抓漲日即達上界</td></tr>
+        <tr><td>下跌日</td><td>不持有,貢獻 0</td></tr>
+        <tr><td>持股上限</td><td>天然滿足:每個正日差 = 一次昨買今賣,不重疊</td></tr>
+        <tr><td>vs 121</td><td>121 只能一次交易(找最大單區間);122 無限次(加總漲幅)</td></tr>
+        <tr><td>DP 母模板</td><td>hold/free 狀態機,留給手續費 714 / 冷凍期 <a href="../../../14-2d-dp/problems/p309/index.html">309</a></td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> / <code>O(1)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>用 telescoping 一句話說明「為什麼加總正日差 = 最大利潤」。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p><code>[1,2,3,4,5]</code> 一路漲。貪心一天天賺 <code>+1+1+1+1=4</code>,和「第 0 天買、第 4 天賣」賺 <code>5−1=4</code> 一樣嗎?為什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>「最多同時持有 1 股」這個限制,為什麼對貪心完全沒有影響?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>本題和 <strong>121</strong>(只能買賣<strong>一次</strong>)差在哪?為什麼 121 不能用「加總正日差」?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>若加上<strong>每筆交易手續費 fee</strong>(LC 714),貪心「見漲就賣」還對嗎?該退回哪個模板?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,4,5] vs [7,6,4,3,1]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 全漲:每天都賺 → 等於一次長抱</span>
+[1,2,3,4,5]:
+ +1 +1 +1 +1  = 4     (= 5−1,telescoping 中間項全消)
+<span class="sc-trace__out">4</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 全跌:沒有任何正日差 → 一毛不賺</span>
+[7,6,4,3,1]:
+ 每個日差都是負 → 全部 max(0,·)=0
+<span class="sc-trace__out">0</span></div>
+
+    <div class="sc-insight">
+      兩個極端把貪心的本質照得很清楚:<strong>全漲時,分段賺總和 = 一次長抱</strong>(telescoping);
+      <strong>全跌時,不持有即最優,答案 0</strong>。一般情況介於兩者之間 —— 只挑上漲段。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 714 含手續費</strong>:每次賣出扣 <code>fee</code>。「見漲就賣」會被手續費吃光碎利。用 hold/free 狀態機怎麼改?(提示:賣出項 <code>hold + p − fee</code>)</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 123 / 188 最多 k 次交易</strong>:交易次數有上限。貪心失效,為什麼?這時要用哪種 DP(狀態多一維「已用幾次」)?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>LC 309 含冷凍期</strong>:賣出後隔一天才能再買。<a href="../../../14-2d-dp/problems/p309/index.html">309</a> 用三狀態機(hold / sold / rest)。為什麼冷凍期讓「加總正日差」也失效?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      任一次「第 a 天買、第 b 天賣」的獲利 <code>p[b]−p[a]</code>,可展開成相鄰日差之和 <code>(p[a+1]−p[a])+…+(p[b]−p[b−1])</code>(中間項相消)。所以總獲利的上界 = 所有<strong>正</strong>日差之和;貪心恰好收下每個正日差、跳過每個負日差,達到上界 → 最優。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      一樣,都是 <code>4</code>。因為 <code>(2−1)+(3−2)+(4−3)+(5−4)</code> 中間項全消 = <code>5−1</code>。全漲時「天天賺」和「一次長抱」<strong>數值完全相同</strong> —— 這正是 telescoping。貪心不會因為分很多段而多賺或少賺,它只是保證<strong>遇到下跌時能及時脫手</strong>,那才是它勝過長抱的地方。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      因為每個正日差對應的操作是「<strong>昨天收盤買、今天收盤賣</strong>」,一天內開倉又平倉,任何時刻手上至多 1 股,天然不違反上限。就算連續多天上漲(等於連續持有),也可以想成每天「賣掉再立刻買回」,持股數始終 ≤ 1。所以限制存在但不生效。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <strong>121 只能交易一次</strong>:要找「單一買賣區間」的最大 <code>p[j]−p[i]</code>(i&lt;j),做法是掃描時記錄目前最低價、更新最大差。它<strong>不能</strong>加總正日差 —— 那等於允許多次交易,會高估。122 因為無限次,才可以把利潤拆成獨立的每段漲幅相加。一句話:<strong>次數限制決定能不能拆段</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      不對了。手續費讓「賺 1 元卻付 2 元手續費」的碎利變成虧損,<strong>不該每個小漲都交易</strong>,而要合併成更長的持有段以攤薄 fee。純貪心無法權衡,得退回 <strong>hold/free 狀態機</strong>:<code>free = max(free, hold + p − fee)</code>(賣出時扣費)、<code>hold = max(hold, free − p)</code>。狀態機能自動決定「這段漲幅值不值得付一次 fee」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 714</strong>:hold/free 兩狀態,只在<strong>賣出</strong>那一項扣 fee:<code>nf = max(free, hold + p − fee)</code>,<code>nh = max(hold, free − p)</code>。狀態機會把「小漲不賣、等更大漲一次結清」的決策內化,避免被手續費割碎。答案取最終 <code>free</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 123(k=2)/ 188(任意 k)</strong>:交易次數有上限時,「每個正日差都賺」會超過允許次數 → 貪心失效。要用 DP 多開一維「已用交易次數 <code>t</code>」:<code>dp[t][hold]</code>,轉移時買入(或賣出)才 <code>t</code> 變動。時間 <code>O(nk)</code>。k 很大(≥ n/2)時退化回 122 的無限次貪心。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 309</strong>:賣出後有一天冷凍期,不能立刻買回。這破壞了「每個正日差獨立可賺」的前提 —— 想賺相鄰兩段小漲,中間的賣→買被冷凍期卡住,可能反而不如抱著。必須用<strong>三狀態機</strong>(持股 hold / 剛賣 sold / 休息 rest),讓 <code>rest</code> 承接冷凍期的過渡。詳見 <a href="../../../14-2d-dp/problems/p309/index.html">309 的學習卡</a>。核心體會:<strong>只要交易之間有耦合(手續費、冷凍、次數),貪心就讓位給狀態機 DP</strong>。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 01 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">Σ 正日差 = 最優(telescoping)。持股上限天然滿足。121 一次交易不能拆段;交易間有耦合(714 費 / 188 次數 / 309 冷凍)→ 退回狀態機 DP。</div>
+    <div class="sc-summary-bar__detail">貪心 · BEST TIME TO BUY AND SELL STOCK II</div>
+  </div>
+
+</body>
+</html>
