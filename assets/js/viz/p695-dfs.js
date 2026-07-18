@@ -16,7 +16,7 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    water:'#eef0ee', waterS:'#cfcfcf', land:'#ffffff', landS:'#b9b9b1', coral:'#d96e4e' };
+    water:'#eef0ee', waterS:'#cfcfcf', land:'#ffffff', landS:'#b9b9b1', coral:'#cf3535' };
   const ISLC = { 1:['#e3edf5','#6f9fc4'], 2:['#f6ead8','#d4a868'] };  // 藍島 / 棕島
 
   const R = 3, C = 4;
@@ -69,7 +69,7 @@
     ctx.fillText('BAND 2 · 這座島面積 curArea · 目前最大 maxArea', PAD, by);
     const cy=by+12, halfW=(w-PAD*2-14)/2;
     // curArea box
-    rr(PAD,cy,halfW,40,6); ctx.fillStyle=s.found?'#fbe7df':'#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=s.found?COLOR.coral:COLOR.grid; ctx.stroke();
+    rr(PAD,cy,halfW,40,6); ctx.fillStyle=s.found?'#fbe1e1':'#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=s.found?COLOR.coral:COLOR.grid; ctx.stroke();
     ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='700 15px "JetBrains Mono", monospace';
     ctx.fillStyle=s.found?COLOR.coral:COLOR.dim; ctx.fillText(s.found?('curArea = '+s.cur):'curArea = —', PAD+halfW/2, cy+20);
     // maxArea box

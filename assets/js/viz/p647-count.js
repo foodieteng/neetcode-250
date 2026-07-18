@@ -4,7 +4,7 @@
    差別只在:不是「記最長」,而是「每遇到一個 true 就 res++」。
    每個為真的 (i,j) 恰對應一個回文子字串 → 掃完整張表累加即總數。
    例 s="aaa":每個子字串都是回文 → 3(長1) + 2(長2) + 1(長3) = 6
-     BAND 1  dp[i][j] 表格(綠=回文 · 珊瑚=本步新增 · 藍=依賴的內層)
+     BAND 1  dp[i][j] 表格(綠=回文 · 紅=本步新增 · 藍=依賴的內層)
      右側     遞迴式 + 累計計數 res
      BAND 2  說明:true 格數 = 回文子串數
    ============================================================ */
@@ -19,7 +19,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', nil:'#f3f3ef', nilS:'#e2e2dc',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S = 'aaa';
   const N = S.length;                 // 3
@@ -53,7 +53,7 @@
 
     // ── BAND 1 header
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i][j]:s[i..j] 是回文嗎?(綠=是 · 珊瑚=本步新增 · 藍=依賴的內層)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i][j]:s[i..j] 是回文嗎?(綠=是 · 紅=本步新增 · 藍=依賴的內層)', PAD, 24);
 
     // ── grid (left)
     const cell=48, gx=84, gy=80;

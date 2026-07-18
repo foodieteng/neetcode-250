@@ -29,7 +29,7 @@
     cellBg: '#f4f6f8',
     left:   '#8fb3d4', leftBg: '#e3edf5',   // left half / left table
     right:  '#d4a868', rightBg: '#f6ead8',   // right half subset s
-    need:   '#d96e4e', needBg: '#f7ddd2',    // the probe target K-s
+    need:   '#cf3535', needBg: '#f7ddd2',    // the probe target K-s
     hit:    '#5fa866', hitBg: '#d9e8c7',     // matched -> answer
     zero:   '#cfcfcf',
     ink:    '#1a1a1a', dim: '#9a9a9a',

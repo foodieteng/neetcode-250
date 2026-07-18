@@ -3,7 +3,7 @@
    逐條邊 union;跑完後「還是根(parent[i] < 0)的數量」= 連通塊數。
    也可理解成:初始 n 塊,每次成功合併就少一塊。
    例 n=5, edges=[[0,1],[1,2],[3,4]] → 剩 2 個根 = 2 塊
-     BAND 1  並查集森林(綠/藍=同一組 · 珊瑚=根)
+     BAND 1  並查集森林(綠/藍=同一組 · 紅=根)
      BAND 2  parent[](負值=根)· 根數 = cnt
      BAND 3  說明
    ============================================================ */
@@ -16,7 +16,7 @@
         bPlay = document.getElementById('vb-play'), bReset = document.getElementById('vb-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#f3f3ef', nodeS:'#c9c9c1', edge:'#8fae6e', coral:'#d96e4e', root:'#fbe7df', rootS:'#d96e4e' };
+    node:'#f3f3ef', nodeS:'#c9c9c1', edge:'#8fae6e', coral:'#cf3535', root:'#fbe1e1', rootS:'#cf3535' };
   const CC = { 0:{f:'#d9e8c7',s:'#5fa866',t:'#3f7a3a'}, 3:{f:'#dbe8f6',s:'#4478c0',t:'#2f5f9e'} };
 
   // links = child->parent drawn; each step's parent[] array
@@ -54,7 +54,7 @@
 
     // ── BAND 1 · DSU forest
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 並查集森林(綠/藍=同一組 · 箭頭=指向父 · 珊瑚圈=根)', PAD, 22);
+    ctx.fillText('BAND 1 · 並查集森林(綠/藍=同一組 · 箭頭=指向父 · 紅圈=根)', PAD, 22);
     for(const [c,p] of s.links) arrow(POS[c][0],POS[c][1],POS[p][0],POS[p][1],COLOR.edge,2.6);
     for(const id of [0,1,2,3,4]){ const [x,y]=POS[id]; const isU=s.u&&s.u.includes(id); const isRoot=(s.parent[id]<0);
       const r= single?null: rootOf(s.parent,id); const pal=(r!=null&&CC[r])?CC[r]:null;
@@ -74,7 +74,7 @@
     for(let j=0;j<5;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(String(j), gx+j*cell+cell/2-2, cy); }
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cy+38);
     for(let j=0;j<5;j++){ const x=gx+j*cell; const val=s.parent[j]; const isRoot=val<0;
-      rr(x+3,cy+24,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
+      rr(x+3,cy+24,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe1e1':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
       ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2-1, cy+38); }
     const cnt=s.parent.filter(v=>v<0).length;
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('cnt =', gx+5*cell+16, cy+38);

@@ -4,7 +4,7 @@
    的就新建複本並入隊,然後把「複本的邊」接上(clone[cur]→clone[nei])。
    佇列空了就完成。和 DFS 同樣用 map 去重、切斷環,只是改用佇列。
    原圖 = 4-環 [[2,4],[1,3],[2,4],[1,3]]
-     BAND 1  原圖(綠=已複製 · 珊瑚=本步出隊的 cur)
+     BAND 1  原圖(綠=已複製 · 紅=本步出隊的 cur)
      BAND 2  佇列 queue(待處理的原節點)
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#ffffff', nodeS:'#c9c9c1', edge:'#b7c7d6',
-    done:'#d9e8c7', doneS:'#5fa866', cur:'#fbe7df', curS:'#d96e4e', coral:'#d96e4e' };
+    done:'#d9e8c7', doneS:'#5fa866', cur:'#fbe1e1', curS:'#cf3535', coral:'#cf3535' };
 
   const EDGES = [[1,2],[2,3],[3,4],[4,1]];
   // steps: cloned set, cur (dequeued), queue (contents after this step's action)
@@ -47,7 +47,7 @@
 
     // ── BAND 1 · graph
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 原圖(綠=已複製 · 珊瑚=本步出隊的 cur)', PAD, 24);
+    ctx.fillText('BAND 1 · 原圖(綠=已複製 · 紅=本步出隊的 cur)', PAD, 24);
     const cxL=w*0.5-95, cxR=w*0.5+95, cyT=88, cyB=216;
     const POS = { 1:[cxL,cyT], 2:[cxR,cyT], 3:[cxR,cyB], 4:[cxL,cyB] };
     for(const [a,b] of EDGES){ ctx.strokeStyle=COLOR.edge; ctx.lineWidth=3;

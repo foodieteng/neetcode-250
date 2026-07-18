@@ -17,7 +17,7 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', cur:'#d96e4e', seen:'#eef4fa', seenS:'#a9c4da', edge:'#b7c7d6', coral:'#d96e4e' };
+    node:'#ffffff', nodeS:'#c9c9c1', cur:'#cf3535', seen:'#eef4fa', seenS:'#a9c4da', edge:'#b7c7d6', coral:'#cf3535' };
   const SCC = { 1:{f:'#d9e8c7',s:'#5fa866',t:'#3f7a3a'}, 2:{f:'#dbe8f6',s:'#4478c0',t:'#2f5f9e'}, 3:{f:'#fbe6cf',s:'#d98a3e',t:'#a8621c'} };
 
   const E = [[1,2],[2,3],[3,1],[3,4],[4,5]];
@@ -74,7 +74,7 @@
     const disp=s.stack.slice().reverse();
     let qx=PAD+58;
     if(disp.length){ ctx.fillStyle=COLOR.dim; ctx.font='600 10px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.fillText('top', qx, cy-2);
-      for(let i=0;i<disp.length;i++){ const v=disp[i]; rr(qx,cy,34,36,5); ctx.fillStyle=(i===0)?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=(i===0)?COLOR.coral:COLOR.seenS; ctx.stroke();
+      for(let i=0;i<disp.length;i++){ const v=disp[i]; rr(qx,cy,34,36,5); ctx.fillStyle=(i===0)?'#fbe1e1':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=(i===0)?COLOR.coral:COLOR.seenS; ctx.stroke();
         ctx.fillStyle=COLOR.ink; ctx.font='700 16px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(v),qx+17,cy+18); qx+=42; } }
     else { ctx.fillStyle=COLOR.dim; ctx.font='600 12px "Noto Sans TC", sans-serif'; ctx.textAlign='left'; ctx.fillText('(空)', qx, cy+18); }
     // k counter

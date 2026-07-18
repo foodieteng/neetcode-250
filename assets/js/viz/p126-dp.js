@@ -28,7 +28,7 @@
     R:       '#c7352a',
     G:       '#2e9d63',
     B:       '#2f6fb6',
-    active:  '#d96e4e',   // cell being computed
+    active:  '#cf3535',   // cell being computed
     src:     '#d4a017',   // feeder cells (prev column)
     keep:    '#5fa866',   // last-colour cell kept by ok()
     drop:    '#cdb4b4',   // last-colour cell dropped by ok()

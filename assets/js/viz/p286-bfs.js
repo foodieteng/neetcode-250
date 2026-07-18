@@ -4,7 +4,7 @@
    INF 的空房被某一波碰到時,填上「當前距離+1」。因為所有門同時擴散,
    最先碰到某房間的那一波,就是離它「最近」的門 → 最短距離。
    grid = LeetCode 範例  →  各房間填上到最近門的距離
-     BAND 1  網格(門=珊瑚0 · 牆=深灰 · 空房=∞ · 已填=綠+距離)
+     BAND 1  網格(門=紅0 · 牆=深灰 · 空房=∞ · 已填=綠+距離)
      BAND 2  目前第幾波 · 本波填了哪些
      BAND 3  說明(最先到達 = 最近的門)
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     room:'#ffffff', roomS:'#d0d0c8', wall:'#3a3a3a', wallS:'#2a2a2a',
-    gate:'#d96e4e', gateS:'#b8532f', fill:'#d9e8c7', fillS:'#a9c07a', cur:'#fbe7df', curS:'#d96e4e', coral:'#d96e4e' };
+    gate:'#cf3535', gateS:'#b8532f', fill:'#d9e8c7', fillS:'#a9c07a', cur:'#fbe1e1', curS:'#cf3535', coral:'#cf3535' };
 
   const R = 4, C = 4;
   const WALL = new Set(['0,1','1,3','2,1','2,3','3,1']);
@@ -62,7 +62,7 @@
 
     // ── BAND 1 · grid
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 網格(門=0珊瑚 · 牆=深灰 · 空房=∞ · 已填=距離)', PAD, 24);
+    ctx.fillText('BAND 1 · 網格(門=0紅 · 牆=深灰 · 空房=∞ · 已填=距離)', PAD, 24);
     const cell=68, gw=C*cell, gx=(w-gw)/2, gy=42;
     for(let r=0;r<R;r++) for(let c=0;c<C;c++){ const x=gx+c*cell, y=gy+r*cell, key=r+','+c; const v=g[key];
       let fill, st, label, lcolor=COLOR.ink;
@@ -82,7 +82,7 @@
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · BFS 波次(每一波 = 距離門更遠一步)', PAD, by);
     const cy=by+12, done=!!s.done;
-    rr(PAD,cy,w-PAD*2,40,6); ctx.fillStyle=done?COLOR.fill:(s.wave>=1?'#fbe7df':'#fafaf6'); ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=done?COLOR.fillS:(s.wave>=1?COLOR.curS:COLOR.grid); ctx.stroke();
+    rr(PAD,cy,w-PAD*2,40,6); ctx.fillStyle=done?COLOR.fill:(s.wave>=1?'#fbe1e1':'#fafaf6'); ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=done?COLOR.fillS:(s.wave>=1?COLOR.curS:COLOR.grid); ctx.stroke();
     ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace';
     ctx.fillText(done?'完成':(s.wave===0?'起點:所有門(0)入隊':('第 '+s.wave+' 波 · 距離 = '+s.wave)), PAD+16, cy+20);
     ctx.textAlign='right'; ctx.fillStyle=s.wave>=1&&!done?COLOR.coral:COLOR.dim; ctx.font='600 13px "Noto Sans TC", sans-serif';

@@ -7,7 +7,7 @@
    dp[i] = max 全部的 j 與這兩種。因為 dp[i-j] 逼你「一定拆」,所以要另外
    放「不切」那項,才能考慮「把 i-j 留整塊」更好的情形。
    dp[0..8] = [1,1,1,2,4,6,9,12,18]
-     BAND 1  dp[](珊瑚=本步 i · 藍=切時的來源 dp[i-j])
+     BAND 1  dp[](紅=本步 i · 藍=切時的來源 dp[i-j])
      BAND 2  不切 j×(i-j)  vs  切 j×dp[i-j]
      BAND 3  說明
    ============================================================ */
@@ -21,7 +21,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const N = 8;
   const FULL = [1,1,1,2,4,6,9,12,18];
@@ -52,7 +52,7 @@
 
     // BAND 1 · dp
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i] = 拆成 ≥2 塊的最大乘積(珊瑚=本步 i · 藍=切時來源 dp[i-j])', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i] = 拆成 ≥2 塊的最大乘積(紅=本步 i · 藍=切時來源 dp[i-j])', PAD, 24);
     const NC=N+1; const cw=Math.min(56,(w-2*PAD)/(NC+0.5)); const gx=(w-NC*cw)/2, gy=72, chh=44;
     for(let k=0;k<NC;k++){ const x=gx+k*cw; const val=s.dp[k];
       const isCur=(k===s.i), isPred=(k===predIdx && s.win==='cut'), filled=val!==NIL&&!isCur&&!isPred;

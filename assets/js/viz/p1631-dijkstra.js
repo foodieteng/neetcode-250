@@ -3,7 +3,7 @@
    effort[cell] = 到此格所需的最小「路徑最大 |Δ|」。min-heap 每次取
    effort 最小的格擴展,鬆弛用 max(d, |Δ 到鄰居|)。彈出終點即答案。
    Walks grid = [[1,2,2],[3,8,2],[5,3,5]]  →  2
-     BAND 1  grid:h=高度(小)· effort(大);綠=定案,藍=在堆中,珊瑚=剛彈出
+     BAND 1  grid:h=高度(小)· effort(大);綠=定案,藍=在堆中,紅=剛彈出
      BAND 2  priority_queue(依 effort 排序)
      BAND 3  彈出終點 → 答案
    ============================================================ */
@@ -13,7 +13,7 @@
   const stepEl=document.getElementById('vb-step'), labelEl=document.getElementById('vb-label');
   const bPrev=document.getElementById('vb-prev'), bNext=document.getElementById('vb-next'), bPlay=document.getElementById('vb-play'), bReset=document.getElementById('vb-reset');
   const COLOR={ paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    unseen:'#fafaf6', unseenS:'#d3ccbe', inq:'#e3edf5', inqS:'#6f9fc4', done:'#d9e8c7', doneS:'#5fa866', cur:'#f6ddd3', curS:'#d96e4e', coral:'#d96e4e' };
+    unseen:'#fafaf6', unseenS:'#d3ccbe', inq:'#e3edf5', inqS:'#6f9fc4', done:'#d9e8c7', doneS:'#5fa866', cur:'#f6ddd3', curS:'#cf3535', coral:'#cf3535' };
   const GRID=[[1,2,2],[3,8,2],[5,3,5]], N=3, INF='∞';
   const steps=[
     { dist:{'0,0':0}, done:[], cur:null, pq:[[0,'0,0']], ans:null,
@@ -44,7 +44,7 @@
     fit(); const s=steps[step]; const w=canvas.clientWidth,h=canvas.clientHeight,PAD=26;
     ctx.fillStyle=COLOR.paper; ctx.fillRect(0,0,w,h);
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 大字=effort(綠 定案,藍 在堆中,珊瑚 剛彈出),小字 h=高度', PAD, 26);
+    ctx.fillText('BAND 1 · 大字=effort(綠 定案,藍 在堆中,紅 剛彈出),小字 h=高度', PAD, 26);
     const cell=74, gx=PAD+22, gy=46;
     for(let r=0;r<N;r++) for(let c=0;c<N;c++){ const key=r+','+c, x=gx+c*cell, y=gy+r*cell;
       const isDone=s.done.includes(key), isCur=s.cur===key, has=(key in s.dist);

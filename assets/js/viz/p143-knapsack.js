@@ -24,7 +24,7 @@
     paper:    '#ffffff',
     grid:     '#cfcfcf',
     cellBg:   '#f4f6f8',
-    active:   '#d96e4e',   // dp[w] being updated
+    active:   '#cf3535',   // dp[w] being updated
     activeBg: '#f7ddd2',
     source:   '#8fb3d4',   // dp[w - A] source
     sourceBg: '#e3edf5',

@@ -16,7 +16,7 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    water:'#eef0ee', waterS:'#cfcfcf', land:'#ffffff', landS:'#b9b9b1', coral:'#d96e4e' };
+    water:'#eef0ee', waterS:'#cfcfcf', land:'#ffffff', landS:'#b9b9b1', coral:'#cf3535' };
   // 每座島一種色(藍 / 棕 / 綠)
   const ISLC = { 1:['#e3edf5','#6f9fc4'], 2:['#f6ead8','#d4a868'], 3:['#d9e8c7','#5fa866'] };
 
@@ -49,7 +49,7 @@
 
     // ── BAND 1 · grid
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 網格(每座被發現的島一種色 · 珊瑚框=本步發現)', PAD, 24);
+    ctx.fillText('BAND 1 · 網格(每座被發現的島一種色 · 紅框=本步發現)', PAD, 24);
     const cell=76, gw=C*cell, gx=(w-gw)/2, gy=44;
     for(let r=0;r<R;r++) for(let c=0;c<C;c++){ const x=gx+c*cell, y=gy+r*cell, key=r+','+c;
       const isl = ISL[key] || 0;

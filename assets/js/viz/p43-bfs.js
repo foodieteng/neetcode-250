@@ -31,7 +31,7 @@
     cat:        '#2f6fb6',   // K start — blue
     mouse:      '#c98a24',   // @ unreached mouse — orange
     visited:    '#e3edf5',   // popped cells — pale blue
-    frontier:   '#d96e4e',   // in-queue frontier — coral
+    frontier:   '#cf3535',   // in-queue frontier — coral
     answer:     '#5fa866',   // the found nearest mouse — green
     cellText:   '#5a5a5a',
     boardEdge:  '#1a1a1a',

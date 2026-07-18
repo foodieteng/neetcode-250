@@ -28,7 +28,7 @@
     text:    '#1f3550',
     // domino palette — solid, distinct
     dom: ['#c7352a', '#2f6fb6', '#2e9d63', '#c98a24', '#6e41c8', '#0f9b9b'],
-    active:  '#d96e4e',
+    active:  '#cf3535',
     good:    '#5fa866',
   };
 

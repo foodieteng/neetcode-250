@@ -28,11 +28,11 @@
     paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cellBg:'#fafaf6', cellS:'#c9c2b4',
     same:'#eef3f8', sameS:'#9fb8cf',
-    diff:'#f6ddd3', diffS:'#d96e4e',
+    diff:'#f6ddd3', diffS:'#cf3535',
     edge:'#8fb3d4',
     node:'#eef0f2', nodeS:'#9fb8cf',
     out:'#d9e8c7', outS:'#5fa866',
-    coral:'#d96e4e',
+    coral:'#cf3535',
   };
 
   const WORDS = ['wrt','wrf','er','ett','rftt'];

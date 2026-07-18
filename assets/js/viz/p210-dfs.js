@@ -4,7 +4,7 @@
    完(排進 finish)才輪到它;最後把 finish 反轉 = 拓撲序。visit 三態
    (0 未訪 / 1 進行中 / 2 完成):遇到「進行中」的節點 = 有環 → 回空。
    例 numCourses=4, prereq=[[1,0],[2,0],[3,1],[3,2]] → [0,2,1,3]
-     BAND 1  DAG(白=未訪 · 珊瑚=本步完成 · 綠=已完成)
+     BAND 1  DAG(白=未訪 · 紅=本步完成 · 綠=已完成)
      BAND 2  finish(後序)→ 反轉 = 拓撲序
      BAND 3  說明
    ============================================================ */
@@ -17,8 +17,8 @@
         bPlay = document.getElementById('va-play'), bReset = document.getElementById('va-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', done:'#d9e8c7', doneS:'#5fa866',
-    edge:'#b7c7d6', coral:'#d96e4e', chip:'#eef4fa', chipS:'#a9c4da' };
+    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', done:'#d9e8c7', doneS:'#5fa866',
+    edge:'#b7c7d6', coral:'#cf3535', chip:'#eef4fa', chipS:'#a9c4da' };
 
   const EDGES = [[0,1],[0,2],[1,3],[2,3]]; // b -> a
   const steps = [
@@ -55,7 +55,7 @@
 
     // ── BAND 1 · DAG
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 依賴圖 b→a(白=未訪 · 珊瑚=本步完成 · 綠=已完成)', PAD, 24);
+    ctx.fillText('BAND 1 · 依賴圖 b→a(白=未訪 · 紅=本步完成 · 綠=已完成)', PAD, 24);
     for(const [b,a] of EDGES) arrow(POS[b][0],POS[b][1],POS[a][0],POS[a][1],COLOR.edge);
     for(const id of [0,1,2,3]){ const [x,y]=POS[id]; const done=s.done.includes(id); const just=(id===s.just);
       ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2);

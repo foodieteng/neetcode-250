@@ -5,7 +5,7 @@
    為什麼是排列:外層跑「金額 i」、內層跑「num」,等於枚舉「最後一個數是誰」,
    同一組數的不同結尾順序都被分開數 → 排列。(322/518 是硬幣外層 → 組合)
    例 nums=[1,2,3], target=4 → dp=[1,1,2,4,7],答案 7
-     BAND 1  dp[](珊瑚=本步 i · 藍=各 num 的來源 dp[i-num])
+     BAND 1  dp[](紅=本步 i · 藍=各 num 的來源 dp[i-num])
      BAND 2  dp[i] = Σ dp[i-num]
      BAND 3  說明:target 外層 → 排列(順序算數)
    ============================================================ */
@@ -19,7 +19,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const NUMS = [1, 2, 3];
   const TGT = 4;

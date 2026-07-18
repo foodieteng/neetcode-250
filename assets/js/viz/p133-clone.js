@@ -4,7 +4,7 @@
    遇到已複製過的鄰居(環上的回邊)就從 map 取用,絕不重複新建 ——
    這正是避免無限迴圈、且保持連線正確的核心。
    原圖 = 4-環 [[2,4],[1,3],[2,4],[1,3]]
-     BAND 1  原圖(綠=已複製 · 珊瑚=本步新建)
+     BAND 1  原圖(綠=已複製 · 紅=本步新建)
      BAND 2  map:原節點 → 新節點
      BAND 3  說明(回邊重用 vs 新建)
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#ffffff', nodeS:'#c9c9c1', edge:'#b7c7d6',
-    done:'#d9e8c7', doneS:'#5fa866', cur:'#fbe7df', curS:'#d96e4e', coral:'#d96e4e' };
+    done:'#d9e8c7', doneS:'#5fa866', cur:'#fbe1e1', curS:'#cf3535', coral:'#cf3535' };
 
   // 4-cycle square: 1 TL, 2 TR, 3 BR, 4 BL ; edges 1-2,2-3,3-4,4-1
   const EDGES = [[1,2],[2,3],[3,4],[4,1]];
@@ -49,7 +49,7 @@
 
     // ── BAND 1 · original graph (square)
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 原圖(綠=已複製 · 珊瑚=本步新建)', PAD, 24);
+    ctx.fillText('BAND 1 · 原圖(綠=已複製 · 紅=本步新建)', PAD, 24);
     const cxL=w*0.5-95, cxR=w*0.5+95, cyT=90, cyB=222;
     const POS = { 1:[cxL,cyT], 2:[cxR,cyT], 3:[cxR,cyB], 4:[cxL,cyB] };
     for(const [a,b] of EDGES){ ctx.strokeStyle=COLOR.edge; ctx.lineWidth=3;
@@ -78,7 +78,7 @@
     const ty=cy+ch+26, done=!!s.done;
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 3 · 回邊處理', PAD, ty);
-    const box=ty+12; rr(PAD,box,w-PAD*2,40,6); ctx.fillStyle=done?COLOR.done:(s.reuse?'#fbe7df':'#fafaf6'); ctx.fill();
+    const box=ty+12; rr(PAD,box,w-PAD*2,40,6); ctx.fillStyle=done?COLOR.done:(s.reuse?'#fbe1e1':'#fafaf6'); ctx.fill();
     ctx.lineWidth=1.6; ctx.strokeStyle=done?COLOR.doneS:(s.reuse?COLOR.curS:COLOR.grid); ctx.stroke();
     ctx.textAlign='center'; ctx.textBaseline='middle';
     if(done){ ctx.fillStyle='#3f7a3a'; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.fillText('return 1\'  ·  深拷貝完成,無重複、無死圈', w/2, box+20); }

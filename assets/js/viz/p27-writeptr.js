@@ -4,7 +4,7 @@
    讀到的值 != val → 把它寫到 nums[i],i++;== val → 跳過(i 不動)。
    最後 [0, i) 就是所有「非 val」的元素,回傳 i = k。
    nums=[0,1,3,0,2], val=0 → 保留 1,3,2 → k=3。
-     BAND 1  陣列(珊瑚箭頭=讀指標 · 藍箭頭=寫指標 i · 綠=已保留區 [0,i))
+     BAND 1  陣列(紅箭頭=讀指標 · 藍箭頭=寫指標 i · 綠=已保留區 [0,i))
      BAND 2  本步:num==val 跳過 / 否則寫入並前進
      BAND 3  結果:前 k 個是答案,其餘不管
    ============================================================ */
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    skip:'#f0d4d4', skipS:'#c1440e', skipT:'#8f3208', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    skip:'#f0d4d4', skipS:'#c1440e', skipT:'#8f3208', coral:'#cf3535' };
 
   const VAL = 0;
   // 每步的陣列快照、讀指標 read、寫指標 i、本步動作
@@ -52,7 +52,7 @@
 
     // ── BAND 1 · array with two pointers ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 珊瑚↓=讀指標 · 藍↑=寫指標 i · 綠=已保留 [0, i)   val = '+VAL, PAD, 24);
+    ctx.fillText('BAND 1 · 紅↓=讀指標 · 藍↑=寫指標 i · 綠=已保留 [0, i)   val = '+VAL, PAD, 24);
 
     const cell=Math.min(70,(w-2*PAD)/(N+0.5)), gx=(w-N*cell)/2, gy=64, chh=44;
     for(let k=0;k<N;k++){

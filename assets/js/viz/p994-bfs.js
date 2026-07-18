@@ -4,7 +4,7 @@
    的新鮮橘子(1)變腐爛,同時 fresh-- 並數分鐘。最後一顆新鮮腐爛時的
    分鐘就是答案;若佇列空了還有 fresh>0(有橘子腐爛不到)→ 回 -1。
    grid = [[2,1,1],[1,1,0],[0,1,1]]  →  4
-     BAND 1  網格(腐爛=珊瑚2 · 新鮮=橘1 · 空=0 · 本分鐘新腐=珊瑚框)
+     BAND 1  網格(腐爛=紅2 · 新鮮=橘1 · 空=0 · 本分鐘新腐=紅框)
      BAND 2  分鐘 minute · 剩餘新鮮 fresh
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     empty:'#eef0ee', emptyS:'#cfcfcf', fresh:'#f6ead8', freshS:'#d4a868',
-    rot:'#d96e4e', rotS:'#b8532f', newRot:'#fbe7df', newRotS:'#d96e4e', coral:'#d96e4e',
+    rot:'#cf3535', rotS:'#b8532f', newRot:'#fbe1e1', newRotS:'#cf3535', coral:'#cf3535',
     done:'#d9e8c7', doneS:'#5fa866' };
 
   const R = 3, C = 3;
@@ -59,7 +59,7 @@
 
     // ── BAND 1 · grid
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 網格(腐爛=2珊瑚 · 新鮮=1橘 · 空=0 · 本分鐘新腐=珊瑚框)', PAD, 24);
+    ctx.fillText('BAND 1 · 網格(腐爛=2紅 · 新鮮=1橘 · 空=0 · 本分鐘新腐=紅框)', PAD, 24);
     const cell=78, gw=C*cell, gx=(w-gw)/2, gy=44;
     for(let r=0;r<R;r++) for(let c=0;c<C;c++){ const x=gx+c*cell, y=gy+r*cell, key=r+','+c; const v=valAt(s.minute,key);
       let fill, st, label, lcolor=COLOR.ink; const isNew=nr.has(key);
@@ -78,7 +78,7 @@
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · 分鐘 minute(每一波 = 一分鐘)· 剩餘新鮮 fresh', PAD, by);
     const cy=by+12, halfW=(w-PAD*2-14)/2, done=!!s.done;
-    rr(PAD,cy,halfW,40,6); ctx.fillStyle=s.minute>=1?'#fbe7df':'#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=s.minute>=1?COLOR.newRotS:COLOR.grid; ctx.stroke();
+    rr(PAD,cy,halfW,40,6); ctx.fillStyle=s.minute>=1?'#fbe1e1':'#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=s.minute>=1?COLOR.newRotS:COLOR.grid; ctx.stroke();
     ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='700 15px "JetBrains Mono", monospace'; ctx.fillStyle=COLOR.ink;
     ctx.fillText('minute = '+s.minute, PAD+halfW/2, cy+20);
     const x2=PAD+halfW+14; const f=freshAt(s.minute);

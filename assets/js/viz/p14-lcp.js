@@ -5,7 +5,7 @@
    砍到 prefix 變成 str 的前綴為止。全部比完剩下的 prefix 就是答案。
    ["flower","flow","flight"]:flower →(遇 flow)→ flow →(遇 flight)→ fl。
      BAND 1  prefix 候選(綠=留下 · 灰=本步砍掉)
-     BAND 2  正在比對的字串(綠=相符 · 珊瑚=分歧點)
+     BAND 2  正在比對的字串(綠=相符 · 紅=分歧點)
      BAND 3  動作:不是前綴就砍尾
    ============================================================ */
 (function () {
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    chop:'#efefe9', chopS:'#dcdcd4', chopT:'#b6b6ac', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    chop:'#efefe9', chopS:'#dcdcd4', chopT:'#b6b6ac', coral:'#cf3535' };
 
   const FULL = 'flower';
   // 每步:prefix 目前長度 keep、本步砍掉的範圍、比對的字串 str、分歧 index
@@ -74,7 +74,7 @@
     // ── BAND 2 · compared string ──
     const by=120;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · 正在比對的字串(綠=相符 · 珊瑚=分歧/太短)', PAD, by);
+    ctx.fillText('BAND 2 · 正在比對的字串(綠=相符 · 紅=分歧/太短)', PAD, by);
     const sy=by+12;
     if(s.str===null){
       rr(PAD,sy,w-PAD*2,42,6); ctx.fillStyle='#fafaf6'; ctx.fill(); ctx.lineWidth=1.6; ctx.strokeStyle=COLOR.grid; ctx.stroke();

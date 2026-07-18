@@ -4,7 +4,7 @@
    反過來找「安全的」:從每個在邊界上的 O 出發 DFS,把整團連通的 O
    暫時標成 '#'(安全)。最後掃一遍:'#'→'O'(留),剩下的 'O'→'X'(捕獲)。
    board(5×5):邊界連通區安全,內部 (3,3) 被捕獲
-     BAND 1  棋盤(X=灰 · O=米 · 安全=綠 · 本步捕獲=珊瑚)
+     BAND 1  棋盤(X=灰 · O=米 · 安全=綠 · 本步捕獲=紅)
      BAND 2  本步在做什麼
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     x:'#eef0ee', xS:'#cfcfcf', o:'#f6ead8', oS:'#d4a868', safe:'#d9e8c7', safeS:'#5fa866',
-    cap:'#fbe7df', capS:'#d96e4e', coral:'#d96e4e' };
+    cap:'#fbe1e1', capS:'#cf3535', coral:'#cf3535' };
 
   const R = 5, C = 5;
   // O positions; SAFE (border-connected) vs CAPTURED (interior)
@@ -30,7 +30,7 @@
   const steps = [
     { phase:'init', text:'<strong>INITIAL</strong> · <code>O</code> 團只有<strong>碰得到邊界</strong>才安全。反過來找安全的:從<strong>邊界上的 O</strong>(這裡 <code>(1,0)</code> 在左緣)出發 DFS。' },
     { phase:'mark', text:'<strong>① 標記安全</strong>:從 <code>(1,0)</code> DFS,整團連通的 <code>O</code>(綠)標成 <code>#</code> = 安全。內部的 <code>(3,3)</code> <strong>碰不到邊界</strong>,不會被標到。' },
-    { phase:'flip', text:'<strong>② 翻面</strong>:<code>#</code> 還原成 <code>O</code>(綠,保留);剩下沒被標的 <code>O</code>(即 <code>(3,3)</code>)→ <code>X</code>(珊瑚,<strong>被捕獲</strong>)。完成。' },
+    { phase:'flip', text:'<strong>② 翻面</strong>:<code>#</code> 還原成 <code>O</code>(綠,保留);剩下沒被標的 <code>O</code>(即 <code>(3,3)</code>)→ <code>X</code>(紅,<strong>被捕獲</strong>)。完成。' },
   ];
 
   let step = 0, timer = null;
@@ -45,7 +45,7 @@
 
     // ── BAND 1 · board
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 棋盤(X=灰 · O=米 · 安全=綠 · 捕獲=珊瑚)', PAD, 24);
+    ctx.fillText('BAND 1 · 棋盤(X=灰 · O=米 · 安全=綠 · 捕獲=紅)', PAD, 24);
     const cell=60, gw=C*cell, gx=(w-gw)/2, gy=46;
     for(let r=0;r<R;r++) for(let c=0;c<C;c++){ const x=gx+c*cell, y=gy+r*cell, key=r+','+c;
       const isO=OSET.has(key), isSafe=SAFE.has(key), isCap=CAP.has(key);

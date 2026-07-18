@@ -3,7 +3,7 @@
    對每個「還沒訪過」的節點,開一個新的連通塊、cnt++,再 DFS 把整片染色。
    掃完所有點,cnt = 連通塊數量。
    例 n=5, edges=[[0,1],[1,2],[3,4]] → 2 塊:{0,1,2}、{3,4}
-     BAND 1  圖(灰=未訪 · 綠/藍=第 1/2 塊 · 珊瑚=本步 DFS 起點)
+     BAND 1  圖(灰=未訪 · 綠/藍=第 1/2 塊 · 紅=本步 DFS 起點)
      BAND 2  cnt 計數
      BAND 3  說明
    ============================================================ */
@@ -16,7 +16,7 @@
         bPlay = document.getElementById('va-play'), bReset = document.getElementById('va-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#f3f3ef', nodeS:'#c9c9c1', edge:'#b7c7d6', coral:'#d96e4e', curS:'#d96e4e' };
+    node:'#f3f3ef', nodeS:'#c9c9c1', edge:'#b7c7d6', coral:'#cf3535', curS:'#cf3535' };
   const CC = { 1:{f:'#d9e8c7',s:'#5fa866',t:'#3f7a3a'}, 2:{f:'#dbe8f6',s:'#4478c0',t:'#2f5f9e'} };
 
   const E = [[0,1],[1,2],[3,4]];
@@ -45,7 +45,7 @@
 
     // ── BAND 1 · graph
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 圖(灰=未訪 · 綠/藍=第 1/2 塊 · 珊瑚=本步 DFS 起點)', PAD, 22);
+    ctx.fillText('BAND 1 · 圖(灰=未訪 · 綠/藍=第 1/2 塊 · 紅=本步 DFS 起點)', PAD, 22);
     for(const [a,b] of E){ ctx.beginPath(); ctx.moveTo(POS[a][0],POS[a][1]); ctx.lineTo(POS[b][0],POS[b][1]); ctx.strokeStyle=COLOR.edge; ctx.lineWidth=2.4; ctx.stroke(); }
     for(const id of [0,1,2,3,4]){ const [x,y]=POS[id]; const c=s.comp[id]; const isCur=(id===s.cur); const pal=c?CC[c]:null;
       ctx.beginPath(); ctx.arc(x,y,23,0,Math.PI*2);

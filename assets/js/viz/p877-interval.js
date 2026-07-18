@@ -9,7 +9,7 @@
    答案 dp[0][n-1] > 0 ⇔ Alice 淨勝 ⇔ Alice 贏。
    piles=[5,3,4,5],最終 dp[0][3]=1 > 0 → true。
    按「區間長度 L」一條對角線一條對角線填。
-     LEFT   上三角 dp 表(依對角線 L 填,珊瑚=本輪)
+     LEFT   上三角 dp 表(依對角線 L 填,紅=本輪)
      RIGHT  本輪代表格的 max(拿左, 拿右) 明細
    ============================================================ */
 (function () {
@@ -22,7 +22,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const P = [5,3,4,5], N = 4;
   // 完整 dp(實跑)

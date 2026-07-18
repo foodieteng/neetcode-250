@@ -4,7 +4,7 @@
    26 個字母,變出的字若在字典裡就是鄰居。BFS 一層層擴散,層數 = 階梯長度
    (含頭尾)。碰到 endWord 回 step+1;seen 防重複。
    例 hit → cog,dict={hot,dot,dog,lot,log,cog} → 5
-     BAND 1  單字圖(按 BFS 層排;藍=已訪 · 珊瑚=本層 frontier · 綠=終點)
+     BAND 1  單字圖(按 BFS 層排;藍=已訪 · 紅=本層 frontier · 綠=終點)
      BAND 2  step(= 目前層數 = 階梯長度)
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     box:'#ffffff', boxS:'#c9c9c1', seen:'#eef4fa', seenS:'#a9c4da', seenT:'#2f5f9e',
-    front:'#fbe7df', frontS:'#d96e4e', frontT:'#b3502f', end:'#d9e8c7', endS:'#5fa866', endT:'#3f7a3a',
+    front:'#fbe1e1', frontS:'#cf3535', frontT:'#992424', end:'#d9e8c7', endS:'#5fa866', endT:'#3f7a3a',
     edge:'#c2ccd6', edgeOn:'#5fa866' };
 
   // word: {col, row(-1/0/1), lvl}
@@ -60,7 +60,7 @@
 
     // ── BAND 1 · word graph (BFS layered)
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 單字圖(左→右 = BFS 層;藍=已訪 · 珊瑚=本層 · 綠=終點 · 綠邊=最短階梯)', PAD, 22);
+    ctx.fillText('BAND 1 · 單字圖(左→右 = BFS 層;藍=已訪 · 紅=本層 · 綠=終點 · 綠邊=最短階梯)', PAD, 22);
     // column labels
     for(let c=0;c<5;c++){ const [lx]=pos(['hit','hot','dot','dog','cog'][c],w); ctx.fillStyle=COLOR.dim; ctx.font='600 10px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillText('step '+(c+1), lx, 44); }
     // edges

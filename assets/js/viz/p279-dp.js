@@ -4,7 +4,7 @@
    轉移:對每個平方數 k=j²(k<=i),dp[i] = min(dp[i], dp[i-k] + 1)。
    這就是 322 零錢兌換,把硬幣換成 {1,4,9,16,…}(≤ n 的平方數)。
    例 n=12 → dp=[0,1,2,3,1,2,3,4,2,1,2,3,3],答案 3(4+4+4)
-     BAND 1  dp[](珊瑚=本步 · 藍=各平方數的來源 dp[i-k])
+     BAND 1  dp[](紅=本步 · 藍=各平方數的來源 dp[i-k])
      BAND 2  dp[i] = min over 平方數 ( dp[i-k] + 1 )
      BAND 3  說明:= 322 換平方硬幣;Lagrange 答案永遠 ≤ 4
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const N = 12;
   const SQ = [1, 4, 9];              // ≤ 12 的平方數

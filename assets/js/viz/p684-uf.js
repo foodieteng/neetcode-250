@@ -17,7 +17,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#f3f3ef', nodeS:'#c9c9c1', on:'#d9e8c7', onS:'#5fa866', onT:'#3f7a3a',
-    edgeOk:'#5fa866', bad:'#d64545', coral:'#d96e4e', root:'#fbe7df', rootS:'#d96e4e' };
+    edgeOk:'#5fa866', bad:'#a31d1d', coral:'#cf3535', root:'#fbe1e1', rootS:'#cf3535' };
 
   // edges array: [a,b,status]  status: 'ok' | 'bad'
   const steps = [
@@ -66,7 +66,7 @@
     for(let j=1;j<=3;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(String(j), gx+(j-1)*cell+cell/2-2, cy); }
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cy+38);
     for(let j=1;j<=3;j++){ const x=gx+(j-1)*cell; const val=s.parent[j-1]; const isRoot=val<0;
-      rr(x+4,cy+24,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
+      rr(x+4,cy+24,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe1e1':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
       ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2, cy+38); }
     // current edge
     if(s.cur){ ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('edge', gx+3*cell+22, cy+38);

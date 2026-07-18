@@ -4,7 +4,7 @@
    出隊、加入 order、把它的後繼 indeg−1;某後繼 indeg 歸零就入隊。若最後
    order 的長度 == numCourses 就是合法拓撲序,否則(有環)回空。
    例 numCourses=4, prereq=[[1,0],[2,0],[3,1],[3,2]] → [0,1,2,3]
-     BAND 1  DAG + 每個節點目前 indeg(綠=已排入 order · 珊瑚=本步出隊)
+     BAND 1  DAG + 每個節點目前 indeg(綠=已排入 order · 紅=本步出隊)
      BAND 2  queue · order
      BAND 3  說明
    ============================================================ */
@@ -17,8 +17,8 @@
         bPlay = document.getElementById('vb-play'), bReset = document.getElementById('vb-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', done:'#d9e8c7', doneS:'#5fa866',
-    inq:'#eef4fa', inqS:'#a9c4da', edge:'#b7c7d6', coral:'#d96e4e' };
+    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', done:'#d9e8c7', doneS:'#5fa866',
+    inq:'#eef4fa', inqS:'#a9c4da', edge:'#b7c7d6', coral:'#cf3535' };
 
   const EDGES = [[0,1],[0,2],[1,3],[2,3]];
   const steps = [
@@ -54,7 +54,7 @@
 
     // ── BAND 1 · DAG + indeg
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · DAG + 目前 indeg(綠=已排入 · 藍=在佇列 · 珊瑚=本步出隊)', PAD, 24);
+    ctx.fillText('BAND 1 · DAG + 目前 indeg(綠=已排入 · 藍=在佇列 · 紅=本步出隊)', PAD, 24);
     for(const [b,a] of EDGES) arrow(POS[b][0],POS[b][1],POS[a][0],POS[a][1],COLOR.edge);
     for(const id of [0,1,2,3]){ const [x,y]=POS[id]; const isCur=(id===s.cur); const done=inOrder.has(id)&&!isCur; const q=inQ.has(id)&&!isCur;
       ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2);

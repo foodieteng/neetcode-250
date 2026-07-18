@@ -17,8 +17,8 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', root:'#fbe7df', rootS:'#d96e4e', on:'#d9e8c7', onS:'#5fa866',
-    onT:'#3f7a3a', edge:'#8fae6e', coral:'#d96e4e', bad:'#d64545' };
+    node:'#ffffff', nodeS:'#c9c9c1', root:'#fbe1e1', rootS:'#cf3535', on:'#d9e8c7', onS:'#5fa866',
+    onT:'#3f7a3a', edge:'#8fae6e', coral:'#cf3535', bad:'#a31d1d' };
 
   // star example: everyone attaches to root 0
   const steps = [
@@ -57,7 +57,7 @@
 
     // ── BAND 1 · DSU forest
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 並查集森林(綠=同一組 · 箭頭=指向父/根 · 珊瑚=根)', PAD, 22);
+    ctx.fillText('BAND 1 · 並查集森林(綠=同一組 · 箭頭=指向父/根 · 紅=根)', PAD, 22);
     for(const [c,p] of s.links) arrow(POS[c][0],POS[c][1],POS[p][0],POS[p][1],COLOR.edge,2.6);
     if(s.reject){ const [a,b]=s.reject; arrow(POS[a][0],POS[a][1],POS[b][0],POS[b][1],COLOR.bad,2.6,[6,5]);
       const mx=(POS[a][0]+POS[b][0])/2, my=(POS[a][1]+POS[b][1])/2; ctx.fillStyle=COLOR.bad; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('✗ 同根', mx, my); }
@@ -79,7 +79,7 @@
     for(let j=0;j<5;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(String(j), gx+j*cell+cell/2-3, cy); }
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cy+38);
     for(let j=0;j<5;j++){ const x=gx+j*cell; const val=s.parent[j]; const isRoot=val<0;
-      rr(x+3,cy+24,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
+      rr(x+3,cy+24,cell-8,28,5); ctx.fillStyle=isRoot?'#fbe1e1':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.rootS:'#a9c4da'; ctx.stroke();
       ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2-1, cy+38); }
     // add counter
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('add =', gx+5*cell+16, cy+38);

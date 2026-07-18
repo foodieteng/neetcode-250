@@ -28,8 +28,8 @@
     dst:    '#f6ead8', dstSt:  '#d4a868',
     grid:   '#cfcfcf',
     edge:   '#b9c4cf', edgeLb: '#6a7480',
-    active: '#d96e4e', activeBg:'#f6d2c4',
-    curBg:  '#f6d2c4', curSt: '#d96e4e',   // 本層 frontier
+    active: '#cf3535', activeBg:'#f6d2c4',
+    curBg:  '#f6d2c4', curSt: '#cf3535',   // 本層 frontier
     nextBg: '#eef4ec', nextSt: '#5fa866',  // 剛 push、下一層
     blkBg:  '#f2f2f2', blkSt:  '#c2c2c2',  // 超過 k、不處理
     blocked:'#c2c2c2',

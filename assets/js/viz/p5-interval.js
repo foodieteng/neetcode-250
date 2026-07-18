@@ -5,7 +5,7 @@
    base:長度 1 必是回文;長度 2 只要頭尾相同即可。
    依「長度由小到大」填表,保證算 dp[i][j] 時內層 dp[i+1][j-1] 已知。
    例 s="abba":dp[1][2]=bb ✓,再靠它推出 dp[0][3]=abba ✓,答案 "abba"
-     BAND 1  dp[i][j] 表格(綠=回文 · 珊瑚=本步 · 藍=依賴的內層)
+     BAND 1  dp[i][j] 表格(綠=回文 · 紅=本步 · 藍=依賴的內層)
      右側     遞迴式 + 目前最長回文
      BAND 2  說明
    ============================================================ */
@@ -20,7 +20,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', nil:'#f3f3ef', nilS:'#e2e2dc',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S = 'abba';
   const N = S.length;                 // 4
@@ -58,7 +58,7 @@
 
     // ── BAND 1 header
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i][j]:s[i..j] 是回文嗎?(綠=是 · 珊瑚=本步 · 藍=依賴的內層)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i][j]:s[i..j] 是回文嗎?(綠=是 · 紅=本步 · 藍=依賴的內層)', PAD, 24);
 
     // ── grid geometry (left)
     const cell=42, gx=72, gy=76;

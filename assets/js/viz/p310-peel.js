@@ -4,7 +4,7 @@
    的反面:把所有葉子(deg==1)一層層往內剝,每剝一層 n 減去該層數量,直到
    剩下 ≤ 2 個節點,那 1~2 個就是答案。
    例 路徑 0-1-2-3-4-5 → 中心 {2,3}
-     BAND 1  樹(灰=已剝掉 · 珊瑚=本層要剝的葉 · 綠=剩下的中心)
+     BAND 1  樹(灰=已剝掉 · 紅=本層要剝的葉 · 綠=剩下的中心)
      BAND 2  deg[] · 剩餘節點數 n
      BAND 3  說明
    ============================================================ */
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#ffffff', nodeS:'#c9c9c1', gone:'#eeeeea', goneS:'#dcdcd6', goneT:'#b8b8b0',
-    leaf:'#fbe7df', leafS:'#d96e4e', leafT:'#b3502f', center:'#d9e8c7', centerS:'#5fa866', centerT:'#3f7a3a',
-    edge:'#b7c7d6', edgeGone:'#e4e4de', coral:'#d96e4e' };
+    leaf:'#fbe1e1', leafS:'#cf3535', leafT:'#992424', center:'#d9e8c7', centerS:'#5fa866', centerT:'#3f7a3a',
+    edge:'#b7c7d6', edgeGone:'#e4e4de', coral:'#cf3535' };
 
   const N = 6;
   const EDGES = [[0,1],[1,2],[2,3],[3,4],[4,5]];
@@ -50,7 +50,7 @@
 
     // ── BAND 1 · tree
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 樹(灰=已剝 · 珊瑚=本層要剝的葉 · 綠=剩下的中心)', PAD, 22);
+    ctx.fillText('BAND 1 · 樹(灰=已剝 · 紅=本層要剝的葉 · 綠=剩下的中心)', PAD, 22);
     for(const [a,b] of EDGES){ const dead=removed.has(a)||removed.has(b);
       ctx.beginPath(); ctx.moveTo(POS[a][0],POS[a][1]); ctx.lineTo(POS[b][0],POS[b][1]); ctx.strokeStyle=dead?COLOR.edgeGone:COLOR.edge; ctx.lineWidth=dead?2:2.8; ctx.stroke(); }
     for(let id=0;id<N;id++){ const [x,y]=POS[id]; const gone=removed.has(id)&&!layer.has(id); const isLayer=layer.has(id);
@@ -69,7 +69,7 @@
     for(let j=0;j<N;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.fillText(String(j), gx+j*cell+cell/2-2, cy); }
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('deg', PAD, cy+38);
     for(let j=0;j<N;j++){ const x=gx+j*cell; const val=s.deg[j]; const dead=removed.has(j)&&!layer.has(j); const isLeaf=(val===1);
-      rr(x+4,cy+24,cell-8,28,5); ctx.fillStyle=dead?COLOR.gone:(isLeaf?'#fbe7df':'#eef4fa'); ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=dead?COLOR.goneS:(isLeaf?COLOR.leafS:'#a9c4da'); ctx.stroke();
+      rr(x+4,cy+24,cell-8,28,5); ctx.fillStyle=dead?COLOR.gone:(isLeaf?'#fbe1e1':'#eef4fa'); ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=dead?COLOR.goneS:(isLeaf?COLOR.leafS:'#a9c4da'); ctx.stroke();
       ctx.fillStyle=dead?COLOR.goneT:COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2, cy+38); }
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('n =', gx+N*cell+16, cy+38);
     ctx.fillStyle=s.done?COLOR.centerT:COLOR.coral; ctx.font='700 20px "JetBrains Mono", monospace'; ctx.fillText(String(s.rem), gx+N*cell+56, cy+38);

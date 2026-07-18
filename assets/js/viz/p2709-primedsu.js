@@ -33,14 +33,14 @@
     cellBg:  '#fafaf6',
     cellSt:  '#c9c2b4',
     curBg:   '#f6ddd3',
-    curSt:   '#d96e4e',
+    curSt:   '#cf3535',
     done:    '#cfe3cf',
     // prime groups
     grey:    '#eef0f2',   greyS: '#cfcfcf',
     gA:      '#e3edf5',   gAS:   '#6f9fc4',   // group A (blue)
     gB:      '#f6ead8',   gBS:   '#d4a868',   // group B (tan)
     merged:  '#d9e8c7',   mergS: '#5fa866',   // connected (green)
-    coral:   '#d96e4e',
+    coral:   '#cf3535',
   };
 
   // ── sample ──
@@ -149,7 +149,7 @@
     ctx.fillStyle = COLOR.dim;
     ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 1 · nums（珊瑚色 = 正在處理，綠 = 已處理）', PAD, band1Y);
+    ctx.fillText('BAND 1 · nums（紅色 = 正在處理，綠 = 已處理）', PAD, band1Y);
 
     const cellW = 62, cellH = 50, cellGap = 22;
     const totalW = NUMS.length * cellW + (NUMS.length - 1) * cellGap;

@@ -5,7 +5,7 @@
    每放入一個 num,對每個已可達的和 s,s+num 也變可達 → dp[s]|=dp[s-num]。
    為了「每個數只用一次(0/1)」,內層 s 要「由大到小」掃(見 code)。
    例 nums=[1,2,3,4],target=5:放到 3 時湊出 5={2,3} → true
-     BAND 1  dp[]:各和是否可達(綠=可達 · 珊瑚=本步新增)
+     BAND 1  dp[]:各和是否可達(綠=可達 · 紅=本步新增)
      BAND 2  放入 num:s 可達 → s+num 也可達
      BAND 3  說明:由大到小掃 = 每個數只用一次
    ============================================================ */
@@ -19,7 +19,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const NUMS = [1, 2, 3, 4];
   const TARGET = 5;                  // 總和 10 / 2
@@ -48,7 +48,7 @@
 
     // ── BAND 1 header
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[s]:能否湊出和 s?(綠=可達 · 珊瑚=本步新增可達 · 灰=不可達)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[s]:能否湊出和 s?(綠=可達 · 紅=本步新增可達 · 灰=不可達)', PAD, 24);
 
     // num chip (which number we're adding this step)
     ctx.textAlign='center'; ctx.textBaseline='middle';

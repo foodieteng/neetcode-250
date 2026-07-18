@@ -24,10 +24,10 @@
     uncolored: '#8a847a',   // not yet coloured — gray
     c0:        '#1f5a99',   // colour 0 — blue
     c1:        '#d4a017',   // colour 1 — gold
-    active:    '#d96e4e',   // current node / conflict — coral
+    active:    '#cf3535',   // current node / conflict — coral
     edge:      '#bdb4a6',   // normal edge
     edgeTree:  '#1a1a1a',   // edge BFS traversed (tree edge)
-    edgeBad:   '#d96e4e',   // conflicting edge
+    edgeBad:   '#cf3535',   // conflicting edge
     nodeText:  '#ffffff',
     label:     '#5a5a5a',
   };
@@ -107,7 +107,7 @@
         conflict = [u, v];
         snap({ ...st(), queue: queue.slice(qi), cursor: u, conflict,
           text: `鄰居 <code>${v}</code> 已著色，而且 <code>color[${v}] = color[${u}] = ${color[u]}</code> — ` +
-                `<strong style="color:#d96e4e">同色相鄰！</strong>邊 <code>${u}–${v}</code> 把三角形這個<strong>奇環</strong>封口。` });
+                `<strong style="color:#cf3535">同色相鄰！</strong>邊 <code>${u}–${v}</code> 把三角形這個<strong>奇環</strong>封口。` });
         break outer;
       } else {
         // already coloured, opposite — the edge we came from (tree edge already)

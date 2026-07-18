@@ -30,7 +30,7 @@ const P117_COLOR = {
   pair3Tint:  '#d9e8c7',   // pale green — complement pair {3,5}
   pair3Stroke:'#5fa866',
   crossTint:  '#fbe2d7',   // pale coral — index-0 cross overlay
-  coral:      '#d96e4e',
+  coral:      '#cf3535',
   ink:        '#1a1a1a',
   inkDim:     '#6b6b6b',
   chipGood:   '#d9e8c7',

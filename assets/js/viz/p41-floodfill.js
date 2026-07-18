@@ -30,7 +30,7 @@
     obstacle:   '#3a3a3a',   // '#' wall
     water:      '#e3edf5',   // unvisited '.' water — pale blue
     waterStroke:'#8fb3d4',
-    scan:       '#d96e4e',   // current scan cursor / BFS frontier — coral
+    scan:       '#cf3535',   // current scan cursor / BFS frontier — coral
     cellText:   '#5a5a5a',
     boardEdge:  '#1a1a1a',
     // distinct solid fills per discovered pool

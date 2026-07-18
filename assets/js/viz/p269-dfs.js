@@ -21,11 +21,11 @@
   const btnReset = document.getElementById('va-reset');
 
   const COLOR = {
-    paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', grid:'#cfcfcf', edge:'#8fb3d4', coral:'#d96e4e',
+    paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', grid:'#cfcfcf', edge:'#8fb3d4', coral:'#cf3535',
     white:'#eef0f2', whiteS:'#cfcfcf',
-    gray:'#f6ddd3', grayS:'#d96e4e',
+    gray:'#f6ddd3', grayS:'#cf3535',
     black:'#d9e8c7', blackS:'#5fa866',
-    stackBg:'#f6ddd3', stackS:'#d96e4e',
+    stackBg:'#f6ddd3', stackS:'#cf3535',
   };
   const ORDER = ['w','e','r','t','f'];          // node positions (topo order)
   const EDGES = [['w','e'],['e','r'],['r','t'],['t','f']];

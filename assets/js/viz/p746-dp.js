@@ -4,7 +4,7 @@
    cost:dp[i] = min(dp[i-1] + cost[i-1], dp[i-2] + cost[i-2])。base:可從
    0 或 1 免費起步 → dp[0]=dp[1]=0。頂樓是位置 n(最後一階的再上一格)。
    例 cost=[10,15,20] → dp=[0,0,10,15],答案 15
-     BAND 1  cost[] + dp[](珊瑚=本步填的 · 藍=兩個來源)
+     BAND 1  cost[] + dp[](紅=本步填的 · 藍=兩個來源)
      BAND 2  dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])
      BAND 3  說明
    ============================================================ */
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', cost:'#f6ead8', costS:'#d9a25a', costT:'#9a6a2a',
-    src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e', cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f',
-    done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e', cur:'#fbe1e1', curS:'#cf3535', curT:'#992424',
+    done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const COST = [10,15,20];       // n=3
   const N = COST.length;         // dp has N+1 cells (0..N), N = top
@@ -48,7 +48,7 @@
 
     // ── BAND 1 · cost row + dp row
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · cost[](離開該階要付)+ dp[](珊瑚=本步 · 藍=兩個來源)', PAD, 24);
+    ctx.fillText('BAND 1 · cost[](離開該階要付)+ dp[](紅=本步 · 藍=兩個來源)', PAD, 24);
     // cost row
     const costY=52, ch=32;
     for(let k=0;k<N;k++){ const x=gx+k*cw; const isSrcCost=srcSet.has(k);

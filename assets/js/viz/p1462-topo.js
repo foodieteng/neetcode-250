@@ -5,7 +5,7 @@
      · 傳遞:凡是 table[i][u] 為真的 i,也是 v 的先修 → table[i][v]=true
    因為拓撲序保證處理到 u 時,「誰是 u 的先修」已全部算完,可安全往後推。
    例 chain 0→1→2→3:table 逐步補成下三角(0 是 1,2,3 的先修…)
-     BAND 1  依賴鏈(珊瑚=本步處理的 u · 紅邊=本步直接邊)
+     BAND 1  依賴鏈(紅=本步處理的 u · 深紅=本步直接邊)
      BAND 2  reachability 表 table[i][j](綠=先修 · 亮綠=本步新增)
      BAND 3  說明
    ============================================================ */
@@ -18,8 +18,8 @@
         bPlay = document.getElementById('va-play'), bReset = document.getElementById('va-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', edge:'#b7c7d6', coral:'#d96e4e',
-    bad:'#d64545', on:'#d9e8c7', onS:'#5fa866', fresh:'#bfe6a6', freshS:'#3f9e46', diag:'#eeeeea' };
+    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', edge:'#b7c7d6', coral:'#cf3535',
+    bad:'#a31d1d', on:'#d9e8c7', onS:'#5fa866', fresh:'#bfe6a6', freshS:'#3f9e46', diag:'#eeeeea' };
 
   const N = 4;
   const key = (i,j)=>i*N+j;
@@ -53,7 +53,7 @@
 
     // ── BAND 1 · chain graph
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 依賴鏈 a→b(珊瑚=本步處理的 u · 紅=本步直接邊)', PAD, 22);
+    ctx.fillText('BAND 1 · 依賴鏈 a→b(紅=本步處理的 u · 深紅=本步直接邊)', PAD, 22);
     const gy=68, R=23; const gx0=Math.max(PAD+40,(w-3*120)/2); const GX=[];
     for(let i=0;i<N;i++) GX.push(gx0+i*120);
     for(let i=0;i<N-1;i++){ const isE=s.edge&&s.edge[0]===i&&s.edge[1]===i+1;

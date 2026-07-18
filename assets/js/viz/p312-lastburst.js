@@ -6,7 +6,7 @@
    → 得 nums[i]*nums[k]*nums[j];而左右兩段互不干擾 → dp[i][k] + dp[k][j]。
    dp[i][j] = max_{i<k<j} ( dp[i][k] + dp[k][j] + nums[i]*nums[k]*nums[j] )
    padded nums = [1,3,1,5,8,1](原 [3,1,5,8] 兩端補 1),答案 dp[0][5] = 167。
-     BAND 1  氣球列(藍=邊界 i,j 不爆 · 珊瑚=本步當「最後爆」的 k · 綠=兩子區間)
+     BAND 1  氣球列(藍=邊界 i,j 不爆 · 紅=本步當「最後爆」的 k · 綠=兩子區間)
      BAND 2  dp[i][k] + dp[k][j] + nums[i]·nums[k]·nums[j]
      BAND 3  為什麼是「最後」不是「第一」
    ============================================================ */
@@ -20,8 +20,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    pad:'#eeeeea', padS:'#d5d5cf', padT:'#a8a8a0', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    pad:'#eeeeea', padS:'#d5d5cf', padT:'#a8a8a0', coral:'#cf3535' };
 
   const NUM = [1,3,1,5,8,1];   // padded, index 0..5
   // 求 dp[0][5],i=0,j=5;枚舉 k
@@ -51,7 +51,7 @@
 
     // ── BAND 1 · balloon row ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 補 1 後的氣球(藍=邊界 i,j 不爆 · 珊瑚=本步「最後爆」的 k · 綠=兩子區間)', PAD, 22);
+    ctx.fillText('BAND 1 · 補 1 後的氣球(藍=邊界 i,j 不爆 · 紅=本步「最後爆」的 k · 綠=兩子區間)', PAD, 22);
 
     const cell=Math.min(72,(w-2*PAD)/N), gx=(w-N*cell)/2, gy=48, chh=44;
     for(let idx=0;idx<N;idx++){

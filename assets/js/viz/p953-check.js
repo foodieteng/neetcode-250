@@ -6,7 +6,7 @@
      這組是「alien 翻轉正常字典序」的經典:正常 d<l,但 alien 裡
      l 的 rank(3)在 d(4)之前 → d>l → "word" 該排在 "world" 之後。
      BAND 1  rank 表(alien order → 位置)
-     BAND 2  相鄰兩字逐欄比較(綠=相同 · 珊瑚=第一個不同)
+     BAND 2  相鄰兩字逐欄比較(綠=相同 · 紅=第一個不同)
      BAND 3  判定
    ============================================================ */
 (function () {
@@ -18,8 +18,8 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    cell:'#ffffff', cellS:'#c9c9c1', eq:'#eef4dc', eqS:'#a9c07a', cur:'#fbe7df', curS:'#d96e4e',
-    chip:'#faf7ef', coral:'#d96e4e', bad:'#f0d4d4', badS:'#c98a8a' };
+    cell:'#ffffff', cellS:'#c9c9c1', eq:'#eef4dc', eqS:'#a9c07a', cur:'#fbe1e1', curS:'#cf3535',
+    chip:'#faf7ef', coral:'#cf3535', bad:'#f0d4d4', badS:'#c98a8a' };
 
   const W1 = 'word', W2 = 'world';
   const RANKS = [['w',0],['o',1],['r',2],['l',3],['d',4]];     // 相關字元的 alien rank
@@ -62,7 +62,7 @@
     // ── BAND 2 · two words compared column by column
     let by=112;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · 相鄰兩字逐欄比較(綠=相同 · 珊瑚=第一個不同)', PAD, by);
+    ctx.fillText('BAND 2 · 相鄰兩字逐欄比較(綠=相同 · 紅=第一個不同)', PAD, by);
     const cell=58, gx=PAD+64, y1=by+22, y2=by+22+cell+16;
     // row labels
     ctx.fillStyle=COLOR.dim; ctx.font='700 13px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle';

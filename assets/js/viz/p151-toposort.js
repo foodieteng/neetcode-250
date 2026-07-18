@@ -30,13 +30,13 @@
     heapBg:   '#d9e8c7',   // 在堆裡（可選）
     heapSt:   '#5fa866',
     popBg:    '#f6d2c4',   // 本步取出
-    popSt:    '#d96e4e',
+    popSt:    '#cf3535',
     doneBg:   '#ececec',   // 已輸出
     doneSt:   '#b8b8b8',
     text:     '#1f3550',
     ink:      '#1a1a1a',
     dim:      '#9a9a9a',
-    coral:    '#d96e4e',
+    coral:    '#cf3535',
     green:    '#5fa866',
   };
 

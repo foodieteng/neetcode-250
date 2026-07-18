@@ -7,9 +7,9 @@
      s[i-1] != t[j-1] : dp[i][j] = dp[i-1][j]      (只能跳過)
    base: dp[i][0] = 1(空的 t,一種湊法:什麼都不選)
    例 s="babgbag", t="bag" → 5
-   為了讓動畫好讀,用較小的表:一列一列長出來,珊瑚=本列、藍=兩個來源(上、左上)
+   為了讓動畫好讀,用較小的表:一列一列長出來,紅=本列、藍=兩個來源(上、左上)
      BAND 1  s / t 字串,標出本列的 s 字元
-     BAND 2  dp 表(逐列填),珊瑚=本格 · 藍=來源(上 dp[i-1][j] / 左上 dp[i-1][j-1])
+     BAND 2  dp 表(逐列填),紅=本格 · 藍=來源(上 dp[i-1][j] / 左上 dp[i-1][j-1])
      BAND 3  轉移式:配對成功 = 上 + 左上;配對失敗 = 只有上
    ============================================================ */
 (function () {
@@ -22,7 +22,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S = 'babgbag', T = 'bag';
   const M = S.length, N = T.length;   // 7 × 3
@@ -70,7 +70,7 @@
 
     // ── BAND 1 · strings ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · s / t(珊瑚=本列的 s 字元)', PAD, 22);
+    ctx.fillText('BAND 1 · s / t(紅=本列的 s 字元)', PAD, 22);
 
     const chW=26, sX=PAD+70;
     ctx.textAlign='right'; ctx.textBaseline='middle';
@@ -97,7 +97,7 @@
 
     // ── BAND 2 · dp grid ──
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · dp 表逐列填(珊瑚=本格 · 藍=來源:上 dp[i−1][j] + 左上 dp[i−1][j−1])', PAD, 104);
+    ctx.fillText('BAND 2 · dp 表逐列填(紅=本格 · 藍=來源:上 dp[i−1][j] + 左上 dp[i−1][j−1])', PAD, 104);
 
     const cols=N+1, rows=M+1;
     const cell=30, gx=PAD+90, gy=124;

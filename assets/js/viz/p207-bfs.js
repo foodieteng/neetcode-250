@@ -19,7 +19,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#ffffff', nodeS:'#c9c9c1', done:'#d9e8c7', doneS:'#5fa866', inq:'#eef4fa', inqS:'#a9c4da',
-    edge:'#b7c7d6', coral:'#d96e4e', bad:'#d64545', stuck:'#fbe3e0', stuckS:'#d64545' };
+    edge:'#b7c7d6', coral:'#cf3535', bad:'#a31d1d', stuck:'#fbe3e0', stuckS:'#a31d1d' };
 
   const EDGES = [[3,0],[0,1],[1,2],[2,0]];
   const CYCLE = [0,1,2];

@@ -4,7 +4,7 @@
    做法:先長度不同直接 false;用 s 的字元 ++ 建次數表,再用 t 的字元 --。
    任何一步變成負(或原本沒有)→ 不是 anagram。全部歸零 → 是。
    s="aab", t="aba":freq{a:2,b:1} → 消 a,b,a → 全 0 → true。
-     BAND 1  s / t 兩字串(珊瑚=t 正在消的字元)
+     BAND 1  s / t 兩字串(紅=t 正在消的字元)
      BAND 2  次數表(建立時 ++、消耗時 --)
      BAND 3  判斷:出現負數就 false;全 0 就 true
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S = 'aab', T = 'aba';
   const KEYS = ['a','b'];
@@ -49,7 +49,7 @@
 
     // ── BAND 1 · strings ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · s(建表 ++) / t(消耗 --,珊瑚=正在消)', PAD, 22);
+    ctx.fillText('BAND 1 · s(建表 ++) / t(消耗 --,紅=正在消)', PAD, 22);
 
     const chW=34, chH=30, sx=PAD+52, sy=36, ty2=74;
     ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillStyle=COLOR.text; ctx.font='700 13px "JetBrains Mono", monospace';

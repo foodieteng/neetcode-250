@@ -23,7 +23,7 @@
     paper:  '#ffffff',
     grid:   '#cfcfcf',
     cellBg: '#f4f6f8',
-    cur:    '#d96e4e', curBg: '#f7ddd2',   // the value x being processed
+    cur:    '#cf3535', curBg: '#f7ddd2',   // the value x being processed
     tail:   '#8fb3d4', tailBg: '#e3edf5',   // tails cells
     push:   '#5fa866', pushBg: '#d9e8c7',    // pushed / extended cell
     repl:   '#d4a868', replBg: '#f6ead8',    // replaced (compressed) cell
@@ -193,7 +193,7 @@
       ctx.fillStyle = COLOR.paper;
       ctx.fillRect(0, 0, w, canvas.clientHeight);
 
-      bandTitle('BAND 1 · 輸入數字（上 2aᵢ · 下 aᵢ；珊瑚 = 正在處理的候選 x）', 26);
+      bandTitle('BAND 1 · 輸入數字（上 2aᵢ · 下 aᵢ；紅 = 正在處理的候選 x）', 26);
       drawInputs(s, 46);
 
       bandTitle('BAND 2 · tails 陣列（每格 = 該長度鏈的最小結尾）', 132);

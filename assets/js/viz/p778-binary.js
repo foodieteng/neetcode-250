@@ -27,7 +27,7 @@
     pass:'#e3edf5', passS:'#6f9fc4',
     ok:'#d9e8c7', okS:'#5fa866',
     bad:'#f4d9d5', badS:'#c0392b',
-    coral:'#d96e4e',
+    coral:'#cf3535',
   };
   const GRID = [[0,2,1],[5,8,3],[6,7,4]];
   const N = 3;

@@ -15,7 +15,7 @@
   const bPrev=document.getElementById('va-prev'), bNext=document.getElementById('va-next'), bPlay=document.getElementById('va-play'), bReset=document.getElementById('va-reset');
   const COLOR={ paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     dry:'#fafaf6', dryS:'#d3ccbe', A:'#e3edf5', AS:'#6f9fc4', B:'#f6ead8', BS:'#d4a868',
-    conn:'#d9e8c7', connS:'#5fa866', edge:'#b7c7d6', edgeCur:'#d96e4e', coral:'#d96e4e' };
+    conn:'#d9e8c7', connS:'#5fa866', edge:'#b7c7d6', edgeCur:'#cf3535', coral:'#cf3535' };
   const GRID=[[1,2,2],[3,8,2],[5,3,5]], N=3;
 
   // edges added in connect order; each: {a:[r,c], b:[r,c], w}

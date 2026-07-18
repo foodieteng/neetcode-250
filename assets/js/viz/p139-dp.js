@@ -5,8 +5,8 @@
      若 dp[i-L] 為真 且 s[i-L..i] == w → dp[i]=true。
    關鍵:位置 i 當「外層」由小到大掃 —— 算 dp[i] 前,所有更短的 dp[j] 都已定案。
    例 s="leetcode", dict={"leet","code"} → dp[4]、dp[8] 為真,答案 true
-     BAND 1  s 的字元(珊瑚=本步嘗試的詞所覆蓋的區段)
-     BAND 2  dp[](珊瑚=本步 i · 藍=接上的前綴 dp[i-L])
+     BAND 1  s 的字元(紅=本步嘗試的詞所覆蓋的區段)
+     BAND 2  dp[](紅=本步 i · 藍=接上的前綴 dp[i-L])
      BAND 3  檢查:dp[i-L] && s[i-L..i]==w ?
    ============================================================ */
 (function () {
@@ -19,7 +19,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S = 'leetcode';
   const N = S.length;   // 8
@@ -49,7 +49,7 @@
 
     // BAND 1 · string chars
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · s 的字元(珊瑚框=本步嘗試的詞覆蓋的區段)', PAD, 24);
+    ctx.fillText('BAND 1 · s 的字元(紅框=本步嘗試的詞覆蓋的區段)', PAD, 24);
     const sgx=(w-N*cw)/2, sy=50, schh=38;
     for(let k=0;k<N;k++){ const x=sgx+k*cw; const inSpan=s.span && k>=s.span[0] && k<s.span[1];
       ctx.fillStyle=COLOR.dim; ctx.font='700 10px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -64,7 +64,7 @@
     // BAND 2 · dp array
     const by=112;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · dp[](珊瑚=本步 i · 藍=接上的前綴 dp[i-L] · 綠=已為真)', PAD, by);
+    ctx.fillText('BAND 2 · dp[](紅=本步 i · 藍=接上的前綴 dp[i-L] · 綠=已為真)', PAD, by);
     const NC=N+1; const dcw=Math.min(54,(w-2*PAD)/(NC+1)); const dgx=(w-NC*dcw)/2, dy=by+30, dchh=42;
     for(let k=0;k<NC;k++){ const x=dgx+k*dcw; const val=s.dp[k];
       const isCur=(k===s.i), isPred=(k===s.pred && s.pred>=0), isTrue=val&&!isCur&&!isPred;

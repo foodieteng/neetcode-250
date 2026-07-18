@@ -31,11 +31,11 @@
     redBg:   '#f0d9d2',
     redSt:   '#c97b7b',
     curBg:   '#f6d2c4',
-    curSt:   '#d96e4e',
+    curSt:   '#cf3535',
     text:    '#1f3550',
     ink:     '#1a1a1a',
     dim:     '#9a9a9a',
-    coral:   '#d96e4e',
+    coral:   '#cf3535',
     green:   '#5fa866',
   };
 

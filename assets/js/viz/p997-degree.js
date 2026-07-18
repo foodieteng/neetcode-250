@@ -17,9 +17,9 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', edge:'#6f9fc4', edgeCur:'#d96e4e',
-    scan:'#fbe7df', scanS:'#d96e4e', no:'#f0f0ec', noS:'#c9c9c1',
-    judge:'#d9e8c7', judgeS:'#5fa866', coral:'#d96e4e' };
+    node:'#ffffff', nodeS:'#c9c9c1', edge:'#6f9fc4', edgeCur:'#cf3535',
+    scan:'#fbe1e1', scanS:'#cf3535', no:'#f0f0ec', noS:'#c9c9c1',
+    judge:'#d9e8c7', judgeS:'#5fa866', coral:'#cf3535' };
 
   const N = 3;
   const E = [[1,3],[2,3]];                    // trust edges: a trusts b

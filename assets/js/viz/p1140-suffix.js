@@ -21,8 +21,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    grey:'#eeeeea', greyS:'#d5d5cf', greyT:'#b0b0a8', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    grey:'#eeeeea', greyS:'#d5d5cf', greyT:'#b0b0a8', coral:'#cf3535' };
 
   const P = [2,7,9,4,4], N = 5;
   const SUF = [26,24,17,8,4];
@@ -54,7 +54,7 @@
 
     // ── BAND 1 · piles + suffixSum ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · piles(珊瑚=我拿的 x 堆 · 藍=留給對手的局面 · 灰=第 i 堆之前)', PAD, 22);
+    ctx.fillText('BAND 1 · piles(紅=我拿的 x 堆 · 藍=留給對手的局面 · 灰=第 i 堆之前)', PAD, 22);
 
     const cell=Math.min(74,(w-2*PAD)/N), gx=(w-N*cell)/2, gy=46, chh=42;
     for(let k=0;k<N;k++){

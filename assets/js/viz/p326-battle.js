@@ -29,7 +29,7 @@
     barBg:    '#f1f0ec',
     hp:       '#5fa866',   // HP fill (green)
     hpStroke: '#3f7a48',
-    dmg:      '#d96e4e',   // damage / death (coral)
+    dmg:      '#cf3535',   // damage / death (coral)
     regen:    '#5fa866',
     locked:   '#f6ead8',   // locked spell chip
     lockedSt: '#d4a868',
@@ -37,7 +37,7 @@
     readySt:  '#8fb3d4',
     cast:     '#d9e8c7',   // cast spell
     castSt:   '#5fa866',
-    thr:      '#d96e4e',   // threshold tick
+    thr:      '#cf3535',   // threshold tick
     text:     '#1f3550',
     ink:      '#1a1a1a',
     dim:      '#9a9a9a',

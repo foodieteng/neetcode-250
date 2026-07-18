@@ -4,7 +4,7 @@
    到 j(reach[i][j] |= reach[i][k] && reach[k][j])。三重迴圈跑完就得到完整
    可達關係。不需拓撲序 —— 每個 k 都當一次中繼,所有間接路徑都被考慮到。
    例 chain 0→1→2→3:用 k=1、k=2 當中繼補出 [0][2]、[0][3]、[1][3]
-     BAND 1  依賴鏈(珊瑚=本步的中繼點 k)
+     BAND 1  依賴鏈(紅=本步的中繼點 k)
      BAND 2  reach 表 reach[i][j](綠=可達 · 亮綠=本步新增)
      BAND 3  說明
    ============================================================ */
@@ -17,7 +17,7 @@
         bPlay = document.getElementById('vb-play'), bReset = document.getElementById('vb-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', edge:'#b7c7d6', coral:'#d96e4e',
+    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', edge:'#b7c7d6', coral:'#cf3535',
     on:'#d9e8c7', onS:'#5fa866', fresh:'#bfe6a6', freshS:'#3f9e46', diag:'#eeeeea' };
 
   const N = 4;
@@ -53,7 +53,7 @@
 
     // ── BAND 1 · chain graph, highlight middle point k
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 依賴鏈 a→b(珊瑚=本步的中繼點 k)', PAD, 22);
+    ctx.fillText('BAND 1 · 依賴鏈 a→b(紅=本步的中繼點 k)', PAD, 22);
     const gy=68, R=23; const gx0=Math.max(PAD+40,(w-3*120)/2); const GX=[];
     for(let i=0;i<N;i++) GX.push(gx0+i*120);
     for(let i=0;i<N-1;i++) arrow(GX[i],gy,GX[i+1],gy, COLOR.edge, 2.4);

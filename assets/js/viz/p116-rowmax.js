@@ -13,12 +13,12 @@ const P116_COLOR = {
   cellBorder:  '#1a1a1a',
   cellText:    '#1a1a1a',
   cellTextDim: '#9a9590',
-  coral:       '#d96e4e',
+  coral:       '#cf3535',
   coralSoft:   '#f3b89e',
   ink:         '#1a1a1a',
   inkDim:      '#6b6b6b',
   axisText:    '#8a847a',
-  arrow:       '#d96e4e',
+  arrow:       '#cf3535',
   bracket:     '#1a1a1a',
 };
 

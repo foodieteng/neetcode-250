@@ -4,7 +4,7 @@
    碰到「集合裡已經有」的值 → 立刻 return true(不用掃完)。
    全部掃完都沒撞到 → return false。
    nums=[1,2,3,1] → 第 3 個 1 撞到集合裡的 1 → true。
-     BAND 1  陣列(珊瑚=正在看 · 綠=已放進集合 · 紅=撞到重複)
+     BAND 1  陣列(紅=正在看 · 綠=已放進集合 · 深紅=撞到重複)
      BAND 2  seen 集合目前內容
      BAND 3  本步判斷:在集合裡嗎?
    ============================================================ */
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    bad:'#f0d4d4', badS:'#c1440e', badT:'#8f3208', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    bad:'#f0d4d4', badS:'#c1440e', badT:'#8f3208', coral:'#cf3535' };
 
   const A = [1,2,3,1];
   const steps = [
@@ -48,7 +48,7 @@
 
     // ── BAND 1 · array ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · nums(珊瑚=正在看 · 綠=已入集合 · 紅=撞到重複)', PAD, 24);
+    ctx.fillText('BAND 1 · nums(紅=正在看 · 綠=已入集合 · 深紅=撞到重複)', PAD, 24);
 
     const cell=Math.min(72,(w-2*PAD)/(N+1)), gx=(w-N*cell)/2, gy=54, chh=46;
     for(let k=0;k<N;k++){

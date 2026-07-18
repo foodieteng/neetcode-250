@@ -4,7 +4,7 @@
    1 在當前遞迴路徑上 / 2 已完成。若沿當前路徑走回到一個「還在路徑上(1)」
    的節點 = 有環 → 回 false(修不完)。
    例 graph: 3→0, 0→1, 1→2, 2→0(0,1,2 成環)
-     BAND 1  依賴圖(白=未訪 · 珊瑚=在路徑上(1) · 綠=完成(2) · 紅=環邊)
+     BAND 1  依賴圖(白=未訪 · 紅=在路徑上(1) · 綠=完成(2) · 深紅=環邊)
      BAND 2  遞迴呼叫堆疊(當前路徑)
      BAND 3  說明
    ============================================================ */
@@ -17,8 +17,8 @@
         bPlay = document.getElementById('va-play'), bReset = document.getElementById('va-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', path:'#fbe7df', pathS:'#d96e4e', done:'#d9e8c7', doneS:'#5fa866',
-    edge:'#b7c7d6', coral:'#d96e4e', bad:'#d64545', chip:'#fbe7df', chipS:'#d96e4e' };
+    node:'#ffffff', nodeS:'#c9c9c1', path:'#fbe1e1', pathS:'#cf3535', done:'#d9e8c7', doneS:'#5fa866',
+    edge:'#b7c7d6', coral:'#cf3535', bad:'#a31d1d', chip:'#fbe1e1', chipS:'#cf3535' };
 
   const EDGES = [[3,0],[0,1],[1,2],[2,0]]; // u -> v
   // visit: 0 unvisited / 1 on-path / 2 done
@@ -54,7 +54,7 @@
 
     // ── BAND 1 · graph
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 依賴圖(白=未訪 · 珊瑚=在路徑上(1) · 綠=完成(2) · 紅=環邊)', PAD, 24);
+    ctx.fillText('BAND 1 · 依賴圖(白=未訪 · 紅=在路徑上(1) · 綠=完成(2) · 深紅=環邊)', PAD, 24);
     for(const [u,v] of EDGES){ const isBad=s.bad&&s.bad[0]===u&&s.bad[1]===v;
       arrow(POS[u][0],POS[u][1],POS[v][0],POS[v][1], isBad?COLOR.bad:COLOR.edge, isBad?3.4:2.4); }
     for(const id of [0,1,2,3]){ const [x,y]=POS[id]; const st=s.visit[id];

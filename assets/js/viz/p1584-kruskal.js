@@ -3,8 +3,8 @@
    把「所有」點對的邊照曼哈頓距離由小到大取出;能 union(不成環)
    就加入、累計權重,成環就丟棄。加滿 n-1 條邊即完成,總和即答案。
    points = [[0,0],[2,2],[3,10],[5,2],[7,0]]  →  20
-     BAND 1  座標散點 + 已接受的樹邊(藍)+ 當前邊(珊瑚)
-     BAND 2  依權重排序的邊帶(綠=接受 · 灰刪=成環略過 · 珊瑚=當前)
+     BAND 1  座標散點 + 已接受的樹邊(藍)+ 當前邊(紅)
+     BAND 2  依權重排序的邊帶(綠=接受 · 灰刪=成環略過 · 紅=當前)
      BAND 3  已加邊數 + 累計成本
    ============================================================ */
 (function () {
@@ -17,7 +17,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#ffffff', nodeS:'#c9c9c1', tree:'#e3edf5', treeS:'#6f9fc4',
-    done:'#d9e8c7', doneS:'#5fa866', cur:'#d96e4e', coral:'#d96e4e', chip:'#faf7ef', skip:'#f0e2e2' };
+    done:'#d9e8c7', doneS:'#5fa866', cur:'#cf3535', coral:'#cf3535', chip:'#faf7ef', skip:'#f0e2e2' };
 
   const P = [[0,0],[2,2],[3,10],[5,2],[7,0]];
   // draw positions: true-x, order-preserving compressed-y (avoids the y=10 outlier dead zone)
@@ -52,7 +52,7 @@
 
     // ── BAND 1 · scatter + accepted tree
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 座標散點 + 已接受樹邊(藍 · 珊瑚=本步)', PAD, 24);
+    ctx.fillText('BAND 1 · 座標散點 + 已接受樹邊(藍 · 紅=本步)', PAD, 24);
     const left=64, right=w-46, top=52, bottom=290;
     const px=i=>left+POS[i][0]*(right-left), py=i=>bottom-POS[i][1]*(bottom-top);
     for(const [a,b,wt] of s.edges){
@@ -77,14 +77,14 @@
     // ── BAND 2 · sorted edge tape
     let by=318;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · 依權重排序的邊帶(綠=接受 · 刪=成環略過 · 珊瑚=當前)', PAD, by);
+    ctx.fillText('BAND 2 · 依權重排序的邊帶(綠=接受 · 刪=成環略過 · 紅=當前)', PAD, by);
     const cy=by+12, n=EDGES.length, gap=8, cw=Math.min(72,(w-PAD*2-gap*(n-1))/n), ch=44;
     for(let i=0;i<n;i++){ const [wt,a,b]=EDGES[i]; const st=s.state[i]||'pending';
       const x=PAD+i*(cw+gap);
       let fill=COLOR.chip, bd=COLOR.grid, tc=COLOR.ink;
       if(st==='accept'){ fill=COLOR.done; bd=COLOR.doneS; }
       else if(st==='skip'){ fill=COLOR.skip; bd='#c98a8a'; tc=COLOR.dim; }
-      else if(st==='cur'){ fill='#fbe7df'; bd=COLOR.cur; }
+      else if(st==='cur'){ fill='#fbe1e1'; bd=COLOR.cur; }
       rr(x,cy,cw,ch,6); ctx.fillStyle=fill; ctx.fill(); ctx.lineWidth=st==='pending'?1.2:1.8; ctx.strokeStyle=bd; ctx.stroke();
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillStyle=tc; ctx.font='700 17px "JetBrains Mono", monospace'; ctx.fillText(String(wt), x+cw/2, cy+16);

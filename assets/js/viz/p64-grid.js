@@ -4,7 +4,7 @@
    dp[i][j] = grid[i][j] + min( dp[i-1][j](上) , dp[i][j-1](左) )。
    第一列/行是「前綴和」(只有一條路,成本累加),不是全 1。
    例 grid=[[1,3,1],[1,5,1],[4,2,1]] → dp[2][2]=7
-     BAND 1  dp[](珊瑚=本步 · 綠=較小被選的來源 · 藍=較大沒選的)
+     BAND 1  dp[](紅=本步 · 綠=較小被選的來源 · 藍=較大沒選的)
      右側     dp = grid + min(上, 左)
      BAND 2  說明:和 62 差別 —— + 換成 min
    ============================================================ */
@@ -19,7 +19,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', nil:'#f3f3ef', nilS:'#e2e2dc',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const R = 3, C = 3;
   const GRID = [[1,3,1],[1,5,1],[4,2,1]];   // 成本
@@ -51,7 +51,7 @@
     const upPick=(s.pick==='up'), leftPick=(s.pick==='left');
 
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i][j] = 最小成本(珊瑚=本步 · 綠=選中的較小來源 · 藍=沒選的)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i][j] = 最小成本(紅=本步 · 綠=選中的較小來源 · 藍=沒選的)', PAD, 24);
 
     const cell=48, gx=64, gy=80;
     for(let j=0;j<C;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 10px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('j'+j, gx+j*cell+cell/2, gy-11); }

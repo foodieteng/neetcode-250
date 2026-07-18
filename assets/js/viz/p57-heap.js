@@ -24,7 +24,7 @@
     paper:    '#ffffff',
     node:     '#e3edf5',   // normal node — pale blue
     nodeStroke:'#8fb3d4',
-    active:   '#d96e4e',   // the node being sifted — coral
+    active:   '#cf3535',   // the node being sifted — coral
     compare:  '#d4a017',   // node being compared against — yellow
     popped:   '#5fa866',   // the value just popped — green
     edge:     '#9ab0c2',

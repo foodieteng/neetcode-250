@@ -30,7 +30,7 @@
     dNBg:     '#f6ead8',   // dN (reverse)
     dNSt:     '#d4a868',
     candBg:   '#f6d2c4',   // candidate edge / new path
-    candSt:   '#d96e4e',
+    candSt:   '#cf3535',
     ansBg:    '#d9e8c7',   // answer
     ansSt:    '#5fa866',
     node:     '#ffffff',
@@ -38,7 +38,7 @@
     text:     '#1f3550',
     ink:      '#1a1a1a',
     dim:      '#9a9a9a',
-    coral:    '#d96e4e',
+    coral:    '#cf3535',
     green:    '#5fa866',
   };
 

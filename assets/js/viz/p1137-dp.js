@@ -4,7 +4,7 @@
    t[i] = t[i-1] + t[i-2] + t[i-3]。和「每次可跨 1/2/3 階」的爬樓梯同構
    ——費氏是加前兩項,Tribonacci 是加前三項。
    例 n=6 → t = [0,1,1,2,4,7,13],答案 13
-     BAND 1  t[] 陣列(珊瑚=本步填的 · 藍=三個來源)
+     BAND 1  t[] 陣列(紅=本步填的 · 藍=三個來源)
      BAND 2  t[i] = t[i-1] + t[i-2] + t[i-3]
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const N = 6;                       // t[0..6]
   const NIL = -1;
@@ -48,7 +48,7 @@
 
     // ── BAND 1 · t array
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · t[](珊瑚=本步填入 · 藍=三個來源 t[i-1]、t[i-2]、t[i-3])', PAD, 24);
+    ctx.fillText('BAND 1 · t[](紅=本步填入 · 藍=三個來源 t[i-1]、t[i-2]、t[i-3])', PAD, 24);
     const cw=Math.min(70,(w-2*PAD)/(N+1)); const gx=(w-(N+1)*cw)/2, gy=64, chh=52;
     for(let i=0;i<=N;i++){ const x=gx+i*cw; const val=s.t[i];
       const isCur=(i===s.cur), isSrc=srcSet.has(i), filled=val!==NIL&&!isCur&&!isSrc;

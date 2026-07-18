@@ -29,7 +29,7 @@
     paper:    '#ffffff',
     grid:     '#cfcfcf',
     cellBg:   '#f4f6f8',
-    tgt:      '#d96e4e', tgtBg: '#f7ddd2',   // target a' being computed
+    tgt:      '#cf3535', tgtBg: '#f7ddd2',   // target a' being computed
     suf:      '#8fb3d4', sufBg: '#e3edf5',   // suffix [amin, L] being summed
     acc:      '#5fa866', accBg: '#d9e8c7',   // result nf[a']
     thr:      '#d4a868',                      // threshold amin marker
@@ -202,7 +202,7 @@
       // hint line
       ctx.fillStyle = COLOR.dim; ctx.font = '500 13px "Noto Sans TC", sans-serif';
       ctx.textBaseline = 'top';
-      ctx.fillText('藍色＝後綴 [' + s.amin + ', ' + L + '] 之和（所有能跳到 a\'=' + s.tgt + ' 的來源）；扣掉珊瑚色的自身（電梯要動）。',
+      ctx.fillText('藍色＝後綴 [' + s.amin + ', ' + L + '] 之和（所有能跳到 a\'=' + s.tgt + ' 的來源）；扣掉紅色的自身（電梯要動）。',
         PAD + 4, band2Y + 70);
     } else {
       ctx.fillStyle = COLOR.dim; ctx.font = '500 14px "Noto Sans TC", sans-serif';

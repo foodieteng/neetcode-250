@@ -4,7 +4,7 @@
    把那個新點併進樹,再把它到其他樹外點的邊丟進 heap(lazy:過期
    條目彈出時用 inMST 略過)。連滿 n 個點時邊權總和即答案。
    points = [[0,0],[2,2],[3,10],[5,2],[7,0]]  →  20
-     BAND 1  座標散點 + 目前生成樹(藍=已在樹中)+ 當前跨邊(珊瑚)
+     BAND 1  座標散點 + 目前生成樹(藍=已在樹中)+ 當前跨邊(紅)
      BAND 2  min-heap 候選跨邊 · 取最小
      BAND 3  已連點數 + 累計成本
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     node:'#ffffff', nodeS:'#c9c9c1', tree:'#e3edf5', treeS:'#6f9fc4',
-    done:'#d9e8c7', doneS:'#5fa866', edge:'#6f9fc4', cur:'#d96e4e', coral:'#d96e4e', chip:'#faf7ef' };
+    done:'#d9e8c7', doneS:'#5fa866', edge:'#6f9fc4', cur:'#cf3535', coral:'#cf3535', chip:'#faf7ef' };
 
   // 5 points (index → [x,y]); Manhattan MST tree edges: 0-1(4) 1-3(3) 3-4(4) 1-2(9) = 20
   const P = [[0,0],[2,2],[3,10],[5,2],[7,0]];
@@ -56,7 +56,7 @@
 
     // ── BAND 1 · scatter + tree
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 座標散點 + 生成樹(藍=已入樹 · 珊瑚=本步跨邊)', PAD, 24);
+    ctx.fillText('BAND 1 · 座標散點 + 生成樹(藍=已入樹 · 紅=本步跨邊)', PAD, 24);
     const left=64, right=w-46, top=52, bottom=298;
     const px=i=>left+POS[i][0]*(right-left), py=i=>bottom-POS[i][1]*(bottom-top);
 
@@ -90,7 +90,7 @@
       let cxp=PAD; const cw=104, ch=42, gap=12;
       for(const f of s.front){
         rr(cxp,cy,cw,ch,6);
-        ctx.fillStyle=f.stale?'#f3f3ef':(f.min?'#fbe7df':COLOR.chip); ctx.fill();
+        ctx.fillStyle=f.stale?'#f3f3ef':(f.min?'#fbe1e1':COLOR.chip); ctx.fill();
         ctx.lineWidth=f.min?2:1.4; ctx.strokeStyle=f.stale?COLOR.grid:(f.min?COLOR.cur:COLOR.treeS); ctx.stroke();
         ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillStyle=f.stale?COLOR.dim:COLOR.ink; ctx.font='700 15px "JetBrains Mono", monospace';

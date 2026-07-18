@@ -32,7 +32,7 @@
     dstSt:  '#d4a868',
     edge:   '#b9c4cf',
     edgeLb: '#6a7480',
-    active: '#d96e4e',
+    active: '#cf3535',
     activeBg:'#f6d2c4',
     tempBg: '#f6ead8',
     tempSt: '#d4a868',

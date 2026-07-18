@@ -20,12 +20,12 @@
   const COLOR = {
     paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     pend:'#eef0f2', pendS:'#cfcfcf',
-    act:'#f6ddd3',  actS:'#d96e4e',
+    act:'#f6ddd3',  actS:'#cf3535',
     done:'#d9e8c7', doneS:'#5fa866',
     edge:'#8fb3d4',
     chip:'#e3edf5', chipS:'#6f9fc4',
-    coral:'#d96e4e',
-    cellFill:'#f6ddd3', cellS:'#d96e4e',
+    coral:'#cf3535',
+    cellFill:'#f6ddd3', cellS:'#cf3535',
   };
 
   function initTopoViz(prefix, cfg) {

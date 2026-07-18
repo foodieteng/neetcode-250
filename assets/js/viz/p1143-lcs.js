@@ -6,7 +6,7 @@
      字元不同                         → dp[i][j] = max(dp[i-1][j], dp[i][j-1])(上、左取大)
    第一列/行為 0(空字串沒有共同子序列)。答案 dp[m][n]。
    例 text1="abcd", text2="acd" → dp[4][3] = 3(LCS = "acd")
-     BAND 1  網格(珊瑚=本步 · 綠=相同時的左上來源 · 藍=不同時的上/左來源)
+     BAND 1  網格(紅=本步 · 綠=相同時的左上來源 · 藍=不同時的上/左來源)
      右側     兩種情況的遞迴式
      BAND 2  說明
    ============================================================ */
@@ -21,7 +21,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', nil:'#f3f3ef', nilS:'#e2e2dc',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const T1 = 'abcd', T2 = 'acd';
   const R = T1.length + 1, C = T2.length + 1;   // 5 x 4(含空字串列/行)
@@ -55,7 +55,7 @@
     const up = cur?[cur[0]-1,cur[1]]:null, left = cur?[cur[0],cur[1]-1]:null;
 
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i][j] = LCS 長度(珊瑚=本步 · 綠=相同的左上來源 · 藍=不同的上/左)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i][j] = LCS 長度(紅=本步 · 綠=相同的左上來源 · 藍=不同的上/左)', PAD, 24);
 
     const cell=32, gx=88, gy=76;
     // column headers = text2 chars (col 0 = '∅')

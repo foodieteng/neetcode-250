@@ -15,7 +15,7 @@
   const bPrev=document.getElementById('vc-prev'), bNext=document.getElementById('vc-next'), bPlay=document.getElementById('vc-play'), bReset=document.getElementById('vc-reset');
   const COLOR={ paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     blocked:'#eceae4', blockedS:'#cfcac0', blockedTxt:'#b7b1a4', pass:'#e3edf5', passS:'#6f9fc4',
-    ok:'#d9e8c7', okS:'#5fa866', bad:'#f4d9d5', badS:'#c0392b', coral:'#d96e4e' };
+    ok:'#d9e8c7', okS:'#5fa866', bad:'#f4d9d5', badS:'#c0392b', coral:'#cf3535' };
   const GRID=[[1,2,2],[3,8,2],[5,3,5]], N=3;
   const ALL=['0,0','0,1','0,2','1,0','1,2','2,0','2,1','2,2'];  // reachable at mid>=2 (all but 1,1)
   const steps=[

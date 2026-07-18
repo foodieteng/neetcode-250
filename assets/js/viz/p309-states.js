@@ -11,7 +11,7 @@
    答案 max(sold[n-1], rest[n-1])(手上還抱著股票不會是最佳)
    prices=[1,2,3,0,2] → 3(買1賣3 = +2,冷凍一天,買0賣2 = +2… 實際最佳 3)
      BAND 1  prices 每日價格
-     BAND 2  三個狀態列(珊瑚=本日 · 藍=昨日來源)
+     BAND 2  三個狀態列(紅=本日 · 藍=昨日來源)
      BAND 3  冷凍期就藏在「hold 只能從 rest 買」這一條
    ============================================================ */
 (function () {
@@ -24,7 +24,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const P = [1, 2, 3, 0, 2];
   const N = P.length;
@@ -67,7 +67,7 @@
 
     // ── BAND 1 · prices ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · prices(珊瑚=今天)', PAD, 24);
+    ctx.fillText('BAND 1 · prices(紅=今天)', PAD, 24);
 
     ctx.textAlign='right'; ctx.textBaseline='middle';
     ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace';
@@ -86,7 +86,7 @@
 
     // ── BAND 2 · three state rows ──
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · 三個狀態(珊瑚=今天算出 · 藍=昨天的來源)', PAD, 122);
+    ctx.fillText('BAND 2 · 三個狀態(紅=今天算出 · 藍=昨天的來源)', PAD, 122);
 
     const vals={hold:HOLD, sold:SOLD, rest:REST};
     for(let r=0;r<ROWS.length;r++){

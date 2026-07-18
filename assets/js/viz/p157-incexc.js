@@ -32,7 +32,7 @@
     typeSt:   '#d4a868',
     add:      '#5fa866',   // even j  (added term)
     addBg:    '#d9e8c7',
-    sub:      '#d96e4e',   // odd  j  (subtracted term)
+    sub:      '#cf3535',   // odd  j  (subtracted term)
     subBg:    '#f0d9d2',
     text:     '#1f3550',
     ink:      '#1a1a1a',

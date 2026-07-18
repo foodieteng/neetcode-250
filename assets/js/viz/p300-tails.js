@@ -6,8 +6,8 @@
      - 找到 → 覆蓋該位置(把某長度的結尾換成更小的 num,更有潛力)
    最終 tails.size() = LIS 長度(注意 tails 內容不一定是真正的 LIS)。
    例 nums=[3,1,4,2,5] → tails 演變到 [1,2,5],長度 3
-     BAND 1  nums[](珊瑚=本步的 num)
-     BAND 2  tails[](綠=既有 · 珊瑚=本步覆蓋/新增的位置)
+     BAND 1  nums[](紅=本步的 num)
+     BAND 2  tails[](綠=既有 · 紅=本步覆蓋/新增的位置)
      BAND 3  lower_bound 的判斷
    ============================================================ */
 (function () {
@@ -20,7 +20,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const NUMS = [3, 1, 4, 2, 5];
   const N = NUMS.length;
@@ -53,7 +53,7 @@
 
     // BAND 1 · nums
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · nums[](珊瑚=本步處理的 num · 綠=已處理)', PAD, 24);
+    ctx.fillText('BAND 1 · nums[](紅=本步處理的 num · 綠=已處理)', PAD, 24);
     const cw=Math.min(66,(w-2*PAD)/(N+1)); const gx=(w-N*cw)/2, ny=52, chh=42;
     for(let i=0;i<N;i++){ const x=gx+i*cw; const isCur=(i===s.numIdx), doneN=(s.numIdx!==NIL && i<s.numIdx);
       ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -68,7 +68,7 @@
     // BAND 2 · tails
     const by=128;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · tails[](恆遞增 · 珊瑚=本步覆蓋/新增的位置)  長度 = LIS', PAD, by);
+    ctx.fillText('BAND 2 · tails[](恆遞增 · 紅=本步覆蓋/新增的位置)  長度 = LIS', PAD, by);
     const ty=by+30, tchh=44;
     if(s.tails.length===0){
       ctx.fillStyle=COLOR.dim; ctx.font='600 13px "Noto Sans TC", sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';

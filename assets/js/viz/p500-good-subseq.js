@@ -17,7 +17,7 @@ const P500_COLOR = {
   goodFill:   '#d9e8c7',      // pale green for good intervals
   goodStroke: '#5fa866',
   badFill:    '#f0d4d4',
-  coral:      '#d96e4e',
+  coral:      '#cf3535',
   ink:        '#1a1a1a',
   inkDim:     '#6b6b6b',
   inactive:   '#cfcfcf',

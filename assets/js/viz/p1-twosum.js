@@ -4,7 +4,7 @@
    一邊掃、一邊把「看過的值→索引」存進 map。掃到 i 時先問:
    「comple 之前出現過嗎?」有 → 回 {map[comple], i};沒有才把自己存進去。
    nums=[3,2,4], target=6:掃到 4 時 comple=2 已在 map(索引1)→ 回 {1,2}。
-     BAND 1  nums(珊瑚=正在看 · 綠=已入 map · 藍=配對成功的補數)
+     BAND 1  nums(紅=正在看 · 綠=已入 map · 藍=配對成功的補數)
      BAND 2  seen 表(值 → 索引)
      BAND 3  comple = target − nums[i],在表裡嗎?
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const A = [3,2,4], TARGET = 6;
   const steps = [
@@ -45,7 +45,7 @@
 
     // ── BAND 1 · array ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · nums(珊瑚=正在看 · 綠=已入 map · 藍=配對的補數)  target = '+TARGET, PAD, 24);
+    ctx.fillText('BAND 1 · nums(紅=正在看 · 綠=已入 map · 藍=配對的補數)  target = '+TARGET, PAD, 24);
 
     const cell=Math.min(74,(w-2*PAD)/(N+1)), gx=(w-N*cell)/2, gy=54, chh=46;
     for(let k=0;k<N;k++){

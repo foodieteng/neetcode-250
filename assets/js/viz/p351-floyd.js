@@ -29,7 +29,7 @@
     newBg:   '#f6ead8',   // 本步新增的 k 行/列
     newSt:   '#d4a868',
     relBg:   '#f6d2c4',   // 被鬆弛變小的格 / max 來源
-    relSt:   '#d96e4e',
+    relSt:   '#cf3535',
     infBg:   '#ededed',   // INF
     infSt:   '#bdbdbd',
     ansBg:   '#d9e8c7',
@@ -37,7 +37,7 @@
     text:    '#1f3550',
     ink:     '#1a1a1a',
     dim:     '#9a9a9a',
-    coral:   '#d96e4e',
+    coral:   '#cf3535',
     green:   '#5fa866',
   };
 

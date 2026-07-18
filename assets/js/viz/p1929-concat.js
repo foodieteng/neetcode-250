@@ -4,7 +4,7 @@
    關鍵:迴圈前先「凍住」長度 n。若條件寫成 i < nums.size(),size 會隨
    push_back 一直變大,i 永遠追不上 → 無窮迴圈。
    nums=[1,2,1] → [1,2,1, 1,2,1]。
-     BAND 1  陣列(藍=原本 n 個 · 珊瑚=本步剛接上的)
+     BAND 1  陣列(藍=原本 n 個 · 紅=本步剛接上的)
      BAND 2  n 凍住 · i 的進度
      BAND 3  陷阱:i < nums.size() 會無窮迴圈
    ============================================================ */
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    empty:'#f3f3ef', emptyS:'#e2e2dc', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    empty:'#f3f3ef', emptyS:'#e2e2dc', coral:'#cf3535' };
 
   const BASE = [1,2,1], N = 3;
   // step k: 已接上 k 個(k=0..3)
@@ -44,7 +44,7 @@
 
     // ── BAND 1 · array ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · ans(藍=原本 n 個 · 珊瑚=本步剛接上)', PAD, 24);
+    ctx.fillText('BAND 1 · ans(藍=原本 n 個 · 紅=本步剛接上)', PAD, 24);
 
     const cell=Math.min(66,(w-2*PAD)/(total+0.5)), gx=(w-total*cell)/2, gy=64, chh=46;
     for(let idx=0;idx<total;idx++){

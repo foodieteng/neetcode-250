@@ -26,7 +26,7 @@
     cellBg:   '#f4f6f8',
     arrBg:    '#e3edf5',
     arrStroke:'#8fb3d4',
-    active:   '#d96e4e',   // current dp[i] being computed
+    active:   '#cf3535',   // current dp[i] being computed
     skip:     '#d4a017',   // candidate: dp[i-1]  (skip a[i])
     take:     '#5fa866',   // candidate: dp[i-K]+a[i] (take a[i])
     chosen:   '#5fa866',   // picked elements in backtrack

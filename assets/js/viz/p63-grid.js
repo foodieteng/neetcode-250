@@ -3,7 +3,7 @@
    和 62 一樣 dp[i][j] = 上 + 左,但障礙格(值 1)代表「走不到」→ dp=0。
    障礙貢獻 0 給它的下、右鄰,路徑自然繞開。
    例 3×3、中央 (1,1) 是障礙 → 答案 2(只能走外圈上緣或左緣)
-     BAND 1  網格(珊瑚=本步 · 藍=上/左來源 · 深灰✗=障礙 dp=0)
+     BAND 1  網格(紅=本步 · 藍=上/左來源 · 深灰✗=障礙 dp=0)
      右側     遞迴式 + 障礙規則
      BAND 2  說明
    ============================================================ */
@@ -18,7 +18,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', nil:'#f3f3ef', nilS:'#e2e2dc', obst:'#5a5a5a', obstS:'#3a3a3a',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const R = 3, C = 3;
   const NIL = -1, OBST = -2;
@@ -47,7 +47,7 @@
     const cur=s.cur; const up = cur?[cur[0]-1,cur[1]]:null, left = cur?[cur[0],cur[1]-1]:null;
 
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i][j] = 上 + 左(珊瑚=本步 · 藍=來源 · 深灰✗=障礙 dp=0)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i][j] = 上 + 左(紅=本步 · 藍=來源 · 深灰✗=障礙 dp=0)', PAD, 24);
 
     const cell=48, gx=64, gy=80;
     for(let j=0;j<C;j++){ ctx.fillStyle=COLOR.dim; ctx.font='700 10px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';

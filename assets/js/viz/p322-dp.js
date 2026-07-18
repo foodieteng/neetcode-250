@@ -4,7 +4,7 @@
    轉移:對每種硬幣 c(可重複用),dp[i] = min(dp[i], dp[i-c] + 1)。
    等價於:dp[i] = min over 所有 c<=i 的 ( dp[i-c] + 1 )。
    例 coins={1,2,5}, amount=6 → dp=[0,1,1,2,2,1,2],答案 2(5+1)
-     BAND 1  dp[] 陣列(珊瑚=本步 · 藍=各硬幣的來源 dp[i-c])
+     BAND 1  dp[] 陣列(紅=本步 · 藍=各硬幣的來源 dp[i-c])
      BAND 2  dp[i] = min over coins ( dp[i-c] + 1 )
      BAND 3  說明:完全背包 → 用 dp[i-c] 允許重複
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const COINS = [1, 2, 5];
   const AMT = 6;

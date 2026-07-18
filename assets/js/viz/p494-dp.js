@@ -7,7 +7,7 @@
    於是「有幾種 ± 組合湊出 target」= 「有幾個子集和 = P」
    → 0/1 背包計數(內層由大到小,每個數只用一次)
    例 nums=[1,1,1,1,1], target=3 → total=5, P=(3+5)/2=4 → C(5,4)=5
-     BAND 1  dp[s]:湊出正號和 s 的方法數(珊瑚=本步更新)
+     BAND 1  dp[s]:湊出正號和 s 的方法數(紅=本步更新)
      BAND 2  改寫:P − N = target、P + N = total ⇒ P = (target+total)/2
      BAND 3  說明:為什麼是計數背包(OR→+)、為什麼由大到小
    ============================================================ */
@@ -21,7 +21,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const TOTAL = 5, TARGET = 3, PLUS = 4;   // nums = [1,1,1,1,1]
   const steps = [
@@ -53,7 +53,7 @@
 
     // ── BAND 1 · dp counts ──
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[s] = 湊出正號和 s 的「方法數」(珊瑚=本步更新 · 目標 P=4)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[s] = 湊出正號和 s 的「方法數」(紅=本步更新 · 目標 P=4)', PAD, 24);
 
     ctx.textAlign='center'; ctx.textBaseline='middle';
     if(s.k>0){

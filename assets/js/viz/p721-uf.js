@@ -18,7 +18,7 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#f3f3ef', nodeS:'#c9c9c1', edge:'#8fae6e', coral:'#d96e4e' };
+    node:'#f3f3ef', nodeS:'#c9c9c1', edge:'#8fae6e', coral:'#cf3535' };
   const CC = { 0:{f:'#d9e8c7',s:'#5fa866',t:'#3f7a3a'}, 3:{f:'#dbe8f6',s:'#4478c0',t:'#2f5f9e'} };
   const LABEL = ['a','b','c','d'];   // a=johnsmith, b=john_ny, c=john00, d=mary
   const OWNER = ['John','John','John','Mary'];
@@ -72,7 +72,7 @@
     // cell row (pushed down for clear gap below headers)
     ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('parent', PAD, cellMid);
     for(let j=0;j<4;j++){ const x=gx+j*cell; const val=s.parent[j]; const isRoot=val<0;
-      rr(x+4,cellY,cell-8,30,5); ctx.fillStyle=isRoot?'#fbe7df':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.coral:'#a9c4da'; ctx.stroke();
+      rr(x+4,cellY,cell-8,30,5); ctx.fillStyle=isRoot?'#fbe1e1':'#eef4fa'; ctx.fill(); ctx.lineWidth=1.4; ctx.strokeStyle=isRoot?COLOR.coral:'#a9c4da'; ctx.stroke();
       ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(val), x+cell/2, cellMid); }
     // current account
     if(s.acct){ ctx.fillStyle=COLOR.text; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('acct: '+s.acct, gx+4*cell+18, cellMid); }

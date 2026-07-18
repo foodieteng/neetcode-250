@@ -29,8 +29,8 @@
     A:'#e3edf5', AS:'#6f9fc4',       // start component (blue = flooded)
     B:'#f6ead8', BS:'#d4a868',       // other flooded island (tan)
     conn:'#d9e8c7', connS:'#5fa866', // connected (green)
-    cur:'#d96e4e',                    // just-flooded outline
-    coral:'#d96e4e',
+    cur:'#cf3535',                    // just-flooded outline
+    coral:'#cf3535',
   };
 
   const GRID = [[0,2,1],[5,8,3],[6,7,4]];

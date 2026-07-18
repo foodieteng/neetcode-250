@@ -4,7 +4,7 @@
    9↔0 環繞)。從 "0000" 做 BFS,一層 = 轉一次;第一次碰到 target 的
    層數就是最少轉數。deadends 不能進、seen 不重複。
    deadends=["0201","0101","0102","1212","2002"], target="0202" → 6
-     BAND 1  鎖的 4 個輪(珊瑚=本步轉動的輪 + ↑/↓)
+     BAND 1  鎖的 4 個輪(紅=本步轉動的輪 + ↑/↓)
      BAND 2  BFS 找到的最短路徑 + step
      BAND 3  deadends + 說明
    ============================================================ */
@@ -17,8 +17,8 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    wheel:'#ffffff', wheelS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', done:'#d9e8c7', doneS:'#5fa866',
-    chip:'#eef4fa', chipS:'#a9c4da', coral:'#d96e4e', bad:'#f0d4d4', badS:'#c98a8a' };
+    wheel:'#ffffff', wheelS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', done:'#d9e8c7', doneS:'#5fa866',
+    chip:'#eef4fa', chipS:'#a9c4da', coral:'#cf3535', bad:'#f0d4d4', badS:'#c98a8a' };
 
   const TARGET = '0202';
   const PATH = ['0000','1000','1100','1200','1201','1202','0202'];
@@ -48,7 +48,7 @@
 
     // ── BAND 1 · the 4 wheels
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 鎖的 4 個輪(珊瑚 = 本步轉動的輪)· target = 0202', PAD, 24);
+    ctx.fillText('BAND 1 · 鎖的 4 個輪(紅 = 本步轉動的輪)· target = 0202', PAD, 24);
     const ww=84, wh=100, gap=18, tot=4*ww+3*gap, wx0=(w-tot)/2, wy=48;
     for(let k=0;k<4;k++){ const x=wx0+k*(ww+gap); const isCur=mv&&mv.w===k; const digit=s.code[k];
       // up hint

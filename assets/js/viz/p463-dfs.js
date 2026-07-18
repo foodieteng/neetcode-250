@@ -4,7 +4,7 @@
    周長邊界);踩到陸地就繼續 flood、把它標記為已訪。每個陸地格只
    數一次,它朝向水/出界的邊就是它對周長的貢獻。
    grid = plus shape  →  perimeter 12
-     BAND 1  3×3 網格 + 逐步累積的周長外框(珊瑚)
+     BAND 1  3×3 網格 + 逐步累積的周長外框(紅)
      BAND 2  當前格四方向 · 陸地 / 水 / 出界
      BAND 3  周長累計
    ============================================================ */
@@ -18,8 +18,8 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     water:'#e3edf5', waterS:'#a9c4da', land:'#ffffff', landS:'#c9c9c1',
-    seen:'#eef4dc', seenS:'#a9c07a', curFill:'#fbe7df', curS:'#d96e4e',
-    perim:'#d96e4e', perimSoft:'#eab6a4', coral:'#d96e4e' };
+    seen:'#eef4dc', seenS:'#a9c07a', curFill:'#fbe1e1', curS:'#cf3535',
+    perim:'#cf3535', perimSoft:'#eab6a4', coral:'#cf3535' };
 
   const N = 3;
   // 1 = land, 0 = water
@@ -44,7 +44,7 @@
       text:`訪問 <code>(${r},${c})</code>,標記已訪。四個方向裡有 <strong>${k}</strong> 個是水/出界 → 周長 <strong>+${k}</strong>(累計 ${acc})。${k===0?'此格四周全是陸地,完全不貢獻周長。':''}` });
   }
   steps.push({ vis:ORDER.slice(), cur:null, perim:acc, done:true,
-    text:`所有陸地格都訪問完畢。島的外框就是累積的珊瑚邊界 → <strong>周長 = ${acc}</strong>。` });
+    text:`所有陸地格都訪問完畢。島的外框就是累積的紅邊界 → <strong>周長 = ${acc}</strong>。` });
 
   let step = 0, timer = null;
   function fit(){ const dpr=Math.min(Math.max(window.devicePixelRatio||1,2),3); const rc=canvas.getBoundingClientRect();
@@ -64,7 +64,7 @@
 
     // ── BAND 1
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 網格 + 累積周長外框(珊瑚 = 朝向水/出界的邊)', PAD, 24);
+    ctx.fillText('BAND 1 · 網格 + 累積周長外框(紅 = 朝向水/出界的邊)', PAD, 24);
     const cell=96, gw=N*cell, gx=(w-gw)/2, gy=48;
     const curKey = s.cur ? s.cur[0]+','+s.cur[1] : null;
     const visSet = new Set(s.vis.map(v=>v[0]+','+v[1]));
@@ -91,7 +91,7 @@
     const cy=by+12;
     if(s.cur){ const sd=sides(s.cur[0],s.cur[1]); const cw=Math.min(150,(w-PAD*2-30)/4), gap=10;
       for(let d=0;d<4;d++){ const x=PAD+d*(cw+gap); const bnd=sd[d]!=='land';
-        ctx.fillStyle=bnd?'#fbe7df':COLOR.seen; ctx.fillRect(x,cy,cw,40); ctx.lineWidth=1.6; ctx.strokeStyle=bnd?COLOR.curS:COLOR.seenS; ctx.strokeRect(x,cy,cw,40);
+        ctx.fillStyle=bnd?'#fbe1e1':COLOR.seen; ctx.fillRect(x,cy,cw,40); ctx.lineWidth=1.6; ctx.strokeStyle=bnd?COLOR.curS:COLOR.seenS; ctx.strokeRect(x,cy,cw,40);
         ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle=COLOR.ink; ctx.font='700 14px "JetBrains Mono", monospace';
         ctx.fillText(DNAME[d], x+cw/2, cy+15);
         ctx.font='600 10px "Noto Sans TC", sans-serif'; ctx.fillStyle=bnd?COLOR.curS:COLOR.seenS;

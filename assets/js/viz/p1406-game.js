@@ -6,7 +6,7 @@
    dp[i] = max over j∈{0,1,2} ( take(i..i+j) − dp[i+j+1] )。base dp[n]=0。
    由後往前填;dp[0] > 0 → Alice、< 0 → Bob、= 0 → Tie。
    例 stones=[1,2,3,7] → dp=[-1,12,10,7,0],dp[0]=-1 → Bob
-     BAND 1  stones[] 與 dp[](珊瑚=本步 i · 藍=被減的對手 dp[next])
+     BAND 1  stones[] 與 dp[](紅=本步 i · 藍=被減的對手 dp[next])
      BAND 2  三種拿法:take − dp[next]
      BAND 3  說明:減 = 換人,扣掉對手的領先
    ============================================================ */
@@ -20,7 +20,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const ST = [1, 2, 3, 7];
   const N = ST.length;               // 4
@@ -53,7 +53,7 @@
 
     // BAND 1 · stones + dp
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · stones[] 與 dp[](珊瑚=本步 i · 綠=本步拿走 · 藍=被減的對手 dp[next])', PAD, 24);
+    ctx.fillText('BAND 1 · stones[] 與 dp[](紅=本步 i · 綠=本步拿走 · 藍=被減的對手 dp[next])', PAD, 24);
     const sy=48, schh=36, dy=104, dchh=44;
     // stones row (N cells)
     for(let k=0;k<N;k++){ const x=gx+k*cw; const inTake=(s.taken && k>=s.taken[0] && k<=s.taken[1]);

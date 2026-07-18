@@ -4,7 +4,7 @@
    的鄰居,就標出「能流到這片海」的所有格。做兩次淹沒:太平洋(上緣+
    左緣)、大西洋(下緣+右緣);兩邊都能到的格 = 答案。
    heights = LeetCode 範例  →  7 格
-     BAND 1  高度網格(藍=可達太平洋 · 棕=可達大西洋 · 珊瑚=兩者)
+     BAND 1  高度網格(藍=可達太平洋 · 棕=可達大西洋 · 紅=兩者)
      BAND 2  本步在標什麼
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#ffffff', cellS:'#c9c9c1', pac:'#e3edf5', pacS:'#6f9fc4', atl:'#f6ead8', atlS:'#d4a868',
-    both:'#d96e4e', bothS:'#b8532f', coral:'#d96e4e' };
+    both:'#cf3535', bothS:'#b8532f', coral:'#cf3535' };
 
   const R = 5, C = 5;
   const H = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]];
@@ -29,7 +29,7 @@
     { show:'init', text:'<strong>INITIAL</strong> · 太平洋碰<strong>上緣 + 左緣</strong>,大西洋碰<strong>下緣 + 右緣</strong>。水往低處流;反過來從海邊往內陸淹,只走高度 <strong>≥ 當前</strong>的鄰居。' },
     { show:'pac', text:'<strong>① 太平洋淹沒</strong>:從上緣、左緣的格往內 DFS,鄰居 <code>≥</code> 當前才走 → 藍色 = 能把水流到<strong>太平洋</strong>的格。' },
     { show:'atl', text:'<strong>② 大西洋淹沒</strong>:同樣從下緣、右緣往內淹 → 棕色 = 能流到<strong>大西洋</strong>的格。' },
-    { show:'both', text:'<strong>③ 取交集</strong>:<strong>兩邊都能到</strong>的格(珊瑚)就是答案 —— <code>[0,4][1,3][1,4][2,2][3,0][3,1][4,0]</code>,共 7 格。' },
+    { show:'both', text:'<strong>③ 取交集</strong>:<strong>兩邊都能到</strong>的格(紅)就是答案 —— <code>[0,4][1,3][1,4][2,2][3,0][3,1][4,0]</code>,共 7 格。' },
   ];
 
   let step = 0, timer = null;
@@ -44,7 +44,7 @@
 
     // ── BAND 1 · grid
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 高度網格(藍=可達太平洋 · 棕=可達大西洋 · 珊瑚=兩者皆可)', PAD, 24);
+    ctx.fillText('BAND 1 · 高度網格(藍=可達太平洋 · 棕=可達大西洋 · 紅=兩者皆可)', PAD, 24);
     const cell=60, gw=C*cell, gx=(w-gw)/2, gy=58, bar=7;
 
     // ocean bars: Pacific top+left (blue), Atlantic bottom+right (brown)
@@ -74,13 +74,13 @@
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · 本步', PAD, by);
     const cy=by+12; const done=s.show==='both';
-    rr(PAD,cy,w-PAD*2,40,6); ctx.fillStyle=done?'#fbe7df':(s.show==='init'?'#fafaf6':(s.show==='pac'?COLOR.pac:COLOR.atl)); ctx.fill();
+    rr(PAD,cy,w-PAD*2,40,6); ctx.fillStyle=done?'#fbe1e1':(s.show==='init'?'#fafaf6':(s.show==='pac'?COLOR.pac:COLOR.atl)); ctx.fill();
     ctx.lineWidth=1.6; ctx.strokeStyle=done?COLOR.bothS:(s.show==='init'?COLOR.grid:(s.show==='pac'?COLOR.pacS:COLOR.atlS)); ctx.stroke();
     ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='700 14px "JetBrains Mono", monospace';
     if(s.show==='init'){ ctx.fillStyle=COLOR.dim; ctx.fillText('點 Next / Play:① 太平洋淹沒 → ② 大西洋淹沒 → ③ 交集', w/2, cy+20); }
     else if(s.show==='pac'){ ctx.fillStyle='#3a6ea5'; ctx.fillText('可達太平洋:藍色格(從上緣/左緣往高處淹)', w/2, cy+20); }
     else if(s.show==='atl'){ ctx.fillStyle='#a9772e'; ctx.fillText('可達大西洋:棕色格(從下緣/右緣往高處淹)', w/2, cy+20); }
-    else { ctx.fillStyle='#9a3838'; ctx.fillText('交集 = 7 格 → return(珊瑚色即答案)', w/2, cy+20); }
+    else { ctx.fillStyle='#9a3838'; ctx.fillText('交集 = 7 格 → return(紅色即答案)', w/2, cy+20); }
 
     // ── BAND 3 · note
     const ty=cy+56;

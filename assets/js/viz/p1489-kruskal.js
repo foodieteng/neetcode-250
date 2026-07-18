@@ -30,7 +30,7 @@
     cand:'#cfcfcf',                       // candidate edge
     mst:'#5fa866',  mstBg:'#d9e8c7',      // chosen (green)
     skip:'#c0392b',                       // removed for test (red)
-    force:'#d96e4e', forceBg:'#f6ddd3',   // forced (coral)
+    force:'#cf3535', forceBg:'#f6ddd3',   // forced (coral)
     cyc:'#c9c2b4',                        // rejected as cycle
     nodeBg:'#eef3f8', nodeS:'#6f9fc4',
     isoS:'#c0392b',
@@ -86,7 +86,7 @@
 
   S({ es:{0:'skip',1:'force',2:'force',3:'force'}, iso:null, total:null, add:null, phase:'done',
       verdict:['critical = { e0 }','pseudo  = { e1, e2, e3 }','三條等重邊任選兩條 → 都偽關鍵'], hi:null,
-      text:'<strong>結論</strong>:<code>critical = {e0}</code>(紅)、<code>pseudo = {e1,e2,e3}</code>(珊瑚)。'
+      text:'<strong>結論</strong>:<code>critical = {e0}</code>(紅)、<code>pseudo = {e1,e2,e3}</code>(紅)。'
           +'e1/e2/e3 三條等重,任兩條都能組 MST,所以都是偽關鍵。' });
 
   let step = 0, timer = null;
@@ -114,7 +114,7 @@
     // ───────── BAND 1 · graph ─────────
     ctx.fillStyle = COLOR.dim; ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('BAND 1 · 圖(綠=MST 選用,紅=拿掉,珊瑚=強制/偽關鍵)', PAD, 26);
+    ctx.fillText('BAND 1 · 圖(綠=MST 選用,深紅=拿掉,紅=強制/偽關鍵)', PAD, 26);
 
     // edges
     for (const e of EDGES) {

@@ -4,7 +4,7 @@
    dp[i] = 1 + max( dp[j] : j<i 且 nums[j] < nums[i] ),沒有就 1。
    答案 = 整條 dp 的最大值。
    例 nums=[3,1,4,2,5] → dp=[1,1,2,2,3],答案 3([1,4,5] 等)
-     BAND 1  nums[] 與 dp[](珊瑚=本步 i · 藍=可接的前驅 j)
+     BAND 1  nums[] 與 dp[](紅=本步 i · 藍=可接的前驅 j)
      BAND 2  dp[i] = 1 + max(dp[j] : nums[j]<nums[i])
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const NUMS = [3, 1, 4, 2, 5];
   const N = NUMS.length;
@@ -48,7 +48,7 @@
     const jset=new Set(s.js);
 
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · nums[] 與 dp[](珊瑚=本步 i · 藍=可接的前驅 j:nums[j]<nums[i])', PAD, 24);
+    ctx.fillText('BAND 1 · nums[] 與 dp[](紅=本步 i · 藍=可接的前驅 j:nums[j]<nums[i])', PAD, 24);
 
     const cw=Math.min(74,(w-2*PAD-64)/N); const total=N*cw; const gx=(w-total)/2+18;
     const numsY=52, dpY=134, chh=42;

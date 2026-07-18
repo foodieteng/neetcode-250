@@ -4,7 +4,7 @@
    = 到 (i-1) 的方法數 + 到 (i-2) 的方法數 → dp[i] = dp[i-1] + dp[i-2]。
    這就是費氏數列。base:dp[0]=1(不動)、dp[1]=1(一步)。
    例 n=5 → dp = [1,1,2,3,5,8],答案 8
-     BAND 1  dp[] 陣列(珊瑚=本步填的 · 藍=兩個來源)
+     BAND 1  dp[] 陣列(紅=本步填的 · 藍=兩個來源)
      BAND 2  遞迴式:dp[i] = dp[i-1] + dp[i-2]
      BAND 3  說明
    ============================================================ */
@@ -18,7 +18,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const N = 5;                       // 5 階
   const NIL = -1;
@@ -48,7 +48,7 @@
 
     // ── BAND 1 · dp array
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[](珊瑚=本步填入 · 藍=兩個來源 dp[i-1]、dp[i-2])', PAD, 24);
+    ctx.fillText('BAND 1 · dp[](紅=本步填入 · 藍=兩個來源 dp[i-1]、dp[i-2])', PAD, 24);
     const cw=Math.min(74,(w-2*PAD)/(N+1)); const gx=(w-(N+1)*cw)/2, gy=64, chh=52;
     for(let i=0;i<=N;i++){ const x=gx+i*cw; const val=s.dp[i];
       const isCur=(i===s.cur), isSrc=srcSet.has(i), filled=val!==NIL&&!isCur&&!isSrc;

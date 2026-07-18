@@ -31,7 +31,7 @@
     edgeSt:   '#8fb3d4',
     discBg:   '#f6ead8',   // 吃到折扣 (F>D)
     discSt:   '#d4a868',
-    pathSt:   '#d96e4e',   // 最短路徑邊 / active
+    pathSt:   '#cf3535',   // 最短路徑邊 / active
     pathBg:   '#f6d2c4',
     doneBg:   '#d9e8c7',   // 已定距離的點
     doneSt:   '#5fa866',
@@ -39,7 +39,7 @@
     text:     '#1f3550',
     ink:      '#1a1a1a',
     dim:      '#9a9a9a',
-    coral:    '#d96e4e',
+    coral:    '#cf3535',
     green:    '#5fa866',
   };
 

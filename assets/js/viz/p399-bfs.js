@@ -4,7 +4,7 @@
    c 到 d 的路徑把邊權<strong>連乘</strong>(電話接龍:a/b · b/c = a/c)。BFS 帶著
    累積權重走;到達終點就回傳乘積,走不到 / 變數未定義回 -1。
    例 a/b=2, b/c=3 · 查 a/c → 2×3 = 6
-     BAND 1  加權圖(珊瑚=目前節點 · 綠=走過的邊)
+     BAND 1  加權圖(紅=目前節點 · 綠=走過的邊)
      BAND 2  queue:(節點, 累積權重 = a/該點)
      BAND 3  說明
    ============================================================ */
@@ -17,8 +17,8 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#f3f3ef', nodeS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
-    edge:'#b7c7d6', edgeOn:'#5fa866', coral:'#d96e4e' };
+    node:'#f3f3ef', nodeS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a',
+    edge:'#b7c7d6', edgeOn:'#5fa866', coral:'#cf3535' };
 
   const NODES = ['a','b','c'];
   // directed forward edges with weights; reverse = 1/w
@@ -56,7 +56,7 @@
 
     // ── BAND 1 · weighted graph
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 加權圖 a→b 存 a/b(珊瑚=目前節點 · 綠=走過的邊 · 邊上=權重)', PAD, 22);
+    ctx.fillText('BAND 1 · 加權圖 a→b 存 a/b(紅=目前節點 · 綠=走過的邊 · 邊上=權重)', PAD, 22);
     for(const [u,v,wt] of EDGES){ const key=u+'-'+v; const on=pathSet.has(key);
       arrow(POS[u][0],POS[u][1],POS[v][0],POS[v][1], on?COLOR.edgeOn:COLOR.edge, on?3.6:2.6);
       const mx=(POS[u][0]+POS[v][0])/2, my=(POS[u][1]+POS[v][1])/2;

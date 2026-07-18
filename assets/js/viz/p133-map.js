@@ -16,7 +16,7 @@
         bPlay = document.getElementById('vb-play'), bReset = document.getElementById('vb-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    cell:'#ffffff', cellS:'#c9c9c1', done:'#d9e8c7', doneS:'#5fa866', cur:'#fbe7df', curS:'#d96e4e', coral:'#d96e4e' };
+    cell:'#ffffff', cellS:'#c9c9c1', done:'#d9e8c7', doneS:'#5fa866', cur:'#fbe1e1', curS:'#cf3535', coral:'#cf3535' };
 
   const SHOWN = [0,1,2,3,4,5,6,7]; // 展示 index 0..7,後面用「… 100」示意
   const steps = [

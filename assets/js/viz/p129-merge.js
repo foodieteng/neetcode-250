@@ -26,7 +26,7 @@
     cellBg:   '#f4f6f8',
     arrBg:    '#e3edf5',
     arrStroke:'#8fb3d4',
-    active:   '#d96e4e',   // dp[i][j] being computed / chosen cell
+    active:   '#cf3535',   // dp[i][j] being computed / chosen cell
     left:     '#8fb3d4',   // dp[i][k] sub-interval
     right:    '#d4a868',   // dp[k+1][j] sub-interval
     sum:      '#d4a017',   // the +sum(i..j) merge cost

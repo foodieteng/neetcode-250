@@ -3,7 +3,7 @@
    dist[cell] = 到此格所需的最小「路徑最大高度」。min-heap 每次取
    目前瓶頸最小的格擴展,鬆弛用 max(h, 鄰居高度)。彈出終點即答案。
    Walks grid = [[0,2,1],[5,8,3],[6,7,4]]  →  4
-     BAND 1  grid + 每格 dist(白=未探,藍=在堆中,綠=已定案,珊瑚=剛彈出)
+     BAND 1  grid + 每格 dist(白=未探,藍=在堆中,綠=已定案,紅=剛彈出)
      BAND 2  priority_queue 內容(依瓶頸排序)
      BAND 3  彈出終點 → 答案
    ============================================================ */
@@ -24,7 +24,7 @@
     unseen:'#fafaf6', unseenS:'#d3ccbe',
     inq:'#e3edf5', inqS:'#6f9fc4',
     done:'#d9e8c7', doneS:'#5fa866',
-    cur:'#f6ddd3', curS:'#d96e4e', coral:'#d96e4e',
+    cur:'#f6ddd3', curS:'#cf3535', coral:'#cf3535',
   };
   const GRID = [[0,2,1],[5,8,3],[6,7,4]];
   const N = 3, INF = '∞';
@@ -59,7 +59,7 @@
     ctx.fillStyle=COLOR.paper; ctx.fillRect(0,0,w,h);
 
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 網格顯示 dist(綠=已定案,藍=在堆中,珊瑚=剛彈出)', PAD, 26);
+    ctx.fillText('BAND 1 · 網格顯示 dist(綠=已定案,藍=在堆中,紅=剛彈出)', PAD, 26);
 
     const cell=74, gx=PAD+22, gy=46;
     for(let r=0;r<N;r++) for(let c=0;c<N;c++){

@@ -7,7 +7,7 @@
      minP = min(minP * nums[i], nums[i])
      ans  = max(ans, maxP)
    例 nums=[3,-2,-3,4] → 72(整段:3·-2·-3·4)
-     BAND 1  nums[](珊瑚=本步)
+     BAND 1  nums[](紅=本步)
      BAND 2  maxP / minP 兩個暫存器(負數時先交換)
      BAND 3  ans + 為什麼要記 min
    ============================================================ */
@@ -21,7 +21,7 @@
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const NUMS = [3, -2, -3, 4];
   const N = NUMS.length;
@@ -48,7 +48,7 @@
 
     // BAND 1 · nums
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · nums[](珊瑚=本步 i · 綠=已處理)', PAD, 24);
+    ctx.fillText('BAND 1 · nums[](紅=本步 i · 綠=已處理)', PAD, 24);
     const cw=Math.min(70,(w-2*PAD)/(N+1)); const gx=(w-N*cw)/2, ny=50, chh=42;
     for(let k=0;k<N;k++){ const x=gx+k*cw; const isCur=(k===s.i), doneN=(k<s.i);
       ctx.fillStyle=COLOR.dim; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';

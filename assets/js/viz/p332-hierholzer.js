@@ -25,11 +25,11 @@
 
   const COLOR = {
     paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    live:'#6f9fc4', used:'#d9d4c8', active:'#d96e4e',
-    node:'#eef0f2', nodeS:'#9fb8cf', cur:'#f6ddd3', curS:'#d96e4e',
+    live:'#6f9fc4', used:'#d9d4c8', active:'#cf3535',
+    node:'#eef0f2', nodeS:'#9fb8cf', cur:'#f6ddd3', curS:'#cf3535',
     push:'#d9e8c7', pushS:'#5fa866',
     stackBg:'#e3edf5', stackS:'#6f9fc4',
-    coral:'#d96e4e',
+    coral:'#cf3535',
   };
 
   const NODES = { JFK:{x:110,y:70}, NRT:{x:330,y:70}, KUL:{x:220,y:170} };
@@ -99,7 +99,7 @@
     // ───────── BAND 1 · graph ─────────
     ctx.fillStyle = COLOR.dim; ctx.font = '600 12px "JetBrains Mono", monospace';
     ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 航線圖(灰=已用掉的機票,珊瑚=剛走過)', PAD, 26);
+    ctx.fillText('BAND 1 · 航線圖(灰=已用掉的機票,紅=剛走過)', PAD, 26);
 
     const nodeR = 26;
     // edges

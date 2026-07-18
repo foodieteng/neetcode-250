@@ -14,8 +14,8 @@ const P501_COLOR = {
   leftTint:   '#ecf0f5',     // pale blue – odd-value side
   rightTint:  '#f3eee6',     // pale tan – even-value side
   edge:       '#999999',
-  edgeActive: '#d96e4e',
-  coral:      '#d96e4e',
+  edgeActive: '#cf3535',
+  coral:      '#cf3535',
   ink:        '#1a1a1a',
   inkDim:     '#6b6b6b',
   inactive:   '#cfcfcf',

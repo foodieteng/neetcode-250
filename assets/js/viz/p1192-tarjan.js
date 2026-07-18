@@ -5,7 +5,7 @@
    low[u]=min(low[u],dfn[v])。判定:low[v] > dfn[u] ⟹ 邊 (u,v) 是橋
    (v 的子樹完全逃不出 v,唯一出口就是這條邊)。
    例 4 點:三角 0-1-2 + 1-3。唯一橋 = (1,3)
-     BAND 1  無向圖(珊瑚=現在的 u · 藍=回邊 · 紅=橋)
+     BAND 1  無向圖(紅=現在的 u · 藍=回邊 · 深紅=橋)
      BAND 2  dfn / low 表
      BAND 3  說明
    ============================================================ */
@@ -18,8 +18,8 @@
         bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
 
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
-    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe7df', curS:'#d96e4e', seen:'#eef4fa', seenS:'#a9c4da',
-    edge:'#c2ccd6', coral:'#d96e4e', back:'#4478c0', bad:'#d64545', on:'#d9e8c7', onS:'#5fa866' };
+    node:'#ffffff', nodeS:'#c9c9c1', cur:'#fbe1e1', curS:'#cf3535', seen:'#eef4fa', seenS:'#a9c4da',
+    edge:'#c2ccd6', coral:'#cf3535', back:'#4478c0', bad:'#a31d1d', on:'#d9e8c7', onS:'#5fa866' };
 
   const E = [[0,1],[1,2],[2,0],[1,3]];
   const NIL = -1;
@@ -59,7 +59,7 @@
 
     // ── BAND 1 · graph
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · 無向圖(珊瑚=現在的 u · 藍虛線=回邊 · 紅=橋)', PAD, 22);
+    ctx.fillText('BAND 1 · 無向圖(紅=現在的 u · 藍虛線=回邊 · 深紅=橋)', PAD, 22);
     for(const [a,b] of E){ const k=edgeKey(a,b); const isBridge=bridgeSet.has(k); const isBack=(k===backKey);
       ctx.beginPath(); ctx.moveTo(POS[a][0],POS[a][1]); ctx.lineTo(POS[b][0],POS[b][1]);
       if(isBridge){ ctx.strokeStyle=COLOR.bad; ctx.lineWidth=4; ctx.setLineDash([]); }

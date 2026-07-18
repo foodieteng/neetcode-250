@@ -5,7 +5,7 @@
      雙碼:"10" <= s[i-2..i-1] <= "26" → dp[i] += dp[i-2]
    base:dp[0]=1(空字串一種)、dp[1]=1(首字元非 0)。
    例 s="2101" → dp=[1,1,2,1,1],答案 1(只有 "2 10 1" = B J A)
-     BAND 1  字串視窗 + dp[] 陣列(珊瑚=本步 · 藍=有貢獻的來源 · 灰=條件不符)
+     BAND 1  字串視窗 + dp[] 陣列(紅=本步 · 藍=有貢獻的來源 · 灰=條件不符)
      BAND 2  兩個條件檢查(單碼 / 雙碼)
      BAND 3  dp[i] 結果
    ============================================================ */
@@ -20,7 +20,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', grey:'#ededed', greyS:'#c4c4c4', greyT:'#a6a6a6',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S = '2101';
   const N = S.length;                 // 4
@@ -50,7 +50,7 @@
 
     // ── BAND 1 header
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · dp[i] = 前 i 個字元的解碼方法數(珊瑚=本步 · 藍=有貢獻來源 · 灰=條件不符)', PAD, 24);
+    ctx.fillText('BAND 1 · dp[i] = 前 i 個字元的解碼方法數(紅=本步 · 藍=有貢獻來源 · 灰=條件不符)', PAD, 24);
 
     // string reference row  s = 2 1 0 1
     const dcw=34, dtot=N*dcw, dsx=(w-dtot)/2;

@@ -6,8 +6,8 @@
      從 s1 拿(上):dp[i-1][j] && s1[i-1] == s3[i+j-1]
      從 s2 拿(左):dp[i][j-1] && s2[j-1] == s3[i+j-1]
    兩者 OR。例 s1="ab", s2="cd", s3="acbd" → true
-     BAND 1  s3(珊瑚 = 本步要配的 s3[i+j-1])
-     BAND 2  dp 格子(珊瑚=本步 · 綠=成功來源 · 藍=失敗來源)
+     BAND 1  s3(紅 = 本步要配的 s3[i+j-1])
+     BAND 2  dp 格子(紅=本步 · 綠=成功來源 · 藍=失敗來源)
      右側     兩種來源的判斷
    ============================================================ */
 (function () {
@@ -21,7 +21,7 @@
   const COLOR = { paper:'#ffffff', ink:'#1a1a1a', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     cell:'#fafaf6', cellS:'#cfcfcf', nil:'#f3f3ef', nilS:'#e2e2dc',
     src:'#dbe8f6', srcS:'#4478c0', srcT:'#2f5f9e',
-    cur:'#fbe7df', curS:'#d96e4e', curT:'#b3502f', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#d96e4e' };
+    cur:'#fbe1e1', curS:'#cf3535', curT:'#992424', done:'#d9e8c7', doneS:'#5fa866', doneT:'#3f7a3a', coral:'#cf3535' };
 
   const S1 = 'ab', S2 = 'cd', S3 = 'acbd';
   const R = S1.length + 1, C = S2.length + 1;   // 3 x 3
@@ -58,7 +58,7 @@
 
     // BAND 1 · s3
     ctx.fillStyle=COLOR.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · s3(珊瑚 = 本步要配的字元,位置 = i+j−1)', PAD, 22);
+    ctx.fillText('BAND 1 · s3(紅 = 本步要配的字元,位置 = i+j−1)', PAD, 22);
     const scw=34, sgx=(w-S3.length*scw)/2, sy=34, schh=28;
     ctx.fillStyle=COLOR.text; ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textAlign='right'; ctx.textBaseline='middle';
     ctx.fillText('s3 =', sgx-10, sy+schh/2);
@@ -74,7 +74,7 @@
 
     // BAND 2 · grid
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · dp[i][j] — 列 i = s1、行 j = s2(珊瑚=本步 · 綠=成功來源 · 藍=失敗)', PAD, 92);
+    ctx.fillText('BAND 2 · dp[i][j] — 列 i = s1、行 j = s2(紅=本步 · 綠=成功來源 · 藍=失敗)', PAD, 92);
     const cell=40, gx=84, gy=120;
     for(let j=0;j<C;j++){ ctx.fillStyle=COLOR.text; ctx.font='700 13px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(j===0?'∅':S2[j-1], gx+j*cell+cell/2, gy-13); }

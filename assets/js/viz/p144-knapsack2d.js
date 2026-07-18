@@ -25,7 +25,7 @@
     paper:    '#ffffff',
     grid:     '#cfcfcf',
     cellBg:   '#f4f6f8',
-    active:   '#d96e4e', activeBg: '#f7ddd2',
+    active:   '#cf3535', activeBg: '#f7ddd2',
     source:   '#8fb3d4', sourceBg: '#e3edf5',
     grew:     '#5fa866', grewBg:   '#d9e8c7',
     itemBg:   '#f6ead8', itemSt:   '#d4a868',
