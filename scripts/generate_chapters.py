@@ -73,7 +73,7 @@ PROBLEMS = {
         ('p1',   'Two Sum',                           'two-sum',                           'easy','done'),
         ('p14',  'Longest Common Prefix',             'longest-common-prefix',             'easy','done'),
         ('p49',  'Group Anagrams',                    'group-anagrams',                    'med', 'todo'),
-        ('p27',  'Remove Element',                    'remove-element',                    'easy','todo'),
+        ('p27',  'Remove Element',                    'remove-element',                    'easy','done'),
         ('p169', 'Majority Element',                  'majority-element',                  'easy','todo'),
         ('p705', 'Design HashSet',                    'design-hashset',                    'easy','todo'),
         ('p706', 'Design HashMap',                    'design-hashmap',                    'easy','todo'),

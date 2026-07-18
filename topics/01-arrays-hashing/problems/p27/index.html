@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>27 · Remove Element // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">01 · Arrays &amp; Hashing</a> / P27</span>
+    <span><a href="https://leetcode.com/problems/remove-element/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">移除元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 慢/快指標就地覆寫</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 27</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指標 · 就地</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給陣列 <code>nums</code> 和值 <code>val</code>,<strong>就地</strong>移除所有等於 <code>val</code> 的元素。設非 <code>val</code> 的元素有 <code>k</code> 個,要讓 <code>nums</code> 的<strong>前 <code>k</code> 個</strong>是那些非 <code>val</code> 元素(順序可變),回傳 <code>k</code>。<code>k</code> 之後的值<strong>不重要</strong>。
+      </p>
+    </div>
+
+    <p>
+      「就地移除、回傳有效長度」是<strong>慢/快雙指標</strong>的招牌。關鍵領悟:陣列元素<strong>刪不掉</strong>(大小固定),但可以<strong>用要保留的值把前面覆寫掉</strong> ——
+      用一個<strong>寫指標</strong>指向「下一個該放的位置」,只把非 <code>val</code> 的值依序寫進去。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 兩個指標 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">核心 · 讀指標掃、寫指標只在保留時前進<span class="sc-section__title-en">// SLOW / FAST</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">兩個角色 · 讀(快)與寫(慢)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          ● <strong>讀指標(快)</strong>:逐一走過<strong>每個</strong>元素(就是 <code>for (int num : nums)</code> 的 <code>num</code>),不管值是什麼都往前。<br />
+          ● <strong>寫指標 <code>i</code>(慢)</strong>:指向「<strong>下一個要放非 val 元素的位置</strong>」,<strong>只在保留一個元素時才 +1</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          規則:讀到 <code>num == val</code> → <strong>跳過</strong>(寫指標不動);<code>num != val</code> → <code>nums[i] = num; i++</code>(寫進去、寫指標前進)。
+        </p>
+        <p style="margin:0;">
+          <strong>每遇到一個 <code>val</code>,寫指標就比讀指標多落後一格</strong> —— 這個「缺口」正好就是已跳過的 <code>val</code> 個數。掃完後,<code>[0, i)</code> 塞滿了所有非 <code>val</code> 元素,<code>i</code> 就是答案 <code>k</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 為什麼安全 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">為什麼「邊讀邊覆寫」不會出錯<span class="sc-section__title-en">// WHY SAFE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">寫指標永遠 ≤ 讀指標,不會蓋到還沒讀的資料</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          寫的位置 <code>i</code> <strong>永遠不會超過</strong>正在讀的位置 —— 因為每保留一個才寫一格,而讀指標每步都前進,<strong>寫指標 <code>i</code> ≤ 讀指標</strong>。所以 <code>nums[i] = num</code> 覆寫的,要嘛是<strong>已經讀過</strong>的位置、要嘛是<strong>正在讀</strong>的位置(<code>i == 讀</code> 時寫回自己,無害)。<strong>絕不會覆蓋到「後面還沒讀到」的資料。</strong>這就是為什麼可以安心就地覆寫、不用額外陣列。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [0,1,3,0,2], val=0 → k=3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      讀指標掃過每個元素;寫指標 <code>i</code> 只在保留時前進。遇到 <code>0</code> 就跳過,缺口拉大。最後前 3 個 = <code>[1,3,2]</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 慢/快指標 · 寫指標</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:290px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 另一種寫法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">另一種策略 · 和尾巴交換<span class="sc-section__title-en">// SWAP WITH END</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">當 val 很少時,「換到尾巴」寫入次數更少</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          本題的覆寫法會<strong>把每個保留元素都寫一次</strong>(即使它本來就在對的位置)。另一種:遇到 <code>val</code> 時,把它和<strong>陣列尾端</strong>的元素<strong>交換</strong>、並縮短有效長度 —— 這樣<strong>只動到 <code>val</code></strong>,保留元素完全不搬。當 <code>val</code> <strong>很稀少</strong>時,交換法的寫入次數遠少於覆寫法。<br />
+          <strong>代價</strong>:交換法<strong>會打亂順序</strong>(把尾巴的元素換到前面),而覆寫法<strong>保留原順序</strong>。本題「順序可變」所以兩者都行;若題目要保序,只能用覆寫法。<strong>覆寫=保序、穩;交換=少寫、快(但亂序)。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        讀指標掃一遍 <code>O(n)</code>,每步 <code>O(1)</code>。<strong>就地</strong>覆寫,除了兩個指標沒有額外空間 → <code>O(1)</code>。覆寫法保序;交換法同樣 <code>O(n)</code>/<code>O(1)</code> 但寫入更少、不保序。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>寫指標 <code>i</code> 指「下一個該放的位置」,只在保留時前進</strong>。讀到 <code>val</code> 跳過、否則 <code>nums[i++]=num</code>。
+      因 <code>i</code> ≤ 讀指標,覆寫安全。掃完 <code>i</code> = k。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../p14/index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 最長共同前綴 14</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">寫指標 i 只在保留時前進:num==val 跳過,否則 nums[i++]=num。i≤讀指標故覆寫安全。回傳 i=k。</div>
+    <div class="sc-summary-bar__detail">慢/快雙指標 · REMOVE ELEMENT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p27-writeptr.js"></script>
+</body>
+</html>
