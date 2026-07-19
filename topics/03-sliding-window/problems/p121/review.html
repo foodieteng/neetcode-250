@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>121 · Best Time to Buy and Sell Stock // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P121</span>
+    <span><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">買賣股票的最佳時機</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 121</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>一次掃描</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心一問</td><td>今天賣,最好買在「左側最低價」</td></tr>
+        <tr><td>兩個變數</td><td><code>minPrice</code>(跑動最低)· <code>maxProfit</code>(答案)</td></tr>
+        <tr><td>順序</td><td>先算利潤(舊 min)→ 再更新 min</td></tr>
+        <tr><td>初值</td><td><code>minPrice=prices[0]</code>,<code>maxProfit=0</code></td></tr>
+        <tr><td>不獲利</td><td>maxProfit 初值 0 → 一路跌回 0</td></tr>
+        <tr><td>另一視角</td><td>差分陣列的最大子陣列和(Kadane)</td></tr>
+        <tr><td>複雜度</td><td>O(n) 時間 / O(1) 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼「固定賣日,買點取左側最低」能保證找到全域最佳解?用「枚舉賣日」的角度說明為何不漏解。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>兩行為什麼要<strong>先算利潤、再更新 <code>minPrice</code></strong>?交換順序在什麼輸入下會出錯?交換後利潤會變負嗎?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p><code>maxProfit</code> 初值為什麼是 <code>0</code> 而不是 <code>INT_MIN</code>?這個 <code>0</code> 對應題目哪個合法選擇?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>有人說「答案就是 <code>max(prices) - min(prices)</code>」。給一個反例說明為什麼錯,錯在哪個約束?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>把 <code>prices</code> 換成<strong>每日漲跌差分</strong>,本題就變成「最大連續子陣列和」。為什麼「一段連續持有的利潤」等於「那段差分之和」?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 一路下跌 → 0</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// prices = [7,6,4,3,1]:全程下跌,應回 0</span>
+init: minPrice=7, maxProfit=0
+i=1 (價6): profit=6-7=-1 → maxProfit=max(0,-1)=0; minPrice=min(7,6)=6
+i=2 (價4): profit=4-6=-2 → maxProfit=0; minPrice=4
+i=3 (價3): profit=3-4=-1 → maxProfit=0; minPrice=3
+i=4 (價1): profit=1-3=-2 → maxProfit=0; minPrice=1
+<span class="sc-trace__out">回傳 maxProfit = 0(任何買賣都虧 → 選擇不交易)</span></div>
+
+    <div class="sc-insight">
+      每天的利潤都是負的,<code>maxProfit</code> 全程被初值 <code>0</code> 守住 → 回傳 <code>0</code>,正確表達「不交易」。
+      <code>minPrice</code> 雖然一路壓到 <code>1</code>,但它右邊已經沒有更高的價可賣,所以派不上用場 —— <strong>最低價出現在最後,買了也賣不出去</strong>,這正是 Q4 那個錯誤公式的破綻。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 122 可多次買賣</strong>:能買賣任意多次(但手上最多一股)。最大利潤怎麼算?為什麼「把所有上漲區段加起來」就對?和本題的差分視角有什麼關係?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>要回傳買賣是哪兩天</strong>:除了最大利潤,還要輸出買日與賣日索引。掃描時要多記什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>最多兩次交易(LC 123)</strong>:上限兩筆、不重疊。O(1) 變數還夠嗎?要維護哪幾個狀態?(提示:買一、賣一、買二、賣二四個狀態)</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      最佳解一定是某組 <code>(買日 b, 賣日 s)</code> 且 <code>b &lt; s</code>。我們<strong>枚舉每一天當賣日 <code>s</code></strong>:固定 <code>s</code> 後,利潤 <code>prices[s]-prices[b]</code> 要最大就得 <code>prices[b]</code> 最小,而 <code>b</code> 只能在 <code>s</code> 左邊,所以最佳買點就是「<code>s</code> 左側的最低價」。掃描到 <code>s</code> 時,<code>minPrice</code> 恰好是這個值。<strong>每個賣日都取到它自己的最佳買點,再對所有賣日取 max</strong> → 涵蓋了所有可能的最佳組合,不會漏。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      必須<strong>先算利潤、再更新 <code>minPrice</code></strong>。因為「今天賣」的買點只能是<strong>今天以前</strong>的最低;若先把今天價併入 <code>minPrice</code>,就等於允許「買在今天、也賣在今天」。以 <code>[2,4]</code> 為例本無差(仍算對),但語意上會把「同日買賣」當成合法買點。交換後利潤不會變負(頂多為 0,買賣同日),所以答案數值常常仍對 —— 但<strong>為了語意正確、也為了推廣到「要輸出買賣日」的版本,務必先算再更新</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      初值 <code>0</code> 對應題目允許的「<strong>不交易</strong>」選擇 —— 若所有買賣都虧,最佳決策是什麼都不做,利潤 <code>0</code>。用 <code>INT_MIN</code> 當初值,遇到全程下跌會回傳一個負的最大利潤,違反「無法獲利回 <code>0</code>」。所以 <code>0</code> 既是初值也是「保底」下限。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      反例 <code>[7,6,4,3,1]</code>:<code>max=7</code>、<code>min=1</code>,公式給 <code>6</code>,但正解是 <code>0</code>。錯在<strong>忽略「買必須在賣之前」的時間約束</strong> —— 這裡最低價 <code>1</code> 出現在<strong>最後一天</strong>,而最高價 <code>7</code> 在第一天,你不可能「先低買後高賣」。正確做法是掃描時 <code>minPrice</code> 只看<strong>當前賣日的左側</strong>,天然滿足先後順序。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      設差分 <code>diff[i] = prices[i] - prices[i-1]</code>。第 <code>b</code> 天買、第 <code>s</code> 天賣的利潤 <code>prices[s]-prices[b]</code>,把中間逐日展開會<strong>望遠鏡相消</strong>:<code>= (prices[b+1]-prices[b]) + (prices[b+2]-prices[b+1]) + … + (prices[s]-prices[s-1]) = diff[b+1]+…+diff[s]</code>。也就是「連續持有期間的利潤 = 那段差分之和」。所以求最大利潤 = 求差分陣列的<strong>最大連續子陣列和</strong>,正是 Kadane;初值 0 對應「空區段(不交易)」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 122</strong>:可多次買賣時,最大利潤 = <strong>把所有相鄰上漲的差都收下</strong> —— <code>sum(max(0, prices[i]-prices[i-1]))</code>。用差分視角看很直觀:多次交易等於可以自由挑選差分陣列裡<strong>所有正的元素</strong>相加(每個上漲區段都能單獨吃下),而本題(單筆)只能挑<strong>一段連續</strong>。所以 122 是「取所有正差分」,121 是「取最大連續子段」,同一個差分陣列上的兩種取法。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      掃描時除了 <code>minPrice</code>,多記 <strong>minPrice 對應的買日索引</strong> <code>buyIdx</code>;每當 <code>prices[i]-minPrice</code> 刷新 <code>maxProfit</code> 時,記下 <strong>賣日 <code>i</code> 與當前 <code>buyIdx</code></strong> 為最佳對。更新 <code>minPrice</code> 時同步更新 <code>buyIdx=i</code>。這樣結束時就握有最佳買賣兩天的索引。仍是 <code>O(n)/O(1)</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 123</strong>:最多兩筆、不重疊。<code>O(1)</code> 仍夠,維護<strong>四個狀態</strong>:<code>buy1</code>(第一次買後的最大「-成本」)、<code>sell1</code>(第一次賣後最大利潤)、<code>buy2</code>(在 sell1 基礎上再買)、<code>sell2</code>(第二次賣後總利潤)。轉移:<code>buy1=max(buy1,-p)</code>、<code>sell1=max(sell1,buy1+p)</code>、<code>buy2=max(buy2,sell1-p)</code>、<code>sell2=max(sell2,buy2+p)</code>,答案 <code>sell2</code>。這是本題「單狀態」往「多狀態機」的自然推廣,也是 LC 188(最多 k 筆)的雛形。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">枚舉賣日、買點取左側最低 → 不漏解。先算利潤再更新 min 保證先買後賣。初值 0 = 不交易。max−min 錯在忽略時序。差分後即 Kadane;122 取所有正差、123 四狀態機。O(n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">一次掃描 · BEST TIME TO BUY/SELL STOCK</div>
+  </div>
+
+</body>
+</html>

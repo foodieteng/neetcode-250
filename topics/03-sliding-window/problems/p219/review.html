@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>219 · Contains Duplicate II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P219</span>
+    <span><a href="https://leetcode.com/problems/contains-duplicate-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">存在鄰近重複元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 219</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>滑動視窗</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心改寫</td><td>距離 ≤ k 的相等元素 ⟺ 長度 ≤ k+1 的視窗有重複</td></tr>
+        <tr><td>視窗不變式</td><td><code>r - l ≤ k</code>(長度 ≤ k+1)</td></tr>
+        <tr><td>視窗摘要</td><td>集合/計數記「最近 k+1 個值」</td></tr>
+        <tr><td>命中條件</td><td>加入 nums[r] 時集合已有此值</td></tr>
+        <tr><td>順序</td><td>先收縮(移出太遠的)再加入檢查</td></tr>
+        <tr><td>複雜度</td><td>O(n) 時間 / O(min(n,k)) 空間</td></tr>
+        <tr><td>兄弟題</td><td>LC 217 有沒有重複(不限距離)· LC 220 值也允許誤差</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼視窗長度要允許到 <code>k+1</code> 而不是 <code>k</code>?條件寫成 <code>r-l &gt;= k</code> 會漏掉哪種情形?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼一定要<strong>先收縮、再加入 <code>nums[r]</code> 檢查</strong>?順序反過來(先檢查再收縮)會出什麼錯?用動畫的 <code>r=2</code> 那步說明。</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>計數版用 <code>unordered_map&lt;int,int&gt; freq</code>,但作者說「計數其實不會超過 2」。為什麼?這代表它本質上等於什麼資料結構?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>集合版用 <code>window.erase(nums[r-k-1])</code> 移出離開視窗的值。為什麼移出的索引是 <code>r-k-1</code> 而不是 <code>r-k</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>如果把「移出視窗左值」這步拿掉、集合只增不減,程式會變成解哪一題?(提示:LeetCode 217)</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 距離剛好 &gt; k 的反例</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums = [1,2,3,1], k = 2:兩個 1 距離 3 > k → 應回 false</span>
+l=0
+r=0: 不收縮; ++freq[1]=1                視窗{1}
+r=1: 不收縮; ++freq[2]=1                視窗{1,2}
+r=2: r-l=2≤2 不收縮; ++freq[3]=1        視窗{1,2,3}(長度 3 = k+1)
+r=3: r-l=3&gt;2 → 收縮 freq[nums[0]=1]-- =0, l=1
+     ++freq[1]=1(剛歸零又回1) ≠2       視窗{2,3,1} 早先的 1 已移出
+掃完 → return false
+<span class="sc-trace__out">false(兩個 1 索引差 3 &gt; k=2,不算鄰近)</span></div>
+
+    <div class="sc-insight">
+      這正是「定長視窗」的價值:idx0 的 <code>1</code> 在 <code>r</code> 走到 idx3 前就<strong>因為超出 k+1 範圍被收縮出去</strong>,所以加入第二個 <code>1</code> 時集合裡沒有它 → 正確回 <code>false</code>。
+      視窗長度 <code>k+1</code> 就是「距離 ≤ k」這個條件的幾何化身。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 217 存在重複</strong>:只問「陣列有沒有任何重複」(不限距離)。用本題的骨架怎麼退化?視窗要多大?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 220 存在鄰近且值相近</strong>:距離 ≤ <code>k</code> 且 <code>abs(nums[i]-nums[j]) ≤ t</code>。集合換成什麼結構,才能在視窗內快速找「值落在 [x-t, x+t]」的元素?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>定長 vs 可變長視窗</strong>:本題視窗長度上限固定(k+1),屬「定長」;而「最長不重複子字串」(LC 3)視窗會伸縮。兩者在「什麼時候收縮左指針」上判斷依據差在哪?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      題目要的是 <code>abs(i-j) ≤ k</code> —— <strong>距離剛好 k 也算</strong>。索引差為 <code>k</code> 的兩個元素,落在同一視窗時視窗長度是 <code>k+1</code>(含兩端共 <code>k+1</code> 格)。若限制長度只到 <code>k</code>(即 <code>r-l &gt;= k</code> 就收縮),距離恰為 <code>k</code> 的那一對永遠無法同時在窗內,會<strong>漏判</strong>。所以不變式必須是 <code>r - l ≤ k</code>,允許長度 <code>k+1</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      必須<strong>先收縮再加入檢查</strong>。以動畫 <code>r=2</code>(<code>[1,0,1,1], k=1</code>)為例:此時 idx0 的舊 <code>1</code> 距離 idx2 是 2 &gt; k,<strong>不該算命中</strong>。先收縮會把 idx0 移出(<code>freq[1]</code> 歸零),再加入 idx2 的 <code>1</code> 只得 <code>freq[1]=1</code>,正確不命中。若<strong>先檢查再收縮</strong>,加入 idx2 時 idx0 的 <code>1</code> 還在集合 → <code>freq[1]</code> 變 2 → <strong>誤判成 true</strong>。收縮的作用就是「把超出距離的舊值先清掉」,順序錯了距離條件就失效。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      因為程式<strong>一旦某值計數到 2 就立刻 <code>return true</code></strong>,所以任何時刻視窗內每個值最多只有 1 份(計數 0 或 1),永遠不會停在 2 之後繼續。這代表 <code>freq</code> 本質上就是一個<strong>集合(存在性)</strong>:值在不在窗內。用 <code>map&lt;int,int&gt;</code> 只是順手用收縮時的 <code>--</code> 維護「離開就移除」,換成 <code>unordered_set</code> 加 <code>erase(nums[r-k-1])</code> 完全等價、更直白。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      當右指針在 <code>r</code>、視窗要維持長度 <code>k+1</code> 時,窗內合法索引是 <code>[r-k, r]</code>。所以「剛好離開視窗」的是索引 <code>r-k-1</code>(比窗左端再左一格)。在把 <code>nums[r]</code> 加入之前,先把 <code>nums[r-k-1]</code> 移出,窗內就恰好保留 <code>(r-k .. r]</code> 這 <code>≤ k+1</code> 個。寫成 <code>r-k</code> 會多移一格,把還在窗內的值誤刪。<code>r &gt; k</code> 的判斷確保 <code>r-k-1 ≥ 0</code> 不越界。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      拿掉收縮、集合只增不減,就變成 <strong>LC 217「存在重複元素」</strong>:只要整個陣列出現過同一個值兩次就回 <code>true</code>,不管距離。等於把視窗放大到<strong>整個陣列</strong>(<code>k = n-1</code>)。換句話說,本題是 217 加上「只看最近 <code>k+1</code> 個」的距離限制 —— 用一個定長視窗把「全局重複」收窄成「鄰近重複」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 217</strong>:視窗放到最大(不收縮),集合裝全部見過的值,<code>insert</code> 撞名即回 <code>true</code>。等價於本題 <code>k = n-1</code>。所以 217 是 219 的「無距離限制」特例;219 只是多維護「最近 k+1 個」這件事,骨架一模一樣。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 220</strong>:除了距離 ≤ k,還要值差 ≤ t。集合換成<strong>有序結構</strong> <code>set&lt;long&gt;</code>(平衡樹):對每個 <code>nums[r]</code>,用 <code>lower_bound(nums[r]-t)</code> 找視窗內第一個 ≥ <code>x-t</code> 的值,檢查它是否 ≤ <code>x+t</code>;同樣維護視窗長 ≤ k+1(超出就 <code>erase</code> 最左值)。時間 <code>O(n log k)</code>。或用桶(bucket,桶寬 t+1)做到 <code>O(n)</code>。核心仍是「定長視窗 + 能查範圍的結構」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>定長</strong>(本題):收縮的依據是<strong>視窗大小</strong> —— 只要 <code>r-l &gt; k</code> 就縮,和窗內內容無關,窗長上限固定。<strong>可變長</strong>(LC 3 最長不重複子字串):收縮的依據是<strong>視窗內容是否違反條件</strong> —— 當窗內出現重複字元才縮,縮到條件恢復為止,窗長隨資料浮動。一句話:定長看「幾個」,可變長看「合不合法」。兩者都是右擴左縮,只是<strong>收縮的觸發條件不同</strong>。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">距離≤k ⟺ 長度≤k+1 視窗有重複。不變式 r-l≤k,先收縮再加入。freq 只會到 2 → 本質是集合。無距離限制退化成 217;加值差變 220。定長看幾個、可變長看合不合法。</div>
+    <div class="sc-summary-bar__detail">滑動視窗 · CONTAINS DUPLICATE II</div>
+  </div>
+
+</body>
+</html>

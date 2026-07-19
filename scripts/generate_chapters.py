@@ -106,8 +106,8 @@ PROBLEMS = {
         ('p42',  'Trapping Rain Water',                'trapping-rain-water',                'hard','todo'),
     ],
     '03': [  # Sliding Window
-        ('p219','Contains Duplicate II',                         'contains-duplicate-ii',                         'easy','todo'),
-        ('p121','Best Time to Buy and Sell Stock',               'best-time-to-buy-and-sell-stock',               'easy','todo'),
+        ('p219','Contains Duplicate II',                         'contains-duplicate-ii',                         'easy','done'),
+        ('p121','Best Time to Buy and Sell Stock',               'best-time-to-buy-and-sell-stock',               'easy','done'),
         ('p3',  'Longest Substring Without Repeating Characters','longest-substring-without-repeating-characters','med', 'todo'),
         ('p424','Longest Repeating Character Replacement',       'longest-repeating-character-replacement',       'med', 'todo'),
         ('p567','Permutation in String',                         'permutation-in-string',                         'med', 'todo'),
