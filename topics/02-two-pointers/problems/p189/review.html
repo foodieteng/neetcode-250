@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>189 · Rotate Array // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P189</span>
+    <span><a href="https://leetcode.com/problems/rotate-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">輪轉陣列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 189</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>三次反轉</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>目標</td><td>右轉 k = <code>AB → BA</code></td></tr>
+        <tr><td>恆等式</td><td><code>(AB)ᴿ = BᴿAᴿ</code>,反兩次抵消</td></tr>
+        <tr><td>三步</td><td>reverse 全部 → 前 k → 其餘</td></tr>
+        <tr><td>取模</td><td><code>k %= n</code>(不可省,防越界)</td></tr>
+        <tr><td>反轉本質</td><td>對撞雙指針 <code>swap(a[l++],a[r--])</code></td></tr>
+        <tr><td>三種解</td><td>另開陣列 / 環狀替換 / 三次反轉</td></tr>
+        <tr><td>複雜度</td><td>O(n) 時間 / O(1) 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>用 <code>(AB)ᴿ=BᴿAᴿ</code> 解釋為什麼「全反 → 反前 k → 反其餘」正好等於右轉 <code>k</code>。第一次全反負責什麼、後兩次負責什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p><code>k %= n</code> 為什麼不能省?舉一個 <code>k &gt; n</code> 的例子說明不取模會怎樣。</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>若把步驟順序改成「先反前 <code>k</code>、再反其餘、最後全反」,得到的是右轉還是左轉?為什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>三種 <code>O(?)</code> 解法(另開陣列、環狀替換、三次反轉)在<strong>時間、空間、好不好寫</strong>上各是什麼取捨?為什麼面試首選三次反轉?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>為什麼說「<code>reverse</code> 就是對撞雙指針」?它和 <a href="../p167/index.html">167</a>、<a href="../p344/index.html">344</a> 共用的核心動作是什麼?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// k > n 的取模</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums = [1,2], k = 3 → k %= 2 = 1(右轉 1 格)</span>
+k %= 2 → 1
+① reverse 全部:   [1,2] → [2,1]
+② reverse 前 1:   [2,1] → [2,1](單元素,不變)
+③ reverse 其餘[1,2):[2,1] → [2,1](單元素,不變)
+<span class="sc-trace__out">[2,1] = 右轉 1 格;k=3 取模成 1,沒有白轉整圈</span></div>
+
+    <div class="sc-insight">
+      <code>k=3、n=2</code>:轉 <code>2</code> 格就回到原狀,所以只有 <code>3 mod 2 = 1</code> 格是「真的有效」的。
+      若不取模,<code>begin()+3</code> 會<strong>越過 <code>end()</code></strong> 造成未定義行為。<code>k %= n</code> 同時解決「白轉整圈」與「越界」兩個問題。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>向左轉 k 格</strong>:要怎麼改?能不能<strong>只換一個數</strong>就把「右轉」的程式變「左轉」?(提示:左轉 k = 右轉 n-k)</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>環狀替換</strong>:寫出 <code>O(1)</code> 空間的環狀搬移。為什麼要用 <code>count</code> 計數搬過幾個、而不能只跑一圈?什麼時候會有多個環?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>字串輪轉判定(LC 796)</strong>:判斷 <code>s</code> 是否為 <code>goal</code> 的某個輪轉。有沒有一個「一行」技巧,不必真的轉?(提示:和 <code>s+s</code> 有關)</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      設前段 <code>A</code>(前 <code>n-k</code>)、尾段 <code>B</code>(尾 <code>k</code>),原陣列 <code>AB</code>,右轉 <code>k</code> 要得 <code>BA</code>。<strong>① 全反</strong>:<code>(AB)ᴿ = BᴿAᴿ</code> —— <code>B</code> 塊已移到<strong>前面</strong>、<code>A</code> 塊移到後面(位置對了),但兩塊各自順序被反。<strong>② 反前 k</strong>:前段現在是 <code>Bᴿ</code>,反一次 <code>(Bᴿ)ᴿ=B</code> 恢復。<strong>③ 反其餘</strong>:後段 <code>Aᴿ</code> 反成 <code>A</code>。得 <code>BA</code>。所以<strong>全反負責「換位置」,後兩次負責「修各塊順序」</strong>,靠的是「反兩次抵消」<code>(Xᴿ)ᴿ=X</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      不能省。<code>k</code> 可到 <code>10⁵</code>,而 <code>n</code> 可能更小。例 <code>n=2, k=3</code>:<code>begin()+3</code> 已<strong>越過 <code>end()</code></strong>,<code>reverse</code> 傳入非法迭代器 → 未定義行為(可能崩潰)。就算不越界,轉 <code>n</code> 的整數倍格等於沒轉,是純浪費。<code>k %= n</code> 把 <code>k</code> 化到 <code>[0, n)</code>,<strong>同時避免越界和白轉</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      得到的是<strong>左轉 <code>k</code></strong>。因為「先反前 <code>k</code>、再反其餘、最後全反」= <code>((AᴿBᴿ))ᴿ</code>... 具體看:把陣列切成前 <code>k</code>(<code>P</code>)和其餘(<code>Q</code>),原 <code>PQ</code>。先反 <code>P、Q</code> 得 <code>PᴿQᴿ</code>,再全反得 <code>(PᴿQᴿ)ᴿ = QP</code> —— 把前 <code>k</code> 個搬到<strong>最後</strong>,正是<strong>左轉 <code>k</code></strong>。所以「三次反轉」的<strong>順序</strong>決定左轉或右轉,反轉的是哪一段是關鍵。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <strong>另開陣列</strong>:<code>O(n)</code> 時間、<code>O(n)</code> 空間,<strong>最好寫</strong>(<code>res[(i+k)%n]=nums[i]</code>),但違反原地。<strong>環狀替換</strong>:<code>O(n)</code> 時間、<code>O(1)</code> 空間,但要處理 <code>gcd(n,k)</code> 個獨立環、用計數控制,<strong>最難寫對</strong>。<strong>三次反轉</strong>:<code>O(n)</code> 時間、<code>O(1)</code> 空間,<strong>三行、最好記、最不易錯</strong>。面試要「原地 <code>O(1)</code>」又要穩,三次反轉是甜蜜點。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <code>reverse</code> 的實作就是:左指針 <code>l</code> 從頭、右指針 <code>r</code> 從尾,<code>swap(a[l++], a[r--])</code> 往中間夾,直到 <code>l ≥ r</code> —— 這正是<strong>對撞雙指針</strong>。共用的核心動作是「<strong>兩端往中間收</strong>」:167 是收斂找兩數、344 是收斂交換字元、189 用它當反轉原語。同一個「一頭一尾、往中間走」的骨架,套不同的每步操作,就解不同的題。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>左轉 <code>k</code> = 右轉 <code>n-k</code></strong>。最省事:把 <code>k</code> 換成 <code>k = (n - k % n) % n</code>,再照右轉三次反轉即可 —— <strong>只改一個數</strong>。或直接調整反轉順序(見 A3)。兩者等價;實務上「左轉轉成右轉」最不易出錯。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>環狀替換</strong>:從 <code>start=0</code> 開始,<code>cur=start</code>、<code>prev=nums[start]</code>,反覆 <code>next=(cur+k)%n</code>、把 <code>prev</code> 放到 <code>nums[next]</code>、更新 <code>prev=舊 nums[next]</code>、<code>cur=next</code>,直到回到 <code>start</code>;用 <code>count</code> 累計搬過的元素,<strong>搬滿 <code>n</code> 個才結束</strong>。為什麼要計數:當 <code>gcd(n,k) &gt; 1</code> 時,單一起點的環<strong>不會覆蓋所有位置</strong>(有 <code>gcd(n,k)</code> 個獨立環),一圈回到起點後要換 <code>start=1,2,…</code> 繼續,直到 <code>count==n</code>。這是它難寫對的原因。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 796</strong>:<code>s</code> 是 <code>goal</code> 的某輪轉 ⟺ <code>s.size()==goal.size()</code> 且 <code>s</code> 是 <code>goal+goal</code> 的子字串。因為 <code>goal</code> 的<strong>所有輪轉</strong>都會出現在 <code>goal+goal</code> 裡(把兩份接起來,任何起點長度 <code>n</code> 的視窗都是一個輪轉)。一行:<code>return s.size()==goal.size() &amp;&amp; (goal+goal).find(s)!=npos;</code>。這是「輪轉 = 在雙倍串裡找視窗」的漂亮技巧,和本題「輪轉的結構」互相呼應。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 02 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">右轉 k=AB→BA，靠 (AB)ᴿ=BᴿAᴿ:全反換位置、後兩次修順序。k%=n 防越界。順序反過來即左轉;左轉 k=右轉 n-k。reverse 即對撞雙指針。環狀替換要計數過 gcd(n,k) 個環。796 用 goal+goal。O(n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">三次反轉 · ROTATE ARRAY</div>
+  </div>
+
+</body>
+</html>
