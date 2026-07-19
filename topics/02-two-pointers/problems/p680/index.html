@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>680 · Valid Palindrome II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P680</span>
+    <span><a href="https://leetcode.com/problems/valid-palindrome-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">驗證回文 II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 對撞雙指針 + 允許刪一個</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 680</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(n)/O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給字串 <code>s</code>(僅小寫字母),<strong>最多刪除一個字元</strong>後若能成為回文,回傳 <code>true</code>。
+        例:<code>"abca" → true</code>(刪 <code>'c'</code> 或 <code>'b'</code>);<code>"abc" → false</code>。
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p125/index.html">125 驗證回文</a>的升級:多了「<strong>可以刪一個</strong>」的容錯。
+      關鍵洞察:一路對撞比較,<strong>直到第一個不相符</strong> —— 那一刻就得動用唯一的刪除機會,而且要刪的<strong>一定是那兩個衝突字元之一</strong>(<code>s[l]</code> 或 <code>s[r]</code>)。各試一次,任一成立即可。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼雙指針分叉 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「雙指針 + 一次分叉」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n²)</div>
+          <div class="sc-ko__name">枚舉刪掉每一個字元</div>
+          <p>對每個 index 刪掉後檢查是否回文。<code>n</code> 個 index × 每次 <code>O(n)</code> 檢查 = <code>O(n²)</code>,太慢。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 想太多</div>
+          <div class="sc-ko__name">在任意位置嘗試刪除</div>
+          <p>以為刪除點可能在中間某處。其實只要一路都相符,問題就出在<strong>第一個不符的那對</strong>,刪別處沒意義。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">FORK ONCE · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n)</div>
+        <div class="sc-ko__name">對撞到第一個不符,分兩路各驗一次</div>
+        <p>
+          <code>l/r</code> 對撞:相符就內收。<strong>碰到 <code>s[l] != s[r]</code></strong> 時,刪除必是這兩個之一 → 檢查
+          <code>isPali(l+1, r)</code>(刪左)<strong>或</strong> <code>isPali(l, r-1)</code>(刪右),任一是回文即 <code>true</code>。
+          這個分叉<strong>只發生一次</strong>(只能刪一次),所以總時間仍是 <strong>O(n)</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>對撞比較</strong> —— <code>l/r</code> 從兩端往中間,<code>s[l] == s[r]</code> 就 <code>l++、r--</code>。</li>
+      <li><strong>不符就分叉</strong> —— 第一次遇到 <code>s[l] != s[r]</code>:回傳 <code>isPali(l+1, r) || isPali(l, r-1)</code>(試刪左端 或 試刪右端)。</li>
+      <li><strong>撐到底</strong> —— 全程都相符(不需刪) → <code>true</code>。<code>isPali</code> 是普通的兩指針回文檢查(無容錯)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// FORK ON MISMATCH</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>"cbbcc"</code>:外層 <code>c,c</code> 相符;內層 <code>b,c</code> 不符 → <strong>刪左</strong> 檢查 <code>"bc"</code> ✗、<strong>刪右</strong> 檢查 <code>"bb"</code> ✓。
+      <code>A || B</code> 有一路成立 → <strong>true</strong>。看兩個分支如何一敗一成。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 雙指針 + 分叉 · 刪左 或 刪右</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:215px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼只刪 l 或 r + O(n) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵論證<span class="sc-section__title-en">// WHY IT WORKS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">① 為什麼刪的一定是 s[l] 或 s[r]</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          走到第一個不符 <code>s[l] != s[r]</code> 時,<strong>外面 <code>[0, l−1]</code> 和 <code>[r+1, n−1]</code> 已經兩兩對稱</strong>(一路相符才走到這)。
+          要讓整體變回文,<code>s[l]</code> 和 <code>s[r]</code> 這一對的衝突<strong>必須</strong>解決,而唯一的刪除只能花在這裡:<strong>刪 <code>s[l]</code></strong>(讓 <code>s[l+1]</code> 去對 <code>s[r]</code>)或<strong>刪 <code>s[r]</code></strong>(讓 <code>s[l]</code> 去對 <code>s[r−1]</code>)。刪其他位置對這對衝突毫無幫助。所以只有兩種試法。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">② 為什麼「分叉」還是 O(n)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          主迴圈對撞到不符,是 <code>O(n)</code>。分叉後呼叫兩個 <code>isPali</code>,各自最多 <code>O(n)</code> —— 但<strong>分叉只發生一次</strong>(容錯用掉就沒了,<code>isPali</code> 內部是<strong>不再容錯</strong>的普通檢查,不會再分叉)。所以總成本 = <code>O(n)</code>(主掃) + <code>O(n)</code> + <code>O(n)</code>(兩次子檢查)= <code>O(n)</code>。<strong>「只能刪一次」正是把它壓在線性的原因</strong> —— 若能刪 k 次,才會變成更貴的遞迴。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        主對撞 <code>O(n)</code>,分叉後至多兩次 <code>O(n)</code> 子檢查、只發生一次。只用 <code>l</code>、<code>r</code> 幾個索引(<code>isPali</code> 用引用不複製字串)→ <code>O(1)</code> 空間。比「枚舉刪每個」的 <code>O(n²)</code> 快一個數量級。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>階段</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>主對撞</td><td><code>O(n)</code></td><td>相符內收到第一個不符</td></tr>
+        <tr><td>分叉子檢查</td><td><code>O(n)</code></td><td>兩次普通回文檢查,只發生一次</td></tr>
+        <tr><td>空間</td><td><code>O(1)</code></td><td>索引 + 字串引用</td></tr>
+        <tr><td>vs 枚舉刪</td><td><code>O(n²)</code></td><td>刪每個 index 再檢查</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      對撞比較到<strong>第一個不符</strong>,刪除只能是那兩個衝突字元之一 → <code>isPali(l+1, r) || isPali(l, r-1)</code>。
+      分叉<strong>只一次</strong>(容錯用完),所以還是 <code>O(n)</code>。<strong>「允許刪 1 個」= 普通回文檢查 + 一次二選一的補救。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 02 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">對撞到第一個不符,刪除必是 s[l] 或 s[r] → isPali(l+1,r) || isPali(l,r-1)。分叉只一次(容錯用完)→ O(n)。125 + 一次二選一補救。</div>
+    <div class="sc-summary-bar__detail">雙指針分叉 · VALID PALINDROME II</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p680-deleteone.js"></script>
+</body>
+</html>
