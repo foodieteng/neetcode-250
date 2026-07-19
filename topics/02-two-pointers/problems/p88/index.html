@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>88 · Merge Sorted Array // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P88</span>
+    <span><a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合併兩個有序陣列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 平行雙指針 · 從後往前填</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 88</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(m+n)/O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        兩個<strong>非遞減</strong>陣列 <code>nums1</code>(前 <code>m</code> 個有效 + 後 <code>n</code> 個空位)、<code>nums2</code>(<code>n</code> 個)。
+        <strong>原地合併</strong>成一個有序陣列,存回 <code>nums1</code>。追問:<strong>O(m+n) 時間</strong>。例:<code>[1,2,3,_,_,_]+[2,5,6] → [1,2,2,3,5,6]</code>。
+      </p>
+    </div>
+
+    <p>
+      和 <a href="../p1768/index.html">1768 交替合併</a>同屬<strong>平行雙指針</strong>(兩指針各走一序列),但這裡有個關鍵限制:<strong>結果要塞回 nums1</strong>,而 nums1 的空位在<strong>尾端</strong>。
+      若從前面填,會蓋掉還沒讀的 nums1 元素。妙招:<strong>從後往前填</strong> —— 每次把兩邊<strong>較大</strong>的放到最後空位,寫入位永遠在未讀資料的後面,絕不覆蓋。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼從後往前 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「從後往前填」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · 覆蓋 / O(n) 空間</div>
+          <div class="sc-ko__name">從前往後填進 nums1</div>
+          <p>從頭放較小者,會<strong>蓋掉還沒讀的 nums1 元素</strong>。要避免就得先把 nums1 複製一份 → 多 <code>O(m)</code> 空間。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ WORKS · 但多此一舉</div>
+          <div class="sc-ko__name">全丟進去再 sort</div>
+          <p>把 nums2 接到 nums1 後面整個排序。對,但 <code>O((m+n)log(m+n))</code>,浪費了「兩邊本來就有序」的條件。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">FILL FROM BACK · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(m+n)/O(1)</div>
+        <div class="sc-ko__name">三指針從後往前,較大者放尾</div>
+        <p>
+          <code>l=m−1</code>、<code>r=n−1</code>、<code>i=m+n−1</code>。比 <code>nums1[l]</code> 與 <code>nums2[r]</code>,把<strong>較大</strong>的放到 <code>nums1[i]</code>,三者往前移。
+          因為填的是<strong>尾端空位</strong>,寫入位 <code>i</code> 永遠 <code>≥</code> 未讀的 <code>l</code>,<strong>絕不覆蓋還沒讀的資料</strong>。原地 <code>O(m+n)</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>三指針從後起</strong> —— <code>l=m−1</code>、<code>r=n−1</code>、<code>i=m+n−1</code>。</li>
+      <li><strong>較大者放尾</strong> —— <code>while (l≥0 &amp;&amp; r≥0)</code>:<code>nums1[l] &gt; nums2[r]</code> 就放 <code>nums1[l--]</code>,否則放 <code>nums2[r--]</code>,<code>i--</code>。</li>
+      <li><strong>收尾</strong> —— 若 <code>nums2</code> 還有剩(<code>r≥0</code>),整段搬過來;若 <code>nums1</code> 還有剩,它們<strong>本來就在原位、已排好</strong>,不用動。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// FILL FROM BACK</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[1,2,3,_,_,_]+[2,5,6]</code>:從最後空位往前,依序放 <code>6、5、3、2</code>。<code>nums2</code> 用完後,<code>nums1</code> 前面的 <code>[1,2]</code> 本就在原位、不用動。結果 <code>[1,2,2,3,5,6]</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 三指針從後往前填 · 較大者放尾</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:275px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼不覆蓋 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼從後填絕不覆蓋<span class="sc-section__title-en">// INVARIANT · i ≥ l</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">寫入位 i 永遠在未讀的 nums1[l] 後面</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          初始 <code>i = m+n−1</code>、<code>l = m−1</code>,兩者差 <code>n ≥ 0</code>,即 <code>i ≥ l</code>。之後:
+          每一步 <code>i</code> 一定 <code>−−</code>;而 <code>l</code> <strong>只在「取自 nums1」時才 <code>−−</code></strong>。所以 <code>i</code> 減得<strong>不比 <code>l</code> 慢</strong> —— 差距 <code>i − l</code> 只增不減,<strong><code>i ≥ l</code> 恆成立</strong>。
+        </p>
+        <p style="margin:0;">
+          既然寫入位 <code>i</code> 永遠 <code>≥</code> 還沒讀的 <code>l</code>,<strong>寫 <code>nums1[i]</code> 時絕不會蓋到 <code>nums1[0..l]</code></strong>(那些還沒讀的有效元素)。這就是「從後往前」能原地完成、不需備份的根本原因。
+          反過來「從前往後」則會讓寫入位追上並覆蓋未讀資料 —— 這是這題最愛考的直覺陷阱。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m + n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每個元素被放進最終位置<strong>剛好一次</strong>,一趟從後掃完。只用三個索引,原地改 <code>nums1</code>,不需備份 → <code>O(1)</code>。達成追問的線性目標,勝過「合併後再排序」的 <code>O((m+n)log(m+n))</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>合併掃描</td><td><code>O(m+n)</code></td><td>每元素放一次</td></tr>
+        <tr><td>空間</td><td><code>O(1)</code></td><td>三個索引,原地</td></tr>
+        <tr><td>vs 排序法</td><td><code>O((m+n)log)</code></td><td>沒利用已排序</td></tr>
+        <tr><td>nums1 尾巴</td><td>免搬</td><td>本來就在原位</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      原地合併有序陣列(空位在尾)→ <strong>三指針從後往前填,較大者放尾</strong>。寫入位 <code>i</code> 永遠 <code>≥</code> 未讀 <code>l</code> → 絕不覆蓋。
+      <strong>「有空位在哪端,就從那端開始填」</strong> —— 這是原地陣列操作避免覆蓋的通用心法。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 02 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">三指針 l=m−1,r=n−1,i=m+n−1 從後往前,較大者放 nums1[i]。i≥l 恆成立 → 不覆蓋未讀。nums2 剩的補上、nums1 剩的本就在位。O(m+n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">從後往前合併 · MERGE SORTED ARRAY</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p88-mergeback.js"></script>
+</body>
+</html>
