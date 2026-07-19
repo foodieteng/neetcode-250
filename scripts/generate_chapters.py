@@ -96,7 +96,7 @@ PROBLEMS = {
         ('p680', 'Valid Palindrome II',                'valid-palindrome-ii',                'easy','done'),
         ('p1768','Merge Strings Alternately',          'merge-strings-alternately',          'easy','done'),
         ('p88',  'Merge Sorted Array',                 'merge-sorted-array',                 'easy','done'),
-        ('p26',  'Remove Duplicates from Sorted Array','remove-duplicates-from-sorted-array','easy','todo'),
+        ('p26',  'Remove Duplicates from Sorted Array','remove-duplicates-from-sorted-array','easy','done'),
         ('p167', 'Two Sum II - Input Array Is Sorted', 'two-sum-ii-input-array-is-sorted',   'med', 'todo'),
         ('p15',  '3Sum',                               '3sum',                               'med', 'todo'),
         ('p18',  '4Sum',                               '4sum',                               'med', 'todo'),

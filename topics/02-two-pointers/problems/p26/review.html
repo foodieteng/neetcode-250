@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>26 · Remove Duplicates from Sorted Array // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P26</span>
+    <span><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除有序陣列重複項</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 26</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>寫入指針</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>類型</td><td>快慢指針:慢 = 寫入位,快 = 掃描</td></tr>
+        <tr><td>慢何時動</td><td>只在「該保留」的元素才前進</td></tr>
+        <tr><td>去重判斷</td><td><code>num == nums[i-1]</code>(上一個保留值)→ 跳</td></tr>
+        <tr><td>已排序</td><td>重複相鄰 → 只需比上一個保留值</td></tr>
+        <tr><td>不丟資料</td><td>慢 ≤ 快 → 覆寫的都是已讀位</td></tr>
+        <tr><td>回傳</td><td><code>i</code> = 唯一數 k;前 k 個為答案</td></tr>
+        <tr><td>換條件</td><td>27 移除值 / 283 移零 / 80 保留 2 個</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼比對的是 <code>nums[i-1]</code>(上一個<strong>保留值</strong>),而不是「原陣列的前一個元素」?已排序在這裡起什麼作用?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼 <code>nums[i++] = num</code> 這個覆寫不會蓋掉還沒讀的資料?用「慢 ≤ 快」解釋。</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p><code>i &gt; 0</code> 這個條件拿掉會怎樣?為什麼第一個元素一定要寫?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>要「每個值最多保留 2 個」(LC 80),程式只改一行,是哪一行?為什麼改成 <code>nums[i-2]</code> 就對?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>雙指針有對撞、平行、快慢三大類。這題的「快慢」和前面的「對撞」在<strong>指針移動</strong>上最大的不同是什麼?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 移除元素(換保留條件)</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// LC 27 移除所有 val=3:保留條件變成「num != val」</span>
+nums=[3,2,2,3,4], val=3
+i=0
+num=3: 3==3 → 跳過
+num=2: 2!=3 → nums[0]=2, i=1
+num=2: 2!=3 → nums[1]=2, i=2
+num=3: 3==3 → 跳過
+num=4: 4!=3 → nums[2]=4, i=3
+回傳 i=3;前 3 個 [2,2,4]
+<span class="sc-trace__out">k=3, nums[0..2]=[2,2,4]</span></div>
+
+    <div class="sc-insight">
+      同一副「慢=寫入位、快=掃描」的骨架,把<strong>保留條件從「和上一個保留值不同」換成「不等於 val」</strong>,就從「去重」變「移除元素」。
+      這就是寫入指針的威力 —— <strong>骨架固定,只換「哪些該寫」的判斷</strong>,一招通吃一族原地篩選題。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 283 移動零</strong>:把所有 0 移到尾端、非零保持相對順序。用寫入指針怎麼寫?最後尾端的零要怎麼補?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>未排序陣列去重</strong>:若陣列<strong>沒排序</strong>,本題「比上一個保留值」還行嗎?為什麼會失效?該改用什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>寫入指針 vs 快慢環偵測</strong>:鏈結串列的「快慢指標找環 / 找中點」也叫 fast-slow,但快慢<strong>速度不同</strong>。它和本題的「快慢」是同一種嗎?差在哪?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      比 <code>nums[i-1]</code>(上一個<strong>已保留</strong>的唯一值)是因為:<strong>已排序 → 同一個值的所有重複都連續出現</strong>。所以「當前值是不是重複」等價於「它是否等於最近保留的那個值」。若比「原陣列前一個元素」,在覆寫發生後那個位置的值已被改動,語意會亂;而 <code>nums[i-1]</code> 永遠是「我上一次決定保留的值」,穩定可靠。<strong>已排序是這個簡潔判斷成立的前提</strong> —— 沒排序就不能只比上一個。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      寫入位 <code>i</code> 只在「保留」時 +1,而快指針每步都 +1,所以 <code>i</code> <strong>永遠 ≤ 快指針位置</strong>。當我們寫 <code>nums[i] = num</code>,<code>i</code> 這個位置<strong>≤ 快指針正在讀的位置</strong> —— 也就是「已經讀過(或正在讀)的格子」。既然那格的資料已經被讀取/處理過,覆寫它不會丟失還沒讀的資訊。這和 <a href="../p88/index.html">88</a> 的 <code>i ≥ l</code> 是同一類「寫入位不追上未讀讀取位」的位置論證。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      拿掉 <code>i &gt; 0</code>:處理第一個元素時,<code>num == nums[i-1]</code> 會存取 <code>nums[-1]</code> → <strong>越界(未定義行為)</strong>。加上 <code>i &gt; 0</code> 保證只有「已經寫過至少一個」時才去比上一個保留值。第一個元素<strong>一定是唯一的開頭</strong>(前面沒有任何保留值可比),所以直接寫入即可。<code>i &gt; 0 &amp;&amp; …</code> 的短路正好處理這個開頭特例。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      只改判斷那行:<code>if (i &gt;= 2 &amp;&amp; num == nums[i-2]) continue;</code>。道理:要「每個值最多 2 個」,那麼一個 <code>num</code> 能不能再放,取決於<strong>往前數第 2 個保留值</strong> <code>nums[i-2]</code> 是不是也等於它 —— 若相等,代表這個值已經放了 2 個(<code>nums[i-1]</code> 和 <code>nums[i-2]</code>),不能再放。若不等,還沒放滿 2 個,可以再放。保留 <code>k</code> 個就比 <code>nums[i-k]</code>。<strong>骨架不變,只換比較的偏移量。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      最大不同在<strong>指針的移動方式</strong>。<strong>對撞</strong>:兩指針<strong>相向</strong>而行(一頭一尾往中間),每步至少一個在動,靠「相遇」結束。<strong>快慢(本題)</strong>:兩指針<strong>同向</strong>(都往右),快指針主導掃描、慢指針按條件落後前進,靠「快到底」結束。對撞處理「兩端對稱/配對」,快慢處理「原地篩選/覆寫」。同叫雙指針,一個是「兩端收斂」,一個是「一前一後同向」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 283</strong>:寫入指針 <code>i</code>,快指針掃;<strong>保留條件是「非零」</strong> —— <code>if (num != 0) nums[i++] = num;</code>。掃完後 <code>[0, i)</code> 是所有非零(保持原序),<strong>把 <code>[i, n)</code> 全填 0</strong> 即可(那些是被覆寫剩下的、要清成零)。或用「交換」版:遇非零就和 <code>nums[i]</code> 交換再 <code>i++</code>,省去補零。核心仍是「非零才保留 / 前移」的寫入指針。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>沒排序就失效</strong>。本題靠「重複相鄰」才能只比「上一個保留值」;沒排序時,同一個值可能散在各處,比上一個保留值抓不到遠處的重複。此時要嘛<strong>先排序</strong>(<code>O(n log n)</code>,但會改變相對順序),要嘛用<strong>雜湊集合</strong>記已見過的值(<code>O(n)</code> 時間、<code>O(n)</code> 空間,能保序)。<strong>「比上一個」是排序賦予的特權,無序就得付出空間或排序成本。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      不完全一樣,是<strong>同名不同用</strong>。本題的「快慢」是<strong>陣列上的寫入指針</strong>:兩者都往右、每步快 +1、慢按條件 +1,重點是「慢當寫入位」。鏈結串列的「快慢指標」(Floyd)是<strong>速度不同</strong>:快每步走 2、慢走 1,用來找中點或偵測環(快追上慢 = 有環)。共通的抽象是「兩個同向指針、進度不同」,但一個用<strong>條件差</strong>(寫入指針)、一個用<strong>速度差</strong>(找環/中點)。兩種都算 fast-slow,場景不同。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 02 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">慢=寫入位、快=掃描,只在該保留時 nums[i++]=num。比上一個保留值(靠已排序)。慢≤快不丟資料。換條件→27/283/80。無序失效需 set/排序。對撞相向、快慢同向。</div>
+    <div class="sc-summary-bar__detail">寫入指針 · REMOVE DUPLICATES</div>
+  </div>
+
+</body>
+</html>
