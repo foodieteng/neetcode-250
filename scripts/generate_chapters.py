@@ -634,7 +634,7 @@ def chapter_page(cat_id, slug, title, subtitle, count):
   <link rel="stylesheet" href="{base}assets/css/base.css" />
   <link rel="stylesheet" href="{base}assets/css/components.css" />
   <link rel="stylesheet" href="{base}assets/css/problem.css" />
-  <link rel="stylesheet" href="{base}assets/css/tracker.css?v=20260719" />
+  <link rel="stylesheet" href="{base}assets/css/tracker.css?v=20260719b" />
 </head>
 <body>
 
@@ -710,7 +710,7 @@ def chapter_page(cat_id, slug, title, subtitle, count):
     <div>SERIAL_NO. NC-{cat_id}-2026</div>
   </footer>
 
-  <script src="{base}assets/js/progress-tracker.js?v=20260719"></script>
+  <script src="{base}assets/js/progress-tracker.js?v=20260719b"></script>
 
 </body>
 </html>
