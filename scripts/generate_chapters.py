@@ -109,7 +109,7 @@ PROBLEMS = {
         ('p219','Contains Duplicate II',                         'contains-duplicate-ii',                         'easy','done'),
         ('p121','Best Time to Buy and Sell Stock',               'best-time-to-buy-and-sell-stock',               'easy','done'),
         ('p3',  'Longest Substring Without Repeating Characters','longest-substring-without-repeating-characters','med', 'done'),
-        ('p424','Longest Repeating Character Replacement',       'longest-repeating-character-replacement',       'med', 'todo'),
+        ('p424','Longest Repeating Character Replacement',       'longest-repeating-character-replacement',       'med', 'done'),
         ('p567','Permutation in String',                         'permutation-in-string',                         'med', 'done'),
         ('p209','Minimum Size Subarray Sum',                     'minimum-size-subarray-sum',                     'med', 'todo'),
         ('p658','Find K Closest Elements',                       'find-k-closest-elements',                       'med', 'done'),
