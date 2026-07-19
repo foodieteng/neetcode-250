@@ -92,7 +92,7 @@ PROBLEMS = {
     ],
     '02': [  # Two Pointers
         ('p344', 'Reverse String',                     'reverse-string',                     'easy','done'),
-        ('p125', 'Valid Palindrome',                   'valid-palindrome',                   'easy','todo'),
+        ('p125', 'Valid Palindrome',                   'valid-palindrome',                   'easy','done'),
         ('p680', 'Valid Palindrome II',                'valid-palindrome-ii',                'easy','todo'),
         ('p1768','Merge Strings Alternately',          'merge-strings-alternately',          'easy','todo'),
         ('p88',  'Merge Sorted Array',                 'merge-sorted-array',                 'easy','todo'),
