@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>239 · Sliding Window Maximum // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P239</span>
+    <span><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">滑動視窗最大值</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 239</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>單調隊列</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>結構</td><td>單調遞減雙端隊列(存索引)</td></tr>
+        <tr><td>front</td><td>恆為當前視窗最大值</td></tr>
+        <tr><td>彈 back</td><td><code>nums[i] ≥ nums[back]</code>(被蓋過)</td></tr>
+        <tr><td>彈 front</td><td><code>i-k ≥ front</code>(滑出視窗)</td></tr>
+        <tr><td>為何存索引</td><td>要判斷 front 是否過期</td></tr>
+        <tr><td>攤還</td><td>每元素 push 一次、pop ≤ 一次 → O(n)</td></tr>
+        <tr><td>複雜度</td><td>O(n) 時間 / O(k) 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼加入 <code>nums[i]</code> 時,可以<strong>放心彈掉</strong>隊尾所有 <code>≤ nums[i]</code> 的元素?證明它們永遠不可能再當某個視窗的最大值。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼隊列存<strong>索引</strong>而不是<strong>值</strong>?只存值會缺什麼資訊?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>裡面有內層 <code>while</code>(彈 back)看起來像巢狀,為什麼總時間仍是 <code>O(n)</code> 而非 <code>O(n·k)</code>?用「每個元素進出隊列幾次」說明。</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>彈 back 用 <code>&gt;=</code>(含等號)還是 <code>&gt;</code>(嚴格)?兩者都對嗎?差在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>為什麼「過期」只需檢查 <code>front</code>(至多彈一次),不必掃整個隊列找過期元素?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 遞增序列 → 每步彈 front</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums = [1,2,3,4], k = 2(遞增 → back 從不彈,front 常過期)</span>
+i=0 (1): dq=[0]
+i=1 (2): 2≥1 彈索引0; dq=[1]            → nums[1]=2
+i=2 (3): 3≥2 彈索引1; dq=[2]            → nums[2]=3
+i=3 (4): 4≥3 彈索引2; dq=[3]            → nums[3]=4
+<span class="sc-trace__out">回傳 [2,3,4];嚴格遞增時新的最大一來就把舊的全彈掉,隊列恆長 1</span></div>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// nums = [4,3,2,1], k = 2(遞減 → back 從不彈,front 每步過期)</span>
+i=0 (4): dq=[0]
+i=1 (3): 3&lt;4 不彈; dq=[0,1]            → nums[0]=4
+i=2 (2): front 0 過期; 彈; 2&lt;3 不彈; dq=[1,2] → nums[1]=3
+i=3 (1): front 1 過期; 彈; dq=[2,3]    → nums[2]=2
+<span class="sc-trace__out">回傳 [4,3,2];遞減時全靠「彈過期 front」讓最大值遞補</span></div>
+
+    <div class="sc-insight">
+      兩個極端把單調隊列的兩個動作各自放大:<strong>遞增序列</strong>每步用「彈 back」清空舊的(新的更大);<strong>遞減序列</strong>每步用「彈過期 front」讓次大遞補。
+      一般序列是兩者交織 —— 但無論如何,<strong>每個元素只被 push 一次、pop 一次</strong>,所以永遠 <code>O(n)</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>滑動視窗最小值</strong>:改成求每個視窗的<strong>最小</strong>值,程式怎麼改?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 862 含負數最短子陣列和 ≥ k</strong>:為什麼那題也用「單調隊列 + 前綴和」?它維護的單調性和本題有什麼異同?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>單調隊列總覽</strong>:回顧第 03 章的三種視窗大小控制(定長 / 上限 / 可變)與這題的「定長 + 求極值」,單調隊列補上了哪一塊拼圖?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      設隊尾是 <code>j</code>,新來的是 <code>i</code>(<code>j &lt; i</code>)且 <code>nums[j] ≤ nums[i]</code>。考慮今後<strong>任何包含 <code>j</code> 的視窗</strong>:因為視窗是連續的且 <code>i</code> 在 <code>j</code> 右邊,只要視窗還含 <code>j</code>(<code>j</code> 尚未從左滑出),它<strong>一定也含 <code>i</code></strong>(<code>i</code> 更靠右、更晚滑出)。而 <code>nums[i] ≥ nums[j]</code> —— 所以那個視窗的最大值<strong>至少是 <code>nums[i]</code></strong>,<code>j</code> 當不了最大。既然 <code>j</code> 在它「還活著」的每個視窗裡都被 <code>i</code> 壓過,<strong>它永遠沒有出頭之日,彈掉不後悔</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      存<strong>索引</strong>是為了判斷 <code>front</code> <strong>是否已滑出視窗(過期)</strong> —— 這需要知道它的<strong>位置</strong>:<code>i - k &gt;= dq.front()</code>。若只存<strong>值</strong>,你知道「最大值是多少」,卻不知道它<strong>在哪一格、何時滑出</strong>,無法判過期。存索引後,取值只要 <code>nums[dq.front()]</code>。一句話:<strong>值回答「最大是多少」,索引回答「它還在不在視窗裡」,後者才是滑動的關鍵。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      <code>O(n)</code>,靠<strong>攤還分析</strong>。關鍵事實:<strong>每個索引一生只被 <code>push_back</code> 一次,也只可能被 <code>pop</code>(從 back 或 front)一次</strong> —— 被彈掉後就永遠離開隊列。所以整個過程所有 <code>pop</code> 的<strong>總次數 ≤ n</strong>,那個內層 <code>while</code> 跨越整個外層加起來也只跑 <code>≤ n</code> 次。總操作 = <code>n</code> 次 push + <code>≤ n</code> 次 pop = <code>O(n)</code>。這不是「每個 <code>i</code> 都彈 <code>k</code> 次」的巢狀,而是「總彈掉次數受總元素數上限」的攤還。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <strong>兩者都對</strong>,慣用 <code>&gt;=</code>。遇到<strong>相等值</strong>時:<code>&gt;=</code> 會彈掉舊的、只留<strong>索引較大(較晚)</strong>的那個 —— 它<strong>更晚過期</strong>,能讓這個最大值在隊列裡撐更久,隊列也更短。用嚴格 <code>&gt;</code> 則把相等的都留著(隊列較長、常數略大),但因為它們值相同、front 仍是正確的最大值,答案不變。<strong>正確性上等價,<code>&gt;=</code> 效率略優。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      因為隊列裡的索引<strong>從 front 到 back 嚴格遞增</strong>(我們總是 push 當前 <code>i</code> 到 back,<code>i</code> 一直變大)。「過期」= 索引 <code>≤ i-k</code>(滑出左界),而<strong>索引最小的就是 front</strong>。所以若有過期元素,一定是 front;彈掉 front 後,下一個(次小索引)若也過期會繼續彈,但實務上每步<strong>至多一個</strong>新元素滑出視窗,故至多彈一次。<strong>單調的索引順序,讓「找過期」退化成「只看 front」。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>滑動視窗最小值</strong>:把單調性反過來 —— 維持<strong>遞增</strong>隊列。彈 back 條件改成 <code>nums[i] &lt;= nums[dq.back()]</code>(新的更小就把大的彈掉),front 仍是<strong>最小</strong>值。過期判斷、攤還分析完全一樣。<strong>求 max 用遞減隊列、求 min 用遞增隊列,front 永遠是你要的極值</strong> —— 同一結構的鏡像。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 862</strong>(含負數的最短子陣列和 ≥ k):先算<strong>前綴和</strong> <code>pre</code>,子陣列 <code>[l,r]</code> 的和 = <code>pre[r]-pre[l]</code>。對每個右界 <code>r</code>,要找最靠右的 <code>l</code> 使 <code>pre[r]-pre[l] ≥ k</code>。含負數時 <code>pre</code> <strong>不遞增</strong>,不能二分,改用<strong>單調遞增雙端隊列</strong>存 <code>pre</code> 的索引:從 front 彈出所有已滿足的(更新答案)、從 back 彈出 <code>pre</code> 不小於當前的(它們更左又更大,永遠不如當前優)。<strong>異</strong>:239 維護「視窗極值」用遞減、862 維護「前綴和候選」用遞增;<strong>同</strong>:都靠「後來者若更優就淘汰前面沒用的」把每元素進出各一次做到 <code>O(n)</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      第 03 章的滑動視窗有三種<strong>大小控制</strong>:<a href="../p567/index.html">恰好定長</a>、<a href="../p219/index.html">上限定長</a>、可變長(<a href="../p3/index.html">最長</a>/<a href="../p209/index.html">最短</a>)。它們回答「視窗長度該多少」。而本題是<strong>定長 + 求視窗內極值</strong> —— 前面幾題視窗內只需<strong>計數/求和</strong>(增量 O(1) 好維護),但<strong>「極值」在元素滑出時無法簡單回退</strong>(最大值走了,次大是誰?)。<strong>單調隊列</strong>正是補上這塊:它在 O(n) 內維護「滑動視窗的極值」,是計數/求和之外,滑動視窗的第三種「視窗摘要」工具。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">單調遞減隊列存索引,front=視窗最大。彈 back(被更晚更大者蓋過永不出頭)、彈過期 front。存索引為判過期、只有 front 會過期。每元素進出各一次 → 攤還 O(n)。求 min 用遞增鏡像;862 用遞增隊列存前綴和。</div>
+    <div class="sc-summary-bar__detail">單調隊列 · SLIDING WINDOW MAXIMUM</div>
+  </div>
+
+</body>
+</html>

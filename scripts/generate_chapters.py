@@ -114,7 +114,7 @@ PROBLEMS = {
         ('p209','Minimum Size Subarray Sum',                     'minimum-size-subarray-sum',                     'med', 'done'),
         ('p658','Find K Closest Elements',                       'find-k-closest-elements',                       'med', 'done'),
         ('p76', 'Minimum Window Substring',                      'minimum-window-substring',                      'hard','done'),
-        ('p239','Sliding Window Maximum',                        'sliding-window-maximum',                        'hard','todo'),
+        ('p239','Sliding Window Maximum',                        'sliding-window-maximum',                        'hard','done'),
     ],
     '04': [  # Stack
         ('p682','Baseball Game',                   'baseball-game',                   'easy','todo'),

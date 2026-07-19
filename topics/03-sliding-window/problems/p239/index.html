@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>239 · Sliding Window Maximum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P239</span>
+    <span><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">滑動視窗最大值</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 單調遞減雙端隊列</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 239</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>單調隊列 · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給陣列 <code>nums</code> 和視窗大小 <code>k</code>,視窗從最左滑到最右、每次右移一格。回傳每個視窗的<strong>最大值</strong>組成的陣列。
+        例:<code>nums=[1,3,-1,-3,5,3,6,7], k=3 → [3,3,5,5,6,7]</code>。
+      </p>
+    </div>
+
+    <p>
+      這是<strong>定長視窗</strong>(大小固定 <code>k</code>)問「每個視窗的最大值」。難點:視窗滑動時,舊的最大值可能滑出、新元素可能成為最大 —— 如何<strong>不必每個視窗重掃 <code>k</code> 個</strong>就取得最大?
+      答案是<strong>單調遞減雙端隊列(monotonic deque)</strong>:隊列存索引、對應值遞減,<strong>front 永遠是當前視窗的最大值</strong>,每個元素進出隊列各一次 → 攤還 <code>O(n)</code>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼單調隊列 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「單調遞減雙端隊列」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n·k)</div>
+          <div class="sc-ko__name">每個視窗重掃 k 個</div>
+          <p>對每個視窗掃一遍取最大。<code>n·k</code> 最壞 <code>10¹⁰</code>,超時。沒利用「相鄰視窗只差一進一出」。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ O(n log k)</div>
+          <div class="sc-ko__name">大小 k 的多重集/堆</div>
+          <p>用 <code>multiset</code> 或懶刪除堆維護視窗,取最大 <code>O(log k)</code>。可行,但比單調隊列多一個 <code>log</code>。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">MONOTONIC DEQUE · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n) / O(k)</div>
+        <div class="sc-ko__name">遞減隊列存索引,front 即最大</div>
+        <p>
+          維持一個索引的雙端隊列,對應值<strong>單調遞減</strong>。加入 <code>i</code> 前,把 back 端所有 <code>≤ nums[i]</code> 的彈掉(被 <code>i</code> 蓋過、永無出頭);front 端若<strong>已滑出視窗</strong>就彈掉(過期)。
+          於是 <strong>front 恆為視窗最大值</strong>,滿視窗就輸出 <code>nums[front]</code>。每個元素<strong>最多進出隊列各一次</strong> → 攤還 <code>O(n)</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>彈 back(維持遞減)</strong> —— 加入 <code>i</code> 前,<code>while</code> 隊列非空且 <code>nums[i] ≥ nums[dq.back()]</code>,<code>pop_back</code>。</li>
+      <li><strong>彈 front(去過期)</strong> —— 若 <code>dq.front()</code> 已滑出視窗(<code>i - k ≥ dq.front()</code>),<code>pop_front</code>。</li>
+      <li><strong>推入 i</strong> —— <code>dq.push_back(i)</code>。</li>
+      <li><strong>輸出</strong> —— 視窗滿(<code>i ≥ k-1</code>)時,<code>nums[dq.front()]</code> 就是最大值。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// MONOTONIC DEQUE</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[8,3,4,2,6,1], k=3</code>:隊列值遞減、front 恆為最大。i=2 彈掉較小的 back;i=3 的 <code>8</code> 滑出視窗 → 彈 front,最大從 8 掉到 4。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 單調遞減隊列 · 彈較小的 back、彈過期的 front、front=最大</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:262px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼可以放心彈 back ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼彈掉 back 的較小值永不後悔<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">被更晚、更大的元素蓋過 → 永遠不可能再當最大</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          加入 <code>nums[i]</code> 時,若隊尾某元素 <code>nums[j] ≤ nums[i]</code>(<code>j &lt; i</code>),就把 <code>j</code> 彈掉。理由:<strong><code>j</code> 比 <code>i</code> 早、又比 <code>i</code> 小</strong>。今後任何包含 <code>j</code> 的視窗<strong>一定也包含 <code>i</code></strong>(<code>i</code> 在 <code>j</code> 右邊、更晚才滑出),而 <code>nums[i] ≥ nums[j]</code> —— 所以只要 <code>i</code> 還在,<code>j</code> <strong>永遠當不了最大</strong>。既然它再也沒有出頭之日,<strong>丟掉不後悔</strong>。
+        </p>
+        <p style="margin:0 0 8px;">
+          彈完後隊列從 front 到 back <strong>值嚴格遞減</strong>(索引遞增)。這保證兩件事:<strong>front 是最大</strong>(值最大),而後面的候選<strong>依序備位</strong> —— 一旦 front 過期滑出,次大的自然遞補到 front。
+        </p>
+        <p style="margin:0;">
+          <strong>front 過期</strong>(<code>front ≤ i-k</code>,滑出視窗左界)則從 front 彈掉。因為隊列按索引遞增,<strong>只有 front 可能過期</strong>(它索引最小),所以每步至多彈一次 front。
+          <strong>攤還 O(n)</strong>:每個索引<strong>被 push 一次、被 pop 至多一次</strong>(從 back 或 front),總操作 <code>≤ 2n</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(k)</strong></div>
+      <p class="sc-formula__hint">
+        看似有內層 <code>while</code>(彈 back),但每個索引一生<strong>只被 push 一次、pop 至多一次</strong>,所有 pop 加總 <code>≤ n</code> → 攤還 <code>O(n)</code>。隊列最多裝一個視窗的候選 → <code>O(k)</code> 空間。勝過 <code>O(n·k)</code> 暴力與 <code>O(n log k)</code> 堆。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+      <tbody>
+        <tr><td>每窗重掃</td><td><code>O(n·k)</code></td><td><code>O(1)</code></td></tr>
+        <tr><td>multiset / 堆</td><td><code>O(n log k)</code></td><td><code>O(k)</code></td></tr>
+        <tr><td><strong>單調隊列</strong></td><td><code>O(n)</code></td><td><code>O(k)</code></td></tr>
+        <tr><td>分塊 (block/DP)</td><td><code>O(n)</code></td><td><code>O(n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>單調遞減雙端隊列</strong>:存索引、值遞減,<strong>front 恆為視窗最大</strong>。彈掉「被更晚更大者蓋過」的 back、彈掉「過期」的 front。
+      每個元素進出各一次 → 攤還 <code>O(n)</code>。這是「維護滑動視窗極值」的萬用結構,也用在單調隊列優化 DP。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 03 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">單調遞減雙端隊列存索引:push i 前彈掉 back 端 ≤nums[i] 的、彈掉 front 過期的;front 恆為視窗最大。每元素進出各一次 → 攤還 O(n)/O(k)。勝暴力 O(nk)、堆 O(n log k)。</div>
+    <div class="sc-summary-bar__detail">單調隊列 · SLIDING WINDOW MAXIMUM</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p239-deque.js"></script>
+</body>
+</html>
