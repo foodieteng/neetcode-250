@@ -99,7 +99,7 @@ PROBLEMS = {
         ('p26',  'Remove Duplicates from Sorted Array','remove-duplicates-from-sorted-array','easy','done'),
         ('p167', 'Two Sum II - Input Array Is Sorted', 'two-sum-ii-input-array-is-sorted',   'med', 'done'),
         ('p15',  '3Sum',                               '3sum',                               'med', 'done'),
-        ('p18',  '4Sum',                               '4sum',                               'med', 'todo'),
+        ('p18',  '4Sum',                               '4sum',                               'med', 'done'),
         ('p189', 'Rotate Array',                       'rotate-array',                       'med', 'todo'),
         ('p11',  'Container With Most Water',          'container-with-most-water',          'med', 'todo'),
         ('p881', 'Boats to Save People',               'boats-to-save-people',               'med', 'todo'),

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>18 · 4Sum // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P18</span>
+    <span><a href="https://leetcode.com/problems/4sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">四數之和</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 18</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>排序+對撞</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>結構</td><td>3Sum 外再套一層固定 j</td></tr>
+        <tr><td>內層</td><td>對撞找 <code>nums[l]+nums[r] = target-nums[i]-nums[j]</code></td></tr>
+        <tr><td>去重四處</td><td>i、j(比前一個)· 命中後 l、r</td></tr>
+        <tr><td>j 條件</td><td><code>j &gt; i+1 &amp;&amp; nums[j]==nums[j-1]</code></td></tr>
+        <tr><td>溢位</td><td>四數和用 <code>long long</code>(第一個轉型)</td></tr>
+        <tr><td>複雜度</td><td>O(n³) 時間 / O(1) 空間(不計輸出)</td></tr>
+        <tr><td>階梯</td><td>2Sum→3Sum→4Sum→kSum,每層 +1 固定</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼四數和要用 <code>long long</code>?溢位在哪一步發生?為什麼轉型一定要放在<strong>第一個 operand</strong>?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>次外層 <code>j</code> 的去重條件是 <code>j &gt; i+1 &amp;&amp; nums[j]==nums[j-1]</code>。若寫成 <code>j &gt; 0</code> 會怎樣?為什麼比較點是 <code>i+1</code> 而不是 <code>0</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>4Sum 一共有<strong>四處</strong>去重,分別在哪?各自防止哪一種重複?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>4Sum 和 <a href="../p15/index.html">3Sum</a> 的程式碼差異，用一句話概括是什麼?時間複雜度為什麼從 <code>O(n²)</code> 變 <code>O(n³)</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>內層對撞為什麼<strong>不需要</strong>也用 <code>long long</code> 存 <code>l</code>、<code>r</code> 這些索引?哪裡才真正需要 64 位元?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 全等值 + 溢位邊界</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums=[2,2,2,2,2], target=8 → 唯一解 [2,2,2,2]</span>
+排序後 [2,2,2,2,2]
+i=0(2), j=1(2): l=2,r=4 → 2+2+2+2=8 → 收下 [2,2,2,2]; l++,r--
+                跳重複左 nums[3]==nums[2] → l++ → l=r → 內層結束
+i=0, j=2..: nums[j]==nums[j-1] → continue(去重 j)
+i=1..: nums[i]==nums[i-1] → continue(去重 i)
+<span class="sc-trace__out">ans = [[2,2,2,2]](四層去重合力,只回一組)</span></div>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 溢位邊界:nums=[1000000000]×4, target=-1(無解但別溢位)</span>
+sum = (long long)1e9 + 1e9 + 1e9 + 1e9 = 4e9   // long long 正確保存
+若用 int:4e9 溢位成負數 → 誤判 sum &lt; target → 邏輯錯
+<span class="sc-trace__out">long long 讓 4e9 正確 &gt; target=-1 → r--,不會亂跳</span></div>
+
+    <div class="sc-insight">
+      全等值 <code>[2,2,2,2,2]</code> 是去重的壓力測試:四層去重把 <code>i、j</code> 的重複 2、以及命中後 <code>l</code> 的重複 2 全擋掉,只回一組。
+      而溢位邊界提醒:<strong>資料範圍到 <code>10⁹</code>、又要相加多個,幾乎都得先想 <code>long long</code></strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>kSum 遞迴模板</strong>:把 2/3/4Sum 統一成 <code>kSum(start, target, k)</code>。遞迴怎麼寫?<strong>基底</strong> <code>k==2</code> 是什麼?每層去重放哪?整體時間?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>剪枝加速</strong>:排序後,固定 <code>i,j</code> 時可用「最小可能和」「最大可能和」提早跳過。這兩個界怎麼算?為什麼能安全 <code>break</code>/<code>continue</code>?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>4Sum II(LC 454)</strong>:給<strong>四個</strong>陣列 A,B,C,D,問各取一個使和為 0 的組合數。為什麼這題<strong>不能</strong>用本題的對撞、而要用雜湊?時間差在哪?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      <code>nums[i]</code> 可達 <code>±10⁹</code>,四個相加最大約 <code>4×10⁹</code>,<strong>超過 <code>int</code> 上限 <code>2.147×10⁹</code></strong> → 溢位變負數,<code>sum &lt; target</code> 之類的比較就全亂了。C++ 加法從左往右:<code>((a+b)+c)+d</code>,<strong>第一步 <code>a+b</code> 就是 <code>int+int</code></strong>,若不先轉型這裡已溢位。把<strong>最左 operand</strong> 轉 <code>long long</code>,之後每步都是 <code>long long+int→long long</code>,全程 64 位元安全。轉型放後面(如 <code>(long long)(a+b+c+d)</code>)無效,因為括號內已用 int 算完。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      寫 <code>j &gt; 0</code> 會<strong>誤跳每個 <code>i</code> 底下 <code>j</code> 的第一個值</strong>:當 <code>nums[j]</code> 剛好等於<strong>外層</strong> <code>nums[i]</code>(即 <code>nums[j]==nums[j-1]==nums[i]</code>)時,<code>j=i+1</code> 這第一個合法 <code>j</code> 會被錯跳,漏解。正確比較點是 <code>i+1</code>:<code>j &gt; i+1</code> 表示「只在<strong>同一個 <code>i</code> 內、j 不是第一個</strong>」才去重,讓每個 <code>i</code> 的第一個 <code>j</code> 一定進內層 —— 和外層 <code>i &gt; 0</code> 是完全對稱的道理(每個層級跳自己這層的重複,保留第一個)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      四處:<strong>① 外層 i</strong> <code>i&gt;0 &amp;&amp; nums[i]==nums[i-1]</code> —— 防同一個 <code>nums[i]</code> 起點重複整批。<strong>② 次外層 j</strong> <code>j&gt;i+1 &amp;&amp; nums[j]==nums[j-1]</code> —— 防同一 <code>i</code> 下 <code>nums[j]</code> 重複。<strong>③ 命中後 l</strong> <code>nums[l]==nums[l-1]</code>、<strong>④ 命中後 r</strong> <code>nums[r]==nums[r+1]</code> —— 防同一 <code>(i,j)</code> 下內層產生相同左/右值。四個各守一層,任缺一個都可能吐出重複四元組。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      一句話:<strong>「在 3Sum 外面再包一層固定的 <code>j</code> 迴圈(含它自己那處去重),並把和改成 <code>long long</code>」</strong>。內層對撞三分支完全不變。時間從 <code>O(n²)</code> 變 <code>O(n³)</code> 是因為<strong>固定的層數多了一層</strong>:3Sum 是「固定 1 個 × 內層 O(n)」= <code>O(n²)</code>,4Sum 是「固定 2 個(<code>O(n²)</code>)× 內層 <code>O(n)</code>」= <code>O(n³)</code>。每加一個數,複雜度就乘上一個 <code>n</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <code>l</code>、<code>r</code> 是<strong>索引</strong>,範圍 <code>[0, n)</code> 且 <code>n≤200</code>(甚至 <code>≤10⁵</code> 的題也遠在 int 內),不會溢位,用 <code>int</code> 就好。真正需要 64 位元的是<strong>「數值的加總」</strong> —— 也就是 <code>sum</code>,因為它把四個可達 <code>10⁹</code> 的<strong>值</strong>相加。分清「索引」和「數值累加」:前者小、後者可能大,是判斷要不要 <code>long long</code> 的準則。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>kSum 模板</strong>:排序一次。<code>kSum(start, target, k)</code>:若 <code>k==2</code> → <strong>對撞雙指針</strong>(基底,就是 167 那段,含 l/r 去重);否則從 <code>start</code> 掃 <code>i</code>(跳 <code>nums[i]==nums[i-1]</code>),對每個 <code>i</code> 遞迴 <code>kSum(i+1, target-nums[i], k-1)</code>,把回傳的每組前面補上 <code>nums[i]</code>。去重放在<strong>每一層的固定迴圈</strong>與基底的 l/r。整體時間 <code>O(n^{k-1})</code>。so 2Sum 是基底、3Sum/4Sum 只是遞迴深度不同。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      固定 <code>i,j</code> 後,內層 <code>[l,r]</code> 已排序。<strong>最小可能四數和</strong> = <code>nums[i]+nums[j]+nums[j+1]+nums[j+2]</code>(取最小兩個);若它 <code>&gt; target</code>,再大只會更大 → 這個 <code>j</code>(甚至 <code>i</code>)<strong>之後都無望,break</strong>。<strong>最大可能和</strong> = <code>nums[i]+nums[j]+nums[n-2]+nums[n-1]</code>;若它 <code>&lt; target</code>,這個 <code>j</code> 太小 → <code>continue</code> 換下一個 <code>j</code>。都要用 <code>long long</code> 算界。這些剪枝把常數大幅壓低,最壞仍 <code>O(n³)</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>LC 454 4Sum II</strong>:四個<strong>獨立</strong>陣列各取一個、只求<strong>組合數</strong>(不需列出、不需去重)。因為元素來自不同陣列、又不用去重,「排序 + 對撞」的前提(同一陣列、要列元素)不適用。正解是<strong>折半雜湊(meet in the middle)</strong>:先把 <code>A[i]+B[j]</code> 的所有和存進 <code>unordered_map</code> 計數(<code>O(n²)</code>),再枚舉 <code>C[k]+D[l]</code> 查 <code>-(C+D)</code> 出現幾次累加(<code>O(n²)</code>)。總 <code>O(n²)</code>,比對撞的 <code>O(n³)</code> 更快 —— <strong>「求數量」比「列組合」能用更強的雜湊技巧</strong>。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 02 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">4Sum = 3Sum + 固定 j。去重四處(i、j 比前一、命中後 l、r);j 條件 j>i+1。四數和 (long long) 起頭防溢位,索引用 int。O(n³)。kSum 遞迴基底是 2Sum;454 求數量改折半雜湊 O(n²)。</div>
+    <div class="sc-summary-bar__detail">排序+對撞 · 4SUM</div>
+  </div>
+
+</body>
+</html>

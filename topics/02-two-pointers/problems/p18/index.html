@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>18 · 4Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P18</span>
+    <span><a href="https://leetcode.com/problems/4sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">四數之和</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 排序 + 固定兩數 + 對撞</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 18</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(n³)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給陣列 <code>nums</code> 和 <code>target</code>,回傳所有<strong>不重複</strong>的四元組 <code>[nums[a],nums[b],nums[c],nums[d]]</code>,四個索引互異且四數和 <code>= target</code>。
+        例:<code>nums=[1,0,-1,0,-2,2], target=0 → [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]</code>。
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p15/index.html">3Sum(15)</a> 的<strong>再加一層</strong>:同樣「<strong>排序 → 固定 → 對撞 → 去重</strong>」,只是外層從固定<strong>一個</strong>數變成固定<strong>兩個</strong>(<code>i</code> 和 <code>j</code>),內層仍是 <a href="../p167/index.html">167</a> 的對撞找兩數。
+      兩個新重點:<strong>多一層外循環(去重也多一處)</strong> 與 <strong>四數相加可能溢位 <code>int</code>,要用 <code>long long</code></strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼再套一層 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「固定兩數 + 對撞」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n⁴)</div>
+          <div class="sc-ko__name">四層迴圈枚舉</div>
+          <p>試所有 <code>(a,b,c,d)</code>。就算 <code>n</code> 只有 200,<code>n⁴=1.6×10⁹</code> 已偏慢,還要另外 set 去重。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 想太多</div>
+          <div class="sc-ko__name">固定兩數 + 雜湊找兩數</div>
+          <p>內層改雜湊找 <code>target-nums[i]-nums[j]-nums[l]</code>。時間一樣 <code>O(n³)</code> 但要處理雜湊去重、額外空間,遠不如排序後對撞乾淨。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SORT + TWO POINTERS · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n³) / O(1)*</div>
+        <div class="sc-ko__name">排序 → 固定 i,j → 對撞找兩數 → 去重</div>
+        <p>
+          排序後,外兩層固定 <code>nums[i]</code>、<code>nums[j]</code>(各自跳過相鄰重複),內層在 <code>[j+1, n-1]</code> 用<strong>對撞</strong>找 <code>nums[l]+nums[r] = target-nums[i]-nums[j]</code>。
+          和 3Sum 完全同一套骨架,只是多一個固定的數 → <code>O(n³)</code>,除輸出外常數空間。<strong>四數和用 <code>long long</code> 累加避免溢位</strong>。
+        </p>
+      </div>
+    </div>
+    <p style="margin-top:10px;font-size:12px;color:#8a8672;">* 不計答案輸出;原地排序 <code>O(1)</code>(遞迴堆疊 <code>O(log n)</code>)。</p>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>排序</strong> —— <code>sort(nums)</code>,給單調性 + 讓相同值相鄰。</li>
+      <li><strong>外層固定 i(去重)</strong> —— <code>nums[i]==nums[i-1]</code> 就跳過。</li>
+      <li><strong>次外層固定 j(去重)</strong> —— <code>j&gt;i+1 &amp;&amp; nums[j]==nums[j-1]</code> 就跳過。</li>
+      <li><strong>內層對撞 + 去重</strong> —— <code>l=j+1,r=n-1</code>,依 <code>long long sum</code> 與 target 比較移動;命中收下後跳相鄰相同的 l、r。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// TWO ANCHORS + CONVERGE</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[-2,-1,0,0,1,2], target=0</code>:<code>i</code>、<code>j</code> 兩個綠色錨固定,內層對撞找剩兩數。在 <code>i=-2</code> 下,<code>j=-1</code> 與 <code>j=0</code> 各收一組。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 排序 + 固定兩數 + 對撞雙指針 + 去重</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:258px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 兩個新重點 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">比 3Sum 多的兩件事<span class="sc-section__title-en">// WHAT'S NEW</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">多一處去重 · 用 long long 防溢位</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          <strong>① 去重從三處變四處</strong>:外層 <code>i</code>(比 <code>nums[i-1]</code>)、<strong>次外層 <code>j</code>(比 <code>nums[j-1]</code>)</strong>、命中後的 <code>l</code>、<code>r</code>。
+          注意 <code>j</code> 的去重條件是 <code>j &gt; i+1 &amp;&amp; nums[j]==nums[j-1]</code> —— <code>j &gt; i+1</code> 確保<strong>每個 <code>i</code> 底下 <code>j</code> 的第一個值仍會處理</strong>,只跳同一 <code>i</code> 內重複的 <code>j</code>(和外層 <code>i&gt;0</code> 同理)。
+        </p>
+        <p style="margin:0;">
+          <strong>② 溢位</strong>:<code>nums[i]</code> 可達 <code>±10⁹</code>,<strong>四個相加最大約 <code>4×10⁹</code>,超過 <code>int</code> 上限(約 <code>2.1×10⁹</code>)</strong>。若用 <code>int</code> 累加會溢位、比較出錯。解法:<code>long long sum = (long long)nums[i] + nums[j] + nums[l] + nums[r];</code> —— <strong>第一個轉 <code>long long</code>,後面自動提升</strong>。<code>target</code> 也可能是負的,但因為兩邊都在 <code>long long</code> 下比較,沒問題。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n³)</strong>　　S = <strong>O(1)</strong>(不計輸出)</div>
+      <p class="sc-formula__hint">
+        排序 <code>O(n log n)</code> 被吸收;主體是「外兩層 <code>i,j</code> 共 <code>O(n²)</code> × 內層對撞 <code>O(n)</code>」= <code>O(n³)</code>。除答案外只用兩個索引 → <code>O(1)</code>。相較 <code>O(n⁴)</code> 暴力快一個量級,<code>n≤200</code> 綽綽有餘。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>排序</td><td><code>O(n log n)</code></td><td>一次,被 O(n³) 蓋過</td></tr>
+        <tr><td>外兩層 i,j</td><td><code>O(n²)</code></td><td>固定每對起點</td></tr>
+        <tr><td>內層對撞</td><td><code>O(n)</code></td><td>l+r 合計走一趟</td></tr>
+        <tr><td>總時間 / 空間</td><td><code>O(n³)</code> / <code>O(1)</code></td><td>不計輸出</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>kSum 階梯</strong>:每多一個數,就<strong>多固定一層</strong>,內層永遠是 <a href="../p167/index.html">167</a> 的對撞。<a href="../p15/index.html">3Sum</a> 固定 1 層是 <code>O(n²)</code>,4Sum 固定 2 層是 <code>O(n³)</code>。
+      去重就是「每個固定層比前一個、命中後跳 l/r」。別忘了四數和用 <code>long long</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 02 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">3Sum 再套一層:排序 → 固定 i,j → 內層對撞找兩數=target−i−j。去重四處(i、j 比前一個、命中後 l、r)。四數和用 long long 防溢位。O(n³)/O(1)。</div>
+    <div class="sc-summary-bar__detail">排序+對撞 · 4SUM</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p18-foursum.js"></script>
+</body>
+</html>
