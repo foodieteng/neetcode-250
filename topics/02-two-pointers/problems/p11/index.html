@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>11 · Container With Most Water // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P11</span>
+    <span><a href="https://leetcode.com/problems/container-with-most-water/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">盛最多水的容器</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 對撞雙指針 · 移動較矮牆</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 11</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(n)/O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>height[i]</code> 是第 <code>i</code> 條垂直線的高。任選兩條線與 <code>x</code> 軸圍成容器,求能裝最多水的<strong>面積</strong>。
+        面積 = <code>兩線較矮者 × 兩線間距</code> = <code>min(height[i], height[j]) × (j - i)</code>。例:<code>[1,8,6,2,5,4,8,3,7] → 49</code>。
+      </p>
+    </div>
+
+    <p>
+      面積由<strong>兩個因子</strong>決定:<strong>寬度</strong>(兩線間距)與<strong>高度</strong>(較矮的那條線,因為水會從矮的一側溢出)。
+      從<strong>最寬</strong>(兩端)開始對撞,寬度只會越來越小;所以想要更大面積,唯一的希望是「<strong>讓較矮的那面牆變高</strong>」—— 這就導出「移動較矮牆」的貪心。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼移動較矮牆 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「對撞 + 移較矮牆」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n²)</div>
+          <div class="sc-ko__name">枚舉每一對線</div>
+          <p>雙迴圈試所有 <code>(i,j)</code> 算面積。<code>n</code> 到 <code>10⁵</code> → <code>10¹⁰</code>,超時。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 移錯邊</div>
+          <div class="sc-ko__name">移動較高的牆</div>
+          <p>移較高牆:<code>min</code> 仍被較矮牆卡住(不變或更小)、寬度又縮 → 面積<strong>絕不可能</strong>變大。白白浪費一步。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">MOVE SHORTER WALL · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n) / O(1)</div>
+        <div class="sc-ko__name">l、r 對撞,每步移動較矮的一端</div>
+        <p>
+          <code>l=0, r=n-1</code>,每步算面積並更新最大;然後<strong>移動較矮的那一端</strong>(較高的留著,或許還能配到更高的另一邊)。
+          兩指針各走一趟、共 <code>n</code> 步 → <code>O(n)</code>,<code>O(1)</code> 空間。移較矮牆是<strong>安全的貪心</strong>(下方證明)。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>兩端起手</strong> —— <code>l=0, r=n-1</code>(最寬)。</li>
+      <li><strong>算面積</strong> —— <code>area = min(height[l], height[r]) × (r-l)</code>,更新 <code>maxArea</code>。</li>
+      <li><strong>移較矮牆</strong> —— 若 <code>height[l] &lt; height[r]</code> 則 <code>l++</code>,否則 <code>r--</code>。<code>l&lt;r</code> 期間重複。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// CONVERGING</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[1,8,6,2,5,7]</code>:水填到兩牆<strong>較矮者</strong>的高度。每步移動較矮牆;最佳容器是 <code>l=1(高8)</code> 與 <code>r=5(高7)</code>,面積 28。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 對撞雙指針 · 移動較矮牆、水填到 min 高度</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:280px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼移較矮牆不漏解 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「移較矮牆」不會漏掉最優解<span class="sc-section__title-en">// THE GREEDY PROOF</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">移較矮牆時,丟掉的那一整批配對都不可能更好</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          設此刻 <code>height[l] &lt; height[r]</code>(左牆較矮),當前面積 <code>= height[l] × (r-l)</code>。我們要 <code>l++</code>,等於<strong>永遠放棄「左牆 <code>l</code> 配上 <code>l+1 .. r</code> 之間任何一條」的所有容器</strong>。
+        </p>
+        <p style="margin:0 0 8px;">
+          看這些被放棄的配對 <code>(l, j)</code>(<code>j &lt; r</code>):它們的<strong>寬度 <code>j-l &lt; r-l</code></strong>(更窄),而<strong>高度 <code>min(height[l], height[j]) ≤ height[l]</code></strong>(仍被較矮的 <code>l</code> 卡住,甚至更矮)。所以它們的面積<strong>都 <code>≤ height[l] × (r-l)</code></strong> —— 不會超過「我們剛剛已經算過」的當前面積。既然沒有一個能更好,<strong>安全丟掉</strong>。
+        </p>
+        <p style="margin:0;">
+          對稱地,若右牆較矮就 <code>r--</code>。所以每一步都只排除「保證不更優」的一批,最優解始終留在 <code>[l, r]</code> 內。反之若<strong>移較高牆</strong>:<code>min</code> 仍被較矮牆封頂、寬度又縮,<strong>可能把真正的最優解丟掉</strong>。這就是為什麼一定移較矮那端。<strong>平手時移哪端都行</strong>(兩者對稱),程式碼歸到 <code>else</code> 移右。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        <code>l</code> 只增、<code>r</code> 只減,兩者相遇前合計最多走 <code>n</code> 步,每步 <code>O(1)</code> → <code>O(n)</code>。只用兩個索引 → <code>O(1)</code>。從 <code>O(n²)</code> 暴力降到 <code>O(n)</code>,靠的是「移較矮牆」這個安全貪心一次砍掉一整排無用配對。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>掃描</td><td><code>O(n)</code></td><td>l+r 合計走一趟</td></tr>
+        <tr><td>每步</td><td><code>O(1)</code></td><td>算面積 + 比較 + 移一端</td></tr>
+        <tr><td>空間</td><td><code>O(1)</code></td><td>兩個索引</td></tr>
+        <tr><td>vs 暴力</td><td><code>O(n²)</code></td><td>枚舉每一對</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      面積 = <code>min(兩牆) × 寬</code>。從最寬對撞、每步<strong>移較矮牆</strong> —— 因為移它才可能讓瓶頸變高,而丟掉的那批(更窄且仍被矮牆封頂)保證不更優。
+      這是 <a href="../p167/index.html">167</a> 對撞的貪心變體:不是二分消去,而是<strong>「瓶頸在哪就動哪」</strong>。O(n)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 02 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">面積=min(兩牆)×寬。l、r 從兩端對撞,每步移較矮牆(移它才可能讓瓶頸變高;丟掉的更窄又被矮牆封頂,保證不更優)。O(n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">對撞貪心 · CONTAINER WITH MOST WATER</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p11-container.js"></script>
+</body>
+</html>

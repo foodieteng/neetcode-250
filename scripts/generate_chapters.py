@@ -101,7 +101,7 @@ PROBLEMS = {
         ('p15',  '3Sum',                               '3sum',                               'med', 'done'),
         ('p18',  '4Sum',                               '4sum',                               'med', 'done'),
         ('p189', 'Rotate Array',                       'rotate-array',                       'med', 'done'),
-        ('p11',  'Container With Most Water',          'container-with-most-water',          'med', 'todo'),
+        ('p11',  'Container With Most Water',          'container-with-most-water',          'med', 'done'),
         ('p881', 'Boats to Save People',               'boats-to-save-people',               'med', 'todo'),
         ('p42',  'Trapping Rain Water',                'trapping-rain-water',                'hard','todo'),
     ],
