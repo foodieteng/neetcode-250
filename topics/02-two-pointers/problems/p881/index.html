@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>881 · Boats to Save People // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P881</span>
+    <span><a href="https://leetcode.com/problems/boats-to-save-people/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">救生艇</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 對撞雙指針貪心</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 881</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(n log n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>people[i]</code> 是第 <code>i</code> 人的體重。有無限艘船,每艘載重上限 <code>limit</code>、<strong>最多載 2 人</strong>(且兩人合重 ≤ <code>limit</code>)。求載完所有人的<strong>最少船數</strong>。
+        例:<code>people=[3,2,2,1], limit=3 → 3</code>(<code>{3}、{1,2}、{2}</code>)。
+      </p>
+    </div>
+
+    <p>
+      每艘船最多 2 人,所以策略是「盡量湊兩人一船」。核心貪心:<strong>排序後,讓<strong>最輕</strong>的人陪<strong>最重</strong>的人</strong> —— 若最重的人連最輕的都載不下,他只能<strong>單獨一船</strong>;若載得下,兩人同船最省。
+      這是 <a href="../p167/index.html">對撞雙指針</a> 的貪心變體:<code>l</code> 指最輕、<code>r</code> 指最重,往中間收。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼這樣貪心 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「最輕配最重」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× 難且慢</div>
+          <div class="sc-ko__name">枚舉所有配對</div>
+          <p>把人兩兩配對求最少船,是<strong>配對/匹配</strong>問題,枚舉指數級,對 <code>5×10⁴</code> 人不可行。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 想錯方向</div>
+          <div class="sc-ko__name">最重配次重</div>
+          <p>把重的人湊在一起 → 幾乎都超重、各自單獨,船數爆。應該讓重的人配<strong>最輕</strong>的,才騰得出空間。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SORT + TWO POINTERS · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n log n) / O(1)</div>
+        <div class="sc-ko__name">排序,l 最輕、r 最重,對撞</div>
+        <p>
+          排序後 <code>l=0, r=n-1</code>。每艘船先讓最重的 <code>r</code> 上:若 <code>people[l]+people[r] ≤ limit</code>,最輕的 <code>l</code> 一起上(<code>l++, r--</code>);否則 <code>r</code> 單獨(<code>r--</code>)。每次迴圈 <code>boats++</code>。
+          排序 <code>O(n log n)</code> 主導,對撞 <code>O(n)</code>。貪心最優(下方證明)。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>排序</strong> —— <code>sort(people)</code>,<code>l=0</code>(最輕)、<code>r=n-1</code>(最重)。</li>
+      <li><strong>每艘船</strong> —— <code>boats++</code>;若 <code>people[l]+people[r] ≤ limit</code> → 兩人同船(<code>l++, r--</code>);否則最重單獨(<code>r--</code>)。</li>
+      <li><strong>收斂</strong> —— <code>l ≤ r</code> 期間重複。回傳 <code>boats</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// GREEDY PAIRING</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[1,2,2,3], limit=3</code>:最重的 <code>3</code> 連最輕的 <code>1</code> 都載不下 → 單獨;接著 <code>1+2</code> 同船;最後剩一人單獨。共 3 船。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 對撞雙指針貪心 · 最輕配最重、載不下就單獨</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:262px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 貪心正確性 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼這個貪心是最優<span class="sc-section__title-en">// EXCHANGE ARGUMENT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">最重的人配「最輕的人」永遠不吃虧</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          最重的人 <code>H</code> <strong>一定要上某艘船</strong>。他頂多再帶一個人。問:帶誰最好?答案是<strong>還在的最輕者 <code>L</code></strong>。
+        </p>
+        <p style="margin:0 0 8px;">
+          <strong>情況一:<code>H + L &gt; limit</code></strong> —— 連最輕的都載不下,那 <code>H</code> 配<strong>任何人</strong>都超重,只能單獨。這一步無可爭議。<br />
+          <strong>情況二:<code>H + L ≤ limit</code></strong> —— 讓 <code>H</code> 帶 <code>L</code>。用<strong>交換論證</strong>:假設某個最優解裡 <code>H</code> 沒帶 <code>L</code>(帶了別人 <code>X</code>,或自己單獨,而 <code>L</code> 在別船)。把 <code>L</code> 換到 <code>H</code> 這艘來 —— <code>L</code> 是最輕的,<code>H+L ≤ H+X ≤ limit</code> 仍合法;而 <code>L</code> 原本那艘少了 <code>L</code> 只會更輕、更合法。<strong>換完船數不增</strong>。所以「讓 <code>H</code> 帶最輕的 <code>L</code>」至少和最優一樣好 → 貪心最優。
+        </p>
+        <p style="margin:0;">
+          直覺:<strong>最輕的人最好安置</strong>(誰都塞得下),把他拿去陪最難安置的最重者,是「用最不占空間的人填最重者的空位」。若最重者連最輕者都容不下,那最輕者留給別人也一樣 —— 反正 <code>H</code> 得自己走。<strong>每一步都不浪費船的容量。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        排序 <code>O(n log n)</code> 是瓶頸;之後對撞掃一趟 <code>O(n)</code>(<code>l</code> 只增、<code>r</code> 只減,合計 <code>n</code> 步)。除排序外只用兩個索引 → <code>O(1)</code> 額外空間。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>排序</td><td><code>O(n log n)</code></td><td>瓶頸</td></tr>
+        <tr><td>對撞掃描</td><td><code>O(n)</code></td><td>l+r 合計走一趟</td></tr>
+        <tr><td>每步</td><td><code>O(1)</code></td><td>一次加法比較</td></tr>
+        <tr><td>空間</td><td><code>O(1)</code></td><td>兩個索引</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      每船最多 2 人 → <strong>排序後最輕配最重</strong>:配得下兩人同船、配不下最重者單獨。<strong>交換論證</strong>保證最優:最輕者最好安置,拿去填最重者的空位不吃虧。
+      這是 <a href="../p167/index.html">167</a> 對撞的貪心表親,和 <a href="../p11/index.html">11</a> 一樣「排序/有序 → 對撞 + 貪心」。O(n log n)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 02 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每船≤2人。排序後 l 最輕、r 最重對撞:people[l]+people[r]≤limit 兩人同船(l++r--)、否則最重單獨(r--)。交換論證:最輕填最重的空位不吃虧。O(n log n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">對撞貪心 · BOATS TO SAVE PEOPLE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p881-boats.js"></script>
+</body>
+</html>
