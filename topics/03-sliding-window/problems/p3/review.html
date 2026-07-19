@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 · Longest Substring Without Repeating Characters // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P3</span>
+    <span><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長無重複字元子字串</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 3</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>可變長視窗</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>類型</td><td>可變長滑動視窗(求最長)</td></tr>
+        <tr><td>擴張</td><td><code>r</code> 每步納入 <code>s[r]</code></td></tr>
+        <tr><td>收縮</td><td><code>freq[s[r]]&gt;1</code> 時縮左到合法</td></tr>
+        <tr><td>合法</td><td>視窗內無重複字元</td></tr>
+        <tr><td>答案</td><td><code>maxL=max(maxL, r-l+1)</code></td></tr>
+        <tr><td>跳版</td><td><code>l=max(l, last[s[r]]+1)</code></td></tr>
+        <tr><td>複雜度</td><td>O(n) 時間 / O(k) 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>收縮為什麼只需盯 <code>freq[s[r]] &gt; 1</code>?為什麼<strong>只有剛加入的 <code>s[r]</code></strong> 可能造成重複,不用檢查別的字元?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>收縮用 <code>while</code> 而不是 <code>if</code>。舉一個輸入,說明用 <code>if</code>(只縮一格)會漏掉什麼、答案怎麼錯。</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>本題(可變長)和 <a href="../p219/index.html">219(定長)</a> 都是「右擴左縮」,唯一的差別在哪一步?一句話概括兩者收縮依據的不同。</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>「記上次位置一步跳」版本裡,為什麼 <code>l</code> 要寫 <code>max(l, last[s[r]]+1)</code> 而不能直接 <code>l = last[s[r]]+1</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>時間為什麼是 <code>O(n)</code> 而不是 <code>O(n²)</code>?<code>while</code> 收縮迴圈看起來像巢狀,為什麼不會讓複雜度變平方?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// abba 的 l 不倒退</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// s = "abba"(跳版:last[] 記上次索引,l 不可倒退)</span>
+r=0 'a': last[a]=0        l=0  窗"a"   maxL=1
+r=1 'b': last[b]=1        l=0  窗"ab"  maxL=2
+r=2 'b': last[b]=1&gt;=l → l=2; last[b]=2  窗"b"  maxL=2
+r=3 'a': last[a]=0, 但 0 &lt; l=2 → 不跳!l 保持 2
+         last[a]=3        窗"ba" maxL=2
+<span class="sc-trace__out">回傳 2;若在 r=3 把 l 設成 last[a]+1=1 會「倒退」→ 錯</span></div>
+
+    <div class="sc-insight">
+      <code>"abba"</code> 是跳版的經典陷阱:<code>r=3</code> 的 <code>a</code> 上次在 index 0,但那已<strong>在目前視窗 [2,3] 外</strong>。若無腦 <code>l=last[a]+1=1</code>,<code>l</code> 會從 2 <strong>倒退</strong>到 1,把已移出的 <code>b</code> 又納回來 → 視窗重複、答案錯。
+      <code>l = max(l, last[s[r]]+1)</code> 或判斷 <code>last[s[r]] &gt;= l</code> 才跳,保證 <strong><code>l</code> 只增不減</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 424 最長重複字元替換</strong>:最多可換 <code>k</code> 個字元,求最長「同一字元」子字串。合法條件變成什麼?(提示:<code>視窗長 - 眾數次數 ≤ k</code>)</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 209 最小長度子陣列和</strong>:求和 <code>≥ target</code> 的<strong>最短</strong>連續子陣列。這也是可變長視窗,但收縮邏輯和「求最長」有什麼<strong>相反</strong>之處?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>回傳子字串本身</strong>:除了長度,還要輸出那個最長無重複子字串。掃描時要多記什麼?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      因為在加入 <code>s[r]</code> <strong>之前</strong>,視窗 <code>[l, r-1]</code> 已保證無重複(這是迴圈不變式)。新加入的 <code>s[r]</code> 是唯一可能製造重複的字元 —— 如果它和窗內某字元相同,重複的必然是「<code>s[r]</code> 這個值」出現了兩次。所以只需檢查 <code>freq[s[r]] &gt; 1</code>;其他字元的計數不可能因為這一步變成 &gt;1。收縮就是把左端一路移出,直到 <code>s[r]</code> 這個值在窗內只剩一份。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      要 <code>while</code>。反例 <code>"pwwkew"</code> 的 <code>r=2</code>:窗是 <code>"pw"</code>,加入第二個 <code>w</code> 後 <code>freq[w]=2</code>。<strong>光移出一格 <code>p</code></strong>(<code>if</code> 只做一次)後窗變 <code>"ww"</code>,<code>freq[w]</code> 仍是 2 —— 重複沒清掉!必須繼續移出第一個 <code>w</code>,窗才變 <code>"w"</code> 恢復合法。用 <code>if</code> 會留下重複、後續 <code>maxL</code> 被高估。<strong>收縮要「縮到合法為止」,量不固定,所以是 <code>while</code>。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      差別只在<strong>「何時收縮」那一步</strong>。<strong>219 定長</strong>:<code>while (r - l &gt; k)</code> —— 看<strong>大小</strong>,超過固定上限就縮,和內容無關。<strong>本題可變長</strong>:<code>while (freq[s[r]] &gt; 1)</code> —— 看<strong>內容合不合法</strong>,出現重複才縮,縮到合法為止。一句話:<strong>定長看「幾個」,可變長看「合不合法」</strong>。其餘(右擴張、更新答案)兩者完全一樣。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      因為 <code>last[s[r]]</code> 記的是該字元<strong>整段字串裡</strong>的上次位置,可能<strong>早已在目前視窗左邊界之外</strong>。若直接 <code>l = last[s[r]]+1</code>,當那個舊位置 <code>&lt; l</code> 時會把 <code>l</code> <strong>往回拉</strong>,等於把已移出的字元重新納入視窗 → 破壞「無重複」。用 <code>max(l, last[s[r]]+1)</code>(或先判 <code>last[s[r]] &gt;= l</code>)保證 <code>l</code> <strong>只增不減</strong>。<code>"abba"</code> 的 <code>r=3</code> 就是這個陷阱(見 Trace)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <code>O(n)</code>。雖然有內層 <code>while</code>,但 <code>l</code> <strong>整個過程只會往右移,最多 <code>n</code> 次</strong> —— 它不會回頭重數。所以「<code>r</code> 前進 <code>n</code> 次」+「<code>l</code> 前進至多 <code>n</code> 次」= 總共 <code>O(n)</code> 次指針移動,這是<strong>攤還分析</strong>:內層 while 的總執行次數跨整個外層加起來也只有 <code>n</code>。不是每個 <code>r</code> 都重掃一遍,所以不是 <code>O(n²)</code>。這正是滑動視窗打敗暴力枚舉的關鍵。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 424</strong>:視窗合法條件變成 <strong><code>視窗長度 - 視窗內出現最多的字元次數 ≤ k</code></strong>(要替換的字元數 = 非眾數的字元數,不能超過 <code>k</code>)。維護 <code>freq[26]</code> 與目前眾數次數 <code>maxCount</code>;當 <code>(r-l+1) - maxCount &gt; k</code> 就縮左。答案是最長的合法視窗。骨架與本題一模一樣,只是把「無重複」換成「可替換 ≤ k 個」這個合法條件。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 209</strong> 求<strong>最短</strong>,收縮方向相反。本題(求最長)是「<strong>違規才縮、答案取 max</strong>」;209 是「<strong>一旦達標(<code>sum ≥ target</code>)就拚命縮、每次達標更新 min</strong>」。也就是:求最長 → 視窗<strong>不合法時</strong>收縮;求最短 → 視窗<strong>已合格時</strong>收縮(想在保持合格下盡量短)。認出目標是 max 還是 min,就知道收縮該放在「違規時」還是「達標時」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      多記<strong>最佳視窗的起點</strong>。每次更新 <code>maxL</code> 時,如果 <code>r-l+1</code> 比舊的 <code>maxL</code> 大,就記下 <code>bestStart = l</code>(和 <code>bestLen = r-l+1</code>)。掃完用 <code>s.substr(bestStart, bestLen)</code> 取出子字串。仍是 <code>O(n)</code>,只是把「長度」升級成「長度 + 起點」。這是所有「求最長/最短區間」題想輸出區間本身時的通用做法。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">可變長:r 擴張、freq[s[r]]>1 用 while 縮到合法、maxL 取最大。只盯 s[r] 因不變式。跳版 l=max(l,last+1) 防倒退。攤還 O(n)。定長看幾個、可變長看合不合法;求最短(209)則達標才縮。</div>
+    <div class="sc-summary-bar__detail">可變長滑動視窗 · LONGEST SUBSTRING</div>
+  </div>
+
+</body>
+</html>

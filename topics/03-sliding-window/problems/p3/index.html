@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 · Longest Substring Without Repeating Characters // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P3</span>
+    <span><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最長無重複字元子字串</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 可變長滑動視窗</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 3</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>滑動視窗 · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給字串 <code>s</code>,求<strong>不含重複字元</strong>的最長子字串<strong>長度</strong>。子字串是連續的一段。
+        例:<code>"abcabcbb" → 3</code>(<code>"abc"</code>);<code>"pwwkew" → 3</code>(<code>"wke"</code>);<code>"bbbbb" → 1</code>。
+      </p>
+    </div>
+
+    <p>
+      這是<strong>可變長滑動視窗</strong>的代表題。和 <a href="../p219/index.html">219(定長)</a> 對照:219 的視窗大小固定(<code>≤ k+1</code>),而這題的視窗<strong>大小會隨資料伸縮</strong> ——
+      收縮的依據不是「幾個」,而是「<strong>視窗還合不合法(有沒有重複)</strong>」。右指針一路擴張,一旦出現重複就從左收縮,答案取歷程中最長的合法視窗。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼可變長視窗 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「可變長滑動視窗」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n²)~O(n³)</div>
+          <div class="sc-ko__name">枚舉所有子字串</div>
+          <p>試每個 <code>(i,j)</code> 再檢查有無重複。<code>n</code> 到 <code>5×10⁴</code> → 平方級以上,超時。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 每次重掃</div>
+          <div class="sc-ko__name">固定左端、右端往後掃到撞重複</div>
+          <p>對每個左端重新往右掃。有重複時<strong>左端只前進一格又從頭掃</strong>,重複工作 → 仍是 <code>O(n²)</code>。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SLIDING WINDOW · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n) / O(k)</div>
+        <div class="sc-ko__name">r 擴張、遇重複才縮 l,窗長取最大</div>
+        <p>
+          右指針 <code>r</code> 每步把 <code>s[r]</code> 記入計數並擴張;若 <code>s[r]</code> 讓視窗出現重複,就 <code>l</code> 右移、移出字元<strong>直到重複消失</strong>。每步用 <code>r-l+1</code> 更新 <code>maxL</code>。
+          <code>l</code>、<code>r</code> 各<strong>只往右走一趟、從不回頭</strong> → <code>O(n)</code>;計數表最多裝字元集大小 <code>k</code>(字母/ASCII)→ <code>O(k)</code> 空間。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>擴張</strong> —— <code>r</code> 從左到右,<code>freq[s[r]]++</code> 把新字元納入視窗。</li>
+      <li><strong>收縮到合法</strong> —— 當 <code>freq[s[r]] &gt; 1</code>(視窗有重複),<code>freq[s[l++]]--</code> 移出左端,直到重複消失。</li>
+      <li><strong>記錄最長</strong> —— <code>maxL = max(maxL, r - l + 1)</code>。掃完回傳 <code>maxL</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VARIABLE WINDOW</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>"pwwkew"</code>:<code>r</code> 擴張,遇到重複的 <code>w</code> 就縮左。視窗長度隨資料伸縮,最長合法視窗 <code>"wke"</code> 長 3。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 可變長視窗 · r 擴張、遇重複縮 l、maxL 取最大</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:258px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 定長 vs 可變長 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">定長 vs 可變長 · 收縮的依據不同<span class="sc-section__title-en">// THE TWO FLAVORS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">收縮條件 = 這兩類滑動視窗的分水嶺</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          兩類滑動視窗都是「<strong>右擴張、左收縮</strong>」,差別只在<strong>什麼時候收縮</strong>:
+        </p>
+        <p style="margin:0 0 8px;">
+          ‧ <strong>定長</strong>(<a href="../p219/index.html">219</a>):收縮看<strong>大小</strong> —— <code>r - l &gt; k</code> 就縮,窗長上限固定,和內容無關。<br />
+          ‧ <strong>可變長</strong>(本題):收縮看<strong>內容合不合法</strong> —— 視窗出現重複才縮,縮到合法為止,窗長隨資料浮動。
+        </p>
+        <p style="margin:0;">
+          一句話:<strong>定長看「幾個」,可變長看「合不合法」</strong>。可變長又常分兩種目標:<strong>求最長合法視窗</strong>(本題、<a href="https://leetcode.com/problems/longest-repeating-character-replacement/" target="_blank" rel="noopener">424</a>)——「違規才縮、答案取 max」;<strong>求最短合格視窗</strong>(<a href="https://leetcode.com/problems/minimum-size-subarray-sum/" target="_blank" rel="noopener">209</a>、<a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">76</a>)——「達標就拚命縮、答案取 min」。認出目標是最長還是最短,就知道收縮邏輯往哪擺。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(k)</strong></div>
+      <p class="sc-formula__hint">
+        <code>r</code> 前進 <code>n</code> 步;<code>l</code> 全程最多也前進 <code>n</code> 步(攤還 <code>O(1)</code>/步)—— 兩指針各走一趟,不回頭。計數表最多裝字元集大小 <code>k</code>(小寫字母 26、ASCII 128)→ <code>O(k)</code>(視為常數也可寫 <code>O(1)</code>)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>右指針掃描</td><td><code>O(n)</code></td><td>每字元進視窗一次</td></tr>
+        <tr><td>左指針收縮</td><td>攤還 <code>O(1)</code></td><td>全程最多移動 n 次</td></tr>
+        <tr><td>計數表操作</td><td><code>O(1)</code></td><td>雜湊 / 陣列</td></tr>
+        <tr><td>空間</td><td><code>O(k)</code></td><td>字元集大小</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>可變長視窗</strong>:右擴張、<strong>違規(重複)才縮左</strong>、答案取最長。收縮依據是「內容合不合法」,不是固定大小 —— 這是它和 <a href="../p219/index.html">219 定長</a> 的分水嶺。
+      左右指針各走一趟 → <code>O(n)</code>。同一骨架換個「合法條件」就解 424、209、76。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 03 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">可變長視窗:r 擴張、freq[s[r]]>1(重複)就 freq[s[l++]]-- 縮到合法、maxL=max(maxL,r-l+1)。收縮看「合不合法」非固定大小(vs 219 定長)。O(n)/O(k)。</div>
+    <div class="sc-summary-bar__detail">可變長滑動視窗 · LONGEST SUBSTRING</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p3-window.js"></script>
+</body>
+</html>
