@@ -491,29 +491,30 @@ def chapter_quick_index(cat_id, cat_slug, probs):
             title_cell = f'<span style="color:var(--concrete)">{title}</span>'
 
         # self-editable, localStorage-persisted columns (time / date / my-difficulty / note)
+        # data-label drives the stacked "card" layout on mobile (see tracker.css @media)
         track_cells = (
-            f'<td><input class="trk-input" type="text" inputmode="text" '
+            f'<td data-label="時間"><input class="trk-input" type="text" inputmode="text" '
             f'data-trk="time" data-pid="{num}" placeholder="—" aria-label="花費時間" /></td>'
-            f'<td><input class="trk-date" type="date" '
+            f'<td data-label="日期"><input class="trk-date" type="date" '
             f'data-trk="date" data-pid="{num}" aria-label="上次日期" /></td>'
-            f'<td><select class="trk-select" data-trk="diff" data-pid="{num}" aria-label="我的難度">'
+            f'<td data-label="自評"><select class="trk-select" data-trk="diff" data-pid="{num}" aria-label="我的難度">'
             f'<option value="">—</option>'
             f'<option value="easy">Easy</option>'
             f'<option value="med">Med</option>'
             f'<option value="hard">Hard</option>'
             f'</select></td>'
-            f'<td><input class="trk-note" type="text" inputmode="text" '
+            f'<td data-label="註記"><input class="trk-note" type="text" inputmode="text" '
             f'data-trk="note" data-pid="{num}" placeholder="—" aria-label="註記" /></td>'
         )
 
         rows.append(
             f'            <tr>'
-            f'<td>{diff_chip(difficulty)}</td>'
-            f'<td style="font-family:var(--font-mono);">{num}</td>'
-            f'<td>{title_cell}</td>'
-            f'<td><a href="{source}" target="_blank" rel="noopener" '
+            f'<td data-label="難度">{diff_chip(difficulty)}</td>'
+            f'<td data-label="#" style="font-family:var(--font-mono);">{num}</td>'
+            f'<td data-label="題目">{title_cell}</td>'
+            f'<td data-label="原題"><a href="{source}" target="_blank" rel="noopener" '
             f'style="color:var(--rust-bright);border:none;">原題 ↗</a></td>'
-            f'<td>{status_html}</td>'
+            f'<td data-label="狀態">{status_html}</td>'
             f'{track_cells}'
             f'</tr>'
         )
