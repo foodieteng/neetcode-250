@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>15 · 3Sum // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P15</span>
+    <span><a href="https://leetcode.com/problems/3sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">三數之和</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 15</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>排序+對撞</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>降維</td><td>3Sum = 固定一數 + 2Sum(對撞)</td></tr>
+        <tr><td>前置</td><td>排序:給單調性 + 讓相同值相鄰</td></tr>
+        <tr><td>內層</td><td>找 <code>nums[l]+nums[r] = -nums[i]</code></td></tr>
+        <tr><td>去重①</td><td>外層 <code>nums[i]==nums[i-1]</code> → continue</td></tr>
+        <tr><td>去重②③</td><td>命中後跳 <code>nums[l-1]</code>、<code>nums[r+1]</code></td></tr>
+        <tr><td>剪枝</td><td><code>nums[i]&gt;0</code> → break(可選)</td></tr>
+        <tr><td>複雜度</td><td>O(n²) 時間 / O(1) 空間(不計輸出)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼一定要<strong>先排序</strong>?排序在這題同時提供了哪<strong>兩個</strong>好處(對撞、去重)?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>命中後跳重複,判斷為什麼用 <code>nums[l-1]</code> 和 <code>nums[r+1]</code>,而不是 <code>nums[l+1]</code>、<code>nums[r-1]</code>?和「先 l++、r--」的順序有什麼關係?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>為什麼<strong>只在找到解之後</strong>才跳 l/r?當 <code>sum&lt;0</code> 做 <code>l++</code> 時,不會產生重複三元組嗎?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>外層去重寫成 <code>if (nums[i]==nums[i+1]) continue;</code>(比後一個)會怎樣?為什麼要比<strong>前一個</strong> <code>nums[i-1]</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>整體是 <code>O(n²)</code>。排序的 <code>O(n log n)</code> 為什麼被吸收掉?內層對撞為什麼是 <code>O(n)</code> 而非 <code>O(n²)</code>?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 全零的去重</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// nums = [0,0,0,0]:唯一解 [0,0,0],不能重複</span>
+排序後 [0,0,0,0]
+i=0 (0): l=1,r=3 0+0+0=0 → 收下 [0,0,0]; l++,r--
+         跳重複左: nums[2]==nums[1]=0 → l++ → l=3
+         此時 l==r(=3)→ 內層結束
+i=1 (0): nums[1]==nums[0] → continue(外層去重)
+i=2,3:   同理 continue
+<span class="sc-trace__out">ans = [[0,0,0]](只有一組,去重成功)</span></div>
+
+    <div class="sc-insight">
+      全零是去重的極端測試:內層命中一次後,<strong>跳重複左值</strong>把 <code>l</code> 直接推到 <code>r</code>,避免再收 <code>[0,0,0]</code>;<strong>外層去重</strong>再擋掉 <code>i=1,2,3</code> 這些重複的 <code>0</code> 起點。
+      兩層去重合力,才讓 <code>[0,0,0,0]</code> 只回一組。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 18 4Sum</strong>:找四個數和為 <code>target</code>。怎麼在 3Sum 外再套一層固定?時間變成多少?去重要在幾個位置?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 16 最接近的三數和</strong>:找三數和<strong>最接近</strong> target(不必等於)。對撞指針的移動判斷要改成什麼?還需要去重嗎?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>kSum 通用</strong>:把 3Sum 推廣成任意 <code>k</code> 個數和為 target 的遞迴模板。遞迴的<strong>基底</strong>是哪個子問題?整體時間是多少?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      排序提供<strong>兩個</strong>關鍵好處。<strong>(1) 單調性 → 能對撞</strong>:排序後 <code>nums[l]</code> 是子陣列最小、<code>nums[r]</code> 最大,才能靠比較 <code>sum</code> 與目標決定「該縮哪端」(同 <a href="../p167/index.html">167</a> 的消去論證)。<strong>(2) 相同值相鄰 → 去重簡單</strong>:所有重複值連成一段,只要「跳過相鄰相同值」就能避免重複三元組,不必用 <code>set</code>。沒排序,這兩件事都做不到。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為在跳重複<strong>之前</strong>已經先執行了 <code>l++; r--;</code>。此刻 <code>nums[l-1]</code> 是<strong>剛剛收進答案的那個左值</strong>,<code>nums[r+1]</code> 是剛用過的右值。我們要跳過的是「和剛用過的那組<strong>相同</strong>」的值,所以比 <code>nums[l-1]</code>/<code>nums[r+1]</code>。若比 <code>nums[l+1]</code> 就變成「和下一個比」,語意錯,會漏跳或多跳。順序是「先移動、再回頭比剛離開的格子」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      因為重複三元組只可能在「<strong>收下一組解</strong>」時產生 —— 若下一步的 <code>(nums[l], nums[r])</code> 和剛收的完全相同,就會重複。而 <code>sum&lt;0</code> 做 <code>l++</code>、<code>sum&gt;0</code> 做 <code>r--</code> 時<strong>根本還沒收任何組</strong>,只是在逼近目標,不會生出重複。所以跳重複只需綁在「命中分支」內。把跳重複放在每次移動都做,是多餘且可能出錯的。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      比<strong>後一個</strong> <code>nums[i+1]</code> 會<strong>錯過第一次出現</strong>:假設 <code>[-1,-1,2]</code>,<code>i=0</code> 時 <code>nums[0]==nums[1]</code> 成立就 <code>continue</code>,結果<strong>連第一個 <code>-1</code> 都沒處理</strong> → 漏解。正確是比<strong>前一個</strong> <code>nums[i-1]</code>:讓<strong>每組重複值的第一個</strong>正常進內層計算,只跳過<strong>第二個之後</strong>的重複起點。「跳後面的重複、保留第一個」是所有排序去重的通則。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      排序是 <code>O(n log n)</code>,主體是雙層迴圈 <code>O(n²)</code>;因為 <code>n log n</code> 遠小於 <code>n²</code>,被吸收,總時間 <code>O(n²)</code>。<strong>內層對撞是 <code>O(n)</code> 而非 <code>O(n²)</code></strong>:對固定的 <code>i</code>,<code>l</code> 只增、<code>r</code> 只減,兩者相遇前最多走 <code>n</code> 步(不是巢狀掃描)。外層 <code>n</code> 個 <code>i</code> × 內層 <code>O(n)</code> = <code>O(n²)</code>。這正是「排序 + 對撞」把 <code>O(n³)</code> 暴力降到 <code>O(n²)</code> 的關鍵。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 18 4Sum</strong>:排序後<strong>再套一層</strong> —— 外兩層固定 <code>a</code>、<code>b</code>(各自去重),內層對撞找 <code>c+d = target-a-b</code>。時間 <code>O(n³)</code>。去重在<strong>四個位置</strong>:兩個外層各一(比前一個)、命中後的 <code>l</code> 與 <code>r</code> 各一。要留意 <code>target</code> 可為任意值、且四數和可能溢位 <code>int</code>,用 <code>long long</code> 累加較安全。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 16</strong>:維護一個 <code>best</code> 記「目前最接近 target 的三數和」。對撞時:<code>sum==target</code> 直接回傳(最接近就是相等);<code>sum&lt;target</code> → <code>l++</code>(想變大);<code>sum&gt;target</code> → <code>r--</code>(想變小);每步用 <code>abs(sum-target)</code> 更新 <code>best</code>。<strong>不需要去重</strong>,因為只求一個數值、不列舉組合。移動方向的依據從「和 0 比」換成「和 target 比」,骨架不變。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>kSum 遞迴</strong>:排序一次後,<code>kSum(start, target, k)</code> 固定一個數 <code>nums[i]</code>(去重),遞迴呼叫 <code>kSum(i+1, target-nums[i], k-1)</code>。<strong>基底是 <code>k==2</code></strong> —— 退化成 <strong>2Sum 對撞雙指針</strong>(本題內層)。整體時間 <code>O(n^{k-1})</code>(3Sum 是 <code>O(n²)</code>、4Sum 是 <code>O(n³)</code>)。所以 167(2Sum)是所有 kSum 的<strong>遞迴底層引擎</strong>,3Sum 只是 <code>k=3</code> 的一層。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 02 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">排序給單調性+相鄰重複。3Sum=固定 i + 2Sum 對撞。去重比前一個、命中後比 nums[l-1]/nums[r+1]、只在命中後跳。O(n²)。4Sum 再套一層 O(n³);16 求最近不去重;kSum 遞迴基底是 2Sum。</div>
+    <div class="sc-summary-bar__detail">排序+對撞 · 3SUM</div>
+  </div>
+
+</body>
+</html>
