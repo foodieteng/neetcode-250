@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>567 · Permutation in String // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P567</span>
+    <span><a href="https://leetcode.com/problems/permutation-in-string/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">字串的排列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 567</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>定長視窗</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心改寫</td><td>排列 = 同長度 + 同字元計數</td></tr>
+        <tr><td>視窗</td><td>恰好 <code>|s1|</code> 長,鎖步平移</td></tr>
+        <tr><td>滑動</td><td><code>cmp[s2[r]]++; cmp[s2[l++]]--</code></td></tr>
+        <tr><td>判定</td><td><code>cmp == s1Map</code>(26 計數相等)</td></tr>
+        <tr><td>優化</td><td>維護 <code>matches</code> → 每步 O(1)</td></tr>
+        <tr><td>視窗類型</td><td>恰好定長(vs 219 上限、3 可變)</td></tr>
+        <tr><td>複雜度</td><td>O(n) 時間 / O(1) 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼「<code>s2</code> 含 <code>s1</code> 的排列」可以化約成「有一段長度 <code>|s1|</code> 且字元計數 == <code>s1</code> 的子字串」?排列的定義為什麼讓「順序」不重要?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼相鄰兩個視窗的計數<strong>只差兩個</strong>字母(一進一出),不必每次重數整個視窗?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>本題視窗是「恰好定長」,和 <a href="../p219/index.html">219(上限 ≤ k+1)</a>、<a href="../p3/index.html">3(可變長)</a> 在<strong>左右指針的移動</strong>上各有什麼不同?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p><code>matches</code> 計數器版本:加入一個字元後,為什麼判斷 <code>win[in]==need[in]</code>(+1)和 <code>win[in]==need[in]+1</code>(-1)就能維護「相等字母數」?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>為什麼建完首窗要<strong>先比一次</strong> <code>s1Map==cmp</code> 再進滑動迴圈?不比會漏掉什麼?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 首窗就命中</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// s1="adc", s2="dcda" → 首窗 "dcd" 不是,但要注意首窗先比</span>
+s1Map: a:1 d:1 c:1
+首窗 [0,2]="dcd": cmp d:2 c:1 ≠ 目標 → 不命中(先比過)
+r=3 '+a −d': [1,3]="cda" cmp c:1 d:1 a:1 == 目標 → return true
+<span class="sc-trace__out">true(視窗 "cda" 是 "adc" 的排列)</span></div>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// s1="ab", s2="ab" → 首窗即答案(展示「先比首窗」的必要)</span>
+首窗 [0,1]="ab": cmp a:1 b:1 == 目標 → return true(不先比就會漏!)
+<span class="sc-trace__out">true;若跳過首窗比對、直接進 r 迴圈,這個 case 會漏答</span></div>
+
+    <div class="sc-insight">
+      第二個 case <code>s1==s2=="ab"</code> 說明<strong>「先比首窗」不可省</strong>:答案就在最開頭時,滑動迴圈根本還沒開始,若不先比一次就直接漏掉。
+      這是「定長視窗」常見的邊界 —— <strong>首窗要獨立處理一次</strong>,之後才進入滑動。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 438 找所有字母異位詞</strong>:回傳 <code>s2</code> 中所有「是 <code>s1</code> 排列」的<strong>起始索引</strong>。和本題差在哪?要改什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>字元集很大</strong>:若不是 26 小寫字母而是完整 Unicode。用 <code>vector&lt;int&gt;(26)</code> 還行嗎?<code>matches</code> 版的 <code>== 26</code> 要改成什麼?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>回傳實際子字串</strong>:除了 true/false,還要輸出第一個是排列的子字串。掃描時多記什麼?這和「定長」有什麼便利?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      <strong>排列</strong>就是把 <code>s1</code> 的字元<strong>重新排順序</strong> —— 字母的種類和各自數量完全不變,只有順序可能不同。所以「某子字串是 <code>s1</code> 的排列」⟺「它長度等於 <code>|s1|</code>,且每個字母出現次數都和 <code>s1</code> 一樣」。順序不重要正是因為排列允許任意重排;我們只需比對「字母計數這個和順序無關的指紋」。這把「找排列」變成「找計數相等的定長視窗」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為視窗<strong>恰好定長、每步只平移一格</strong>:右邊<strong>進</strong>一個新字元 <code>s2[r]</code>、左邊<strong>出</strong>一個舊字元 <code>s2[l]</code>,其餘字元<strong>原封不動</strong>留在視窗裡。既然只有兩個位置變動,計數就只有「進的那個 <code>+1</code>、出的那個 <code>-1</code>」兩處要改,其餘 24 個字母不變。這就是<strong>增量更新</strong>:相鄰視窗<code>O(1)</code> 轉移,不必 <code>O(m)</code> 重數,是滑動視窗打敗「每窗重算」的核心。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      <strong>恰好定長(本題)</strong>:<code>l</code> 和 <code>r</code> <strong>同步前進</strong>,間距恆為 <code>|s1|-1</code>,每步一進一出,<strong>沒有 <code>while</code></strong>。<strong>上限定長(219)</strong>:<code>r</code> 每步進,<code>l</code> <strong>只在 <code>r-l&gt;k</code> 時</strong>才追上來縮,窗長可小於上限。<strong>可變長(3)</strong>:<code>r</code> 每步進,<code>l</code> <strong>在視窗違規時</strong>用 <code>while</code> 縮到合法,窗長浮動。一句話:本題 <code>l</code>、<code>r</code> <strong>鎖步同行</strong>,另兩種 <code>l</code> <strong>按條件追趕</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <code>matches</code> = 「目前計數已相等的字母數」。加入字元 <code>in</code> 後 <code>win[in]++</code>,只有 <code>in</code> 這個字母的相等狀態可能改變:<strong>若 <code>win[in]</code> 剛好變成 <code>need[in]</code></strong> → 從不等變相等,<code>matches++</code>;<strong>若剛好變成 <code>need[in]+1</code></strong> → 從相等變超過(不等),<code>matches--</code>;其他情形相等狀態沒變。移出字元對稱處理(用 <code>need-1</code>)。因為每次只動一個字母、且只在「跨過相等界線」時才變 <code>matches</code>,所以 <code>O(1)</code> 就能維護。<code>matches==26</code> 代表全部字母都相等。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      因為<strong>答案可能就在 <code>s2</code> 最開頭那 <code>|s1|</code> 個字元</strong>。原版的滑動迴圈從 <code>r = |s1|</code> 開始,處理的是<strong>第二個以後</strong>的視窗;首窗 <code>[0, |s1|-1]</code> 是在迴圈<strong>之前</strong>建好的,若不在那裡比一次,像 <code>s1="ab", s2="ab"</code> 這種「首窗即答案」的情況就會直接漏掉、回傳 false。所以「建首窗 → 先比一次 → 再進滑動」三段缺一不可。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 438</strong> 幾乎一模一樣,差別只在:本題<strong>找到一個就回 true</strong>,438 要<strong>收集所有</strong>命中的<strong>起始索引</strong>。所以把 <code>if (cmp==s1Map) return true;</code> 改成 <code>if (cmp==s1Map) ans.push_back(l);</code>(<code>l</code> 是當前視窗左端),掃完回傳 <code>ans</code>。骨架(定長視窗 + 增量計數 + 相等判定)完全共用 —— 567 是「存在性」、438 是「全部位置」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <code>vector&lt;int&gt;(26)</code> 只適用小寫字母。字元集大(Unicode)時改用 <code>unordered_map&lt;char,int&gt;</code> 或更大的陣列;<code>matches</code> 版的目標從 <code>== 26</code> 改成 <strong><code>== 目標中「不同字元」的種類數</code></strong>(即 <code>need</code> 裡非零的鍵數,<code>win</code> 只需追蹤這些鍵)。核心邏輯不變,只是「全部相等」的門檻從固定 26 改成實際字元種類數。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      因為視窗<strong>定長</strong>,只要記下命中時的<strong>左端 <code>l</code></strong>,子字串就是 <code>s2.substr(l, |s1|)</code> —— 長度固定不必另存。找第一個時 <code>return s2.substr(l, s1.size())</code> 即可;要全部就把每個命中的 <code>l</code> 存起來最後統一 <code>substr</code>。定長的便利正在於<strong>「知道起點就知道整段」</strong>,不像可變長還要記長度。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">排列=同長同計數。恰好定長視窗鎖步平移,相鄰只差一進一出→增量更新。先比首窗不可省。matches 計數器每步 O(1)。恰好定長 vs 219 上限 vs 3 可變。438 收集全部起點。O(n)/O(1)。</div>
+    <div class="sc-summary-bar__detail">定長視窗 · PERMUTATION IN STRING</div>
+  </div>
+
+</body>
+</html>
