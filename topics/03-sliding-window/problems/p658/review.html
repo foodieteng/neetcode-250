@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>658 · Find K Closest Elements // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P658</span>
+    <span><a href="https://leetcode.com/problems/find-k-closest-elements/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">找 K 個最接近的元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 658</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>兩端收縮</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>核心觀察</td><td>已排序 → 最近 k 個必連續</td></tr>
+        <tr><td>做法</td><td>兩端收縮,砍離 x 較遠端</td></tr>
+        <tr><td>tie-break</td><td>距離相等砍右端(保留較小)</td></tr>
+        <tr><td>條件</td><td><code>abs(arr[r]-x) &gt;= abs(arr[l]-x)</code></td></tr>
+        <tr><td>回傳</td><td><code>arr[l..r]</code>,天然升序</td></tr>
+        <tr><td>更快</td><td>對左界二分 O(log(n−k)+k)</td></tr>
+        <tr><td>複雜度</td><td>收縮法 O(n−k) / O(1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼「已排序」保證最接近 <code>x</code> 的 <code>k</code> 個元素一定是<strong>連續的一段</strong>?能不能舉例說明若答案不連續會矛盾?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>收縮時為什麼<strong>只考慮砍兩端</strong>?為什麼「兩端中較遠的那個」一定不屬於最近的 <code>k</code> 個?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>tie-break 的條件用 <code>abs(arr[r]-x) &gt;= abs(arr[l]-x)</code>,那個 <code>=</code>(等號)的作用是什麼?改成 <code>&gt;</code> 會在什麼輸入出錯?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>兩端收縮是 <code>O(n−k)</code>。什麼時候它會慢?二分找左界怎麼把它加速到 <code>O(log(n−k)+k)</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>回傳的 <code>arr[l..r]</code> 為什麼<strong>不必再排序</strong>就已經是升序?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// x 在陣列外</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// arr=[1,2,3,4,5], k=4, x=-1(x 比全部都小)</span>
+l=0,r=4 (size5): |1-(-1)|=2, |5-(-1)|=6 → 6&gt;=2 是 → 砍右 r--   [1..4]
+l=0,r=3 (size4 == k) → 停
+<span class="sc-trace__out">回傳 arr[0..3] = [1,2,3,4](x 在左外,答案就是最左 k 個)</span></div>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// arr=[1,1,1,10,10,10], k=1, x=9</span>
+一路比:右端 10 距 1、左端 1 距 8 → 砍左…最後 l 停在某個 10
+剩下 [10](距離 1,最近)
+<span class="sc-trace__out">回傳 [10]</span></div>
+
+    <div class="sc-insight">
+      第一個例子 <code>x=-1</code> 在陣列<strong>左外</strong>:右端永遠比左端遠,程式一路 <code>r--</code> 砍到剩最左 <code>k</code> 個 <code>[1,2,3,4]</code>。
+      這說明兩端收縮<strong>自動處理 <code>x</code> 落在陣列外</strong>的情況 —— 不需要特判,遠端一直被砍即可。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>二分找左界</strong>:寫出 <code>O(log(n−k)+k)</code> 版。<code>lo</code>、<code>hi</code> 的初始範圍是什麼?比較式為什麼比 <code>arr[mid]</code> 和 <code>arr[mid+k]</code>?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>未排序陣列</strong>:若 <code>arr</code> <strong>沒排序</strong>,「答案連續」還成立嗎?這時該用什麼(<code>O(n)</code> 期望 or <code>O(n log k)</code>)?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>先定位再收縮</strong>:另一種寫法是先二分找到最接近 <code>x</code> 的位置,再<strong>從那裡向兩側擴張</strong> <code>k</code> 個。這和「整段收縮」比,好在哪、要注意什麼邊界?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      因為<strong>距離函數在有序陣列上是「先降後升」的單峰</strong>:從左到右,元素到 <code>x</code> 的距離會一路變近、到某點最近、再一路變遠(<code>V</code> 字形)。最近的 <code>k</code> 個一定圍繞在谷底附近、<strong>連成一段</strong>。反證:假設最優解<strong>不連續</strong>,中間跳過某個元素 <code>m</code>;那 <code>m</code> 的距離<strong>不大於</strong>它兩側被選中的元素(單峰性質),用 <code>m</code> 換掉被選中裡較遠的那個,總距離不會變差、還更連續 → 矛盾。所以必有連續的最優解。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為答案是<strong>連續視窗</strong>,而視窗要縮小只能<strong>從兩端砍</strong>(砍中間會斷開、不再連續)。兩端中<strong>離 <code>x</code> 較遠</strong>的那個,由於陣列有序,它比視窗內<strong>所有</strong>其他元素都遠(左端是最小、離右側的 x 最遠;右端對稱)。既然它是視窗裡「最不該留」的元素,砍掉它<strong>絕不會誤刪任何一個該入選的</strong>。所以每次砍較遠端都是安全的貪心。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      <code>=</code> 處理<strong>距離相等</strong>的 tie。當 <code>|arr[r]-x| == |arr[l]-x|</code>,兩端一樣遠,題目規定「同距取<strong>較小</strong>的元素」,所以要保留<strong>左端(較小)</strong>、砍掉<strong>右端(較大)</strong> —— <code>&gt;=</code> 含等號正好在平手時走 <code>r--</code>。若改成 <code>&gt;</code>,平手時會走 <code>else</code> 砍左端,保留較大者 → 違反 tie-break。反例:<code>arr=[1,2,3,4], k=2, x=2.5</code>(整數化想像),兩端等距時 <code>&gt;</code> 會留錯邊。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      當 <code>k</code> <strong>遠小於 <code>n</code></strong>(要砍掉很多)時,兩端收縮要跑 <code>n-k</code> 次,接近 <code>O(n)</code>。<strong>二分找左界</strong>:答案視窗左界 <code>lo ∈ [0, n-k]</code>,對 <code>lo</code> 做二分 —— 比較 <code>arr[mid]</code>(取此左界則納入的最左元素)與 <code>arr[mid+k]</code>(被排除的下一個)到 <code>x</code> 的距離:<code>arr[mid]</code> 較遠就 <code>lo=mid+1</code>(視窗右移),否則 <code>hi=mid</code>。<code>O(log(n-k))</code> 定位左界 + <code>O(k)</code> 複製結果 = <code>O(log(n-k)+k)</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      因為 <code>arr</code> <strong>本身就是升序</strong>,而我們回傳的是它的一段<strong>連續子陣列</strong> <code>arr[l..r]</code> —— 連續子陣列保持原陣列的順序,自然還是升序。收縮過程只移動 <code>l</code>、<code>r</code> 兩個邊界,<strong>從不改變元素間的相對位置</strong>,所以最後直接取區間即可,不需要再 <code>sort</code>(那會多花 <code>O(k log k)</code>)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <code>lo=0, hi=n-k</code>(左界最多到 <code>n-k</code>,否則視窗超出右界)。<code>while(lo&lt;hi)</code>:<code>mid=(lo+hi)/2</code>;<strong>比 <code>arr[mid]</code> 與 <code>arr[mid+k]</code></strong> 是因為 —— 若左界定在 <code>mid</code>,視窗是 <code>[mid, mid+k-1]</code>,而 <code>arr[mid]</code> 是<strong>納入的最左</strong>、<code>arr[mid+k]</code> 是<strong>緊鄰在右、被排除的下一個</strong>。這兩個是「要不要把窗右移一格」的關鍵對決:若 <code>x-arr[mid] &gt; arr[mid+k]-x</code>(左邊那個較遠)→ 該右移 <code>lo=mid+1</code>;否則 <code>hi=mid</code>。收斂到左界。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>沒排序就不成立</strong> —— 「答案連續」完全依賴有序性(單峰距離)。無序時最近的 <code>k</code> 個散落各處。做法:<strong>quickselect</strong> 依距離取前 <code>k</code>(期望 <code>O(n)</code>),或用<strong>大小 <code>k</code> 的堆</strong>(<code>O(n log k)</code>);兩者取完再視需要排序。若允許先排序,則 <code>O(n log n)</code> 排完就回到本題。核心是:<strong>有序 → 收縮/二分;無序 → 選擇/堆</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>先定位再擴張</strong>:二分找到最接近 <code>x</code> 的索引 <code>p</code>,設 <code>lo=p, hi=p</code>,然後向兩側各比較、把較近的一端納入,共納入 <code>k</code> 個。好處是當 <code>k</code> 很小時只碰 <code>O(k)</code> 個元素(加二分 <code>O(log n)</code>)。要注意的邊界:<strong>擴張時某一側可能越界</strong>(<code>lo&lt;0</code> 或 <code>hi≥n</code>),要判斷「只能往另一側」;以及 tie-break 同樣「同距優先取較小(左側)」。它和「整段收縮」互補:收縮從外往內、簡單但砍得多;定位擴張從內往外、對小 <code>k</code> 更快但邊界較多。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">有序→距離單峰→最近 k 個連續。只砍兩端、砍較遠者(安全貪心);>= 平手砍右取較小。arr[l..r] 天然升序。x 在外自動處理。更快對左界二分。無序改 quickselect/堆。</div>
+    <div class="sc-summary-bar__detail">兩端收縮 · FIND K CLOSEST ELEMENTS</div>
+  </div>
+
+</body>
+</html>

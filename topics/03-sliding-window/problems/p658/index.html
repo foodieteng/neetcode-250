@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>658 · Find K Closest Elements // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P658</span>
+    <span><a href="https://leetcode.com/problems/find-k-closest-elements/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">找 K 個最接近的元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 兩端收縮視窗</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 658</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(n−k)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給<strong>已排序</strong>陣列 <code>arr</code> 和整數 <code>k</code>、<code>x</code>,回傳最接近 <code>x</code> 的 <code>k</code> 個整數,結果<strong>升序</strong>。
+        「更接近」定義:<code>|a-x| &lt; |b-x|</code>,或 <code>|a-x| == |b-x|</code> 時取<strong>較小</strong>的 <code>a</code>。例:<code>arr=[1,2,3,4,5], k=4, x=3 → [1,2,3,4]</code>。
+      </p>
+    </div>
+
+    <p>
+      關鍵觀察:因為 <code>arr</code> <strong>已排序</strong>,最接近 <code>x</code> 的 <code>k</code> 個元素一定是<strong>連續的一段</strong> —— 答案是某個長度 <code>k</code> 的<strong>連續子陣列</strong>。
+      所以不用挑散落的元素,只要決定「這個 <code>k</code> 長視窗的左界在哪」。本題用<strong>兩端收縮</strong>:從整個陣列開始,不斷砍掉離 <code>x</code> 較遠的那一端,直到剩 <code>k</code> 個。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼兩端收縮 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「兩端收縮」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n log n)</div>
+          <div class="sc-ko__name">按距離排序取前 k</div>
+          <p>對每個元素算距離、排序取前 <code>k</code> 再排回升序。可行,但排序 <code>O(n log n)</code>,且沒用到「已排序 → 答案連續」。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 想太多</div>
+          <div class="sc-ko__name">最小堆放 k 個最近</div>
+          <p>用大小 <code>k</code> 的堆維護最近元素,<code>O(n log k)</code>。對已排序陣列殺雞用牛刀,還要最後排序。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SHRINK BOTH ENDS · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n−k) / O(1)</div>
+        <div class="sc-ko__name">砍掉較遠的一端,縮到剩 k</div>
+        <p>
+          <code>l=0, r=n-1</code>,只要視窗長 <code>&gt; k</code> 就比兩端 <code>|arr[l]-x|</code> 與 <code>|arr[r]-x|</code>,<strong>砍掉較遠</strong>的那端(距離相等時砍右端,保留較小者)。
+          剩下的連續 <code>k</code> 個就是答案,天然升序。每次砍一格,共砍 <code>n-k</code> 次 → <code>O(n-k)</code>,<code>O(1)</code> 空間。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>整段起手</strong> —— <code>l=0, r=n-1</code>,視窗涵蓋整個 <code>arr</code>。</li>
+      <li><strong>砍遠端</strong> —— 當 <code>r-l+1 &gt; k</code>:若 <code>|arr[r]-x| ≥ |arr[l]-x|</code> 砍右(<code>r--</code>),否則砍左(<code>l++</code>)。</li>
+      <li><strong>回傳視窗</strong> —— 剩 <code>k</code> 個時停,回傳 <code>arr[l..r]</code>(已排序,直接是升序答案)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// SHRINK</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>arr=[1,2,3,4,5,6], k=3, x=4</code>:比兩端到 <code>x</code> 的距離,砍較遠端;距離相等砍右。收到剩 3 個 <code>[3,4,5]</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 兩端收縮 · 砍掉離 x 較遠的一端</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:258px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼砍遠端安全 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼砍較遠端一定對<span class="sc-section__title-en">// WHY THE FAR END GOES</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">兩端中較遠的那個,絕不屬於最近的 k 個</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          目前視窗 <code>[l, r]</code> 有 <code>&gt; k</code> 個元素,必須丟掉至少一個。<strong>能丟的只有兩端</strong>(丟中間會讓答案不連續,而答案必連續)。兩端裡,<strong>離 <code>x</code> 較遠的那個</strong> —— 例如 <code>arr[l]</code> 若比 <code>arr[r]</code> 遠 —— 它比視窗內<strong>所有其他元素都遠</strong>(因為已排序,左端是最小、離右側的 <code>x</code> 最遠)。
+        </p>
+        <p style="margin:0;">
+          既然它是視窗裡「最不可能入選」的,<strong>丟掉它不會誤刪任何一個該留的</strong>。反覆丟到剩 <code>k</code> 個,留下的必是最近的 <code>k</code> 個。<strong>距離相等時</strong>(<code>|arr[l]-x| == |arr[r]-x|</code>)兩端一樣遠,但題目規定「同距取較小」,所以<strong>砍右端(較大者)</strong>、保留左端(較小者)—— 這正是程式碼 <code>|arr[r]-x| ≥ |arr[l]-x|</code> 用 <code>≥</code>(含等號)砍右的原因。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n−k)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每次迴圈砍掉一格,從 <code>n</code> 個砍到 <code>k</code> 個,共 <code>n-k</code> 次,每次 <code>O(1)</code>。若 <code>k</code> 接近 <code>n</code> 幾乎不用砍。<strong>更快</strong>可用<strong>二分搜尋找左界</strong>:在 <code>[0, n-k]</code> 上二分,達 <code>O(log(n-k) + k)</code>(<code>+k</code> 是最後複製結果)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+      <tbody>
+        <tr><td>按距離排序</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td></tr>
+        <tr><td>大小 k 的堆</td><td><code>O(n log k)</code></td><td><code>O(k)</code></td></tr>
+        <tr><td><strong>兩端收縮</strong></td><td><code>O(n−k)</code></td><td><code>O(1)</code></td></tr>
+        <tr><td>二分找左界</td><td><code>O(log(n−k)+k)</code></td><td><code>O(1)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      已排序 → 最近的 <code>k</code> 個必<strong>連續</strong>,問題化約成「找 <code>k</code> 長視窗的左界」。<strong>兩端收縮</strong>:反覆砍掉離 <code>x</code> 較遠的一端(平手砍右),剩下就是答案。
+      比排序/堆都省。想更快就<strong>二分找左界</strong>。連結 <a href="../p167/index.html">167</a> 的對撞收縮直覺。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 03 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">已排序 → 最近 k 個必連續。兩端收縮:while(size>k) 砍離 x 較遠端,平手砍右(保留較小)。剩 k 個即答案(升序)。O(n−k)/O(1)。更快用二分找左界。</div>
+    <div class="sc-summary-bar__detail">兩端收縮 · FIND K CLOSEST ELEMENTS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p658-shrink.js"></script>
+</body>
+</html>

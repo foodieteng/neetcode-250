@@ -112,7 +112,7 @@ PROBLEMS = {
         ('p424','Longest Repeating Character Replacement',       'longest-repeating-character-replacement',       'med', 'todo'),
         ('p567','Permutation in String',                         'permutation-in-string',                         'med', 'done'),
         ('p209','Minimum Size Subarray Sum',                     'minimum-size-subarray-sum',                     'med', 'todo'),
-        ('p658','Find K Closest Elements',                       'find-k-closest-elements',                       'med', 'todo'),
+        ('p658','Find K Closest Elements',                       'find-k-closest-elements',                       'med', 'done'),
         ('p76', 'Minimum Window Substring',                      'minimum-window-substring',                      'hard','todo'),
         ('p239','Sliding Window Maximum',                        'sliding-window-maximum',                        'hard','todo'),
     ],
