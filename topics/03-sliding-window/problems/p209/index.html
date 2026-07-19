@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>209 · Minimum Size Subarray Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P209</span>
+    <span><a href="https://leetcode.com/problems/minimum-size-subarray-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">長度最小的子陣列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 可變長視窗 · 求最短</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 209</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>滑動視窗 · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給<strong>正整數</strong>陣列 <code>nums</code> 和正整數 <code>target</code>,求「和 <code>≥ target</code>」的<strong>最短連續子陣列</strong>長度;不存在回傳 <code>0</code>。
+        例:<code>target=7, nums=[2,3,1,2,4,3] → 2</code>(子陣列 <code>[4,3]</code>);<code>target=8, nums=[1,4,4] → 2</code>。
+      </p>
+    </div>
+
+    <p>
+      這是可變長視窗的<strong>「求最短」面貌</strong>,和 <a href="../p3/index.html">3</a>、<a href="../p424/index.html">424</a> 的「求最長」正好<strong>收縮時機相反</strong>:
+      求最長是「<strong>違規才縮</strong>」;求最短是「<strong>達標就縮</strong>」—— 右指針擴張累加,一旦 <code>sum ≥ target</code>(已合格),就<strong>拚命縮左</strong>看能不能更短,每次仍合格就更新最短。全部元素<strong>為正</strong>是這招成立的關鍵前提。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼滑動視窗 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「達標就縮」的可變長視窗<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(n²)</div>
+          <div class="sc-ko__name">枚舉所有子陣列</div>
+          <p>試每個起點往後累加到 <code>≥ target</code>。<code>n</code> 到 <code>10⁵</code> → 平方級,超時。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ O(n log n)</div>
+          <div class="sc-ko__name">前綴和 + 二分</div>
+          <p>前綴和遞增(正數),對每個右界二分找最短左界。<code>O(n log n)</code>,是<strong>follow-up</strong> 解;但滑動視窗更快。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SHRINK-WHILE-VALID · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n) / O(1)</div>
+        <div class="sc-ko__name">達標就縮左、取最短</div>
+        <p>
+          右指針 <code>r</code> 擴張、<code>total += nums[r]</code>;當 <code>total ≥ target</code>,進入 <code>while</code>:<strong>更新最短 <code>minL</code>、<code>total -= nums[l++]</code></strong>,一直縮到 <code>total &lt; target</code>。
+          因為全是正數,<strong>縮左一定讓和變小</strong>,收縮方向單調可控 → 兩指針各走一趟 <code>O(n)</code>、<code>O(1)</code> 空間。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>擴張累加</strong> —— <code>r</code> 前進,<code>total += nums[r]</code>。</li>
+      <li><strong>達標就縮</strong> —— <code>while (total ≥ target)</code>:更新 <code>minL = min(minL, r-l+1)</code>,再 <code>total -= nums[l++]</code>。</li>
+      <li><strong>回傳</strong> —— 掃完 <code>minL</code> 若沒被更新過(仍 <code>INT_MAX</code>)回 <code>0</code>,否則回 <code>minL</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// SHRINK WHILE VALID</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>nums=[1,4,4], target=8</code>:擴張到 <code>sum=9 ≥ 8</code> 後<strong>拚命縮左</strong> —— 移出 <code>1</code> 後 <code>sum=8</code> 仍達標(更短!<code>minL: 3→2</code>),再移出就不達標,停。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 可變長視窗 · 達標(sum≥target)就縮左求最短</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:262px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 最長 vs 最短 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">求最長 vs 求最短 · 收縮時機相反<span class="sc-section__title-en">// THE MIRROR</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">最長:違規才縮 · 最短:達標就縮</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          可變長視窗兩大類,差別在<strong>收縮觸發的時機</strong>:
+        </p>
+        <p style="margin:0 0 8px;">
+          ‧ <strong>求最長</strong>(<a href="../p3/index.html">3</a>、<a href="../p424/index.html">424</a>):維持視窗<strong>合法</strong>,<strong>不合法時才縮</strong>,答案取 <code>max(r-l+1)</code>。目標是「在合法前提下盡量長」。<br />
+          ‧ <strong>求最短</strong>(本題、<a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">76</a>):一旦視窗<strong>合格</strong>(達標),<strong>就拚命縮</strong>,每次仍合格就更新 <code>min(r-l+1)</code>。目標是「在合格前提下盡量短」。
+        </p>
+        <p style="margin:0;">
+          一眼判斷:題目問<strong>「最長」→ 違規才縮</strong>(縮是為了恢復合法);問<strong>「最短」→ 達標就縮</strong>(縮是為了逼出更短的合格解)。
+          本題「達標」= <code>sum ≥ target</code>,而<strong>正數</strong>保證縮左必使和變小、遲早跌破 target —— 這是收縮有意義的前提。若有<strong>負數</strong>,縮左不一定變小,滑動視窗就失效(得改用前綴和 + 單調隊列,見 <a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/" target="_blank" rel="noopener">862</a>)。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        <code>r</code> 前進 <code>n</code> 次;<code>l</code> 全程最多也前進 <code>n</code> 次(內層 <code>while</code> 跨整個外層加起來 <code>≤ n</code> 次,攤還 <code>O(1)</code>/步)。只用幾個變數 → <code>O(1)</code>。follow-up 的前綴和 + 二分是 <code>O(n log n)</code>,較慢但示範另一種思路。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+      <tbody>
+        <tr><td>暴力枚舉</td><td><code>O(n²)</code></td><td><code>O(1)</code></td></tr>
+        <tr><td><strong>滑動視窗</strong></td><td><code>O(n)</code></td><td><code>O(1)</code></td></tr>
+        <tr><td>前綴和 + 二分</td><td><code>O(n log n)</code></td><td><code>O(n)</code></td></tr>
+        <tr><td>(含負數)前綴和+單調隊列</td><td><code>O(n)</code></td><td><code>O(n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      可變長視窗的<strong>求最短</strong>:右擴張累加,<strong>達標(sum≥target)就拚命縮左</strong>、每次合格更新最短。和 <a href="../p3/index.html">3</a>/<a href="../p424/index.html">424</a> 的「違規才縮」正好相反。
+      <strong>正數</strong>保證縮左單調變小,是這招的前提;含負數要改前綴和 + 單調隊列(862)。O(n)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 03 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">可變長求最短:total+=nums[r]；while(total>=target) 更新 minL、total-=nums[l++]。達標就縮(vs 求最長違規才縮)。正數保證縮左單調。O(n)/O(1)。含負數改前綴和+單調隊列。</div>
+    <div class="sc-summary-bar__detail">可變長視窗 · MINIMUM SIZE SUBARRAY SUM</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p209-window.js"></script>
+</body>
+</html>

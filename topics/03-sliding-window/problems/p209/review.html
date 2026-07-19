@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>209 · Minimum Size Subarray Sum // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P209</span>
+    <span><a href="https://leetcode.com/problems/minimum-size-subarray-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">長度最小的子陣列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 209</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>可變長視窗</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>類型</td><td>可變長視窗(求最短)</td></tr>
+        <tr><td>收縮時機</td><td><strong>達標就縮</strong>(sum ≥ target)</td></tr>
+        <tr><td>順序</td><td>先記 minL,再縮左</td></tr>
+        <tr><td>前提</td><td>全為正數 → 縮左單調變小</td></tr>
+        <tr><td>不存在</td><td>minL 沒更新 → 回 0</td></tr>
+        <tr><td>follow-up</td><td>前綴和 + 二分 O(n log n)</td></tr>
+        <tr><td>含負數</td><td>改前綴和 + 單調隊列(862)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>求最短為什麼是「<strong>達標就縮</strong>」,而求最長(<a href="../p3/index.html">3</a>/<a href="../p424/index.html">424</a>)是「違規才縮」?一句話說出兩者收縮時機為何相反。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼要<strong>先更新 <code>minL</code> 再縮左</strong>?順序反過來會漏掉什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>這個滑動視窗解為什麼<strong>依賴「全為正數」</strong>?若陣列含<strong>負數或零</strong>,哪一步會失效?該改用什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>時間是 <code>O(n)</code>,但裡面有內層 <code>while</code> 收縮,看起來像巢狀。為什麼不是 <code>O(n²)</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>Follow-up 的 <code>O(n log n)</code> 前綴和 + 二分:為什麼「正數」讓前綴和可以二分?對每個右界要找什麼樣的左界?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 全部加起來都不夠 → 0</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// target = 11, nums = [1,1,1,1,1,1,1,1](總和 8 &lt; 11)</span>
+r=0..7: total 一路累加到 8,始終 &lt; 11 → while 從不進入
+       minL 從未更新,維持 INT_MAX
+掃完 → minL == INT_MAX → 回傳 0
+<span class="sc-trace__out">0(整段和 8 &lt; target 11,不存在合格子陣列)</span></div>
+
+    <div class="sc-insight">
+      這個 case 展示<strong>「不存在」的處理</strong>:整段總和都不到 <code>target</code> 時,<code>while (total &gt;= target)</code> 一次也沒進、<code>minL</code> 保持 <code>INT_MAX</code>,最後轉回 <code>0</code>。
+      用 <code>INT_MAX</code> 當「還沒找到」的哨兵、最後判斷轉 <code>0</code>,是求最小值題的標準寫法 —— 別忘了這個收尾判斷。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 76 最小覆蓋子字串</strong>:求 <code>s</code> 中<strong>包含 <code>t</code> 所有字元</strong>的最短子字串。它也是「求最短、達標就縮」,合格條件變成什麼?怎麼 <code>O(1)</code> 判斷「已覆蓋」?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 862 含負數版</strong>:允許負數,求和 <code>≥ k</code> 的最短子陣列。為什麼滑動視窗直接壞掉?單調隊列怎麼救?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>恰好等於 target / 求最長</strong>:若改成「和<strong>恰好</strong> = target 的最短」或「和 <code>≤ target</code> 的最長」,滑動視窗還適用嗎?各要怎麼調?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      因為<strong>目標相反,所以收縮的目的相反</strong>。<strong>求最長</strong>:視窗越長越好,只有當它<strong>不合法</strong>時才被迫縮回合法 —— 縮是「止損」。<strong>求最短</strong>:視窗一旦<strong>合格</strong>就已經是候選答案,但我們想更短,所以<strong>趁著還合格拚命縮</strong>,直到再縮就不合格 —— 縮是「進取」。一句話:<strong>最長「違規才縮(恢復合法)」,最短「達標就縮(逼出更短)」</strong>。這是可變長視窗兩大類的分水嶺。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為<strong>當前這個合格視窗 <code>[l, r]</code> 本身可能就是最短</strong>。若<strong>先縮再記</strong>,你就把 <code>[l, r]</code> 跳過、只在縮完後才量長度,而縮掉一格後 <code>total</code> 可能已 <code>&lt; target</code>(不再合格),這個更短但不合格的視窗不能算 —— 於是漏掉了 <code>[l, r]</code> 這個真正的候選。正確順序:<strong>在還合格時先 <code>minL = min(minL, r-l+1)</code>,再 <code>total -= nums[l++]</code></strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      滑動視窗依賴一個單調性:<strong>「縮左(移出 <code>nums[l]</code>)一定讓 <code>total</code> 變小」</strong>,這樣「達標就縮、跌破就停」才有意義、每個元素只進出視窗一次。<strong>全為正數</strong>保證這點。若有<strong>負數或零</strong>:縮左可能<strong>不減反增或不變</strong>,「達標→縮→跌破」的邏輯崩潰,而且擴張時 <code>total</code> 也非單調,無法用「窗一達標就縮」。此時要改用<strong>前綴和 + 單調隊列</strong>(<a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/" target="_blank" rel="noopener">LC 862</a>),維護前綴和的單調遞增隊列來找最短區間。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <code>O(n)</code>。關鍵是<strong>攤還分析</strong>:<code>l</code> 只會往右移,<strong>整個過程最多移動 <code>n</code> 次</strong> —— 內層 <code>while</code> 的總執行次數跨越整個外層加起來也 <code>≤ n</code>(每個元素最多被 <code>l</code> 移出一次)。所以總指針移動 = <code>r</code> 的 <code>n</code> 次 + <code>l</code> 的 <code>≤ n</code> 次 = <code>O(n)</code>。它不是「每個 <code>r</code> 都重掃一遍」的巢狀,而是兩個指針各單向走一趟。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      因為<strong>全為正數 → 前綴和 <code>pre</code> 嚴格遞增</strong>(每加一個正數就變大),遞增數列才能二分。子陣列 <code>[l, r-1]</code> 的和 = <code>pre[r] - pre[l]</code>。要它 <code>≥ target</code>,即 <code>pre[l] ≤ pre[r] - target</code>;要子陣列<strong>最短</strong>,就要 <code>l</code> <strong>最大(最靠右)</strong>。於是對每個右界 <code>r</code>,在遞增的 <code>pre[0..r-1]</code> 裡用 <code>upper_bound</code> 找最大的、滿足 <code>pre[l] ≤ pre[r]-target</code> 的 <code>l</code>,更新最短長度。每個右界 <code>O(log n)</code>,共 <code>O(n log n)</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 76</strong> 也是「求最短、達標就縮」,只是「合格」= <strong>視窗涵蓋了 <code>t</code> 的所有字元(含重複次數)</strong>。用 <code>need[26/128]</code> 記 <code>t</code> 每字元還差幾個,再維護一個計數 <code>missing</code> = 還沒湊齊的字元數;右擴張時若某字元湊到需求就 <code>missing--</code>。<strong><code>missing == 0</code> 即已覆蓋</strong>(<code>O(1)</code> 判斷),此時進入「達標就縮」:縮左、每次仍覆蓋就更新最短,直到縮掉某個必要字元 <code>missing</code> 變正才停。骨架和本題完全一樣,只是「達標」從「和 ≥ target」換成「覆蓋 t」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 862</strong>:含負數時,擴張不再讓和單調增、縮左不再讓和單調減,「達標就縮」失去依據。改用<strong>前綴和 <code>pre</code> + 單調遞增雙端隊列</strong>:對每個右界 <code>r</code>,(1) 從隊頭彈出所有 <code>pre[r] - pre[deque.front()] ≥ k</code> 的左界並更新最短(它們之後不會有更近的右界更優);(2) 從隊尾彈出 <code>pre[deque.back()] ≥ pre[r]</code> 的(它們比 <code>pre[r]</code> 大又更左,永遠不如 <code>r</code>),再把 <code>r</code> 推入。維持隊列裡前綴和遞增,總 <code>O(n)</code>。這是滑動視窗在「有負數」時的正確推廣。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>和 ≤ target 的最長</strong>(正數):可以!這是「求最長、違規才縮」——擴張,當 <code>total &gt; target</code>(違規)就縮左到 <code>≤ target</code>,取 <code>max</code>。<strong>和恰好 = target 的最短/計數</strong>:正數時仍可滑動視窗(達標就縮,但要精確等於較 tricky);更通用是<strong>前綴和 + 雜湊</strong>記 <code>pre</code> 出現位置,找 <code>pre[r] - pre[l] == target</code>(這招對含負數也行,如 <a href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank" rel="noopener">560</a>)。重點:<strong>「≥/≤ + 正數」→ 滑動視窗;「恰好 = / 含負數」→ 前綴和 + 雜湊/單調隊列</strong>。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">求最短=達標(sum≥target)就縮;先記 minL 再縮。正數保證縮左單調,是前提;負數改 862 單調隊列。攤還 O(n)。沒達標回 0。76 換合格條件為「覆蓋 t」;≤target 最長=違規才縮;恰好=用前綴和+雜湊(560)。</div>
+    <div class="sc-summary-bar__detail">可變長視窗 · MINIMUM SIZE SUBARRAY SUM</div>
+  </div>
+
+</body>
+</html>
