@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1768 · Merge Strings Alternately // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P1768</span>
+    <span><a href="https://leetcode.com/problems/merge-strings-alternately/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">交替合併字串</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1768</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>平行雙指針</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>類型</td><td>平行雙指針:各走一個序列、同向前進</td></tr>
+        <tr><td>主迴圈</td><td><code>while (l &lt; m &amp;&amp; r &lt; n)</code> 交替取</td></tr>
+        <tr><td>接尾巴</td><td>先耗盡的停,剩下一方整段接上</td></tr>
+        <tr><td>互斥</td><td>兩個尾巴至多一個非空</td></tr>
+        <tr><td>對照對撞型</td><td>一序列兩端→對撞;兩序列→平行</td></tr>
+        <tr><td>雛形</td><td>合併排序 merge 步驟 / LC 88 合併有序陣列</td></tr>
+        <tr><td>效率</td><td><code>reserve</code>+<code>push_back</code> 勝過反覆 <code>res = res + …</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>這題的雙指針和 <a href="../p344/index.html">344</a>/<a href="../p125/index.html">125</a> 的「對撞」有什麼本質不同?各適合什麼場景?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>主迴圈結束後,為什麼「兩個尾巴至多一個非空」?能不能兩個都有剩?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>單迴圈版跑到 <code>max(m,n)</code>、用 <code>i&lt;m</code>/<code>i&lt;n</code> 過濾,為什麼就不用另外「接尾巴」了?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>用 <code>res = res + a + b</code> 反覆拼接,最壞可能是什麼複雜度?為什麼 <code>reserve</code> + <code>push_back</code> 更好?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>這題和「合併兩個<strong>已排序</strong>陣列」(LC 88 / merge sort 的 merge)哪裡像、哪裡不一樣?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 兩尾互斥</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 短 + 長:word1="a", word2="xyz"</span>
+l=0 r=0 : 'a'+'x' → "ax"   l=1 r=1
+主迴圈:l=1=m 停
+l&lt;m? 否;r&lt;n? 1&lt;3 是 → res += "yz" → "axyz"
+<span class="sc-trace__out">axyz(word2 有尾)</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 長 + 短:word1="xyz", word2="a"</span>
+l=0 r=0 : 'x'+'a' → "xa"   l=1 r=1
+主迴圈:r=1=n 停
+l&lt;m? 1&lt;3 是 → res += "yz" → "xayz"
+<span class="sc-trace__out">xayz(word1 有尾)</span></div>
+
+    <div class="sc-insight">
+      兩個對稱的例子:一個是 word2 有尾、一個是 word1 有尾,但<strong>永遠只有一方有尾</strong> —— 主迴圈在先用完的那方停,剩下的必是另一方。
+      這就是為什麼兩個接尾 <code>if</code> 天生互斥、不會重複追加。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>LC 88 合併兩個已排序陣列</strong>:也是平行雙指針,但要<strong>依大小</strong>取(不是硬性交替)。指針該怎麼動?為什麼常「從後往前」填以支援原地合併?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>LC 392 判斷子序列</strong>:問 <code>s</code> 是不是 <code>t</code> 的子序列。兩指針怎麼走?<code>s</code> 的指針什麼時候前進、<code>t</code> 的什麼時候前進?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>合併 k 個序列交替</strong>:若不是兩個而是 <code>k</code> 個字串輪流各取一個,怎麼推廣?用什麼結構管理 <code>k</code> 個指針?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      <strong>對撞型</strong>:兩指針在<strong>同一序列</strong>的頭尾,往中間收,靠「兩端的對稱/配對關係」做事(反轉、回文、找和)。<strong>平行型</strong>(本題):兩指針<strong>各走一個序列</strong>,同向前進,把兩個序列<strong>合併或比對</strong>。判斷用哪種:<strong>「一個序列的兩端關係」→ 對撞;「兩個序列的對應/合併」→ 平行</strong>。同樣叫雙指針,結構完全不同。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      不可能兩個都有剩。主迴圈條件是 <code>l &lt; m &amp;&amp; r &lt; n</code>,只要<strong>其中一方走到底</strong>就退出 —— 退出當下,走到底的那方已無剩,另一方<strong>可能</strong>有剩。所以「有尾巴」的至多一方。若兩方等長,退出時兩方都剛好用完,兩個尾巴都空,結果就是純交替。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      因為單迴圈把「交替」和「接尾」<strong>統一成同一套條件</strong>。<code>i</code> 從 0 跑到 <code>max(m,n)−1</code>:前段兩者都沒越界 → 交替各取(等同主迴圈);到了後段,較短的那串 <code>i &lt; 短長</code> 已為假、不再取,只有較長的 <code>i &lt; 長長</code> 仍為真、持續追加 —— 這自然就是「接尾巴」。用越界條件過濾,長短不齊<strong>免特判</strong>,少了兩段 substr。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <code>res = res + a + b</code> 每次可能<strong>產生臨時字串並重新配置</strong>整個 <code>res</code>。若編譯器/實作沒優化,重複拼接 <code>n</code> 次、每次複製長度到 <code>n</code>,最壞是 <code>O(n²)</code>。<code>reserve(m+n)</code> 先把容量開好,之後 <code>push_back</code> / <code>+=</code> 攤還 <code>O(1)</code>,全程 <code>O(n)</code>、無重配置。本題 <code>n ≤ 100</code> 看不出差,但養成「預留容量」的習慣在長字串/大量拼接時很重要。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <strong>像</strong>:都是平行雙指針,各走一序列、把兩者合成一個。<strong>不同</strong>:本題是<strong>硬性交替</strong>(不看內容,你一個我一個),LC 88 / merge sort 是<strong>依大小挑</strong>(比 <code>a[i]</code> 與 <code>b[j]</code>,取小的那個,只推進被取的那個指針)。所以本題兩指針<strong>同步前進</strong>,合併有序陣列則<strong>各自按需前進</strong>。兩者都以「一方耗盡就把另一方剩的接上」收尾 —— 收尾邏輯完全一樣。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>LC 88</strong>:比 <code>nums1[i]</code> 與 <code>nums2[j]</code>,取<strong>較大</strong>者放到結果尾端,只推進被取的指針。之所以<strong>從後往前</strong>填:因為要<strong>原地</strong>合併進 <code>nums1</code>(它尾部有空位),從後往前寫不會覆蓋還沒讀的 <code>nums1</code> 前段元素。若從前往後會蓋掉未處理的資料。收尾:某方用完後,把另一方剩下的複製過去。這是「依大小」的平行雙指針經典。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 392</strong>:兩指針 <code>i</code> 走 <code>s</code>、<code>j</code> 走 <code>t</code>。每步<strong>只有 <code>j</code> 一定前進</strong>;當 <code>s[i] == t[j]</code> 時 <code>i</code> 也前進(這個字元配對成功)。若 <code>i</code> 走完 <code>s</code>(全配上了)→ 是子序列。這是「<strong>不對稱</strong>的平行雙指針」:一個指針掃主串、另一個只在匹配時前進。<code>O(m+n)</code>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>k 個序列交替</strong>:維護 <code>k</code> 個指針(一個陣列 <code>pos[k]</code>)。一輪掃過所有還沒耗盡的序列,各取一個字元;哪個序列用完就把它<strong>移出</strong>(或用一個「還活著的序列」清單/佇列)。重複到所有序列都空。每個字元仍只取一次 → <code>O(總長度)</code>。核心從「兩個游標」升級成「一組游標 + 誰還活著」的管理,平行雙指針的自然推廣。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 02 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">平行雙指針各走一序列、交替取、剩下接尾(兩尾互斥)。對撞=一序列兩端、平行=兩序列合併。88 依大小取+從後填、392 只在匹配時進、k 路用游標組。reserve 省重配置。</div>
+    <div class="sc-summary-bar__detail">平行雙指針 · MERGE STRINGS ALTERNATELY</div>
+  </div>
+
+</body>
+</html>
