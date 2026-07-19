@@ -113,7 +113,7 @@ PROBLEMS = {
         ('p567','Permutation in String',                         'permutation-in-string',                         'med', 'done'),
         ('p209','Minimum Size Subarray Sum',                     'minimum-size-subarray-sum',                     'med', 'done'),
         ('p658','Find K Closest Elements',                       'find-k-closest-elements',                       'med', 'done'),
-        ('p76', 'Minimum Window Substring',                      'minimum-window-substring',                      'hard','todo'),
+        ('p76', 'Minimum Window Substring',                      'minimum-window-substring',                      'hard','done'),
         ('p239','Sliding Window Maximum',                        'sliding-window-maximum',                        'hard','todo'),
     ],
     '04': [  # Stack

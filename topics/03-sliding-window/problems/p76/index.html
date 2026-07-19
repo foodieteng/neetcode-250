@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>76 · Minimum Window Substring // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P76</span>
+    <span><a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小覆蓋子字串</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 可變長視窗 · 求最短覆蓋</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 76</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>滑動視窗 · O(m+n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給 <code>s</code>、<code>t</code>,求 <code>s</code> 中<strong>包含 <code>t</code> 所有字元(含重複次數)</strong>的<strong>最短</strong>子字串;不存在回傳 <code>""</code>。答案保證唯一。
+        例:<code>s="ADOBECODEBANC", t="ABC" → "BANC"</code>。
+      </p>
+    </div>
+
+    <p>
+      這是滑動視窗的<strong>hard 集大成</strong>,也是 <a href="../p209/index.html">209</a> 的近親:同樣「<strong>求最短、達標就縮</strong>」,只是<strong>「達標」的定義從「和 ≥ target」換成「視窗覆蓋了 t」</strong>。
+      難點在<strong>如何 <code>O(1)</code> 判斷「已覆蓋 t」</strong> —— 用一個 <code>formed / required</code> 計數器:<code>required</code> = t 的相異字元數,<code>formed</code> = 目前<strong>已湊滿需求次數</strong>的字元種類數;<code>formed == required</code> 就是覆蓋。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼滑動視窗 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「達標就縮 + formed 計數」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× REJECT · O(m²·n)</div>
+          <div class="sc-ko__name">枚舉所有子字串 + 檢查覆蓋</div>
+          <p>試每個子字串再數字元看是否覆蓋 <code>t</code>。<code>m</code> 到 <code>10⁵</code>,平方以上,超時。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 每步全比一次</div>
+          <div class="sc-ko__name">每步比對整張 need 表</div>
+          <p>可變長視窗但每步掃 <code>t</code> 全部字元判覆蓋,<code>O(m·字元集)</code>。能過,但可用 <code>formed</code> 計數做到每步 <code>O(1)</code>。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">SHRINK-WHILE-COVER · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(m+n) / O(字元集)</div>
+        <div class="sc-ko__name">formed==required 就拚命縮左</div>
+        <p>
+          <code>need[c]</code> 記 <code>t</code> 每字元的需求。右擴張時某字元湊滿需求 → <code>formed++</code>;<strong><code>formed == required</code> 即覆蓋</strong>,進入縮左:更新最短、移出左端,若使某字元<strong>不足</strong> → <code>formed--</code> 停。
+          每字元進出視窗各一次、<code>formed</code> <code>O(1)</code> 更新 → <code>O(m+n)</code>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>建需求</strong> —— <code>freq[c]</code> 記 <code>t</code> 每字元次數;<code>required</code> = 相異字元數。</li>
+      <li><strong>擴張 + 湊滿</strong> —— <code>r</code> 前進,<code>--freq[s[r]]</code>;若剛好變 <code>0</code>(湊滿該字元)→ <code>formed++</code>。</li>
+      <li><strong>覆蓋就縮</strong> —— <code>while (formed == required)</code>:更新最短視窗;<code>++freq[s[l]]</code>,若 <code>&gt; 0</code>(移出後不足)→ <code>formed--</code>;<code>l++</code>。</li>
+      <li><strong>回傳</strong> —— 最短視窗;從沒覆蓋過回 <code>""</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// SHRINK WHILE COVERING</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>s="AABC", t="ABC"</code>:<code>formed</code> 記已湊滿的字元種類;湊齊 3 種(覆蓋)後縮左 —— 丟掉多餘的前導 <code>A</code>,得最短 <code>"ABC"</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 可變長視窗 · formed==required(覆蓋)就縮左求最短</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:258px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · formed 計數器 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">formed / required · O(1) 判斷覆蓋<span class="sc-section__title-en">// THE COVERAGE COUNTER</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">用一個計數器把「有沒有覆蓋 t」變成 O(1)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          若每步都重新比對「視窗每個字元的數量是否都 ≥ <code>t</code> 的需求」,是 <code>O(字元集)</code>。技巧是把 <code>freq[c]</code> <strong>初始化成 <code>t</code> 的需求</strong>(正數),之後：
+        </p>
+        <p style="margin:0 0 8px;">
+          ‧ <strong>擴張</strong> <code>--freq[s[r]]</code>:對 <code>t</code> 需要的字元,計數從正數往下減。<strong>剛好減到 <code>0</code></strong> 代表這個字元的需求<strong>恰好被湊滿</strong> → <code>formed++</code>。多的會變負(surplus),不再觸發。<br />
+          ‧ <strong>縮左</strong> <code>++freq[s[l]]</code>:把移出的字元計數加回。<strong>加到 <code>&gt; 0</code></strong> 代表移出後這個字元<strong>從剛好變成不足</strong> → <code>formed--</code>,視窗不再覆蓋。
+        </p>
+        <p style="margin:0;">
+          於是「是否覆蓋 <code>t</code>」= <strong><code>formed == required</code></strong> —— 一個整數比較,<code>O(1)</code>。關鍵在只在<strong>「跨過剛好滿足的界線」</strong>時動 <code>formed</code>(減到 0、或加到 1),surplus/不足的其他變化都不影響。這和 <a href="../p567/index.html">567</a> 的 <code>matches</code> 計數器是同一種「用計數器把集合比對降成 O(1)」的手法。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m + n)</strong>　　S = <strong>O(字元集)</strong></div>
+      <p class="sc-formula__hint">
+        建 <code>t</code> 需求 <code>O(n)</code>;主體是滑動視窗,<code>l</code>、<code>r</code> 各掃過 <code>s</code> 一次(每字元進出視窗各一次,攤還 <code>O(1)</code>/步),<code>formed</code> 也 <code>O(1)</code> 維護 → <code>O(m)</code>。計數表大小 = 字元集(英文字母 52)→ <code>O(1)</code> 視為常數。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建 t 需求</td><td><code>O(n)</code></td><td>數 t 每字元</td></tr>
+        <tr><td>右指針掃描</td><td><code>O(m)</code></td><td>每字元進視窗一次</td></tr>
+        <tr><td>左指針收縮</td><td>攤還 <code>O(1)</code></td><td>全程最多 m 次</td></tr>
+        <tr><td>覆蓋判斷</td><td><code>O(1)</code></td><td>formed==required</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「求最短、達標就縮」的可變長視窗(同 <a href="../p209/index.html">209</a>),只是「達標」= <strong>覆蓋 t</strong>。用 <strong><code>formed / required</code></strong> 計數器把覆蓋判斷降成 <code>O(1)</code>:湊滿一種 formed++、移出致不足 formed--。
+      這是滑動視窗的 hard 模板,<code>O(m+n)</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 03 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">求最短覆蓋:達標(覆蓋 t)就縮左。formed/required 把覆蓋判斷降 O(1)：--freq 減到 0 湊滿→formed++；++freq 加到 >0 不足→formed--。formed==required 即覆蓋。O(m+n)。</div>
+    <div class="sc-summary-bar__detail">可變長視窗 · MINIMUM WINDOW SUBSTRING</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p76-window.js"></script>
+</body>
+</html>

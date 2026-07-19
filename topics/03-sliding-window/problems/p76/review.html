@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>76 · Minimum Window Substring // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">03 · Sliding Window</a> / P76</span>
+    <span><a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小覆蓋子字串</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 76</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>覆蓋視窗</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>類型</td><td>可變長視窗(求最短覆蓋)</td></tr>
+        <tr><td>達標</td><td>視窗覆蓋 t → 就縮左</td></tr>
+        <tr><td>覆蓋判斷</td><td><code>formed == required</code>(O(1))</td></tr>
+        <tr><td>required</td><td>t 的<strong>相異</strong>字元數</td></tr>
+        <tr><td>freq 正負</td><td>缺(&gt;0)/剛好(0)/多餘(&lt;0)</td></tr>
+        <tr><td>formed 變動</td><td>正→0 時 ++;0→正 時 --</td></tr>
+        <tr><td>複雜度</td><td>O(m+n) 時間 / O(字元集) 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p><code>required</code> 為什麼是 <code>freq.size()</code>(相異字元數)而不是 <code>t.size()</code>?<code>t</code> 有重複字元時各會怎樣?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>湊滿只在 <code>--freq[s[r]] == 0</code> 才 <code>formed++</code>,不足只在 <code>++freq[s[l]] &gt; 0</code> 才 <code>formed--</code>。為什麼是「<strong>剛好跨零</strong>」這兩個瞬間,而不是 <code>&lt;=0</code> / <code>&gt;=0</code>?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p><code>freq[c]</code> 可正可負,三種符號分別代表什麼?為什麼一張表(而非 need+window 兩張)就夠?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>本題和 <a href="../p209/index.html">209(最短子陣列和)</a> 骨架相同。「達標」的定義各是什麼?一句話說出兩者共用的模板。</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>為什麼時間是 <code>O(m+n)</code> 而不是 <code>O(m · 字元集)</code>?<code>formed</code> 計數器省下了什麼?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// t 有重複字元</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// s = "aa", t = "aa"(need a:2, required=1 種)</span>
+r=0 a: freq[a] 2→1 (仍缺) → formed=0    窗"a"  [0,0] 未覆蓋
+r=1 a: freq[a] 1→0 湊滿 → formed=1==required → 覆蓋!
+       記最短 "aa"(2);
+       縮左: ++freq[a] 0→1 (&gt;0 不足) formed=0, l=1 → 停
+<span class="sc-trace__out">回傳 "aa"(需要兩個 a,少一個都不算覆蓋)</span></div>
+
+    <div class="sc-insight">
+      <code>t="aa"</code> 展示<strong>重複字元</strong>:<code>required</code> 是 <strong>1 種</strong>(只有字母 a),但 <code>need[a]=2</code> —— 要湊到<strong>兩個</strong> a 才算這一種「滿足」。
+      所以 <code>r=0</code> 只有一個 a 時 <code>formed</code> 還是 0(沒滿),<code>r=1</code> 湊到第二個才 <code>formed=1</code>。<strong>「種類數」與「每種的需求次數」是兩回事</strong>:required 數種類,freq 管次數,缺一不可。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>可變長視窗總覽</strong>:把 <a href="../p3/index.html">3</a>、<a href="../p424/index.html">424</a>、<a href="../p209/index.html">209</a>、76 放一起,各自的「合法/達標條件」與「收縮時機」是什麼?怎麼從題目一眼套模板?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>找所有最小覆蓋?</strong>本題答案唯一。若要回傳<strong>所有</strong>長度最小的覆蓋窗起點,要怎麼改?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>字元集很大 / Unicode</strong>:若不是 52 個英文字母而是任意字元。<code>vector&lt;int&gt;(128)</code> 還行嗎?哪些地方要改?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      <code>required</code> 要數的是「<strong>有幾種字元需要被滿足</strong>」,也就是 <code>t</code> 的<strong>相異</strong>字元數 = <code>freq.size()</code>。<code>formed</code> 每滿足<strong>一種</strong>字元(不管它需求是 1 個還是 5 個)就 +1,滿足全部種類時 <code>formed == required</code>。若用 <code>t.size()</code>(總長度),當 <code>t</code> 有重複(如 <code>"aab"</code>,size 3、種類 2)時 <code>required</code> 偏大,<code>formed</code> 最多只能到「種類數」永遠達不到,<strong>永不覆蓋</strong> → 回空。所以必用相異字元數。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為 <code>formed</code> 記「已<strong>剛好滿足</strong>的種類數」,只在狀態<strong>跨過「剛好滿足」界線</strong>時才該變。擴張 <code>--freq</code>:從 <code>1→0</code> 是「<strong>從缺到剛好</strong>」,這一刻該 <code>formed++</code>;若用 <code>&lt;= 0</code>,則每次減(包括從 <code>0→-1</code> 的 surplus)都會再 <code>++</code>,<strong>重複計數</strong>。縮左 <code>++freq</code>:從 <code>0→1</code> 是「<strong>從剛好到不足</strong>」,該 <code>formed--</code>;若用 <code>&gt;= 0</code>,則移出 surplus(<code>-1→0</code>)也會誤 <code>--</code>。<strong>只認「正→0」和「0→正」兩個跨零瞬間</strong>,才不多不少。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      <code>freq[c] &gt; 0</code> = 視窗<strong>還缺</strong> <code>c</code>(需求未滿);<code>== 0</code> = <strong>剛好</strong>滿足;<code>&lt; 0</code> = 有<strong>多餘</strong>的 <code>c</code>(surplus)。因為初值設成「需求(正)」,一個 <code>freq</code> 就能表達「缺多少 / 多多少」—— 缺是正的絕對值、多是負的絕對值。用兩張表(<code>need</code> 固定、<code>window</code> 累加)寫更直白,但要對每個字元比 <code>window[c] &gt;= need[c]</code>;而符號版把「差值」直接存在一張表裡,少一次比較、少一張表。兩者等價,符號版更精巧。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      共用<strong>「求最短、達標就縮」</strong>模板:右擴張;一旦<strong>達標</strong>就進 <code>while</code> 拚命縮左、每次仍達標更新最短;縮到不達標停。差別只在<strong>「達標」的定義</strong>:<strong>209</strong> 是 <code>視窗和 ≥ target</code>(用 <code>total</code> 判斷);<strong>76</strong> 是 <code>視窗覆蓋 t</code>(用 <code>formed == required</code> 判斷)。一句話:<strong>換「達標條件」與「怎麼 O(1) 維護它」,骨架不變</strong>。76 難在後者 —— 覆蓋比求和難判斷,所以引入 formed 計數器。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <code>O(m+n)</code>。若每步都重新檢查「視窗每種字元數 ≥ 需求」,是 <code>O(字元集)</code>/步 → <code>O(m·字元集)</code>。<code>formed</code> 計數器把「是否覆蓋」壓成<strong>一次整數比較</strong> <code>formed == required</code>(<code>O(1)</code>),它靠 <code>freq</code> 的跨零瞬間<strong>增量維護</strong>,不必每步重掃。加上 <code>l</code>、<code>r</code> 各只掃 <code>s</code> 一次(攤還),總時間 <code>O(m+n)</code>。這正是「用計數器把集合/覆蓋判斷降成 O(1)」帶來的加速,和 <a href="../p567/index.html">567</a> 的 <code>matches</code>、<a href="../p424/index.html">424</a> 的 <code>maxF</code> 同源。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>可變長視窗總覽</strong>(換「合法/達標條件」即換題):<br />
+      ‧ <a href="../p3/index.html">3 最長無重複</a> — 求最長,<strong>合法=無重複字元</strong>,違規(重複)才縮。<br />
+      ‧ <a href="../p424/index.html">424 替換</a> — 求最長,<strong>合法=長−眾數≤k</strong>,違規才縮。<br />
+      ‧ <a href="../p209/index.html">209 最短子陣列和</a> — 求最短,<strong>達標=和≥target</strong>,達標就縮。<br />
+      ‧ <strong>76 最小覆蓋</strong> — 求最短,<strong>達標=覆蓋 t</strong>,達標就縮。<br />
+      一眼套:問<strong>最長</strong>→違規才縮、取 max;問<strong>最短</strong>→達標就縮、取 min。剩下只需想「合法/達標怎麼 O(1) 判斷」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      本題答案唯一,若要<strong>所有</strong>最小覆蓋窗:先跑一遍求出最小長度 <code>bestLen</code>;再<strong>第二遍</strong>(或同一遍記錄)收集所有「覆蓋且長度 == bestLen」的視窗起點。實作上,在 <code>while (formed==required)</code> 內,當 <code>r-l+1 == bestLen</code> 時把 <code>l</code> 存進結果清單(需先知道 bestLen,故兩遍較簡單)。仍是 <code>O(m+n)</code>。核心不變,只是把「記一個最短」改成「記所有等於最短的」。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      本題字元是大小寫英文(52 種),<code>vector&lt;int&gt;(128)</code>(ASCII)完全夠用且比雜湊快。若是<strong>任意 Unicode</strong>,改用 <code>unordered_map&lt;char32_t,int&gt;</code>;<code>required</code> 仍是「<code>t</code> 相異字元數」= map 大小,<code>formed</code> 邏輯不變。唯一要注意的是<strong>字元集大時陣列不適用</strong>(太大或稀疏),換雜湊即可,時間仍 <code>O(m+n)</code>(雜湊操作平均 O(1))。骨架與計數器邏輯完全不動。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 03 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">求最短覆蓋:達標(覆蓋 t)就縮。required=相異字元數。formed 只在正→0(湊滿)、0→正(不足)跨零時動。freq 正負=缺/剛好/多餘,一張表搞定。同 209 模板,換達標條件。O(m+n)。</div>
+    <div class="sc-summary-bar__detail">可變長視窗 · MINIMUM WINDOW SUBSTRING</div>
+  </div>
+
+</body>
+</html>
