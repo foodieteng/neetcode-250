@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>232 · Implement Queue using Stacks // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P232</span>
+    <span><a href="https://leetcode.com/problems/implement-queue-using-stacks/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">用堆疊實作佇列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 雙堆疊懶搬移 · 攤還 O(1)</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 232</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>堆疊 · 攤還 O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        只用<strong>堆疊(stack)</strong>的標準操作(頂端 push/pop/peek、size、empty),實作一個<strong>佇列(FIFO)</strong>:<code>push</code>(進尾端)、<code>pop</code>/<code>peek</code>(取前端)、<code>empty</code>。
+        追問:能不能讓每個操作<strong>攤還 <code>O(1)</code></strong>?
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p225/index.html">225(用佇列實作堆疊)</a> 的<strong>鏡像</strong>,但有個更漂亮的招:<strong>兩個堆疊 + 懶搬移</strong>。一個 <code>in</code> 專收 <code>push</code>,一個 <code>out</code> 專供 <code>pop</code>/<code>peek</code>。
+      關鍵:<code>pop</code>/<code>peek</code> 時若 <code>out</code> 空,就把 <code>in</code> <strong>整個倒進 <code>out</code></strong> —— 倒一次順序就<strong>反轉</strong>,<code>out</code> 的頂端正好是<strong>最早 push 的 = 佇列 front</strong>。因為每個元素<strong>一生只被倒一次</strong>,所以攤還 <code>O(1)</code>,比 225 的「每次都旋轉」漂亮。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼兩堆疊懶搬移 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「兩堆疊 + 懶搬移」<span class="sc-section__title-en">// WHY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--bad">
+          <div class="sc-ko__verdict">× 每次都搬</div>
+          <div class="sc-ko__name">push 時就把 out 倒回 in</div>
+          <p>模仿 225 的「push 時整理」→ 每次 push/pop 都倒一次,<code>O(n)</code>/次,反覆重做,浪費。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">△ 單堆疊遞迴</div>
+          <div class="sc-ko__name">一個堆疊 + 遞迴</div>
+          <p>用系統呼叫堆疊當第二個堆疊,遞迴取底。能過但每次 <code>O(n)</code>、且有遞迴深度限制,不優。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">TWO STACKS · LAZY · ADOPT ↓</div>
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · 攤還 O(1)</div>
+        <div class="sc-ko__name">in 收 push、out 供 pop,懶搬移</div>
+        <p>
+          <code>push</code> → <code>in.push</code>(<code>O(1)</code>)。<code>pop</code>/<code>peek</code> → 若 <code>out</code> 空,把 <code>in</code> <strong>全倒進 <code>out</code></strong>(反轉),再取 <code>out</code> 頂端。
+          <strong>只在 <code>out</code> 空時才倒</strong>,每個元素只從 <code>in</code> 到 <code>out</code> 一次 → <strong>攤還 <code>O(1)</code></strong>。這就是追問要的答案。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四方法<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>push(x)</strong> —— <code>in.push(x)</code>(<code>O(1)</code>,新元素堆在 in)。</li>
+      <li><strong>peek()</strong> —— 若 <code>out</code> 空,<code>while (!in.empty()) out.push(in.top()); in.pop();</code>(倒過去);回 <code>out.top()</code>。</li>
+      <li><strong>pop()</strong> —— 先 <code>peek()</code>(確保 out 有料),再 <code>out.pop()</code> 回傳。</li>
+      <li><strong>empty()</strong> —— <code>in.empty() &amp;&amp; out.empty()</code>(兩個都空才空)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// TWO STACKS, LAZY TRANSFER</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>push 1、2、3</code> 都堆進 <code>in</code>;第一次 <code>pop</code> 時 <code>out</code> 空 → 把 in 倒進 out(變 <code>[3,2,1]</code>,頂=1=front),回傳 1。之後 pop 直接取 out,不再倒。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 雙堆疊 · push 進 in、pop 時懶倒進 out</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:250px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 攤還 O(1) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼是「攤還」O(1)<span class="sc-section__title-en">// AMORTIZED ANALYSIS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">每個元素一生只被搬一次 → 平均每操作 O(1)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          單看某一次 <code>pop</code>:如果剛好 <code>out</code> 空、要把 <code>in</code> 的 <code>k</code> 個元素倒過去,這一步是 <code>O(k)</code> —— 看起來不是 <code>O(1)</code>。但<strong>攤還分析</strong>看的是<strong>整體</strong>:一個元素的旅程是「push 進 in(1 次) → 某次倒進 out(1 次) → 從 out pop(1 次)」,<strong>總共只被碰 3 次</strong>,而且<strong>「倒」只發生一次</strong>(進了 out 就不會回 in)。
+        </p>
+        <p style="margin:0 0 8px;">
+          所以 <code>n</code> 個操作裡,所有「倒」加起來最多搬 <code>n</code> 個元素 —— 那次 <code>O(k)</code> 的昂貴 pop,是<strong>把先前 <code>k</code> 個便宜 push 累積的工作一次結清</strong>。把總成本 <code>O(n)</code> 平均到 <code>n</code> 個操作 → <strong>每個攤還 <code>O(1)</code></strong>。
+        </p>
+        <p style="margin:0;">
+          對比 <a href="../p225/index.html">225</a>:它每次 push 都<strong>重新旋轉整個</strong>結構,同一批元素被反覆搬動 → 真 <code>O(n)</code>/次,不是攤還 <code>O(1)</code>。本題的「<strong>懶搬移</strong>」(拖到非搬不可才搬、且搬過就不回頭)是攤還 <code>O(1)</code> 的關鍵 —— <strong>這也是 stack/queue 互轉裡,用堆疊做佇列比用佇列做堆疊更優雅的原因</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">push <strong>O(1)</strong>　pop / peek <strong>攤還 O(1)</strong>　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        push 恆 <code>O(1)</code>。pop/peek 最壞單次 <code>O(n)</code>(要倒),但每個元素只被倒一次,攤還後 <code>O(1)</code>。兩個堆疊合計存 <code>n</code> 個元素 → <code>O(n)</code> 空間。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>方法</th><th>時間</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>push</td><td><code>O(1)</code></td><td>進 in 堆疊</td></tr>
+        <tr><td>pop / peek</td><td>攤還 <code>O(1)</code></td><td>out 空才倒(單次最壞 O(n))</td></tr>
+        <tr><td>empty</td><td><code>O(1)</code></td><td>兩堆疊都空</td></tr>
+        <tr><td>空間</td><td><code>O(n)</code></td><td>兩個堆疊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      兩堆疊:<code>in</code> 收 push、<code>out</code> 供 pop。<strong>out 空時才把 in 倒進 out</strong>(反轉一次)—— 每個元素只搬一次 → <strong>攤還 O(1)</strong>。
+      「懶搬移 + 搬過不回頭」比 <a href="../p225/index.html">225</a> 的每次旋轉優雅得多。這是攤還分析的經典範例。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 04 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩堆疊 in/out:push→in O(1);pop/peek 時 out 空才把 in 倒進 out(反轉),取 out 頂。每元素只搬一次 → 攤還 O(1)。懶搬移比 225 每次旋轉優雅。</div>
+    <div class="sc-summary-bar__detail">雙堆疊懶搬移 · IMPLEMENT QUEUE USING STACKS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p232-stacks.js"></script>
+</body>
+</html>

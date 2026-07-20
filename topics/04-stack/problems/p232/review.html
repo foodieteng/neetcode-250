@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>232 · Implement Queue using Stacks // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P232</span>
+    <span><a href="https://leetcode.com/problems/implement-queue-using-stacks/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">用堆疊實作佇列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 232</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙堆疊懶搬移</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>結構</td><td>兩堆疊 in(push)/ out(pop)</td></tr>
+        <tr><td>push</td><td><code>in.push(x)</code>,O(1)</td></tr>
+        <tr><td>peek/pop</td><td>out 空才把 in 倒進 out</td></tr>
+        <tr><td>out 頂端</td><td>= 最早 push 的 = 佇列 front</td></tr>
+        <tr><td>攤還</td><td>每元素只搬一次 → 攤還 O(1)</td></tr>
+        <tr><td>empty</td><td>兩堆疊都空</td></tr>
+        <tr><td>對偶</td><td>用佇列實作堆疊(225)= 鏡像</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼 <code>out</code> 頂端就是佇列 <strong>front</strong>?從「把 in 倒進 out 會反轉順序」解釋。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>為什麼<strong>只在 <code>out</code> 空時</strong>才倒?若每次 pop 都把 out 倒回 in 再倒回,複雜度會變怎樣?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>單次 pop 可能花 <code>O(n)</code>(要倒),為什麼還能說「攤還 <code>O(1)</code>」?用「每個元素被搬幾次」證明。</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p><code>pop()</code> 為什麼寫成 <code>peek(); st2.pop();</code> 而不自己再判斷一次 out 空?這樣有什麼好處?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>本題(攤還 O(1))和 <a href="../p225/index.html">225(每次 O(n)</a>)都是「用 A 實作 B」。為什麼<strong>用堆疊做佇列</strong>能攤還 O(1),而<strong>用佇列做堆疊</strong>做不到?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 交錯 push/pop</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// push1,2, pop, push3, pop, pop(頂端在右)</span>
+push(1,2): in=[1,2] out=[]
+pop(): out 空 → 倒: out=[2,1](頂=1); 取 1 → out=[2]      回傳 1
+push(3): in=[3]  out=[2]                    (3 進 in)
+pop(): out 非空(=[2]) → 取頂 2 → out=[]                   回傳 2
+pop(): out 空 → 倒 in=[3]: out=[3]; 取 3 → out=[]         回傳 3
+<span class="sc-trace__out">回傳序 1,2,3 —— FIFO;倒了兩次(1,2 一次;3 一次),各元素仍只搬一次</span></div>
+
+    <div class="sc-insight">
+      交錯時,<code>3</code> 在 <code>push</code> 後先待在 <code>in</code>,等 <code>out</code> 被消費完(取走 2)才在下次 <code>pop</code> 被倒過去 —— <strong>它一生只被倒這一次</strong>。
+      即使「倒」發生了兩次,那是因為中間 <code>out</code> 空了、又來了新元素;<strong>但沒有任何元素被倒超過一次</strong>,總搬移量仍是 <code>O(n)</code>,攤還後每操作 <code>O(1)</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>攤還分析的「記帳法」</strong>:用「每次 push 預存一枚硬幣、pop 時用它付搬移費」的比喻,說明為什麼總費用是 O(n)。</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>單堆疊 + 遞迴</strong>:能不能只用一個堆疊實作佇列?怎麼用遞迴取到底部元素?複雜度如何?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>「懶」的通用威力</strong>:本題的「懶搬移」、還有哪些資料結構/演算法用「延後工作、批次結算」達到好複雜度?(舉一兩例)</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      元素進 <code>in</code> 時,越晚 push 的越在<strong>頂端</strong>(如 push 1,2,3 → in 頂是 3)。把 <code>in</code> 逐一 <code>pop→push</code> 倒進 <code>out</code>:先倒 in 頂 3、再 2、再 1,所以 <code>out</code> 從底到頂是 <code>3,2,1</code>,<strong><code>out</code> 頂端變成 1</strong>。而 1 是<strong>最早 push 的</strong> = 佇列該最先出的 <code>front</code>。「倒一次」把堆疊的 LIFO 順序<strong>反轉</strong>成 FIFO,<code>out</code> 頂端自然對齊佇列 front。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      只在 <code>out</code> 空時倒,是為了<strong>不重複搬</strong>。若每次 pop 都「把 out 倒回 in、再倒回 out」,同一批元素會被<strong>反覆搬動</strong>,每次 pop 都 <code>O(n)</code>,<code>n</code> 次操作變 <code>O(n²)</code>。「懶」的精髓是:<strong>out 還有料就直接服務,空了才一次補齊</strong>；補過去的元素在被 pop 完之前不會回頭。這樣每個元素只搬一次,總搬移 <code>O(n)</code>。<strong>「非必要不搬移」就是攤還 O(1) 的關鍵。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      看<strong>單個元素</strong>的一生:<code>push</code> 進 <code>in</code>(1 次 stack 操作)→ 某次因 <code>out</code> 空被倒進 <code>out</code>(pop from in + push to out = 2 次)→ 從 <code>out</code> 被 <code>pop</code>(1 次)。<strong>總共固定 4 次 stack 操作,與其他元素無關</strong>。<code>n</code> 個元素 → 總計 <code>O(n)</code> 次基本操作。所以雖然<strong>某一次</strong> pop 可能一口氣倒 <code>k</code> 個(<code>O(k)</code>),但那 <code>k</code> 是先前 <code>k</code> 次便宜 push「累積」的工作一次結清 —— 把總 <code>O(n)</code> 平均到 <code>n</code> 個操作,<strong>每個攤還 <code>O(1)</code></strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      因為 <code>pop</code> 和 <code>peek</code> <strong>都需要「先確保 <code>out</code> 有料」</strong>(必要時倒)。把這段邏輯<strong>只寫在 <code>peek()</code></strong>,<code>pop()</code> 就 <code>int v = peek(); st2.pop(); return v;</code> —— 呼叫 <code>peek()</code> 後 <code>out</code> 保證非空,<code>st2.pop()</code> 安全。好處:<strong>不重複(DRY)</strong>,只有一處管「何時倒」,將來要改邏輯不會漏掉另一處;也避免 <code>pop</code> 忘了先準備 <code>out</code> 而對空堆疊 <code>pop</code>(UB)。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      關鍵在<strong>「翻轉能不能只做一次、且不回頭」</strong>。<strong>堆疊做佇列(232)</strong>:堆疊天生 LIFO,倒一次就得到 FIFO,而且<strong>倒進 <code>out</code> 的元素會依序被消費、不必回 <code>in</code></strong> —— 翻轉一次、單向流動,所以每元素搬一次 → 攤還 O(1)。<strong>佇列做堆疊(225)</strong>:佇列只能「前端出、尾端進」,要拿最新的必須把其他元素<strong>繞一圈</strong>,而每次 push 新元素都得<strong>重新繞整個佇列</strong>(舊元素被反覆搬)→ 真 O(n)/次。差別是:232 的翻轉能<strong>累積後一次結清且不重做</strong>,225 的旋轉<strong>每次都得重做</strong>。所以方向不對稱,232 更優雅。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 04 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">in/out 兩堆疊;倒一次把 LIFO 反轉成 FIFO,out 頂=front。只 out 空才倒(懶),每元素搬一次→攤還 O(1)。pop=peek()+pop() DRY。232 翻轉單向不回頭故優雅,225 每次旋轉重做故 O(n)。</div>
+    <div class="sc-summary-bar__detail">雙堆疊懶搬移 · IMPLEMENT QUEUE USING STACKS</div>
+  </div>
+
+</body>
+</html>
