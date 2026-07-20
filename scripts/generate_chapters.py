@@ -117,7 +117,7 @@ PROBLEMS = {
         ('p239','Sliding Window Maximum',                        'sliding-window-maximum',                        'hard','done'),
     ],
     '04': [  # Stack
-        ('p682','Baseball Game',                   'baseball-game',                   'easy','todo'),
+        ('p682','Baseball Game',                   'baseball-game',                   'easy','done'),
         ('p20', 'Valid Parentheses',               'valid-parentheses',               'easy','todo'),
         ('p225','Implement Stack using Queues',    'implement-stack-using-queues',    'easy','todo'),
         ('p232','Implement Queue using Stacks',    'implement-queue-using-stacks',    'easy','todo'),
