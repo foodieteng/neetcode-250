@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>225 · Implement Stack using Queues // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P225</span>
+    <span><a href="https://leetcode.com/problems/implement-stack-using-queues/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">用佇列實作堆疊</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 225</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>單佇列旋轉</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>矛盾</td><td>佇列 FIFO,堆疊要 LIFO</td></tr>
+        <tr><td>訣竅</td><td>push 後把新元素旋轉到 front</td></tr>
+        <tr><td>front</td><td>= 最後 push 的 = 堆疊 top</td></tr>
+        <tr><td>旋轉次數</td><td>舊 size 次(先記 sz 再 push x)</td></tr>
+        <tr><td>成本</td><td>push O(n)、pop/top/empty O(1)</td></tr>
+        <tr><td>兩佇列版</td><td>q2←x、倒 q1、swap(邏輯同)</td></tr>
+        <tr><td>對偶</td><td>用堆疊實作佇列(232)= 鏡像</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼用佇列(FIFO)實作堆疊(LIFO),<strong>某個操作必然是 O(n)</strong>?這個 O(n) 的本質是什麼?</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>push 裡為什麼要<strong>先記 <code>sz = q.size()</code> 再 <code>q.push(x)</code></strong>?順序反過來會旋轉幾次、錯在哪?</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>旋轉「舊 size 次」把新元素轉到 front。為什麼恰好是 size 次(不是 size-1 或 size+1)?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>本題把 O(n) 放在 push(push-heavy)。若改成 <strong>pop-heavy</strong>(push O(1)、pop O(n)),程式怎麼變?什麼情況該選哪種?</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>反過來:<a href="../p232/index.html">用兩個堆疊實作佇列(232)</a> 怎麼做到<strong>攤還 O(1)</strong>?為什麼它比本題更漂亮(沒有 O(n) 的單次操作瓶頸)?</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// push 交錯 pop</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// push1, push2, pop, push3, top(front 在左)</span>
+push(1): [1]                       top=1
+push(2): [1,2]→旋轉1→[2,1]         top=2
+pop()  : 取 front 2 → [1]          回傳 2,top=1
+push(3): [1,3]→旋轉1→[3,1]         top=3
+top()  : 3
+<span class="sc-trace__out">堆疊語意正確:2 後進先出、3 最後進當 top</span></div>
+
+    <div class="sc-insight">
+      交錯 push/pop 也照常運作:<code>pop</code> 只是取 front(<code>O(1)</code>),不影響其餘元素的相對順序;下一個 <code>push</code> 一樣旋轉當前 size 個把新元素頂到前面。
+      <strong>不變式:任何時刻,佇列從 front 到 back 都是「插入時間由新到舊」</strong> —— 這個性質被每次 push 的旋轉維持,所以 front 恆為 top。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>pop-heavy 版</strong>:寫出 push <code>O(1)</code>、pop/top <code>O(n)</code> 的單佇列版。pop 時怎麼取到「最後 push 的」?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>攤還分析</strong>:本題 push 是 <code>O(n)</code>。若一連串操作大多是 push、少數 pop,總成本是多少?push-heavy 在這種情況划算嗎?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>用 A 實作 B 的通則</strong>:「用佇列做堆疊」「用堆疊做佇列」「用陣列做堆疊/佇列」…… 這類題的共同思考框架是什麼?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      因為佇列只能<strong>前端出、尾端進</strong>,而堆疊要的是<strong>最後進的先出</strong> —— 兩種存取順序<strong>相反</strong>。要讓佇列表現得像堆疊,必須在某處把「插入順序」<strong>翻轉</strong>一次,而翻轉 <code>n</code> 個元素本質上就是 <code>O(n)</code> 的搬移,無法用 <code>O(1)</code> 完成(佇列沒有「直接拿尾端」的操作)。這個 <code>O(n)</code> 是<strong>兩種結構順序落差的代價</strong>,躲不掉,只能選擇<strong>放在 push 還是 pop</strong>。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      因為要旋轉的是「<strong>x 加入之前</strong>的舊元素」。先記 <code>sz = q.size()</code>(舊元素數),再 <code>q.push(x)</code>,然後旋轉 <code>sz</code> 次,把那 <code>sz</code> 個舊的繞到 <code>x</code> 後面。若<strong>先 <code>push(x)</code> 再取 <code>size</code></strong>,<code>size</code> 會是 <code>sz+1</code>(含 x),旋轉 <code>sz+1</code> 次會把 <code>x</code> 也繞走一圈 → <code>x</code> 又回到後面,front 變成舊元素,<strong>語意全錯</strong>。所以順序不能顛倒。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      push <code>x</code> 後佇列是 <code>[舊₁, 舊₂, …, 舊_sz, x]</code>(x 在尾)。要把 <code>x</code> 頂到最前,得把它前面那 <code>sz</code> 個舊元素<strong>逐一</strong>從 front 搬到 back。搬第一個(舊₁)後 <code>[舊₂,…,x,舊₁]</code>、…… 搬完第 <code>sz</code> 個後,所有舊元素都排到 <code>x</code> 後面,佇列變 <code>[x, 舊₁, …, 舊_sz]</code>,<code>x</code> 到 front。所以恰好 <strong><code>sz</code> 次</strong> —— 每個舊元素被繞一次。<code>sz-1</code> 會少繞一個(x 不在最前)、<code>sz+1</code> 會把 x 也繞走。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <strong>pop-heavy</strong>:<code>push(x)</code> 直接 <code>q.push(x)</code>(<code>O(1)</code>,新元素在尾);<code>pop()/top()</code> 時,把前面 <code>size-1</code> 個從 front 搬到 back(旋轉),讓<strong>最後 push 的那個轉到 front</strong>,再取它。<code>pop</code> 是 <code>O(n)</code>。<strong>怎麼選</strong>:看操作分布 —— <strong>push 多、pop 少</strong> → pop-heavy(讓便宜的操作頻繁);<strong>pop/top 多</strong>(尤其常 <code>top</code> 只讀)→ push-heavy(讓讀取 <code>O(1)</code>)。本題選 push-heavy,<code>top()</code> 快。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      <strong>232 用兩個堆疊</strong>:<code>in</code> 收 push、<code>out</code> 供 pop/peek。push 就 <code>in.push</code>(<code>O(1)</code>);pop/peek 時若 <code>out</code> 空,<strong>把 <code>in</code> 整個倒進 <code>out</code></strong>(順序反轉一次),再從 <code>out</code> 頂取 —— 倒過去後 <code>out</code> 的頂端正是佇列 front。妙在:<strong>每個元素一生只被「倒」一次</strong>(從 in 到 out),所以雖然某次 pop 可能花 <code>O(n)</code> 倒,但<strong>攤還到每個操作是 <code>O(1)</code></strong>。它比本題漂亮,因為<strong>「翻轉」的成本被攤平、沒有反覆重做</strong>(本題每次 push 都重新旋轉整個佇列,是真 <code>O(n)</code>/次)。兩堆疊的「懶惰搬移」是關鍵。
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 04 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">FIFO↔LIFO 順序相反 → 某操作必 O(n)(翻轉)。push 先記 sz 再 push x、旋轉 sz 次→front=top。push-heavy vs pop-heavy 看操作分布。對偶 232 兩堆疊懶搬移 → 攤還 O(1),更漂亮。</div>
+    <div class="sc-summary-bar__detail">單佇列旋轉 · IMPLEMENT STACK USING QUEUES</div>
+  </div>
+
+</body>
+</html>

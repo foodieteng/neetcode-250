@@ -119,7 +119,7 @@ PROBLEMS = {
     '04': [  # Stack
         ('p682','Baseball Game',                   'baseball-game',                   'easy','done'),
         ('p20', 'Valid Parentheses',               'valid-parentheses',               'easy','done'),
-        ('p225','Implement Stack using Queues',    'implement-stack-using-queues',    'easy','todo'),
+        ('p225','Implement Stack using Queues',    'implement-stack-using-queues',    'easy','done'),
         ('p232','Implement Queue using Stacks',    'implement-queue-using-stacks',    'easy','todo'),
         ('p155','Min Stack',                       'min-stack',                       'med', 'todo'),
         ('p150','Evaluate Reverse Polish Notation','evaluate-reverse-polish-notation','med', 'todo'),
