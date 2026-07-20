@@ -103,7 +103,7 @@ PROBLEMS = {
         ('p189', 'Rotate Array',                       'rotate-array',                       'med', 'done'),
         ('p11',  'Container With Most Water',          'container-with-most-water',          'med', 'done'),
         ('p881', 'Boats to Save People',               'boats-to-save-people',               'med', 'done'),
-        ('p42',  'Trapping Rain Water',                'trapping-rain-water',                'hard','todo'),
+        ('p42',  'Trapping Rain Water',                'trapping-rain-water',                'hard','done'),
     ],
     '03': [  # Sliding Window
         ('p219','Contains Duplicate II',                         'contains-duplicate-ii',                         'easy','done'),

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>42 · Trapping Rain Water // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P42</span>
+    <span><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">接雨水</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 前綴/後綴最高 · 對撞雙指針</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 42</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針 · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>height[]</code> 是寬度 1 的柱狀高度圖(地形)。下雨後,求整片地形能<strong>積住多少水</strong>(所有凹槽積水的總和)。
+        例:<code>[0,1,0,2,1,0,1,3,2,1,2,1] → 6</code>。
+      </p>
+    </div>
+
+    <p>
+      核心觀察:<strong>每一格 <code>i</code> 頭上能積的水,由它「左邊最高牆」和「右邊最高牆」中<strong>較低</strong>的那個封頂</strong> ——
+      <code>water[i] = min(leftMax[i], rightMax[i]) − height[i]</code>(不能為負)。把每格加總就是答案。<strong>難點是如何高效求出每格的左右最高</strong>,這裡給兩種解法(各附一個動畫)。
+      別和 <a href="../p11/index.html">11 盛水容器</a> 搞混:11 只選兩壁圍<strong>單一最大矩形</strong>,本題是整片地形的<strong>積水總和</strong>、中間柱子會擋水。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 兩種解法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">兩種解法<span class="sc-section__title-en">// TWO APPROACHES</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko__card sc-ko__card--mid">
+          <div class="sc-ko__verdict">A · O(n) / O(n)</div>
+          <div class="sc-ko__name">前綴最高 + 後綴最高陣列</div>
+          <p>先掃出 <code>leftMax[]</code>(L→R 取 max)、<code>rightMax[]</code>(R→L 取 max),再逐格加 <code>min(兩者) − height</code>。直觀、好懂,但用 <code>O(n)</code> 額外空間。</p>
+        </div>
+        <div class="sc-ko__card sc-ko__card--good">
+          <div class="sc-ko__verdict">● B · O(n) / O(1)</div>
+          <div class="sc-ko__name">對撞雙指針,兩個純量 max</div>
+          <p>不開陣列:<code>l、r</code> 對撞,維護 <code>leftMax、rightMax</code> 兩純量。每步處理<strong>較矮側</strong>,該側水位已能確定。<strong>省下 <code>O(n)</code> 空間</strong>,是最優解。</p>
+        </div>
+      </div>
+      <div class="sc-ko__arrow">兩者都 O(n) 時間 · B 空間更省</div>
+    </div>
+    <p style="margin-top:10px;font-size:13px;color:#4a4a44;">
+      也有<strong>單調堆疊</strong>解法(逐層算橫向積水),同 <code>O(n)</code>;這裡聚焦最常考的兩種「按列求和」思路。
+    </p>
+  </section>
+
+  <!-- ════════════ 3 · 動畫 A ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">動畫 A · 前綴/後綴最高<span class="sc-section__title-en">// PREFIX / SUFFIX MAX</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>[3,0,2,0,4,0,1]</code>:畫出 <code>leftMax</code>(藍線)與 <code>rightMax</code>(紅線)兩條包絡;<strong>水位 = 兩線的較低者</strong>,水填到那條線,積水 = 水位 − 高度。總和 8。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · 兩條包絡線,水填到 min(leftMax, rightMax)</div>
+      <div class="sc-viz__cvwrap"><canvas id="va-canvas" class="sc-viz__canvas" style="height:262px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 03</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 B ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫 B · 對撞雙指針 O(1)<span class="sc-section__title-en">// TWO POINTERS</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      同一組地形:<code>l、r</code> 對撞,每步處理<strong>較矮側</strong>,積水 <code>+= 該側 max − 高度</code>。不用陣列,一趟得出 8。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ B · 移動較矮側、兩純量 max、逐步累加積水</div>
+      <div class="sc-viz__cvwrap"><canvas id="vb-canvas" class="sc-viz__canvas" style="height:262px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼雙指針只看較矮側 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼雙指針「只看較矮側」就夠<span class="sc-section__title-en">// THE KEY INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">較矮側的水位,由「它那一側的 max」就能確定</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          每格水位 = <code>min(leftMax, rightMax)</code>。難處在於掃到 <code>l</code> 時,我們<strong>還不知道右邊最終的 rightMax</strong>(還沒掃完)。雙指針的巧思:<strong>先比 <code>height[l]</code> 與 <code>height[r]</code>,處理較矮的那側</strong>。
+        </p>
+        <p style="margin:0 0 8px;">
+          假設 <code>height[l] &lt; height[r]</code>(左較矮)。此刻<strong>右邊有一根 <code>height[r]</code> 的牆,而 <code>rightMax ≥ height[r] &gt; height[l]</code></strong> —— 也就是右邊的最高<strong>一定 ≥ 左邊當前高度</strong>。所以位置 <code>l</code> 的水位 <code>min(leftMax, rightMax)</code> 中,<strong>rightMax 不是瓶頸,leftMax 才是</strong>。於是 <code>water[l] = leftMax − height[l]</code>,<strong>只用左側資訊就能定案</strong>,不必知道 rightMax 的確切值!處理完 <code>l++</code>。對稱地,右較矮就用 rightMax 結算、<code>r--</code>。
+        </p>
+        <p style="margin:0;">
+          直覺:<strong>矮的那一側先「封頂」</strong> —— 因為對面有更高的牆頂著,矮側的水位由自己這側的最高牆決定,和對面到底多高無關(反正對面 ≥ 這側)。每步安全結算一格、內移一步,<strong>一趟 <code>O(n)</code>、只用兩個純量 <code>O(1)</code></strong>。這和 <a href="../p11/index.html">11</a> 的「移較矮牆」是同一種「較矮側決定一切」的雙指針直覺。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">A: T=<strong>O(n)</strong> S=<strong>O(n)</strong>　　B: T=<strong>O(n)</strong> S=<strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        兩種都線性時間。A 用兩個長度 <code>n</code> 的陣列存左右最高 → <code>O(n)</code> 空間;B 用 <code>l、r、leftMax、rightMax</code> 四個純量 → <code>O(1)</code> 空間。追求最省空間就用 B。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+      <tbody>
+        <tr><td>暴力(每格找左右最高)</td><td><code>O(n²)</code></td><td><code>O(1)</code></td></tr>
+        <tr><td>A · 前綴/後綴陣列</td><td><code>O(n)</code></td><td><code>O(n)</code></td></tr>
+        <tr><td><strong>B · 對撞雙指針</strong></td><td><code>O(n)</code></td><td><code>O(1)</code></td></tr>
+        <tr><td>單調堆疊(橫向)</td><td><code>O(n)</code></td><td><code>O(n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      每格積水 = <code>min(左最高, 右最高) − 高度</code>。A 用陣列存左右最高;<strong>B 用雙指針:處理較矮側 —— 對面更高的牆保證它封頂,只看該側 max 就能結算</strong>,省下 <code>O(n)</code> 空間。
+      和 <a href="../p11/index.html">11</a> 同源(較矮側決定),但 11 求最大矩形、42 求積水總和。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="../../index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">← 回 02 分類</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每格積水=min(左最高,右最高)−高度。A：前綴/後綴 max 陣列 O(n)/O(n)。B：雙指針處理較矮側(對面更高牆保證封頂,只看該側 max)O(n)/O(1)。≠ 11(求最大矩形)。</div>
+    <div class="sc-summary-bar__detail">前綴後綴 / 雙指針 · TRAPPING RAIN WATER</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p42-arrays.js"></script>
+  <script src="../../../../assets/js/viz/p42-twoptr.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>42 · Trapping Rain Water // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">02 · Two Pointers</a> / P42</span>
+    <span><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">接雨水</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習與問答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 42</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>雙指針</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>關鍵</th><th>一句話</th></tr></thead>
+      <tbody>
+        <tr><td>每格積水</td><td><code>min(左最高, 右最高) − 高度</code></td></tr>
+        <tr><td>解法 A</td><td>前綴/後綴 max 陣列,O(n)/O(n)</td></tr>
+        <tr><td>解法 B</td><td>對撞雙指針,O(n)/O(1)</td></tr>
+        <tr><td>B 的關鍵</td><td>處理較矮側(對面更高牆封頂)</td></tr>
+        <tr><td>水位</td><td>取 <code>min</code>(不是 max)</td></tr>
+        <tr><td>vs 11</td><td>42 求積水總和;11 求單一最大矩形</td></tr>
+        <tr><td>其他解</td><td>單調堆疊(橫向逐層)O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">Q1</span><p>為什麼每格水位是 <code>min(leftMax, rightMax)</code> 而不是 <code>max</code>?從「水會從矮的一側溢出」解釋。</p></div>
+    <div class="qa"><span class="qa__tag">Q2</span><p>雙指針版:掃到 <code>l</code> 時<strong>還沒算出最終的 rightMax</strong>,為什麼「處理較矮側」就能<strong>安全結算</strong>當前格?證明它的水位不依賴對側的確切高度。</p></div>
+    <div class="qa"><span class="qa__tag">Q3</span><p>雙指針每步比 <code>height[l]</code> 與 <code>height[r]</code> 決定處理哪側。若<strong>反過來處理較高側</strong>,會出什麼錯?</p></div>
+    <div class="qa"><span class="qa__tag">Q4</span><p>本題和 <a href="../p11/index.html">11 盛水容器</a> 都是雙指針、都跟「較矮側」有關,但問的完全不同。一句話說出根本差異。</p></div>
+    <div class="qa"><span class="qa__tag">Q5</span><p>解法 A 用了 <code>O(n)</code> 空間。除了雙指針,還能怎麼把 A 的空間降到 <code>O(1)</code>?(提示:其中一個陣列能否邊掃邊用?)</p></div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// A 版逐格</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// height = [0,1,0,2,1,0,1,3,2,1,2,1](A 版,答案 6)</span>
+leftMax  = [0,1,1,2,2,2,2,3,3,3,3,3]
+rightMax = [3,3,3,3,3,3,3,3,2,2,2,1]
+min      = [0,1,1,2,2,2,2,3,2,2,2,1]
+min−h    = [0,0,1,0,1,2,1,0,0,1,0,0]  → 總和 6
+<span class="sc-trace__out">回傳 6</span></div>
+
+    <div class="sc-insight">
+      把 <code>leftMax</code>、<code>rightMax</code> 兩排寫出來,逐格取 <code>min</code> 再減高度,答案一目了然 —— 這就是解法 A 的直觀。
+      注意 <code>min−h</code> 那排:凡是「被兩側高牆夾住的低谷」才有正積水(如索引 5 的 <code>2</code>);兩側沒更高牆的邊坡(如索引 0)則積不了水。<strong>積水 = 被夾住的深度。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><span class="qa__tag">App 1</span><p><strong>單調堆疊解</strong>:另一種 <code>O(n)</code> 是用遞減堆疊<strong>逐層</strong>算積水。它和「按列求和」有什麼不同?堆疊裡存什麼、什麼時候結算一層水?</p></div>
+    <div class="qa"><span class="qa__tag">App 2</span><p><strong>接雨水 II(LC 407,2D)</strong>:改成二維高度圖,水從邊界流出。為什麼雙指針失效?要改用什麼結構(提示:從最矮邊界往內灌)?</p></div>
+    <div class="qa"><span class="qa__tag">App 3</span><p><strong>回傳每格積水</strong>:除了總量,還要輸出每格積多少水。哪種解法最方便?為什麼?</p></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A1</span>
+    <p>
+      因為一格頭上的水,是被<strong>左右兩道牆夾住</strong>的。水位不可能超過<strong>較矮</strong>那道牆 —— 一超過就從矮側溢出流走了。所以有效水位 = <code>min(leftMax, rightMax)</code>,積水 = 水位 − 自己高度(<code>≥ 0</code>)。用 <code>max</code> 會算出「連矮牆都擋不住的水」,超算。<strong>木桶原理:能裝多少水由最短的那塊板決定。</strong>
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A2</span>
+    <p>
+      假設 <code>height[l] &lt; height[r]</code>(左較矮)。此刻右邊有一根 <code>height[r]</code> 的牆,所以<strong>最終的 rightMax 一定 <code>≥ height[r] &gt; height[l] ≥ leftMax</code>... </strong>更準確地:<code>rightMax ≥ height[r] &gt; height[l]</code>,而位置 <code>l</code> 的水位是 <code>min(leftMax, rightMax)</code>。因為 <code>rightMax &gt; height[l]</code>、且 <code>leftMax</code> 也 <code>≥ height[l]</code>,關鍵是 <strong><code>rightMax ≥ height[r] &gt; height[l]</code> 保證右側「至少和 leftMax 一樣能封頂或更高」</strong> → <code>min(leftMax, rightMax) = leftMax</code>(左側才是瓶頸)。所以 <code>water[l] = leftMax − height[l]</code>,<strong>只用左側資訊、不需 rightMax 的確切值</strong>就能定案。這就是能省掉右陣列的原因。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A3</span>
+    <p>
+      會<strong>結算錯</strong>。假設處理<strong>較高</strong>側(比如 <code>height[l] &lt; height[r]</code> 卻去處理 <code>r</code>):位置 <code>r</code> 的水位是 <code>min(leftMax, rightMax)</code>,而此時<strong>左邊的 leftMax 還沒掃到、可能很小</strong> —— 我們無法確定 <code>leftMax ≥ height[r]</code>,也就不能保證 rightMax 是瓶頸。用 <code>rightMax − height[r]</code> 結算可能<strong>高估</strong>(左邊其實封不住、水會從左溢出)。只有<strong>較矮側</strong>才有「對面更高牆保證封頂」的性質,結算才安全。所以必須處理較矮側。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A4</span>
+    <p>
+      <strong>11 求「兩壁圍成的單一最大矩形」面積</strong>(<code>min(兩壁)×寬</code>,中間柱子不擋水,只選兩根線);<strong>42 求「整片地形的積水總和」</strong>(每格被左右最高夾出的深度加總,中間柱子會分隔、擋水)。一個是 <strong>max 單一容器</strong>、一個是 <strong>sum 全部凹槽</strong>。兩者都用「較矮側決定」的雙指針直覺,但目標一個取極值、一個求總和。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">A5</span>
+    <p>
+      A 版可降到 <code>O(1)</code> —— 其實那就是<strong>雙指針解法 B</strong> 的來由:<code>leftMax[]</code> 可以邊掃邊用一個變數 <code>leftMax</code> 取代(從左往右天然累積);難的是 <code>rightMax</code> 需要「從右往左」的資訊,不能同向邊掃邊用。雙指針的突破正是:<strong>用「處理較矮側」繞開「需要完整 rightMax」的限制</strong> —— 較矮側不需要對側的確切最高值,只要知道對側 ≥ 這側(由 <code>height[l] &lt; height[r]</code> 保證)。所以「把 A 降到 O(1)」的答案,本質就是 B。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 1</span>
+    <p>
+      <strong>單調(遞減)堆疊</strong>:按列求和是「每格往上能積多少」;堆疊法是「<strong>橫向逐層</strong>」算。堆疊存<strong>索引</strong>(高度遞減)。當遇到一根比堆頂高的柱 <code>height[i]</code>,就<strong>結算一層</strong>:彈出堆頂 <code>bottom</code> 當「水底」,新的堆頂 <code>left</code> 是左牆、<code>i</code> 是右牆,這一層水量 = <code>(min(height[left], height[i]) − height[bottom]) × (i − left − 1)</code>。反覆彈到堆頂比 <code>i</code> 高。每個索引進出堆疊一次 → <code>O(n)</code>。它把積水<strong>切成一層層水平長條</strong>累加,和「按列」殊途同歸。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 2</span>
+    <p>
+      <strong>LC 407 二維接雨水</strong>:水從<strong>邊界任一格</strong>流出,一格的水位由「四周所有路徑到邊界的最高門檻的最小值」決定,無法用一維的「左右最高」表達,雙指針失效。正解:<strong>最小堆 + BFS(從邊界往內灌)</strong>。把所有邊界格入堆,每次取出<strong>當前最矮的邊界</strong> <code>cell</code>,向四鄰擴散:鄰格能積的水 = <code>max(0, cell高度 − 鄰格高度)</code>,鄰格以 <code>max(cell高度, 鄰格高度)</code> 當新「水位」入堆。<strong>「先從最矮的門檻處理」</strong>保證每格第一次被彈出時的水位正確。<code>O(mn log(mn))</code>。核心直覺(最矮邊界先定)和一維「較矮側先封頂」一脈相承。
+    </p>
+  </div>
+
+  <div class="qa qa--answer">
+    <span class="qa__tag">App 3</span>
+    <p>
+      <strong>解法 A 最方便</strong>。因為 A 已經對<strong>每一格</strong>算出 <code>min(leftMax[i], rightMax[i]) − height[i]</code> —— 那正是「第 <code>i</code> 格的積水量」,直接存成陣列輸出即可。雙指針 B 雖然也逐格結算,但 <code>l、r</code> 跳來跳去、順序不是 0…n-1,要額外記錄每格值較繞。<strong>要「每格明細」→ 用按列的 A;只要「總量、且省空間」→ 用 B。</strong>
+    </p>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 02 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// REVIEW TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每格積水=min(左最高,右最高)−高度(木桶原理)。A 前綴/後綴陣列 O(n)。B 雙指針處理較矮側:對面更高牆保證封頂,只看該側 max→省 O(n) 空間(=A 降 O(1))。≠11(求最大矩形)。2D 用最小堆從最矮邊界灌。</div>
+    <div class="sc-summary-bar__detail">前綴後綴 / 雙指針 · TRAPPING RAIN WATER</div>
+  </div>
+
+</body>
+</html>
