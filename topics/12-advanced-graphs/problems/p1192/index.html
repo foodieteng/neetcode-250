@@ -179,10 +179,10 @@
     </div>
 
     <ol>
-      <li><strong>建圖記邊 id</strong>:<code>g[u]</code> 存 <code>{鄰居 v, 邊 id}</code>。無向邊兩端各存一次,共用同一個 id。</li>
-      <li><strong>DFS(u, 進來的邊 pe)</strong>:設 <code>dfn[u]=low[u]=idx++</code>。注意 <code>pe</code> 是<strong>邊 id</strong>,不是父節點!</li>
-      <li><strong>樹邊</strong>(<code>v</code> 未訪):遞迴後 <code>low[u]=min(low[u],low[v])</code>;若 <code>low[v]&gt;dfn[u]</code> → <code>(u,v)</code> 是橋。</li>
-      <li><strong>回邊</strong>(<code>v</code> 已訪且 <code>id≠pe</code>):<code>low[u]=min(low[u],dfn[v])</code>。</li>
+      <li><strong>建無向圖</strong>:<code>graph[u]</code> 存鄰居;<code>dfn/low</code> 皆設 <code>-1</code>(未訪)。</li>
+      <li><strong>DFS(p, u)</strong>:設 <code>dfn[u]=low[u]=timer++</code>。<code>p</code> 是<strong>父節點</strong>,根傳 <code>-1</code>。</li>
+      <li><strong>樹邊</strong>(<code>v</code> 未訪且 <code>v≠p</code>):遞迴後 <code>low[u]=min(low[u],low[v])</code>;若 <code>low[v]&gt;dfn[u]</code> → <code>(u,v)</code> 是橋。</li>
+      <li><strong>回邊</strong>(<code>v</code> 已訪且 <code>v≠p</code>):<code>low[u]=min(low[u],dfn[v])</code>。<span style="opacity:.75;">(<code>v==p</code> 擋回頭在 LC 1192 安全,因為保證無重邊。)</span></li>
     </ol>
   </section>
 
@@ -234,13 +234,13 @@
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">7</span>
-      <h2 class="sc-section__title">面試常見坑 · 重邊<span class="sc-section__title-en">// PARALLEL EDGES</span></h2>
+      <h2 class="sc-section__title">v==p 的前提 · 重邊<span class="sc-section__title-en">// PARALLEL EDGES</span></h2>
     </div>
 
     <div style="border-left:4px solid #d98a3e;background:#fbf1e4;border-radius:0 8px 8px 0;padding:14px 18px;font-size:14px;line-height:1.8;">
-      <strong style="color:#a8621c;">⚠ 用「父節點 id」擋回頭路會錯</strong><br>
-      很多人用 <code>if (v == parent) continue;</code> 擋住走回父親。但遇到<strong>重邊</strong>(<code>u—v</code> 之間有兩條邊)時,這兩條邊其實<strong>互為備援、都不是橋</strong>,可是「父節點法」會把第二條當成回父親而 skip,導致把 <code>(u,v)</code> 誤判成橋。<br>
-      <strong style="color:#7a4d1c;">正解:用「進來的那條邊 id」<code>pe</code> 擋回頭</strong> —— 只 skip 走過來的<strong>那一條</strong>,另一條平行邊仍會被當回邊處理,<code>low</code> 更新正確,就不會誤判。
+      <strong style="color:#a8621c;">✔ 這題用 <code>if (v == p) continue;</code> 是對的 —— 因為 LC 1192 保證「沒有重複連線」</strong><br>
+      父節點法只擋「回父親」。當 <code>u</code> 和父親之間<strong>最多一條邊</strong>時,擋掉它剛好只擋掉「走過來那一條」,完全正確,而且最乾淨。<br>
+      <strong style="color:#7a4d1c;">它的極限:若題目<strong>允許重邊</strong></strong> —— <code>u—v</code> 有兩條平行邊,它們<strong>互為備援、都不是橋</strong>。但在 <code>v</code> 看到第二條回 <code>u</code> 的邊時,<code>v == p</code> 也會把它 skip,漏掉這條真備援回邊,<code>low[v]</code> 壓不下來 → <code>(u,v)</code> 被<strong>誤判成橋</strong>。此時要改傳「進來的邊 id」<code>pe</code>,只 skip 走過來那一條(程式頁走讀有對比)。
     </div>
   </section>
 
@@ -268,7 +268,7 @@
 
     <div class="sc-insight">
       橋 = 子樹<strong>繞不回去</strong>的那條唯一出口。一次 DFS 算 <code>dfn/low</code>,判 <code>low[v] &gt; dfn[u]</code>。
-      擋回頭路要用<strong>邊 id</strong> 而非父節點,才不會被重邊坑。
+      擋回頭這題用 <code>v==p</code> 就夠(LC 1192 無重邊);若可能有重邊,改用<strong>邊 id</strong>。
     </div>
   </section>
 
@@ -284,7 +284,7 @@
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">Tarjan 求橋:一次 DFS 算 dfn/low,low[v] &gt; dfn[u] ⟹ (u,v) 是橋;擋回頭用邊 id 防重邊,O(V+E)。</div>
+    <div class="sc-summary-bar__body">Tarjan 求橋:一次 DFS 算 dfn/low,low[v] &gt; dfn[u] ⟹ (u,v) 是橋;LC 1192 無重邊,擋回頭用 v==p 即可(通用改邊 id),O(V+E)。</div>
     <div class="sc-summary-bar__detail">TARJAN BRIDGES · dfn / low</div>
   </div>
 

@@ -57,7 +57,7 @@
         <tr><td>low</td><td>不走父邊,子樹能回到的<strong>最早 dfn</strong></td></tr>
         <tr><td>判定</td><td><code>low[v] &gt; dfn[u]</code>(嚴格)⟹ <code>(u,v)</code> 是橋</td></tr>
         <tr><td>樹邊 vs 回邊</td><td>樹邊 <code>min(low[v])</code>;回邊 <code>min(dfn[v])</code></td></tr>
-        <tr><td>擋回頭</td><td>用<strong>邊 id</strong>,不是父節點(防重邊)</td></tr>
+        <tr><td>擋回頭</td><td><code>v==p</code>(LC 1192 無重邊,安全);通用改<strong>邊 id</strong></td></tr>
         <tr><td>複雜度</td><td>時間 <code>O(V+E)</code>,空間 <code>O(V+E)</code></td></tr>
       </tbody>
     </table>
@@ -73,7 +73,7 @@
     <div class="qa"><strong>Q1.</strong> 用一句話說 <code>low[u]</code> 的定義。為什麼要特別強調「<strong>不經過通往父親那條邊</strong>」?</div>
     <div class="qa"><strong>Q2.</strong> 為什麼判定式是 <code>low[v] &gt; dfn[u]</code> 而不是 <code>low[v] &gt;= dfn[u]</code>?差一個等號會怎樣?</div>
     <div class="qa"><strong>Q3.</strong> 回邊更新 low 時,為什麼用鄰居的 <code>dfn[v]</code> 而不是 <code>low[v]</code>?兩者差在哪?</div>
-    <div class="qa"><strong>Q4.</strong> 為什麼「用父節點擋回頭」遇到<strong>重邊</strong>會出錯?用邊 id 為什麼就對了?</div>
+    <div class="qa"><strong>Q4.</strong> 這題用 <code>if (v == p) continue;</code>(父節點擋回頭)為什麼是對的?什麼情況下它會壞、要改成邊 id?</div>
     <div class="qa"><strong>Q5.</strong> 若題目改成求<strong>割點(cut vertex)</strong>而非橋,判定式要怎麼改?根節點有什麼特例?</div>
   </section>
 
@@ -87,17 +87,16 @@
     <div class="sc-trace"><span class="sc-trace__head">// 輸入</span>
 n = 4
 connections = [[0,1],[1,2],[2,0],[1,3]]
-  邊 id:  e0:0-1  e1:1-2  e2:2-0  e3:1-3
 圖:三角 0-1-2(互有備援)+ 尾巴 1-3</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// DFS 從 0(pe=-1)</span>
-dfs(0,-1): dfn[0]=low[0]=0
- dfs(1,e0): dfn[1]=low[1]=1
-  dfs(2,e1): dfn[2]=low[2]=2
-   e2 到 0(已訪,回邊)→ low[2]=min(2,dfn[0]=0)=0
-  回 1: low[1]=min(1,0)=0;判 e1(1,2): low[2]=0 > dfn[1]=1 ? 否 → 非橋
-  dfs(3,e3): dfn[3]=low[3]=3(3 無其他鄰居)
-  回 1: 判 e3(1,3): low[3]=3 > dfn[1]=1 ? 是 → <span class="sc-trace__out">橋 (1,3)</span>
+    <div class="sc-trace"><span class="sc-trace__head">// DFS 從 0(p=-1)</span>
+dfs(-1,0): dfn[0]=low[0]=0
+ dfs(0,1): dfn[1]=low[1]=1
+  dfs(1,2): dfn[2]=low[2]=2
+   看到 0(已訪 · 0≠p=1 · 回邊)→ low[2]=min(2,dfn[0]=0)=0
+  回 1: low[1]=min(1,0)=0;判 (1,2): low[2]=0 > dfn[1]=1 ? 否 → 非橋
+  dfs(1,3): dfn[3]=low[3]=3(3 唯一鄰居是父親 1,無回邊)
+  回 1: 判 (1,3): low[3]=3 > dfn[1]=1 ? 是 → <span class="sc-trace__out">橋 (1,3)</span>
  回 0: low[0]=min(0,0)=0
 dfn=[0,1,2,3]  low=[0,0,0,3]  答案:[[1,3]]</div>
 
@@ -129,7 +128,7 @@ dfn=[0,1,2,3]  low=[0,0,0,3]  答案:[[1,3]]</div>
 
     <div class="qa qa--answer"><strong>A3.</strong> 回邊指向的 <code>v</code> 是<strong>已訪的祖先</strong>,我們沒有(也不該)再遞迴進 <code>v</code>,所以拿不到、也不能用 <code>low[v]</code>。回邊的意義只是「<code>u</code> 能<strong>一步跳到 <code>v</code> 這個時間點</strong>」,所以用 <code>dfn[v]</code>。若誤用 <code>low[v]</code>,可能把 <code>v</code> 尚未定型、或屬於別條路徑的資訊混進來,破壞 <code>low</code> 的正確性。<strong>樹邊用 low、回邊用 dfn</strong> 是鐵律。</div>
 
-    <div class="qa qa--answer"><strong>A4.</strong> 「父節點法」<code>if (v == parent) continue;</code> 的本意是別走回父親。但當 <code>u—v</code> 之間有<strong>兩條平行邊</strong> <code>e0,e1</code> 時,從 <code>u</code> 沿 <code>e0</code> 到 <code>v</code>,<code>v</code> 看到通回 <code>u</code> 的 <code>e1</code>,因為 <code>e1</code> 的另一端也是 <code>parent=u</code>,就被 <strong>skip 掉了</strong> —— 但 <code>e1</code> 其實是一條真正的<strong>備援回邊</strong>,不該忽略。結果 <code>low[v]</code> 壓不下來、<code>(u,v)</code> 被誤判成橋。用<strong>邊 id</strong> <code>pe</code> 只 skip「<strong>走過來的那一條</strong>」<code>e0</code>,<code>e1</code> 仍當回邊處理、正確更新 <code>low</code>,就不會誤判。</div>
+    <div class="qa qa--answer"><strong>A4.</strong> <code>if (v == p) continue;</code> 只擋「回父親」。當 <code>u</code> 和父親之間<strong>最多一條邊</strong>時,擋掉它剛好等於「擋掉走過來那一條」,完全正確 —— 而 <strong>LC 1192 保證「沒有重複連線」</strong>,所以這題用它是對的,而且最乾淨。<br><br>它會<strong>壞</strong>在<strong>重邊</strong>:若 <code>u—v</code> 有兩條平行邊 <code>e0,e1</code>,從 <code>u</code> 沿 <code>e0</code> 到 <code>v</code>,<code>v</code> 看到通回 <code>u</code> 的 <code>e1</code>,但 <code>e1</code> 的另一端也是 <code>p=u</code>,就被 <code>v==p</code> 一起 <strong>skip 掉</strong> —— 但 <code>e1</code> 其實是真正的<strong>備援回邊</strong>。結果 <code>low[v]</code> 壓不下來、<code>(u,v)</code> 被誤判成橋。修法:改傳<strong>進來的邊 id</strong> <code>pe</code>,只 skip <code>e0</code>,<code>e1</code> 仍當回邊處理。</div>
 
     <div class="qa qa--answer"><strong>A5.</strong> 求<strong>割點</strong>把判定改成 <code>low[v] &gt;= dfn[u]</code>(注意變成<strong>含等號</strong>:割點是「刪掉這個<em>點</em>會斷連」,<code>v</code> 繞不過 <code>u</code> 就靠 <code>u</code> 撐著)。<strong>根節點</strong>要特判:根不能用這條式子,規則是「根若有<strong>兩棵以上子樹(DFS 樹上 ≥2 個 child)</strong>」才是割點。此外割點是對「點」計數、可能重複觸發,要去重。</div>
 
@@ -152,7 +151,7 @@ dfn=[0,1,2,3]  low=[0,0,0,3]  答案:[[1,3]]</div>
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// MASTERY CHECK</div>
-    <div class="sc-summary-bar__body">能說出「low 不走父邊的最早 dfn、low[v]&gt;dfn[u] 嚴格判橋、樹邊用 low 回邊用 dfn、邊 id 防重邊、割點改 &gt;=」,這題就通了。</div>
+    <div class="sc-summary-bar__body">能說出「low 不走父邊的最早 dfn、low[v]&gt;dfn[u] 嚴格判橋、樹邊用 low 回邊用 dfn、v==p 在無重邊時安全(否則改邊 id)、割點改 &gt;=」,這題就通了。</div>
     <div class="sc-summary-bar__detail">LEETCODE 1192 · CRITICAL CONNECTIONS</div>
   </div>
 

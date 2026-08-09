@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">關鍵連線 · 求橋</h1>
-    <p class="sc-mast__subtitle">// CODE · Tarjan(邊 id 防重邊)</p>
+    <p class="sc-mast__subtitle">// CODE · Tarjan(parent 節點法)</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★★★</span>
       <span class="sc-mast__sep">|</span>
@@ -46,7 +46,7 @@
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">Tarjan 求橋<span class="sc-section__title-en">// dfn / low + edge id</span></h2>
+      <h2 class="sc-section__title">Tarjan 求橋<span class="sc-section__title-en">// dfn / low + parent 節點</span></h2>
     </div>
 
     <div class="sc-codewindow">
@@ -58,35 +58,40 @@
         <span class="sc-codewindow__lang">C++17</span>
       </div>
 <pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
-    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span><span class="t">int</span><span class="p">&gt;&gt;&gt;</span> g<span class="p">;</span>   <span class="c">// {鄰居, 邊 id}</span>
-    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> dfn<span class="p">,</span> low<span class="p">;</span>
-    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> ans<span class="p">;</span>
-    <span class="t">int</span> idx <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> graph<span class="p">;</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> dfn<span class="p">,</span> low<span class="p">;</span>          <span class="c">// dfn=發現時間;low=能回到的最早 dfn</span>
+    <span class="t">int</span> timer <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
 
-    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">int</span> u<span class="p">,</span> <span class="t">int</span> pe<span class="p">)</span> <span class="p">{</span>                <span class="c">// pe = 進來的邊 id,不是父節點!</span>
-        dfn<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> low<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> idx<span class="p">++;</span>
-        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span>v<span class="p">,</span> id<span class="p">]</span> <span class="p">:</span> g<span class="p">[</span>u<span class="p">])</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span>id <span class="p">==</span> pe<span class="p">)</span> <span class="k">continue</span><span class="p">;</span>          <span class="c">// 不走回頭那條邊</span>
-            <span class="k">if</span> <span class="p">(</span>dfn<span class="p">[</span>v<span class="p">]</span> <span class="p">==</span> <span class="n">-1</span><span class="p">)</span> <span class="p">{</span>           <span class="c">// 樹邊</span>
-                <span class="f">dfs</span><span class="p">(</span>v<span class="p">,</span> id<span class="p">);</span>
-                low<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>low<span class="p">[</span>u<span class="p">],</span> low<span class="p">[</span>v<span class="p">]);</span>
-                <span class="k">if</span> <span class="p">(</span>low<span class="p">[</span>v<span class="p">]</span> <span class="p">&gt;</span> dfn<span class="p">[</span>u<span class="p">])</span> ans<span class="p">.</span><span class="f">push_back</span><span class="p">({</span>u<span class="p">,</span> v<span class="p">});</span>  <span class="c">// 橋!</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>                        <span class="c">// 回邊</span>
-                low<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>low<span class="p">[</span>u<span class="p">],</span> dfn<span class="p">[</span>v<span class="p">]);</span>
-            <span class="p">}</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> <span class="f">criticalConnections</span><span class="p">(</span><span class="t">int</span> n<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> connections<span class="p">)</span> <span class="p">{</span>
+        graph<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="p">{});</span>
+        dfn<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="n">-1</span><span class="p">);</span>              <span class="c">// -1 = 尚未訪問</span>
+        low<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="n">-1</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> e <span class="p">:</span> connections<span class="p">)</span> <span class="p">{</span>
+            graph<span class="p">[</span>e<span class="p">[</span><span class="n">0</span><span class="p">]].</span><span class="f">push_back</span><span class="p">(</span>e<span class="p">[</span><span class="n">1</span><span class="p">]);</span>
+            graph<span class="p">[</span>e<span class="p">[</span><span class="n">1</span><span class="p">]].</span><span class="f">push_back</span><span class="p">(</span>e<span class="p">[</span><span class="n">0</span><span class="p">]);</span>
         <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> ans<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span>
+            <span class="k">if</span> <span class="p">(</span>dfn<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="n">-1</span><span class="p">)</span> <span class="f">dfs</span><span class="p">(</span><span class="n">-1</span><span class="p">,</span> i<span class="p">,</span> ans<span class="p">);</span>  <span class="c">// 每個未訪連通塊都要起 DFS</span>
+
+        <span class="k">return</span> ans<span class="p">;</span>
     <span class="p">}</span>
 
-<span class="k">public</span><span class="p">:</span>
-    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> <span class="f">criticalConnections</span><span class="p">(</span><span class="t">int</span> n<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> connections<span class="p">)</span> <span class="p">{</span>
-        g<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="p">{});</span> dfn<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="n">-1</span><span class="p">);</span> low<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="n">0</span><span class="p">);</span>
-        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> connections<span class="p">.</span><span class="f">size</span><span class="p">();</span> i<span class="p">++)</span> <span class="p">{</span>
-            <span class="t">int</span> a <span class="p">=</span> connections<span class="p">[</span>i<span class="p">][</span><span class="n">0</span><span class="p">],</span> b <span class="p">=</span> connections<span class="p">[</span>i<span class="p">][</span><span class="n">1</span><span class="p">];</span>
-            g<span class="p">[</span>a<span class="p">].</span><span class="f">push_back</span><span class="p">({</span>b<span class="p">,</span> i<span class="p">});</span> g<span class="p">[</span>b<span class="p">].</span><span class="f">push_back</span><span class="p">({</span>a<span class="p">,</span> i<span class="p">});</span>  <span class="c">// 同一 id</span>
+    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">int</span> p<span class="p">,</span> <span class="t">int</span> u<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> ans<span class="p">)</span> <span class="p">{</span>
+        dfn<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> low<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> timer<span class="p">++;</span>       <span class="c">// 發現 u:時間戳,low 初值 = 自己</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> graph<span class="p">[</span>u<span class="p">])</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>v <span class="p">==</span> p<span class="p">)</span> <span class="k">continue</span><span class="p">;</span>            <span class="c">// 不走回父親(LC 1192 無重邊,安全)</span>
+            <span class="k">if</span> <span class="p">(</span>dfn<span class="p">[</span>v<span class="p">]</span> <span class="p">==</span> <span class="n">-1</span><span class="p">)</span> <span class="p">{</span>            <span class="c">// 樹邊:v 是新節點</span>
+                <span class="f">dfs</span><span class="p">(</span>u<span class="p">,</span> v<span class="p">,</span> ans<span class="p">);</span>
+                low<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>low<span class="p">[</span>u<span class="p">],</span> low<span class="p">[</span>v<span class="p">]);</span>  <span class="c">// 繼承子樹能回到的最早</span>
+                <span class="k">if</span> <span class="p">(</span>low<span class="p">[</span>v<span class="p">]</span> <span class="p">&gt;</span> dfn<span class="p">[</span>u<span class="p">])</span> ans<span class="p">.</span><span class="f">push_back</span><span class="p">({</span>u<span class="p">,</span> v<span class="p">});</span>  <span class="c">// 逃不出 → 橋!</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>                        <span class="c">// 回邊:v 是已訪祖先</span>
+                low<span class="p">[</span>u<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>low<span class="p">[</span>u<span class="p">],</span> dfn<span class="p">[</span>v<span class="p">]);</span>  <span class="c">// 用 dfn[v],不是 low[v]</span>
+            <span class="p">}</span>
         <span class="p">}</span>
-        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span>
-            <span class="k">if</span> <span class="p">(</span>dfn<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> <span class="n">-1</span><span class="p">)</span> <span class="f">dfs</span><span class="p">(</span>i<span class="p">,</span> <span class="n">-1</span><span class="p">);</span>
-        <span class="k">return</span> ans<span class="p">;</span>
     <span class="p">}</span>
 <span class="p">};</span></pre>
     </div>
@@ -94,22 +99,34 @@
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
       🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
     </p>
+
+    <div class="sc-dark-box" style="margin-top:16px;">
+      <div class="sc-dark-box__title">前提 · 為什麼這裡能用 v == p(以及它的極限)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>if (v == p) continue;</code> 是用<strong>父節點</strong>擋回頭。它只在「<code>u</code> 和父親之間<strong>最多一條邊</strong>」時正確 —— 而 <strong>LC 1192 保證「沒有重複連線」</strong>,所以這版安全、也最乾淨。
+        </p>
+        <p style="margin:0;">
+          <strong>它的極限:</strong>若允許<strong>重邊</strong>(<code>u—v</code> 有兩條平行邊),在 <code>v</code> 看到第二條回 <code>u</code> 的邊時,<code>v == p</code> 會把它一起 skip 掉 —— 但那其實是一條真正的<strong>備援回邊</strong>,漏掉它 <code>low[v]</code> 壓不下來,<code>(u,v)</code> 就被<strong>誤判成橋</strong>。通用寫法要改成傳「<strong>進來的邊 id</strong>」<code>pe</code>,只 skip 走過來那一條(見下方走讀)。
+        </p>
+      </div>
+    </div>
   </section>
 
   <!-- ════════════ 2 · 逐段拆解 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">四個關鍵行<span class="sc-section__title-en">// KEY LINES</span></h2>
+      <h2 class="sc-section__title">五個關鍵行<span class="sc-section__title-en">// KEY LINES</span></h2>
     </div>
 
     <table class="sc-table">
       <thead><tr><th>行</th><th>意義</th></tr></thead>
       <tbody>
-        <tr><td><code>dfn[u]=low[u]=idx++</code></td><td>發現 u:時間戳,low 初值 = 自己</td></tr>
-        <tr><td><code>if (id == pe) continue</code></td><td>只擋走過來<strong>那一條邊</strong>(防重邊)</td></tr>
+        <tr><td><code>dfn[u]=low[u]=timer++</code></td><td>發現 u:時間戳,low 初值 = 自己</td></tr>
+        <tr><td><code>if (v == p) continue</code></td><td>不走回父親(LC 1192 無重邊才安全)</td></tr>
         <tr><td><code>low[u]=min(low[u],low[v])</code></td><td>樹邊回來:繼承子樹能回到的最早</td></tr>
-        <tr><td><code>low[u]=min(low[u],dfn[v])</code></td><td>回邊:用鄰居的 dfn 更新(不是 low)</td></tr>
+        <tr><td><code>low[u]=min(low[u],dfn[v])</code></td><td>回邊:用鄰居的 <strong>dfn</strong>(不是 low)</td></tr>
         <tr><td><code>low[v] &gt; dfn[u]</code></td><td>子樹逃不出 → <code>(u,v)</code> 是橋</td></tr>
       </tbody>
     </table>
@@ -125,10 +142,11 @@
     <table class="sc-table">
       <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
       <tbody>
-        <tr><td>用父<strong>節點</strong>擋回頭</td><td class="fail">重邊 → 誤判成橋</td><td>用<strong>邊 id</strong> <code>pe</code> 擋</td></tr>
         <tr><td>回邊寫成 <code>min(low[u],low[v])</code></td><td class="fail">low 語意錯、判定失準</td><td>回邊要用 <code>dfn[v]</code></td></tr>
-        <tr><td>判定寫成 <code>&gt;=</code></td><td class="fail"><code>low[v]==dfn[u]</code> 也算,漏掉自環情形</td><td>必須<strong>嚴格 &gt;</strong></td></tr>
+        <tr><td>判定寫成 <code>&gt;=</code></td><td class="fail"><code>low[v]==dfn[u]</code> 也算 → 漏判</td><td>必須<strong>嚴格 &gt;</strong></td></tr>
         <tr><td>只從一點 DFS</td><td class="fail">圖不連通時漏掉別的連通塊</td><td>對每個未訪 <code>i</code> 起 DFS</td></tr>
+        <tr><td><code>v == p</code> 碰到<strong>重邊</strong></td><td class="fail">漏掉備援回邊 → 誤判成橋</td><td>LC 1192 無重邊可用;通用要改<strong>邊 id</strong></td></tr>
+        <tr><td>根用 <code>p = -1</code></td><td class="ok">節點值 0..n-1,永不等於 -1 → 安全</td><td>根的「父親」設 -1 即可</td></tr>
       </tbody>
     </table>
   </section>
@@ -147,18 +165,23 @@
         → low[u] = min(low[u], dfn[v])   (只能跳到 v 的「時間戳」)
 用 dfn[v] 而非 low[v]:回邊只保證跳到 v 本身,不保證 v 的 low</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// 為什麼邊 id 能解重邊</span>
-u—v 有兩條邊 e0, e1(平行)
-從 u 走 e0 到 v,pe=e0
-v 看鄰居時遇到 e0(skip,回頭)、也遇到 e1
-e1 != pe → 當回邊處理 → low[v]=min(.., dfn[u])
-→ v 繞得回 u → (u,v) 不是橋 ✓
-父節點法會把 e1 也當「回父親」skip → 誤判成橋 ✗</div>
+    <div class="sc-trace"><span class="sc-trace__head">// 範例 trace(三角 0-1-2 + 尾巴 1-3)</span>
+timer 依序給:dfn = [0,1,2,3]
+dfs(-1,0): dfn[0]=low[0]=0
+ dfs(0,1): dfn[1]=low[1]=1
+  dfs(1,2): dfn[2]=low[2]=2
+   看到 0(已訪,回邊)→ low[2]=min(2,dfn[0]=0)=0
+  回 1: low[1]=min(1,0)=0; 判 (1,2): low[2]=0 &gt; dfn[1]=1 ? 否 → 非橋
+  dfs(1,3): dfn[3]=low[3]=3(3 只連 1,無回邊)
+  回 1: 判 (1,3): low[3]=3 &gt; dfn[1]=1 ? 是 → <span class="sc-trace__out">橋 (1,3)</span>
+low = [0,0,0,3]   答案:[[1,3]]</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// 範例 trace(三角 + 1-3)</span>
-dfn = [0,1,2,3]    low = [0,0,0,3]
-(1,2): low[2]=0 > dfn[1]=1 ? 否 → 非橋(2 繞回 0)
-(1,3): low[3]=3 > dfn[1]=1 ? 是 → <span class="sc-trace__out">橋 (1,3)</span></div>
+    <div class="sc-trace"><span class="sc-trace__head">// 通用變體:重邊時改用邊 id(對比)</span>
+把 graph 存 {鄰居 v, 邊 id};dfs(u, pe) 帶「進來的邊 id」
+迴圈:if (id == pe) continue;   // 只擋走過來那一條,不是所有回父親的邊
+u—v 兩條平行邊 e0,e1:走 e0 到 v(pe=e0)
+  v 遇 e0 → skip;遇 e1 → id≠pe → 當回邊 → low[v]=min(.., dfn[u]) ✓
+→ v 繞得回 u,(u,v) 正確判為非橋(v==p 版會在這裡誤判)</div>
   </section>
 
   <!-- ── pager ── -->
@@ -172,8 +195,8 @@ dfn = [0,1,2,3]    low = [0,0,0,3]
   </nav>
 
   <div class="sc-summary-bar">
-    <div class="sc-summary-bar__label">// dfn / low + EDGE ID</div>
-    <div class="sc-summary-bar__body">一次 DFS 算 dfn/low;樹邊用 low[v]、回邊用 dfn[v];low[v] &gt; dfn[u] = 橋;pe 用邊 id 防重邊。</div>
+    <div class="sc-summary-bar__label">// dfn / low + PARENT NODE</div>
+    <div class="sc-summary-bar__body">一次 DFS 算 dfn/low;樹邊用 low[v]、回邊用 dfn[v];low[v] &gt; dfn[u] = 橋;v==p 擋回頭(LC 1192 無重邊,通用要改邊 id)。</div>
     <div class="sc-summary-bar__detail">LEETCODE 1192 · CRITICAL CONNECTIONS</div>
   </div>
 
