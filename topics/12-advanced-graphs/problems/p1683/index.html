@@ -88,7 +88,7 @@
             <span class="sc-ko-card__title">原圖 DFS · 記完成時間</span>
             <span class="sc-ko-card__o">post-order</span>
           </div>
-          <div class="sc-ko-card__body">DFS 結束一個節點就壓 stack。完成<strong>最晚</strong>的在頂端 = 位於「源頭」SCC。</div>
+          <div class="sc-ko-card__body">DFS 結束一個節點就 push_back 進 order。完成<strong>最晚</strong>的 reverse 後排最前 = 位於「源頭」SCC。</div>
           <div class="sc-ko-card__verdict">◆ 排序</div>
         </div>
       </div>
@@ -98,11 +98,11 @@
       <div class="sc-ko-card sc-ko-card--good">
         <div class="sc-ko-card__head">
           <span class="sc-ko-card__badge">2nd</span>
-          <span class="sc-ko-card__title">反圖 DFS · 依 stack 順序,每樹一個 SCC</span>
+          <span class="sc-ko-card__title">反圖 DFS · 依完成序(反轉後),每樹一個 SCC</span>
           <span class="sc-ko-card__o">O(V+E)</span>
         </div>
         <div class="sc-ko-card__body">
-          把邊全部<strong>反向</strong>,從 stack 頂端逐個彈出當起點 DFS。因為在反圖上,從「源頭 SCC」的點<strong>只到得了自己這一組</strong>,一次 DFS 剛好框住一個 SCC。共兩趟 <code>O(V+E)</code>。
+          把邊全部<strong>反向</strong>,依 reverse 後的完成序逐個取當起點 DFS。因為在反圖上,從「源頭 SCC」的點<strong>只到得了自己這一組</strong>,一次 DFS 剛好框住一個 SCC。共兩趟 <code>O(V+E)</code>。
         </div>
         <div class="sc-ko-card__verdict">● ADOPT · O(V+E)</div>
       </div>
@@ -118,8 +118,8 @@
 
     <ol>
       <li><strong>建正反兩張圖</strong>:<code>g</code>(原圖)與 <code>rg</code>(每條邊反向)。</li>
-      <li><strong>第一趟(g)</strong>:對每個點 DFS;遞迴完所有後代後把自己 <code>push</code> 進 <code>order</code> stack(後序 = 完成時間序)。</li>
-      <li><strong>第二趟(rg)</strong>:反覆從 <code>order</code> 頂端彈出 <code>u</code>;若尚未分派,<code>k++</code> 並在反圖上 DFS 把整個可達團標成第 <code>k</code> 組。</li>
+      <li><strong>第一趟(g)</strong>:對每個點 DFS;遞迴完所有後代後把自己 <code>push_back</code> 進 <code>order</code>(後序 = 完成時間序),最後 <code>reverse</code>。</li>
+      <li><strong>第二趟(rg)</strong>:<code>reverse(order)</code> 後由前往後取 <code>u</code>;若尚未分派,<code>++k</code> 並在反圖上 DFS 把整個可達團標成第 <code>k</code> 組。</li>
       <li><strong>輸出</strong>:<code>k</code> 與每點的 <code>comp[i]</code>。</li>
     </ol>
   </section>
@@ -161,7 +161,7 @@
           把每個 SCC 縮成一個點,得到的「縮圖(condensation)」一定是 <strong>DAG</strong>。第一趟 DFS 的<strong>完成時間最晚</strong>的節點,必定落在這個 DAG 的<strong>源頭 SCC</strong>(沒有其他 SCC 指進來的那一組)。
         </p>
         <p style="margin:0;">
-          第二趟改走<strong>反圖</strong>:在反圖裡,源頭 SCC 變成「匯點」——從它的點出發,<strong>只走得到自己這一組</strong>,跨不到別的 SCC。所以一次 DFS 恰好框住一整個 SCC。標記完就把它移除,stack 上的下一個未分派點又是剩餘圖的源頭,如此類推。<strong>完成序保證了每次都從「當前源頭」開始。</strong>
+          第二趟改走<strong>反圖</strong>:在反圖裡,源頭 SCC 變成「匯點」——從它的點出發,<strong>只走得到自己這一組</strong>,跨不到別的 SCC。所以一次 DFS 恰好框住一整個 SCC。標記完就把它移除,order 中的下一個未分派點又是剩餘圖的源頭,如此類推。<strong>完成序保證了每次都從「當前源頭」開始。</strong>
         </p>
       </div>
     </div>
@@ -177,7 +177,7 @@
     <div class="sc-formula">
       <div class="sc-formula__main">T = <strong>O(V + E)</strong>　　S = <strong>O(V + E)</strong></div>
       <p class="sc-formula__hint">
-        兩趟 DFS,各走遍每點每邊。空間為正反兩張鄰接表 + <code>visit/comp</code> + <code>order</code> stack。
+        兩趟 DFS,各走遍每點每邊。空間為正反兩張鄰接表 + <code>visit/comp</code> + <code>order</code> 陣列。
       </p>
     </div>
 

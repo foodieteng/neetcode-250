@@ -619,6 +619,22 @@ def chapter_page(cat_id, slug, title, subtitle, count):
     sections = chapter_sections(cat_id, slug, probs)
     actual_count = len(probs) if probs else count
 
+    # Optional per-chapter cheat-sheet banner (a standalone reference page that the
+    # generator does NOT overwrite — it just links to it). Add chapters here as built.
+    cheatsheet_banner = ''
+    if cat_id == '12':
+        cheatsheet_banner = (
+            '\n      <a href="cheatsheet.html" style="display:flex;align-items:center;gap:14px;'
+            'text-decoration:none;border:1.5px solid var(--ink,#1c1b18);background:#1b1f2b;'
+            'color:#f4f0e4;padding:14px 18px;border-radius:4px;margin:18px 0 6px;">'
+            '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;'
+            'letter-spacing:.1em;background:#c8501e;color:#fff;padding:4px 10px;border-radius:3px;">'
+            'CHEAT SHEET</span>'
+            '<span style="font-weight:700;font-size:15px;">圖論演算法速查表 · 11 個固定模板</span>'
+            '<span style="margin-left:auto;font-family:\'JetBrains Mono\',monospace;font-size:12px;'
+            'color:#e2b47a;">BFS · DFS · DSU · Dijkstra · … →</span></a>'
+        )
+
     return f'''<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -680,7 +696,7 @@ def chapter_page(cat_id, slug, title, subtitle, count):
         <a href="{base}index.html">Home</a>
         <span class="crumb__sep">/</span>
         <span>{cat_id} · {title}</span>
-      </div>
+      </div>{cheatsheet_banner}
 
       <!-- ============================================================
            CATEGORY OUTLINE (TOC for this category)

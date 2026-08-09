@@ -53,8 +53,8 @@
       <thead><tr><th>面向</th><th>要點</th></tr></thead>
       <tbody>
         <tr><td>問題本質</td><td>有向圖<strong>強連通分量</strong>:一團彼此互達的點</td></tr>
-        <tr><td>第一趟</td><td>原圖 DFS,後序壓 stack(完成時間序)</td></tr>
-        <tr><td>第二趟</td><td><strong>反圖</strong> DFS,依 stack 頂端起,每樹一 SCC</td></tr>
+        <tr><td>第一趟</td><td>原圖 DFS,後序 push_back 進 order(完成時間序)</td></tr>
+        <tr><td>第二趟</td><td><strong>反圖</strong> DFS,依 reverse 後的完成序起,每樹一 SCC</td></tr>
         <tr><td>為何對</td><td>完成最晚在源頭 SCC;反圖上只框得住自己</td></tr>
         <tr><td>縮圖</td><td>SCC 縮點後是 DAG</td></tr>
         <tr><td>複雜度</td><td>時間 <code>O(V+E)</code>,空間 <code>O(V+E)</code></td></tr>
@@ -71,7 +71,7 @@
 
     <div class="qa"><strong>Q1.</strong> 第二趟為什麼一定要走<strong>反圖</strong>?若還是走原圖會發生什麼?</div>
     <div class="qa"><strong>Q2.</strong> 為什麼第一趟「<strong>完成時間最晚</strong>」的節點一定在縮圖的<strong>源頭 SCC</strong>?</div>
-    <div class="qa"><strong>Q3.</strong> 為什麼要按 stack 順序(完成序反過來)取起點?隨便挑一個未訪點當起點不行嗎?</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼要按完成序反轉後的順序取起點?隨便挑一個未訪點當起點不行嗎?</div>
     <div class="qa"><strong>Q4.</strong> 把每個 SCC 縮成一點後,得到的圖為什麼一定是 <strong>DAG</strong>(無環)?</div>
     <div class="qa"><strong>Q5.</strong> Kosaraju 和 <strong>Tarjan SCC</strong> 差在哪?各自的優缺點?</div>
   </section>
@@ -128,7 +128,7 @@ order:  底 5,4,3,2,1 頂  →  top = 1</div>
 
     <div class="qa qa--answer"><strong>A2.</strong> 考慮縮圖(每個 SCC 縮成一點)的兩個 SCC <code>A→B</code>(A 有邊指向 B)。可以證明 <strong>A 裡的最大完成時間 &gt; B 裡的最大完成時間</strong>:DFS 若先進 A,會在離開 A 前把 B 也走完,A 的根最後才完成;若先進 B,B 走完回不到 A(單向),A 之後才被訪、完成更晚。無論如何 A 完成更晚。推廣:全圖完成時間最大的點,必在<strong>沒有任何 SCC 指進來</strong>的源頭 SCC。</div>
 
-    <div class="qa qa--answer"><strong>A3.</strong> 不行,順序是正確性的關鍵。若隨便挑起點,可能挑到縮圖的<strong>匯點 SCC</strong>,在反圖上它反而變成源頭、能走到別組,又染錯。按 stack(完成序反過來)取,保證<strong>每次都從當前剩餘圖的源頭</strong>開始;把它那組移除後,下一個未分派的 top 又是新的源頭。這個「由源頭往下剝」的順序,正是 Kosaraju 成立的核心。</div>
+    <div class="qa qa--answer"><strong>A3.</strong> 不行,順序是正確性的關鍵。若隨便挑起點,可能挑到縮圖的<strong>匯點 SCC</strong>,在反圖上它反而變成源頭、能走到別組,又染錯。按 reverse 後的完成序取,保證<strong>每次都從當前剩餘圖的源頭</strong>開始;把它那組移除後,下一個未分派點又是新的源頭。這個「由源頭往下剝」的順序,正是 Kosaraju 成立的核心。</div>
 
     <div class="qa qa--answer"><strong>A4.</strong> 反證:若縮圖有環,例如 SCC <code>A→B→…→A</code>,那 A 裡任一點能到 B 裡任一點、B 又能回到 A,代表 <strong>A、B 其實彼此互達</strong>,依定義它們該是<strong>同一個</strong> SCC,矛盾(SCC 是「極大」的互達集合)。所以縮圖不可能有環 → 一定是 DAG。這也是為什麼可以在縮圖上做拓撲排序、DP 等。</div>
 

@@ -23,17 +23,17 @@
   const E = [[1,2],[2,3],[3,1],[3,4],[4,5]];
   const steps = [
     { phase:1, rev:false, stack:[], comp:{}, cur:null,
-      text:'<strong>INITIAL</strong> · 求<strong>強連通分量(SCC)</strong>:一群彼此都能互達的點。Kosaraju <strong>兩趟</strong> DFS:先在原圖依完成時間壓 stack,再在反圖依序彈出、每棵樹一個 SCC。' },
+      text:'<strong>INITIAL</strong> · 求<strong>強連通分量(SCC)</strong>:一群彼此都能互達的點。Kosaraju <strong>兩趟</strong> DFS:先在原圖依完成時間壓 stack,再在反圖依 reverse 後的完成序取、每棵樹一個 SCC。' },
     { phase:1, rev:false, stack:[5,4,3,2,1], comp:{}, cur:null,
-      text:'<strong>第一趟</strong>(原圖 G)· DFS 依<strong>完成時間</strong>壓入 stack(後序:先做完的先壓底)。完成序 → <code>stack = [5,4,3,2,1]</code>,<strong>top = 1</strong>。' },
+      text:'<strong>第一趟</strong>(原圖 G)· DFS 依<strong>完成時間</strong> push_back 進 order(後序:先做完的先進)。→ <code>order = [5,4,3,2,1]</code>,<code>reverse</code> 後<strong>第一個 = 1</strong>。' },
     { phase:2, rev:true, stack:[5,4,3,2,1], comp:{}, cur:1,
-      text:'<strong>第二趟</strong> · 把所有邊<strong>反向</strong>。從 stack 頂端彈出 <code>1</code>(完成最晚的)當起點,在<strong>反圖</strong>上 DFS。' },
+      text:'<strong>第二趟</strong> · 把所有邊<strong>反向</strong>。依 reverse 後的完成序取 <code>1</code>(完成最晚的)當起點,在<strong>反圖</strong>上 DFS。' },
     { phase:2, rev:true, stack:[5,4,3,2], comp:{1:1,2:1,3:1}, cur:1,
       text:'<code>dfs2(1)</code> 在反圖上只走得到 <code>3、2</code>(同一個環)→ 三點同一組 → <strong>SCC #1 = {1,2,3}</strong>。' },
     { phase:2, rev:true, stack:[5], comp:{1:1,2:1,3:1,4:2}, cur:4,
-      text:'彈出 <code>2、3</code>:已分派,跳過。彈出 <code>4</code>:反圖上 <code>4→3</code> 已分派 → 只有自己 → <strong>SCC #2 = {4}</strong>。' },
+      text:'取 <code>2、3</code>:已分派,跳過。取 <code>4</code>:反圖上 <code>4→3</code> 已分派 → 只有自己 → <strong>SCC #2 = {4}</strong>。' },
     { phase:2, rev:true, stack:[], comp:{1:1,2:1,3:1,4:2,5:3}, cur:5, done:true,
-      text:'彈出 <code>5</code>:反圖上 <code>5→4</code> 已分派 → 只有自己 → <strong>SCC #3 = {5}</strong>。stack 空,<code>k = 3</code> 個強連通分量。' },
+      text:'取 <code>5</code>:反圖上 <code>5→4</code> 已分派 → 只有自己 → <strong>SCC #3 = {5}</strong>。掃完,<code>k = 3</code> 個強連通分量。' },
   ];
 
   const POS = {};
@@ -67,9 +67,9 @@
     // ── BAND 2 · stack + k
     let by=278;
     ctx.fillStyle=COLOR.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 2 · 完成序 stack(由頂端彈出)· SCC 計數 k', PAD, by);
+    ctx.fillText('BAND 2 · 完成序 order(reverse 後依序取)· SCC 計數 k', PAD, by);
     const cy=by+16;
-    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('stack', PAD, cy+18);
+    ctx.fillStyle=COLOR.text; ctx.font='700 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('order', PAD, cy+18);
     // stack shown with top on the LEFT
     const disp=s.stack.slice().reverse();
     let qx=PAD+58;
