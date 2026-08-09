@@ -46,7 +46,7 @@
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// SOLUTION</span></h2>
+      <h2 class="sc-section__title">完整實作 · 質因數併查集<span class="sc-section__title-en">// SPF + DSU</span></h2>
     </div>
 
     <div class="sc-codewindow">
@@ -58,49 +58,56 @@
         <span class="sc-codewindow__lang">C++17</span>
       </div>
 <pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
-    <span class="k">static</span> <span class="k">const</span> <span class="t">int</span> MAXV <span class="p">=</span> <span class="n">100001</span><span class="p">;</span>   <span class="c">// 值域上限 +1（nums[i] ≤ 1e5）</span>
-    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> parent<span class="p">,</span> spf<span class="p">;</span>       <span class="c">// parent:DSU;spf:最小質因數</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> parent<span class="p">;</span>                <span class="c">// 併查集:負值 = 分量大小（union by size）</span>
 
     <span class="t">int</span> <span class="f">Find</span><span class="p">(</span><span class="t">int</span> x<span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> parent<span class="p">[</span>x<span class="p">]</span> <span class="p">&lt;</span> <span class="n">0</span> <span class="p">?</span> x <span class="p">:</span> parent<span class="p">[</span>x<span class="p">]</span> <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>parent<span class="p">[</span>x<span class="p">]);</span>  <span class="c">// 路徑壓縮</span>
     <span class="p">}</span>
 
-    <span class="t">void</span> <span class="f">Union</span><span class="p">(</span><span class="t">int</span> x<span class="p">,</span> <span class="t">int</span> y<span class="p">)</span> <span class="p">{</span>
-        <span class="t">int</span> rx <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>x<span class="p">),</span> ry <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>y<span class="p">);</span>
-        <span class="k">if</span> <span class="p">(</span>rx <span class="p">==</span> ry<span class="p">)</span> <span class="k">return</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="p">-</span>parent<span class="p">[</span>rx<span class="p">]</span> <span class="p">&lt;</span> <span class="p">-</span>parent<span class="p">[</span>ry<span class="p">])</span> <span class="f">swap</span><span class="p">(</span>rx<span class="p">,</span> ry<span class="p">);</span>  <span class="c">// rx = 較大分量,較小者掛上去</span>
-        parent<span class="p">[</span>rx<span class="p">]</span> <span class="p">+=</span> parent<span class="p">[</span>ry<span class="p">];</span>          <span class="c">// 負值 = 分量大小,累加</span>
-        parent<span class="p">[</span>ry<span class="p">]</span> <span class="p">=</span> rx<span class="p">;</span>
+    <span class="t">bool</span> <span class="f">Union</span><span class="p">(</span><span class="t">int</span> x<span class="p">,</span> <span class="t">int</span> y<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> rootX <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>x<span class="p">),</span> rootY <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>y<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>rootX <span class="p">==</span> rootY<span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="p">-</span>parent<span class="p">[</span>rootX<span class="p">]</span> <span class="p">&lt;</span> <span class="p">-</span>parent<span class="p">[</span>rootY<span class="p">])</span> <span class="f">swap</span><span class="p">(</span>rootX<span class="p">,</span> rootY<span class="p">);</span>  <span class="c">// rootX = 較大分量</span>
+        parent<span class="p">[</span>rootX<span class="p">]</span> <span class="p">+=</span> parent<span class="p">[</span>rootY<span class="p">];</span>
+        parent<span class="p">[</span>rootY<span class="p">]</span> <span class="p">=</span> rootX<span class="p">;</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
     <span class="p">}</span>
 
 <span class="k">public</span><span class="p">:</span>
     <span class="t">bool</span> <span class="f">canTraverseAllPairs</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span>nums<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>   <span class="c">// 單一元素:沒有任何「一對」要連</span>
+        <span class="t">int</span> n <span class="p">=</span> nums<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span>n <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>             <span class="c">// 單一元素:沒有任何「一對」要連</span>
 
-        <span class="c">// ── 線性篩:一次算出每個數的最小質因數 spf ──</span>
-        spf<span class="p">.</span><span class="f">assign</span><span class="p">(</span>MAXV<span class="p">,</span> <span class="n">0</span><span class="p">);</span>              <span class="c">// spf[i]=0 代表「還沒被標記」</span>
-        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">2</span><span class="p">;</span> i <span class="p">&lt;</span> MAXV<span class="p">;</span> i<span class="p">++)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="p">!</span>spf<span class="p">[</span>i<span class="p">])</span>                    <span class="c">// i 從沒被標記 ⇒ i 是質數</span>
-                <span class="k">for</span> <span class="p">(</span><span class="t">int</span> j <span class="p">=</span> i<span class="p">;</span> j <span class="p">&lt;</span> MAXV<span class="p">;</span> j <span class="p">+=</span> i<span class="p">)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="p">!</span>spf<span class="p">[</span>j<span class="p">])</span> spf<span class="p">[</span>j<span class="p">]</span> <span class="p">=</span> i<span class="p">;</span>   <span class="c">// 先到先得:最小質數先蓋</span>
+        <span class="t">int</span> mx <span class="p">=</span> <span class="p">*</span><span class="f">max_element</span><span class="p">(</span>nums<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> nums<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+        <span class="k">if</span> <span class="p">(</span>mx <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>           <span class="c">// n&gt;1 卻全是 1 ⇒ 兩兩 gcd=1</span>
 
-        parent<span class="p">.</span><span class="f">assign</span><span class="p">(</span>MAXV<span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">);</span>          <span class="c">// DSU 的節點 = 質數值本身</span>
+        parent<span class="p">.</span><span class="f">assign</span><span class="p">(</span>mx <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">);</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> spf<span class="p">(</span>mx <span class="p">+</span> <span class="n">1</span><span class="p">);</span>
+        <span class="f">iota</span><span class="p">(</span>spf<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> spf<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>      <span class="c">// spf[i] 初值 = i（先假設自己是最小質因數）</span>
 
-        <span class="c">// ── 把每個數的所有質因數併成一組;相鄰數靠共用質數串起 ──</span>
-        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> x <span class="p">:</span> nums<span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span>x <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>       <span class="c">// 含 1 且 n&gt;1 ⇒ 1 與誰都 gcd=1</span>
-            <span class="t">int</span> first <span class="p">=</span> spf<span class="p">[</span>x<span class="p">];</span>              <span class="c">// 用 x 的最小質因數當錨點</span>
-            <span class="k">while</span> <span class="p">(</span>x <span class="p">&gt;</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span>
-                <span class="t">int</span> p <span class="p">=</span> spf<span class="p">[</span>x<span class="p">];</span>            <span class="c">// 當前最小質因數</span>
-                <span class="f">Union</span><span class="p">(</span>first<span class="p">,</span> p<span class="p">);</span>            <span class="c">// first 和 p 同屬 x → 併起來</span>
-                <span class="k">while</span> <span class="p">(</span>x <span class="p">%</span> p <span class="p">==</span> <span class="n">0</span><span class="p">)</span> x <span class="p">/=</span> p<span class="p">;</span>  <span class="c">// 把這個質因數剝光</span>
+        <span class="c">// ── 篩最小質因數 spf ──  ← bug ①:守門必須是 spf[j]==j</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">2</span><span class="p">;</span> i <span class="p">*</span> i <span class="p">&lt;=</span> mx<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>spf<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> i<span class="p">)</span> <span class="p">{</span>                <span class="c">// spf[i]==i ⇒ i 沒被更小質數蓋過 ⇒ i 是質數</span>
+                <span class="k">for</span> <span class="p">(</span><span class="t">int</span> j <span class="p">=</span> i <span class="p">*</span> i<span class="p">;</span> j <span class="p">&lt;=</span> mx<span class="p">;</span> j <span class="p">+=</span> i<span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span>spf<span class="p">[</span>j<span class="p">]</span> <span class="p">==</span> j<span class="p">)</span> spf<span class="p">[</span>j<span class="p">]</span> <span class="p">=</span> i<span class="p">;</span>  <span class="c">// 先到先得 = 最小質因數</span>
             <span class="p">}</span>
         <span class="p">}</span>
 
-        <span class="c">// ── 連通性檢查:用「質因數」的根,不是合成數 ──</span>
-        <span class="t">int</span> root <span class="p">=</span> <span class="f">Find</span><span class="p">(</span>spf<span class="p">[</span>nums<span class="p">[</span><span class="n">0</span><span class="p">]]);</span>
-        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> x <span class="p">:</span> nums<span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="f">Find</span><span class="p">(</span>spf<span class="p">[</span>x<span class="p">])</span> <span class="p">!=</span> root<span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="c">// ── 把每個數的所有質因數併成一組 ──</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> nums<span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>v <span class="p">==</span> <span class="n">1</span><span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>         <span class="c">// 含 1 且 n&gt;1 ⇒ 走不到</span>
+            <span class="t">int</span> first <span class="p">=</span> spf<span class="p">[</span>v<span class="p">];</span>              <span class="c">// 用最小質因數當錨</span>
+            <span class="k">while</span> <span class="p">(</span>v <span class="p">&gt;</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="t">int</span> p <span class="p">=</span> spf<span class="p">[</span>v<span class="p">];</span>
+                <span class="f">Union</span><span class="p">(</span>p<span class="p">,</span> first<span class="p">);</span>            <span class="c">// v 的每個質因數都併到 first</span>
+                <span class="k">while</span> <span class="p">(</span>v <span class="p">%</span> p <span class="p">==</span> <span class="n">0</span><span class="p">)</span> v <span class="p">/=</span> p<span class="p">;</span>  <span class="c">// 剝光這個質因數</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c">// ── 連通性檢查 ──  ← bug ②:要用質因數 spf[v],不是合成數 v</span>
+        <span class="t">int</span> anchor <span class="p">=</span> spf<span class="p">[</span>nums<span class="p">[</span><span class="n">0</span><span class="p">]];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> v <span class="p">:</span> nums<span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">Find</span><span class="p">(</span>anchor<span class="p">)</span> <span class="p">!=</span> <span class="f">Find</span><span class="p">(</span>spf<span class="p">[</span>v<span class="p">]))</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
         <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
     <span class="p">}</span>
 <span class="p">};</span></pre>
@@ -109,6 +116,22 @@
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
       🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
     </p>
+
+    <div class="sc-dark-box" style="margin-top:16px;">
+      <div class="sc-dark-box__title">TWO BUGS · 這題最容易死在這兩行</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>① 篩的守門是 <code>spf[j] == j</code>,不是 <code>== i</code>。</strong>
+          <code>spf</code> 初值被 <code>iota</code> 設成 <code>spf[j]=j</code>。守門要問的是「<code>j</code> <strong>還沒被更小質數蓋過嗎</strong>」,那就是 <code>spf[j]==j</code>。
+          若誤寫 <code>spf[j]==i</code>:<code>spf[j]</code> 初值是 <code>j</code>,幾乎永遠不等於當前質數 <code>i</code>,條件不成立 ⇒ <strong>篩形同虛設</strong>,<code>spf</code> 全留 <code>j</code>,之後分解合成數整個崩掉。
+        </p>
+        <p style="margin:0;">
+          <strong>② 連通檢查用 <code>Find(spf[v])</code>,不是 <code>Find(v)</code>。</strong>
+          我們 <code>Union</code> 的節點是<strong>質數</strong>,合成數 <code>v</code>(如 12)從沒被 union 過。<code>Find(v)</code> 會回到它自己、與任何質數不同根,直接誤判 <code>false</code>。
+          取 <code>spf[v]</code>(<code>v</code> 的一個質因數,必在 <code>v</code> 的分量裡)才代表得了 <code>v</code>。
+        </p>
+      </div>
+    </div>
   </section>
 
   <!-- ════════════ 2 · 複雜度分析 ════════════ -->
@@ -121,8 +144,8 @@
     <table class="sc-table">
       <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
       <tbody>
-        <tr><td class="mono">assign × 2</td><td class="mono">O(A)</td><td>parent、spf 兩個長度 MAXV 的陣列</td></tr>
-        <tr><td class="mono">篩 spf[]</td><td class="mono">O(A log log A)</td><td>埃氏篩,只寫未被標記者(<code>!spf[j]</code>)</td></tr>
+        <tr><td class="mono">iota + assign</td><td class="mono">O(A)</td><td>parent、spf 兩個長度 mx+1 的陣列</td></tr>
+        <tr><td class="mono">篩 spf[]</td><td class="mono">O(A log log A)</td><td>埃氏篩,只寫 <code>spf[j]==j</code> 者</td></tr>
         <tr><td class="mono">拆質因數 + union</td><td class="mono">O(n log A · α)</td><td>每數 ≤ log₂A 個質因數</td></tr>
         <tr><td class="mono">連通性檢查</td><td class="mono">O(n · α)</td><td>每數一次 Find</td></tr>
       </tbody>
@@ -133,7 +156,7 @@
         T = <strong>O(A log log A + n log A)</strong>　　S = <strong>O(A)</strong>
       </div>
       <p class="sc-formula__hint">
-        A = 值域上限 <code>MAXV</code> ≈ 10⁵（篩固定跑滿整個值域),n = 陣列長度。<strong>α</strong> 為反 Ackermann,視為常數。
+        A = 陣列最大值 <code>mx</code>(≤ 10⁵),n = 陣列長度。<strong>α</strong> 為反 Ackermann,視為常數。
       </p>
     </div>
 
@@ -146,25 +169,25 @@
     </table>
   </section>
 
-  <!-- ════════════ 3 · 邊界與陷阱 ════════════ -->
+  <!-- ════════════ 3 · 兩個經典 bug + 邊界 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+      <h2 class="sc-section__title">兩個經典 bug + 邊界<span class="sc-section__title-en">// PITFALLS</span></h2>
     </div>
 
     <table class="sc-table">
       <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
       <tbody>
         <tr>
-          <td>篩的守門忘了 <code>!spf[j]</code></td>
-          <td class="fail">存到最大質因數 / 篩失效</td>
-          <td>只在 <code>!spf[j]</code>(還沒被標記)時寫入,才拿到<strong>最小</strong>質因數</td>
+          <td><strong>bug ①</strong> 篩守門寫成 <code>spf[j] == i</code></td>
+          <td class="fail">篩完全失效</td>
+          <td>應為 <code>spf[j] == j</code>:只在 j 仍是「自己」(尚未被更小質數蓋過)時寫入</td>
         </tr>
         <tr>
-          <td>檢查用合成數 <code>Find(x)</code></td>
+          <td><strong>bug ②</strong> 檢查用合成數 <code>Find(v)</code></td>
           <td class="fail">越界 / 錯根</td>
-          <td>union 的是<strong>質數</strong>,檢查也要用質因數 <code>Find(spf[x])</code></td>
+          <td>union 的是<strong>質數</strong>,檢查也要用質因數 <code>Find(spf[v])</code></td>
         </tr>
         <tr>
           <td>單一元素 <code>n == 1</code></td>
@@ -174,12 +197,12 @@
         <tr>
           <td>陣列含 <code>1</code> 且 <code>n &gt; 1</code></td>
           <td class="fail">1 與任何數 gcd=1</td>
-          <td>迴圈遇到 <code>x == 1</code> 立即 <code>return false</code></td>
+          <td>迴圈遇到 <code>v == 1</code> 立即 <code>return false</code></td>
         </tr>
         <tr>
-          <td><code>parent</code>/<code>spf</code> 開得不夠大</td>
+          <td><code>parent</code>/<code>spf</code> 只開到 n</td>
           <td class="fail">以質數值當索引會越界</td>
-          <td>固定開到 <code>MAXV = 100001</code>(&gt; 值域上限,免算 max)</td>
+          <td>兩者都開到 <code>max(nums) + 1</code></td>
         </tr>
       </tbody>
     </table>
@@ -193,45 +216,40 @@
     </div>
 
     <div class="sc-dark-box">
-      <div class="sc-dark-box__title">SIEVE 原理 · 最小質因數篩(smallest prime factor)</div>
+      <div class="sc-dark-box__title">SIEVE 原理 · 為什麼守門是 spf[j] == j</div>
       <div class="sc-dark-box__body">
         <p style="margin:0 0 10px;">
-          <strong>要解決什麼:</strong>本題要對每個數做<strong>質因數分解</strong>。若對每個數 trial division 試到 <code>√x</code>,
-          n 個數就是 <code>O(n·√A)</code>。改成<strong>預先算一張表</strong> <code>spf[x]</code> = <code>x</code> 的<strong>最小質因數</strong>,
-          之後任何數都能靠這張表在 <code>O(log x)</code> 內拆完。
+          <strong>要解決什麼:</strong>本題要對每個數做<strong>質因數分解</strong>。與其每個數 trial division 試到 <code>√v</code>,不如<strong>預先算一張表</strong> <code>spf[x]</code> = <code>x</code> 的<strong>最小質因數</strong>,之後任何數靠這表在 <code>O(log x)</code> 內拆完。
         </p>
         <p style="margin:0 0 10px;">
-          <strong>篩怎麼建(埃氏篩變體):</strong>外層 <code>i</code> 從 2 遞增。<code>spf[i]==0</code> 代表 <code>i</code> 從沒被任何更小的數標記過 ——
-          這正是「<strong>i 是質數</strong>」的定義。於是用 <code>i</code> 去標記它的所有倍數 <code>j = i, 2i, 3i…</code>,
-          但<strong>只在 <code>spf[j]</code> 還是 0 時才寫</strong> <code>spf[j] = i</code>。
+          <strong>怎麼建:</strong><code>iota</code> 先把 <code>spf[i] = i</code>(每個數暫時假設自己是最小質因數)。外層 <code>i</code> 由小到大:<code>spf[i] == i</code> 代表 <code>i</code> 從沒被任何更小質數改過 —— 這正是「<strong>i 是質數</strong>」。於是用 <code>i</code> 去標記倍數 <code>j</code>,但<strong>只在 <code>spf[j] == j</code></strong>(<code>j</code> 還沒被蓋過)時才寫 <code>spf[j] = i</code>。
         </p>
         <p style="margin:0;">
-          <strong>為什麼寫進去的一定是「最小」質因數:</strong>因為外層 <code>i</code> 由小到大,
-          <strong>第一個標到 <code>j</code> 的質數,必定是 <code>j</code> 的最小質因數</strong> —— 之後更大的質數再遇到 <code>j</code> 時 <code>spf[j]</code> 已非 0,
-          守門 <code>!spf[j]</code> 擋下,不再覆蓋。這就是「先到先得」。整體 <code>O(A log log A)</code>(質數調和級數)。
+          <strong>為什麼寫進去的一定是「最小」:</strong>外層 <code>i</code> 遞增,<strong>第一個標到 <code>j</code> 的質數必是 <code>j</code> 的最小質因數</strong>;之後更大的質數再遇到 <code>j</code> 時 <code>spf[j]≠j</code>,守門擋下不覆蓋 —— 這就是「先到先得」。整體 <code>O(A log log A)</code>。
         </p>
       </div>
     </div>
 
     <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// SIEVE: 建表小範例(看 spf 怎麼被填)</span>
-i=2 質數 → 標 4,6,8,10,12…:spf[4]=spf[6]=spf[8]=spf[10]=spf[12]=2
-i=3 質數 → 標 9,15,21…（6,12 已是 2,守門 !spf 擋下不覆蓋）:spf[9]=spf[15]=3
-i=4 → spf[4]=2≠0,非質數,跳過(不進內層)
-i=5 質數 → spf[10] 已是 2 擋下;spf[25]=5 …
-↳ 結果:每個合成數存的都是它「最小」的質因數</div>
+iota 後:spf[i] = i（4→4, 6→6, 9→9 …）
+i=2 質數(spf[2]==2)→ 標 j=4,6,8,10,12…:凡 spf[j]==j 者寫 2
+  ↳ spf[4]=spf[6]=spf[8]=spf[10]=spf[12]=2
+i=3 質數(spf[3]==3)→ j=9,15,21…；但 6,12 已是 2(spf[j]≠j)守門擋下
+  ↳ spf[9]=spf[15]=3
+↳ 結果:每個合成數存的都是它「最小」的質因數（先到先得）</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// FACTORIZE: while (x > 1) 用 spf 逐層剝質因數</span>
-first = spf[x]  取 x 的最小質因數當「錨」
-迴圈:p = spf[x]; Union(first, p); 再 while(x%p==0) x/=p 把 p 剝光
-  ↳ x 的每個相異質因數都和 first 併在一起 ⇒ x 的質因數同一組
-例:x=12 → first=spf[12]=2
-   p=2 Union(2,2)無效; 剝成 x=3
-   p=spf[3]=3 Union(2,3); 剝成 x=1 停 → {2,3} 同組</div>
+    <div class="sc-trace"><span class="sc-trace__head">// FACTORIZE: first = spf[v] 當錨,逐層剝質因數</span>
+first = spf[v]  取 v 的最小質因數當「錨」
+迴圈:p = spf[v]; Union(p, first); 再 while(v%p==0) v/=p 把 p 剝光
+  ↳ v 的每個相異質因數都和 first 併在一起 ⇒ v 的質因數同一組
+例:v=12 → first=spf[12]=2
+   p=2 Union(2,2) 無效; 剝成 v=3
+   p=spf[3]=3 Union(3,2); 剝成 v=1 停 → {2,3} 同組</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// UNION: union by size + 路徑壓縮</span>
-parent[root] 存負的分量大小;-parent 越大代表分量越大
-合併時讓較大分量當新根(rx),較小者掛上去 → 樹更矮
-Find 回傳過程中把節點直接指向根(路徑壓縮)→ 攤還近 O(1)</div>
+    <div class="sc-trace"><span class="sc-trace__head">// CHECK: anchor = spf[nums[0]],逐一比對根</span>
+anchor = spf[nums[0]]  取第一個數的質因數當基準
+每個 v:Find(spf[v]) 是否 == Find(anchor)？全同 ⇒ 全連通
+  ↳ 用 spf[v]（質因數）不是 v（合成數）—— 這就是 bug ②</div>
   </section>
 
   <!-- ── pager ── -->
@@ -248,7 +266,7 @@ Find 回傳過程中把節點直接指向根(路徑壓縮)→ 攤還近 O(1)</di
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// TWO BUGS TO REMEMBER</div>
-    <div class="sc-summary-bar__body">篩守門是 <code>!spf[j]</code>(先到先得取最小質因數);連通檢查用質因數 <code>spf[x]</code> 而非合成數 x。</div>
+    <div class="sc-summary-bar__body">篩守門是 <code>spf[j]==j</code>(先到先得取最小質因數);連通檢查用質因數 <code>Find(spf[v])</code> 而非合成數 v。</div>
     <div class="sc-summary-bar__detail">UNION-FIND OVER PRIMES · O(A log log A + n log A)</div>
   </div>
 

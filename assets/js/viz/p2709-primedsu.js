@@ -66,7 +66,7 @@
     primeGroup: { 2: 'a', 3: 'grey' }, edges: [],
     factors: [2], anchor: 2, comps: 1,
     text: '處理 <code>nums[0] = 2</code>：質因數 <code>{2}</code>。只有一個質數、' +
-          '無需 union。它的最小質因數 2 之後就是連通檢查的<strong>基準根</strong>。目前分量：<strong>{2}</strong>。'
+          '無需 union。最後檢查以 <code>anchor = spf[nums[0]] = 2</code> 當基準。目前分量：<strong>{2}</strong>。'
   });
 
   snap({
@@ -89,7 +89,7 @@
     phase: 'check', cur: -1, done: [0, 1, 2],
     primeGroup: { 2: 'm', 3: 'm' }, edges: [[2, 3]],
     factors: null, anchor: 2, comps: 1,
-    text: '最後驗證：每個數字的最小質因數是否與<strong>基準根</strong> <code>Find(spf[nums[0]])=2</code> 同組？' +
+    text: '最後驗證：每個數字的質因數 <code>spf</code> 是否與 <code>anchor(=2)</code> 同組？' +
           ' <code>2→2 ✓</code>、<code>3→2 ✓</code>、<code>6→spf=2 ✓</code>。'
   });
 
@@ -237,7 +237,7 @@
       ctx.fillStyle = COLOR.text;
       ctx.font = '600 14px "Noto Sans TC", sans-serif';
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText('所有數字處理完畢 → 檢查每個 spf 是否與基準根同一分量',
+      ctx.fillText('所有數字處理完畢 → 檢查每個 spf 是否與 anchor 同一分量',
         PAD + 10, band2Y + 44);
     } else {
       ctx.fillStyle = COLOR.dim;

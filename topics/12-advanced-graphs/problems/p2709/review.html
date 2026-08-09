@@ -56,7 +56,7 @@
         <tr><td>關鍵轉換</td><td>節點改成「<strong>質數</strong>」；數字把自己的質因數併成一組</td></tr>
         <tr><td>等價命題</td><td>全連通 ⇔ 出現過的質數落在<strong>同一分量</strong></td></tr>
         <tr><td>工具</td><td>最小質因數篩 <code>spf[]</code> + 併查集（路徑壓縮 + 按秩）</td></tr>
-        <tr><td>兩個 bug</td><td>篩守門 <code>!spf[j]</code>(取最小質因數);檢查用 <code>Find(spf[x])</code></td></tr>
+        <tr><td>兩個 bug</td><td>篩守門 <code>spf[j]==j</code>(先到先得取最小質因數);檢查用 <code>Find(spf[v])</code></td></tr>
         <tr><td>特例</td><td><code>n==1</code>→true；含 <code>1</code> 且 <code>n&gt;1</code>→false</td></tr>
       </tbody>
     </table>
@@ -71,8 +71,8 @@
 
     <div class="qa"><strong>Q1.</strong> 為什麼「<code>gcd(a,b) &gt; 1</code>」可以等價換成「a、b 共用至少一個質因數」？</div>
     <div class="qa"><strong>Q2.</strong> 為什麼要把「質數」當作併查集的節點，而不是把「數字」當節點？這帶來什麼規模上的差別？</div>
-    <div class="qa"><strong>Q3.</strong> 篩用 <code>spf[i] == 0</code> 判斷 <code>i</code> 是質數,為什麼成立?內層守門 <code>!spf[j]</code> 又保證了 <code>spf[j]</code> 是「最小」而非其他質因數?</div>
-    <div class="qa"><strong>Q4.</strong> 最後的連通性檢查為什麼是 <code>Find(spf[x])</code> 而不是 <code>Find(x)</code>?</div>
+    <div class="qa"><strong>Q3.</strong> 篩最小質因數時,內層守門為什麼是 <code>spf[j] == j</code>?若誤寫成 <code>spf[j] == i</code> 會怎樣?(bug ①)</div>
+    <div class="qa"><strong>Q4.</strong> 最後的連通性檢查為什麼是 <code>Find(spf[v])</code> 而不是 <code>Find(v)</code>?(bug ②)</div>
     <div class="qa"><strong>Q5.</strong> 陣列出現 <code>1</code> 時應如何處理？<code>n==1</code> 與 <code>n&gt;1</code> 為何結論不同？</div>
   </section>
 
@@ -84,34 +84,34 @@
     </div>
 
     <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
-篩後(取用到的):spf[2]=2 spf[3]=3 spf[4]=2 spf[8]=2 spf[12]=2
-parent[..] 全部 = -1(DSU 節點 = 質數值)</div>
+mx = 12;iota 後 spf[i]=i → 篩後 spf[2]=2 spf[3]=3 spf[4]=2 spf[8]=2 spf[12]=2
+parent[0..12] 全部 = -1(DSU 節點 = 質數值)</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// x = 4  (= 2·2)</span>
+    <div class="sc-trace"><span class="sc-trace__head">// v = 4  (= 2·2)</span>
 first = spf[4] = 2
-p=2 → Union(2, 2) 無效(同根);剝光 2 → x=1 停
+p=2 → Union(2, 2) 無效(同根);剝光 2 → v=1 停
 分量:{2}   3、5… 尚未出現</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// x = 3  (= 3)</span>
+    <div class="sc-trace"><span class="sc-trace__head">// v = 3  (= 3)</span>
 first = spf[3] = 3
-p=3 → Union(3, 3) 無效;剝光 3 → x=1 停
+p=3 → Union(3, 3) 無效;剝光 3 → v=1 停
 分量:{2}、{3}  ← 3 目前是孤島!</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// x = 12  (= 2·2·3)</span>
+    <div class="sc-trace"><span class="sc-trace__head">// v = 12  (= 2·2·3)</span>
 first = spf[12] = 2
-p=2 → Union(2, 2) 無效;剝光 2 → x=3
-p=spf[3]=3 → <span class="sc-trace__out">Union(2, 3) 合併!</span>;剝光 3 → x=1 停
+p=2 → Union(2, 2) 無效;剝光 2 → v=3
+p=spf[3]=3 → <span class="sc-trace__out">Union(3, 2) 合併!</span>;剝光 3 → v=1 停
 分量:{2, 3}  ← 12 同時含 2、3,把兩座島接起來</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// x = 8  (= 2·2·2)</span>
+    <div class="sc-trace"><span class="sc-trace__head">// v = 8  (= 2·2·2)</span>
 first = spf[8] = 2;質因數只有 2,Union(2,2) 皆無效
 分量不變:{2, 3}</div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// CHECK  (root = Find(spf[nums[0]]) = Find(2) = 2)</span>
-Find(spf[4])  = Find(2) = 2 == root ✓
-Find(spf[3])  = Find(3) = 2 == root ✓   (3 已併到 2)
-Find(spf[12]) = Find(2) = 2 == root ✓
-Find(spf[8])  = Find(2) = 2 == root ✓
+    <div class="sc-trace"><span class="sc-trace__head">// CHECK  (anchor = spf[nums[0]] = spf[4] = 2)</span>
+Find(spf[4])  = Find(2) = 2 == Find(anchor) ✓
+Find(spf[3])  = Find(3) = 2 == Find(anchor) ✓   (3 已併到 2)
+Find(spf[12]) = Find(2) = 2 == Find(anchor) ✓
+Find(spf[8])  = Find(2) = 2 == Find(anchor) ✓
 <span class="sc-trace__out">// OUTPUT: true</span></div>
 
     <div class="sc-insight">
@@ -140,15 +140,15 @@ Find(spf[8])  = Find(2) = 2 == root ✓
 
     <div class="qa qa--answer"><strong>A2.</strong> 用數字當節點的話，要決定「哪兩個數字該連」仍需兩兩比較質因數，逃不掉 O(n²)。改用質數當節點：每個數字只把自己 <strong>≤ log₂A</strong> 個質因數連起來，節點數 = 出現過的質數個數（很少），邊也線性。連通性檢查因此從 O(n²) 降到近線性。</div>
 
-    <div class="qa qa--answer"><strong>A3.</strong> 質數 <code>p</code> 不是任何更小數的倍數,永遠不會在內層被標記,所以外層篩到 <code>i = p</code> 時 <code>spf[p]</code> 仍是初值 0 ⇒ 用 <code>spf[i] == 0</code> 判「i 是質數」成立。內層守門 <code>!spf[j]</code> 則保證只有<strong>第一個標到 j 的質數</strong>會寫入 <code>spf[j]</code>;而外層 <code>i</code> 由小到大,第一個標到 j 的必是 j 的<strong>最小</strong>質因數(先到先得)。若拿掉這個守門、每次都覆寫,<code>spf[j]</code> 會變成 j 的<strong>最大</strong>質因數 —— 對本題分解仍能用(任一質因數都能正確剝),但就不再符合「最小質因數」的定義了。</div>
+    <div class="qa qa--answer"><strong>A3.</strong>(bug ①)<code>spf</code> 被 <code>iota</code> 初始化成 <code>spf[j]=j</code>。<code>spf[j] == j</code> 代表 j <strong>還沒被任何更小的質數標記過</strong>,此刻用當前質數 <code>i</code>(由小到大)寫入,即得<strong>最小</strong>質因數(先到先得);之後更大質數再遇到 j 時 <code>spf[j]≠j</code>,守門擋下不覆蓋。若誤寫成 <code>spf[j] == i</code>:由於 <code>spf[j]</code> 初值是 j,幾乎永遠不等於 i,條件幾乎不成立 ⇒ <strong>篩形同虛設</strong>,<code>spf</code> 全留初值 j,之後分解合成數會出錯。</div>
 
-    <div class="qa qa--answer"><strong>A4.</strong> 我們 <code>Union</code> 的節點是<strong>質數</strong>,只有質數的 <code>parent</code> 被寫過。合成數 <code>x</code>(如 12)從來沒被 union,<code>Find(x)</code> 會回到它自己、與任何質數不同根。取 <code>spf[x]</code>(x 的一個質因數,必在 x 的分量裡)才能正確代表 x 的所屬分量。</div>
+    <div class="qa qa--answer"><strong>A4.</strong>(bug ②)我們 <code>Union</code> 的節點是<strong>質數</strong>,只有質數的 <code>parent</code> 被寫過。合成數 <code>v</code>(如 12)從來沒被 union,<code>Find(v)</code> 會回到它自己、與任何質數不同根,且 v 可能超出有意義範圍。取 <code>spf[v]</code>(v 的一個質因數,必在 v 的分量裡)才能正確代表 v 的所屬分量。</div>
 
-    <div class="qa qa--answer"><strong>A5.</strong> <code>1</code> 沒有質因數，與任何數 <code>gcd = 1</code>，無法與別人走訪。<code>n == 1</code> 時陣列只有它自己，沒有任何「一對」需要連通 ⇒ <strong>true</strong>；<code>n &gt; 1</code> 只要出現 1，它就是永遠到不了的孤點 ⇒ <strong>false</strong>。程式用開頭 <code>if(nums.size()==1) return true</code> 與迴圈內 <code>if(x==1) return false</code> 分別處理。</div>
+    <div class="qa qa--answer"><strong>A5.</strong> <code>1</code> 沒有質因數，與任何數 <code>gcd = 1</code>，無法與別人走訪。<code>n == 1</code> 時陣列只有它自己，沒有任何「一對」需要連通 ⇒ <strong>true</strong>；<code>n &gt; 1</code> 只要出現 1，它就是永遠到不了的孤點 ⇒ <strong>false</strong>。程式用開頭 <code>if(n==1) return true</code> 與迴圈內 <code>if(v==1) return false</code> 分別處理。</div>
 
     <div class="qa qa--answer"><strong>App 1.</strong> 改用<strong>試除法</strong>：對每個數字用 2..√v 試除取質因數，單數 O(√v)，整體 O(n√A)。若要更快可先線性篩出 √(10⁹) ≈ 31623 以內的質數，只拿這些質數試除，剩下的殘值（&gt;1）本身就是一個大質數。分解出的質因數同樣做 union，其餘框架不變。</div>
 
-    <div class="qa qa--answer"><strong>App 2.</strong> 收集所有出現過的質數,對每個取 <code>Find</code> 丟進 set 數 distinct 根;size == 1 ⇒ 全連通。取捨:<strong>基準根</strong>版本(現行)O(n·α)、常數更小、無額外容器;<strong>數根</strong>版本語意更直觀、且能順便回報「幾個分量」,但要多一個 set 掃過所有質數(O(質數種類·α))。兩者結論一致。</div>
+    <div class="qa qa--answer"><strong>App 2.</strong> 收集所有出現過的質數,對每個取 <code>Find</code> 丟進 set 數 distinct 根;size == 1 ⇒ 全連通。取捨:<strong>anchor</strong> 版本(現行,以 <code>spf[nums[0]]</code> 為基準)O(n·α)、常數更小、無額外容器;<strong>數根</strong>版本語意更直觀、且能順便回報「幾個分量」,但要多一個 set 掃過所有質數(O(質數種類·α))。兩者結論一致。</div>
 
     <div class="qa qa--answer"><strong>App 3.</strong> 答案是<strong>（質數分量數 − 1）</strong>：把 k 個分量接成一張連通圖，最少加 k−1 條邊（等同「把 k 棵樹接成一棵」）。在 DSU 上就是統計 distinct 根的個數 k，回傳 k−1。若 k=1 代表已連通，加 0 條。</div>
   </section>
