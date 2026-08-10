@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>150 · Evaluate RPN // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P150</span>
+    <span><a href="https://leetcode.com/problems/evaluate-reverse-polish-notation/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">逆波蘭式求值</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 150</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>結構</td><td>後綴(RPN):運算子跟在兩運算元之後,無需括號</td></tr>
+        <tr><td>做法</td><td>整數堆疊一趟:數字 push、運算子 pop 兩個算完 push</td></tr>
+        <tr><td>順序</td><td><strong>先彈 y(右)、後彈 x(左)</strong>,算 <code>x op y</code></td></tr>
+        <tr><td>判數字</td><td><code>op.find(token)==npos</code>(對負數 token 也對)</td></tr>
+        <tr><td>答案</td><td>掃完堆疊剩唯一元素 = <code>st.top()</code></td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(n)</code>,空間 <code>O(n)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼後綴表示式可以「一趟掃、用堆疊」就求值,而中綴不行?後綴消掉了什麼麻煩?</div>
+    <div class="qa"><strong>Q2.</strong> 掃到運算子時,為什麼它要的兩個運算元<strong>保證</strong>就在堆疊頂端?</div>
+    <div class="qa"><strong>Q3.</strong> 為什麼「先 pop 的是 <code>y</code>、後 pop 的是 <code>x</code>」?哪些運算子顛倒會出錯、哪些不會?</div>
+    <div class="qa"><strong>Q4.</strong> <code>op.find(token) == npos</code> 為什麼能正確區分「數字」與「運算子」,連 <code>"-11"</code> 這種負數也不誤判?</div>
+    <div class="qa"><strong>Q5.</strong> 用 <code>token[0]</code>(首字元)判斷是不是運算子,會在什麼輸入上出錯?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 大例:[10,6,9,3,+,-11,*,/,*,17,+,5,+]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// LeetCode 官方大例,答案 22(堆疊右=top)</span>
+10 6 9 3        → [10, 6, 9, 3]
+"+": y=3 x=9    → push 12         [10, 6, 12]
+"-11"          → 數字 → push -11 [10, 6, 12, -11]
+"*": y=-11 x=12→ push -132       [10, 6, -132]
+"/": y=-132 x=6→ 6/-132 = 0      [10, 0]        (向零截斷)
+"*": y=0 x=10  → push 0          [0]
+17             → push 17         [0, 17]
+"+": y=17 x=0  → push 17         [17]
+5              → push 5          [17, 5]
+"+": y=5 x=17  → push 22         [22]
+<span class="sc-trace__out">// return 22</span></div>
+
+    <div class="sc-insight">
+      看 <code>6 / -132 = 0</code>:C++ 整數除法<strong>向零截斷</strong>,剛好符合題目要求。全程只是「數字進、運算子把頂端兩個收成一個」,一路收斂到 <code>22</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 若輸入是<strong>中綴</strong>(含括號與優先序),要怎麼先轉成後綴?(提示:Shunting-yard,一樣用堆疊)</div>
+    <div class="qa"><strong>App 2.</strong> 若要防禦性處理「除以 0」或「token 不合法」,程式該在哪裡加檢查?回傳什麼?</div>
+    <div class="qa"><strong>App 3.</strong> 若數值可能溢位 <code>int</code>,該怎麼調整?哪個運算最容易溢位?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 後綴把「先算哪個」直接<strong>編碼進 token 的排列順序</strong>,消掉了<strong>括號</strong>與<strong>運算子優先序</strong>兩個麻煩。中綴要靠括號/優先序決定計算順序,單趟掃無法定序,需要兩個堆疊(運算元 + 運算子)或轉後綴。後綴則保證「掃到運算子時運算元一定就緒」,一個堆疊、一趟搞定。</div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為後綴的定義:每個運算子<strong>緊跟</strong>在它兩個運算元(或其子式的結果)之後。掃描過程中,任何已完成的子式都被壓成一個數字留在堆疊上;輪到某運算子時,它的兩個運算元正是<strong>最近兩個尚未被消費</strong>的結果 —— 也就是堆疊最上面兩格。所以 pop 兩次必得正確運算元。</div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 堆疊是後進先出:左運算元 <code>x</code> 比右運算元 <code>y</code> <strong>先</strong>被 push,所以 <code>y</code> 在上、先被 pop。要還原成原式 <code>x op y</code>,就得「先 pop 的當 y、後 pop 的當 x」。<code>+</code>、<code>*</code> 有交換律,顛倒也對;但 <code>-</code>、<code>/</code> <strong>沒有</strong>,顛倒會把 <code>x-y</code> 算成 <code>y-x</code>、<code>x/y</code> 算成 <code>y/x</code>,結果錯。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> <code>op = "+-*/"</code>,<code>op.find(token)</code> 是把整個 <code>token</code> 當<strong>子字串</strong>去 <code>op</code> 裡找。運算子都是單字元,能在 <code>op</code> 找到;而任何數字字串(<code>"3"</code>、<code>"-11"</code>、<code>"42"</code>)都不是 <code>"+-*/"</code> 的子字串 → 回 <code>npos</code>。所以 <code>== npos</code> 精準等於「這是數字」。<code>"-11"</code> 雖含 <code>'-'</code>,但整串 <code>"-11"</code> 不在 <code>op</code> 裡,不會誤判。</div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> 會在<strong>負數 token</strong> 上出錯。<code>"-11"</code>、<code>"-3"</code> 的首字元是 <code>'-'</code>,用 <code>token[0]</code> 判斷就會被當成減法運算子,於是去 pop 兩個運算元 —— 但它其實是個運算元。正確做法是比對<strong>整個字串</strong>(如 <code>op.find(token)==npos</code>),或先判 <code>token.size()==1 &amp;&amp; 是 +-*/</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 用 <strong>Shunting-yard(調度場)</strong>演算法:掃中綴,數字直接輸出;運算子則和「運算子堆疊」頂端比優先序,較低/相等就先把頂端彈出輸出,再把自己 push;遇 <code>(</code> push、遇 <code>)</code> 一路彈到 <code>(</code>。掃完把運算子堆疊全彈出。輸出即後綴,再套本題的堆疊求值即可。整體 <code>O(n)</code>。</div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 在取運算元<strong>之前</strong>檢查 <code>st.size() &gt;= 2</code>(否則 token 不合法);在做 <code>/</code> 前檢查 <code>y != 0</code>。不合法時可回傳錯誤碼、丟例外,或依題目約定回傳。本題保證輸入合法、除數非 0,所以正式解可省略,但面試講出這些防禦點會加分。</div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 把堆疊與運算改用 <code>long long</code>(累乘/累加最容易溢位,尤其 <code>*</code>)。若題目允許超出 64-bit,則需大數(BigInteger)。本題 LeetCode 保證中間與最終結果落在 32-bit,故 <code>int</code> 足夠;但養成「帶權/乘積一律 long long」的習慣可避免隱性溢位。</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 04 · Stack</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「後綴消掉括號/優先序、運算元恆在頂端、先彈 y 後彈 x、find==npos 判數字含負數、C++ / 向零截斷」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 150 · EVALUATE RPN</div>
+  </div>
+
+</body>
+</html>

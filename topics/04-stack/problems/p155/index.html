@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>155 · Min Stack // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P155</span>
+    <span><a href="https://leetcode.com/problems/min-stack/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最小堆疊</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每格帶著當下最小值</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 155</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>STACK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計一個堆疊,支援 <code>push</code>、<code>pop</code>、<code>top</code>,以及 <code>getMin</code>(取當前堆疊最小值)——
+        <strong>四個操作都要 O(1)</strong>。
+      </p>
+    </div>
+
+    <p>
+      難點只在 <code>getMin</code>:若每次都<strong>掃整個堆疊</strong>找最小,就是 O(n)。關鍵想法:<strong>讓每個元素在入堆疊時,順手記下「到它為止的最小值」</strong>,
+      這樣 <code>getMin</code> 只要讀 top 那格的 min,永遠 O(1)。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「每格存 min」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">getMin 時掃整個堆疊</span>
+            <span class="sc-ko-card__o">O(n)/次</span>
+          </div>
+          <div class="sc-ko-card__body">正確但慢。頻繁呼叫 <code>getMin</code> 時,每次都線性掃一遍,違反 O(1) 要求。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 慢</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">單一變數記全域 min</span>
+            <span class="sc-ko-card__o">壞在 pop</span>
+          </div>
+          <div class="sc-ko-card__body">用一個 <code>minVal</code> 追最小。但 <strong>pop 掉最小值後,舊的次小是多少?救不回來</strong>。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 無法還原</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">每格存 (val, minSoFar):min 跟著元素一起進出</span>
+          <span class="sc-ko-card__o">全 O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          push 時 <code>min = min(val, 舊 top.min)</code>,和 val 一起存進這格。<code>getMin</code> 讀 <code>top.min</code>。
+          pop 掉一格,<strong>下一個 top 仍握著它那時的 min</strong> —— 最小值自動「退回」正確值,不必還原。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(1)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>堆疊存 pair</strong>:<code>stack&lt;pair&lt;int,int&gt;&gt;</code>,每格 = <code>(val, minSoFar)</code>。</li>
+      <li><strong>push(val)</strong>:空堆疊 → min = val;否則 <code>min = min(val, top.min)</code>。存 <code>(val, min)</code>。</li>
+      <li><strong>top / getMin</strong>:<code>top().first</code> 是值、<code>top().second</code> 是最小 —— 都讀 top,O(1)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// push 5,2,7,1 → getMin → pop</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每格上排是 <code>val</code>、下排是 <code>min</code>。看 <code>push(7)</code> 沿用舊 min、<code>pop</code> 之後 <code>getMin</code> 如何自動退回 2。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Min Stack · 每格帶 min</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:270px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼 pop 後仍正確 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼 pop 後 min 自動正確<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · 每格的 min = 「這格與它底下所有格」的最小</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          push 時 <code>min(val, 舊 top.min)</code> 這條遞迴,保證第 <code>i</code> 格的 <code>min</code> 恰好是 <strong>堆疊底到第 i 格</strong>的最小值。
+          所以 <strong>top 那格的 min = 整個堆疊的最小</strong> —— 這就是 <code>getMin</code> 只讀 top 的依據。
+        </p>
+        <p style="margin:0;">
+          pop 掉 top 後,新的 top 是第 <code>i-1</code> 格,它的 min 早就記著「底到 i-1」的最小 —— <strong>本來就是正確答案</strong>,不需要重算或還原。這正是「單一變數」做不到、而「每格存 min」自然成立的關鍵。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">push / pop / top / getMin = <strong>O(1)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每格多存一個 int(min),空間仍是 O(n);四個操作都只碰 top,常數時間。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>操作</th><th>成本</th></tr></thead>
+      <tbody>
+        <tr><td>push / pop / top / getMin</td><td class="mono">O(1)</td></tr>
+        <tr><td>Space</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      把「答案」<strong>綁在每個元素身上</strong>一起進出堆疊,它就會隨 pop 自動退回正確值。
+      單一全域變數記最小之所以會壞,正是因為它<strong>沒有隨結構回溯的記憶</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">堆疊每格存 (val, minSoFar);push 時 min=min(val,top.min);getMin 讀 top.min。全 O(1),min 隨 pop 自動退回。</div>
+    <div class="sc-summary-bar__detail">MIN STACK · PAIR PER CELL</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p155-minstack.js"></script>
+</body>
+</html>
