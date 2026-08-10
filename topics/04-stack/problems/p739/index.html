@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>739 · Daily Temperatures // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P739</span>
+    <span><a href="https://leetcode.com/problems/daily-temperatures/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">每日溫度</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 單調遞減堆疊</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 739</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MONOTONIC STACK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給每日溫度 <code>temperatures</code>,回傳陣列 <code>ans</code>:<code>ans[i]</code> = 第 <code>i</code> 天之後,還要<strong>等幾天</strong>才會遇到<strong>更暖</strong>的一天;
+        若之後都不會更暖,<code>ans[i] = 0</code>。
+      </p>
+    </div>
+
+    <p>
+      這是「<strong>下一個更大元素(next greater element)</strong>」的距離版。暴力對每天往後找 O(n²)。
+      用<strong>單調遞減堆疊</strong>存「還在等更暖」的<strong>索引</strong>:新的一天一旦比堆疊頂端那天暖,就能一次結算好幾個在等它的舊日子。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼單調堆疊<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每天往後線性掃找更暖</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">每個 i 最壞掃到底,n=10⁵ 時約 10¹⁰,超時。重複比較大量已知資訊。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">存「溫度」而非「索引」</span>
+            <span class="sc-ko-card__o">算不出距離</span>
+          </div>
+          <div class="sc-ko-card__body">距離要用<strong>下標相減</strong>。只存溫度就丟了位置,算不出 <code>i − j</code>。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 缺位置</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">單調遞減堆疊存索引,新天更暖就結算並 pop</span>
+          <span class="sc-ko-card__o">O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          堆疊裡是「還沒等到更暖」的索引,溫度<strong>由底到頂遞減</strong>。新天 <code>i</code> 若 <code>temp[i] &gt; temp[top]</code>,就 <code>ans[top]=i−top</code> 並 pop,<strong>連環</strong>結算所有被它超過的舊日;再把 <code>i</code> 壓入。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>ans 全初始化為 0</strong>:留在堆疊裡沒被結算的,天然就是「之後沒更暖」= 0。</li>
+      <li><strong>掃每天 i</strong>:當 <code>temp[i] &gt; temp[st.top()]</code> 時,<code>ans[st.top()] = i − st.top()</code>,pop —— 反覆直到頂端不再比 i 冷。</li>
+      <li><strong>壓入 i</strong>:i 成為新的「等待中」索引,維持堆疊溫度遞減。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [73,74,71,72,76]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看堆疊如何維持「溫度遞減」,以及 <code>i=4 (76)</code> 如何<strong>連環結算</strong> 72 和 74 兩天。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Daily Temperatures · 單調堆疊</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:290px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼對 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼堆疊恆遞減、距離恆正確<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · 堆疊裡的溫度由底到頂嚴格遞減</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          壓入 <code>i</code> 前,已把所有「<code>≤ temp[i]</code> 的頂端」都 pop 掉了,所以剩下的頂端一定 <code>&gt; temp[i]</code> —— 壓入後仍維持<strong>遞減</strong>。這個不變式保證:<strong>對任何還在堆疊的舊日 <code>j</code>,第一個比它暖的未來日,正是把它 pop 掉的那個 <code>i</code></strong>。因為在 <code>i</code> 之前出現的都不夠暖(否則早被結算),<code>i</code> 是<strong>最近</strong>的更暖日。
+        </p>
+        <p style="margin:0;">
+          既然 <code>i</code> 是 <code>j</code> 之後<strong>第一個</strong>更暖日,等待天數就是<strong>索引差 <code>i − j</code></strong>。這也是為什麼堆疊必須存<strong>索引</strong>而非溫度 —— 距離靠下標相減。而用 <strong>嚴格大於 <code>&gt;</code></strong> 是因為題目要「更暖」;若溫度相等不算更暖,相等時不結算、直接壓入即可。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每個索引最多 push 一次、pop 一次。while 內每轉一圈都 pop 掉一個(永久)→ 總結算次數 ≤ n。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n)</td></tr>
+        <tr><td>Space</td><td class="mono">O(n)(堆疊 + 答案)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      單調堆疊 = 「<strong>延後結算</strong>」:讓每個舊日子躺著等,直到<strong>第一個</strong>更暖的未來日出現,一次把它(和其他在等它的)全結算。
+      存索引才能用<strong>下標差</strong>算距離,<code>&gt;</code> 保證是「更暖」。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">單調遞減堆疊存索引;temp[i]&gt;temp[top] 時 ans[top]=i−top 並 pop(連環),再壓 i。未結算留 0。O(n)。</div>
+    <div class="sc-summary-bar__detail">DAILY TEMPERATURES · MONOTONIC STACK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p739-temps.js"></script>
+</body>
+</html>
