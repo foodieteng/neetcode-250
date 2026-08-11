@@ -125,7 +125,7 @@ PROBLEMS = {
         ('p150','Evaluate Reverse Polish Notation','evaluate-reverse-polish-notation','med', 'done'),
         ('p735','Asteroid Collision',              'asteroid-collision',              'med', 'done'),
         ('p739','Daily Temperatures',              'daily-temperatures',              'med', 'done'),
-        ('p901','Online Stock Span',               'online-stock-span',               'med', 'todo'),
+        ('p901','Online Stock Span',               'online-stock-span',               'med', 'done'),
         ('p853','Car Fleet',                       'car-fleet',                       'med', 'todo'),
         ('p71', 'Simplify Path',                   'simplify-path',                   'med', 'todo'),
         ('p394','Decode String',                   'decode-string',                   'med', 'todo'),

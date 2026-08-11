@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>901 · Online Stock Span // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P901</span>
+    <span><a href="https://leetcode.com/problems/online-stock-span/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">股價跨度</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 901</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · (price, span) 堆疊<span class="sc-section__title-en">// amortized O(1)</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p901.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">StockSpanner</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">stack</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;</span> st<span class="p">;</span>       <span class="c">// (price, span)· 價格由底到頂遞減</span>
+
+    <span class="f">StockSpanner</span><span class="p">()</span> <span class="p">{}</span>
+
+    <span class="t">int</span> <span class="f">next</span><span class="p">(</span><span class="t">int</span> price<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> span <span class="p">=</span> <span class="n">1</span><span class="p">;</span>                        <span class="c">// 至少含今天</span>
+        <span class="k">while</span> <span class="p">(</span><span class="p">!</span>st<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">&amp;&amp;</span> st<span class="p">.</span><span class="f">top</span><span class="p">().</span>first <span class="p">&lt;=</span> price<span class="p">)</span> <span class="p">{</span>  <span class="c">// 頂端 ≤ 今天 → 吃掉</span>
+            span <span class="p">+=</span> st<span class="p">.</span><span class="f">top</span><span class="p">().</span>second<span class="p">;</span>          <span class="c">// 整段 span 累加(不必重數)</span>
+            st<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+        st<span class="p">.</span><span class="f">push</span><span class="p">({</span>price<span class="p">,</span> span<span class="p">});</span>              <span class="c">// 今天成為新區塊</span>
+        <span class="k">return</span> st<span class="p">.</span><span class="f">top</span><span class="p">().</span>second<span class="p">;</span>             <span class="c">// = span</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      核心是 <code>span += st.top().second</code>:被吃掉那格的 span <strong>已經算好它代表幾天</strong>,直接累加就好。
+      用 <code>&lt;=</code>(含等於)才會把等價的日子也吃進來;<code>return st.top().second</code> 等同 <code>return span</code>(剛 push 的就是它)。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>觀察</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">每價 push ≤ 1</td><td class="mono">O(1) 攤還</td><td>每次 next 只 push 一格</td></tr>
+        <tr><td class="mono">每價 pop ≤ 1</td><td class="mono">攤還</td><td>被吃掉即永久離場</td></tr>
+        <tr><td class="mono">n 次呼叫</td><td class="mono">O(n)</td><td>總 pop ≤ n</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">next() = <strong>O(1)</strong> 攤還　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        while 看似巢狀,但一個價格被 pop 後不會再回來,總 pop 次數上限是呼叫數 n。
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>只存 price 不存 span</td>
+          <td class="fail">pop 後還得重數那段天數 → O(n)/次</td>
+          <td>存 <code>(price, span)</code>,pop 時累加</td>
+        </tr>
+        <tr>
+          <td>比較用 <code>&lt;</code></td>
+          <td class="fail">等價的日子沒被算進 span</td>
+          <td>要 <code>&lt;=</code>(≤ 今天都算)</td>
+        </tr>
+        <tr>
+          <td>先 pop 再累加</td>
+          <td class="fail">拿不到被 pop 那格的 span</td>
+          <td>先 <code>span += top.second</code> 再 <code>pop</code></td>
+        </tr>
+        <tr>
+          <td>span 初值設 0</td>
+          <td class="fail">漏算今天自己</td>
+          <td><code>span = 1</code>(含今天)</td>
+        </tr>
+        <tr>
+          <td>while 忘了 <code>!st.empty()</code></td>
+          <td class="fail">空堆疊 <code>top()</code> → UB</td>
+          <td>守門先判非空</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// next 100,80,70,75,85(堆疊右=top,格式 price:span)</span>
+next(100): span=1 → push 100:1        st = [100:1]           回傳 1
+next(80):  100 &gt; 80 停 → push 80:1     st = [100:1, 80:1]     回傳 1
+next(70):  80 &gt; 70 停 → push 70:1      st = [100:1, 80:1, 70:1]回傳 1
+next(75):  70&lt;=75 吃1(span=2)pop;80&gt;75 停 → push 75:2
+           st = [100:1, 80:1, 75:2]                            回傳 2
+next(85):  75&lt;=85 吃2(span=3);80&lt;=85 吃1(span=4);100&gt;85 停 → push 85:4
+           st = [100:1, 85:4]                                  回傳 <strong>4</strong>
+<span class="sc-trace__out">// span 序列 = [1,1,1,2,4]</span></div>
+
+    <div class="sc-insight">
+      <code>next(85)</code> 一次吃掉 <code>75:2</code> 和 <code>80:1</code> —— 這兩格的 span 早已把「它們各自代表幾天」壓縮好,累加成 <code>1+2+1=4</code>。
+      這就是不必重數的關鍵:<strong>答案存在被吃掉的元素身上</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">st 存 (price,span)。next:span=1;top.first<=price 時 span+=top.second 並 pop(連環);push {price,span}。攤還 O(1)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 901 · ONLINE STOCK SPAN</div>
+  </div>
+
+</body>
+</html>

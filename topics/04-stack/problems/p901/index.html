@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>901 · Online Stock Span // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P901</span>
+    <span><a href="https://leetcode.com/problems/online-stock-span/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">股價跨度</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 單調堆疊 · span 累加</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 901</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MONOTONIC STACK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計 <code>StockSpanner</code>,每次 <code>next(price)</code> 回傳今天的<strong>跨度(span)</strong>:從今天往回數,連續<strong>股價 ≤ 今天</strong>的最大天數(含今天)。
+        例如過去 <code>[7,2,1,2]</code>、今天 <code>2</code> → span = 4;過去 <code>[7,34,1,2]</code>、今天 <code>8</code> → span = 3。
+      </p>
+    </div>
+
+    <p>
+      這是「<strong>往回找第一個更大的價格</strong>」——span 就等於「今天」到「上一個嚴格更大價」之間的距離。暴力每次往回掃是 O(n)/次、總 O(n²)。
+      用<strong>單調堆疊存 (price, span)</strong>:把被今天蓋過的那些天,<strong>整段 span 直接累加</strong>,不必重數。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「存 span 累加」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每次往回線性掃</span>
+            <span class="sc-ko-card__o">O(n)/次</span>
+          </div>
+          <div class="sc-ko-card__body">要存全部歷史,每次 <code>next</code> 從今天往回走,最壞走到頭 → 總 O(n²)。重複數已知區塊。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 慢</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">只存 price(不存 span)</span>
+            <span class="sc-ko-card__o">仍要重數</span>
+          </div>
+          <div class="sc-ko-card__body">pop 掉較小的價後,還是得知道「它代表幾天」——沒存 span 就只能再數一次。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 沒省到</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">單調堆疊存 (price, span);頂端 ≤ 今天就吃掉它的 span</span>
+          <span class="sc-ko-card__o">攤還 O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>span = 1</code>;當頂端 <code>price ≤ 今天</code>,<code>span += 頂端.span</code> 並 pop,<strong>連環</strong>直到頂端更大。
+          被吃掉那格的 span <strong>早已算好它那一段有幾天</strong>,所以累加即可、不必重數。最後 push <code>(今天, span)</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(1) 攤還</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>堆疊存 pair</strong>:<code>(price, span)</code>,價格由底到頂遞減。</li>
+      <li><strong>next(price)</strong>:<code>span=1</code>;當 <code>top.price ≤ price</code>,<code>span += top.span</code>、pop —— 反覆直到頂端更大或空。</li>
+      <li><strong>push (price, span)</strong>,回傳 span。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// next 100,80,70,75,85</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>next(85)</code> 如何<strong>連環吃掉</strong> 75(span 2)和 80(span 1),把今天的 span 累加成 4。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Stock Span · (price, span) 堆疊</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:320px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼累加就對 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼「累加 span」不會重數也不會漏<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · 堆疊裡每格的 span = 「它自己那一段」已壓縮的天數</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          堆疊裡的價格<strong>由底到頂嚴格遞減</strong>,每格 <code>(p, s)</code> 代表「以 p 為區塊最大值、往回 s 天都 ≤ p」的一整段。當今天的價 <code>≥</code> 頂端 p,表示今天也 <code>≥</code> 那<strong>整段</strong>(因為 p 是那段的最大)——所以能安全地把 <code>s</code> 天<strong>整批</strong>算進今天,不必逐天重數。連環 pop 就是把一段段這樣吞併。
+        </p>
+        <p style="margin:0;">
+          停在「頂端 <code>p &gt; 今天</code>」是對的:那格的價比今天大,今天的連續 ≤ 區塊到此為止。用 <code>≤</code>(含等於)是因為題目要「<strong>≤ 今天</strong>」都算,等價的天也要吃掉;停下的條件因此是<strong>嚴格更大</strong>。這也讓 span 恰好 = 今天到<strong>上一個嚴格更大價</strong>的距離。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">next() = <strong>O(1)</strong> 攤還　　n 次 = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每個價格一生最多 push 一次、pop 一次。while 內每轉一圈都 pop 掉一格(永久)→ 總 pop ≤ n。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th></tr></thead>
+      <tbody>
+        <tr><td>next(price)</td><td class="mono">O(1) 攤還</td></tr>
+        <tr><td>n 次呼叫</td><td class="mono">O(n)</td></tr>
+        <tr><td>Space</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      單調堆疊 + <strong>把答案(span)存在元素身上</strong>:被蓋過的區塊整段累加,而非逐天重數。
+      這是「<strong>previous greater element</strong>」的距離版,把 O(n²) 壓到攤還 O(1)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">堆疊存 (price,span)。next:span=1,top.price≤today 就 span+=top.span 並 pop(連環),再 push。攤還 O(1)。</div>
+    <div class="sc-summary-bar__detail">ONLINE STOCK SPAN · MONOTONIC STACK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p901-span.js"></script>
+</body>
+</html>
