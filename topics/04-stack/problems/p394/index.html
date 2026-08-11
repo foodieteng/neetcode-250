@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>394 · Decode String // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P394</span>
+    <span><a href="https://leetcode.com/problems/decode-string/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">字串解碼</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · (前綴, 次數) 堆疊</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 394</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>STACK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        解碼字串:規則 <code>k[encoded]</code> 表示 <code>encoded</code> 重複 <code>k</code> 次,可<strong>巢狀</strong>。
+        例 <code>3[a2[c]] = accaccacc</code>、<code>2[abc]3[cd]ef = abcabccdcdcdef</code>。輸入保證合法。
+      </p>
+    </div>
+
+    <p>
+      巢狀是難點:<code>2[c]</code> 在 <code>a…</code> 裡面,展開內層後要接回外層。用堆疊記住「進入 <code>[</code> <strong>之前</strong>累積的字串與次數」——
+      遇 <code>]</code> 時彈出、把內層展開結果接回去。每個 <code>[</code> 存一層外層狀態。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用堆疊<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">用一個變數邊掃邊展開</span>
+            <span class="sc-ko-card__o">巢狀就崩</span>
+          </div>
+          <div class="sc-ko-card__body">遇到內層 <code>[</code> 時,外層「已累積的字串 + 還沒用的次數」會被覆蓋、救不回來。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 無法巢狀</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">只存次數、不存前綴</span>
+            <span class="sc-ko-card__o">接不回外層</span>
+          </div>
+          <div class="sc-ko-card__body"><code>]</code> 展開後要接在「外層 <code>[</code> 前面那段字串」後面 —— 沒存前綴就接錯位置。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 少資訊</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">堆疊存 (前綴 curr, 次數 repeat);] 時展開接回</span>
+          <span class="sc-ko-card__o">O(輸出)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>[</code> 把 <code>(curr, repeat)</code> 壓入、清空重來;<code>]</code> 彈出 <code>(prev, k)</code>,<code>curr = prev + curr×k</code>。
+          巢狀自然由堆疊層數處理,每層都記得自己的外層前綴與次數。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(輸出)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四種字元<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>數字</strong>:<code>repeat = repeat*10 + (c−'0')</code>(可能多位數)。</li>
+      <li><strong><code>[</code></strong>:壓入 <code>(curr, repeat)</code>,再把 <code>curr=""</code>、<code>repeat=0</code>,進入新一層。</li>
+      <li><strong>字母</strong>:<code>curr += c</code>。</li>
+      <li><strong><code>]</code></strong>:彈出 <code>(prev, k)</code>,<code>curr = prev + curr×k</code>(把這層展開、接回外層)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 3[a2[c]]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看巢狀 <code>2[c]</code> 如何先展開成 <code>acc</code>,再被外層 <code>×3</code> 展開成 <code>accaccacc</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Decode String · (前綴, 次數) 堆疊</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼壓 (curr, repeat) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼壓「前綴 + 次數」<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · 每個堆疊格 = 「外層在此 [ 之前的狀態」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          進入 <code>[</code> 代表要開始蒐集「要被重複的內層字串」。此時 <code>curr</code> 是外層<strong>已累積、但還沒接內層</strong>的前綴,<code>repeat</code> 是這個內層<strong>要重複幾次</strong>。兩者<strong>之後才用得到</strong>(等 <code>]</code>),所以先<strong>壓進堆疊保存</strong>,再把 <code>curr/repeat</code> 清空,讓內層從乾淨狀態開始蒐集。堆疊層數 = 巢狀深度。
+        </p>
+        <p style="margin:0;">
+          遇 <code>]</code>,內層字串已存在 <code>curr</code>。彈出的 <code>(prev, k)</code> 就是「外層前綴」與「這層次數」,於是 <code>curr = prev + curr×k</code>:<strong>先接外層前綴,再把內層重複 k 次</strong>——順序不能反。展開後 <code>curr</code> 變成外層的新前綴,若外面還有 <code>]</code> 就繼續往上展開。這就是巢狀能正確層層收合的原因。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(N)</strong>　　S = <strong>O(N)</strong>　　(N = 輸出長度)</div>
+      <p class="sc-formula__hint">
+        每個輸出字元被產生 O(1) 次(展開時複製);堆疊與 curr 加起來不超過輸出規模。題目保證輸出 ≤ 10⁵。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(N)(輸出長度)</td></tr>
+        <tr><td>Space</td><td class="mono">O(N)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      巢狀 = 需要「回到外層」的記憶 → 堆疊。每進一層 <code>[</code> 就<strong>存起外層的前綴與次數</strong>,每出一層 <code>]</code> 就<strong>展開接回</strong>。
+      這與遞迴同構:堆疊格 = 遞迴呼叫的區域狀態。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">堆疊存 (curr, repeat)。數字累積;[ 壓入並清空;字母接 curr;] 彈出 (prev,k) → curr=prev+curr×k。O(輸出)。</div>
+    <div class="sc-summary-bar__detail">DECODE STRING · STACK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p394-decode.js"></script>
+</body>
+</html>

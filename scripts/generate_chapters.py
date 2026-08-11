@@ -128,7 +128,7 @@ PROBLEMS = {
         ('p901','Online Stock Span',               'online-stock-span',               'med', 'done'),
         ('p853','Car Fleet',                       'car-fleet',                       'med', 'done'),
         ('p71', 'Simplify Path',                   'simplify-path',                   'med', 'todo'),
-        ('p394','Decode String',                   'decode-string',                   'med', 'todo'),
+        ('p394','Decode String',                   'decode-string',                   'med', 'done'),
         ('p895','Maximum Frequency Stack',         'maximum-frequency-stack',         'hard','todo'),
         ('p84', 'Largest Rectangle in Histogram',  'largest-rectangle-in-histogram',  'hard','todo'),
     ],
