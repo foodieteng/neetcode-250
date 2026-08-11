@@ -126,7 +126,7 @@ PROBLEMS = {
         ('p735','Asteroid Collision',              'asteroid-collision',              'med', 'done'),
         ('p739','Daily Temperatures',              'daily-temperatures',              'med', 'done'),
         ('p901','Online Stock Span',               'online-stock-span',               'med', 'done'),
-        ('p853','Car Fleet',                       'car-fleet',                       'med', 'todo'),
+        ('p853','Car Fleet',                       'car-fleet',                       'med', 'done'),
         ('p71', 'Simplify Path',                   'simplify-path',                   'med', 'todo'),
         ('p394','Decode String',                   'decode-string',                   'med', 'todo'),
         ('p895','Maximum Frequency Stack',         'maximum-frequency-stack',         'hard','todo'),

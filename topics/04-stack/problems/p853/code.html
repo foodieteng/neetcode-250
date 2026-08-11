@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>853 · Car Fleet // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P853</span>
+    <span><a href="https://leetcode.com/problems/car-fleet/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">車隊</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 853</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · 位置排序 + 時間堆疊<span class="sc-section__title-en">// O(n log n)</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p853.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">carFleet</span><span class="p">(</span><span class="t">int</span> target<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> position<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> speed<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> position<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> idx<span class="p">(</span>n<span class="p">);</span>
+        <span class="f">iota</span><span class="p">(</span>idx<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> idx<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>
+        <span class="f">sort</span><span class="p">(</span>idx<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> idx<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="p">[&amp;](</span><span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> a<span class="p">,</span> <span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> b<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> position<span class="p">[</span>a<span class="p">]</span> <span class="p">&lt;</span> position<span class="p">[</span>b<span class="p">];</span>       <span class="c">// 依位置由小到大</span>
+        <span class="p">});</span>
+
+        <span class="t">stack</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">double</span><span class="p">&gt;&gt;</span> st<span class="p">;</span>       <span class="c">// (車index, 抵達時間 t)</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> i <span class="p">:</span> idx<span class="p">)</span> <span class="p">{</span>
+            <span class="t">double</span> t <span class="p">=</span> <span class="p">(</span><span class="t">double</span><span class="p">)(</span>target <span class="p">-</span> position<span class="p">[</span>i<span class="p">])</span> <span class="p">/</span> speed<span class="p">[</span>i<span class="p">];</span>  <span class="c">// 浮點!</span>
+            <span class="k">while</span> <span class="p">(</span><span class="p">!</span>st<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">&amp;&amp;</span> st<span class="p">.</span><span class="f">top</span><span class="p">().</span>second <span class="p">&lt;=</span> t<span class="p">)</span> <span class="p">{</span>  <span class="c">// 後車 t ≤ 前車 → 併入</span>
+                st<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="p">}</span>
+            st<span class="p">.</span><span class="f">push</span><span class="p">({</span>i<span class="p">,</span> t<span class="p">});</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> st<span class="p">.</span><span class="f">size</span><span class="p">();</span>                     <span class="c">// 倖存的堆疊元素數 = 車隊數</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      兩個關鍵:<code>t</code> 一定用 <strong>(double)</strong> 算(整數除法會把不同車算成同時到、答案錯);<code>&lt;=</code> 讓「同時抵達」也算同隊。
+      排序只動 <code>idx</code>、不動原陣列。<code>st</code> 存的 <code>i</code> 這裡沒用到,只為對稱可省(存 <code>double</code> 即可)。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">排序 idx</td><td class="mono">O(n log n)</td><td>主導項</td></tr>
+        <tr><td class="mono">堆疊掃一趟</td><td class="mono">O(n)</td><td>每車最多 push/pop 一次</td></tr>
+        <tr><td class="mono">idx + stack</td><td class="mono">O(n)</td><td>額外空間</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">排序決定整體;堆疊部分攤還線性。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>t</code> 用整數除法</td>
+          <td class="fail">不同車被算成同時到 → 答案錯</td>
+          <td>轉 <code>(double)</code> 再除</td>
+        </tr>
+        <tr>
+          <td>比「速度」而非「抵達時間」</td>
+          <td class="fail">起點不同,快車未必先到</td>
+          <td>用 <code>t=(target−pos)/speed</code></td>
+        </tr>
+        <tr>
+          <td>比較用 <code>&lt;</code></td>
+          <td class="fail">同時抵達的車被當兩隊</td>
+          <td><code>&lt;=</code>:在 target 相遇也算同隊</td>
+        </tr>
+        <tr>
+          <td>沒依位置排序就掃</td>
+          <td class="fail">前後關係亂,併隊判斷失效</td>
+          <td>先按 <code>position</code> 排序</td>
+        </tr>
+        <tr>
+          <td>直接排序 position(丟了 speed 對應)</td>
+          <td class="fail">position 與 speed 錯位</td>
+          <td>排 <code>idx</code>,或排 <code>(pos,speed)</code> pair</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// target=12, pos=[10,8,0,5,3], speed=[2,4,1,1,3]</span>
+抵達時間 t: pos0→12, pos3→3, pos5→7, pos8→1, pos10→1
+依位置排序: (0,12) (3,3) (5,7) (8,1) (10,1)
+(0,12):  push            st(t) = [12]
+(3,3):   12 &gt; 3 停 push  st = [12, 3]
+(5,7):   3 &lt;= 7 pop(pos3 併入);12 &gt; 7 停 push  st = [12, 7]
+(8,1):   7 &gt; 1 停 push  st = [12, 7, 1]
+(10,1):  1 &lt;= 1 pop(pos8 併入);7 &gt; 1 停 push  st = [12, 7, 1]
+<span class="sc-trace__out">// st.size() = 3 車隊</span></div>
+
+    <div class="sc-insight">
+      看 <code>pos5(t7)</code> 吃掉 <code>pos3(t3)</code>:pos3 在後、t 較小(會早到)→ 追上 pos5 併成一隊,整隊以 t7 抵達。
+      <code>pos10</code> 與 <code>pos8</code> 都 t1(同時到)→ <code>&lt;=</code> 讓它們算同一隊。最後三個 t(12,7,1)= 三個車隊。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">排 idx 依 position。t=(double)(target−pos)/speed。堆疊:top.t<=t 就 pop(併入),再 push。回傳 size。O(n log n)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 853 · CAR FLEET</div>
+  </div>
+
+</body>
+</html>
