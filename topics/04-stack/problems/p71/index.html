@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>71 · Simplify Path // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P71</span>
+    <span><a href="https://leetcode.com/problems/simplify-path/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">簡化路徑</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 切段 + 目錄堆疊</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 71</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>STACK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一個 Unix 絕對路徑,化簡成<strong>標準路徑</strong>:<code>.</code>=當前目錄、<code>..</code>=上層、多個 <code>//</code> 視為一個 <code>/</code>;
+        像 <code>...</code>、<code>....</code> 這種<strong>是合法目錄名</strong>。結果須以 <code>/</code> 開頭、目錄間單一 <code>/</code>、結尾不留 <code>/</code>(根目錄除外)。
+      </p>
+    </div>
+
+    <p>
+      把路徑用 <code>/</code> 切成一段段,只會出現四種段:<strong>空段</strong>(來自 <code>//</code> 或首尾)、<code>.</code>、<code>..</code>、<strong>一般名稱</strong>。
+      用堆疊模擬目錄:名稱 push、<code>..</code> pop、空段與 <code>.</code> 跳過。最後串起來就是答案。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用堆疊<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">在字串上直接刪改</span>
+            <span class="sc-ko-card__o">易錯</span>
+          </div>
+          <div class="sc-ko-card__body">用字串取代/回溯處理 <code>..</code>,邊界(連續斜線、結尾)一堆特例,很容易漏。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 難維護</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">把 <code>...</code> 也當上層</span>
+            <span class="sc-ko-card__o">判斷錯</span>
+          </div>
+          <div class="sc-ko-card__body">只有<strong>剛好</strong> <code>..</code> 才是上層;<code>...</code>、<code>....</code> 是普通名稱,誤判會刪錯目錄。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 規則錯</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">以 / 切段,目錄堆疊:名稱 push、.. pop、空/. 跳過</span>
+          <span class="sc-ko-card__o">O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          切段後每段只需 <code>==</code> 比對四種情況。堆疊天然表示「目前所在目錄鏈」:<code>..</code> 就是 pop(且空堆疊時忽略)。
+          最後由底到頂用 <code>/</code> 串起,空堆疊回 <code>/</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四種段<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>切段</strong>:用 <code>/</code> 把 path 切成一段段(空段自然出現)。</li>
+      <li><strong>空段 或 <code>.</code></strong>:跳過(<code>//</code>、首尾、當前目錄都無作用)。</li>
+      <li><strong><code>..</code></strong>:堆疊<strong>非空</strong>才 pop(回上層;已在根就忽略)。</li>
+      <li><strong>其餘名稱</strong>(含 <code>...</code>、<code>....</code>):push。最後用 <code>/</code> 串起,空則回 <code>/</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// /home/../.../foo/</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>..</code> 把 <code>home</code> pop 掉、而 <code>...</code> 被當成<strong>合法目錄名</strong> push(不是上上層)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Simplify Path · 切段 + 目錄堆疊</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:300px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 四種段的細節 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">四種段 · 為什麼這樣分<span class="sc-section__title-en">// THE CASES</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">CASES · 切段後只剩四類,各自對應一個動作</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          用 <code>/</code> 切段後,<strong>斜線本身消失了</strong>,連續 <code>//</code> 會切出<strong>空段</strong>、首尾斜線也各造出一個空段 —— 全部<strong>跳過</strong>即可,不必特別處理「多重斜線」。<code>.</code>(當前目錄)同樣<strong>跳過</strong>。這兩類讓「規範化斜線」自動完成。
+        </p>
+        <p style="margin:0;">
+          <code>..</code> 是唯一會「往回」的:<strong>堆疊非空才 pop</strong>——若已在根目錄(空堆疊),<code>..</code> 無效、直接忽略。最關鍵的陷阱:<strong>只有剛好兩個點 <code>..</code> 才是上層</strong>;<code>...</code>、<code>....</code>、<code>.foo</code> 都是<strong>合法檔名</strong>,要 push。所以判斷要用 <code>segment == ".."</code> 的精確比對,而不是「開頭是點」。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        切段掃一遍 O(n);每段最多 push/pop 一次;最後串接 O(n)。n = 路徑長度。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n)</td></tr>
+        <tr><td>Space</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      先<strong>切段</strong>再處理,把「多重斜線」「首尾斜線」全化成空段丟掉,問題只剩四種段。
+      堆疊 = 目前目錄鏈,<code>..</code> 就是 pop。切記 <code>...</code> 是<strong>名字</strong>不是上層。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與 stringstream</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">以 / 切段:空段/. 跳過、.. 非空才 pop、其餘(含 ...)push。由底到頂用 / 串起,空回 /。O(n)。</div>
+    <div class="sc-summary-bar__detail">SIMPLIFY PATH · SPLIT + STACK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p71-simplify.js"></script>
+</body>
+</html>
