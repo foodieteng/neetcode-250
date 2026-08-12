@@ -129,7 +129,7 @@ PROBLEMS = {
         ('p853','Car Fleet',                       'car-fleet',                       'med', 'done'),
         ('p71', 'Simplify Path',                   'simplify-path',                   'med', 'done'),
         ('p394','Decode String',                   'decode-string',                   'med', 'done'),
-        ('p895','Maximum Frequency Stack',         'maximum-frequency-stack',         'hard','todo'),
+        ('p895','Maximum Frequency Stack',         'maximum-frequency-stack',         'hard','done'),
         ('p84', 'Largest Rectangle in Histogram',  'largest-rectangle-in-histogram',  'hard','todo'),
     ],
     '05': [  # Binary Search

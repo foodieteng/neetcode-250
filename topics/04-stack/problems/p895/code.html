@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>895 · Maximum Frequency Stack // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P895</span>
+    <span><a href="https://leetcode.com/problems/maximum-frequency-stack/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最大頻率堆疊</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 895</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · freq + 頻率分層堆疊<span class="sc-section__title-en">// map by frequency</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p895.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">FreqStack</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;</span> freq<span class="p">;</span>            <span class="c">// 值 → 目前次數</span>
+    <span class="t">map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">stack</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> st<span class="p">;</span>            <span class="c">// 頻率 f → 達到 f 的值堆疊(map 有序)</span>
+
+    <span class="f">FreqStack</span><span class="p">()</span> <span class="p">{}</span>
+
+    <span class="t">void</span> <span class="f">push</span><span class="p">(</span><span class="t">int</span> val<span class="p">)</span> <span class="p">{</span>
+        freq<span class="p">[</span>val<span class="p">]++;</span>                          <span class="c">// 先加次數</span>
+        st<span class="p">[</span>freq<span class="p">[</span>val<span class="p">]].</span><span class="f">push</span><span class="p">(</span>val<span class="p">);</span>              <span class="c">// 疊進「它現在的頻率層」</span>
+    <span class="p">}</span>
+
+    <span class="t">int</span> <span class="f">pop</span><span class="p">()</span> <span class="p">{</span>
+        <span class="t">int</span> k <span class="p">=</span> st<span class="p">.</span><span class="f">rbegin</span><span class="p">()</span><span class="p">-&gt;</span>first<span class="p">;</span>            <span class="c">// 最高頻率層(map 最大 key)</span>
+        <span class="t">int</span> v <span class="p">=</span> st<span class="p">[</span>k<span class="p">].</span><span class="f">top</span><span class="p">();</span> st<span class="p">[</span>k<span class="p">].</span><span class="f">pop</span><span class="p">();</span>       <span class="c">// 該層頂端 = 最近達到 k 的值</span>
+        <span class="k">if</span> <span class="p">(</span>st<span class="p">[</span>k<span class="p">].</span><span class="f">empty</span><span class="p">())</span> st<span class="p">.</span><span class="f">erase</span><span class="p">(</span>k<span class="p">);</span>        <span class="c">// 空層移除,維持 rbegin 正確</span>
+        freq<span class="p">[</span>v<span class="p">]--;</span>                            <span class="c">// 它退回較低頻率</span>
+        <span class="k">return</span> v<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <code>push</code> 兩行:<strong>先 <code>freq++</code>、再疊進 <code>st[freq[val]]</code></strong> —— 疊到的是「它現在的頻率層」。<code>pop</code> 用 <code>st.rbegin()</code> 取最高層。
+      收尾把空層 <code>erase</code>,<code>rbegin()</code> 才會指到真正的最高層。(原碼 <code>return v;</code> 後有個多餘的 <code>;</code>,無害。)
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度 / O(1) 變體 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度 · O(1) 變體<span class="sc-section__title-en">// maxFreq trick</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">本解 push/pop = <strong>O(log D)</strong>　　O(1) 變體 = <strong>O(1)</strong> 攤還</div>
+      <p class="sc-formula__hint">
+        D = 不同頻率層數。<code>map</code> 的 <code>[]</code>/<code>rbegin</code>/<code>erase</code> 帶 <code>O(log D)</code>。
+      </p>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 嚴格 O(1) 變體:unordered_map + 一個 maxFreq 整數</span>
+unordered_map&lt;int,int&gt; freq;
+unordered_map&lt;int, stack&lt;int&gt;&gt; group;   // 頻率層 → 堆疊
+int maxFreq = 0;
+
+void push(int v){ int f = ++freq[v]; maxFreq = max(maxFreq, f); group[f].push(v); }
+int  pop(){ int v = group[maxFreq].top(); group[maxFreq].pop();
+            if (group[maxFreq].empty()) maxFreq--;   // 關鍵:空了就降一層
+            freq[v]--; return v; }
+<span class="sc-trace__out">// 不用有序 map;maxFreq 只會 ±1,故 O(1)</span></div>
+
+    <div class="sc-insight">
+      為什麼 <code>maxFreq--</code> 對:pop 掉 <code>maxFreq</code> 層唯一(或最後一個)元素後,一定還有某值處於 <code>maxFreq−1</code>(它 push 到 maxFreq 前必先經過 maxFreq−1)→ 新的最高層剛好是 <code>maxFreq−1</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>push 疊到 <code>freq[val]</code> <strong>之前</strong>的層</td>
+          <td class="fail">層次錯位,pop 取錯</td>
+          <td>先 <code>freq[val]++</code>,再疊進新頻率層</td>
+        </tr>
+        <tr>
+          <td>pop 忘了 <code>freq[v]--</code></td>
+          <td class="fail">該值頻率虛高,之後亂序</td>
+          <td>取出後把它的頻率退回</td>
+        </tr>
+        <tr>
+          <td>用 <code>&lt;</code> / 掃描找最頻繁</td>
+          <td class="fail">O(n)/次,且同頻率取序麻煩</td>
+          <td>分層 → 直接取最高層頂端</td>
+        </tr>
+        <tr>
+          <td>空層沒 erase(map 版)</td>
+          <td class="fail"><code>rbegin</code> 指到空層 → 取值崩</td>
+          <td>層空即 <code>erase(k)</code>(或用 maxFreq--)</td>
+        </tr>
+        <tr>
+          <td>以為要另存插入時間</td>
+          <td class="ok">其實不用</td>
+          <td>bucket 是堆疊,頂端天然是最近</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// push 5,7,5,7,4,5(bucket[f] 右=top)</span>
+push5: freq{5:1}         bucket{1:[5]}
+push7: freq{5:1,7:1}     bucket{1:[5,7]}
+push5: freq{5:2}         bucket{1:[5,7], 2:[5]}
+push7: freq{7:2}         bucket{1:[5,7], 2:[5,7]}
+push4: freq{4:1}         bucket{1:[5,7,4], 2:[5,7]}
+push5: freq{5:3}         bucket{1:[5,7,4], 2:[5,7], 3:[5]}</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// pop 兩次</span>
+pop(): 最高層 3,top=5 → 回 5;bucket[3] 空→erase;freq{5:2}
+       bucket{1:[5,7,4], 2:[5,7]}
+pop(): 最高層 2,top=7 → 回 7(7 比 5 晚達到頻率 2);freq{7:1}
+       bucket{1:[5,7,4], 2:[5]}
+<span class="sc-trace__out">// 依序回傳 5、7</span></div>
+
+    <div class="sc-insight">
+      第二個 pop 是關鍵:<code>5</code> 和 <code>7</code> 都曾達到頻率 2,但 bucket[2] 頂端是 <code>7</code>(後 push 的)→ 回 <code>7</code>。
+      「同頻率取最近」不需額外記時間,<strong>堆疊順序自帶</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">push:freq[v]++、st[freq[v]].push(v)。pop:取最高層 rbegin 的 top、空層 erase、freq[v]--。maxFreq 變體達 O(1)。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 895 · MAX FREQUENCY STACK</div>
+  </div>
+
+</body>
+</html>
