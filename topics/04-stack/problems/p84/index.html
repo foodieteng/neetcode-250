@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>84 · Largest Rectangle in Histogram // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">04 · Stack</a> / P84</span>
+    <span><a href="https://leetcode.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">直方圖最大矩形</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 遞增單調堆疊</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 84</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MONOTONIC STACK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給直方圖各柱高度 <code>heights</code>(每柱寬 1),求其中能框出的<strong>最大矩形面積</strong>。
+        例 <code>[2,1,5,6,2,3]</code> → <strong>10</strong>(高 5、寬 2,涵蓋索引 2–3)。
+      </p>
+    </div>
+
+    <p>
+      關鍵:以「<strong>某根柱的高度</strong>」為矩形高時,它能往左右延伸,直到碰到<strong>第一根比它矮</strong>的柱為止。
+      所以每根柱都需要「<strong>左、右兩側最近的更矮柱</strong>」——這正是<strong>遞增單調堆疊</strong>一趟就能算出的東西。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用單調堆疊<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每根柱往左右暴力擴張</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">對每根柱線性找兩側更矮邊界,最壞 O(n²),n=10⁵ 會超時。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">枚舉所有左右界</span>
+            <span class="sc-ko-card__o">O(n²) 起</span>
+          </div>
+          <div class="sc-ko-card__body">枚舉區間再取區間最小高,組合太多,仍離線性有距離。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">遞增堆疊:一趟求每根柱兩側最近更矮,算矩形</span>
+          <span class="sc-ko-card__o">O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          維持高度遞增的索引堆疊。新柱較矮 → pop 頂端,此時<strong>右邊界=當前 i</strong>、<strong>左邊界=pop 後的新頂端</strong>,寬 = <code>i − 左 − 1</code>,面積 = 高 × 寬。每根柱進出一次。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>末尾放哨兵</strong> <code>-1</code>:比任何柱都矮,收尾時把堆疊全部結算。</li>
+      <li><strong>維持遞增</strong>:當 <code>heights[st.top()] ≥ heights[i]</code>,pop 頂端柱 <code>h</code>;寬 = <code>st.empty()? i : i − st.top() − 1</code>;更新 <code>maxArea</code>。</li>
+      <li><strong>push i</strong>:i 尚未遇到右邊界,先入堆疊等待。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,1,5,6,2,3] → 10</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看 <code>i=4</code> 這根矮柱如何一次 pop 掉 6 和 5,並在 pop 5 時算出寬 2、面積 <strong>10</strong> 的最大矩形。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Largest Rectangle · 遞增堆疊</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:320px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 遞增 vs 遞減 判斷依據 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">遞增 vs 遞減堆疊 · 判斷依據<span class="sc-section__title-en">// HOW TO CHOOSE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">RULE · 先問「我要幫每個元素找哪種邊界?」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          單調堆疊的本質:<strong>幫每個元素找到左/右邊「最近的、比它大(或比它小)」的元素</strong>。堆疊裡放的是「<strong>還沒找到答案</strong>」的元素;某元素<strong>被 pop 的那一刻,進來的新元素正是它要找的邊界</strong>。所以 —— <strong>pop 條件 = 「新元素恰好是被 pop 者要找的邊界」</strong>。
+        </p>
+        <p style="margin:0;">
+          由此推出方向:要找<strong>更小</strong>,就 pop 掉「≥ 新元素」的頂端 → 堆疊維持<strong>遞增</strong>;要找<strong>更大</strong>,就 pop 掉「≤ 新元素」的頂端 → 堆疊維持<strong>遞減</strong>。<strong>堆疊的單調方向,和你要找的大/小相反。</strong>
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>你要找的邊界</th><th>用哪種堆疊</th><th>pop 條件</th><th>代表題</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>下一個 / 前一個<strong>更大</strong></td>
+          <td>底→頂<strong>遞減</strong></td>
+          <td>新元素 <code>&gt;</code> 頂端 → pop</td>
+          <td>739 每日溫度、901 股價跨度</td>
+        </tr>
+        <tr>
+          <td>下一個 / 前一個<strong>更小</strong></td>
+          <td>底→頂<strong>遞增</strong></td>
+          <td>新元素 <code>&lt;</code> 頂端 → pop</td>
+          <td><strong>84 本題</strong>、接雨水</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      本題要「每根柱兩側最近的<strong>更矮</strong>」= 找更小 → 用<strong>遞增</strong>堆疊。被 pop 的柱:<strong>右邊界 = 觸發它的新柱 i</strong>、<strong>左邊界 = pop 後留下的新頂端</strong>。這也是為什麼一次 pop 就能同時拿到左右兩界、算出寬。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 寬度、哨兵、>= ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">寬度公式 · 哨兵 · ≥<span class="sc-section__title-en">// THE DETAILS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">DETAILS · 三個容易寫錯的點</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>① 寬度 = <code>i − st.top() − 1</code>。</strong>pop 出高度 h 的柱後,它的矩形<strong>不含</strong>左右兩個更矮的邊界柱,所以寬是「右界 i 與左界 st.top() 之間的開區間」。若 pop 後<strong>堆疊空</strong>(左邊沒有更矮的),矩形能延伸到最左,寬 = <code>i</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>② 末尾哨兵 <code>-1</code>。</strong>掃到最後,堆疊裡可能還留著遞增的一串柱(它們右邊沒有更矮的)。補一根高度 <code>-1</code> 的柱(比任何柱都矮)當 <code>i</code>,就會把它們<strong>全部 pop 結算</strong>,右邊界正好是末端。省去迴圈後另寫一段清空。
+        </p>
+        <p style="margin:0;">
+          <strong>③ 用 <code>≥</code>(等高也 pop)。</strong>遇到等高柱一起 pop,先被 pop 的那根會拿到<strong>較窄</strong>的寬;但<strong>最右邊那根等高柱</strong>會留著,等真正更矮的柱來時拿到<strong>完整</strong>寬度,所以最大面積仍正確。改成嚴格 <code>&gt;</code> 也對,只是計算時機不同、答案一致。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每根柱最多 push 一次、pop 一次 → 攤還線性。面積 <code>h×w</code> 最大 10⁴×10⁵ = 10⁹,落在 int 範圍內。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n)</td></tr>
+        <tr><td>Space</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      要找<strong>更小</strong>用<strong>遞增</strong>、要找<strong>更大</strong>用<strong>遞減</strong> —— pop 條件就是「新元素是被 pop 者的邊界」。
+      本題每根柱以自己為高、延伸到兩側更矮:pop 時右界=i、左界=新頂端,一趟 O(n) 算完。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">找更小→遞增、找更大→遞減。本題遞增堆疊:新柱≤頂端就 pop,右界=i、左界=新頂端,寬=i−左−1,末尾哨兵。O(n)。</div>
+    <div class="sc-summary-bar__detail">LARGEST RECTANGLE · INCREASING STACK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p84-histogram.js"></script>
+</body>
+</html>
