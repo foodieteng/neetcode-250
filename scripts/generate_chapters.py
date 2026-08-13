@@ -621,18 +621,26 @@ def chapter_page(cat_id, slug, title, subtitle, count):
 
     # Optional per-chapter cheat-sheet banner (a standalone reference page that the
     # generator does NOT overwrite — it just links to it). Add chapters here as built.
+    #   cat_id -> (href, tag-label, title, tail-hint)
+    CHEATSHEETS = {
+        '12': ('cheatsheet.html', 'CHEAT SHEET', '圖論演算法速查表 · 11 個固定模板',
+               'BFS · DFS · DSU · Dijkstra · … →'),
+        '13': ('knapsack.html', 'DP TEMPLATE', '背包問題 DP 模板 · 0/1 · 完全 · 排列/組合',
+               '排列 vs 組合 · 內外圈 → '),
+    }
     cheatsheet_banner = ''
-    if cat_id == '12':
+    if cat_id in CHEATSHEETS:
+        href, tlabel, btitle, tail = CHEATSHEETS[cat_id]
         cheatsheet_banner = (
-            '\n      <a href="cheatsheet.html" style="display:flex;align-items:center;gap:14px;'
+            f'\n      <a href="{href}" style="display:flex;align-items:center;gap:14px;'
             'text-decoration:none;border:1.5px solid var(--ink,#1c1b18);background:#1b1f2b;'
             'color:#f4f0e4;padding:14px 18px;border-radius:4px;margin:18px 0 6px;">'
             '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;'
             'letter-spacing:.1em;background:#c8501e;color:#fff;padding:4px 10px;border-radius:3px;">'
-            'CHEAT SHEET</span>'
-            '<span style="font-weight:700;font-size:15px;">圖論演算法速查表 · 11 個固定模板</span>'
+            f'{tlabel}</span>'
+            f'<span style="font-weight:700;font-size:15px;">{btitle}</span>'
             '<span style="margin-left:auto;font-family:\'JetBrains Mono\',monospace;font-size:12px;'
-            'color:#e2b47a;">BFS · DFS · DSU · Dijkstra · … →</span></a>'
+            f'color:#e2b47a;">{tail}</span></a>'
         )
 
     return f'''<!DOCTYPE html>

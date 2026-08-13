@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>背包問題 DP 模板 // KNAPSACK DP TEMPLATES // NEETCODE 250</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+<style>
+  :root{
+    --paper:#f4f0e4; --ink:#1c1b18; --ink2:#4a473f; --muted:#8a8676;
+    --rule:#1c1b18; --hair:#d8d2c2; --coral:#c8501e;
+    --card:#1b1f2b; --card2:#232838; --ctext:#d6d9e0; --ccom:#8b93a5; --cbadge:#e2b47a;
+    --blue:#2f5f9e; --green:#3f7a3a; --teal:#2f7d8f; --purple:#6b4a9e; --red:#b0324f; --orange:#c8641e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .sheet{max-width:1180px;margin:0 auto;padding:40px 30px 60px;}
+  .backnav{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;
+    color:var(--muted);display:flex;justify-content:space-between;margin-bottom:22px;}
+  .backnav a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--hair);}
+  .backnav a:hover{color:var(--coral);}
+  .head{border-top:3px double var(--rule);border-bottom:3px double var(--rule);
+    padding:26px 0 22px;text-align:center;position:relative;margin-bottom:34px;}
+  .head__kick{display:inline-block;background:var(--ink);color:var(--paper);
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;padding:5px 14px;margin-bottom:12px;}
+  .head__zh-kick{font-family:"Noto Sans TC";letter-spacing:.5em;font-size:12px;color:var(--ink2);margin-bottom:6px;}
+  .head__title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:44px;letter-spacing:.04em;margin:2px 0 6px;}
+  .head__en{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.3em;color:var(--blue);margin-bottom:12px;}
+  .head__meta{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--ink2);}
+  .head__meta b{color:var(--ink);}
+  .head__star{position:absolute;top:34px;color:var(--coral);font-size:16px;}
+  .head__star--l{left:16px;} .head__star--r{right:16px;}
+  .slabel{display:flex;align-items:center;gap:11px;margin:38px 0 16px;flex-wrap:wrap;}
+  .slabel__bar{width:5px;height:22px;background:var(--coral);}
+  .slabel__zh{font-family:"Noto Serif TC",serif;font-weight:700;font-size:21px;letter-spacing:.03em;}
+  .slabel__en{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;}
+  .dtable{width:100%;border-collapse:collapse;font-size:14px;border:1.5px solid var(--ink);background:#fbf8ef;}
+  .dtable th{background:var(--ink);color:var(--paper);text-align:left;font-family:"JetBrains Mono",monospace;
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:11px 14px;font-weight:600;}
+  .dtable td{padding:11px 14px;border-top:1px solid var(--hair);vertical-align:top;}
+  .dtable tr:nth-child(even) td{background:#f6f2e7;}
+  .dtable .pick{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--blue);font-size:13px;}
+  .dtable .loop{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:12.5px;white-space:nowrap;}
+  .dtable .loop.rev{color:var(--red);} .dtable .loop.fwd{color:var(--green);}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;align-items:start;}
+  @media(max-width:840px){ .grid{grid-template-columns:1fr;} .head__title{font-size:32px;} .cmp{grid-template-columns:1fr !important;} }
+  .tcard{border:1.5px solid var(--ink);background:#fbf8ef;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;}
+  .tcard.wide{grid-column:1 / -1;}
+  .tcard__head{display:flex;align-items:center;gap:10px;padding:12px 14px 6px;flex-wrap:wrap;}
+  .tag{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:#fff;padding:3px 9px;border-radius:3px;}
+  .tag--01{background:var(--teal);} .tag--full{background:var(--blue);} .tag--comb{background:var(--green);}
+  .tag--perm{background:var(--red);} .tag--min{background:var(--orange);}
+  .tcard__title{font-weight:700;font-size:15px;}
+  .tcard__O{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--coral);font-weight:700;}
+  .tcard__when{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink2);letter-spacing:.02em;padding:0 14px 10px;border-bottom:1px solid var(--hair);}
+  .tcard__when b{color:var(--blue);}
+  pre.tcode{margin:0;background:var(--card);color:var(--ctext);font-family:"JetBrains Mono",monospace;
+    font-size:12px;line-height:1.62;padding:14px 16px;overflow-x:auto;}
+  pre.tcode .cm{color:var(--ccom);font-style:italic;}
+  pre.tcode .hl{background:rgba(226,180,122,0.16);display:inline-block;width:100%;border-left:2px solid var(--cbadge);padding-left:6px;margin-left:-8px;}
+  pre.tcode .kw{color:#c792ea;} pre.tcode .ty{color:#82aaff;}
+  /* 排列 vs 組合 compare */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
+  .cmpbox{border:1.5px solid var(--ink);border-radius:4px;background:#fbf8ef;padding:0 0 14px;overflow:hidden;}
+  .cmpbox__h{padding:12px 16px;color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;}
+  .cmpbox__h .mono{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;opacity:.9;}
+  .cmpbox--comb .cmpbox__h{background:var(--green);} .cmpbox--perm .cmpbox__h{background:var(--red);}
+  .cmpbox__body{padding:14px 16px 0;font-size:13.5px;line-height:1.75;}
+  .cmpbox__body b{color:var(--ink);}
+  .cmpbox code{font-family:"JetBrains Mono",monospace;font-size:12px;background:#efe9d8;padding:1px 5px;border-radius:3px;}
+  .loopline{font-family:"JetBrains Mono",monospace;font-size:12.5px;background:var(--card);color:var(--ctext);
+    border-radius:5px;padding:10px 12px;margin:8px 0 6px;line-height:1.7;}
+  .loopline .out{color:#e0b37a;font-weight:700;} .loopline .in{color:#82aaff;font-weight:700;}
+  .egbox{border:2px dashed var(--coral);border-radius:6px;background:#fbf2ea;padding:16px 20px;margin-top:18px;}
+  .egbox h4{margin:0 0 8px;font-family:"Noto Serif TC",serif;font-size:16px;}
+  .egtbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  .egtbl td{padding:7px 12px;border-top:1px solid var(--hair);vertical-align:top;}
+  .egtbl td:first-child{font-family:"JetBrains Mono",monospace;font-weight:700;white-space:nowrap;width:1%;}
+  .egtbl .c{color:var(--green);font-weight:700;} .egtbl .p{color:var(--red);font-weight:700;}
+  /* memorize */
+  .memo{margin-top:36px;border:1.5px solid var(--ink);background:#fbf8ef;border-radius:3px;padding:22px 26px;position:relative;}
+  .memo__title{font-family:"Noto Serif TC",serif;font-weight:700;font-size:19px;margin:0 0 14px;}
+  .memo__stamp{position:absolute;top:20px;right:22px;font-family:"JetBrains Mono",monospace;font-size:12px;
+    letter-spacing:.14em;color:var(--coral);border:2px solid var(--coral);padding:5px 11px;border-radius:4px;transform:rotate(-4deg);}
+  .memo ul{margin:0;padding:0;list-style:none;}
+  .memo li{position:relative;padding-left:20px;margin:8px 0;font-size:14px;line-height:1.7;}
+  .memo li::before{content:"▶";position:absolute;left:0;color:var(--coral);font-size:10px;top:5px;}
+  .memo b{color:var(--ink);}
+  .memo code{font-family:"JetBrains Mono",monospace;font-size:12.5px;background:#efe9d8;padding:1px 6px;border-radius:3px;color:var(--blue);}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="backnav">
+    <span><a href="../../index.html">HOME</a> / <a href="index.html">13 · 1-D DP</a> / KNAPSACK</span>
+    <span>NEETCODE 250 · DP TEMPLATES</span>
+  </div>
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header class="head">
+    <span class="head__star head__star--l">✦</span>
+    <span class="head__star head__star--r">✦</span>
+    <div class="head__kick">DP · CHEAT SHEET</div>
+    <div class="head__zh-kick">背 包 問 題 · 固 定 模 板</div>
+    <h1 class="head__title">背包問題 DP 模板</h1>
+    <div class="head__en">KNAPSACK · 0/1 · COMPLETE · COMBINATION · PERMUTATION</div>
+    <div class="head__meta">語言 <b>C++17</b>　·　一維滾動 <b>dp[j]</b>　·　全部程式已編譯驗證　·　重點 <b>內外圈決定排列/組合</b></div>
+  </header>
+
+  <!-- ═══════ DECISION TABLE ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">選對背包</span><span class="slabel__en">· Decision Table</span></div>
+
+  <table class="dtable">
+    <thead><tr><th>你要解的問題</th><th>用哪種</th><th>迴圈方向(關鍵)</th><th>初值</th></tr></thead>
+    <tbody>
+      <tr><td>每個物品<b>最多一次</b> · 最大價值</td><td class="pick">0/1 背包</td><td class="loop rev">物品外 · 容量<b>逆序</b> ↓</td><td>dp=0</td></tr>
+      <tr><td>每個物品<b>可無限次</b> · 最大價值</td><td class="pick">完全背包</td><td class="loop fwd">物品外 · 容量<b>正序</b> ↑</td><td>dp=0</td></tr>
+      <tr><td>湊出金額的<b>組合數</b>(順序不算)</td><td class="pick">Coin Change 2 · 518</td><td class="loop fwd"><b>硬幣外</b> · 金額內</td><td>dp[0]=1</td></tr>
+      <tr><td>湊出金額的<b>排列數</b>(順序要算)</td><td class="pick">Combination Sum IV · 377</td><td class="loop rev"><b>金額外</b> · 硬幣內</td><td>dp[0]=1</td></tr>
+      <tr><td>湊出金額的<b>最少硬幣數</b></td><td class="pick">Coin Change · 322</td><td class="loop fwd">硬幣外 · 金額正序</td><td>dp[0]=0 其餘 INF</td></tr>
+      <tr><td>能否<b>剛好湊出</b> / 子集和</td><td class="pick">0/1 布林背包 · 416</td><td class="loop rev">物品外 · 容量<b>逆序</b> ↓</td><td>dp[0]=true</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════ TEMPLATES ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">固定模板</span><span class="slabel__en">· Templates</span></div>
+
+  <div class="grid">
+
+    <!-- 0/1 -->
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--01">0/1</span><span class="tcard__title">0/1 背包 · 每物品一次</span><span class="tcard__O">O(nW)</span></div>
+      <div class="tcard__when">WHEN 物品不可重複取 · 求最大價值</div>
+<pre class="tcode"><span class="cm">// dp[j] = 容量 j 的最大價值</span>
+<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; dp(W + <span class="ty">1</span>, <span class="ty">0</span>);
+<span class="kw">for</span> (<span class="ty">int</span> i = <span class="ty">0</span>; i &lt; n; i++)
+<span class="hl">    <span class="kw">for</span> (<span class="ty">int</span> j = W; j &gt;= w[i]; j--)   <span class="cm">// 容量逆序 ↓</span></span>
+        dp[j] = <span class="kw">max</span>(dp[j], dp[j - w[i]] + v[i]);
+<span class="kw">return</span> dp[W];
+<span class="cm">// 逆序 → 每個物品這輪只被用一次(不會拿到本輪剛更新的 dp[j-w])</span></pre>
+    </div>
+
+    <!-- complete -->
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--full">COMPLETE</span><span class="tcard__title">完全背包 · 無限次</span><span class="tcard__O">O(nW)</span></div>
+      <div class="tcard__when">WHEN 物品可重複取 · 求最大價值</div>
+<pre class="tcode"><span class="cm">// dp[j] = 容量 j 的最大價值(可重複拿)</span>
+<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; dp(W + <span class="ty">1</span>, <span class="ty">0</span>);
+<span class="kw">for</span> (<span class="ty">int</span> i = <span class="ty">0</span>; i &lt; n; i++)
+<span class="hl">    <span class="kw">for</span> (<span class="ty">int</span> j = w[i]; j &lt;= W; j++)   <span class="cm">// 容量正序 ↑</span></span>
+        dp[j] = <span class="kw">max</span>(dp[j], dp[j - w[i]] + v[i]);
+<span class="kw">return</span> dp[W];
+<span class="cm">// 正序 → dp[j-w] 可能已含同一物品 → 允許重複使用</span></pre>
+    </div>
+
+    <!-- combination -->
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--comb">COMBO</span><span class="tcard__title">組合數 · 順序不算</span><span class="tcard__O">Coin Change 2</span></div>
+      <div class="tcard__when">WHEN 幾種<b>組合</b>湊出金額 · {1,2}={2,1}</div>
+<pre class="tcode"><span class="cm">// dp[j] = 湊出金額 j 的組合數</span>
+<span class="ty">vector</span>&lt;<span class="ty">long long</span>&gt; dp(amount + <span class="ty">1</span>, <span class="ty">0</span>);
+dp[<span class="ty">0</span>] = <span class="ty">1</span>;
+<span class="hl"><span class="kw">for</span> (<span class="ty">int</span> c : coins)              <span class="cm">// ← 外圈:硬幣</span></span>
+    <span class="kw">for</span> (<span class="ty">int</span> j = c; j &lt;= amount; j++) <span class="cm">// 內圈:金額</span>
+        dp[j] += dp[j - c];
+<span class="kw">return</span> dp[amount];
+<span class="cm">// 硬幣在外 → 每種硬幣只當一層 → 不重複數順序</span></pre>
+    </div>
+
+    <!-- permutation -->
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--perm">PERM</span><span class="tcard__title">排列數 · 順序要算</span><span class="tcard__O">Combination Sum IV</span></div>
+      <div class="tcard__when">WHEN 幾種<b>排列</b>湊出金額 · {1,2}≠{2,1}</div>
+<pre class="tcode"><span class="cm">// dp[j] = 湊出金額 j 的排列數</span>
+<span class="ty">vector</span>&lt;<span class="ty">unsigned long long</span>&gt; dp(target + <span class="ty">1</span>, <span class="ty">0</span>);
+dp[<span class="ty">0</span>] = <span class="ty">1</span>;
+<span class="hl"><span class="kw">for</span> (<span class="ty">int</span> j = <span class="ty">1</span>; j &lt;= target; j++)  <span class="cm">// ← 外圈:金額</span></span>
+    <span class="kw">for</span> (<span class="ty">int</span> c : nums)            <span class="cm">// 內圈:硬幣</span>
+        <span class="kw">if</span> (c &lt;= j) dp[j] += dp[j - c];
+<span class="kw">return</span> dp[target];
+<span class="cm">// 金額在外 → 對每個金額試「最後一枚是誰」→ 順序算</span></pre>
+    </div>
+
+    <!-- min coins -->
+    <div class="tcard wide">
+      <div class="tcard__head"><span class="tag tag--min">MIN</span><span class="tcard__title">最少硬幣數 · Coin Change 322</span><span class="tcard__O">O(n·amount)</span></div>
+      <div class="tcard__when">WHEN 湊出金額所需<b>最少</b>硬幣 · 順序無關 → 用完全背包 min</div>
+<pre class="tcode"><span class="kw">const</span> <span class="ty">int</span> INF = <span class="ty">1e9</span>;
+<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; dp(amount + <span class="ty">1</span>, INF);
+dp[<span class="ty">0</span>] = <span class="ty">0</span>;                                <span class="cm">// 湊 0 元用 0 枚</span>
+<span class="kw">for</span> (<span class="ty">int</span> c : coins)
+    <span class="kw">for</span> (<span class="ty">int</span> j = c; j &lt;= amount; j++)         <span class="cm">// 正序(可重複)</span>
+        <span class="kw">if</span> (dp[j - c] != INF)
+            dp[j] = <span class="kw">min</span>(dp[j], dp[j - c] + <span class="ty">1</span>);
+<span class="kw">return</span> dp[amount] == INF ? -<span class="ty">1</span> : dp[amount];  <span class="cm">// 湊不出 → -1</span></pre>
+    </div>
+
+  </div>
+
+  <!-- ═══════ 排列 vs 組合 ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">排列 vs 組合 · 內外圈怎麼放</span><span class="slabel__en">· THE KEY</span></div>
+
+  <div class="cmp">
+    <div class="cmpbox cmpbox--comb">
+      <div class="cmpbox__h">組合 Combination<span class="mono">順序不算 · {1,2} = {2,1}</span></div>
+      <div class="loopline"><span class="out">for 硬幣 c</span>(外圈)<br>&nbsp;&nbsp;<span class="in">for 金額 j = c..target</span>(內圈)<br>&nbsp;&nbsp;&nbsp;&nbsp;dp[j] += dp[j − c];</div>
+      <div class="cmpbox__body">
+        <b>物品(硬幣)在外圈。</b>每種硬幣只被當成「一層」處理一次。當你處理到硬幣 <code>2</code> 時,<code>dp[j]</code> 早已算好「只用硬幣 1」的所有湊法,你只是<b>在其上疊加硬幣 2</b>。
+        <br><br>因此湊法永遠以「<b>先 1 再 2</b>」的固定順序長出來,<b>不會</b>再產生「先 2 再 1」。所以 <code>{1,2}</code> 只被算<b>一次</b> → 得到<b>組合數</b>。
+        <br><br>代表題:<b>Coin Change 2 (518)</b>。
+      </div>
+    </div>
+
+    <div class="cmpbox cmpbox--perm">
+      <div class="cmpbox__h">排列 Permutation<span class="mono">順序要算 · {1,2} ≠ {2,1}</span></div>
+      <div class="loopline"><span class="out">for 金額 j = 1..target</span>(外圈)<br>&nbsp;&nbsp;<span class="in">for 硬幣 c</span>(內圈)<br>&nbsp;&nbsp;&nbsp;&nbsp;if (c ≤ j) dp[j] += dp[j − c];</div>
+      <div class="cmpbox__body">
+        <b>目標(金額)在外圈。</b>對每個金額 <code>j</code>,你都問「<b>最後一枚硬幣是哪種</b>」,把所有硬幣都試一遍。
+        <br><br>於是 <code>{1,2}</code>(最後放 2)由 <code>dp[3] += dp[2]</code> 算到,<code>{2,1}</code>(最後放 1)由 <code>dp[3] += dp[1]</code> 又算一次 —— <b>同一組硬幣的不同順序各算一次</b> → 得到<b>排列數</b>。
+        <br><br>代表題:<b>Combination Sum IV (377)</b>。
+      </div>
+    </div>
+  </div>
+
+  <div class="egbox">
+    <h4>🔎 具體看差別:coins = {1, 2},target = 3</h4>
+    <table class="egtbl">
+      <tr><td class="c">組合 = 2</td><td>{1,1,1}、{1,2}　<span style="color:var(--muted)">——「1,2」和「2,1」視為同一種</span></td></tr>
+      <tr><td class="p">排列 = 3</td><td>{1,1,1}、{1,2}、<b style="color:var(--red)">{2,1}</b>　<span style="color:var(--muted)">——「2,1」多算一種</span></td></tr>
+    </table>
+    <div style="margin-top:10px;font-size:13.5px;line-height:1.7;">
+      口訣:<b>「物品在外 → 組合;目標在外 → 排列」</b>。
+      更根本的理由 —— <b>外層那一維只會被「單向走一次」</b>:外層是物品,就保證每個物品照固定次序加入(不計順序=組合);外層是容量,就讓每個容量對所有物品開放(計順序=排列)。
+    </div>
+  </div>
+
+  <!-- ═══════ MEMORIZE ═══════ -->
+  <div class="memo">
+    <span class="memo__stamp">MEMORIZE</span>
+    <div class="memo__title">背誦口訣</div>
+    <ul>
+      <li><b>0/1 背包</b> → 物品外、容量<b>逆序</b>(每物品一次);<b>完全背包</b> → 物品外、容量<b>正序</b>(可重複)。</li>
+      <li><b>逆序 vs 正序</b>:逆序時 <code>dp[j−w]</code> 還是「上一輪(沒放本物品)」→ 一次;正序時已含本物品 → 無限次。</li>
+      <li><b>組合數</b>(順序不算)→ <b>硬幣在外、金額在內</b>(Coin Change 2)。</li>
+      <li><b>排列數</b>(順序要算)→ <b>金額在外、硬幣在內</b>(Combination Sum IV)。</li>
+      <li><b>計數版</b>初值 <code>dp[0]=1</code>(空集合一種湊法);<b>最值版</b>初值 0 或 INF。</li>
+      <li><b>易錯</b>:計數用 <code>+=</code>、最值用 <code>max/min</code>;帶大數用 <code>long long</code> 防溢位。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
