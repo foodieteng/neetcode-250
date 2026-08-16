@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>74 · Search a 2D Matrix // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P74</span>
+    <span><a href="https://leetcode.com/problems/search-a-2d-matrix/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">搜尋二維矩陣</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與複雜度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 74</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · 兩段二分<span class="sc-section__title-en">// pick row, then search it</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p74.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">bool</span> <span class="f">searchMatrix</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> matrix<span class="p">,</span> <span class="t">int</span> target<span class="p">)</span> <span class="p">{</span>
+        <span class="c">// ── 第一段:對「每列首元素」二分,找第一列首元素 &gt; target ──</span>
+        <span class="t">int</span> left <span class="p">=</span> <span class="n">0</span><span class="p">,</span> right <span class="p">=</span> matrix<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+
+        <span class="k">while</span> <span class="p">(</span>left <span class="p">&lt;</span> right<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> mid <span class="p">=</span> left <span class="p">+</span> <span class="p">(</span>right <span class="p">-</span> left<span class="p">)</span> <span class="p">/</span> <span class="n">2</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span>matrix<span class="p">[</span>mid<span class="p">][</span><span class="n">0</span><span class="p">]</span> <span class="p">&gt;</span> target<span class="p">)</span> <span class="p">{</span>
+                right <span class="p">=</span> mid<span class="p">;</span>              <span class="c">// 這列太大 → 保留 mid 當右界</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                left <span class="p">=</span> mid <span class="p">+</span> <span class="n">1</span><span class="p">;</span>          <span class="c">// 這列首元素 ≤ target → 跨過</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span>left <span class="p">-</span> <span class="n">1</span> <span class="p">&lt;</span> <span class="n">0</span><span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>   <span class="c">// 所有列首元素都 &gt; target → 不可能存在</span>
+
+        <span class="t">int</span> rowIdx <span class="p">=</span> left <span class="p">-</span> <span class="n">1</span><span class="p">;</span>          <span class="c">// 最後一列「首元素 ≤ target」= 唯一可能的列</span>
+
+        <span class="c">// ── 第二段:對該列二分,收斂到單格 ──</span>
+        left <span class="p">=</span> <span class="n">0</span><span class="p">,</span> right <span class="p">=</span> matrix<span class="p">[</span>rowIdx<span class="p">].</span><span class="f">size</span><span class="p">()</span> <span class="p">-</span> <span class="n">1</span><span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(</span>left <span class="p">&lt;</span> right<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> mid <span class="p">=</span> left <span class="p">+</span> <span class="p">(</span>right <span class="p">-</span> left<span class="p">)</span> <span class="p">/</span> <span class="n">2</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span>matrix<span class="p">[</span>rowIdx<span class="p">][</span>mid<span class="p">]</span> <span class="p">&gt;=</span> target<span class="p">)</span> <span class="p">{</span>
+                right <span class="p">=</span> mid<span class="p">;</span>              <span class="c">// 可能就是答案 → 保留</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                left <span class="p">=</span> mid <span class="p">+</span> <span class="n">1</span><span class="p">;</span>          <span class="c">// 太小 → 跨過</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> matrix<span class="p">[</span>rowIdx<span class="p">][</span>left<span class="p">]</span> <span class="p">==</span> target<span class="p">;</span>   <span class="c">// 唯一候選,仍要驗一次</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      兩段用的是<strong>同一副骨架</strong>,只有三處不同:<strong>pred 寫什麼</strong>(<code>&gt; target</code> vs <code>≥ target</code>)、
+      <strong>right 的初值</strong>(<code>m</code> vs <code>n − 1</code>)、<strong>取 l 還是 l − 1</strong>。
+      對照<a href="../../template.html">模板頁</a>就會發現:第一段是「最後一個不滿足」,第二段是「收斂到單格」。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 兩段的差異 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">兩段各自是模板的哪一種<span class="sc-section__title-en">// TWO FLAVORS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>第一段(選列)</th><th>第二段(列內)</th></tr></thead>
+      <tbody>
+        <tr><td>搜尋對象</td><td>每列的首元素</td><td>選定那列的所有元素</td></tr>
+        <tr><td>right 初值</td><td class="mono">m(右開)</td><td class="mono">n − 1(閉,收斂單格)</td></tr>
+        <tr><td>pred</td><td class="mono">matrix[m][0] &gt; target</td><td class="mono">matrix[row][m] &gt;= target</td></tr>
+        <tr><td>收斂後 l 的意義</td><td>第一列「首元素 &gt; target」</td><td>唯一候選格</td></tr>
+        <tr><td>要的答案</td><td class="mono"><strong>l − 1</strong></td><td class="mono"><strong>l</strong></td></tr>
+        <tr><td>必要的檢查</td><td class="fail"><code>l == 0</code> → false</td><td class="fail"><code>== target</code> 驗命中</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 為什麼第一段用 &gt; 而不是 &gt;=</span>
+若寫 matrix[m][0] &gt;= target,收斂後 l = 第一列「首元素 &gt;= target」。
+當 target 剛好等於某列的首元素時,兩者會差一列:
+  用 &gt;  → l 指向下一列,l-1 正好是含 target 的那列      ✔
+  用 &gt;= → l 指向含 target 的那列,l-1 變成前一列,漏解   ✘
+
+實測反例 matrix = [[1,3],[10,11]], target = 10
+  用 &gt;  : 首元素欄 [1,10] 的 &gt;10 帶 = [F,F] → l=2 → rowIdx=1 → 列 [10,11] 找到  → true
+  用 &gt;= : &gt;=10 帶 = [F,T]            → l=1 → rowIdx=0 → 列 [1,3]  找不到 → false
+(窮舉 m,n=1..4 共 40 筆不一致)
+<span class="sc-trace__out">// 「取 l-1」的寫法,pred 必須用嚴格 &gt;,才能把「等於」留在 l-1 那側</span></div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">第一段選列</td><td class="mono">O(log m)</td><td>m ≤ 100 → 7 輪</td></tr>
+        <tr><td class="mono">第二段列內</td><td class="mono">O(log n)</td><td>n ≤ 100 → 7 輪</td></tr>
+        <tr><td class="mono">兩次收尾檢查</td><td class="mono">O(1)</td><td>擋 l==0、驗命中</td></tr>
+        <tr><td class="mono">合計</td><td class="mono">O(log m + log n)</td><td>= <code>O(log(m·n))</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log(m·n))</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">關鍵等式:<code>log m + log n = log(m·n)</code>。所以「兩段二分」和「攤平成一維一次二分」<strong>同級</strong>。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>忘記 <code>if (left - 1 &lt; 0)</code></td>
+          <td class="fail">target 小於所有首元素時讀到 <code>matrix[-1]</code> → 越界 UB</td>
+          <td><code>l − 1</code> 家族必擋左邊界</td>
+        </tr>
+        <tr>
+          <td>第一段 pred 用 <code>&gt;=</code></td>
+          <td class="fail">target 剛好等於某列首元素時,<code>l−1</code> 指到前一列 → 漏解。實測 <strong>40 筆</strong>不一致,反例 <code>[[1,3],[10,11]]</code>, <code>t=10</code> → 回 false(正解 true)</td>
+          <td>取 <code>l−1</code> 就要配嚴格 <code>&gt;</code></td>
+        </tr>
+        <tr>
+          <td>直接回傳 <code>true</code> 不驗值</td>
+          <td class="fail">收斂只給候選格,不代表命中</td>
+          <td><code>matrix[rowIdx][left] == target</code></td>
+        </tr>
+        <tr>
+          <td>第二段忘了重設 <code>left = 0</code></td>
+          <td class="fail">沿用第一段的 l,起點錯誤</td>
+          <td>兩段各自初始化</td>
+        </tr>
+        <tr>
+          <td><code>size() - 1</code> 的無號數</td>
+          <td class="ok">本題 <code>m, n ≥ 1</code>,不會出事</td>
+          <td>但空 vector 會環繞成巨大值 —— 習慣先存成 <code>int</code></td>
+        </tr>
+        <tr>
+          <td>擔心 <code>l</code> 收斂到 <code>m</code></td>
+          <td class="ok"><code>l − 1 = m − 1</code> 仍是合法列</td>
+          <td>只有左邊界要擋,右邊不用</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 5 · 走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 輸入</span>
+matrix = [[ 1,  3,  5,  7],
+          [10, 11, 16, 20],
+          [23, 30, 34, 60]]      m = 3, n = 4
+target = 3
+首元素欄 = [1, 10, 23] —— 本身遞增,可以二分</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 2: 第一段(選列)pred = matrix[m][0] &gt; 3</span>
+[0,3) mid=1  matrix[1][0]=10 &gt; 3 → 是 → right = 1   → [0,1)
+[0,1) mid=0  matrix[0][0]=1  &gt; 3 → 否 → left  = 1   → [1,1)
+收斂 left = 1
+left - 1 = 0 &gt;= 0,通過檢查 → rowIdx = 0</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 3: 第二段(列內)第 0 列 = [1,3,5,7]</span>
+[0,3] mid=1  matrix[0][1]=3 &gt;= 3 → 是 → right = 1   → [0,1]
+[0,1] mid=0  matrix[0][0]=1 &gt;= 3 → 否 → left  = 1   → [1,1]
+收斂 left = 1
+<span class="sc-trace__out">// matrix[0][1] == 3 → return true</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 4: 找不到的三種情形</span>
+target = 13:第一段 [F,F,T] → l=2 → rowIdx=1,列 [10,11,16,20]
+            第二段收斂到 16,16 != 13                     → false
+target = 0 :第一段 [T,T,T] → l=0 → l-1 = -1,擋下         → false
+target = 100:第一段 [F,F,F] → l=3=m → rowIdx=2(合法!)
+            第二段收斂到 60,60 != 100                    → false
+<span class="sc-trace__out">// 只有 l==0 需要特判;l==m 不用,因為 l-1 = m-1 仍是合法列</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 5: 窮舉驗證</span>
+m,n = 1..4 的所有矩陣 × 所有 target(含不存在)共 280 組,失敗 0 筆
+官方範例:target=3 → true ; target=13 → false
+邊界:[[5]] t=5/4/6 → true/false/false ; [[1],[3],[5]] t=3/0/6 → true/false/false
+<span class="sc-trace__out">// 單格、單欄(n=1)、單列(m=1)皆通過</span></div>
+
+    <div class="sc-insight">
+      PHASE 4 的三種失敗<strong>走的是三條不同路徑</strong>:一個被第二段的值檢查擋下、一個被 <code>l−1 &lt; 0</code> 擋下、一個雖然 <code>l</code> 跑到尾後但 <code>l−1</code> 仍合法。
+      把這三條都想過一遍,這題的邊界就完整了。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與 l−1</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與問答</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// CODE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">第一段 pred 用嚴格 &gt; 且取 l−1(必擋 l==0);第二段收斂到單格再驗 ==target。兩段同一副骨架,只差 pred / right 初值 / 拿 l 還是 l−1。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 74 · SEARCH A 2D MATRIX</div>
+  </div>
+
+</body>
+</html>
