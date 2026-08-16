@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>374 · Guess Number Higher or Lower // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P374</span>
+    <span><a href="https://leetcode.com/problems/guess-number-higher-or-lower/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">猜數字</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 三分支合併成兩分支</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 374</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH · API</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        對方從 <code>1 … n</code> 挑了一個數 <code>pick</code>(過程中不變)。你<strong>看不到它</strong>,只能呼叫 API <code>guess(num)</code>:
+        回 <code>-1</code> 表示你猜<strong>太大</strong>、回 <code>1</code> 表示你猜<strong>太小</strong>、回 <code>0</code> 表示<strong>猜中</strong>。請回傳 <code>pick</code>。
+        <code>1 ≤ n ≤ 2³¹ − 1</code>。
+      </p>
+    </div>
+
+    <p>
+      這題和 <a href="../p704/index.html">704</a>、<a href="../p35/index.html">35</a> 的差別:那兩題「值」擺在陣列裡可以直接讀,這題的值<strong>藏起來了</strong>,
+      只能透過一個<strong>單調的 API</strong> 間接探測。但骨架完全一樣 —— 因為二分要的從來不是陣列,而是<strong>一個單調的是非回應</strong>。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼把三分支併成兩分支<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">從 1 猜到 n</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">n 可到 2³¹−1,線性猜要 20 億次 API 呼叫,直接出局。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">三分支 <code>l&lt;=r</code>,<code>==0</code> 提早 return</span>
+            <span class="sc-ko-card__o">O(log n)</span>
+          </div>
+          <div class="sc-ko-card__body">複雜度已經對,但要維護 <code>l&lt;=r</code>、<code>r=m−1</code>、<code>l=m+1</code> 三處對齊,而且末尾那句 <code>return -1</code> 是<strong>永遠執行不到的死碼</strong>。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 分支多、有死碼</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">把 <code>0</code> 併進「太大」那側,收斂到單格</span>
+          <span class="sc-ko-card__o">O(log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          只問一件事:<strong>「猜小了嗎?」</strong>是 → <code>left = mid + 1</code>;不是(太大<strong>或剛好</strong>)→ <code>right = mid</code>。
+          因為 <code>right = mid</code> <strong>保留了 mid</strong>,猜中的那個數不會被丟掉,最後一定是唯一活下來的那格。
+          <strong>兩分支、無死碼、和 704/35 同一副骨架。</strong>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · STABLE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義區間</strong>:<code>left = 1</code>、<code>right = n</code>,答案<strong>保證</strong>落在閉區間 <code>[left, right]</code> 內。</li>
+      <li><strong>收縮</strong>:<code>mid = left + (right − left) / 2</code>。<code>guess(mid) == 1</code>(猜小了)→ <code>left = mid + 1</code>;否則 → <code>right = mid</code>。</li>
+      <li><strong>收斂即答案</strong>:<code>left == right</code> 時區間只剩一格,而答案保證存在 → <code>return left;</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// n=10, pick=6 → 4 次 guess</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      重點看 <strong>Round 4</strong>:<code>guess(6)</code> 回 <code>0</code> 已經猜中了,程式卻<strong>沒有立刻回傳</strong>,
+      而是走 <code>right = mid</code>。因為 mid 被保留,那一格自然成為最後的倖存者。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Guess Number · 區間收斂到單格</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:352px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 合併為什麼安全 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">把「猜中」併進「太大」為什麼安全<span class="sc-section__title-en">// LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · pick 永遠留在 [left, right] 之內</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>不變量:</strong>每一輪開始時,<code>pick ∈ [left, right]</code>。初始 <code>[1, n]</code> 依題目保證成立。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>維持:</strong>若 <code>guess(mid) == 1</code>(mid 比 pick 小),則 <code>pick ≥ mid + 1</code>,取 <code>left = mid + 1</code> 後 pick 仍在區間內。
+          若 <code>guess(mid) == -1</code>(mid 比 pick 大),則 <code>pick ≤ mid − 1 ≤ mid</code>;若 <code>guess(mid) == 0</code>,則 <code>pick = mid</code>。
+          <strong>兩種情況都滿足 <code>pick ≤ mid</code></strong>,所以<strong>同一行</strong> <code>right = mid</code> 對兩者都保住了不變量 —— 這正是能合併的理由。
+        </p>
+        <p style="margin:0;">
+          <strong>終止與正確:</strong>因為 <code>left ≤ mid &lt; right</code>,兩個分支都讓區間嚴格變短,必定收斂到 <code>left == right</code>。
+          此時區間只剩一格而 pick 仍在其中 ⇒ <strong>那一格就是 pick</strong>。所以 <code>return left</code> 不需要任何驗證。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      注意合併的代價:<code>-1</code> 明明可以縮到 <code>mid − 1</code>,合併後只縮到 <code>mid</code>,<strong>多留一格</strong>。
+      但那一格最多讓迴圈多跑一輪,換來的是<strong>少一個分支、少一段死碼、和其他二分題共用同一副骨架</strong> —— 這筆交易很划算。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 溢位 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">這題的 mid 一定要防溢位<span class="sc-section__title-en">// OVERFLOW</span></h2>
+    </div>
+
+    <p>
+      704 和 35 的 <code>n ≤ 10⁴</code>,<code>(left + right) / 2</code> 寫了也不會出事。<strong>但這題 <code>n</code> 可以到 <code>2³¹ − 1</code> = <code>INT_MAX</code></strong>,
+      兩數相加必定溢位 —— 這是本題唯一真正危險的地方。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 實測(int,模擬溢位環繞)</span>
+left = 1073741825, right = 2147483647     // 二分後期很容易出現的一組值
+
+(left + right) / 2       →  -536870912    ← 負數!接著 guess(負數) 完全失效
+left + (right - left)/2  →   1610612736   ← 正確
+<span class="sc-trace__out">// 差別不是「風格」,是會不會壞掉</span></div>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>寫法</th><th>n ≤ 10⁴(704/35)</th><th>n ≤ 2³¹−1(本題)</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">(left + right) / 2</td><td class="ok">安全</td><td class="fail">溢位 → 錯誤答案</td></tr>
+        <tr><td class="mono">left + (right − left) / 2</td><td class="ok">安全</td><td class="ok">安全</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這就是為什麼建議<strong>一律寫防溢位版</strong>:同樣一行程式,在小題目上是好習慣,在這題上是<strong>正確性</strong>。
+      (Java 標準函式庫的 <code>binarySearch</code> 就曾因為這個 bug 存在近十年。)
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        真正的成本是 <strong>API 呼叫次數</strong> —— 每輪恰好一次 <code>guess()</code>。實測 <code>n = 2³¹−1</code> 最多 <strong>31</strong> 次呼叫。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log n)</td><td>區間每輪折半</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>三個 int</td></tr>
+        <tr><td>guess() 次數</td><td class="mono">≤ 31</td><td>n = 2³¹−1 實測值</td></tr>
+        <tr><td>合併的代價</td><td class="mono">最多多 1 輪</td><td>-1 時只縮到 mid 而非 mid−1</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      三種回應不一定要三個分支 —— 只要問<strong>「是不是猜小了」</strong>這一個是非題:
+      <strong>是</strong> 就 <code>left = mid + 1</code>,<strong>不是</strong>(太大或剛好)就 <code>right = mid</code>。
+      因為 <code>right = mid</code> <strong>把 mid 留著</strong>,猜中的那格自然會是最後的倖存者。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">只問「猜小了嗎」:是→left=mid+1,否(含猜中)→right=mid。mid 被保留,收斂到單格即答案,無需驗證、無死碼。n 到 2³¹−1,mid 必須防溢位。</div>
+    <div class="sc-summary-bar__detail">GUESS NUMBER · THREE BRANCHES INTO TWO</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p374-guess.js"></script>
+</body>
+</html>
