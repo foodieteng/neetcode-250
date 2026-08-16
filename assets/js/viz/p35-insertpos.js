@@ -1,12 +1,12 @@
 /* ============================================================
-   P704 · Binary Search — lower_bound 式邊界二分 · viz
-   搜尋區間採「左閉右開」[left, right)。每輪取 mid:
-     nums[mid] >= target → mid 本身可能就是答案 → right = mid（保留 mid）
-     nums[mid] <  target → mid 太小,連 mid 一起丟 → left = mid + 1
-   迴圈在 left == right 時停止,left 落在「第一個 >= target 的位置」。
-   最後補一次檢查:left 是否越界、nums[left] 是否真的等於 target。
-   例 nums=[-1,0,3,5,9,12], target=9 → 回傳 4。
-     BAND 1  nums 陣列(藍=目前區間 · 紅=mid · 灰=已排除 · 綠=答案)
+   P35 · Search Insert Position — lower_bound 直接回傳 left · viz
+   和 704 是同一副骨架,差別只在收尾:704 還要驗一次命中,35 直接 return left。
+   左閉右開 [left, right):
+     nums[mid] >= target → right = mid      (mid 可能就是插入點,保留)
+     nums[mid] <  target → left  = mid + 1  (mid 太小,插入點在它右邊)
+   收斂後 left = 第一個 >= target 的位置 = 「該插進去的格子」。
+   例 nums=[1,3,5,6], target=2 → 1(2 應插在 1 和 3 之間)。
+     BAND 1  nums 陣列 + 插槽(藍=目前區間 · 紅=mid · 灰=已排除 · 綠=插入點)
      BAND 2  left / right / mid 與本輪判斷式
      BAND 3  這一步做了什麼決定
    ============================================================ */
@@ -24,55 +24,54 @@
     grn:'#d9e8c7', grnS:'#5fa866', grnT:'#3f7a3a',
     off:'#f0f0ec', offS:'#cfcfcf', offT:'#a3a099', coral:'#cf3535' };
 
-  const A = [-1, 0, 3, 5, 9, 12], TARGET = 9;
+  const A = [1, 3, 5, 6], TARGET = 2;
 
-  // L / R = 目前 [left, right);  mid = -1 表示這一步沒有 mid;  ans = 答案索引
   const steps = [
-    { L:0, R:6, mid:-1, ans:-1, act:'intro',
-      eq:'left = 0 · right = n = 6 → 區間 [0, 6)',
-      note:'左閉右開:right 是「還沒被排除的右界外一格」',
-      text:'<strong>INITIAL</strong> · 區間取<strong>左閉右開 [0, 6)</strong>,right 初值是 <code>n</code> 而非 <code>n−1</code>。目標:找出<strong>第一個 ≥ target 的位置</strong>。' },
+    { L:0, R:4, mid:-1, ans:-1, act:'intro',
+      eq:'left = 0 · right = n = 4 → 區間 [0, 4)',
+      note:'要找的不是「等於 2 的格子」,是「2 該插進哪一格」',
+      text:'<strong>INITIAL</strong> · 2 並不在陣列裡,但插入位置<strong>一定存在</strong>。骨架和 704 完全相同:左閉右開 <code>[0, 4)</code>,找<strong>第一個 ≥ 2 的位置</strong>。' },
 
-    { L:0, R:6, mid:3, ans:-1, act:'probe',
-      eq:'mid = 0 + (6−0)/2 = 3 → nums[3] = 5 ≥ 9 ?  否',
-      note:'nums[mid] < target → mid 太小,mid 及其左邊全部出局',
-      text:'<strong>Round 1 · 探點</strong> · <code>mid = left + (right−left)/2 = 3</code>,<code>nums[3] = 5 &lt; 9</code>。5 比目標小,那 5 和它左邊的全都不可能是答案。' },
+    { L:0, R:4, mid:2, ans:-1, act:'probe',
+      eq:'mid = 0 + (4−0)/2 = 2 → nums[2] = 5 ≥ 2 ?  是',
+      note:'nums[mid] ≥ target → 插入點在 mid 或它左邊',
+      text:'<strong>Round 1 · 探點</strong> · <code>mid = 2</code>,<code>nums[2] = 5 ≥ 2</code>。5 已經比 2 大,所以 2 要插在 <strong>index 2 或更左邊</strong>,右半可以丟。' },
 
-    { L:4, R:6, mid:-1, ans:-1, act:'shrink-l',
-      eq:'left = mid + 1 = 4 → 區間縮為 [4, 6)',
-      note:'注意是 mid + 1:mid 已被判定不可能,不留',
-      text:'<strong>Round 1 · 收縮</strong> · <code>left = mid + 1 = 4</code>。因為 <code>nums[mid] &lt; target</code> 已證明 mid <strong>不可能</strong>是答案,所以連 mid 一起丟掉 —— 這個 <code>+1</code> 是迴圈能終止的關鍵。' },
+    { L:0, R:2, mid:-1, ans:-1, act:'shrink-r',
+      eq:'right = mid = 2 → 區間縮為 [0, 2)',
+      note:'right = mid 不減 1:index 2 本身仍是候選插槽',
+      text:'<strong>Round 1 · 收縮</strong> · <code>right = 2</code>。注意 index 2 <strong>沒有被排除</strong> —— 它仍可能是答案(若左半全都比 2 小,2 就插在這裡)。' },
 
-    { L:4, R:6, mid:5, ans:-1, act:'probe',
-      eq:'mid = 4 + (6−4)/2 = 5 → nums[5] = 12 ≥ 9 ?  是',
-      note:'nums[mid] ≥ target → mid 本身還可能是答案,要保留',
-      text:'<strong>Round 2 · 探點</strong> · <code>mid = 5</code>,<code>nums[5] = 12 ≥ 9</code>。12 已經夠大,答案在 <strong>mid 或 mid 左邊</strong>,右半可以丟。' },
+    { L:0, R:2, mid:1, ans:-1, act:'probe',
+      eq:'mid = 0 + (2−0)/2 = 1 → nums[1] = 3 ≥ 2 ?  是',
+      note:'又一次「夠大」→ 插入點再往左壓',
+      text:'<strong>Round 2 · 探點</strong> · <code>mid = 1</code>,<code>nums[1] = 3 ≥ 2</code>。3 也比 2 大,插入點還要再往左。' },
 
-    { L:4, R:5, mid:-1, ans:-1, act:'shrink-r',
-      eq:'right = mid = 5 → 區間縮為 [4, 5)',
-      note:'這裡是 right = mid(不是 mid − 1):mid 還在候選裡',
-      text:'<strong>Round 2 · 收縮</strong> · <code>right = mid = 5</code>,<strong>不減 1</strong>。因為右開區間 <code>[left, right)</code> 本來就不含 right,寫 <code>right = mid</code> 剛好把 mid 留在候選中。' },
+    { L:0, R:1, mid:-1, ans:-1, act:'shrink-r',
+      eq:'right = mid = 1 → 區間縮為 [0, 1)',
+      note:'剩最後一格候選:index 0',
+      text:'<strong>Round 2 · 收縮</strong> · <code>right = 1</code>,候選只剩 <code>[0, 1)</code> 一格。' },
 
-    { L:4, R:5, mid:4, ans:-1, act:'probe',
-      eq:'mid = 4 + (5−4)/2 = 4 → nums[4] = 9 ≥ 9 ?  是',
-      note:'相等也走 ≥ 這一邊 → 這就是「取最左」的來源',
-      text:'<strong>Round 3 · 探點</strong> · <code>mid = 4</code>,<code>nums[4] = 9 ≥ 9</code>(相等)。<strong>等號歸在 ≥ 這側</strong>,所以指標會一路往左壓,最後停在<strong>最左邊</strong>的 target。' },
+    { L:0, R:1, mid:0, ans:-1, act:'probe',
+      eq:'mid = 0 + (1−0)/2 = 0 → nums[0] = 1 ≥ 2 ?  否',
+      note:'nums[mid] < target → 插入點一定在 mid 右邊',
+      text:'<strong>Round 3 · 探點</strong> · <code>mid = 0</code>,<code>nums[0] = 1 &lt; 2</code>。1 比 2 小,2 必須排在它<strong>後面</strong>,所以 index 0 出局。' },
 
-    { L:4, R:4, mid:-1, ans:-1, act:'empty',
-      eq:'right = mid = 4 → left == right == 4,區間空',
+    { L:1, R:1, mid:-1, ans:-1, act:'empty',
+      eq:'left = mid + 1 = 1 → left == right == 1,區間空',
       note:'left < right 不成立 → 跳出迴圈',
-      text:'<strong>Round 3 · 收縮</strong> · <code>right = 4</code>,此時 <code>left == right == 4</code>,區間 <code>[4, 4)</code> 是<strong>空的</strong> → <code>while (left &lt; right)</code> 條件不成立,迴圈結束。' },
+      text:'<strong>Round 3 · 收縮</strong> · <code>left = 1</code>,此時 <code>left == right == 1</code>,區間空 → 迴圈結束。' },
 
-    { L:4, R:4, mid:-1, ans:4, act:'done',
-      eq:'left = 4 < n,且 nums[4] == 9 → return 4',
-      note:'二分只保證「位置」,是否命中要另外驗一次',
-      text:'<strong>完成</strong> · 迴圈只給出「第一個 ≥ 9 的位置 = 4」。還要補兩道檢查:<code>left != n</code>(沒有越界)且 <code>nums[left] == target</code> → 回傳 <strong>4</strong>。' },
+    { L:1, R:1, mid:-1, ans:1, act:'done',
+      eq:'return left = 1     // 不需要任何額外檢查',
+      note:'704 要多驗一次命中,35 到這裡就結束了',
+      text:'<strong>完成</strong> · 直接 <code>return left = 1</code>。把 2 插在 index 1 後陣列變成 <code>[1,<strong>2</strong>,3,5,6]</code>,仍然遞增 —— 正是要的答案。' },
   ];
 
   let step = 0, timer = null;
 
   function fit(){ const dpr=Math.min(Math.max(window.devicePixelRatio||1,2),3); const rc=canvas.getBoundingClientRect();
-    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||340; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
+    const w=rc.width||canvas.clientWidth,h=rc.height||canvas.clientHeight||352; const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
     if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh;} ctx.setTransform(dpr,0,0,dpr,0,0); }
   function rr(x,y,w,h,r){ r=Math.min(r,h/2,w/2); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
   function triUp(cx,cy,col){ ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx-6,cy+8); ctx.lineTo(cx+6,cy+8); ctx.closePath(); ctx.fillStyle=col; ctx.fill(); }
@@ -83,30 +82,28 @@
     const done = s.act === 'done';
     ctx.fillStyle = C.paper; ctx.fillRect(0,0,w,canvas.clientHeight); ctx.setLineDash([]);
 
-    // 幾何:所有 band 都是水平帶狀,彼此不重疊
     const cw = Math.min(72, (w - 2*PAD) / n - 12);
     const gap = Math.min(40, (w - 2*PAD - n*cw) / (n - 1));   // 間距設上限,避免寬螢幕上攤成空曠的一排
     const x0 = (w - (n*cw + (n-1)*gap)) / 2;                  // 整排置中
-    const edge = k => x0 + k * (cw + gap);           // 第 k 格左緣;k==n 時給最後一格右緣
+    const edge = k => x0 + k * (cw + gap);
     const rightEdge = k => (k >= n ? edge(n-1) + cw : edge(k));
     const cx = k => edge(k) + cw/2;
 
-    const HDR_Y = 60;        // 索引標頭(textBaseline=top,占 60–70)
-    const CELL_TOP = 86;     // 值格上緣 —— 距標頭 16px,絕不相黏
+    const HDR_Y = 60;
+    const CELL_TOP = 86;
     const CELL_H = 46;
-    const CELL_BOT = CELL_TOP + CELL_H;   // 132
+    const CELL_BOT = CELL_TOP + CELL_H;
 
-    // ── BAND 1 · nums ──
+    // ── BAND 1 ──
     ctx.fillStyle=C.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 1 · nums(藍=目前區間 · 紅=mid · 灰=已排除 · 綠=答案)', PAD, 16);
+    ctx.fillText('BAND 1 · nums(藍=目前區間 · 紅=mid · 灰=已排除 · 綠=插入點)', PAD, 16);
     ctx.textAlign='right'; ctx.font='700 12.5px "JetBrains Mono", monospace'; ctx.fillStyle=C.text;
     ctx.fillText('target = ' + TARGET, w - PAD, 16);
 
-    // 區間括號(自成一列,不碰索引標頭)
     const BR_Y = 38;
     if (s.L < s.R) {
       const x1 = edge(s.L), x2 = rightEdge(s.R);
-      ctx.strokeStyle = C.winS; ctx.lineWidth = 2; ctx.setLineDash([]);
+      ctx.strokeStyle = C.winS; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(x1, BR_Y + 8); ctx.lineTo(x1, BR_Y); ctx.lineTo(x2, BR_Y); ctx.lineTo(x2, BR_Y + 8);
       ctx.stroke();
@@ -119,7 +116,7 @@
       ctx.beginPath(); ctx.moveTo(x1, BR_Y); ctx.lineTo(x1, BR_Y + 8); ctx.stroke();
       ctx.fillStyle = done ? C.grnT : C.offT; ctx.font='700 11px "JetBrains Mono", monospace';
       ctx.textAlign='center'; ctx.textBaseline='bottom';
-      ctx.fillText('[ ' + s.L + ', ' + s.R + ' )  空區間 → 停', x1, BR_Y - 4);
+      ctx.fillText(done ? ('插入點 = ' + s.ans) : ('[ ' + s.L + ', ' + s.R + ' )  空區間 → 停'), x1, BR_Y - 4);
     }
 
     // 索引標頭
@@ -134,21 +131,30 @@
     for (let k = 0; k < n; k++) {
       const inWin = k >= s.L && k < s.R;
       const isMid = k === s.mid;
-      const isAns = done && k === s.ans;
       let bg = C.off, bd = C.offS, tx = C.offT;
       if (inWin) { bg = C.win; bd = C.winS; tx = C.winT; }
       if (isMid) { bg = C.cur; bd = C.curS; tx = C.curT; }
-      if (isAns) { bg = C.grn; bd = C.grnS; tx = C.grnT; }
       rr(edge(k), CELL_TOP, cw, CELL_H, 5);
       ctx.fillStyle = bg; ctx.fill();
-      ctx.lineWidth = (isMid || isAns) ? 3 : 1.6; ctx.strokeStyle = bd; ctx.stroke();
+      ctx.lineWidth = isMid ? 3 : 1.6; ctx.strokeStyle = bd; ctx.stroke();
       ctx.fillStyle = tx; ctx.font='700 16px "JetBrains Mono", monospace';
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(String(A[k]), cx(k), CELL_TOP + CELL_H/2);
     }
 
-    // 指標列 A:mid(紅)—— 獨立一列
-    const MID_Y = CELL_BOT + 8;      // 140
+    // 完成時:在插入點畫一根綠色的「插槽」楔子(格與格之間,不覆蓋任何數字)
+    if (done) {
+      const sx = rightEdge(s.ans);
+      ctx.strokeStyle = C.grnS; ctx.lineWidth = 3; ctx.setLineDash([5,3]);
+      ctx.beginPath(); ctx.moveTo(sx, CELL_TOP - 6); ctx.lineTo(sx, CELL_BOT + 6); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = C.grnT; ctx.font='700 12px "JetBrains Mono", monospace';
+      ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText('↑ 插這裡', sx, CELL_BOT + 10);
+    }
+
+    // 指標列 A:mid
+    const MID_Y = CELL_BOT + 8;
     if (s.mid >= 0) {
       triUp(cx(s.mid), MID_Y, C.curS);
       ctx.fillStyle = C.curT; ctx.font='700 11px "JetBrains Mono", monospace';
@@ -156,11 +162,11 @@
       ctx.fillText('mid=' + s.mid, cx(s.mid), MID_Y + 10);
     }
 
-    // 指標列 B:left / right(藍)—— 再低一列,不與 mid 打架
-    const LR_Y = CELL_BOT + 44;      // 176
+    // 指標列 B:left / right
+    const LR_Y = CELL_BOT + 44;
     ctx.font='700 11px "JetBrains Mono", monospace'; ctx.textBaseline='top'; ctx.textAlign='center';
     const px = k => (k >= n ? rightEdge(n) : cx(k));
-    if (s.L === s.R) {                       // 兩指標重合 → 併成一個標籤,避免疊字
+    if (s.L === s.R) {
       ctx.fillStyle = done ? C.grnT : C.offT;
       ctx.fillText('left = right = ' + s.L, px(s.L), LR_Y);
     } else {
@@ -168,7 +174,7 @@
       ctx.fillStyle = C.winT; ctx.fillText('right=' + s.R, px(s.R), LR_Y);
     }
 
-    // ── BAND 2 · 判斷式 ──
+    // ── BAND 2 ──
     const B2 = 216;
     ctx.fillStyle=C.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 2 · 本輪判斷式', PAD, B2);
@@ -182,10 +188,10 @@
     ctx.font='700 13.5px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(s.eq, w/2, B2 + 31);
 
-    // ── BAND 3 · 這一步的決定 ──
+    // ── BAND 3 ──
     const B3 = 288;
     ctx.fillStyle=C.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-    ctx.fillText('BAND 3 · ≥ target 就保留 mid(right = mid);< target 就丟掉 mid(left = mid + 1)', PAD, B3);
+    ctx.fillText('BAND 3 · 和 704 同一副骨架,只有收尾不同:35 直接 return left', PAD, B3);
     rr(PAD, B3 + 10, w - 2*PAD, 40, 6);
     ctx.fillStyle = done ? C.grn : '#fafaf6'; ctx.fill();
     ctx.lineWidth = 1.6; ctx.strokeStyle = done ? C.grnS : C.grid; ctx.stroke();

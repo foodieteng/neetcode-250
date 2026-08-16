@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>35 · Search Insert Position // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P35</span>
+    <span><a href="https://leetcode.com/problems/search-insert-position/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">搜尋插入位置</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · lower_bound 的裸骨架</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 35</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給<strong>升冪排序、元素相異</strong>的陣列 <code>nums</code> 與 <code>target</code>:找到就回傳索引,<strong>找不到就回傳它應該被插入的位置</strong>(插入後陣列仍遞增)。要求 <strong>O(log n)</strong>。
+        例 <code>[1,3,5,6]</code>:<code>target=5</code> → <strong>2</strong>;<code>target=2</code> → <strong>1</strong>;<code>target=7</code> → <strong>4</strong>。
+      </p>
+    </div>
+
+    <p>
+      這題和 <a href="../p704/index.html">704</a> 是<strong>同一副骨架</strong>,而且更純粹:704 的迴圈本來就在找「第一個 ≥ target 的位置」,
+      只是 704 還要多問一句「那格真的等於 target 嗎」。<strong>35 連那句都不用問 —— 迴圈的結果直接就是答案。</strong>
+      換句話說,<strong>35 才是骨架本身,704 是骨架 + 一次驗證。</strong>
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼答案一定是 left<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">線性掃到第一個 ≥ target</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">邏輯最直觀,但沒用上排序,不符 O(log n) 的要求。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 不符要求</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">先二分找命中,沒中再另外算插入點</span>
+            <span class="sc-ko-card__o">O(log n)</span>
+          </div>
+          <div class="sc-ko-card__body">要分「找到」與「沒找到」兩套收尾,還得判斷 <code>left</code>/<code>right</code> 誰才是插入點 —— 正是最容易寫錯 ±1 的地方。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 多餘的分岔</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">左閉右開邊界二分,直接 <code>return left</code></span>
+          <span class="sc-ko-card__o">O(log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          「命中」與「沒命中」<strong>本來就是同一個答案</strong>:第一個 ≥ target 的位置。命中時那格就是 target 的索引;沒命中時把 target 塞進那格,前面全都比它小、後面全都比它大 —— 剛好維持遞增。<strong>不需要任何特判,連 <code>left == n</code> 都不用。</strong>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · STABLE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義區間</strong>:<code>left = 0</code>、<code>right = n</code>。答案的可能範圍是 <code>0 … n</code>(<strong>含 n</strong> —— 比全部都大時插在最後),這正好是右開區間端點的取值範圍。</li>
+      <li><strong>收縮</strong>:<code>nums[mid] ≥ target</code> → <code>right = mid</code>;否則 <code>left = mid + 1</code>。</li>
+      <li><strong>回傳</strong>:<code>return left;</code> —— 沒有 if、沒有特判、沒有第二次比較。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,3,5,6], target=2 → 1</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      刻意選<strong>找不到</strong>的 <code>target=2</code>:看區間如何一路往左壓,最後 <code>left</code> 停在 <strong>1</strong> ——
+      也就是 2 該插進去的那道縫。過程中 <strong>從頭到尾沒有做過任何「等於」判斷</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Search Insert Position · 插入點收斂</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:352px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼不用特判 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼連 left == n 都不用擋<span class="sc-section__title-en">// LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 插入位置的合法範圍恰好是 0 … n</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          長度 n 的陣列有 <strong>n + 1 道縫</strong>:最前面一道、每兩格之間 n−1 道、最後面一道。把它們編號成 <code>0, 1, …, n</code>,「插在第 k 道縫」就等於「插入後 target 的索引是 k」。
+          所以<strong>答案的合法範圍本來就是 <code>[0, n]</code></strong>,包含 n。
+        </p>
+        <p style="margin:0 0 10px;">
+          而迴圈收斂後 <code>left</code> 的取值範圍恰好也是 <code>[0, n]</code>:全部都 ≥ target 時 <code>left = 0</code>,全部都 &lt; target 時 <code>left = n</code>。<strong>兩個範圍完全對上,一個都不多、一個都不少。</strong>
+        </p>
+        <p style="margin:0;">
+          對照 704:704 要回傳的是<strong>索引</strong>,合法範圍只有 <code>[0, n−1]</code>,所以 <code>left == n</code> 對它是<strong>非法值</strong>,必須擋下來變成 -1。
+          <strong>同樣一個 <code>left = n</code>,在 35 是好答案,在 704 是要攔的錯誤 —— 差別只在「回傳的是縫還是格」。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這就是為什麼建議<strong>先熟 35、再記 704</strong>:35 是乾淨的骨架,704 是骨架加一層驗證。
+      反過來從 704 學,容易誤以為「二分一定要有一個等於判斷」。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 三個範例的收尾 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">三個官方範例 · 同一條路徑<span class="sc-section__title-en">// SAME CODE PATH</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>target</th><th>狀況</th><th>收斂後 left</th><th>意義</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">5</td><td>命中</td><td class="mono">2</td><td>nums[2] 就是 5,索引即答案</td></tr>
+        <tr><td class="mono">2</td><td>沒命中(中間)</td><td class="mono">1</td><td>插在 1 和 3 之間</td></tr>
+        <tr><td class="mono">7</td><td>沒命中(比全部大)</td><td class="mono">4 = n</td><td>插在最後,仍是合法答案</td></tr>
+        <tr><td class="mono">0</td><td>沒命中(比全部小)</td><td class="mono">0</td><td>插在最前</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 四種情形,程式碼走的是完全相同的路徑</span>
+沒有 if (found) / else,沒有 return -1,沒有邊界特判。
+差別只在「迴圈收斂到哪個 left」,而那正是迴圈唯一的工作。
+<span class="sc-trace__out">// 一個 return,四種語意 —— 這就是骨架乾淨的意思</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        與 704 完全相同 —— 少掉的那次命中檢查是 <code>O(1)</code>,不影響量級。n = 10⁴ 約 <strong>14</strong> 次比較。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log n)</td><td>區間每輪折半</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>三個 int</td></tr>
+        <tr><td>比較次數</td><td class="mono">≈ 14 @ n=10⁴</td><td>每輪恰一次</td></tr>
+        <tr><td>常數因子</td><td class="mono">比 704 更小</td><td>省掉收尾的兩個判斷</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「找到就回索引、找不到就回插入點」聽起來是兩件事,其實是<strong>同一件事</strong> ——
+      都是「<strong>第一個 ≥ target 的位置</strong>」。想通這點,程式碼就只剩 <code>return left;</code>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">和 704 同一副骨架,收尾直接 return left。因為插入位置的合法範圍是 0…n,恰好等於 left 的收斂範圍,所以連 left==n 都不用特判。</div>
+    <div class="sc-summary-bar__detail">SEARCH INSERT POSITION · BARE LOWER BOUND</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p35-insertpos.js"></script>
+</body>
+</html>

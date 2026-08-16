@@ -134,7 +134,7 @@ PROBLEMS = {
     ],
     '05': [  # Binary Search
         ('p704', 'Binary Search',                          'binary-search',                          'easy','done'),
-        ('p35',  'Search Insert Position',                 'search-insert-position',                 'easy','todo'),
+        ('p35',  'Search Insert Position',                 'search-insert-position',                 'easy','done'),
         ('p374', 'Guess Number Higher or Lower',           'guess-number-higher-or-lower',           'easy','todo'),
         ('p69',  'Sqrt(x)',                                'sqrtx',                                  'easy','todo'),
         ('p74',  'Search a 2D Matrix',                     'search-a-2d-matrix',                     'med', 'todo'),
