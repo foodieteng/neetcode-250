@@ -42,6 +42,57 @@ python3 scripts/generate_chapters.py
 
 It rewrites every `topics/<NN>-<slug>/index.html` category page and refreshes the `// NEETCODE 250` sidebar on `index.html` and every problem subpage. **Never hand-edit category index pages** — they get clobbered on next run. Problems render in NeetCode's curated within-category order (the order they appear in `PROBLEMS[cat]`), each with a difficulty chip and an "原題 ↗" LeetCode link.
 
+## Parallelize with subagents — what to fan out, what to keep
+
+The serial version of this workflow spends most of its wall-clock on two things: **compile-verify loops** and **render-and-look loops**. Both are mechanical and independent, so fan them out. **Content stays on the main thread** — see the "never parallelize" list below for why.
+
+### PHASE A · 驗證(fan out 3 agents, all `general-purpose`)
+
+Runs first and blocks everything else, because every page quotes its numbers. The three questions are genuinely independent, so send all three in **one message**:
+
+| Agent | Question it answers |
+| --- | --- |
+| **A1 · 主解** | Compile the user's exact C++. Run every official example. Then exhaustive/randomized cross-check against an independent reference implementation. Report pass counts. |
+| **A2 · 反例獵捕** | For each plausible way to get the code subtly wrong (flip a `<` to `<=`, drop a `+1`, move a line into the `else`, wrong initial bound), build that variant and **brute-force the smallest failing input**. Report `失敗筆數 / 總組數` + minimal counterexample per variant. |
+| **A3 · 極端與型別** | Max-size input, overflow reachability, floating-point exactness, degenerate shapes (n=1, single column, no rotation, h == n). Report actual observed values, not bounds you reasoned out. |
+
+**A2 is the highest-value agent** — the pitfalls table and the answer blocks live or die on whether the counterexamples are real. It is also the most tedious to do serially, so it is exactly what a subagent should own.
+
+**Contract — every agent returns a fact sheet, and only that:**
+
+```
+## 官方範例      <input> → <output>   (expect <output>)   ✓/✗
+## 對拍          <N> 組,不一致 <M>   [reference used]
+## 變體反例      <變體名>:失敗 <k>/<N>,最小反例 <input> → <got>(正解 <exp>)
+## 極端          <case> → <observed value>
+## Trace         <the exact step-by-step the animation and 走讀 must both use>
+```
+
+**Downstream pages may only quote this sheet. They may not derive a number themselves.** That single rule is what keeps the animation, the `細節走讀`, the mock's dry-run table, and the `範例 Trace` from drifting apart. If a page wants a number that isn't on the sheet, go get it verified — don't reason it out.
+
+### PHASE B · 產出(fan out 2 agents, after the sheet exists)
+
+| Agent | Owns |
+| --- | --- |
+| **B1 · 動畫** | Write `assets/js/viz/<pid>-<algo>.js` from the Trace section, then run the headless-Chrome screenshot loop itself (940 + 720, a mid-step and the final step) and **keep iterating until the layout passes**. Hand it the full geometry rules from Integration step 6 — the header-vs-cell gap, the 620px floor, the `.sc-viz__cvwrap` requirement. Return the JS path + the widths/steps it verified. |
+| **B2 · mock** | Build `mock_<num>.html` from the `leetcode-mock-png` template, render, slice-check, save to `topics/.../mock.png`. Hand it the fact sheet + the exact C++. |
+
+These two touch disjoint files and neither reads the other's output, so they parallelize cleanly.
+
+### PHASE C · 三頁與收尾(main thread, never delegated)
+
+Write `index.html` / `code.html` / `review.html` yourself, then flip status → `generate_chapters.py` → commit.
+
+### 🚫 Never parallelize these
+
+- **The three study-card pages.** They cross-reference each other (`概念頁 → 程式碼頁 → 複習頁`), reuse one running explanation, and must not repeat or contradict each other. Three agents produce three voices and three slightly different versions of the same lemma.
+- **Cross-problem links** (e.g. "和 875 唯一的差別是左界"). Only the main thread knows what the neighbouring problems' pages actually say.
+- **The commit.** One commit message has to describe everything that happened, including corrections.
+
+### 一個實測過的教訓
+
+A subagent that is asked to "verify X" will happily report "X 安全" from a plausible argument. **Make the prompt demand an observed value**: not "does int overflow here?" but "print the largest value this accumulator actually reaches on the worst legal input". The 875 `int` analysis and the 875 `+1` correction both came from forcing that distinction — a reasoned answer would have been wrong in one of the two cases.
+
 ## Integration steps when the user pastes a problem
 
 1. **Identify the category.** Match the problem to one of the 18 categories in `CHAPTERS`. Most map naturally (e.g. sliding-window problem → `03`); ask the user only if ambiguous.
@@ -60,7 +111,7 @@ It rewrites every `topics/<NN>-<slug>/index.html` category page and refreshes th
    - Sibling subpage links use bare `index.html` / `code.html` / `review.html`
    - The "原題 ↗" link is the LeetCode URL `https://leetcode.com/problems/<url-slug>/`
 
-4. **🔴 MANDATORY: compile & run the C++ on the sample I/O before pasting it into `code.html`.** A wrong solution in the notes is worse than no notes. Do it in a scratch dir, never commit scratch files:
+4. **🔴 MANDATORY: compile & run the C++ on the sample I/O before pasting it into `code.html`.** (Fan this out — PHASE A above. The steps below are what those agents must do.) A wrong solution in the notes is worse than no notes. Do it in a scratch dir, never commit scratch files:
    ```bash
    mkdir -p /tmp/nc-check && cd /tmp/nc-check
    cat > sol.cpp <<'CPP'
@@ -75,7 +126,7 @@ It rewrites every `topics/<NN>-<slug>/index.html` category page and refreshes th
    - **Never leave dead placeholder lines** like `if (!(cond && 1)) {}` or `// 見下方` stubs — they compile but signal the logic was never run.
    - The page's `// OUTPUT` trace block and any hand-trace must match what the verified binary actually prints.
 
-5. **If the algorithm benefits from animation**, write `assets/js/viz/<pid>-<algo>.js`. Reference `assets/js/viz/p114-lboard.js` / `p157-incexc.js` for the pattern:
+5. **If the algorithm benefits from animation**, write `assets/js/viz/<pid>-<algo>.js`. (Delegate to PHASE B1 — hand the agent this section verbatim plus step 6.) Reference `assets/js/viz/p114-lboard.js` / `p157-incexc.js` for the pattern:
    - White paper background `#ffffff`
    - Step-by-step state machine driven by Reset / Prev / Play / Next
    - Single canvas per page; canvas + control IDs are `viz-canvas`, `viz-reset`, `viz-prev`, `viz-play`, `viz-next`, `viz-step`, `viz-label`
@@ -102,7 +153,7 @@ It rewrites every `topics/<NN>-<slug>/index.html` category page and refreshes th
    - **🚫 Header-vs-cell overlap (the #1 recurring complaint).** When a band draws a *column-header / index label row* above a row of value cells, the header baseline and the cell must not touch. Push cells well below the header (`cellTop = bandTop + ~30`, value text at `cellTop + chh/2`), and leave ≥12px between the header row and the cell top. Same for **two stacked rows** (e.g. `nums[]` over `dp[]`): give the second row a full ~40px gap from the first row's bottom, and put each row's left-hand tag (`nums` / `dp`) vertically centered in the left margin, never on top of a cell.
    - **↔ Spread nodes/cells to fill the band — don't cluster them at one end.** For graph/array bands, distribute nodes across the usable width; a note/legend box goes on its own line below, not overlapping the nodes.
 
-7. **🎤 MANDATORY: also generate a mock-interview PNG.** Every problem's notes must ship with a `leetcode-mock-png` transcript. Invoke the `leetcode-mock-png` skill for the same problem + solution, render the PNG, and save it as `topics/<NN>-<slug>/problems/<pXXX>/mock.png`. Link it from `code.html` right after the code window:
+7. **🎤 MANDATORY: also generate a mock-interview PNG.** (Delegate to PHASE B2, in parallel with B1.) Every problem's notes must ship with a `leetcode-mock-png` transcript. Invoke the `leetcode-mock-png` skill for the same problem + solution, render the PNG, and save it as `topics/<NN>-<slug>/problems/<pXXX>/mock.png`. Link it from `code.html` right after the code window:
    ```html
    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
