@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>875 · Koko Eating Bananas // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P875</span>
+    <span><a href="https://leetcode.com/problems/koko-eating-bananas/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">科科吃香蕉</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 答案二分的原型題</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 875</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH ON ANSWER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>n</code> 堆香蕉,第 <code>i</code> 堆有 <code>piles[i]</code> 根。警衛 <code>h</code> 小時後回來。
+        科科挑一個<strong>固定速度 k</strong>(根/小時):每小時挑<strong>一堆</strong>吃 <code>k</code> 根,<strong>不夠 k 根就吃完該堆並休息到下一小時</strong>。
+        求能在 <code>h</code> 小時內吃完的<strong>最小</strong> <code>k</code>。
+      </p>
+    </div>
+
+    <p>
+      注意題目<strong>沒有給你要搜尋的陣列</strong> —— <code>piles</code> 甚至不必排序。要二分的是<strong>答案 <code>k</code> 本身</strong>。
+      這就是<a href="../../template.html">模板頁</a>提到的<strong>答案二分(值域二分)</strong>,而 875 是它的原型題:
+      骨架一字不改,只把「<code>nums[m]</code> 比大小」換成「<code>check(m)</code>」。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼能二分「答案」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">從 k=1 一路試上去</span>
+            <span class="sc-ko-card__o">O(n · maxPile)</span>
+          </div>
+          <div class="sc-ko-card__body">答案正確,但 <code>maxPile</code> 可到 10⁹、<code>n</code> 可到 10⁴ → 10¹³ 次運算,完全不可能。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">用公式直接算出 k</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            想用 <code>k = ⌈總數 / h⌉</code> 一步解出來。但<strong>每小時只能吃一堆</strong>,吃不滿的那小時會浪費 —— <code>piles=[1,1,1,99], h=5</code> 公式得 <code>⌈102/5⌉ = 21</code>,實際答案卻是 <strong>50</strong>(三小堆各佔掉一整個小時,只剩 2 小時吃 99 根)。官方範例 <code>[30,11,23,4,20], h=5</code> 也一樣:公式 18、正解 <strong>30</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 公式不成立</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">對<strong>答案的值域</strong>二分,用 <code>check(k)</code> 當判斷式</span>
+          <span class="sc-ko-card__o">O(n log maxPile)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          正著算 <code>k</code> 很難,<strong>但反過來驗證一個 <code>k</code> 行不行很容易</strong>:<code>check(k) = (Σ⌈pile/k⌉ ≤ h)</code>,一趟 <code>O(n)</code>。
+          而 <code>k</code> 越大越容易吃完 ⇒ <code>check</code> <strong>單調</strong> ⇒ 候選帶仍是 <code>F F F T T T</code> ⇒ 通用模板直接套,找<strong>第一個 T</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n log C)</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      答案二分的判斷標準只有一句:<strong>「求解很難,但驗證很容易,而且驗證結果隨答案單調」</strong>。
+      符合這三點,就把答案本身當成搜尋空間。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定值域</strong>:<code>left = 1</code>(速度不能是 0,否則除以零)、<code>right = max(piles) + 1</code>(右開,+1 才取得到 max)。</li>
+      <li><strong>寫 check</strong>:<code>getTime(k) = Σ ⌈piles[i] / k⌉</code>,判斷式 <code>getTime(mid) ≤ h</code>。</li>
+      <li><strong>套模板</strong>:成立 → <code>right = mid</code>(可行,但也許還能更慢);否則 → <code>left = mid + 1</code>。收斂後 <code>return left</code>,<strong>不需額外驗證</strong>(答案保證存在)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// piles=[3,6,7,11], h=8 → 4</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      下排是每個速度<strong>實際需要的時數</strong>(只顯示已被 check 過的)。
+      整條候選帶是 <code>F F F T T T T T T T T</code> —— <strong>和一般二分完全一樣的形狀</strong>,只是這條帶子不是讀陣列讀出來的,是<strong>算出來的</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Koko · 對答案的值域二分</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:404px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 單調性 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">單調性:整個做法的地基<span class="sc-section__title-en">// THE MONOTONICITY</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · k 變大,所需時數不會變多</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          對<strong>每一堆</strong>而言,<code>⌈pile / k⌉</code> 隨著 <code>k</code> 變大而<strong>單調不增</strong>(除數變大,商不會變大)。
+          總時數是各堆相加,所以 <code>getTime(k)</code> 整體也<strong>單調不增</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          於是 <code>check(k) = (getTime(k) ≤ h)</code> 一旦成立,<strong>所有更大的 k 也都成立</strong> —— 這正是 <code>F F F T T T</code>:
+          左邊一段太慢(F),右邊一段來得及(T),中間有唯一的分界。<strong>我們要的就是第一個 T。</strong>
+        </p>
+        <p style="margin:0;">
+          <strong>答案一定存在:</strong>取 <code>k = max(piles)</code> 時每堆都只花 1 小時,總共 <code>n</code> 小時,而題目保證 <code>h ≥ n</code> ⇒ 這個 k 必定可行。
+          所以整條帶子<strong>至少最後一格是 T</strong>,<code>l</code> 不會跑出界,也不需要像 704 那樣再驗一次。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 三個邊界 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">值域的三個邊界為什麼那樣取<span class="sc-section__title-en">// THE BOUNDS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>位置</th><th>取值</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>左界</td>
+          <td class="mono">left = 1</td>
+          <td>速度至少 1。取 0 會讓 <code>pile / k</code> <strong>除以零</strong>,而且 0 永遠不可行,沒有意義</td>
+        </tr>
+        <tr>
+          <td>右界</td>
+          <td class="mono">right = max(piles) + 1</td>
+          <td>速度超過 <code>max(piles)</code> 完全沒有幫助(每小時最多吃掉一整堆),所以 <code>max</code> 就是答案上限;<strong>右開</strong>要 <code>+1</code> 才取得到它</td>
+        </tr>
+        <tr>
+          <td>判斷式</td>
+          <td class="mono">getTime(mid) <strong>≤</strong> h</td>
+          <td>剛好用滿 <code>h</code> 小時也算來得及。寫成嚴格 <code>&lt;</code> 會把「正好 h 小時」的合法解排除掉</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 動畫那組正好踩到「等號」</span>
+piles=[3,6,7,11], h=8
+  k=4 → ⌈3/4⌉+⌈6/4⌉+⌈7/4⌉+⌈11/4⌉ = 1+2+2+3 = 8  ← 剛好等於 h
+若判斷式寫成 getTime(mid) &lt; h,k=4 會被判為不可行 → 答案變成 6
+<span class="sc-trace__out">// 正解 4。「來得及」包含「剛好趕上」</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n · log maxPile)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        和一般二分的差別:<strong>每次判斷不再是 O(1),而是 O(n) 的模擬</strong>。
+        n = 10⁴、maxPile = 10⁹ → 約 <code>10⁴ × 30 = 3×10⁵</code> 次運算,非常寬裕。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n log C)</td><td>C = max(piles),值域寬度</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>只有幾個變數</td></tr>
+        <tr><td>二分輪數</td><td class="mono">≈ 30</td><td>log₂(10⁹)</td></tr>
+        <tr><td>單次 check</td><td class="mono">O(n)</td><td>掃過所有堆</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>正著求答案很難,反過來驗證一個答案很容易 —— 那就二分答案。</strong>
+      骨架完全不用改,只把「讀 <code>nums[mid]</code> 比大小」換成「跑一次 <code>check(mid)</code>」,
+      把「索引區間」換成「<strong>值域區間 <code>[1, max+1)</code></strong>」。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">求解難、驗證易、且驗證隨答案單調 → 二分答案。值域 [1, max+1),check(k)=Σ⌈pile/k⌉≤h,可行則 right=mid 否則 left=mid+1,回傳 left。O(n log C)。</div>
+    <div class="sc-summary-bar__detail">KOKO EATING BANANAS · BINARY SEARCH ON ANSWER</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p875-koko.js"></script>
+</body>
+</html>
