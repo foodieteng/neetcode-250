@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>33 · Search in Rotated Sorted Array // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P33</span>
+    <span><a href="https://leetcode.com/problems/search-in-rotated-sorted-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">旋轉排序陣列搜尋</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 先判斷哪半有序</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 33</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一個<strong>元素相異</strong>的升冪陣列,被在未知位置<strong>左旋</strong>過一次(例 <code>[0,1,2,4,5,6,7]</code> 旋轉成 <code>[4,5,6,7,0,1,2]</code>)。
+        給旋轉後的 <code>nums</code> 與 <code>target</code>,回傳索引;不存在回 <strong>-1</strong>。要求 <strong>O(log n)</strong>。
+      </p>
+    </div>
+
+    <p>
+      這題是本章的<strong>轉折點</strong>。前面 <a href="../p704/index.html">704</a> / <a href="../p35/index.html">35</a> / <a href="../p374/index.html">374</a> 都能寫成
+      <a href="../../template.html">通用模板</a>的「找第一個 T」,是因為判斷式<strong>單調</strong>。
+      但旋轉之後,<strong>那個單調性被打斷了</strong> —— 所以不能直接套 lower_bound。得先找回一段「還能信任」的區域。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼不能直接套模板 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼 lower_bound 在這裡失效<span class="sc-section__title-en">// THE BROKEN STRIP</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">TF 帶被斷成兩段 · 二分的前提沒了</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <a href="../../template.html" style="color:#e2b47a;">通用模板</a>要求判斷式沿索引<strong>單調</strong>(一旦為 T 就不再變回 F)。把 <code>nums[i] ≥ 0</code> 畫在旋轉陣列上:
+        </p>
+        <p style="margin:0 0 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;">
+          index&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;1&nbsp;&nbsp;2&nbsp;&nbsp;3&nbsp;&nbsp;4&nbsp;&nbsp;5&nbsp;&nbsp;6<br>
+          nums&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;5&nbsp;&nbsp;6&nbsp;&nbsp;7&nbsp;&nbsp;0&nbsp;&nbsp;1&nbsp;&nbsp;2<br>
+          ≥ 5 ?&nbsp;&nbsp;&nbsp;F&nbsp;&nbsp;T&nbsp;&nbsp;T&nbsp;&nbsp;T&nbsp;&nbsp;<strong>F</strong>&nbsp;&nbsp;<strong>F</strong>&nbsp;&nbsp;<strong>F</strong>　← T 之後又變回 F
+        </p>
+        <p style="margin:0;">
+          <strong>不是 <code>F…FT…T</code>,而是 <code>F T T T F F F</code></strong>。模板收斂後的 <code>l</code> 不再有「第一個 ≥ target」的意義,結果會錯。
+          <strong>所以這題要換一個切入點 —— 不去問「這格夠不夠大」,改問「哪半邊還是有序的」。</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 關鍵性質 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">關鍵性質:至少有一半是有序的<span class="sc-section__title-en">// THE LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 一個斷點,兩半,最多只能弄壞一半</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          旋轉只會製造<strong>一個斷點</strong>(值突然變小的那一格)。用 <code>mid</code> 把區間切成 <code>[l, mid]</code> 與 <code>[mid, r]</code> 兩半 ——
+          一個斷點<strong>最多只能落在其中一半裡</strong>,所以<strong>另一半必定是完整遞增的</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>怎麼判斷?</strong>比較兩端:<code>nums[l] ≤ nums[mid]</code> 成立 ⇒ 左半沒有跨過斷點 ⇒ <strong>左半有序</strong>;否則 ⇒ 斷點在左半 ⇒ <strong>右半有序</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>有序半能做什麼?</strong>在一段遞增區間裡,「target 在不在裡面」<strong>只要比兩個端點</strong>就能確定:<code>nums[l] ≤ target ≤ nums[mid]</code>。
+          在裡面 → 往有序半收;不在裡面 → 它<strong>只可能</strong>在另一半 → 往另一半收。<strong>不論哪種,都砍掉一半。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這就是本題的全部:<strong>把「無序」轉化成「一半有序 + 一次範圍判斷」</strong>。
+      注意判斷式 <code>nums[l] ≤ nums[mid]</code> 的<strong>等號</strong>不能省 —— 區間剩兩格時 <code>mid</code> 會等於 <code>l</code>,單格當然算有序。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義區間</strong>:<code>left = 0</code>、<code>right = n − 1</code>,用 <code>while (left &lt; right)</code> <strong>收斂到單格</strong>(不是找第一個 T)。</li>
+      <li><strong>每輪兩問</strong>:① <code>nums[left] ≤ nums[mid]</code> ? → 哪半有序;② target 在<strong>有序那半</strong>的範圍內嗎 → 決定往哪收。收縮一律 <code>right = mid</code> 或 <code>left = mid + 1</code>。</li>
+      <li><strong>最後驗一次</strong>:收斂只保證「唯一候選」,target 可能根本不存在 → <code>return nums[left] == target ? left : -1;</code></li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 5 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [4,5,6,7,0,1,2], target=0 → 4</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      橘色底線標出<strong>每輪那個「可以信任」的有序半</strong>。看 Round 1:左半 <code>[4,5,6,7]</code> 有序,
+      而 <code>0</code> 不在 <code>[4, 7]</code> 裡 —— 所以它<strong>只可能在另一半</strong>,一次砍掉四格。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Rotated Array · 哪半有序 + 範圍判斷</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:366px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 四個分支 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩層判斷 · 四種情形<span class="sc-section__title-en">// FOUR CASES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>哪半有序</th><th>target 在有序半?</th><th>怎麼收</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr>
+          <td rowspan="2"><strong>左半</strong><br><code>nums[l] ≤ nums[m]</code></td>
+          <td class="ok">在 <code>[nums[l], nums[m]]</code> 內</td>
+          <td class="mono">right = mid</td>
+          <td>往有序半收(保留 mid)</td>
+        </tr>
+        <tr>
+          <td class="fail">不在</td>
+          <td class="mono">left = mid + 1</td>
+          <td>只可能在右半,mid 已排除</td>
+        </tr>
+        <tr>
+          <td rowspan="2"><strong>右半</strong><br><code>nums[l] &gt; nums[m]</code></td>
+          <td class="ok">在 <code>(nums[m], nums[r]]</code> 內</td>
+          <td class="mono">left = mid + 1</td>
+          <td>往有序半收,mid 已被排除</td>
+        </tr>
+        <tr>
+          <td class="fail">不在</td>
+          <td class="mono">right = mid</td>
+          <td>只可能在左半(保留 mid)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 為什麼右半的範圍是「開左閉右」(m, r]</span>
+左半有序時,判斷寫 nums[l] &lt;= target &lt;= nums[m]  —— 含 mid,對應 right = mid(保留 mid)
+右半有序時,判斷寫 nums[m] &lt;  target &lt;= nums[r]  —— 不含 mid,對應 left = mid + 1(跨過 mid)
+<span class="sc-trace__out">// 範圍的開閉,要和「收縮時 mid 留不留」對齊 —— 這是本題最容易寫反的地方</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每輪不論走哪個分支都<strong>砍掉一半</strong>,和普通二分同級。判斷多了一層,但只是常數。n = 5000 約 <strong>13</strong> 輪。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log n)</td><td>四個分支都讓區間減半</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>三個 int</td></tr>
+        <tr><td>每輪比較</td><td class="mono">2 ~ 3 次</td><td>一次判有序 + 一到兩次範圍</td></tr>
+        <tr><td>元素重複時</td><td class="mono">退化 O(n)</td><td>見 81 題(本題保證相異)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      旋轉破壞了整體單調,但<strong>一個斷點最多只能弄壞一半</strong>。
+      所以每輪先問「<strong>哪半是有序的</strong>」,再對那半用<strong>兩端比大小</strong>判斷 target 在不在 ——
+      在就往那收、不在就往另一半收,兩種都砍一半。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">旋轉打斷單調 → 不能套 lower_bound。改成每輪兩問:nums[l]≤nums[m] 判哪半有序,再用兩端範圍判 target 在不在,在就往那收否則往另一半。收斂到單格再驗一次。</div>
+    <div class="sc-summary-bar__detail">ROTATED ARRAY · FIND THE SORTED HALF</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p33-rotated.js"></script>
+</body>
+</html>
