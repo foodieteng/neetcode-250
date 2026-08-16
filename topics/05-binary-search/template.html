@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>二分搜尋通用模板 // BINARY SEARCH TEMPLATE // NEETCODE 250</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+<style>
+  :root{
+    --paper:#f4f0e4; --ink:#1c1b18; --ink2:#4a473f; --muted:#8a8676;
+    --rule:#1c1b18; --hair:#d8d2c2; --coral:#c8501e;
+    --card:#1b1f2b; --card2:#232838; --ctext:#d6d9e0; --ccom:#8b93a5; --cbadge:#e2b47a;
+    --blue:#2f5f9e; --green:#3f7a3a; --teal:#2f7d8f; --purple:#6b4a9e; --red:#b0324f; --orange:#c8641e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;}
+  .sheet{max-width:1180px;margin:0 auto;padding:40px 30px 60px;}
+  .backnav{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;
+    color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+  .backnav a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--hair);}
+  .backnav a:hover{color:var(--coral);}
+  .head{border-top:3px double var(--rule);border-bottom:3px double var(--rule);
+    padding:26px 0 22px;text-align:center;position:relative;margin-bottom:34px;}
+  .head__kick{display:inline-block;background:var(--ink);color:var(--paper);
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;padding:5px 14px;margin-bottom:12px;}
+  .head__zh-kick{font-family:"Noto Sans TC";letter-spacing:.5em;font-size:12px;color:var(--ink2);margin-bottom:6px;}
+  .head__title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:44px;letter-spacing:.04em;margin:2px 0 6px;}
+  .head__en{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.3em;color:var(--blue);margin-bottom:12px;}
+  .head__meta{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--ink2);}
+  .head__meta b{color:var(--ink);}
+  .head__star{position:absolute;top:34px;color:var(--coral);font-size:16px;}
+  .head__star--l{left:16px;} .head__star--r{right:16px;}
+  .slabel{display:flex;align-items:center;gap:11px;margin:38px 0 16px;flex-wrap:wrap;}
+  .slabel__bar{width:5px;height:22px;background:var(--coral);}
+  .slabel__zh{font-family:"Noto Serif TC",serif;font-weight:700;font-size:21px;letter-spacing:.03em;}
+  .slabel__en{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;}
+  .lede{font-size:14.5px;line-height:1.85;margin:0 0 14px;}
+  .lede b{color:var(--ink);}
+  code{font-family:"JetBrains Mono",monospace;font-size:12.5px;background:#efe9d8;padding:1px 5px;border-radius:3px;}
+  .scroll{overflow-x:auto;}
+  /* ── TF strip ── */
+  .tfbox{border:1.5px solid var(--ink);background:#fbf8ef;border-radius:3px;padding:20px 22px;}
+  .tfstrip{font-family:"JetBrains Mono",monospace;font-size:13px;line-height:2.05;white-space:nowrap;
+    min-width:560px;margin:6px 0 2px;}
+  .tfstrip .lbl{display:inline-block;width:96px;color:var(--muted);font-size:11.5px;letter-spacing:.06em;}
+  .tfstrip .c{display:inline-block;width:34px;text-align:center;font-weight:700;}
+  .tfstrip .f{color:var(--muted);}
+  .tfstrip .t{color:var(--green);}
+  .tfstrip .idx{color:var(--ink2);font-weight:500;font-size:11.5px;}
+  .tfstrip .mark{color:var(--coral);font-weight:700;}
+  .tfnote{font-size:13.5px;line-height:1.8;margin-top:12px;border-top:1px solid var(--hair);padding-top:12px;}
+  .tfnote b{color:var(--coral);}
+  /* ── code cards ── */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;align-items:start;}
+  @media(max-width:900px){ .grid{grid-template-columns:1fr;} .head__title{font-size:31px;} }
+  .tcard{border:1.5px solid var(--ink);background:#fbf8ef;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;}
+  .tcard.wide{grid-column:1 / -1;}
+  .tcard__head{display:flex;align-items:center;gap:10px;padding:12px 14px 6px;flex-wrap:wrap;}
+  .tag{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:#fff;padding:3px 9px;border-radius:3px;}
+  .tag--core{background:var(--ink);} .tag--lb{background:var(--blue);} .tag--ub{background:var(--teal);}
+  .tag--last{background:var(--purple);} .tag--ans{background:var(--orange);} .tag--stl{background:var(--green);}
+  .tcard__title{font-weight:700;font-size:15px;}
+  .tcard__O{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--coral);font-weight:700;}
+  .tcard__when{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink2);letter-spacing:.02em;padding:0 14px 10px;border-bottom:1px solid var(--hair);}
+  .tcard__when b{color:var(--blue);}
+  pre.tcode{margin:0;background:var(--card);color:var(--ctext);font-family:"JetBrains Mono",monospace;
+    font-size:12px;line-height:1.62;padding:14px 16px;overflow-x:auto;}
+  pre.tcode .cm{color:var(--ccom);font-style:italic;}
+  pre.tcode .hl{background:rgba(226,180,122,0.16);display:inline-block;min-width:100%;border-left:2px solid var(--cbadge);padding-left:6px;margin-left:-8px;}
+  pre.tcode .kw{color:#c792ea;} pre.tcode .ty{color:#82aaff;} pre.tcode .st{color:#c3e88d;}
+  /* ── tables ── */
+  .dtable{width:100%;border-collapse:collapse;font-size:13.5px;border:1.5px solid var(--ink);background:#fbf8ef;min-width:660px;}
+  .dtable th{background:var(--ink);color:var(--paper);text-align:left;font-family:"JetBrains Mono",monospace;
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:11px 14px;font-weight:600;}
+  .dtable td{padding:10px 14px;border-top:1px solid var(--hair);vertical-align:top;}
+  .dtable tr:nth-child(even) td{background:#f6f2e7;}
+  .dtable .mono{font-family:"JetBrains Mono",monospace;font-size:12.5px;white-space:nowrap;}
+  .dtable .pred{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--blue);font-size:12.5px;white-space:nowrap;}
+  .dtable .ret{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--coral);font-size:12.5px;white-space:nowrap;}
+  .dtable .prob{font-size:12.5px;color:var(--ink2);}
+  .dtable .prob a{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--hair);font-weight:700;}
+  .dtable .prob a:hover{color:var(--coral);}
+  .warn{color:var(--red);font-weight:700;}
+  .ok{color:var(--green);font-weight:700;}
+  /* ── l vs l-1 ── */
+  .lrow{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:900px){ .lrow{grid-template-columns:1fr;} }
+  .lbox{border:1.5px solid var(--ink);border-radius:4px;background:#fbf8ef;overflow:hidden;}
+  .lbox__h{padding:11px 16px;color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .lbox__h .mono{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;opacity:.92;}
+  .lbox--l .lbox__h{background:var(--blue);} .lbox--lm .lbox__h{background:var(--purple);}
+  .lbox__body{padding:14px 16px;font-size:13.5px;line-height:1.8;}
+  .lbox__body b{color:var(--ink);}
+  .egbox{border:2px dashed var(--coral);border-radius:6px;background:#fbf2ea;padding:16px 20px;margin-top:18px;}
+  .egbox h4{margin:0 0 8px;font-family:"Noto Serif TC",serif;font-size:16px;}
+  .egpre{font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.85;white-space:pre;overflow-x:auto;margin:0;}
+  .egpre .g{color:var(--green);font-weight:700;} .egpre .r{color:var(--red);font-weight:700;}
+  .egpre .m{color:var(--muted);}
+  /* ── memo ── */
+  .memo{margin-top:36px;border:1.5px solid var(--ink);background:#fbf8ef;border-radius:3px;padding:22px 26px;position:relative;}
+  .memo__title{font-family:"Noto Serif TC",serif;font-weight:700;font-size:19px;margin:0 0 14px;}
+  .memo__stamp{position:absolute;top:20px;right:22px;font-family:"JetBrains Mono",monospace;font-size:12px;
+    letter-spacing:.14em;color:var(--coral);border:2px solid var(--coral);padding:5px 11px;border-radius:4px;transform:rotate(-4deg);}
+  .memo ul{margin:0;padding:0;list-style:none;}
+  .memo li{position:relative;padding-left:20px;margin:8px 0;font-size:14px;line-height:1.7;}
+  .memo li::before{content:"▶";position:absolute;left:0;color:var(--coral);font-size:10px;top:5px;}
+  .memo b{color:var(--ink);}
+  .memo code{color:var(--blue);}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="backnav">
+    <span><a href="../../index.html">HOME</a> / <a href="index.html">05 · Binary Search</a> / TEMPLATE</span>
+    <span>NEETCODE 250 · BINARY SEARCH TEMPLATE</span>
+  </div>
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header class="head">
+    <span class="head__star head__star--l">✦</span>
+    <span class="head__star head__star--r">✦</span>
+    <div class="head__kick">BINARY SEARCH · CHEAT SHEET</div>
+    <div class="head__zh-kick">左 閉 右 開 · 通 用 模 板</div>
+    <h1 class="head__title">二分搜尋通用模板</h1>
+    <div class="head__en">[ L , R ) &nbsp;·&nbsp; FIND FIRST TRUE &nbsp;·&nbsp; LOWER / UPPER BOUND</div>
+    <div class="head__meta">語言 <b>C++17</b>　·　區間 <b>[l, r)</b>　·　全部程式已編譯驗證並與 <b>&lt;algorithm&gt;</b> 逐筆對拍　·　核心 <b>答案永遠是 l 或 l−1</b></div>
+  </header>
+
+  <!-- ═══════ 1 · TF 帶 ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">一切的起點:把問題畫成 TF 帶</span><span class="slabel__en">· THE F/T STRIP</span></div>
+
+  <p class="lede">
+    二分搜尋<b>不是「找那個數」</b>,而是<b>找一條分界線</b>。做法:先把問題寫成一個對索引的<b>是非判斷 <code>pred(i)</code></b>,
+    只要 <code>pred</code> 沿著索引<b>單調</b>(一旦為 T 就不再變回 F),整條陣列就長成 <code>F F F T T T</code> ——
+    <b>模板要找的永遠是「第一個 T」</b>。所有題型的差別,只在<b>你把 <code>pred</code> 寫成什麼</b>。
+  </p>
+
+  <div class="tfbox">
+    <div class="scroll">
+      <div class="tfstrip">
+        <span class="lbl">index</span><span class="idx c">0</span><span class="idx c">1</span><span class="idx c">2</span><span class="idx c">3</span><span class="idx c">4</span><span class="idx c">5</span><span class="idx c">6</span><span class="idx c">7</span><span class="idx c">8</span>
+      </div>
+      <div class="tfstrip">
+        <span class="lbl">nums</span><span class="c">1</span><span class="c">2</span><span class="c">2</span><span class="c">2</span><span class="c">4</span><span class="c">5</span><span class="c">5</span><span class="c">8</span><span class="idx c">·</span>
+      </div>
+      <div class="tfstrip">
+        <span class="lbl">≥ 4 ?</span><span class="c f">F</span><span class="c f">F</span><span class="c f">F</span><span class="c f">F</span><span class="c t">T</span><span class="c t">T</span><span class="c t">T</span><span class="c t">T</span><span class="idx c">·</span>
+      </div>
+      <div class="tfstrip">
+        <span class="lbl"></span><span class="c"></span><span class="c"></span><span class="c"></span><span class="c mark">▲</span><span class="c mark">▲</span>
+      </div>
+      <div class="tfstrip" style="line-height:1.7;">
+        <span class="lbl"></span><span class="mark" style="font-size:12px;">左邊 ▲ = l−1(最後一個 F)　　右邊 ▲ = l(第一個 T)</span>
+      </div>
+    </div>
+    <div class="tfnote">
+      模板收斂後,<b>l 停在第一個 T</b>、<b>l−1 就是最後一個 F</b>。
+      這條帶子上只有兩個有意義的位置,所以 —— <b>不管題目怎麼問,答案不是 <code>l</code> 就是 <code>l−1</code></b>。
+      整張速查表其實只在回答一件事:<b>這題的 <code>pred</code> 該怎麼寫、要拿 l 還是 l−1</b>。
+    </div>
+  </div>
+
+  <!-- ═══════ 2 · 通用模板 ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">通用模板</span><span class="slabel__en">· THE ONE SKELETON</span></div>
+
+  <div class="grid">
+    <div class="tcard wide">
+      <div class="tcard__head"><span class="tag tag--core">CORE</span><span class="tcard__title">左閉右開 [l, r) · 找第一個 T</span><span class="tcard__O">O(log n) · O(1)</span></div>
+      <div class="tcard__when">WHEN <b>任何</b>能寫成單調是非題的搜尋 · 這一副骨架就夠</div>
+<pre class="tcode"><span class="cm">// 回傳「第一個讓 pred 成立的索引」;若全都不成立,回傳 n(尾後位置)</span>
+<span class="ty">int</span> l = <span class="ty">0</span>, r = n;                    <span class="cm">// ← 右開:r 初值是 n,不是 n-1</span>
+
+<span class="kw">while</span> (l &lt; r) {                        <span class="cm">// ← 右開就配 &lt;,不是 &lt;=</span>
+    <span class="ty">int</span> m = l + (r - l) / <span class="ty">2</span>;          <span class="cm">// 防溢位(值域二分時是必須,不是講究)</span>
+
+<span class="hl">    <span class="kw">if</span> (pred(m)) r = m;                <span class="cm">// T:m 可能就是答案 → 保留(不減 1)</span></span>
+    <span class="kw">else</span>         l = m + <span class="ty">1</span>;            <span class="cm">// F:m 已出局 → 跨過(一定加 1)</span>
+}
+<span class="kw">return</span> l;                              <span class="cm">// l == r,且 [0,l) 全 F、[l,n) 全 T</span>
+
+<span class="cm">// 不變量:[0, l) 全是 F,[r, n) 全是 T</span>
+<span class="cm">// 終止  :l &lt;= m &lt; r 恆成立 → 兩個分支都讓區間嚴格變短</span>
+<span class="cm">// 三處成套:r = n / l &lt; r / r = m —— 只要混到閉區間寫法就會壞</span></pre>
+    </div>
+  </div>
+
+  <p class="lede" style="margin-top:16px;">
+    <b>只要記這一副。</b>閉區間 <code>[l, r]</code> 那套(<code>r = n−1</code>、<code>l &lt;= r</code>、<code>r = m−1</code>)也對,但你必須<b>三處同時對齊</b>;
+    兩套混用是二分最常見的 bug 來源。本章所有題目都用右開版,唯一例外是
+    <a href="problems/p374/index.html" style="color:var(--blue);font-weight:700;text-decoration:none;border-bottom:1px solid var(--hair);">374 猜數字</a> ——
+    它的候選是 <code>1…n</code> 而非索引,所以寫成 <code>l = 1, r = n</code> 收斂到單格,骨架仍然一模一樣。
+  </p>
+
+  <!-- ═══════ 3 · 對應題型 ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">對應題型 · pred 怎麼寫、拿 l 還是 l−1</span><span class="slabel__en">· PATTERN TABLE</span></div>
+
+  <div class="scroll">
+  <table class="dtable">
+    <thead><tr><th>你要問的問題</th><th>pred(m) 寫成</th><th>回傳</th><th>名字 / 代表題</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>第一個 <b>≥ target</b> 的位置</td>
+        <td class="pred">nums[m] &gt;= target</td>
+        <td class="ret">l</td>
+        <td class="prob"><b>lower_bound</b> · <a href="problems/p35/index.html">35 插入位置</a></td>
+      </tr>
+      <tr>
+        <td>第一個 <b>&gt; target</b> 的位置</td>
+        <td class="pred">nums[m] &gt; target</td>
+        <td class="ret">l</td>
+        <td class="prob"><b>upper_bound</b> · 34 的右半</td>
+      </tr>
+      <tr>
+        <td>target <b>在不在</b> · 回索引否則 −1</td>
+        <td class="pred">nums[m] &gt;= target</td>
+        <td class="ret">l 再驗一次</td>
+        <td class="prob"><a href="problems/p704/index.html">704 二分搜尋</a></td>
+      </tr>
+      <tr>
+        <td>最後一個 <b>&lt; target</b> 的位置</td>
+        <td class="pred">nums[m] &gt;= target</td>
+        <td class="ret">l − 1</td>
+        <td class="prob">lower_bound − 1 · 找前驅</td>
+      </tr>
+      <tr>
+        <td>最後一個 <b>≤ target</b> 的位置</td>
+        <td class="pred">nums[m] &gt; target</td>
+        <td class="ret">l − 1</td>
+        <td class="prob">upper_bound − 1 · 找不超過的最大值</td>
+      </tr>
+      <tr>
+        <td>target <b>出現幾次</b></td>
+        <td class="pred">兩次:≥ 與 &gt;</td>
+        <td class="ret">上 − 下</td>
+        <td class="prob">upper − lower · 34</td>
+      </tr>
+      <tr>
+        <td>target 的<b>首、末</b>位置</td>
+        <td class="pred">兩次:≥ 與 &gt;</td>
+        <td class="ret">lo &nbsp;/&nbsp; hi − 1</td>
+        <td class="prob"><b>34 First and Last Position</b></td>
+      </tr>
+      <tr>
+        <td>第一個<b>壞版本</b></td>
+        <td class="pred">isBadVersion(m)</td>
+        <td class="ret">l</td>
+        <td class="prob">278 First Bad Version</td>
+      </tr>
+      <tr>
+        <td>猜中對方的數(只有 API)</td>
+        <td class="pred">guess(m) != 1</td>
+        <td class="ret">l</td>
+        <td class="prob"><a href="problems/p374/index.html">374 猜數字</a>(候選 1…n)</td>
+      </tr>
+      <tr>
+        <td><b>最小可行答案</b>(答案二分)</td>
+        <td class="pred">check(m) == true</td>
+        <td class="ret">l</td>
+        <td class="prob">875 Koko · 1011 送貨 · 410 分割</td>
+      </tr>
+      <tr>
+        <td><b>最大可行答案</b>(答案二分)</td>
+        <td class="pred">check(m) == false</td>
+        <td class="ret">l − 1</td>
+        <td class="prob">1231 分巧克力型</td>
+      </tr>
+      <tr>
+        <td>旋轉陣列的<b>最小值</b></td>
+        <td class="pred">nums[m] &lt;= nums[n−1]</td>
+        <td class="ret">l</td>
+        <td class="prob">153 Find Minimum in Rotated</td>
+      </tr>
+      <tr>
+        <td>2D 矩陣當一維找</td>
+        <td class="pred">mat[m/cols][m%cols] &gt;= target</td>
+        <td class="ret">l 再驗一次</td>
+        <td class="prob">74 Search a 2D Matrix</td>
+      </tr>
+      <tr>
+        <td>LIS 的 tails 覆蓋/延長</td>
+        <td class="pred">tails[m] &gt;= x</td>
+        <td class="ret">l(== len 則 append)</td>
+        <td class="prob">300 LIS 的 O(n log n) 解</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="lede" style="margin-top:14px;">
+    看出來了嗎 —— <b>右邊三欄只有兩種值:<code>l</code> 或 <code>l−1</code></b>。
+    「找第一個滿足的」就拿 <code>l</code>,「找最後一個<b>不</b>滿足的」就拿 <code>l−1</code>。
+    你要做的判斷永遠只有兩步:<b>① pred 怎麼寫 ② 要 l 還是 l−1</b>。
+  </p>
+
+  <!-- ═══════ 4 · l vs l-1 ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">l 與 l−1 · 兩個位置各代表什麼</span><span class="slabel__en">· THE ONLY TWO ANSWERS</span></div>
+
+  <div class="lrow">
+    <div class="lbox lbox--l">
+      <div class="lbox__h">回傳 l<span class="mono">第一個 T · 分界線本身</span></div>
+      <div class="lbox__body">
+        <b>語意:</b>第一個<b>滿足</b>條件的位置。<br>
+        <b>範圍:</b><code>0 … n</code> —— 注意<b>含 n</b>:若整條帶子全是 F(沒有任何元素滿足),<code>l</code> 會停在 <code>n</code>。<br><br>
+        <b>要不要擋 <code>l == n</code>?</b>看你回傳的是<b>「縫」還是「格」</b> ——
+        <a href="problems/p35/index.html" style="color:#fff;background:var(--blue);padding:1px 6px;border-radius:3px;text-decoration:none;">35</a> 回傳插入位置(縫),<code>n</code> 是<b>合法答案</b>,不能擋;
+        <a href="problems/p704/index.html" style="color:#fff;background:var(--blue);padding:1px 6px;border-radius:3px;text-decoration:none;">704</a> 回傳索引(格),<code>n</code> 是<b>越界</b>,必須先擋再讀 <code>nums[l]</code>。<br><br>
+        <b>驗證命中的順序不可反:</b><br><code>l != n &amp;&amp; nums[l] == target</code>
+      </div>
+    </div>
+
+    <div class="lbox lbox--lm">
+      <div class="lbox__h">回傳 l − 1<span class="mono">最後一個 F · 分界線前一格</span></div>
+      <div class="lbox__body">
+        <b>語意:</b>最後一個<b>不滿足</b>條件的位置。因為 <code>[0, l)</code> 全是 F,最後一個 F 自然就是 <code>l−1</code>。<br>
+        <b>範圍:</b><code>−1 … n−1</code> —— 注意<b>含 −1</b>:若第一格就是 T(沒有任何 F),<code>l = 0</code>、<code>l−1 = −1</code>。<br><br>
+        <b>所以拿 l−1 一定要先擋:</b><br><code>if (l == 0) 沒有這樣的元素;</code><br>
+        忘了擋就會讀到 <code>nums[-1]</code> —— 這是 <code>l−1</code> 家族<b>唯一</b>的坑。<br><br>
+        <b>典型用途:</b>找前驅 / 找「不超過 target 的最大值」/ 取 target 的<b>末</b>位置(<code>upper_bound − 1</code>)。
+      </div>
+    </div>
+  </div>
+
+  <div class="egbox">
+    <h4>🔎 一次看完:nums = [1, 2, 2, 2, 4, 5, 5, 8]（已編譯驗證,與 std 逐筆一致）</h4>
+    <div class="scroll">
+<pre class="egpre">index      0   1   2   3   4   5   6   7          n = 8
+nums       1   2   2   2   4   5   5   8
+
+t = 2 :  lower_bound = <span class="g">1</span>   upper_bound = <span class="g">4</span>
+         出現次數 = 4 − 1 = <span class="g">3</span>          首位置 = <span class="g">1</span>   末位置 = 4 − 1 = <span class="g">3</span>
+         最後一個 &lt; 2  = lb − 1 = <span class="g">0</span>       最後一個 ≤ 2 = ub − 1 = <span class="g">3</span>
+
+t = 3 :  lower_bound = <span class="g">4</span>   upper_bound = <span class="g">4</span>   <span class="m">← 兩者相等 ⇒ 不存在</span>
+         出現次數 = 0                        插入位置(35 的答案) = <span class="g">4</span>
+         最後一個 &lt; 3  = <span class="g">3</span>                最後一個 ≤ 3 = <span class="g">3</span>
+
+t = 0 :  lower_bound = 0  →  l − 1 = <span class="r">−1</span>   <span class="m">← 沒有比 0 更小的元素:必須擋 l == 0</span>
+t = 9 :  lower_bound = <span class="r">8 == n</span>              <span class="m">← 全部都比 9 小:704 要回 −1,35 要回 8</span></pre>
+    </div>
+    <div style="margin-top:10px;font-size:13.5px;line-height:1.75;">
+      口訣:<b>「第一個滿足拿 l,最後一個不滿足拿 l−1」</b>。
+      兩個邊界值也成對:<b><code>l</code> 怕碰到 <code>n</code>(右邊界),<code>l−1</code> 怕碰到 <code>−1</code>(左邊界)</b>。
+    </div>
+  </div>
+
+  <!-- ═══════ 5 · 三個常用寫法 ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">三個最常抄的寫法</span><span class="slabel__en">· COPY THESE</span></div>
+
+  <div class="grid">
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--lb">LOWER</span><span class="tcard__title">lower_bound · 第一個 ≥</span><span class="tcard__O">l</span></div>
+      <div class="tcard__when">WHEN 插入位置 · 首次出現 · 存在性</div>
+<pre class="tcode"><span class="ty">int</span> lowerBound(<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; a, <span class="ty">int</span> target) {
+    <span class="ty">int</span> l = <span class="ty">0</span>, r = a.size();
+    <span class="kw">while</span> (l &lt; r) {
+        <span class="ty">int</span> m = l + (r - l) / <span class="ty">2</span>;
+<span class="hl">        <span class="kw">if</span> (a[m] &gt;= target) r = m;    <span class="cm">// ≥ 這側是 T</span></span>
+        <span class="kw">else</span>                l = m + <span class="ty">1</span>;
+    }
+    <span class="kw">return</span> l;                         <span class="cm">// 0 … n</span>
+}
+<span class="cm">// 35 直接回傳它;704 再驗 l != n &amp;&amp; a[l] == target</span></pre>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--ub">UPPER</span><span class="tcard__title">upper_bound · 第一個 &gt;</span><span class="tcard__O">l</span></div>
+      <div class="tcard__when">WHEN 末次出現 · 計數 · 找 ≤ 的最大值</div>
+<pre class="tcode"><span class="ty">int</span> upperBound(<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; a, <span class="ty">int</span> target) {
+    <span class="ty">int</span> l = <span class="ty">0</span>, r = a.size();
+    <span class="kw">while</span> (l &lt; r) {
+        <span class="ty">int</span> m = l + (r - l) / <span class="ty">2</span>;
+<span class="hl">        <span class="kw">if</span> (a[m] &gt; target) r = m;     <span class="cm">// 只差這個 &gt; </span></span>
+        <span class="kw">else</span>               l = m + <span class="ty">1</span>;
+    }
+    <span class="kw">return</span> l;
+}
+<span class="cm">// 出現次數 = upperBound - lowerBound</span>
+<span class="cm">// 末位置   = upperBound - 1(先確認次數 &gt; 0)</span></pre>
+    </div>
+
+    <div class="tcard wide">
+      <div class="tcard__head"><span class="tag tag--ans">ANSWER</span><span class="tcard__title">答案二分 · 二分的不是索引,是「答案本身」</span><span class="tcard__O">O(n log C)</span></div>
+      <div class="tcard__when">WHEN 求<b>最小可行值</b> · 875 Koko / 1011 送貨 / 410 分割 —— 只要 check(x) 隨 x 單調</div>
+<pre class="tcode"><span class="cm">// 骨架一字不改,只是把「索引區間」換成「值域區間」,把 a[m] 比大小換成 check(m)</span>
+<span class="ty">int</span> l = lo, r = hi + <span class="ty">1</span>;                <span class="cm">// 值域也用右開:hi 要 +1 才可能被取到</span>
+
+<span class="kw">while</span> (l &lt; r) {
+    <span class="ty">int</span> m = l + (r - l) / <span class="ty">2</span>;          <span class="cm">// 值域可到 1e9 → 防溢位是必須</span>
+
+<span class="hl">    <span class="kw">if</span> (check(m)) r = m;               <span class="cm">// m 可行 → 也許還能更小 → 保留 m</span></span>
+    <span class="kw">else</span>          l = m + <span class="ty">1</span>;            <span class="cm">// m 不可行 → 太小了,往上找</span>
+}
+<span class="kw">return</span> l;                              <span class="cm">// 最小的可行答案</span>
+
+<span class="cm">// 875 Koko:check(k) = 以速度 k 能在 h 小時吃完嗎(k 越大越容易 → 單調)</span>
+<span class="cm">// 找「最大可行」時把 check 反過來寫,答案取 l - 1</span></pre>
+    </div>
+  </div>
+
+  <!-- ═══════ 6 · STL ═══════ -->
+  <div class="slabel"><span class="slabel__bar"></span><span class="slabel__zh">STL 對照 · &lt;algorithm&gt; 怎麼用</span><span class="slabel__en">· STL CHEAT SHEET</span></div>
+
+  <p class="lede">
+    上面三個手寫模板,標準庫都有現成的。<b>面試現場能用就用</b>(說得出手寫版即可),平時寫題也省事。
+    唯一要留意的是<b>回傳的是迭代器,不是索引</b>,以及<b>對 <code>set</code>/<code>map</code> 千萬別用 <code>std::</code> 版</b>。
+  </p>
+
+  <div class="scroll">
+  <table class="dtable">
+    <thead><tr><th>你要的東西</th><th>STL 寫法(a 為已排序 vector)</th><th>等價的 pred</th><th>回傳</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>第一個 <b>≥ target</b></td>
+        <td class="mono">lower_bound(a.begin(), a.end(), t)</td>
+        <td class="pred">a[m] &gt;= t</td>
+        <td class="mono">迭代器</td>
+      </tr>
+      <tr>
+        <td>第一個 <b>&gt; target</b></td>
+        <td class="mono">upper_bound(a.begin(), a.end(), t)</td>
+        <td class="pred">a[m] &gt; t</td>
+        <td class="mono">迭代器</td>
+      </tr>
+      <tr>
+        <td>轉成<b>索引</b></td>
+        <td class="mono">lower_bound(...) − a.begin()</td>
+        <td class="prob">就是模板的 l</td>
+        <td class="ret">int</td>
+      </tr>
+      <tr>
+        <td><b>存不存在</b>(只要 bool)</td>
+        <td class="mono">binary_search(a.begin(), a.end(), t)</td>
+        <td class="prob">= l != n &amp;&amp; a[l] == t</td>
+        <td class="mono">bool</td>
+      </tr>
+      <tr>
+        <td>相等區間 <b>[首, 末+1)</b></td>
+        <td class="mono">equal_range(a.begin(), a.end(), t)</td>
+        <td class="prob">= {lower, upper} 一次拿</td>
+        <td class="mono">pair</td>
+      </tr>
+      <tr>
+        <td><b>出現次數</b></td>
+        <td class="mono">ub − lb　或 er.second − er.first</td>
+        <td class="prob">upper − lower</td>
+        <td class="ret">int</td>
+      </tr>
+      <tr>
+        <td><b>任意</b>單調條件(不是比大小)</td>
+        <td class="mono">partition_point(b, e, p)</td>
+        <td class="prob">回傳第一個 <b>p 為 false</b> 的位置<br>→ 把 p 寫成 <code>!pred</code> 就等於模板</td>
+        <td class="mono">迭代器</td>
+      </tr>
+      <tr>
+        <td><b>降冪</b>陣列</td>
+        <td class="mono">lower_bound(b, e, t, greater&lt;int&gt;())</td>
+        <td class="pred">a[m] &lt;= t</td>
+        <td class="mono">迭代器</td>
+      </tr>
+      <tr>
+        <td><code>set</code> / <code>map</code> 上找</td>
+        <td class="mono ok">s.lower_bound(t)　<span class="warn">← 用成員版!</span></td>
+        <td class="prob">std:: 版對它是 <span class="warn">O(n)</span></td>
+        <td class="mono">迭代器</td>
+      </tr>
+      <tr>
+        <td><code>map</code> 找<b>前一筆</b></td>
+        <td class="mono">prev(m.lower_bound(t))</td>
+        <td class="prob">就是 l − 1 的 STL 版</td>
+        <td class="mono">迭代器</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="grid" style="margin-top:20px;">
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--stl">STL</span><span class="tcard__title">四件事一次寫完</span><span class="tcard__O">已驗證</span></div>
+      <div class="tcard__when">WHEN 排序 vector 上的區間查詢</div>
+<pre class="tcode"><span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; a = {<span class="ty">1</span>,<span class="ty">2</span>,<span class="ty">2</span>,<span class="ty">2</span>,<span class="ty">4</span>,<span class="ty">5</span>,<span class="ty">5</span>,<span class="ty">8</span>};
+<span class="ty">int</span> t = <span class="ty">2</span>, n = a.size();
+
+<span class="ty">int</span> lo = lower_bound(a.begin(), a.end(), t) - a.begin();  <span class="cm">// 1</span>
+<span class="ty">int</span> hi = upper_bound(a.begin(), a.end(), t) - a.begin();  <span class="cm">// 4</span>
+
+<span class="ty">int</span> cnt   = hi - lo;              <span class="cm">// 出現次數 3</span>
+<span class="ty">bool</span> has  = (lo != n &amp;&amp; a[lo] == t);   <span class="cm">// true(= binary_search)</span>
+<span class="ty">int</span> first = has ? lo : -<span class="ty">1</span>;       <span class="cm">// 首位置 1</span>
+<span class="ty">int</span> last  = has ? hi - <span class="ty">1</span> : -<span class="ty">1</span>;   <span class="cm">// 末位置 3  ← 這就是 l-1</span>
+
+<span class="ty">int</span> lastLess = lo - <span class="ty">1</span>;          <span class="cm">// 最後一個 &lt; t → 0(lo==0 時為 -1!)</span>
+<span class="ty">int</span> lastLE   = hi - <span class="ty">1</span>;          <span class="cm">// 最後一個 ≤ t → 3</span></pre>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard__head"><span class="tag tag--stl">TRAP</span><span class="tcard__title">STL 的三個坑</span><span class="tcard__O">會變慢/會錯</span></div>
+      <div class="tcard__when">WHEN 用 STL 取代手寫時最常踩到</div>
+<pre class="tcode"><span class="cm">// ① set/map 一定要用「成員版」</span>
+<span class="ty">set</span>&lt;<span class="ty">int</span>&gt; s = {<span class="ty">1</span>,<span class="ty">3</span>,<span class="ty">5</span>,<span class="ty">7</span>};
+s.lower_bound(<span class="ty">4</span>);              <span class="cm">// ✔ O(log n),走樹</span>
+lower_bound(s.begin(), s.end(), <span class="ty">4</span>); <span class="cm">// ✘ O(n),迭代器不能跳</span>
+
+<span class="cm">// ② 迭代器不等於索引</span>
+<span class="kw">auto</span> it = lower_bound(a.begin(), a.end(), t);
+<span class="kw">if</span> (it == a.end()) { <span class="cm">/* 全部都比 t 小 */</span> }
+<span class="ty">int</span> idx = it - a.begin();       <span class="cm">// 要相減才是索引</span>
+
+<span class="cm">// ③ l-1 / prev 一定要先擋左邊界</span>
+<span class="kw">if</span> (lo == <span class="ty">0</span>) { <span class="cm">/* 沒有更小的元素,別碰 a[-1] */</span> }
+<span class="kw">if</span> (it == a.begin()) { <span class="cm">/* 別 prev(it) */</span> }</pre>
+    </div>
+  </div>
+
+  <!-- ═══════ MEMORIZE ═══════ -->
+  <div class="memo">
+    <span class="memo__stamp">MEMORIZE</span>
+    <div class="memo__title">背誦口訣</div>
+    <ul>
+      <li><b>先畫 TF 帶</b>:把題目寫成單調的是非題 <code>pred(i)</code>,整條陣列必成 <code>F F F T T T</code>,模板只找<b>第一個 T</b>。</li>
+      <li><b>一副骨架</b>:<code>r = n</code> / <code>l &lt; r</code> / <code>r = m</code> / <code>l = m + 1</code> —— 四者成套,少改一處就無窮迴圈或漏解。</li>
+      <li><b>不對稱是刻意的</b>:T 保留 mid(<code>r = m</code>,不減 1),F 跨過 mid(<code>l = m + 1</code>,一定加 1)。</li>
+      <li><b>答案只有兩個</b>:第一個<b>滿足</b>的 → <code>l</code>;最後一個<b>不滿足</b>的 → <code>l − 1</code>。</li>
+      <li><b>兩端各有一個坑</b>:<code>l</code> 可能是 <code>n</code>(讀 <code>nums[l]</code> 前先擋),<code>l − 1</code> 可能是 <code>−1</code>(用之前先擋 <code>l == 0</code>)。</li>
+      <li><b>≥ 換成 &gt;</b> 就從 lower_bound 變 upper_bound;<b>兩者相減 = 出現次數</b>,<b>upper − 1 = 末位置</b>。</li>
+      <li><b>值域二分</b>:骨架不動,<code>a[m]</code> 比大小換成 <code>check(m)</code>,區間換成 <code>[lo, hi + 1)</code>。</li>
+      <li><b>mid 一律寫 <code>l + (r − l) / 2</code></b>:小題目是好習慣,值域到 1e9 / 2³¹−1 時是<b>正確性</b>。</li>
+      <li><b>STL</b>:<code>lower_bound</code> / <code>upper_bound</code> / <code>equal_range</code> / <code>binary_search</code> / <code>partition_point</code>;
+          記得<b>減 <code>begin()</code> 才是索引</b>,<b><code>set</code>/<code>map</code> 用成員版</b>。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

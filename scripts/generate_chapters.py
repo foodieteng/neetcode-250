@@ -623,6 +623,8 @@ def chapter_page(cat_id, slug, title, subtitle, count):
     # generator does NOT overwrite — it just links to it). Add chapters here as built.
     #   cat_id -> (href, tag-label, title, tail-hint)
     CHEATSHEETS = {
+        '05': ('template.html', 'BS TEMPLATE', '二分搜尋通用模板 · [l, r) · TF 帶 · lower/upper',
+               '答案永遠是 l 或 l−1 → '),
         '12': ('cheatsheet.html', 'CHEAT SHEET', '圖論演算法速查表 · 11 個固定模板',
                'BFS · DFS · DSU · Dijkstra · … →'),
         '13': ('knapsack.html', 'DP TEMPLATE', '背包問題 DP 模板 · 0/1 · 完全 · 排列/組合',
