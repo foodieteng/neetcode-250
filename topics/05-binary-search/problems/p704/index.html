@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>704 · Binary Search // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P704</span>
+    <span><a href="https://leetcode.com/problems/binary-search/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二分搜尋</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 左閉右開的邊界二分</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 704</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給<strong>升冪排序、元素相異</strong>的整數陣列 <code>nums</code> 與 <code>target</code>,回傳 target 的索引;不存在則回傳 <strong>-1</strong>。
+        要求 <strong>O(log n)</strong>。例 <code>nums=[-1,0,3,5,9,12]</code>、<code>target=9</code> → <strong>4</strong>;<code>target=2</code> → <strong>-1</strong>。
+      </p>
+    </div>
+
+    <p>
+      這是二分搜尋的<strong>原型題</strong>。與其背「找到就 return」的三分支寫法,不如一開始就學<strong>邊界二分(lower_bound)</strong>:
+      迴圈只做一件事 —— 把區間壓到<strong>第一個 ≥ target 的位置</strong>;是否真的命中,留到<strong>迴圈外</strong>檢查一次。
+      這個骨架之後在 <strong>35 / 34 / 33 / 875</strong> 等題可以原封不動地重用。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用邊界二分<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">從頭線性掃描</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">答案正確,但完全沒用到「已排序」這個條件,不符題目要求的 O(log n)。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 不符要求</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">閉區間三分支 <code>l&lt;=r</code> + <code>==</code> 提早 return</span>
+            <span class="sc-ko-card__o">O(log n)</span>
+          </div>
+          <div class="sc-ko-card__body">複雜度對,但 <code>r=n−1</code>、<code>r=mid−1</code>、<code>l&lt;=r</code> 三處要同時對齊,少改一處就無窮迴圈或漏解;且只會「隨便找到一個」,無法推廣到有重複值的「找最左/最右」。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 易錯難推廣</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">左閉右開 <code>[left, right)</code> 邊界二分,迴圈外驗一次</span>
+          <span class="sc-ko-card__o">O(log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          迴圈裡<strong>只有兩個分支</strong>:<code>nums[mid] ≥ target</code> 就 <code>right = mid</code>(保留 mid)、否則 <code>left = mid + 1</code>(丟掉 mid)。
+          結束時 <code>left</code> 必等於「<strong>第一個 ≥ target 的位置</strong>」,再檢查 <code>left != n && nums[left] == target</code> 即可。同一副骨架直接支援「插入位置 / 最左出現 / 答案二分」。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · STABLE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定義區間</strong>:<code>left = 0</code>、<code>right = n</code>(<strong>不是 n−1</strong>),候選集合是左閉右開的 <code>[left, right)</code>。</li>
+      <li><strong>收縮</strong>:<code>mid = left + (right−left)/2</code>。<code>nums[mid] ≥ target</code> → <code>right = mid</code>(mid 可能是答案,<strong>保留</strong>);否則 <code>left = mid + 1</code>(mid 已出局,<strong>丟掉</strong>)。</li>
+      <li><strong>迴圈外驗證</strong>:<code>left &lt; right</code> 不成立時區間空,<code>left</code> = 第一個 ≥ target 的位置。若 <code>left == n</code> 或 <code>nums[left] != target</code> → 回傳 -1,否則回傳 <code>left</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [-1,0,3,5,9,12], target=9 → 4</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      看區間 <code>[0,6)</code> 如何三輪壓成空區間,以及每輪 <strong>「保留 mid」還是「丟掉 mid」</strong> 的差別 ——
+      <code>right = mid</code> 不減 1、<code>left = mid + 1</code> 一定加 1,這組不對稱正是它不會無窮迴圈的原因。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Binary Search · lower_bound 邊界收縮</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:352px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 不變量 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">迴圈不變量 · 為什麼一定停、一定對<span class="sc-section__title-en">// INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">INVARIANT · 答案永遠在 [left, right] 這條界線上</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          把陣列想成一條由 <strong>F</strong>(<code>nums[i] &lt; target</code>)接到 <strong>T</strong>(<code>nums[i] ≥ target</code>)的布林帶:因為已排序,它必定長成 <code>F F F T T T</code> 的形狀 ——
+          <strong>單調</strong>。我們要找的是<strong>第一個 T 的位置</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>不變量:</strong><code>[0, left)</code> 全是 F、<code>[right, n)</code> 全是 T。初始 <code>left=0, right=n</code> 時兩段都空,成立。
+          每輪測 mid:是 T 就令 <code>right=mid</code>(把 mid 併進「全 T」段);是 F 就令 <code>left=mid+1</code>(把 mid 併進「全 F」段)。兩種寫法都<strong>維持</strong>不變量。
+        </p>
+        <p style="margin:0;">
+          <strong>終止:</strong>區間長度每輪至少少 1(<code>mid</code> 一定落在 <code>[left, right)</code> 內,兩個分支都會真的移動指標),所以必定收斂到 <code>left == right</code>。
+          此時 <code>[0,left)</code> 全 F、<code>[left,n)</code> 全 T ⇒ <code>left</code> <strong>就是第一個 T</strong>,也就是第一個 <code>≥ target</code> 的位置。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      二分搜尋的本質<strong>不是「找那個數」,而是「找 F/T 的分界」</strong>。
+      只要你能把問題寫成一個<strong>單調的是非判斷</strong>,同一副骨架就能用 —— 這也是「答案二分」(875、1011、410)能成立的理由。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 兩種區間寫法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">左閉右開 vs 閉區間<span class="sc-section__title-en">// TWO STYLES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>right 初值</th><th>迴圈條件</th><th>右分支</th><th>結束時</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>左閉右開</strong> <code>[l, r)</code>(本題)</td>
+          <td class="mono">n</td>
+          <td class="mono">l &lt; r</td>
+          <td class="mono">r = mid</td>
+          <td class="mono">l == r,即第一個 ≥ target</td>
+        </tr>
+        <tr>
+          <td>閉區間 <code>[l, r]</code></td>
+          <td class="mono">n − 1</td>
+          <td class="mono">l &lt;= r</td>
+          <td class="mono">r = mid − 1</td>
+          <td class="mono">l == r + 1</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 三處必須成套,不能混搭</span>
+right 初值 ─┐
+迴圈條件   ─┼─ 這三個要嘛全用「右開」,要嘛全用「閉區間」
+右分支寫法 ─┘
+混搭的典型後果:
+  r = n 卻寫 l &lt;= r      → 讀到 nums[n],越界
+  r = mid 卻寫閉區間      → mid 沒被排除,l==r 時原地打轉 → 無窮迴圈
+<span class="sc-trace__out">// 建議只記熟一套。本題全書統一用左閉右開 [l, r)</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每輪區間長度<strong>至少對半</strong>,最多 <code>⌈log₂n⌉</code> 輪;n = 10⁴ 只需約 <strong>14</strong> 次比較。只用了三個 int,無額外空間。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log n)</td><td>區間每輪折半</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>迭代寫法,無遞迴堆疊</td></tr>
+        <tr><td>比較次數</td><td class="mono">≈ 14 @ n=10⁴</td><td>每輪恰一次比較</td></tr>
+        <tr><td>常數因子</td><td class="mono">小</td><td>但記憶體存取跳躍,快取不友善</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      別在迴圈裡找「等於」,而是<strong>把區間壓到 F/T 的分界</strong> —— <code>≥ target</code> 就 <code>right = mid</code>(保留)、否則 <code>left = mid + 1</code>(丟棄),
+      收斂後 <code>left</code> 就是<strong>第一個 ≥ target 的位置</strong>,命中與否<strong>迴圈外驗一次</strong>就好。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">左閉右開 [l,r):r=n、l&lt;r、≥target 則 r=mid 否則 l=mid+1。收斂後 l = 第一個 ≥ target,迴圈外驗 l!=n && nums[l]==target。O(log n)。</div>
+    <div class="sc-summary-bar__detail">BINARY SEARCH · LOWER BOUND SKELETON</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p704-lowerbound.js"></script>
+</body>
+</html>
