@@ -139,7 +139,7 @@ PROBLEMS = {
         ('p69',  'Sqrt(x)',                                'sqrtx',                                  'easy','todo'),
         ('p74',  'Search a 2D Matrix',                     'search-a-2d-matrix',                     'med', 'done'),
         ('p875', 'Koko Eating Bananas',                    'koko-eating-bananas',                    'med', 'done'),
-        ('p1011','Capacity to Ship Packages Within D Days','capacity-to-ship-packages-within-d-days','med', 'todo'),
+        ('p1011','Capacity to Ship Packages Within D Days','capacity-to-ship-packages-within-d-days','med', 'done'),
         ('p153', 'Find Minimum in Rotated Sorted Array',   'find-minimum-in-rotated-sorted-array',   'med', 'todo'),
         ('p33',  'Search in Rotated Sorted Array',         'search-in-rotated-sorted-array',         'med', 'done'),
         ('p81',  'Search in Rotated Sorted Array II',      'search-in-rotated-sorted-array-ii',      'med', 'todo'),

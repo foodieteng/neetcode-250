@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1011 · Capacity To Ship Packages Within D Days // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P1011</span>
+    <span><a href="https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">D 天內送達的最小載量</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 答案二分 + 貪心 check</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1011</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH ON ANSWER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        輸送帶上有一排包裹,第 <code>i</code> 件重 <code>weights[i]</code>。每天<strong>依照輸送帶上的原順序</strong>裝船,裝載總重不得超過船的載量。
+        求能在 <code>days</code> 天內全部送完的<strong>最小載量</strong>。
+      </p>
+    </div>
+
+    <p>
+      這題是 <a href="../p875/index.html">875 科科吃香蕉</a> 的<strong>雙胞胎</strong> —— 同一副答案二分骨架,只有兩處不同:
+      <strong>① 左界從 1 抬到 <code>max(weights)</code></strong>(包裹不可分割),<strong>② <code>check</code> 從「逐堆取整」換成「貪心裝箱」</strong>。
+      把這兩題並排記,答案二分的模式就穩了。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      最容易被忽略的一句話是「<strong>依照原順序</strong>」。這代表<strong>不能排序、不能重排</strong> ——
+      所以它不是背包問題,而是「把一個序列<strong>切成連續幾段</strong>」的問題。這也讓 <code>check</code> 可以用貪心。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼又是答案二分<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">從 max 一路試上去</span>
+            <span class="sc-ko-card__o">O(n · Σw)</span>
+          </div>
+          <div class="sc-ko-card__body">總重可達 <code>5×10⁴ × 500 = 2.5×10⁷</code>,每次驗證又要 <code>O(n)</code> → 10¹² 級,超時。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">DP 求「切 D 段的最小最大段和」</span>
+            <span class="sc-ko-card__o">O(n²·D)</span>
+          </div>
+          <div class="sc-ko-card__body">直接對「怎麼切」做 DP 也能得到正解,但狀態轉移要枚舉切點,<code>n = 5×10⁴</code> 完全跑不動。<strong>方向錯了:不該去求切法,該去驗證載量。</strong></div>
+          <div class="sc-ko-card__verdict">△ REJECT · 太慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">二分載量 + 貪心驗證</span>
+          <span class="sc-ko-card__o">O(n log Σw)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          「最小載量是多少」很難直接算,<strong>但給定一個載量,算它需要幾天很容易</strong>:照順序累加,裝不下就換一天,<code>O(n)</code>。
+          而<strong>載量越大天數越少</strong> ⇒ <code>check</code> 單調 ⇒ 候選帶是 <code>F F F T T T</code> ⇒ 套模板找第一個 T。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n log Σw)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定值域</strong>:<code>left = max(weights)</code>(最重那件一定要裝得下)、<code>right = Σweights</code>(一天全部載走,必定可行)。</li>
+      <li><strong>寫 check</strong>:<code>getDay(cap)</code> —— 照原順序累加,<code>curW + w &gt; cap</code> 就開新的一天。判斷式 <code>getDay(mid) ≤ days</code>。</li>
+      <li><strong>套模板</strong>:天數夠 → <code>right = mid</code>;不夠 → <code>left = mid + 1</code>。收斂後 <code>return left</code>,答案保證存在。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// weights=[1..10], days=5 → 15</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每次換載量,<strong>整個分段方式都會重算一次</strong>。特別看 Round 5:<code>cap=14</code> 的分法和 <code>cap=12</code>
+      <strong>一模一樣</strong> —— 多出來的 2 噸擠不進任何一件,天數不變。這就是「單調但不嚴格」的階梯。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Ship Packages · 二分載量 + 貪心分段</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:360px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 11</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 貪心為什麼對 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">check 為什麼可以用貪心<span class="sc-section__title-en">// THE EXCHANGE ARGUMENT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 「能裝就裝」得到的天數一定是最少的</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          因為順序固定,每一種送法就是把序列切成<strong>連續幾段</strong>。貪心的做法是:當天能塞就塞,塞不下才換天。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>交換論證:</strong>假設有一種更好的切法,它在某處「明明還裝得下卻提早換天」。把那件包裹<strong>挪回前一天</strong>,前一天仍不超重(因為本來就裝得下),後面每一段的起點都只會<strong>往後移或不變</strong> ——
+          於是後續每一天裝的東西只會<strong>更少或一樣</strong>,總天數<strong>不會變多</strong>。反覆做這個調整,任何切法都能變成貪心的切法而不變差。
+        </p>
+        <p style="margin:0;">
+          所以<strong>貪心給出的天數就是該載量下的最少天數</strong>,用它來判斷「這個載量行不行」是正確的。<strong>這一步是 <code>O(n)</code>,不需要 DP。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      答案二分的威力就在這:<strong>把一個看起來要 DP 的最佳化問題,換成一個「只要貪心就能回答」的是非題</strong>。
+      困難的部分被二分吸收了,<code>check</code> 只需要簡單且正確。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 和 875 的對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 875 逐項對照<span class="sc-section__title-en">// SIDE BY SIDE</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>875 科科吃香蕉</th><th>1011 本題</th></tr></thead>
+      <tbody>
+        <tr><td>要求的答案</td><td>最小速度 k</td><td>最小載量 cap</td></tr>
+        <tr><td><strong>左界</strong></td><td class="mono">1</td><td class="mono"><strong>max(weights)</strong></td></tr>
+        <tr><td>左界理由</td><td>一堆可以<strong>分很多小時</strong>吃完</td><td>一件包裹<strong>不可分割</strong>,裝不下就永遠送不走</td></tr>
+        <tr><td>右界</td><td class="mono">max(piles)</td><td class="mono">Σweights</td></tr>
+        <tr><td>check</td><td class="mono">Σ⌈pile/k⌉ ≤ h</td><td class="mono">貪心分段數 ≤ days</td></tr>
+        <tr><td>check 成本</td><td class="mono">O(n)</td><td class="mono">O(n)</td></tr>
+        <tr><td>能否重排</td><td>可以(每小時自由挑一堆)</td><td class="fail"><strong>不行</strong>(必須照輸送帶順序)</td></tr>
+        <tr><td>主迴圈</td><td colspan="2" class="ok">完全相同 —— 可行 → <code>r = mid</code>;不可行 → <code>l = mid + 1</code>;回傳 <code>l</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 左界為什麼不能取 1</span>
+weights=[1,2,3,4,5], cap=3 → 第 4 件(重 4)永遠裝不上船
+若左界取 1,二分會去試這些「根本無解」的載量。
+getDay 在 cap &lt; max 時算出的天數沒有意義(該件會被單獨放一天,但其實超載)
+<span class="sc-trace__out">// 取 left = max(weights) 讓所有候選都至少「物理上可行」</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n · log Σw)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        值域寬度 <code>Σw − max ≤ 2.5×10⁷</code> → 約 <strong>25</strong> 輪,每輪 <code>O(n) = 5×10⁴</code> → 約 <code>1.2×10⁶</code> 次運算。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n log Σw)</td><td>輪數 × 單次貪心</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>只有幾個變數</td></tr>
+        <tr><td>二分輪數</td><td class="mono">≈ 25</td><td>log₂(2.5×10⁷)</td></tr>
+        <tr><td>總重上限</td><td class="mono">2.5×10⁷</td><td>遠小於 INT_MAX,<strong>int 不會溢位</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      和 875 同一副骨架,只有兩處要重想:<strong>左界要問「這個候選在物理上可能嗎」</strong>(包裹不可分割 → <code>max</code>),
+      <strong><code>check</code> 要問「怎麼驗證最省事」</strong>(順序固定 → 貪心分段,<code>O(n)</code> 且可證明最優)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">875 的雙胞胎:左界抬到 max(weights)(包裹不可分割)、check 換成貪心分段(順序固定,可用交換論證證明最優)。主迴圈一字不改。O(n log Σw)。</div>
+    <div class="sc-summary-bar__detail">SHIP PACKAGES · ANSWER SEARCH + GREEDY CHECK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1011-ship.js"></script>
+</body>
+</html>
