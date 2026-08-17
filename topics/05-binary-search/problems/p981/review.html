@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>981 · Time Based Key-Value Store // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P981</span>
+    <span><a href="https://leetcode.com/problems/time-based-key-value-store/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">時間戳鍵值存取</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 範例 Trace</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 981</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SELF-CHECK</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要點</th></tr></thead>
+      <tbody>
+        <tr><td>資料結構</td><td><code>unordered_map&lt;string, vector&lt;pair&lt;int,string&gt;&gt;&gt;</code></td></tr>
+        <tr><td>為何 vector 就夠</td><td><code>set</code> 的 timestamp <strong>嚴格遞增</strong> ⇒ push_back 就有序</td></tr>
+        <tr><td>要找什麼</td><td>最後一個 <code>ts ≤ query</code> ⇒ 翻成「第一個 <code>ts &gt; query</code>」</td></tr>
+        <tr><td>取哪個</td><td><strong><code>l − 1</code></strong>(最後一個 F),不是 <code>l</code></td></tr>
+        <tr><td>pred 用嚴格 &gt;</td><td>用 <code>≥</code> 會變 lower_bound,精確命中時退錯一格</td></tr>
+        <tr><td>必要守門</td><td><code>l == 0</code> → 回 <code>""</code>(否則讀 <code>v[-1]</code>)</td></tr>
+        <tr><td>右邊界不用擋</td><td><code>l == n</code> 時 <code>l−1 = n−1</code> 仍合法</td></tr>
+        <tr><td>複雜度</td><td><code>set</code> O(1) 攤還、<code>get</code> O(log n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// QUIZ</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 題目說「<code>set</code> 的 timestamp 嚴格遞增」。這句話讓你省掉了什麼?若拿掉它,<code>set</code> 與 <code>get</code> 各要怎麼改?</div>
+    <div class="qa"><strong>Q2.</strong> 要的是「最後一個 ≤ query」,為什麼 pred 卻寫成 <code>&gt; query</code>?這樣寫之後,答案為什麼是 <code>l − 1</code> 而不是 <code>l</code>?</div>
+    <div class="qa"><strong>Q3.</strong> pred 若改成 <code>≥ query</code>,哪一類查詢會出錯?請說明失敗的<strong>形狀</strong>(不是舉一個例子而已)。</div>
+    <div class="qa"><strong>Q4.</strong> <code>l &gt; 0</code> 這道守門什麼時候會被觸發?少了它會發生什麼(不只是「答案錯」)?為什麼<strong>右</strong>邊界不需要對稱地擋一次?</div>
+    <div class="qa"><strong>Q5.</strong> <code>const auto&amp; v = it-&gt;second;</code> 若寫成 <code>auto v = it-&gt;second;</code>,程式還會對嗎?會付出什麼代價?那個代價和「呼叫幾次 get」有關還是和「vector 多長」有關?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// foo: (1,bar) (4,bar2) (7,bar3)</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 三種查詢,對應 TF 帶的三種形狀</span>
+index      [0]      [1]      [2]
+ts / val   1/bar    4/bar2   7/bar3</div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// CASE A: query = 5(落在中間)</span>
+&gt; 5 ? 的 TF 帶 = F F T
+[0,3) m=1  v[1].first=4 &gt; 5 ? 否 → l=2
+[2,3) m=2  v[2].first=7 &gt; 5 ? 是 → r=2
+收斂 l=2,l &gt; 0 成立 → 取 v[1]
+<span class="sc-trace__out">// return "bar2"</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// CASE B: query = 0(比全部都小 → 守門生效)</span>
+&gt; 0 ? 的 TF 帶 = T T T
+[0,3) m=1  v[1].first=4 &gt; 0 ? 是 → r=1
+[0,1) m=0  v[0].first=1 &gt; 0 ? 是 → r=0
+收斂 l=0,l &gt; 0 不成立 → 連一個 F 都沒有
+<span class="sc-trace__out">// return ""(少了守門就會讀 v[-1])</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// CASE C: query = 7(精確命中最後一筆)</span>
+&gt; 7 ? 的 TF 帶 = F F F
+[0,3) m=1  v[1].first=4 &gt; 7 ? 否 → l=2
+[2,3) m=2  v[2].first=7 &gt; 7 ? 否 → l=3
+收斂 l=3 = n,l − 1 = 2 仍是合法索引
+<span class="sc-trace__out">// return "bar3" —— 右邊界不必特判</span></div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 正確性驗證規模</span>
+官方範例 4/4 相符:get(foo,1)="bar" get(foo,3)="bar" get(foo,4)="bar2" get(foo,5)="bar2"
+隨機對拍(參考解為 map&lt;string, map&lt;int,string&gt;&gt; + upper_bound + prev,不共用二分程式碼):
+  35322 條操作序列,比對 300004 個操作(其中 164433 個 get)→ 不一致 0
+邊界 15 項全數符合:未 set 的 key、低於最小、精確命中、介於兩筆之間、
+                   高於最大、單筆的上/中/下、兩個 key 互不干擾
+<span class="sc-trace__out">// 30 萬個操作零不一致</span></div>
+
+    <div class="sc-insight">
+      三個 case 剛好對應 TF 帶的三種形狀:<strong>中間有分界</strong>(F F T)、<strong>全 T</strong>(<code>l=0</code>,守門擋下)、<strong>全 F</strong>(<code>l=n</code>,不必擋)。
+      能默寫這三條,<code>l − 1</code> 家族的邊界就完整了。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 直接用 STL 取代手寫二分。請寫出 <code>get</code> 的 <code>upper_bound</code> 版本(<code>pair</code> 的比較要怎麼處理?),並說明它和手寫版的對應關係。</div>
+    <div class="qa"><strong>App 2.</strong> 若改用 <code>map&lt;int,string&gt;</code> 存每個 key 的資料,程式會怎麼寫?複雜度一樣是 <code>O(log n)</code>,那為什麼本題仍偏好 <code>vector</code>?反過來,什麼情況下 <code>map</code> 才是對的選擇?</div>
+    <div class="qa"><strong>App 3.</strong> 若題目改成 <code>get</code> 要回傳「timestamp <strong>≥</strong> query 中<strong>最小</strong>的那一筆」(找後繼而非前驅),程式要改哪裡?守門要擋哪一邊?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <section class="sc-section">
+    <div class="qa qa--answer"><strong>A1.</strong> 它保證每個 key 的 vector <strong>天生就是排序好的</strong>,所以 <code>set</code> 只需要 <code>push_back</code>(攤還 <code>O(1)</code>),而 <code>get</code> 可以直接二分。<strong>省掉的是「維持有序」的成本。</strong><br><br>拿掉這個保證後:<code>set</code> 要嘛每次 <code>upper_bound</code> 找位置再 <code>insert</code>(vector 中間插入是 <code>O(n)</code> 搬移),要嘛改用 <code>map&lt;int,string&gt;</code> 讓它自己維持有序(<code>O(log n)</code> 插入,但每筆一次節點配置)。<code>get</code> 的邏輯不變 —— 它只要求「有序」,不在乎有序是怎麼來的。<b>這是設計題常見的暗示:約束裡的一句話,往往就是叫你別用更重的結構。</b></div>
+
+    <div class="qa qa--answer"><strong>A2.</strong> 因為<a href="../../template.html">通用模板</a>只會找「<strong>第一個滿足 pred 的位置</strong>」。而「最後一個 ≤ query」不是「第一個」形狀,沒辦法直接寫成 pred。解法是<strong>翻成反面</strong>:條件寫 <code>ts &gt; query</code>,TF 帶就成了 <code>F…F T…T</code> —— 所有 <code>≤ query</code> 的落在 F 側、所有 <code>&gt; query</code> 的落在 T 側。模板收斂到<strong>第一個 T</strong>(<code>l</code>),而我要的「最後一個 ≤ query」正是<strong>最後一個 F</strong> = <code>l − 1</code>。<b>模板頁的規則原話:第一個滿足拿 l,最後一個不滿足拿 l−1。</b></div>
+
+    <div class="qa qa--answer"><strong>A3.</strong> 出錯的形狀是「<strong>query 剛好等於某一筆的 timestamp</strong>」—— 也就是<strong>精確命中</strong>。用 <code>≥</code> 時,那一筆自己就滿足 pred、被算進 T 側,於是 <code>l</code> 指向<strong>它</strong>,<code>l − 1</code> 就退到<strong>它前面</strong>那筆 → 回傳上一個時間點的舊值。非精確命中的查詢則<strong>完全不受影響</strong>(沒有元素等於 query 時,「≥」與「&gt;」的第一個位置是同一格)。<br><br>實測窮舉 217 組(長度 1..6 的遞增子集 × query 0..6),<code>≥</code> 版失敗 <strong>80 組</strong>,而 80 <strong>恰好等於</strong>「query 精確命中某個 timestamp」的組數(5 × 16)—— 失敗集合與理論預測<strong>完全吻合</strong>。最小反例只要一筆:<code>v=[(1,"v1")]</code>、<code>query=1</code> → 回 <code>""</code>(正解 <code>"v1"</code>)。</div>
+
+    <div class="qa qa--answer"><strong>A4.</strong> 觸發條件是「<strong>query 比所有 timestamp 都小</strong>」,此時整條帶子全是 T,<code>l</code> 收斂到 0。少了守門,<code>v[l - 1]</code> 就是 <code>v[-1]</code> —— 不只是答案錯,而是<strong>陣列越界的未定義行為</strong>。實測 217 組中有 <strong>57 組</strong>會走到這條路徑;用 <code>-fsanitize=address</code> 編譯,最小輸入 <code>v=[(1,"v1")]</code>、<code>query=0</code> 立刻報 <code>heap-buffer-overflow / READ</code>,位址是「32-byte region 之前 1 byte」。<br><br><strong>右邊界為什麼不用擋:</strong><code>l</code> 收斂到 <code>n</code> 代表「所有 timestamp 都 ≤ query」,那 <code>l − 1 = n − 1</code> 是<strong>最後一筆的合法索引</strong>,而且正是該回的答案(query 比全部都大 → 回最新一筆)。<b><code>l − 1</code> 家族只怕左邊界 −1,不怕右邊界 —— 和 <a href="../p74/index.html">74</a> 同一條規則。</b></div>
+
+    <div class="qa qa--answer"><strong>A5.</strong> <strong>答案仍然正確</strong> —— 複製出來的 vector 內容一模一樣,二分結果不變。代價是<strong>效能</strong>:<code>auto</code> 推導時會剝掉 reference 與 top-level const,得到一個乾淨的<strong>值型別</strong>,所以 <code>auto v = it-&gt;second;</code> 會把<strong>整條 vector 連同裡面每個 <code>string</code> 深拷貝一份</strong>,而 <code>get</code> 其實只讀其中一格。<br><br>成本和「<strong>vector 多長</strong>」成正比,和「呼叫幾次」只是線性倍數關係 —— 換句話說,<strong>每一次 <code>get</code> 都付一次 <code>O(n)</code>,把原本 <code>O(log n)</code> 的查詢直接打回 <code>O(n)</code></strong>。程式碼頁有實測的毫秒數與 copy constructor 呼叫次數。<b>口訣:<code>auto</code> 給你「一份新的」,<code>const auto&amp;</code> 給你「原來那個」。</b></div>
+
+    <div class="qa qa--answer"><strong>App 1.</strong> 因為 vector 裝的是 <code>pair&lt;int,string&gt;</code>,要和一個純 <code>int</code> 比較,得指定比較方式。最乾淨的兩種寫法:<br>
+    ① 造一個哨兵 pair 並利用 <code>pair</code> 的字典序:<code>upper_bound(v.begin(), v.end(), make_pair(timestamp, string(1, char(127))))</code> —— 醜且脆弱,不建議。<br>
+    ② 用<strong>異質比較的 comparator</strong>(C++14 起 <code>upper_bound</code> 允許 value 與 element 不同型):<br>
+    <code>auto it2 = upper_bound(v.begin(), v.end(), timestamp,<br>&nbsp;&nbsp;[](int t, const pair&lt;int,string&gt;&amp; e){ return t &lt; e.first; });</code><br>
+    注意 <code>upper_bound</code> 的 comparator 參數順序是 <code>(value, element)</code>(<code>lower_bound</code> 才是 <code>(element, value)</code>)—— 這是最常寫反的地方。<br><br>對應關係:<code>it2 - v.begin()</code> <strong>就是手寫版的 <code>l</code></strong>,而 <code>it2 == v.begin()</code> <strong>就是 <code>l == 0</code> 那道守門</strong>,答案取 <code>prev(it2)-&gt;second</code>。<b>手寫版的好處正是不必記 comparator 的參數順序。</b></div>
+
+    <div class="qa qa--answer"><strong>App 2.</strong> 用 <code>map&lt;string, map&lt;int,string&gt;&gt;</code> 的話:<code>set</code> 是 <code>dict[key][timestamp] = value;</code>,<code>get</code> 是 <code>auto it = m.upper_bound(timestamp); if (it == m.begin()) return ""; return prev(it)-&gt;second;</code> —— 更短,而且 <code>upper_bound</code> 與 <code>prev</code> 把「找第一個 &gt; 再退一格」直接寫在臉上。<br><br>本題仍偏好 vector 的理由是<strong>常數</strong>:紅黑樹每個節點一次動態配置、節點散落各處、走訪要跳指標,而 vector 是<strong>連續記憶體</strong>,二分時的快取行為好得多;而 map 提供的「任意位置插入仍維持有序」這項能力,<strong>本題因為 timestamp 遞增而完全用不到</strong> —— 那是白付的。<br><br><strong>什麼時候該用 map:</strong>timestamp <strong>不保證遞增</strong>(需要中間插入)、需要刪除、或需要對 key 做有序走訪時。<b>原則:別為用不到的能力付常數。</b></div>
+
+    <div class="qa qa--answer"><strong>App 3.</strong> 找後繼就<strong>不需要退格了</strong> —— 這是 <code>l</code> 家族而非 <code>l − 1</code> 家族。把 pred 從 <code>v[m].first &gt; query</code> 改成 <code>v[m].first &gt;= query</code>(即 lower_bound),收斂後的 <code>l</code> <strong>直接就是</strong>「第一個 ts ≥ query」的位置,答案是 <code>v[l].second</code>。<br><br>守門要<strong>換一邊</strong>:改成 <code>if (l == v.size()) return "";</code> —— 代表所有 timestamp 都比 query 小、沒有後繼。<b>兩種家族的邊界是鏡像的:取 <code>l</code> 就怕 <code>l == n</code>,取 <code>l − 1</code> 就怕 <code>l == 0</code>。</b>(這也正是 <a href="../p704/index.html">704</a> 與本題的差別:704 取 <code>l</code> 所以擋右邊,這裡取 <code>l−1</code> 所以擋左邊。)</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與 auto 成本</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 05 · Binary Search</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// MASTERY CHECK</div>
+    <div class="sc-summary-bar__body">能說出「timestamp 遞增省掉維持有序、翻成反面條件才套得了模板、取 l−1 就擋左邊界、≥ 只在精確命中時錯、auto 會複製整條 vector」,這題就通了。</div>
+    <div class="sc-summary-bar__detail">LEETCODE 981 · TIME BASED KEY-VALUE STORE</div>
+  </div>
+
+</body>
+</html>

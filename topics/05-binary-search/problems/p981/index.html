@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>981 · Time Based Key-Value Store // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P981</span>
+    <span><a href="https://leetcode.com/problems/time-based-key-value-store/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">時間戳鍵值存取</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · upper_bound 後退一格</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 981</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DESIGN · BINARY SEARCH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計一個帶時間戳的鍵值結構:<code>set(key, value, timestamp)</code> 存入;
+        <code>get(key, timestamp)</code> 回傳<strong>時間戳 ≤ 查詢值中最大的那一筆</strong>的 value,沒有就回 <code>""</code>。
+        關鍵約束:<strong><code>set</code> 的 timestamp 嚴格遞增</strong>,最多 <code>2×10⁵</code> 次呼叫。
+      </p>
+    </div>
+
+    <p>
+      這題是本章 <strong><code>l − 1</code> 家族的第三個實戰</strong>(<a href="../p74/index.html">74</a> 用它選列,這裡用它<strong>找前驅</strong>)。
+      <a href="../../template.html">模板頁</a>那條規則直接套上來:<strong>要「最後一個滿足 ≤ target 的」,就先找「第一個 &gt; target 的」,再退一格</strong> ——
+      也就是 <code>upper_bound − 1</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      「<strong><code>set</code> 的 timestamp 嚴格遞增</strong>」這句話是整題的地基。它保證每個 key 的 vector <strong>天生就是排序好的</strong> ——
+      <code>push_back</code> 就夠,不必排序、不必插入到中間。少了這句,<code>set</code> 就得付 <code>O(n)</code> 或改用 <code>map</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼 vector + 二分<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每次 get 從尾巴往前掃</span>
+            <span class="sc-ko-card__o">O(n) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">最多 <code>2×10⁵</code> 次呼叫,若全集中在同一個 key,總成本可到 <code>10¹⁰</code> 級,超時。而且完全沒用上「已排序」。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">改用 <code>map&lt;int, string&gt;</code> 存每個 key</span>
+            <span class="sc-ko-card__o">O(log n) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">複雜度同級,<code>upper_bound</code> 現成可用。但紅黑樹每個節點一次配置、快取不友善,常數明顯較大 —— 而<strong>本題根本不需要「中間插入」的能力</strong>(timestamp 遞增),那份彈性是白付的。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 白付常數</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title"><code>unordered_map&lt;string, vector&lt;pair&lt;int,string&gt;&gt;&gt;</code> + 手寫 upper_bound</span>
+          <span class="sc-ko-card__o">set O(1) · get O(log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          key 用雜湊 <code>O(1)</code> 定位,value 用<strong>連續記憶體的 vector</strong>。因為 timestamp 遞增,<code>set</code> 只是 <code>push_back</code>(攤還 <code>O(1)</code>);
+          <code>get</code> 對那條 vector 二分找<strong>第一個 &gt; timestamp</strong>,再退一格。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 最省常數</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>存</strong>:<code>dict[key].push_back({timestamp, value})</code> —— timestamp 遞增,所以 vector 自然有序。</li>
+      <li><strong>找第一個 &gt; timestamp</strong>:左閉右開 <code>[0, n)</code>,pred 是 <code>v[mid].first &gt; timestamp</code>(<strong>嚴格 &gt;</strong>),收斂後 <code>l</code> = upper_bound。</li>
+      <li><strong>退一格</strong>:答案是 <code>v[l − 1]</code>。若 <code>l == 0</code> 代表「所有時間戳都比查詢值大」→ 回 <code>""</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// ts=1,4,7 查 5 → "bar2"</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      下排是 <code>&gt; 5 ?</code> 的 <strong>TF 帶</strong> —— <code>F F T</code>。模板收斂到<strong>第一個 T</strong>(index 2),
+      而我們要的是<strong>最後一個 F</strong>(index 1)→ 這就是 <code>l − 1</code>。最後一步特別看那個退格動作。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ TimeMap · upper_bound 後退一格</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:396px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 為什麼是嚴格 > 配 l−1 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">嚴格 &gt; 配 l − 1 · 兩者必須成套<span class="sc-section__title-en">// THE PAIRING</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">RULE · 第一個滿足拿 l,最後一個不滿足拿 l − 1</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          題目要的是「<strong>最後一個 timestamp ≤ 查詢值</strong>」。這是<a href="../../template.html">模板頁</a>的 <code>l − 1</code> 家族 ——
+          把條件寫成它的<strong>反面</strong>「<code>timestamp &gt; 查詢值</code>」,TF 帶就是 <code>F…F T…T</code>,
+          <code>l</code> 停在第一個 T,而<strong><code>l − 1</code> 就是最後一個 F</strong>,正是要的答案。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>為什麼 pred 必須用嚴格 <code>&gt;</code>:</strong>如果寫 <code>≥</code>,那 <code>l</code> 會變成 lower_bound(第一個 <strong>≥</strong> 查詢值)。
+          當查詢值<strong>剛好等於</strong>某個 timestamp 時,那一筆會被算進 T 側,<code>l − 1</code> 就退到<strong>它前面</strong>那筆 —— 精確命中反而拿到舊值。
+        </p>
+        <p style="margin:0;">
+          <strong>為什麼 <code>l == 0</code> 必須擋:</strong><code>l − 1</code> 家族永遠附帶這個坑。當查詢值比<strong>所有</strong> timestamp 都小,整條帶子全是 T,
+          <code>l = 0</code> → <code>l − 1 = −1</code>,直接讀 <code>v[-1]</code> 就是越界。這也正是題目要求「沒有就回 <code>""</code>」的那個情形。
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>查詢 timestamp</th><th>&gt; 5 ? 的 TF 帶</th><th>收斂 l</th><th>l − 1</th><th>回傳</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">0(比全部小)</td><td class="mono">T T T</td><td class="mono">0</td><td class="fail">−1</td><td class="mono">""(被守門擋下)</td></tr>
+        <tr><td class="mono">5(落在中間)</td><td class="mono">F F T</td><td class="mono">2</td><td class="mono">1</td><td class="mono">"bar2"</td></tr>
+        <tr><td class="mono">7(精確命中末筆)</td><td class="mono">F F F</td><td class="mono">3 = n</td><td class="ok">2</td><td class="mono">"bar3"</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      注意第三列:<code>l</code> 收斂到 <code>n</code>(尾後位置)時,<code>l − 1 = n − 1</code> <strong>仍是合法索引</strong>,不需要特判 ——
+      查詢值比所有時間戳都大本來就該回最後一筆。<strong><code>l − 1</code> 只怕左邊界 −1,不怕右邊界。</strong>(和 <a href="../p74/index.html">74</a> 同一條規則。)
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">set = <strong>O(1)</strong> 攤還　　get = <strong>O(log n)</strong>　　S = <strong>O(總筆數)</strong></div>
+      <p class="sc-formula__hint">
+        <code>n</code> 是<strong>該 key</strong> 的筆數,不是總筆數。<code>2×10⁵</code> 次呼叫全塞同一個 key 也只是 <code>2×10⁵ × 18 ≈ 3.6×10⁶</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>操作</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>set</code></td><td class="mono">O(1) 攤還</td><td>雜湊定位 + <code>push_back</code>;靠 timestamp 遞增才成立</td></tr>
+        <tr><td><code>get</code></td><td class="mono">O(log n)</td><td>雜湊定位 + 二分</td></tr>
+        <tr><td>Space</td><td class="mono">O(總筆數)</td><td>每筆存一份 <code>(int, string)</code></td></tr>
+        <tr><td>常數因子</td><td class="mono">小</td><td>vector 連續記憶體,勝過 <code>map</code> 的節點配置</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      「找最後一個 ≤ x」不要自己想收縮條件 —— <strong>把它翻成「找第一個 &gt; x」,套模板,再退一格</strong>。
+      配套只有兩件事:pred 用<strong>嚴格 &gt;</strong>(否則精確命中會拿到舊值),以及<strong>擋 <code>l == 0</code></strong>(否則讀到 <code>v[-1]</code>)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與 auto 成本</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">timestamp 遞增 ⇒ vector 天生有序 ⇒ set 只要 push_back。get 找「第一個 &gt; ts」再退一格(l−1),pred 用嚴格 &gt;、並擋 l==0。set O(1)、get O(log n)。</div>
+    <div class="sc-summary-bar__detail">TIME BASED KEY-VALUE STORE · UPPER BOUND MINUS ONE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p981-timemap.js"></script>
+</body>
+</html>
