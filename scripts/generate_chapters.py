@@ -142,7 +142,7 @@ PROBLEMS = {
         ('p1011','Capacity to Ship Packages Within D Days','capacity-to-ship-packages-within-d-days','med', 'done'),
         ('p153', 'Find Minimum in Rotated Sorted Array',   'find-minimum-in-rotated-sorted-array',   'med', 'todo'),
         ('p33',  'Search in Rotated Sorted Array',         'search-in-rotated-sorted-array',         'med', 'done'),
-        ('p81',  'Search in Rotated Sorted Array II',      'search-in-rotated-sorted-array-ii',      'med', 'todo'),
+        ('p81',  'Search in Rotated Sorted Array II',      'search-in-rotated-sorted-array-ii',      'med', 'done'),
         ('p981', 'Time Based Key-Value Store',             'time-based-key-value-store',             'med', 'todo'),
         ('p410', 'Split Array Largest Sum',                'split-array-largest-sum',                'hard','todo'),
         ('p4',   'Median of Two Sorted Arrays',            'median-of-two-sorted-arrays',            'hard','todo'),

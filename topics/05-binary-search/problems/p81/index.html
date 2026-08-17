@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>81 · Search in Rotated Sorted Array II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P81</span>
+    <span><a href="https://leetcode.com/problems/search-in-rotated-sorted-array-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">旋轉陣列搜尋 II · 含重複值</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 二分退化成 O(n) 的那一題</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 81</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        和 <a href="../p33/index.html">33</a> 完全相同的設定,只差一個字:陣列是<strong>非遞減</strong>(<strong>可以有重複值</strong>)後被旋轉。
+        給旋轉後的 <code>nums</code> 與 <code>target</code>,回傳 <strong>true / false</strong>(這次只問存不存在,不要索引)。
+        題目最後還追問一句:<strong>重複值會不會影響複雜度?如何影響、為什麼?</strong>
+      </p>
+    </div>
+
+    <p>
+      這題是本章唯一一題「<strong>二分被打敗</strong>」的例子 —— 最壞情況<strong>退化成 <code>O(n)</code></strong>,而且無法避免。
+      <a href="../p33/review.html">33 的應用題 3</a> 已經預告過它:<code>nums[left] == nums[mid]</code> 時你<strong>無法判斷哪半有序</strong>。
+      這頁把那句話展開成完整的解法、證明,以及實測出來的退化數字。
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 33 的解法會壞 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">33 的解法在這裡壞在哪<span class="sc-section__title-en">// THE BROKEN INFERENCE</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">33 靠的推論:nums[l] ≤ nums[m] ⇒ 左半有序</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <a href="../p33/index.html">33</a> 的整個解法建立在一句話上:<strong>一個斷點最多只能弄壞一半</strong>,而「哪半有序」用兩端<strong>比大小</strong>就能判斷。
+          元素相異時這個判斷是<strong>可靠</strong>的 —— <code>nums[l] &lt; nums[m]</code> 就代表左半沒有跨過斷點。
+        </p>
+        <p style="margin:0 0 10px;">
+          有了重複值,<code>nums[l]</code> 和 <code>nums[m]</code> <strong>可能相等</strong>。這時候兩種完全不同的情況<strong>長得一模一樣</strong>:
+          左半是一整段相同的值(真有序),或者左半跨過了斷點但頭尾恰好同值(<strong>不</strong>有序)。
+          <strong>兩端比大小已經無法區分它們。</strong>
+        </p>
+        <p style="margin:0;">
+          於是 33 的程式碼會<strong>把答案那半當成「已排除」丟掉</strong>。實測把 (D) 分支整段刪掉(= 33 的解法直接套用),
+          在窮舉的 4530 組測資中<strong>失敗 60 組</strong>,最小反例:
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 最小反例:33 的解法為什麼在這裡回錯</span>
+nums = [0,1,0,0,0]   target = 1        正解 true(index 1 就是 1)
+
+第一輪 left=0, right=4, mid=2
+  nums[0] = 0 , nums[2] = 0  → 相等!
+  33 的程式碼會走 nums[l] &lt;= nums[m] 那支,判定「左半 [0,2] 有序,值域 [0,0]」
+  於是問:1 在 [0, 0] 內嗎?否 → left = mid + 1 = 3
+  可是左半 [0,1,0] 根本不是有序的,而答案就藏在裡面 ——
+  一步之內,答案被丟掉了
+<span class="sc-trace__out">// 回傳 false(正解 true)。窮舉 4530 組中有 60 組因此失敗</span></div>
+  </section>
+
+  <!-- ════════════ 3 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">為什麼只能保守縮一格<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">照抄 33,無視重複值</span>
+            <span class="sc-ko-card__o">O(log n)</span>
+          </div>
+          <div class="sc-ko-card__body">複雜度最漂亮,但<strong>會回錯答案</strong> —— 實測 60/4530 失敗(反例見上一節)。快而錯不叫解法。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 答案錯</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">直接線性掃描</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">答案正確,而且和本題的<strong>最壞情況同級</strong>。但它<strong>放棄了所有好情況</strong> —— 大部分測資其實只要 <code>O(log n)</code>。題目明說「盡量減少操作步數」。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 浪費了結構</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">33 的骨架 + 一個「分不出來就縮一格」的退路</span>
+          <span class="sc-ko-card__o">平均 O(log n) · 最壞 O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>判斷得出來就照 33 砍半;判斷不出來(<code>nums[l] == nums[m]</code>)才退化成 <code>left++</code></strong>,
+          而且縮之前<strong>先檢查 <code>nums[left]</code> 是不是 target</strong>,這樣丟掉它才安全。
+          能砍半就砍半、只在必要時付線性代價 —— 這是<strong>最壞 <code>O(n)</code> 但盡量避開它</strong>的寫法。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 正確且盡量快</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>先問「判斷得出來嗎」</strong>:<code>nums[left] == nums[mid]</code> ⇒ 分不出哪半有序。此時<strong>先驗 <code>nums[left] == target</code></strong>(命中就直接回 true),否則 <code>left++</code> 丟掉這一格重來。</li>
+      <li><strong>判斷得出來就照 33 走</strong>:<code>nums[left] &lt; nums[mid]</code> ⇒ 左半有序,用兩端範圍判 target 在不在;否則右半有序,同理。收縮一律 <code>right = mid</code> 或 <code>left = mid + 1</code>。</li>
+      <li><strong>收斂到單格再驗</strong>:<code>return nums[left] == target;</code></li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 5 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,5,6,0,0,1,2], target=0 → true</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      橘色底線是「<strong>這輪可以信任的有序半</strong>」。看 <strong>Round 3</strong>:<code>nums[left]</code> 和 <code>nums[mid]</code> 都是 6,
+      <strong>橘線消失了</strong> —— 那一步無法判斷哪半有序,只能 <code>left++</code>。這一格橘線的有無,就是 81 與 33 的全部差別。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Rotated Array II · 分不出來就縮一格</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:366px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 為什麼 left++ 是安全的 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">為什麼「先驗再縮」才安全<span class="sc-section__title-en">// THE LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 丟掉一格之前,必須先確認它不是答案</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>left++</code> 做的事是<strong>永久放棄索引 <code>left</code></strong>。在 33 裡每次收縮都有理由(「這半的值域不含 target」),
+          但這裡的 <code>left++</code> <strong>沒有任何理由</strong> —— 它純粹是「我判斷不出來,只好少看一格」。
+        </p>
+        <p style="margin:0 0 10px;">
+          所以丟之前<strong>必須自己檢查一次</strong>:<code>if (nums[left] == target) return true;</code>。
+          有了這一行,被丟掉的那一格就<strong>已經被完整檢查過</strong>,放棄它不會遺失資訊 —— 這才讓整個做法回到正確。
+        </p>
+        <p style="margin:0;">
+          <strong>少了這一行有多嚴重?</strong>實測失敗 <strong>725/4530</strong>,最小反例只要兩格:
+          <code>nums = [0,1]</code>、<code>target = 0</code>。<code>mid = 0</code>,<code>nums[0] == nums[0]</code> 進入 (D) 分支,
+          沒驗就 <code>left++</code> → 收斂到 index 1,回傳 <code>nums[1] == 0</code> = <strong>false</strong>,而 0 明明就在 index 0。
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>(D) 分支怎麼寫</th><th>實測結果</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono">先驗 target,再 left++</td>
+          <td class="ok">正確(0/4530 失敗)</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td class="mono">直接 left++(沒驗)</td>
+          <td class="fail">失敗 725/4530</td>
+          <td><code>[0,1]</code> t=0 → false(正解 true)</td>
+        </tr>
+        <tr>
+          <td class="mono">先驗 target,再 right--</td>
+          <td class="fail">失敗 1234/4530</td>
+          <td><code>[0,1]</code> t=1 → false(正解 true)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      第三列值得記:<strong>縮的方向不能隨便換</strong>。<code>right--</code> 丟掉的是 <code>nums[right]</code>,
+      而我們只驗過 <code>nums[left]</code> —— 丟了一個<strong>沒檢查過</strong>的值,失敗率甚至比忘記驗更高(1234 vs 725)。
+      <strong>「驗哪一格,就只能丟那一格」。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度(題目的 follow-up) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度 · 回答題目的 follow-up<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      題目直接問了:<strong>重複值會不會影響複雜度?</strong>答案是<strong>會,而且是量級上的影響</strong>。這是實測數字,不是估算:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 迴圈實際跑幾輪(每進一次 while 計 1)</span>
+                              n = 1000     n = 5000
+全部相等,target 不存在          999         4999      ← 最壞
+全相等只有一格不同               999         4999
+只有正中間一格不同               500         2500
+完全沒有重複值(對照)              9           12
+
+無重複的旋轉陣列 n=5000,掃過所有 target 的最大值 = 13 次 ≈ log₂5000
+<span class="sc-trace__out">// 999 → 4999 隨 n 成 5 倍,恆等於 n−1 ⇒ 線性 O(n)</span></div>
+
+    <div class="sc-formula" style="margin-top:12px;">
+      <div class="sc-formula__main">平均 <strong>O(log n)</strong>　　最壞 <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        兩個資料點 <code>999</code>(n=1000)與 <code>4999</code>(n=5000)<strong>恰好都等於 n−1</strong>,隨 n 線性成長;
+        同尺寸的無重複輸入只要 <strong>13</strong> 次。<strong>退化完全來自 (D) 分支的 <code>left++</code>。</strong>
+      </p>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">WHY · 為什麼 O(n) 是躲不掉的</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          考慮 <code>[1,1,1,…,1]</code> 中<strong>藏了一個 0</strong>,位置未知。任何只看 <code>O(log n)</code> 個位置的策略,
+          都會有<strong>大量沒被看過的格子</strong>;而那些格子<strong>從外部完全無法區分</strong>(值都一樣、旋轉位置也猜不出)。
+          對手可以把 0 放進任何一個你沒看的格子 ⇒ <strong>任何演算法最壞都得看 Ω(n) 格</strong>。
+          所以這不是解法不夠好,是<strong>問題本身的下界</strong>。
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time · 平均</td><td class="mono">O(log n)</td><td>能判斷方向時照 33 砍半</td></tr>
+        <tr><td>Time · 最壞</td><td class="mono">O(n)</td><td>實測 n−1 次(n=5000 → 4999)</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>三個 int</td></tr>
+        <tr><td>對照 · 無重複(33)</td><td class="mono">O(log n)</td><td>實測 13 次</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      重複值毀掉的不是「至少一半有序」這個<strong>事實</strong>,而是「用兩端比大小就能<strong>看出</strong>哪半有序」這個<strong>手段</strong>。
+      看不出來的時候,唯一安全的動作是 <strong>先驗過這一格、再放棄它</strong> ——
+      能砍半就砍半,砍不了才付一格的代價,最壞加總成 <code>O(n)</code>,而那正是這個問題的下界。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">nums[l]==nums[m] 時看不出哪半有序 → 先驗 nums[l]==target,再 left++ 保守縮一格;其餘照 33。平均 O(log n)、最壞實測 n−1 = O(n),且那是問題下界。</div>
+    <div class="sc-summary-bar__detail">ROTATED ARRAY II · WHEN BINARY SEARCH DEGRADES</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p81-dupes.js"></script>
+</body>
+</html>
