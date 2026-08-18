@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>410 · Split Array Largest Sum // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P410</span>
+    <span><a href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">切 k 段的最小最大段和</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 410</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>題型訊號</td><td>「<strong>最小化最大值</strong>」⇒ 答案二分</td></tr>
+        <tr><td>值域</td><td><code>[max(nums), Σnums]</code> —— 兩端各對應一種極端切法(切 n 段 / 切 1 段)</td></tr>
+        <tr><td>check</td><td>貪心「能塞就塞」算最少段數,<code>O(n)</code>,由交換論證保證最優</td></tr>
+        <tr><td>判斷式</td><td><code>check(mid) ≤ k</code> —— 是 <code>≤</code> 不是 <code>==</code>,少切可以補刀</td></tr>
+        <tr><td>收縮</td><td>可行 <code>right = mid</code>(不減 1);不可行 <code>left = mid + 1</code></td></tr>
+        <tr><td>免驗證</td><td>不變量:<code>right</code> 全程指向可行解 ⇒ 收斂點必可行</td></tr>
+        <tr><td>複雜度</td><td><code>O(n log Σ)</code>,實測 <strong>30</strong> 輪;區間 DP 是 <code>O(k·n²)</code></td></tr>
+        <tr><td>型別</td><td>Σ ≤ 10⁹ &lt; INT_MAX ⇒ <code>int</code> 安全,但只剩 2 倍餘裕</td></tr>
+        <tr><td>同構題</td><td><a href="../p1011/index.html">1011</a> 可以<strong>一字不改</strong>互換;<a href="../p875/index.html">875</a> 同骨架但左界不同</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 題目要求「切成 <strong>恰好</strong> k 段」,程式卻寫 <code>check(mid) &lt;= k</code>。這不是放寬了條件嗎?為什麼答案還是對的?請證明,並說明改成 <code>== k</code> 會壞在哪裡。</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼左界是 <code>max(nums)</code> 而不是 <code>0</code>?請說明取 0 時 <code>countSegments</code> 會算出什麼樣的「假段數」,並給一個具體反例。</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>countSegments</code> 用的是貪心。為什麼貪心給出的段數<strong>一定是最少的</strong>?請寫出交換論證。</div>
+
+    <div class="qa"><strong>Q4.</strong> 二分的前提是單調性。<code>check(v)</code> 對 <code>v</code> 是嚴格遞減嗎?如果不是,為什麼二分仍然成立?用 <code>nums=[7,2,5,10,8]</code> 舉例。</div>
+
+    <div class="qa"><strong>Q5.</strong> 收斂後直接 <code>return left</code>,不再驗證一次。憑什麼確定它可行?請指出程式碼中維持的<strong>不變量</strong>。</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// nums=[7,2,5,10,8], k=2</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+left  = max(nums) = 10
+right = Σnums     = 32
+候選區間 [10, 32]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 1 輪: left=10 right=32 mid=21</span>
+check(21): 7(7) 2(9) 5(14) | 10(10) 8(18)   → 2 段
+2 &lt;= 2  可行 → right = mid = 21
+區間 → [10, 21]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 輪: left=10 right=21 mid=15</span>
+check(15): 7(7) 2(9) 5(14) | 10(10) | 8(8)  → 3 段
+3 &gt;  2  不可行 → left = mid + 1 = 16
+區間 → [16, 21]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 輪: left=16 right=21 mid=18</span>
+check(18): 7(7) 2(9) 5(14) | 10(10) 8(18)   → 2 段
+2 &lt;= 2  可行 → right = mid = 18
+區間 → [16, 18]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 4 輪: left=16 right=18 mid=17</span>
+check(17): 7(7) 2(9) 5(14) | 10(10) | 8(8)  → 3 段
+3 &gt;  2  不可行 → left = mid + 1 = 18
+區間 → [18, 18]
+<span class="sc-trace__out">// left == right,跳出</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return left = 18
+驗證:check(18) 的切法是 [7,2,5] | [10,8],段和 14 與 18,最大 = 18 ✓
+共 4 輪迴圈
+<span class="sc-trace__out">// 18</span></div>
+
+    <p style="margin-top:14px;">
+      把 <code>v</code> 從 10 掃到 20,實測的段數序列是:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// check(v) 的階梯(實測)</span>
+v = 10 11 12 13 | 14 15 16 17 | 18 19 20
+段 =  4  4  4  4 |  3  3  3  3 |  2  2  2
+可行?  ✗  ✗  ✗  ✗ |  ✗  ✗  ✗  ✗ |  ✓  ✓  ✓
+<span class="sc-trace__out">// F F F F F F F F T T T —— 標準的「找第一個 T」</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      注意那些<strong>平台</strong>:v 從 14 加到 17 段數完全不動。這正是<strong>不能逐格試、必須二分</strong>的原因 ——
+      也是為什麼判斷式必須是「<code>≤ k</code>」這種<strong>單調述詞</strong>,而不是「<code>== k</code>」這種在平台上跳來跳去的東西。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 題目把限制放寬成 <code>n ≤ 10⁵</code>、<code>nums[i] ≤ 10⁷</code>。現在這份程式碼還對嗎?請算出實際的 Σ 上限並說明要改哪幾行。</div>
+
+    <div class="qa"><strong>App 2.</strong> 除了回傳最小的最大段和,還要回傳<strong>一組達成它的切點</strong>。怎麼改?會增加複雜度嗎?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果 <code>nums</code> 可以含<strong>負數</strong>,這套解法還能用嗎?請指出<strong>哪一個前提</strong>先崩掉。</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>放寬了,但不影響答案。</strong>設 <code>check(v) = c ≤ k</code>,即上限 v 之下最少切 c 段。因為 <code>k ≤ n</code>(題目保證)且每段非空,我們可以在任一段內<strong>再補 k − c 刀</strong>,湊到恰好 k 段 —— 而<strong>多切刀只會讓每段變短</strong>,各段和只會更小,所以最大段和<strong>不會超過 v</strong>。因此「存在 ≤ k 段的合法切法」與「存在恰好 k 段的合法切法」<strong>等價</strong>。<br><br><strong>改成 <code>== k</code> 會壞兩件事:</strong>①<strong>漏解</strong> —— 最優的 v 底下貪心可能只切出 c &lt; k 段,判斷式回 false,答案被推大;②<strong>破壞單調性</strong> —— <code>check(v) == k</code> 這個述詞隨 v 增大是 <code>F…F T…T F…F</code>(v 大到一定程度段數會掉到 k 以下),不是 <code>F…F T…T</code>,二分的前提直接消失。實測最小反例 <code>nums=[8,2,1], k=3</code> → 答 <strong>11</strong>(正解 <strong>8</strong>);對拍 56000 組錯 <strong>22533</strong> 組。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> 因為 <code>countSegments</code> 只在 <code>cur + x &gt; limit</code> 時切刀,<strong>切完之後無條件執行 <code>cur += x</code></strong> —— 它<strong>沒有檢查</strong>「x 自己塞不塞得下」。當 <code>limit &lt; max(nums)</code> 時,那個超大元素會被硬塞進一個新段裡,函數回報的段數是一個<strong>不對應任何合法切法的假數字</strong>。<br><br>具體反例:<code>nums=[6,7], k=2</code>,正解 7。若 <code>left = 0</code>,二分會試到 <code>v=6</code>:<code>cur=6</code>,接著 <code>6+7=13 &gt; 6</code> → 切刀、<code>cur=7</code>。回報 2 段 ≤ 2,判定「可行」—— 但那一段的和是 <strong>7 &gt; 6</strong>,根本不合法。於是答案被壓成 <strong>6</strong>。對拍 56000 組錯 <strong>15708</strong> 組。<br><br>把左界設成 <code>max(nums)</code> 之後,<code>limit ≥ 每個 x</code> 恆成立,「切刀後 cur = x ≤ limit」永遠為真,假段數就不可能出現。<b>左界不只是效率優化,它是 check 正確性的前提。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>交換論證。</strong>因為順序固定,任一種切法就是把序列切成連續幾段。設有一個最少段數的切法 <code>OPT</code>,和貪心切法 <code>G</code>。取<strong>第一個</strong>兩者不同的切點:貪心在該處「還塞得下就繼續塞」,所以貪心的第一段<strong>結束位置不早於</strong> OPT 的第一段。<br><br>現在把 OPT 的第一刀<strong>往後推到貪心的位置</strong>:第一段仍不超過 v(因為貪心驗證過它塞得下),而第二段的起點<strong>往後移</strong>,裝的東西<strong>只會更少或一樣</strong>,所以第二段仍不超過 v。以此類推,後續每一段都只會變輕,<strong>段數不會變多</strong>。反覆對每個切點做這個調整,OPT 就變成了 G 而段數沒增加 ⇒ <code>|G| ≤ |OPT|</code>。又因 OPT 最少,故 <code>|G| = |OPT|</code>。<b>所以貪心算出的就是該上限下的最少段數,check 是正確的。</b><br><br><strong>實測佐證:</strong>對所有非負的短陣列(n ≤ 6)與其值域內的每一個 <code>v</code>,把貪心段數和「最少段數」的 DP 逐一比對,<strong>1072680 組全部相同</strong>。(這條性質<strong>依賴非負</strong> —— 見下方 App 3 的反例 <code>[4,4,-4]</code>。)</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不是嚴格遞減,是「單調不增」——有平台。</strong>以 <code>nums=[7,2,5,10,8]</code> 實測:<code>v=10..13 → 4 段</code>、<code>v=14..17 → 3 段</code>、<code>v≥18 → 2 段</code>。v 從 14 加到 17 段數完全不動,因為多出來的容量<strong>擠不進下一個元素</strong>(要再多裝一個必須跨過 10 這個門檻)。<br><br><strong>二分仍然成立</strong>,因為二分要的不是 <code>check</code> 本身嚴格遞減,而是<strong>述詞 <code>P(v) = [check(v) ≤ k]</code> 單調</strong>:v 增大時 check 不增 ⇒ P 一旦為真就永遠為真 ⇒ 序列是 <code>F…F T…T</code>。平台只是讓某些相鄰的 v 有相同真值,不會讓 T 之後又出現 F。這也正是 <code>== k</code> 不能用的理由 —— 它在平台上會由 T 翻回 F。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不變量:<code>right</code> 全程指向一個已知可行的上限。</strong>①<strong>初始</strong>:<code>right = Σnums</code>,此時 <code>check = 1 ≤ k</code>(k ≥ 1),可行。②<strong>維持</strong>:<code>right</code> 只在 <code>check(mid) ≤ k</code> 成立的分支被賦值成 <code>mid</code> —— 也就是<strong>只會被換成另一個剛驗證過可行的值</strong>。<code>left = mid + 1</code> 那條路完全不動 <code>right</code>。<br><br>迴圈結束時 <code>left == right</code>,而 <code>right</code> 可行 ⇒ <code>left</code> 可行。同時 <code>left</code> 這一側的不變量是「<code>left - 1</code> 及以下全部不可行」,所以 <code>left</code> 是<strong>第一個</strong>可行值,即最小值。<b>兩個不變量合起來就是答案,不需要收斂後再 check 一次。</b>對照:<a href="../p81/review.html">81</a> 因為沒有這種「right 恆可行」的結構,收尾就<strong>必須</strong>寫 <code>return nums[left] == target;</code> 再驗一次。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>會溢位,必須改型別。</strong><code>Σ ≤ 10⁵ × 10⁷ = 10¹²</code>,而 <code>INT_MAX = 2147483647 ≈ 2.1×10⁹</code> —— 超出約 <strong>465 倍</strong>。原本的限制下 <code>Σ ≤ 1000 × 10⁶ = 10⁹</code> 剛好安全(餘裕 1147483647,實測過),放寬一級就爆。<br><br><strong>要改的地方:</strong>① <code>accumulate(nums.begin(), nums.end(), 0)</code> → <code>accumulate(nums.begin(), nums.end(), 0LL)</code>(初始值的型別決定累加器的型別,這是最常漏的一行);② <code>left / right / mid</code> 與 <code>countSegments</code> 的 <code>cur</code>、參數 <code>limit</code> 全部改成 <code>long long</code>;③ 回傳型別視題目而定。<br><br><strong>複雜度不變</strong>:<code>O(n log Σ)</code>,只是 <code>log Σ</code> 從 30 變成 40,<code>n</code> 從 10³ 變成 10⁵ → 約 <code>4×10⁶</code> 次運算,仍然輕鬆。<b>注意 <code>mid = left + (right - left) / 2</code> 這個寫法本來就避開了 <code>left + right</code> 的溢位,不需要再改。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>改一行、複雜度不變。</strong>答案 <code>v = left</code> 求出後,<strong>再跑一次 <code>countSegments(nums, left)</code>,這次把切刀的位置記下來</strong>即可:切刀發生在 <code>cur + x &gt; limit</code> 那個 <code>x</code> 的索引處。以 <code>[7,2,5,10,8], v=18</code> 為例,唯一一刀落在索引 3(元素 10)之前 → 切法 <code>[7,2,5] | [10,8]</code>。<br><br>若貪心只切出 <code>c &lt; k</code> 段而題目要求恰好 k 段,就<strong>任意再補 k − c 刀</strong>(例如把最長的段對半再切,或直接在最後幾個元素之間逐一補刀)—— 由 A1,補刀不會讓最大段和變大,所以仍然達成 v。<br><br><strong>成本</strong>:多一次 <code>O(n)</code> 掃描 + <code>O(k)</code> 儲存切點 ⇒ 總複雜度仍是 <code>O(n log Σ)</code>,空間從 <code>O(1)</code> 升到 <code>O(k)</code>。<b>這是答案二分的常見收尾:先二分出「值」,再用同一個 check 重建「解」。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>不能用。三個前提<em>依序</em>崩掉,最先垮的是「值域」。</strong><br><br>
+  ① <strong>值域倒掛(最致命)</strong>:答案不再夾在 <code>[max(nums), Σnums]</code> 之間 —— 有負數時 <code>Σnums</code> 可以<strong>小於</strong> <code>max(nums)</code>。此時 <code>left &gt; right</code>,<code>while (left &lt; right)</code> <strong>一次都不進</strong>,直接回傳 <code>left = max(nums)</code>,而那通常不是答案。實測最小反例 <code>nums=[-4,6], k=1</code>:<code>left=6, right=2</code> → 回傳 <strong>6</strong>,正解是<strong>整條一段的和 2</strong>。隨機生成含負數的短陣列,<strong>70494/100000</strong> 組滿足 <code>Σ &lt; max</code>。<br><br>
+  ② <strong>貪心不再最少</strong>:交換論證的關鍵是「把切點往後推,後面每段只會更輕」。有負數時<strong>往後推可能把一個負數留給後面</strong>,方向不再確定,論證斷掉。實測最小反例 <code>nums=[4,4,-4], v=4</code>(注意 <code>v = max</code>,值域是合法的):貪心切成 <code>[4] [4,-4]</code> 共 <strong>2 段</strong>,但整條和是 <code>4 ≤ 4</code>,<strong>1 段就夠</strong>。在 <code>v ≥ max</code> 的 520 萬組實測中,貪心有 <strong>89587</strong> 組不是最少段數。<br><br>
+  ③ <strong>單調性也會破</strong>(但很少):<code>check</code> 對 <code>v</code> 大多仍不增,實測 12 萬個含負數陣列中只有 <strong>5</strong> 個在 <code>v ≥ max</code> 區間出現「v 變大段數反而變多」。這是 ② 的副作用 —— 貪心本身不最優,它算出的數字不保證有單調性。<br><br>
+  <b>正確做法:退回區間 DP</b> —— <code>dp[j][i] = min over t of max(dp[j-1][t], pre[i] - pre[t])</code>,<code>O(k·n²)</code>,不依賴任何單調性或貪心,負數照樣正確(本題的對拍參考解就是它)。<b>但 <code>dp[0][0]</code> 要設成 −∞ 而不是 0</b> —— <code>max</code> 的單位元是 −∞,寫成 0 會把所有負的段和「墊高」到 0,答案全錯。這個坑我在寫本頁的對拍時實際踩過:第一版參考解對 <code>[-3,-4], k=2</code> 答 0(正解 −3),差點把正確的主解誤判成有 bug。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 05 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">「最小化最大值」⇒ 二分答案。值域 [max, Σ]、貪心 check、≤k 而非 ==k、r=mid 不減 1、right 恆可行故免驗證。實測 4 輪解出 [7,2,5,10,8] k=2 → 18。負數一來,單調性與值域同時崩掉,只能退回 O(k·n²) 區間 DP。</div>
+    <div class="sc-summary-bar__detail">SPLIT ARRAY LARGEST SUM · REVIEW</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>410 · Split Array Largest Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P410</span>
+    <span><a href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">切 k 段的最小最大段和</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 答案二分 + 貪心 check</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 410</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH ON ANSWER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        把 <code>nums</code> 切成 <code>k</code> 個<strong>非空的連續子陣列</strong>,使得<strong>各段總和中最大的那一個</strong>盡可能小。
+        回傳這個最小化後的最大段和。
+      </p>
+    </div>
+
+    <p>
+      這題掛 <strong>HARD</strong>,但如果你已經寫過 <a href="../p1011/index.html">1011 送包裹</a>,
+      它其實是<strong>同一題換了說法</strong>:「切成 k 段、最小化最大段和」和「k 天內送完、最小化載量」是<strong>字面上等價</strong>的 ——
+      一段 = 一天,段和 = 當天總重,最大段和 = 載量。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      HARD 的標籤是給<strong>直覺解法(區間 DP)</strong>的:那條路要 <code>O(k·n²)</code> 又難寫。
+      答案二分把它壓成 <strong>十幾行</strong>,難度真正的落差在<strong>「想不想得到要二分答案」</strong>,而不在實作。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是答案二分<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <p>
+      關鍵的視角轉換:<strong>不要去問「該怎麼切」,去問「這個上限行不行」</strong>。
+      前者是最佳化問題(難),後者是是非題(容易到只要一次貪心掃描)。
+    </p>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉所有切法</span>
+            <span class="sc-ko-card__o">C(n−1, k−1)</span>
+          </div>
+          <div class="sc-ko-card__body">在 <code>n−1</code> 個縫隙裡挑 <code>k−1</code> 刀。<code>n=1000, k=50</code> 時是天文數字,連寫出來都沒意義。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 指數</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">區間 DP 直接求切法</span>
+            <span class="sc-ko-card__o">O(k · n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>dp[j][i]</code> = 前 <code>i</code> 個元素切成 <code>j</code> 段的最小最大和,轉移枚舉上一刀的位置。
+            <strong>答案是對的</strong>(本頁的對拍就是用它當參考解),但 <code>50 × 1000² = 5×10⁷</code> 已經吃緊,
+            而且要處理前綴和、初始 <code>INF</code>、<code>j−1 ≤ t &lt; i</code> 的邊界,寫錯機率高。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 又慢又難寫</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">二分「最大段和」+ 貪心驗證</span>
+          <span class="sc-ko-card__o">O(n log Σ)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          「最小的最大段和是多少」很難直接算,<strong>但給定一個上限 v,算「最少要切幾段」很容易</strong>:
+          照順序累加,超過 <code>v</code> 就切一刀,<code>O(n)</code>。
+          而<strong>上限越大段數越少</strong> ⇒ <code>check</code> 單調 ⇒ 候選帶是 <code>F F F T T T</code> ⇒ 套模板找第一個 T。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n log Σ)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定值域</strong>:<code>left = max(nums)</code>(最大的元素自己單獨一段也要這麼多)、<code>right = Σnums</code>(不切,整條就是一段)。</li>
+      <li><strong>寫 check</strong>:<code>check(v)</code> —— 照原順序累加,<code>cur + x &gt; v</code> 就切一刀開新段,回傳段數。判斷式 <code>check(mid) ≤ k</code>。</li>
+      <li><strong>套模板</strong>:段數夠少 → <code>right = mid</code>(保留);段數太多 → <code>left = mid + 1</code>(跨過)。收斂後 <code>return left</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      注意判斷式是 <code>≤ k</code> 而不是 <code>== k</code>。<strong>切得比 k 段少也算可行</strong> ——
+      因為 <code>k ≤ n</code>,任何少於 k 段的切法都能<strong>再多切幾刀</strong>湊到剛好 k 段,而多切刀只會讓各段更小,
+      <strong>最大段和不會變大</strong>。實測把 <code>≤</code> 改成 <code>==</code>,<code>[8,2,1] k=3</code> 就答 11(正解 8)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// nums=[7,2,5,10,8], k=2 → 18</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每換一個上限 <code>v</code>,<strong>整個分段方式都會重算一次</strong>。特別看 Round 4:
+      <code>v=17</code> 的分法和 <code>v=15</code> <strong>一模一樣</strong> —— 多給的 2 擠不進任何一個元素,段數不變。
+      這就是「單調但不嚴格」的階梯,也是必須二分、不能逐格試的原因。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Split Array · 二分上限 + 貪心分段</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:370px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 兩個 LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個必須成立的前提<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 「能塞就塞」得到的段數一定是最少的</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          順序固定,所以每一種切法就是把序列切成<strong>連續幾段</strong>。貪心的做法是:當前段塞得下就塞,塞不下才切刀。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>交換論證:</strong>假設有一種更省的切法,它在某處「明明還塞得下卻提早切刀」。把那個元素<strong>挪回前一段</strong>,
+          前一段仍不超過 <code>v</code>(因為本來就塞得下),而後面每一段的起點都只會<strong>往後移或不變</strong> ——
+          於是後續每段裝的東西只會<strong>更少或一樣</strong>,總段數<strong>不會變多</strong>。
+          反覆做這個調整,任何切法都能變成貪心的切法而不變差。
+        </p>
+        <p style="margin:0;">
+          所以<strong>貪心給出的段數就是上限 <code>v</code> 之下的最少段數</strong>,用它判斷「這個 v 行不行」是正確的,而且只要 <code>O(n)</code>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · check 對 v 單調不增</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          若 <code>v₁ &lt; v₂</code>,則 <code>check(v₁) ≥ check(v₂)</code>:上限放寬之後,原本 <code>v₁</code> 的那組切法<strong>依然合法</strong>
+          (每段和都 ≤ v₁ &lt; v₂),所以 <code>v₂</code> 的最少段數<strong>不會比它多</strong>。
+        </p>
+        <p style="margin:0;">
+          於是「<code>check(v) ≤ k</code>」這個述詞沿 <code>v</code> 遞增方向<strong>一旦為真就永遠為真</strong> ⇒
+          <code>F F F T T T</code> ⇒ 可以用「找第一個 T」的模板。
+          實測 <code>[7,2,5,10,8]</code> 的段數序列:<code>v=10..13 → 4 段</code>、<code>v=14..17 → 3 段</code>、<code>v≥18 → 2 段</code> —— 遞減但有平台。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 875 / 1011 逐項對照<span class="sc-section__title-en">// SIDE BY SIDE</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>875 科科吃香蕉</th><th>1011 送包裹</th><th>410 本題</th></tr></thead>
+      <tbody>
+        <tr><td>要最小化的量</td><td>速度 k</td><td>載量 cap</td><td>最大段和 v</td></tr>
+        <tr><td>左界</td><td class="mono">1</td><td class="mono">max(w)</td><td class="mono"><strong>max(nums)</strong></td></tr>
+        <tr><td>右界</td><td class="mono">max(piles)</td><td class="mono">Σw</td><td class="mono">Σnums</td></tr>
+        <tr><td>check</td><td class="mono">Σ⌈pile/k⌉ ≤ h</td><td class="mono">貪心天數 ≤ days</td><td class="mono">貪心段數 ≤ k</td></tr>
+        <tr><td>能否重排</td><td>可以</td><td class="fail">不行</td><td class="fail"><strong>不行</strong>(子陣列必須連續)</td></tr>
+        <tr><td>主迴圈</td><td colspan="3" class="ok">完全相同 —— 可行 → <code>r = mid</code>;不可行 → <code>l = mid + 1</code>;回傳 <code>l</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      1011 和 410 <strong>不只是像,是同構</strong>:把 410 的 <code>nums</code> 當成包裹重量、<code>k</code> 當成天數,兩題的程式碼可以<strong>一字不改</strong>互換。
+      認出這件事,HARD 就變成了已經寫過的 MEDIUM。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n · log Σnums)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        值域寬度 <code>Σnums − max ≤ 10⁹</code> → 約 <strong>30</strong> 輪,每輪 <code>O(n) = 10³</code> → 約 <code>3×10⁴</code> 次運算。
+        對比區間 DP 的 <code>5×10⁷</code>,快了三個數量級。
+      </p>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 實測迴圈次數(n=1000 全 10⁶,即最大合法輸入)</span>
+k = 50  → 迴圈 30 次,答案 20000000
+k = 1   → 迴圈 29 次,答案 1000000000
+n = 1,k = 1 → 迴圈 0 次(left == right,直接回傳)
+<span class="sc-trace__out">// 和 log₂(10⁹) ≈ 30 完全吻合</span></div>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n log Σ)</td><td>輪數 × 單次貪心掃描</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>只有 <code>l / r / m / cur / cnt</code></td></tr>
+        <tr><td>二分輪數</td><td class="mono">≈ 30</td><td>實測 30(k=50)、29(k=1)</td></tr>
+        <tr><td>Σnums 上限</td><td class="mono">10⁹</td><td>1000 × 10⁶,距 INT_MAX 還有 <strong>1.15×10⁹</strong> 餘裕 ⇒ <code>int</code> 安全</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      看到「<strong>最小化最大值</strong>」或「<strong>最大化最小值</strong>」這種<strong>極值的極值</strong>句型,
+      幾乎都是答案二分的訊號:把最佳化問題翻成「給定一個門檻,做得到嗎」的是非題,
+      困難的部分被二分吸收,<code>check</code> 只需要簡單且可證明正確。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">1011 的同構題:二分「最大段和」v ∈ [max(nums), Σnums],check(v) 用貪心算最少段數,≤ k 就 r=mid、否則 l=mid+1。判斷式是 ≤ 不是 ==,因為少切幾段永遠可以再補刀。O(n log Σ),實測 30 輪。</div>
+    <div class="sc-summary-bar__detail">SPLIT ARRAY LARGEST SUM · ANSWER SEARCH + GREEDY CHECK</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p410-split.js"></script>
+</body>
+</html>

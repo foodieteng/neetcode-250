@@ -144,7 +144,7 @@ PROBLEMS = {
         ('p33',  'Search in Rotated Sorted Array',         'search-in-rotated-sorted-array',         'med', 'done'),
         ('p81',  'Search in Rotated Sorted Array II',      'search-in-rotated-sorted-array-ii',      'med', 'done'),
         ('p981', 'Time Based Key-Value Store',             'time-based-key-value-store',             'med', 'done'),
-        ('p410', 'Split Array Largest Sum',                'split-array-largest-sum',                'hard','todo'),
+        ('p410', 'Split Array Largest Sum',                'split-array-largest-sum',                'hard','done'),
         ('p4',   'Median of Two Sorted Arrays',            'median-of-two-sorted-arrays',            'hard','todo'),
         ('p1095','Find in Mountain Array',                 'find-in-mountain-array',                 'hard','todo'),
     ],
