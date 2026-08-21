@@ -146,7 +146,7 @@ PROBLEMS = {
         ('p981', 'Time Based Key-Value Store',             'time-based-key-value-store',             'med', 'done'),
         ('p410', 'Split Array Largest Sum',                'split-array-largest-sum',                'hard','done'),
         ('p4',   'Median of Two Sorted Arrays',            'median-of-two-sorted-arrays',            'hard','todo'),
-        ('p1095','Find in Mountain Array',                 'find-in-mountain-array',                 'hard','todo'),
+        ('p1095','Find in Mountain Array',                 'find-in-mountain-array',                 'hard','done'),
     ],
     '06': [  # Linked List
         ('p206','Reverse Linked List',             'reverse-linked-list',             'easy','todo'),

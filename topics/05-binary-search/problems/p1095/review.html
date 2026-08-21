@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1095 · Find in Mountain Array // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P1095</span>
+    <span><a href="https://leetcode.com/problems/find-in-mountain-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">山形陣列找目標</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1095</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>真正的限制</td><td>不是時間,是 <strong><code>get</code> 只能呼叫 100 次</strong>(<code>n</code> 可到 10⁴)</td></tr>
+        <tr><td>整體結構</td><td>找峰 → 左半升序二分 → 右半降序二分,<strong>三次二分串聯</strong></td></tr>
+        <tr><td>找峰</td><td>比較 <code>get(m)</code> 與 <code>get(m+1)</code>:上坡 <code>l = m+1</code>、下坡 <code>r = m</code>(<strong>不減 1</strong>)</td></tr>
+        <tr><td>兩種模板</td><td>找峰是 <code>while(l&lt;r)</code> 收斂型;搜值是 <code>while(lo&lt;=hi)</code> 可失敗型</td></tr>
+        <tr><td>最小索引</td><td>靠<strong>先搜左半</strong>解決 —— 嚴格單調 ⇒ 一個值最多出現兩次,左半那個必定較小</td></tr>
+        <tr><td>合併升降序</td><td><code>(v &lt; target) == ascending</code> 是 XNOR:一致往右、不一致往左</td></tr>
+        <tr><td>呼叫成本</td><td><code>4 · log₂ n</code>(找峰每輪 2 次),<code>n=10⁴</code> <strong>實測最壞 53</strong>,餘裕 47</td></tr>
+        <tr><td>型別</td><td>值只做比較不做算術 ⇒ <strong>int 完全安全</strong></td></tr>
+        <tr><td>前提</td><td><strong>嚴格</strong>單調。允許平台就會壞(見 App 1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 找峰的兩個分支<strong>不對稱</strong>:上坡寫 <code>left = mid + 1</code>,下坡卻寫 <code>right = mid</code> 而不是 <code>mid - 1</code>。為什麼?寫成 <code>mid - 1</code> 會怎樣?</div>
+
+    <div class="qa"><strong>Q2.</strong> 把 <code>(value &lt; target) == ascending</code> 展開成<strong>四種</strong>情況,說明每種該往哪邊縮。這個式子等價於哪個邏輯運算?</div>
+
+    <div class="qa"><strong>Q3.</strong> 題目要的是<strong>最小</strong>索引。程式裡卻沒有任何「找到後再往左壓」的邏輯 —— 那最小索引是怎麼保證的?請說出<strong>依賴的前提</strong>。</div>
+
+    <div class="qa"><strong>Q4.</strong> 算出 <code>n = 10⁴</code> 時 <code>get</code> 的<strong>呼叫次數上界</strong>。為什麼常數是 <strong>4</strong> 而不是 3?出題者把上限訂在 100 有什麼用意?</div>
+
+    <div class="qa"><strong>Q5.</strong> 峰到底該歸給左半還是右半?列出<strong>所有</strong>可行的分法,並指出唯一會出錯的那一種。</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 兩個例子:走完三段 / 最小索引</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>例 A · <code>arr=[1,3,5,7,6,4,2]</code>,<code>target=4</code></strong> —— 左半找不到,三個階段全部走一遍(動畫用的就是這個)。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1 · 找峰</span>
+R1: l=0 r=6 m=3   get(3)=7  get(4)=6   7 &gt; 6 下坡 → r = m = 3
+R2: l=0 r=3 m=1   get(1)=3  get(2)=5   3 &lt; 5 上坡 → l = m+1 = 2
+R3: l=2 r=3 m=2   get(2)=5  get(3)=7   5 &lt; 7 上坡 → l = m+1 = 3
+l == r → peak = 3 (值 7)
+<span class="sc-trace__out">// 3 輪 x 2 次 = 累計 6 次 get</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 2 · 左半升序二分 [0, 3]</span>
+R1: lo=0 hi=3 mid=1  v=3   3 &lt; 4,升序 → 往右 lo = 2
+R2: lo=2 hi=3 mid=2  v=5   5 &gt; 4,升序 → 往左 hi = 1
+lo(2) &gt; hi(1) → 左半沒有 4,回傳 -1
+<span class="sc-trace__out">// 累計 8 次 get</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 3 · 右半降序二分 [4, 6]</span>
+R1: lo=4 hi=6 mid=5  v=4   命中 → 回傳 5
+<span class="sc-trace__out">// 累計 9 次 get</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+5
+總共 9 次 get(上限 100)</div>
+
+    <p style="margin:16px 0 12px;">
+      <strong>例 B · <code>arr=[1,2,3,4,5,3,1]</code>,<code>target=3</code></strong>(官方範例) ——
+      <code>3</code> <strong>同時出現在 index 2 和 index 5</strong>,正好考「最小索引」。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1 · 找峰</span>
+R1: l=0 r=6 m=3   get(3)=4  get(4)=5   上坡 → l = 4
+R2: l=4 r=6 m=5   get(5)=3  get(6)=1   下坡 → r = 5
+R3: l=4 r=5 m=4   get(4)=5  get(5)=3   下坡 → r = 4
+peak = 4 (值 5)                          // 累計 6 次 get</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 2 · 左半升序二分 [0, 4]</span>
+R1: lo=0 hi=4 mid=2  v=3   命中 → 回傳 2
+<span class="sc-trace__out">// 累計 7 次 get。PHASE 3 完全沒跑到</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+2
+<span class="sc-trace__out">// index 5 的值也是 3,但左半先命中就 return 了 —— 最小索引免費拿到</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      例 B 就是「順序不能換」的證據。若<strong>先搜降序半</strong>,這題會答 <strong>5</strong>。
+      實測把順序顛倒去跑 6360 組窮舉,錯 <strong>1100</strong> 組,最小反例是 <code>[0,1,0]</code> 找 <code>0</code> → 答 2(正解 0)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 題目把「<strong>嚴格</strong>遞增/遞減」放寬成「<strong>非嚴格</strong>」(允許連續相等的平台)。這份程式碼還對嗎?請指出<strong>哪幾個地方</strong>會壞,並給具體反例。</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成<strong>谷形</strong>陣列(先嚴格遞減、再嚴格遞增),一樣求 target 的最小索引。要改哪幾行?呼叫成本會變嗎?</div>
+
+    <div class="qa"><strong>App 3.</strong> 假設 <code>get</code> 的上限被砍到 <strong>45 次</strong>(<code>n</code> 仍是 10⁴)。現在這份程式碼會被判 WA 嗎?如果會,你要怎麼把呼叫數壓下來?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為兩個分支拿到的資訊量不一樣。</strong><br><br>
+  <strong>上坡</strong>(<code>get(m) &lt; get(m+1)</code>):<code>m</code> 落在遞增段裡,而遞增段的<strong>每一格都比右鄰小</strong>,所以 <code>m</code> <strong>可以被證明不是峰</strong> —— 能安全排除,寫 <code>left = mid + 1</code>。<br><br>
+  <strong>下坡</strong>(<code>get(m) &gt; get(m+1)</code>):<code>m</code> 有<strong>兩種</strong>可能 —— 它<strong>就是峰</strong>,或它在遞減段裡。兩種都只能推出「峰不在 <code>m</code> 右邊」,<strong>推不出「<code>m</code> 不是峰」</strong>,所以 <code>m</code> 必須留在候選區間裡,只能寫 <code>right = mid</code>。<br><br>
+  <strong>寫成 <code>mid - 1</code> 會把峰丟出區間。</strong>實測:窮舉長度 3–8、值域 0–6 的全部 <strong>4363</strong> 座山,<code>right = mid - 1</code> 有 <strong>2242</strong> 座算錯峰位置;最小反例 <code>[0,1,0]</code> —— 真峰在 <code>1</code>,卻得到 <code>0</code>。同樣的窮舉下,原版 <code>right = mid</code> <strong>錯 0 座</strong>。<b>這也是二分的通則:能證偽的邊界才 +1,不能證偽的要保留。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> 四種情況:<br><br>
+  <strong>① 遞增 + 值太小</strong> → 更大的在右邊 → <code>lo = mid + 1</code>。式子:<code>true == true</code> = <strong>true</strong> ✓<br>
+  <strong>② 遞增 + 值太大</strong> → 往左 → <code>hi = mid - 1</code>。式子:<code>false == true</code> = <strong>false</strong> ✓<br>
+  <strong>③ 遞減 + 值太小</strong> → 遞減段裡更大的在<strong>左邊</strong> → <code>hi = mid - 1</code>。式子:<code>true == false</code> = <strong>false</strong> ✓<br>
+  <strong>④ 遞減 + 值太大</strong> → 往右 → <code>lo = mid + 1</code>。式子:<code>false == false</code> = <strong>true</strong> ✓<br><br>
+  等價於 <strong>XNOR(同或)</strong>:兩個布林值<strong>相同就往右,不同就往左</strong>。白話版是「<strong>遞減段就是把比較反過來</strong>」。<br><br>
+  <strong>省略 <code>== ascending</code> 的代價:</strong>降序半的方向全反,整個右半段失效。實測最小反例 <code>arr=[0,3,2,1], target=1</code> → 回傳 <strong>−1</strong>(正解 <strong>3</strong>);6360 組窮舉錯 <strong>728</strong> 組。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>靠「先搜左半、找到就 return」這個順序,不需要任何額外邏輯。</strong><br><br>
+  <strong>依賴的前提是「嚴格」單調。</strong>嚴格遞增段內不會有重複值,嚴格遞減段內也不會 —— 所以任何 target 在整座山上<strong>最多出現兩次</strong>(左半一次、右半一次)。而左半的索引 <code>≤ peak &lt; peak+1 ≤</code> 右半的索引,<strong>左邊那個必定較小</strong>。先搜左半、命中即回,拿到的自然是最小索引。<br><br>
+  對比 <a href="../p704/index.html">704</a>:那裡陣列可以有重複值,要拿第一個出現位置就得用 <code>lower_bound</code> 式的「命中後繼續往左壓」。<b>這題把那個工作外包給了「嚴格」這個保證,所以程式碼裡看不到它。</b>前提一旦拿掉就會壞 —— 見 App 1。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>上界 <code>4 · log₂ n</code>,<code>n = 10⁴</code> 時是 56;實測最壞 53。</strong><br><br>
+  <strong>常數為什麼是 4:</strong>三次二分各約 <code>log₂ 10⁴ ≈ 13.3 → 14</code> 輪,但<strong>找峰那次每輪要讀 <code>get(mid)</code> 和 <code>get(mid+1)</code> 兩格</strong>,所以是 <code>2×14 + 1×14 + 1×14 = 56</code>,不是 <code>3×14 = 42</code>。<br><br>
+  <strong>實測(窮舉所有峰位置 × 所有 target,含必失敗的 target):</strong><br>
+  <code>n=3 → 6</code>、<code>n=100 → 26</code>、<code>n=1000 → 38</code>、<code>n=10⁴ → <strong>53</strong></code>。每 10 倍 <code>n</code> 多 5~7 次,吻合 <code>4·log₂n</code>。<br><br>
+  <strong>100 這個數字的用意:</strong>它<strong>剛好卡在 log 級與線性之間</strong>。<code>4·log₂(10⁴) ≈ 53</code> 放行;而任何 <code>O(n)</code> 做法在 <code>n=10⁴</code> 都要上萬次,差了兩個數量級。<b>出題者用呼叫預算取代了時間限制,把「你有沒有想到二分」變成硬性判定,連常數都算進去。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>三種分法都對,只有一種會錯。</strong>判準只有一條:<strong>每個索引至少被某一邊蓋到,且左半先搜。</strong><br><br>
+  <span class="ok">✓</span> <code>[0, peak]</code> + <code>[peak+1, n-1]</code> —— 原版,峰歸左半。<br>
+  <span class="ok">✓</span> <code>[0, peak-1]</code> + <code>[peak, n-1]</code> —— 峰歸右半。<strong>也對</strong>,因為峰值在山上<strong>只出現一次</strong>(它是唯一最大值),歸哪邊都是同一個索引。<br>
+  <span class="ok">✓</span> <code>[0, peak]</code> + <code>[peak, n-1]</code> —— 峰被兩邊<strong>重複</strong>蓋到。也對,只是理論上多驗一次;實測 <code>n=10⁴</code> 最壞仍是 <strong>53</strong> 次,因為左半命中就 return 了,重複那次幾乎不會發生。<br>
+  <span class="fail">✗</span> <code>[0, peak-1]</code> + <code>[peak+1, n-1]</code> —— <strong>兩邊都不含峰</strong>,峰值永遠找不到。實測 6360 組錯 <strong>1060</strong> 組,最小反例 <code>[0,1,0]</code> 找 <code>1</code> → <strong>−1</strong>(正解 1)。<br><br>
+  <b>注意前三種在 6360 組窮舉裡都是錯 0 組。</b>不是每個看起來可疑的邊界都真的有 bug —— 值得先把「這個 off-by-one 到底會不會漏掉東西」問清楚,而不是憑感覺改。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>會壞,而且是兩個獨立的地方同時壞。</strong>實測:窮舉長度 3–7、值域 0–4 的全部<strong>非嚴格</strong>山共 28635 組,錯 <strong>3155</strong> 組。最小反例 <code>arr=[0,0,1,0], target=0</code> → 回傳 <strong>1</strong>(正解 <strong>0</strong>)。<br><br>
+  <strong>① 找峰的三分法崩了。</strong>嚴格單調保證 <code>get(m)</code> 和 <code>get(m+1)</code> <strong>不可能相等</strong>,所以只有上坡/下坡兩種情況。有平台之後出現第三種 <code>get(m) == get(m+1)</code>,而程式的 <code>&lt;</code> 會把它<strong>當成下坡</strong>送去 <code>right = mid</code> —— 但平台可能整段都在<strong>上坡側</strong>,峰其實在右邊,就被切掉了。<br><br>
+  <strong>② 就算峰找對了,二分也拿不到最小索引。</strong>這才是 <code>[0,0,1,0]</code> 的真正病灶:峰確實找到 <code>2</code>,左半 <code>[0,2] = [0,0,1]</code> 卻<strong>不是嚴格遞增</strong>。二分找 <code>0</code> 時 <code>mid=1</code> 直接命中回傳 <strong>1</strong>,而 index <strong>0</strong> 也是 <code>0</code>。<strong>A3 那個「一個值最多出現兩次」的前提沒了</strong>,命中即回就不再等於最小索引。<br><br>
+  <b>要修得改兩處:</b>二分改成 <code>lower_bound</code> 式(命中後 <code>hi = mid - 1</code> 繼續往左壓);找峰在有平台時<strong>沒有 <code>O(log n)</code> 解</strong> —— 這和 <a href="../p81/index.html">81</a> 的處境一樣,重複值會把二分打回線性,最壞得掃 <code>O(n)</code>,那就直接超出 100 次預算了。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>改三處,成本完全不變。</strong>谷形是山形的鏡像,結構一模一樣:<br><br>
+  ① 找峰的比較<strong>反向</strong>:<code>get(mid) &lt; get(mid+1)</code> → <code>get(mid) &gt; get(mid+1)</code>(下坡才往右走,收斂到<strong>谷底</strong>)。<br>
+  ② 左半改成<strong>遞減</strong>:<code>binarySearch(..., 0, valley, false)</code>。<br>
+  ③ 右半改成<strong>遞增</strong>:<code>binarySearch(..., valley+1, n-1, true)</code>。<br><br>
+  <code>binarySearch</code> <strong>本身一個字都不用改</strong> —— 這正是把 <code>ascending</code> 做成參數的回報。<br><br>
+  <strong>實測</strong>:窮舉長度 3–7、值域 0–5 的全部谷形陣列共 <strong>6360</strong> 組,與線性掃描參考解<strong>不一致 0</strong>,最多 get <strong>11</strong> 次。<code>[7,4,2,3,5,9]</code> 找 <code>3</code> → <strong>3</strong>;<code>[5,3,1,3,5,7]</code> 找 <code>5</code> → <strong>0</strong>(左半先搜,拿到最小索引)。<br><br>
+  成本仍是 <code>4·log n</code>,因為找谷底同樣是每輪讀相鄰兩格。<b>「最小索引靠先搜左半」這條也照樣成立,理由不變:嚴格單調 ⇒ 一個值最多出現兩次。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>會被判 WA</strong> —— 實測最壞 <strong>53 &gt; 45</strong>。而且<strong>光靠微優化補不上這 8 次</strong>,這才是這題有意思的地方。<br><br>
+  <strong>先看錢花在哪:</strong>找峰 <code>2 × 14 = 28</code> 次、左半 <code>≤ 14</code>、右半 <code>≤ 14</code>。<strong>找峰佔了一半以上</strong>,因為它是唯一每輪讀<strong>兩格</strong>的階段。要省就得省在那裡。<br><br>
+  <strong>試過的做法 · 快取。</strong>用 <code>unordered_map</code> 包一層 <code>cachedGet</code>,讀過的格子不再花配額 —— 找峰這輪的 <code>mid+1</code> 有機會是下一輪的 <code>mid</code>,第 2、3 階段也可能撞到找峰讀過的格子。<b>實測結果:53 → 50,只省 3 次。</b>因為各輪的 <code>mid</code> 分佈得很開,重疊<strong>本來就很罕見</strong>。空間 <code>O(log n)</code>、多五行程式碼,換 3 次 —— <strong>仍然過不了 45。</strong><br><br>
+  <strong>結構性的路只有一條:把找峰的每輪成本從 2 降到 1。</strong>但這在「比較相鄰兩格」的框架下做不到 —— 判斷坡向<strong>本質上需要兩個相鄰的值</strong>,而已知的區間端點值和 <code>arr[mid]</code> 比對<strong>推不出坡向</strong>(遞增段和遞減段都可能出現同樣的大小關係)。所以 45 這個預算等於是<strong>把這個解法整個排除掉</strong>,得換一種問法。<br><br>
+  <b>真正的 100 次上限下,這些都不必做</b> —— 餘裕 47 次,多寫的快取是純負債。但「成本集中在找峰、而且是因為每輪兩次 <code>get</code>」這件事值得記住:<strong>在有呼叫預算的題目裡,常數不再是可以忽略的東西,它就是計分項。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 05 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">三次二分:找峰(每輪 2 次 get,下坡 r=mid 不減 1)→ 左半升序 → 右半降序。最小索引靠「先搜左半」免費拿到,前提是嚴格單調。實測 n=10⁴ 最壞 53 次 get,上限 100 —— 出題者用呼叫預算把常數也算進了計分。</div>
+    <div class="sc-summary-bar__detail">FIND IN MOUNTAIN ARRAY · REVIEW</div>
+  </div>
+
+</body>
+</html>
