@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69 · Sqrt(x) // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P69</span>
+    <span><a href="https://leetcode.com/problems/sqrtx/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">整數平方根</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 二分述詞 m² > x</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 69</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BINARY SEARCH ON ANSWER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給非負整數 <code>x</code>,回傳 <code>√x</code> <strong>向下取整</strong>的結果。
+        <strong>不准用任何內建的次方函式</strong>(<code>pow(x, 0.5)</code> 之類一律禁止)。
+      </p>
+    </div>
+
+    <p>
+      標成 EASY,但它其實是<strong>整章「答案二分」的最小樣本</strong>:
+      沒有陣列、沒有貪心 <code>check</code>,只有一個最乾淨的述詞 —— <code>m² &gt; x</code>。
+      如果 <a href="../p410/index.html">410</a> 或 <a href="../p1011/index.html">1011</a> 卡住了,回來看這題的骨架最快。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這題真正會扣分的地方<strong>不在演算法,在型別</strong>:<code>x</code> 可以到 <code>2³¹−1</code>,
+      而 <code>m²</code> 實測會衝到 <strong><code>1.15×10¹⁸</code></strong> —— <strong>是 <code>INT_MAX</code> 的 5.4 億倍</strong>。
+      沒有 <code>long long</code> 這題直接爆。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是二分<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">從 0 一路試上去</span>
+            <span class="sc-ko-card__o">O(√x)</span>
+          </div>
+          <div class="sc-ko-card__body"><code>√(2³¹−1) ≈ 46341</code>,其實跑得動。但它<strong>沒有回答「這題在教什麼」</strong> —— 而且同樣的骨架換到值域更大的題目就死了。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 不是重點</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title"><code>(int)sqrt(x)</code></span>
+            <span class="sc-ko-card__o">O(1)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            題目<strong>明文禁止</strong>。而且就算沒禁,<code>double</code> 只有 53 bit 尾數,
+            在 <code>x</code> 接近 <code>2³¹</code> 時<strong>可能差一</strong> —— 正式寫法還是得補一輪 <code>while (g*g &gt; x) --g;</code> 校正。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 被禁 + 有精度風險</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">二分述詞 <code>P(m) = (m·m &gt; x)</code></span>
+          <span class="sc-ko-card__o">O(log x)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>m</code> 越大 <code>m²</code> 越大 ⇒ <strong><code>P</code> 一旦為真就永遠為真</strong> ⇒ 真值表必定是 <code>F F F T T T</code>。
+          二分找<strong>第一個 T</strong>,答案就是<strong>它的前一格</strong>(最後一個 F)。
+          全程<strong>只用整數乘法</strong>,沒有浮點、沒有精度問題。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 31 輪</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>定值域</strong>:<code>left = 0</code>、<code>right = (long long)x + 1</code>。右界取 <code>x+1</code> 是為了<strong>保證真值表裡至少有一個 T</strong>(因為 <code>(x+1)² &gt; x</code> 恆成立)。</li>
+      <li><strong>寫述詞</strong>:<code>P(m) = (m·m &gt; x)</code>。真 → <code>right = mid</code>(保留,它可能就是第一個 T);假 → <code>left = mid + 1</code>(跨過)。</li>
+      <li><strong>退一格</strong>:收斂後 <code>left</code> 是<strong>第一個 T</strong>,<code>return left − 1</code> 才是最後一個 F,也就是 <code>floor(√x)</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這就是 <code>lower_bound</code> 的骨架。<a href="../p35/index.html">35</a>、<a href="../p981/index.html">981</a> 用的是同一副 ——
+      差別只在述詞是什麼、以及<strong>要不要退一格</strong>。<b>「找第一個 T」和「找最後一個 F」是同一次二分的兩個讀法。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// x = 8 → 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每一格是一個候選 <code>m</code>,格內是 <code>P(m) = (m·m &gt; 8)</code> 的真值。
+      <strong>整張表就是 <code>F F F T T T T T T T</code></strong> —— 二分的工作只是找到那條 <strong>F/T 交界</strong>,
+      然後<strong>往左退一格</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Sqrt(x) · 二分述詞 m² > x</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:360px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 型別 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">這題真正的考點:型別<span class="sc-section__title-en">// THE OVERFLOW</span></h2>
+    </div>
+
+    <p>
+      演算法三行就講完了,但<strong>型別可以錯三個地方</strong>,而且都會在 <code>x</code> 很大時才發作:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>位置</th><th>危險在哪</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>m · m</code></td>
+          <td><code>m</code> 最大會到 <code>2³⁰</code>,平方就是 <code>2⁶⁰</code></td>
+          <td class="mono">實測峰值 <strong>1152921504606846976</strong><br>= INT_MAX 的 <strong>5.4 億倍</strong></td>
+        </tr>
+        <tr>
+          <td><code>(long long)x + 1</code></td>
+          <td>少了轉型 ⇒ <code>x + 1</code> 在 <code>int</code> 裡算 ⇒ <code>x = 2³¹−1</code> 時<strong>溢位</strong></td>
+          <td class="mono">UBSan 實錘:<br><code>2147483647 + 1</code> overflow</td>
+        </tr>
+        <tr>
+          <td><code>l</code> / <code>r</code> / <code>m</code></td>
+          <td>宣告成 <code>int</code> ⇒ 上面兩個問題一起發生</td>
+          <td class="mono">220 萬個測試點<br>答錯 <strong>1987086</strong> 個</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// m² 的峰值是怎麼來的(實測,非手算)</span>
+第一輪 l = 0, r = x + 1 = 2147483648
+  m = 0 + (2147483648 - 0)/2 = 1073741824  = 2^30
+  m * m = 1152921504606846976              = 2^60
+
+LLONG_MAX = 9223372036854775807
+  峰值佔 LLONG_MAX 的 12.5 %  ← long long 夠用,但只剩 8 倍餘裕
+  峰值是 INT_MAX 的 536870912 倍  ← int 差了 9 個數量級
+<span class="sc-trace__out">// 峰值出現在「第一輪」,不是最後 —— 二分還沒收斂時 m 最大</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      注意峰值出現在<strong>第一輪</strong>。很多人以為「答案才 46340,平方也才 21 億」就放心用 <code>int</code> ——
+      <b>但二分是從值域中點開始探的,中途的 <code>m</code> 遠比答案大。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log x)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        值域寬度 <code>x + 1 ≤ 2³¹</code> ⇒ 約 <strong>31</strong> 輪,每輪一次乘法。實測 <code>x = 2³¹−1</code> 時<strong>正好 31 輪</strong>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log x)</td><td>實測最多 31 輪</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>三個 <code>long long</code></td></tr>
+        <tr><td>浮點</td><td class="mono">完全不用</td><td>只有整數乘法與比較 ⇒ <strong>沒有精度問題</strong></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>213 萬個測試點(見複習頁)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      對照 <code>O(√x)</code> 的逐一試:<code>46341</code> 次 vs <strong>31</strong> 次,差 <strong>1500 倍</strong>。
+      而且 <code>O(log x)</code> 的寫法<strong>換到 <code>long long</code> 值域也只多幾輪</strong>,逐一試則直接死掉。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      這是整章最小的一顆種子:<strong>把「求一個值」換成「二分一個單調的是非題」</strong>。
+      <a href="../p410/index.html">410</a> 的 <code>check</code> 是貪心分段、<a href="../p1011/index.html">1011</a> 的是裝箱,
+      這裡的只是 <code>m·m &gt; x</code> —— <strong>骨架一模一樣,只是述詞換了</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">二分述詞 P(m) = (m·m > x),真值表是 F F F T T T,找第一個 T 再退一格。右界取 x+1 保證表裡有 T。真正的考點是型別:m² 實測衝到 2⁶⁰,是 INT_MAX 的 5.4 億倍,而且峰值出現在第一輪。</div>
+    <div class="sc-summary-bar__detail">SQRT(X) · BINARY SEARCH ON A PREDICATE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p69-sqrt.js"></script>
+</body>
+</html>

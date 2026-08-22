@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69 · Sqrt(x) // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P69</span>
+    <span><a href="https://leetcode.com/problems/sqrtx/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">整數平方根</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 69</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>述詞</td><td><code>P(m) = (m·m &gt; x)</code>,單調 ⇒ 真值表是 <code>F F F T T T</code></td></tr>
+        <tr><td>骨架</td><td><code>lower_bound</code>:真 → <code>r = mid</code>;假 → <code>l = mid + 1</code></td></tr>
+        <tr><td>右界的 <code>+1</code></td><td>保證表裡<strong>至少有一個 T</strong>(<code>(x+1)² &gt; x</code> 恆成立)</td></tr>
+        <tr><td>回傳的 <code>−1</code></td><td>把「第一個 T」翻成「<strong>最後一個 F</strong>」= <code>floor(√x)</code></td></tr>
+        <tr><td><strong>型別</strong></td><td><code>m²</code> 實測峰值 <code>2⁶⁰</code> = <strong>INT_MAX 的 5.4 億倍</strong>,且<strong>峰值在第一輪</strong></td></tr>
+        <tr><td>轉型</td><td><code>(long long)x + 1</code> 的轉型不能省 —— <code>x+1</code> 在 <code>int</code> 裡算是 UB</td></tr>
+        <tr><td>浮點</td><td>全程整數乘法,<strong>沒有精度問題</strong>;<code>sqrt()</code> 版還得補校正迴圈</td></tr>
+        <tr><td>複雜度</td><td><code>O(log x)</code>,實測 <code>x = 2³¹−1</code> 正好 <strong>31 輪</strong></td></tr>
+        <tr><td>同骨架</td><td><a href="../p35/index.html">35</a> / <a href="../p981/index.html">981</a> / <a href="../p410/index.html">410</a> —— 只有述詞不同</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 右界為什麼寫 <code>x + 1</code> 而不是 <code>x</code>?寫 <code>x</code> 會在哪些輸入上壞掉?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼最後要 <code>return left − 1</code>?請用真值表說明「第一個 T」和「最後一個 F」的關係。</div>
+
+    <div class="qa"><strong>Q3.</strong> 答案最大不過 <code>46340</code>,平方也才 <code>21</code> 億出頭 —— 那為什麼<strong>非得</strong>用 <code>long long</code>?請給出 <code>m·m</code> 的<strong>實測峰值</strong>,不要用推的。</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>long long right = (long long)x + 1;</code> 如果把轉型拿掉寫成 <code>x + 1</code>,會怎樣?<strong>你要怎麼確認</strong>你的答案?</div>
+
+    <div class="qa"><strong>Q5.</strong> 題目禁用 <code>pow</code>。但假設沒禁,<code>return (int)sqrt(x);</code> 是不是就萬事 OK?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// x = 8 → 2</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+x = 8
+left  = 0
+right = (long long)x + 1 = 9        候選 m ∈ [0, 9)
+
+述詞 P(m) = (m·m &gt; 8) 的真值表:
+  m  =  0  1  2  3  4  5  6  7  8  9
+  m² =  0  1  4  9 16 25 36 49 64 81
+  P  =  F  F  F  T  T  T  T  T  T  T
+                 ↑ 第一個 T
+<span class="sc-trace__out">// 目標:找到那個 ↑,答案就是它的前一格</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 1 輪</span>
+l=0 r=9 → m = 0 + (9-0)/2 = 4
+m·m = 16 &gt; 8  → P 為真 → right = m = 4
+區間 -&gt; [0, 4)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 輪</span>
+l=0 r=4 → m = 0 + (4-0)/2 = 2
+m·m = 4 ≤ 8   → P 為假 → left = m + 1 = 3
+區間 -&gt; [3, 4)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 輪</span>
+l=3 r=4 → m = 3 + (4-3)/2 = 3
+m·m = 9 &gt; 8   → P 為真 → right = m = 3
+區間 -&gt; [3, 3)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+left == right == 3  ← 正是真值表裡第一個 T
+return (int)(left - 1) = 2
+
+驗證:2² = 4 ≤ 8 &lt; 9 = 3²  ⇒ floor(√8) = 2 ✓
+共 3 輪
+<span class="sc-trace__out">// 2</span></div>
+
+    <p style="margin-top:16px;">
+      幾個關鍵輸入的實測結果:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 邊界輸入(皆為實測)</span>
+x = 0           → 0       1 輪   ← 不必特判
+x = 1           → 1       1 輪
+x = 4           → 2       3 輪
+x = 2147395600  → 46340  31 輪   (= 46340²,完全平方)
+x = 2147395599  → 46339  31 輪   (= 46340² − 1)
+x = 2147395601  → 46340  31 輪   (= 46340² + 1)
+x = 2147483647  → 46340  31 輪   (= INT_MAX)
+<span class="sc-trace__out">// 完全平方數與其左右鄰居共 139022 個點,全部正確</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>正確性實測範圍:</strong><code>x = 0..1500000</code> 全掃、所有完全平方數的三鄰居
+      <code>(k²−1, k², k²+1)</code>(<code>k = 0..46340</code>)、值域最頂端 50 萬個 ——
+      合計 <strong>2139024</strong> 個測試點,與「<code>sqrtl</code> + 整數校正」的參考解<strong>不一致 0</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成求<strong>立方根</strong>向下取整。把述詞換成 <code>m·m·m &gt; x</code> 就好了嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成判斷 <code>x</code> 是否為<strong>完全平方數</strong>(LeetCode 367)。要改幾行?</div>
+
+    <div class="qa"><strong>App 3.</strong> <code>x</code> 的型別放寬到 <code>long long</code>(<code>0 ≤ x ≤ 2⁶³−1</code>)。這份程式碼還對嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為二分需要「表裡至少有一個 T」才有東西可收斂。</strong><br><br>
+  取 <code>x + 1</code> 時,<code>(x+1)² = x² + 2x + 1 &gt; x</code> 對所有 <code>x ≥ 0</code> <strong>恆成立</strong>,所以右端一定是 T,二分保證會停在某個真正的 F/T 交界。<br><br>
+  取 <code>x</code> 就沒這個保證了,而且<strong>小輸入立刻出事</strong>:<br>
+  <code>x = 0</code> → 區間 <code>[0, 0)</code> 是<strong>空的</strong>,迴圈一次都不跑,<code>return 0 − 1 = <strong>−1</strong></code>(正解 0)。<br>
+  <code>x = 1</code> → 區間 <code>[0, 1)</code>,<code>m = 0</code>,<code>0 ≤ 1</code> 為 F → <code>l = 1</code> 跳出,<code>return <strong>0</strong></code>(正解 1)。<br><br>
+  <strong>實測</strong>:220 萬個測試點裡,右界寫 <code>x</code> <strong>只錯 2 次</strong> —— 就是 <code>x = 0</code> 和 <code>x = 1</code>。<b>這正是危險的地方:錯得極少,隨手測幾個中等大小的數完全看不出來,但兩個都是合法輸入。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為二分找到的是「第一個 T」,而題目要的是「最後一個 F」—— 兩者永遠差一格。</strong><br><br>
+  以 <code>x = 8</code> 為例:<br>
+  <code>m &nbsp;= 0 1 2 <strong>3</strong> 4 5 …</code><br>
+  <code>m² = 0 1 4 <strong>9</strong> 16 25 …</code><br>
+  <code>P &nbsp;= F F F <strong>T</strong> T T …</code><br><br>
+  收斂後 <code>left = 3</code>,那是<strong>第一個滿足 <code>m² &gt; x</code> 的 m</strong>。而題目要的是<strong>最大的滿足 <code>m² ≤ x</code> 的 m</strong> —— 因為真值表只有一次 F→T 的翻轉,這兩個位置<strong>必定相鄰</strong>,所以 <code>left − 1</code> 就是答案。<br><br>
+  <strong>實測</strong>:忘了 <code>−1</code>(直接 <code>return left</code>)→ <strong>939024 個測試點全錯</strong>,連 <code>x = 0</code> 都回 1。<br><br>
+  <b>值得記住的是:「找第一個 T」和「找最後一個 F」是同一次二分的兩個讀法。</b><a href="../p410/index.html">410</a> 要的是第一個 T 本身(最小可行上限),所以直接 <code>return left</code>;這題要前一格,所以 <code>−1</code>。<strong>骨架相同,讀法不同。</strong></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為峰值不在答案那裡,在第一輪。</strong><br><br>
+  「答案才 46340」這個直覺會害人 —— 二分是<strong>從值域中點開始探</strong>的,中途的 <code>mid</code> 遠比答案大:<br><br>
+  <strong>實測(在迴圈裡埋計數器,取 <code>mid·mid</code> 的最大值):</strong><br>
+  第一輪 <code>left = 0, right = x + 1 = 2147483648</code> ⇒ <code>mid = <strong>1073741824</strong> = 2³⁰</code><br>
+  <code>mid · mid = <strong>1152921504606846976</strong> = 2⁶⁰</code><br><br>
+  <table class="sc-table" style="margin:10px 0;">
+    <tbody>
+      <tr><td>峰值 / <code>INT_MAX</code></td><td class="mono"><strong>536870912 倍</strong>(約 5.4 億)</td></tr>
+      <tr><td>峰值 / <code>LLONG_MAX</code></td><td class="mono">12.5 %(<code>long long</code> 夠,但只剩 8 倍餘裕)</td></tr>
+    </tbody>
+  </table>
+  <strong>把 <code>l/r/m</code> 全改成 <code>int</code> 的實測後果</strong>:220 萬個測試點<strong>答錯 1987086 個</strong>(九成),<code>x = 1000000</code> 回 <strong>458753</strong>(正解 1000),<code>x = 2³¹−1</code> 甚至<strong>不收斂</strong>。<br><br>
+  <b>推理容易得到「應該還好吧」,量測直接給出 5.4 億倍。</b>這種問題就該量,不該推。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>那是有號整數溢位(UB),而且它「看起來會過」—— 這才是最麻煩的一種。</strong><br><br>
+  <code>long long right = x + 1;</code> 的右邊是 <code>int + int</code>,<strong>先在 <code>int</code> 裡算完才轉成 <code>long long</code></strong>。<code>x = 2³¹−1</code> 時 <code>x + 1</code> 溢位。<br><br>
+  <strong>怎麼確認 —— 這才是題目真正在問的。</strong>我先跑了 93 萬個測試點的對拍,結果是<strong>零失敗</strong>,包括 <code>x = 2³¹−1</code> 本身(回 46340,答案正確)。<strong>如果只看這個,會誤判成「沒問題」。</strong><br><br>
+  接著用 <code>g++ -O0 -fsanitize=undefined</code> 跑同一筆輸入,立刻報:<br>
+  <code>runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int'</code><br><br>
+  <b>結論:<code>-O2</code> 下編譯器產生的碼恰好還能用,但那是 UB「沒顯現」,不是「沒發生」。</b>換一版編譯器、換個最佳化等級、換個平台都可能不一樣。<b>行為測試能證明邏輯,證不了型別與記憶體安全 —— 那要靠 sanitizer。</b>(和 <a href="../p81/review.html">81 的越界讀取</a>是完全同一類教訓。)</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不是。就算沒禁,那一行也不夠。</strong><br><br>
+  <code>double</code> 的尾數是 53 bit,所以 <code>x ≤ 2³¹−1</code> 轉成 <code>double</code> <strong>本身是精確的</strong> —— 問題不在輸入,在<strong>輸出</strong>。<code>√(2³¹−1) = 46340.9500...</code> 這種值落在浮點格點之間,<strong>不同平台/編譯器的捨入可能差一</strong>,而向下取整會把那個「差一」完整放大成錯誤答案。<br><br>
+  所以正式的浮點寫法還是得補校正:<br>
+  <code>long long g = (long long)sqrtl(x);</code><br>
+  <code>while (g &gt; 0 &amp;&amp; g*g &gt; x) --g;</code><br>
+  <code>while ((g+1)*(g+1) &lt;= x) ++g;</code><br>
+  ——<strong>本頁所有對拍用的參考解就是這個</strong>,而那兩行校正迴圈本身又需要 <code>long long</code>,繞了一圈回到同一個型別問題。<br><br>
+  <b>二分版全程整數乘法與比較,連「可能差一」這件事都不存在。</b>換句話說,題目禁用 <code>pow</code> 不只是為了逼你練二分 —— <strong>整數解法在這裡本來就比浮點解法更乾淨。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>不夠 —— 述詞可以直接換,但<em>右界必須跟著收緊</em>,否則 <code>m³</code> 會爆掉 <code>long long</code>。</strong><br><br>
+  <strong>照抄 <code>right = x + 1</code> 的後果(實測):</strong>第一輪 <code>mid</code> 仍是 <code>2³⁰</code>,而 <code>(2³⁰)³ = 2⁹⁰</code> —— <code>long long</code> 只到 <code>2⁶³</code>,<strong>差了 2²⁷ 倍</strong>。<code>x = 2147483647</code> 實測回 <strong>2147383536</strong>(正解 1290),完全是垃圾值。<br><br>
+  <strong>修法:把右界收成 <code>cbrt</code> 的上界。</strong><code>cbrt(2³¹−1) = 1290</code>,取 <code>right = 1291</code> 即可(<code>1291³ = 2151685171</code>,仍在 <code>int</code> 範圍內,更別說 <code>long long</code>)。<br><br>
+  <strong>實測</strong>:右界收成 1291 後,<code>x = 0..3000000</code> 全掃 + 所有完全立方數三鄰居 + 頂端 30 萬個,共 <strong>3303874</strong> 個測試點,<strong>不一致 0</strong>。<br><br>
+  <b>教訓:值域的右界不是「隨便取個夠大的」,而是要讓「述詞在整個候選區間內都算得出來」。</b>平方時 <code>x+1</code> 剛好安全,立方時就不是了 —— <strong>換述詞就要重算值域。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>改一行:<code>long long r = mySqrt(x); return r * r == x;</code></strong><br><br>
+  因為 <code>floor(√x)² == x</code> 成立,<strong>等價於</strong> <code>x</code> 是完全平方數:若 <code>x = k²</code>,則 <code>floor(√x) = k</code>,平方回去正好是 <code>x</code>;若 <code>x</code> 不是完全平方,<code>floor(√x) = k</code> 滿足 <code>k² &lt; x &lt; (k+1)²</code>,平方回去必定小於 <code>x</code>。<br><br>
+  也可以<strong>不呼叫 <code>mySqrt</code>,直接改述詞</strong>:把 <code>P(m) = (m·m &gt; x)</code> 換成 <code>P(m) = (m·m &ge; x)</code>,收斂後檢查 <code>left·left == x</code> —— 這時 <code>left</code> 是<strong>第一個 <code>m² ≥ x</code> 的位置</strong>,如果 <code>x</code> 是完全平方數它就正好等於 <code>√x</code>。<br><br>
+  <b>注意這正是本題陷阱表裡「<code>&gt;</code> 寫成 <code>&gt;=</code>」那一列</b> —— 在 69 裡它是 bug(實測錯 46899/939024),在 367 裡它反而是<strong>想要的語意</strong>。<strong>同一個符號,換個題目就換了對錯。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>會壞 —— <code>mid · mid</code> 自己就溢位了。</strong><br><br>
+  <code>x</code> 到 <code>2⁶³−1</code> 時,右界 <code>x + 1</code> 已經溢位;就算把右界修好,第一輪的 <code>mid ≈ 2⁶²</code>,<code>mid²  ≈ 2¹²⁴</code> —— <strong><code>long long</code> 差了 61 個位元</strong>,而且沒有更大的內建整數可以退。<br><br>
+  <strong>實測</strong>:<code>x = 4611686018427387903</code>(約 2⁶²),沿用 <code>m·m</code> 版回 <strong>4611686014132420608</strong>(正解 <strong>2147483647</strong>)。<br><br>
+  <strong>兩處修法:</strong><br>
+  ① <strong>比較式改成除法</strong>:<code>mid &gt; x / mid</code> 取代 <code>mid * mid &gt; x</code> —— 數學上等價(<code>mid ≥ 1</code> 時),但<strong>永遠不會溢位</strong>。<br>
+  ② <strong>右界收成 <code>3037000500</code></strong>:因為 <code>3037000499² = 9223372030926249001 &lt; LLONG_MAX</code>,而 <code>3037000500²</code> 就溢位了 —— 這正是 <code>long long</code> 值域下 <code>√x</code> 的上界。順帶要把 <code>x = 0</code> 特判掉(除法版需要 <code>mid ≥ 1</code>)。<br><br>
+  <strong>實測</strong>:改好之後 <code>x = LLONG_MAX</code> 回 <strong>3037000499</strong>(正確),再加上 <code>0..200000</code> 全掃與 40 萬個 <code>0..2⁶²</code> 隨機,共 <strong>600001</strong> 個測試點<strong>不一致 0</strong>。<br><br>
+  <b>「把乘法改寫成除法來避開溢位」是這類題目的通用手法</b> —— 值得跟 <a href="../p4/code.html">P4 的哨兵</a>放在一起記:<strong>兩者都是「安全性來自值域約束」,約束一鬆就要換寫法。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 05 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">整章答案二分的最小樣本:述詞 m·m > x,找第一個 T 再退一格。+1 保證有 T、−1 換讀法、long long 擋住第一輪的 2⁶⁰ 峰值。換述詞(立方)或放寬值域(long long)時,右界與比較式都要跟著重算。</div>
+    <div class="sc-summary-bar__detail">SQRT(X) · REVIEW</div>
+  </div>
+
+</body>
+</html>

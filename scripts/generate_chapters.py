@@ -136,7 +136,7 @@ PROBLEMS = {
         ('p704', 'Binary Search',                          'binary-search',                          'easy','done'),
         ('p35',  'Search Insert Position',                 'search-insert-position',                 'easy','done'),
         ('p374', 'Guess Number Higher or Lower',           'guess-number-higher-or-lower',           'easy','done'),
-        ('p69',  'Sqrt(x)',                                'sqrtx',                                  'easy','todo'),
+        ('p69',  'Sqrt(x)',                                'sqrtx',                                  'easy','done'),
         ('p74',  'Search a 2D Matrix',                     'search-a-2d-matrix',                     'med', 'done'),
         ('p875', 'Koko Eating Bananas',                    'koko-eating-bananas',                    'med', 'done'),
         ('p1011','Capacity to Ship Packages Within D Days','capacity-to-ship-packages-within-d-days','med', 'done'),
