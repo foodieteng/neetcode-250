@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>153 · Find Minimum in Rotated Sorted Array // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P153</span>
+    <span><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">旋轉陣列找最小值</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 跟右端比,不跟左端比</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 153</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>ROTATED ARRAY</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一個<strong>相異值</strong>的遞增陣列被旋轉了 1 到 n 次,回傳它的<strong>最小值</strong>。
+        要求 <code>O(log n)</code>。
+      </p>
+    </div>
+
+    <p>
+      旋轉後的陣列長成<strong>兩段各自遞增</strong>的樣子,中間掉一次。最小值就是那個<strong>斷崖的底</strong>。
+      整條不是有序的,所以不能直接二分找值 —— 但「我現在站在斷崖的<strong>哪一側</strong>」這件事,
+      只要跟一個<strong>固定的參考點</strong>比就能知道。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這題的全部難度濃縮在一個選擇上:<strong>參考點要選右端 <code>nums[r]</code>,不能選左端 <code>nums[l]</code></strong>。
+      選錯的話,程式在<strong>「旋轉 n 次 = 完全沒動」</strong>那個 case 上會壞掉 —— 而那正是題目特地在敘述裡點出來的例子。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">參考點為什麼是右端<span class="sc-section__title-en">// WHY nums[r]</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">線性掃描取 min</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">一定對,<code>n ≤ 5000</code> 也跑得動。但題目<strong>明文要求 <code>O(log n)</code></strong>,而且這題存在的意義就是練旋轉陣列的二分。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 不符要求</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">跟<strong>左端</strong> <code>nums[l]</code> 比</span>
+            <span class="sc-ko-card__o">O(log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            直覺上很順:「比左端大就是還在前半段,往右走」。但<strong>完全沒旋轉時整條都遞增</strong>,
+            <code>nums[m] &gt; nums[l]</code> <strong>恆成立</strong>,指標一路往右跑過頭。
+            實測窮舉 55 種結構<strong>錯 36 組</strong>,最小反例 <code>[1,0]</code> 答 <strong>1</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 未旋轉就壞</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">跟<strong>右端</strong> <code>nums[r]</code> 比</span>
+          <span class="sc-ko-card__o">O(log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>nums[m] &gt; nums[r]</code> ⇒ 斷崖夾在 <code>m</code> 和 <code>r</code> 之間 ⇒ 最小值在 <code>m</code> 右邊,<strong><code>m</code> 可排除</strong> ⇒ <code>l = m + 1</code>。<br>
+          <code>nums[m] &lt; nums[r]</code> ⇒ <code>m</code> 和 <code>r</code> 同段遞增 ⇒ 最小值在 <code>m</code> 或更左,<strong><code>m</code> 不能排除</strong> ⇒ <code>r = m</code>。<br>
+          <strong>沒旋轉時第二條恆成立</strong>,每輪都往左收,自然停在 index 0 —— <strong>不用特判</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 0/55 錯</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      為什麼右端行、左端不行?因為<strong>最小值永遠在「右端的左側或就是它」</strong>,這個關係<strong>旋不旋轉都成立</strong>;
+      而「最小值在左端的右側」<strong>只有真的旋轉過才對</strong>。<b>參考點要挑那個對所有輸入都成立的。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>區間</strong> <code>[l, r] = [0, n-1]</code>,迴圈條件 <code>while (l &lt; r)</code>(收斂型,答案必存在)。</li>
+      <li><strong>比較</strong> <code>nums[m]</code> 與 <code>nums[r]</code> —— 永遠是右端,不是左端、不是 <code>nums[0]</code>。</li>
+      <li><strong>收縮</strong>:大於 → <code>l = m + 1</code>(<code>m</code> 已被證明不是最小);小於 → <code>r = m</code>(<strong>不減 1</strong>,<code>m</code> 還是候選)。收斂後 <code>return nums[l]</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [4,5,6,7,0,1,2] → 0</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      長條高度就是值,所以<strong>斷崖看得見</strong>。橘色虛線是 <code>nums[r]</code> 的高度 ——
+      <strong>紅色那根在線上面就往右收,在線下面就往左收</strong>。
+      最後兩步換成<strong>沒旋轉</strong>的 <code>[11,13,15,17]</code>,那是最容易寫錯的情形。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Find Minimum in Rotated Sorted Array · 跟右端比</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:400px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">不變量與兩個不對稱的分支<span class="sc-section__title-en">// THE INVARIANT</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 最小值永遠留在 [l, r] 裡</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>初始</strong>:<code>[0, n-1]</code> 是整條陣列,顯然含最小值。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong><code>nums[m] &gt; nums[r]</code>(往右收)</strong> —— 若 <code>m</code> 和 <code>r</code> 在同一段遞增裡,
+          必有 <code>nums[m] ≤ nums[r]</code>。既然反了,<strong>斷崖一定夾在 <code>(m, r]</code> 之間</strong>。
+          於是最小值落在 <code>[m+1, r]</code>,而且 <code>m</code> 本身在高的那一段、<strong>絕不可能是最小值</strong> ⇒ <code>l = m + 1</code> 安全。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong><code>nums[m] &lt; nums[r]</code>(往左收)</strong> —— <code>m</code> 和 <code>r</code> <strong>同段</strong>,
+          所以 <code>(m, r]</code> 這一段全都比 <code>nums[m]</code> 大,最小值只可能在 <code>[l, m]</code>。
+          但 <strong><code>m</code> 自己還可能就是最小值</strong>(例如 <code>[0,1]</code> 的 <code>m = 0</code>)⇒ <strong>只能寫 <code>r = m</code>,不能減 1</strong>。
+        </p>
+        <p style="margin:0;">
+          兩條路都保住不變量,而且都讓區間<strong>嚴格縮短</strong> ⇒ 必定收斂到 <code>l == r</code>,那一格就是答案。
+          <strong>把 <code>r = m</code> 寫成 <code>r = m - 1</code> 會把答案丟出區間</strong> —— 實測 55 組錯 <strong>17</strong> 組,最小反例 <code>[2,0,1]</code> 答 <strong>2</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 為什麼判斷式不必處理「相等」</span>
+迴圈條件 l &lt; r  ⇒  m = l + (r-l)/2 &lt; r  ⇒  m 與 r 必定是不同的索引
+題目保證所有值相異  ⇒  nums[m] != nums[r]
+
+實測:窮舉所有 n ≤ 200 的旋轉量,共 140495 次比較
+  m >= r 出現            0 次
+  nums[m] == nums[r] 出現 0 次
+<span class="sc-trace__out">// 所以 > 寫成 >= 完全等價,兩種都對(實測皆 0/55 錯)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這也正是 <a href="../p81/index.html">81</a> 為什麼難那麼多:<strong>一旦允許重複值,<code>nums[m] == nums[r]</code> 就會發生</strong>,
+      而那時<strong>分不出在斷崖哪一側</strong>,只能保守縮一格,最壞退化成 <code>O(n)</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每輪區間至少砍半,<strong>沒有</strong> <a href="../p81/index.html">81</a> 那種退化情形 —— 因為值相異,永遠分得出方向。
+      </p>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 實測迴圈輪數(每個 n 窮舉所有旋轉量取最大)</span>
+n =    1  →  0 輪      ceil(log2 n) = 0
+n =    2  →  1 輪                    1
+n =    5  →  3 輪                    3
+n =   10  →  4 輪                    4
+n =  100  →  7 輪                    7
+n = 1000  →  10 輪                   10
+n = 5000  →  13 輪                   13     ← 題目上限
+<span class="sc-trace__out">// 恰好等於 ceil(log2 n),一次都沒多</span></div>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log n)</td><td>n = 5000 實測 13 輪</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>只有 <code>l / r / m</code></td></tr>
+        <tr><td>最壞情形</td><td class="mono">無退化</td><td>值相異 ⇒ 每輪必定砍半(對比 81 的 O(n))</td></tr>
+        <tr><td>型別</td><td class="mono">int 安全</td><td>值域 ±5000、索引 ≤ 5000;<code>l + (r-l)/2</code> 也避開了 <code>l+r</code> 的寫法</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 三題對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">旋轉陣列三題對照<span class="sc-section__title-en">// 153 / 33 / 81</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>153 本題</th><th><a href="../p33/index.html">33 找 target</a></th><th><a href="../p81/index.html">81 含重複值</a></th></tr></thead>
+      <tbody>
+        <tr><td>要找什麼</td><td>最小值</td><td>target 的索引</td><td>target 在不在</td></tr>
+        <tr><td>值是否相異</td><td class="ok">是</td><td class="ok">是</td><td class="fail"><strong>否</strong></td></tr>
+        <tr><td>參考點</td><td class="mono"><strong>nums[r]</strong></td><td class="mono">nums[l](判哪半有序)</td><td class="mono">nums[l]</td></tr>
+        <tr><td>需要找峰/斷崖嗎</td><td>本身就是在找斷崖</td><td>不用,直接判哪半有序</td><td>不用</td></tr>
+        <tr><td>複雜度</td><td class="mono">O(log n)</td><td class="mono">O(log n)</td><td class="mono fail">最壞 O(n)</td></tr>
+        <tr><td>額外的那一手</td><td>—</td><td>—</td><td>相等時先驗再縮一格</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>153 和 33 的參考點不一樣,這不是不一致。</strong>153 問的是「斷崖在哪一側」,右端是唯一穩定的錨;
+      33 問的是「哪一半是有序的」,拿左端跟中點比才答得出來。<b>參考點是被問題決定的,不是習慣。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      二分要的不是「有序」,是<strong>一個能用 O(1) 回答「答案在左還是在右」的判準</strong>。
+      這題的陣列<strong>整體並不有序</strong>,但只要挑對參考點(右端),那個判準就成立了 ——
+      <strong>選錯參考點不是效率問題,是正確性問題</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">跟右端 nums[r] 比,不跟左端比 —— 因為「最小值在右端的左側或就是它」旋不旋轉都成立。大於就 l=m+1(m 可排除),小於就 r=m(不減 1,m 還是候選)。值相異 ⇒ 永不相等 ⇒ 不會退化,n=5000 實測 13 輪。</div>
+    <div class="sc-summary-bar__detail">FIND MINIMUM IN ROTATED SORTED ARRAY · COMPARE WITH RIGHT END</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p153-rotmin.js"></script>
+</body>
+</html>

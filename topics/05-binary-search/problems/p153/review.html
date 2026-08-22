@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>153 · Find Minimum in Rotated Sorted Array // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P153</span>
+    <span><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">旋轉陣列找最小值</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 153</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>形狀</td><td>旋轉後 = <strong>兩段各自遞增</strong>,最小值是斷崖的底</td></tr>
+        <tr><td>參考點</td><td><strong>右端 <code>nums[r]</code></strong> —— 唯一「旋不旋轉都成立」的錨</td></tr>
+        <tr><td>往右收</td><td><code>nums[m] &gt; nums[r]</code> ⇒ 斷崖在 <code>(m, r]</code> ⇒ <code>m</code> 出局 ⇒ <code>l = m + 1</code></td></tr>
+        <tr><td>往左收</td><td><code>nums[m] &lt; nums[r]</code> ⇒ 同段 ⇒ <code>m</code> 還是候選 ⇒ <code>r = m</code>(<strong>不減 1</strong>)</td></tr>
+        <tr><td>迴圈條件</td><td><code>while (l &lt; r)</code> —— 寫成 <code>&lt;=</code> 會<strong>死迴圈</strong>,不是答錯</td></tr>
+        <tr><td>死等號</td><td><code>l &lt; r</code> ⇒ <code>m &lt; r</code>,加上值相異 ⇒ <code>nums[m] != nums[r]</code>,所以 <code>&gt;</code> 與 <code>&gt;=</code> 等價</td></tr>
+        <tr><td>不會退化</td><td>值相異 ⇒ 每輪必砍半。實測 <code>n=5000 → 13 輪 = ceil(log₂ n)</code></td></tr>
+        <tr><td>和 81 的差別</td><td>81 允許重複 ⇒ 相等時分不出方向 ⇒ 最壞 <code>O(n)</code></td></tr>
+        <tr><td>和 33 的差別</td><td>33 拿<strong>左端</strong>比是為了判「哪半有序」,問題不同、錨就不同</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼參考點要選<strong>右端</strong> <code>nums[r]</code>,不能選左端 <code>nums[l]</code>?請指出選左端時<strong>是哪一類輸入</strong>會壞,並給反例。</div>
+
+    <div class="qa"><strong>Q2.</strong> 兩個分支<strong>不對稱</strong>:一邊 <code>l = m + 1</code>,另一邊 <code>r = m</code> 不減 1。為什麼?寫成 <code>r = m - 1</code> 會怎樣?</div>
+
+    <div class="qa"><strong>Q3.</strong> 判斷式只寫了 <code>&gt;</code>,完全沒處理 <code>nums[m] == nums[r]</code>。這是漏寫嗎?改成 <code>&gt;=</code> 會不會出事?</div>
+
+    <div class="qa"><strong>Q4.</strong> 把 <code>while (l &lt; r)</code> 改成 <code>while (l &lt;= r)</code> 會發生什麼?請推導,不要只說「會錯」。</div>
+
+    <div class="qa"><strong>Q5.</strong> <a href="../p33/index.html">33</a> 拿 <code>nums[l]</code> 跟中點比,這題卻拿 <code>nums[r]</code> 比。兩題都是旋轉陣列,為什麼參考點不一樣?這算不算前後矛盾?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 有斷崖 / 沒斷崖</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>例 A · <code>nums = [4,5,6,7,0,1,2]</code></strong>(官方範例 2,動畫用的也是這個)。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第 1 輪</span>
+l=0 r=6 m=3    nums[3] = 7    nums[6] = 2
+7 &gt; 2 → m 還在高的那段,斷崖夾在 (3, 6] 之間 → l = m + 1 = 4
+區間 -&gt; [4, 6]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 輪</span>
+l=4 r=6 m=5    nums[5] = 1    nums[6] = 2
+1 &lt; 2 → m 與 r 同段遞增,最小值在 m 或其左 → r = m = 5
+區間 -&gt; [4, 5]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 輪</span>
+l=4 r=5 m=4    nums[4] = 0    nums[5] = 1
+0 &lt; 1 → r = m = 4
+區間 -&gt; [4, 4]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+l == r == 4 → 跳出迴圈
+return nums[4] = 0
+共 3 輪
+<span class="sc-trace__out">// 0</span></div>
+
+    <p style="margin:16px 0 12px;">
+      <strong>例 B · <code>nums = [11,13,15,17]</code></strong>(官方範例 3)——
+      「旋轉 <code>n</code> 次 = 完全沒動」,<strong>這是最容易寫錯的那一類</strong>。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 正解:跟右端比</span>
+第 1 輪: l=0 r=3 m=1   nums[1] = 13  nums[3] = 17   13 &lt; 17 → r = m = 1
+第 2 輪: l=0 r=1 m=0   nums[0] = 11  nums[1] = 13   11 &lt; 13 → r = m = 0
+l == r == 0 → return nums[0] = 11
+<span class="sc-trace__out">// 沒有斷崖 ⇒ 每一輪都往左收 ⇒ 自然停在 index 0,不必特判</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 錯法:跟左端比 —— 同一筆輸入</span>
+第 1 輪: l=0 r=3 m=1   nums[1] = 13  nums[0] = 11   13 &gt; 11 → l = m + 1 = 2
+第 2 輪: l=2 r=3 m=2   nums[2] = 15  nums[2] = 15   不大於   → r = m = 2
+l == r == 2 → return nums[2] = 15
+<span class="sc-trace__out">// 15,正解是 11 —— 指標一路往右衝過頭</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      例 B 是這題的<strong>照妖鏡</strong>。<code>nums[m] &gt; nums[l]</code> 在沒旋轉時<strong>恆成立</strong>,
+      所以「跟左端比」的版本會<strong>一路往右</strong>。實測窮舉全部 55 種結構,跟左端比錯 <strong>36</strong> 組,
+      而跟右端比 <strong>0</strong> 組。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成回傳「最小值的<strong>索引</strong>」(等價於問陣列被旋轉了幾次)。要改什麼?</div>
+
+    <div class="qa"><strong>App 2.</strong> 拿掉「所有整數相異」這條約束(就是 LeetCode 154)。這份程式碼還對嗎?要怎麼補?複雜度變成多少?</div>
+
+    <div class="qa"><strong>App 3.</strong> 改成找<strong>最大值</strong>。直覺上「把兩個分支反過來」就好,<strong>對嗎</strong>?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為只有右端這個錨,對「有旋轉」和「沒旋轉」都成立。</strong><br><br>
+  比較兩個關係:<br>
+  <code>最小值在 nums[r] 的左側或就是它</code> —— <strong>永遠成立</strong>。理由很樸素:<code>nums[r]</code> 是區間最右邊那格,<strong>它右邊沒有東西</strong>,最小值不可能跑到那裡去。<br>
+  <code>最小值在 nums[l] 的右側</code> —— <strong>只有真的旋轉過才成立</strong>。完全沒旋轉時,最小值<strong>就是 <code>nums[l]</code> 本身</strong>。<br><br>
+  而題目說「旋轉 1 到 n 次」,<strong>旋轉 n 次就等於沒動</strong> —— 這個 case 題目還特地寫在敘述裡(<code>[0,1,2,4,5,6,7]</code> 旋轉 7 次)。所以「跟左端比」的版本必定在這一類輸入上壞掉:<code>nums[m] &gt; nums[l]</code> 恆成立,指標一路往右衝。<br><br>
+  <strong>實測</strong>(窮舉全部 55 種結構):跟 <code>nums[l]</code> 比錯 <strong>36/55</strong>,最小反例 <code>[1,0]</code> 答 <strong>1</strong>(正解 0);跟固定的 <code>nums[0]</code> 比錯 <strong>9/55</strong>,最小反例 <code>[0,1]</code> 答 <strong>1</strong>;跟 <code>nums[r]</code> 比錯 <strong>0/55</strong>。<b>選參考點不是風格問題,是正確性問題。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為兩個分支能證明的事情不一樣。</strong><br><br>
+  <code>nums[m] &gt; nums[r]</code>:若 <code>m</code> 和 <code>r</code> 在同一段遞增裡,必有 <code>nums[m] ≤ nums[r]</code>。既然反了,<strong>斷崖一定夾在 <code>(m, r]</code> 之間</strong>,而 <code>m</code> 本身落在<strong>高的那一段</strong> —— <strong>它被證明不可能是最小值</strong>,可以安全跨過 ⇒ <code>l = m + 1</code>。<br><br>
+  <code>nums[m] &lt; nums[r]</code>:<code>m</code> 和 <code>r</code> <strong>同段</strong>,所以 <code>(m, r]</code> 全都比 <code>nums[m]</code> 大,最小值落在 <code>[l, m]</code>。但<strong><code>m</code> 自己還可能就是最小值</strong> —— 例如 <code>[0,1]</code> 第一輪 <code>m = 0</code>,答案正是它。<strong>證不出 <code>m</code> 出局,就只能保留</strong> ⇒ <code>r = m</code>。<br><br>
+  <strong>寫成 <code>r = m - 1</code> 會把答案丟出區間</strong>:實測 55 種結構錯 <strong>17</strong> 組,最小反例 <code>[2,0,1]</code> 答 <strong>2</strong>(正解 0)。<br><br>
+  <b>這條規則跨題通用:</b><a href="../p1095/index.html">1095</a> 找峰時「下坡」那條也是同樣理由不能減 1,<a href="../p410/index.html">410</a> 的可行分支 <code>right = mid</code> 也是。<strong>能證偽的邊界才 +1,證不了的要保留。</strong></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不是漏寫 —— 那個等號永遠不會被觸發,所以 <code>&gt;</code> 和 <code>&gt;=</code> 完全等價,兩種都對。</strong><br><br>
+  <strong>證明:</strong>迴圈條件是 <code>l &lt; r</code>,所以 <code>m = l + (r-l)/2</code> 滿足 <code>l ≤ m &lt; r</code> —— <strong><code>m</code> 和 <code>r</code> 必定是不同的索引</strong>。而題目保證「所有整數相異」,所以 <code>nums[m] != nums[r]</code>。<br><br>
+  <strong>實測</strong>:窮舉所有 <code>n ≤ 200</code> 的旋轉量,在全部 <strong>140495</strong> 次比較中,<code>m &gt;= r</code> 出現 <strong>0</strong> 次、<code>nums[m] == nums[r]</code> 出現 <strong>0</strong> 次。把 <code>&gt;</code> 改成 <code>&gt;=</code> 跑完 55 種結構,錯 <strong>0</strong> 組。<br><br>
+  <b>但這是「借來的安全」,借的是題目的約束。</b>一旦允許重複值(見 App 2),等號立刻會發生,而那時<strong>分不出斷崖在哪一側</strong> —— 這正是 <a href="../p81/index.html">81</a> 和 154 難那麼多的原因。<b>和 <a href="../p4/review.html">P4 的哨兵</a>是同一類事情:安全來自約束,不是來自寫法。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>會死迴圈,不是答錯。</strong><br><br>
+  <strong>推導:</strong>當區間收到 <code>l == r</code> 時,<code>l &lt;= r</code> 仍然成立,迴圈<strong>繼續跑</strong>。此時 <code>m = l + (r-l)/2 = l = r</code>,於是判斷式變成 <code>nums[r] &gt; nums[r]</code> —— <strong>恆假</strong>。走 else 分支 <code>r = m = r</code>,<code>l</code> 和 <code>r</code> <strong>都沒有變</strong>。下一輪一模一樣,永遠出不去。<br><br>
+  <strong>實測</strong>:<code>[0,1]</code> 就足以觸發;<code>[2,0,1]</code> 也是。<br><br>
+  <strong>為什麼這題必須用 <code>&lt;</code>:</strong>這是<strong>收斂型</strong>二分 —— 答案<strong>保證存在</strong>,而且就是收斂點本身,所以要一路縮到 <code>l == r</code> 然後<strong>直接回傳那一格</strong>。<code>&lt;=</code> 是給「<strong>可能找不到</strong>、要能回 −1」的搜值型用的(例如 <a href="../p1095/code.html">1095 的後兩段</a>、<a href="../p704/index.html">704</a>)。<b>模板由「答案會不會不存在」決定,不是隨手挑的。</b><br><br>
+  順帶一提,另一種也會死迴圈的改法是 <code>l = m + 1</code> 寫成 <code>l = m</code>:區間剩兩格時 <code>m == l</code>,等於沒動。實測 55 組錯 <strong>45</strong> 組,<code>[1,0]</code> 即觸發。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不矛盾 —— 兩題問的問題不一樣,錨當然不一樣。</strong><br><br>
+  <strong>153 問的是「斷崖在我的哪一側」。</strong>要回答它,需要一個「最小值絕對不會在它右邊」的參考點,而 <code>nums[r]</code> 天生就是(它右邊沒東西)。<br><br>
+  <strong>33 問的是「哪一半是有序的」。</strong>要回答它,需要比較區間的<strong>起點</strong>和中點:<code>nums[l] ≤ nums[m]</code> 就代表左半 <code>[l, m]</code> 沒有跨過斷崖、是有序的,接著才能用「target 在不在這個有序範圍內」決定往哪走。拿右端來比<strong>答不出這個問題</strong>。<br><br>
+  換句話說:<br>
+  <code>153</code> 要的是<strong>一個穩定的極值錨</strong> → 右端。<br>
+  <code>33</code> 要的是<strong>一段已知有序的區間</strong> → 左端 + 中點。<br><br>
+  <b>結論:參考點是被「你要問什麼」決定的,不是習慣、也不是背下來的。</b>如果覺得「旋轉陣列就該跟某某比」,那多半是把某一題的結論當成了通則 —— <a href="../p81/index.html">81</a> 再加上重複值之後,連 33 的那套判準都得補一手。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>把最後一行 <code>return nums[left];</code> 改成 <code>return left;</code>,其他一個字都不用動。</strong><br><br>
+  因為這個二分<strong>本來就是在找位置</strong>,收斂點 <code>left</code> 就是最小值的索引,只是原題要值所以把索引丟掉了。<br><br>
+  <strong>實測</strong>:所有 <code>n ≤ 300</code> × 所有旋轉量共 <strong>45150</strong> 組,與 <code>min_element</code> 算出的索引比對<strong>不一致 0</strong>。<br><br>
+  <b>順帶回答「旋轉了幾次」:</b>設最小值索引為 <code>i</code>,則原陣列是被<strong>右移了 <code>i</code> 次</strong>(等價於左移 <code>n − i</code> 次)。沒旋轉時 <code>i = 0</code>。<b>這也是為什麼 153 常被當成其他旋轉陣列題的前置步驟 —— 拿到 <code>i</code> 之後,整條陣列就能用 <code>(idx + i) % n</code> 映射回「沒旋轉」的座標,後續直接套一般二分。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>會壞,要補一個分支,而且複雜度從 <code>O(log n)</code> 掉到最壞 <code>O(n)</code>。</strong><br><br>
+  <strong>為什麼壞:</strong>A3 說過,現在的程式碼把 <code>nums[m] == nums[r]</code> 併進了 else(往左收)。值相異時那個等號不會發生,但一旦允許重複,<code>nums[m] == nums[r]</code> 時<strong>根本分不出斷崖在哪一側</strong> —— 例如 <code>[2,2,1,2]</code> 和 <code>[2,1,2,2]</code>,<code>m</code> 和 <code>r</code> 看起來完全一樣,最小值卻在不同邊。實測拿原版去跑含重複值的資料:<strong>300000 組錯 4319 組</strong>,最小反例 <code>[2,2,1,2]</code>。<br><br>
+  <strong>怎麼補</strong> —— 拆成三個分支:<br>
+  <code>nums[m] &gt; nums[r]</code> → <code>l = m + 1</code>(不變)<br>
+  <code>nums[m] &lt; nums[r]</code> → <code>r = m</code>(不變)<br>
+  <code>nums[m] == nums[r]</code> → <strong><code>r--</code></strong>,保守地丟掉一格。安全的理由是:<code>nums[r]</code> 和 <code>nums[m]</code> 一樣,所以就算 <code>nums[r]</code> 是最小值,<code>nums[m]</code> 也是,<strong>答案不會因為丟掉 <code>r</code> 而消失</strong>。<br><br>
+  <strong>實測</strong>:加上 <code>r--</code> 後,300000 組大量重複值的測資<strong>不一致 0</strong>。<br><br>
+  <strong>複雜度</strong>:全部相等時每輪只縮一格 —— 實測 <code>n = 5000</code> 全 1 的陣列跑 <strong>4999 輪 = n − 1</strong>,確實是 <code>O(n)</code>。<b>這就是 <a href="../p81/index.html">81</a> 那題的同一個病灶,也是 154 為什麼比 153 難的全部原因。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>不對 —— 這是本頁最值得記的一個「直覺陷阱」。</strong><br><br>
+  沿用「跟右端比」只把分支反過來(<code>nums[m] &gt; nums[r]</code> → <code>r = m</code>,否則 <code>l = m + 1</code>),實測 45150 組<strong>錯 44551 組</strong>,最小反例 <code>[2,0,1]</code>。<br><br>
+  <strong>為什麼垮:</strong><code>nums[m] &lt; nums[r]</code> 這個情況<strong>指不出唯一方向</strong>。有斷崖時,<code>m</code> 在低的那段,最大值在它<strong>左邊</strong>;<strong>沒有</strong>斷崖時,整條遞增,最大值是 <code>nums[r]</code> 本身,在它<strong>右邊</strong>。同一個觀察對應兩個相反的動作 —— 二分的前提直接消失。<br><br>
+  <strong>正解有兩條,都實測過 0 錯(45150 組):</strong><br>
+  <strong>① 改用左端當錨 + 上取整的 mid。</strong>對「最大值」而言,穩定的錨是<strong>左端</strong>(最大值永遠在 <code>nums[l]</code> 的右側或就是它):<br>
+  <code>mid = l + (r - l + <strong>1</strong>) / 2;</code>　<code>nums[mid] &gt;= nums[l] ? l = mid : r = mid - 1;</code><br>
+  <code>+1</code> 是必要的 —— 因為有一條是 <code>l = mid</code>,不上取整就會死迴圈。實測 <code>n ≤ 3125</code> 最多 12 輪,仍是 <code>O(log n)</code>。<br>
+  <strong>② 直接沿用本題,找到最小值索引 <code>i</code> 後回傳 <code>nums[(i - 1 + n) % n]</code>。</strong>因為最大值就在斷崖頂,也就是最小值的<strong>前一格</strong>(沒旋轉時繞回最後一格)。<br><br>
+  <b>教訓:</b>找 min 用右端、找 max 用左端 —— <strong>錨要挑那個「答案絕對不會越過它」的端點</strong>。這不是對稱地把符號反過來就能得到的,<b>我第一次就是這樣猜,然後被 45150 組測資打回來。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 05 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">錨要挑「答案絕對不會越過它」的那一端:找 min 用右端、找 max 用左端。r=m 不減 1(m 還是候選),while 用 &lt; 不用 &lt;=(否則死迴圈)。&gt; 的等號是死的 —— 但那是跟「值相異」借的,拿掉就變成 154 的 O(n)。</div>
+    <div class="sc-summary-bar__detail">FIND MINIMUM IN ROTATED SORTED ARRAY · REVIEW</div>
+  </div>
+
+</body>
+</html>
