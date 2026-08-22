@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 · Median of Two Sorted Arrays // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P4</span>
+    <span><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">兩個有序陣列的中位數</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 4</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>視角轉換</td><td>不找中位數那個<strong>數</strong>,找那條<strong>切線</strong></td></tr>
+        <tr><td>為什麼能二分</td><td>左半格數 <code>leftCount</code> 固定 ⇒ <code>j = leftCount − i</code> ⇒ <strong>只剩 i 一個自由度</strong></td></tr>
+        <tr><td>合法條件</td><td>兩排各自有序 ⇒ <code>O(mn)</code> 個條件塌成 <code>L1 ≤ R2</code> 與 <code>L2 ≤ R1</code></td></tr>
+        <tr><td>兩個失敗方向</td><td><code>L1 &gt; R2</code> 切太多 → <code>hi = i−1</code>;<code>L2 &gt; R1</code> 切太少 → <code>lo = i+1</code></td></tr>
+        <tr><td>對調 m ≤ n</td><td><strong>不是優化,是正確性</strong> —— <code>j</code> 的上下界都恰好靠它成立</td></tr>
+        <tr><td><code>+1</code></td><td>奇數時多的那格分給左半 ⇒ 中位數 = <code>max(L1, L2)</code>,奇偶共用一段程式</td></tr>
+        <tr><td>哨兵</td><td><code>±∞</code> 在 <code>max/min</code> 裡永遠輸;<strong>已證明並實測不會進到加法</strong></td></tr>
+        <tr><td>回傳方式</td><td><strong>找到就當場回傳</strong>,沒有「收斂後 return lo」;末尾 <code>-1.0</code> 不可達</td></tr>
+        <tr><td>複雜度</td><td><code>O(log min(m,n))</code>,比題目要求的 <code>O(log(m+n))</code> 更嚴格;實測 ≤ 10 輪</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>leftCount = (m + n + <strong>1</strong>) / 2</code> —— 那個 <code>+1</code> 在做什麼?請分奇偶說明,並解釋它為什麼讓<strong>兩種情形共用同一段程式</strong>。</div>
+
+    <div class="qa"><strong>Q2.</strong> 「左半每個數都 ≤ 右半每個數」看起來要比 <code>O(mn)</code> 次,程式卻只比了<strong>兩次</strong>。為什麼夠?另外,<code>L1 &gt; R2</code> 和 <code>L2 &gt; R1</code> 有沒有可能<strong>同時成立</strong>?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>if (m &gt; n) return findMedianSortedArrays(nums2, nums1);</code> —— 有人說這只是為了「在短的那排二分比較快」。<strong>這個說法不完整</strong>,請說出真正的理由。</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>(max(L1,L2) + min(R1,R2))</code> 是 <code>int</code> 加法,而 <code>L1</code> 可能是 <code>INT_MIN</code>、<code>R1</code> 可能是 <code>INT_MAX</code>。這行會不會溢位?請<strong>證明</strong>,再說你要<strong>怎麼驗證</strong>你的證明。</div>
+
+    <div class="qa"><strong>Q5.</strong> 本章其他二分都是「收斂後 <code>return left</code>」,這題卻是<strong>找到就當場回傳</strong>,末尾還掛一句 <code>return -1.0</code>。為什麼結構不一樣?那句 <code>-1.0</code> 會被執行到嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 主例 + 哨兵例</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>例 A · <code>nums1=[1,3,5,13,25]</code>、<code>nums2=[6,12,15,18,21]</code></strong>(動畫用的就是這個)。
+      <code>m = n = 5</code>,<code>leftCount = (5+5+1)/2 = 5</code>,<code>i ∈ [0, 5]</code>。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第 1 輪:lo=0 hi=5 → i=2, j = 5 − 2 = 3</span>
+nums1 切在 i=2 :  1 3 | 5 13 25      L1 = 3  | R1 = 5
+nums2 切在 j=3 :  6 12 15 | 18 21    L2 = 15 | R2 = 18
+
+交叉檢查:L1(3) ≤ R2(18) ✓    但 L2(15) &gt; R1(5) ✗
+→ nums1 切太少 → lo = i + 1 = 3</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 輪:lo=3 hi=5 → i=4, j = 5 − 4 = 1</span>
+nums1 切在 i=4 :  1 3 5 13 | 25      L1 = 13 | R1 = 25
+nums2 切在 j=1 :  6 | 12 15 18 21    L2 = 6  | R2 = 12
+
+交叉檢查:L1(13) &gt; R2(12) ✗
+→ nums1 切太多 → hi = i − 1 = 3</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 輪:lo=3 hi=3 → i=3, j = 5 − 3 = 2</span>
+nums1 切在 i=3 :  1 3 5 | 13 25      L1 = 5  | R1 = 13
+nums2 切在 j=2 :  6 12 | 15 18 21    L2 = 12 | R2 = 15
+
+交叉檢查:L1(5) ≤ R2(15) ✓  且  L2(12) ≤ R1(13) ✓   → 合法!
+左半 = {1,3,5,6,12}      右半 = {13,25,15,18,21}</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+m + n = 10 是偶數
+  左半最大 = max(L1, L2) = max(5, 12)  = 12
+  右半最小 = min(R1, R2) = min(13, 15) = 13
+  → (12 + 13) / 2.0 = 12.5
+
+驗證:合併後 = [1,3,5,6,12,13,15,18,21,25],第 5、6 個正是 12 和 13
+共 3 輪
+<span class="sc-trace__out">// 12.5</span></div>
+
+    <p style="margin:16px 0 12px;">
+      <strong>例 B · 官方範例 2:<code>nums1=[1,2]</code>、<code>nums2=[3,4]</code></strong> —— 這個會用到 <strong>兩個哨兵</strong>。
+      <code>leftCount = (2+2+1)/2 = 2</code>。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第 1 輪:lo=0 hi=2 → i=1, j = 1</span>
+L1 = 1 | R1 = 2      L2 = 3 | R2 = 4
+L2(3) &gt; R1(2) → 切太少 → lo = 2</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 輪:lo=2 hi=2 → i=2 (== m), j = 0</span>
+nums1 整排進左半 → 右半沒有東西 → R1 = INT_MAX (+∞)
+nums2 一格都不出 → 左半沒有它  → L2 = INT_MIN (−∞)
+
+L1 = 2 | R1 = +∞     L2 = −∞ | R2 = 3
+交叉檢查:L1(2) ≤ R2(3) ✓  且  L2(−∞) ≤ R1(+∞) ✓   → 合法</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+max(L1, L2) = max(2, −∞) = 2      ← 哨兵被淘汰
+min(R1, R2) = min(+∞, 3) = 3      ← 哨兵被淘汰
+→ (2 + 3) / 2.0 = 2.5
+<span class="sc-trace__out">// 2.5 —— 兩個哨兵都沒有真的進到加法</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      例 B 就是 Q4 的答案在跑:哨兵<strong>出現了,但被 <code>max</code> / <code>min</code> 擋在加法之外</strong>。
+      實測 18 萬組(全部 <code>m+n ≤ 8</code> 的窮舉 + <code>±10⁶</code> 的極端值),偶數分支<strong>一次都沒有</strong>真的加到 <code>±∞</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 把題目改成「回傳兩個有序陣列合併後的<strong>第 <code>k</code> 小</strong>」(1-based)。這套切點法要改哪幾行?複雜度變嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成<strong>三個</strong>有序陣列的中位數。切點法推廣得過去嗎?如果不行,你會怎麼做,複雜度多少?</div>
+
+    <div class="qa"><strong>App 3.</strong> 值域從 <code>±10⁶</code> 放寬到<strong>整個 <code>int</code></strong>(元素可以是 <code>INT_MIN</code> / <code>INT_MAX</code>)。這份程式碼還對嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>那個 <code>+1</code> 把奇數時「多出來的那一格」分給左半。</strong><br><br>
+  <strong>偶數</strong>(設 <code>m+n = 2t</code>):<code>leftCount = (2t+1)/2 = t</code>(整數除法),左右各 <code>t</code> 格。中位數是中間兩數的平均 = <strong>左半最大</strong>與<strong>右半最小</strong>的平均 = <code>(max(L1,L2) + min(R1,R2)) / 2.0</code>。<br><br>
+  <strong>奇數</strong>(設 <code>m+n = 2t+1</code>):<code>leftCount = (2t+2)/2 = t+1</code>,左半 <code>t+1</code> 格、右半 <code>t</code> 格。中位數是第 <code>t+1</code> 小 = <strong>左半最大</strong> = <code>max(L1, L2)</code>,<strong>完全不必碰右半</strong>。<br><br>
+  <strong>為什麼能共用一段程式:</strong>因為 <code>+1</code> 固定把餘數放左邊,「中位數」在兩種情形下都<strong>只跟切口旁的四個值有關</strong>,差別僅在最後那一行怎麼組合。若寫成 <code>(m+n)/2</code>,奇數時餘數跑到右半,<code>max(L1,L2)</code> 就變成第 <code>t</code> 小而不是第 <code>t+1</code> 小 —— 實測最小反例 <code>[0] + [1,1]</code> 答 <strong>0</strong>(正解 <strong>1</strong>),119965 組錯 <strong>17176</strong> 組。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為兩排各自有序,大部分條件是免費的。</strong>nums1 左半的最大值就是 <code>L1</code>、右半最小就是 <code>R1</code>;nums2 同理。<strong>同一排內部</strong>的 <code>L1 ≤ R1</code>、<code>L2 ≤ R2</code> 由排序天然保證,不用檢查。所以只剩<strong>跨排</strong>的兩組:<code>L1 ≤ R2</code>、<code>L2 ≤ R1</code>。而只要這四個極值兩兩就位,左半任一元素 ≤ <code>max(L1,L2)</code> ≤ <code>min(R1,R2)</code> ≤ 右半任一元素。<code>O(mn)</code> 塌成 <strong>2</strong>。<br><br>
+  <strong>不可能同時成立。</strong>反證:若 <code>L1 &gt; R2</code> 且 <code>L2 &gt; R1</code>,由同排有序有 <code>R2 ≥ L2</code> 與 <code>R1 ≥ L1</code>,於是<br>
+  <code>L1 &gt; R2 ≥ L2 &gt; R1 ≥ L1</code> ⇒ <code>L1 &gt; L1</code>,矛盾。<br><br>
+  <b>這件事很重要:</b>它保證 <code>if / else if / else</code> 三個分支<strong>互斥且窮盡</strong> —— 不會有「兩個條件都成立、不知道往哪縮」的情形,也不會漏掉任何狀態。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>真正的理由是「保證 <code>j = leftCount − i</code> 不越界」,效率只是附帶好處。</strong><br><br>
+  <code>i</code> 在 <code>[0, m]</code> 掃,<code>j</code> 必須落在 <code>[0, n]</code>,否則 <code>nums2[j-1]</code> 或 <code>nums2[j]</code> 會讀到陣列外面:<br>
+  <strong>上界</strong> <code>j ≤ leftCount = (m+n+1)/2 ≤ n</code> ⟺ <code>m + n + 1 ≤ 2n + 1</code> ⟺ <strong><code>m ≤ n</code></strong><br>
+  <strong>下界</strong> <code>j ≥ leftCount − m ≥ 0</code> ⟺ <code>m + n + 1 ≥ 2m</code> ⟺ <strong><code>m ≤ n + 1</code></strong><br>
+  兩個界都<strong>恰好卡在 <code>m ≤ n</code></strong>。<br><br>
+  <strong>實測:</strong>拿掉對調、在每次存取加上界檢查,119965 組裡有 <strong>10284</strong> 組讀到陣列外面,最小反例 <code>[0,1,1,1] + [0,0]</code>(<code>m=4 &gt; n=2</code>)。<br><br>
+  另外兩個細節:它寫成<strong>遞迴</strong>而不是 <code>std::swap</code>,所以不會改動呼叫端的資料;而且對調後必定 <code>m ≤ n</code>,<strong>遞迴最多一層</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會溢位。證明分兩半:</strong><br><br>
+  <code>max(L1, L2) == INT_MIN</code> 需要 <code>i == 0</code> <strong>且</strong> <code>j == 0</code>,即 <code>leftCount = i + j = 0</code>。但 <code>leftCount = (m+n+1)/2</code> 且題目保證 <code>m + n ≥ 1</code> ⇒ <code>leftCount ≥ 1</code>。矛盾。<br><br>
+  <code>min(R1, R2) == INT_MAX</code> 需要 <code>i == m</code> <strong>且</strong> <code>j == n</code>,即 <code>leftCount = m + n</code>。而偶數分支裡 <code>leftCount = (m+n)/2</code>,要等於 <code>m+n</code> 只有 <code>m+n = 0</code>。矛盾。<br><br>
+  所以相加的<strong>兩個都是真實元素</strong>,值域 <code>±10⁶</code> ⇒ 和 ≤ <code>2×10⁶</code>。(奇數分支只回 <code>max(L1,L2)</code>,靠上面第一半的論證同樣安全。)<br><br>
+  <strong>怎麼驗證證明 —— 這才是重點。</strong>「我推理過所以安全」不夠。做法是<strong>在偶數分支埋計數器</strong>,記錄 <code>max(L1,L2)</code> 是否等於 <code>INT_MIN</code>、<code>min(R1,R2)</code> 是否等於 <code>INT_MAX</code>、以及 <code>int</code> 加法結果與 <code>long long</code> 版本是否一致,然後跑:全部 <code>m+n ≤ 8</code> 的窮舉(125969 組)+ <code>±10⁶</code> 值域的隨機(60400 組)+ 極端輸入(2000 個 <code>10⁶</code>、<code>m = 0</code> 等)。<br><br>
+  <b>結果:三個計數器全部為 0,實測和的絕對值上限 2000000 —— 只有 <code>INT_MAX</code> 的 0.093%。</b>證明與量測對上了才算數。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為這題找的不是「邊界」,是一個確定的位置。</strong><br><br>
+  <a href="../p410/code.html">410</a>、<a href="../p1011/code.html">1011</a> 那類答案二分,找的是「<strong>第一個可行的值</strong>」——可行性是 <code>F...F T...T</code>,答案在 T 的<strong>邊界</strong>上,所以要一路收斂到 <code>lo == hi</code> 再回傳。<br><br>
+  這題不同:<code>i</code> 掃過去時狀態是「<strong>切太少 → 剛好 → 切太多</strong>」三段,而我們要的就是<strong>中間那段</strong>本身。一踩到就已經拿到全部需要的資訊(切口旁四個值),<strong>沒有必要再縮</strong>。所以是 <code>while (lo &lt;= hi)</code> + 命中即 return,而不是收斂型模板。<br><br>
+  <strong>那句 <code>return -1.0</code> 不可達。</strong>左半格數固定為 <code>leftCount</code>,而 <code>i</code> 從 0 掃到 <code>m</code> 一定會經過那個合法切點(由 A2 的三分結構保證),所以迴圈必定在 <code>else</code> 分支返回。<strong>實測 125969 組窮舉 + 60400 組隨機,觸發次數 0。</strong>它純粹是給編譯器看的;要更誠實可以換成 <code>__builtin_unreachable()</code> 或直接 <code>throw</code>。<br><br>
+  <b>順帶一提:</b>迴圈條件寫成 <code>while (lo &lt; hi)</code> 會提早跳出,而答案常常正好在最後那一格 —— 實測 <code>[0] + [1]</code> 就回 <strong>−1</strong>(正解 0.5),119965 組錯 <strong>35520</strong> 組。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>改兩行,複雜度不變。</strong><br><br>
+  ① <code>leftCount</code> 從 <code>(m+n+1)/2</code> 直接改成 <strong><code>k</code></strong> —— 因為「第 k 小」就是「左半剛好放 k 格時,左半的最大值」。<br>
+  ② <code>i</code> 的範圍要重新夾:<code>lo = max(0, k − n)</code>、<code>hi = min(m, k)</code>。原版靠 <code>m ≤ n</code> 就能保證 <code>j ∈ [0, n]</code>,但 <code>leftCount</code> 換成任意 <code>k</code> 之後那個保證沒了,得<strong>明確夾住</strong>。<br>
+  ③ 回傳一律是 <code>max(L1, L2)</code>,<strong>沒有偶數分支</strong> —— 第 k 小是一個確定的元素,不是平均。<br><br>
+  <strong>實測</strong>:300000 組隨機(<code>m, n ≤ 6</code>,值域 <code>±10</code>,<code>k</code> 隨機),與「合併後取第 k−1 個」對拍<strong>不一致 0</strong>。<br><br>
+  複雜度仍是 <code>O(log min(m, n))</code>。<b>反過來看,原題就是這個廣義版在 <code>k = (m+n+1)/2</code> 的特例,偶數時再多取一次右半最小。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>切點法推不過去。</strong>三排要決定 <code>i₁, i₂, i₃</code>,而約束只有一條 <code>i₁ + i₂ + i₃ = leftCount</code> —— <strong>剩下兩個自由度</strong>。二分需要「一維 + 單調」,兩個自由度就沒有「往左還是往右」可言了。而且合法性條件從 2 個變成 <code>3 × 2 = 6</code> 個跨排比較,失敗時<strong>指不出唯一的修正方向</strong>。<br><br>
+  <strong>改用「二分值」</strong>:不猜切點,猜<strong>答案本身的數值</strong> <code>v</code>,再問「有幾個元素 ≤ v」。這個計數對每排都是一次 <code>upper_bound</code>,<code>O(log)</code>;計數對 <code>v</code> 單調不減 ⇒ 可二分。找第 <code>k</code> 小就是找<strong>第一個</strong>使計數 <code>≥ k</code> 的 <code>v</code>。<br><br>
+  <strong>實測</strong>:三排、各長 0–5、值域 <code>±15</code>,200000 組隨機與合併排序對拍<strong>不一致 0</strong>。<br><br>
+  <strong>複雜度</strong> <code>O(t · log V · log L)</code>(<code>t</code> 排數、<code>V</code> 值域寬度、<code>L</code> 最長排長)。比切點法多一個 <code>log V</code>,但<strong>排數任意、而且完全不依賴「只有兩排」這個結構</strong>。<b>這是一個常見的取捨:切點法更快但只吃兩排,二分值慢一點卻能推廣。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>會壞 —— 哨兵撞上真實資料。</strong>整套哨兵的前提是「<code>INT_MIN</code> / <code>INT_MAX</code> 不是合法元素值」,所以它們在 <code>max</code> / <code>min</code> 裡永遠輸。值域一旦涵蓋整個 <code>int</code>,這個前提就沒了,A4 的證明<strong>第一步就垮</strong>(它證的是「哨兵不會被選中」,不是「哨兵被選中也沒關係」)。<br><br>
+  <strong>實測(<code>g++ -fsanitize=undefined</code>):</strong><br>
+  <code>[INT_MAX] + [INT_MAX]</code> → UBSan 報 <strong><code>signed integer overflow: 2147483647 + 2147483647</code></strong>。<code>int</code> 相加繞回 <code>−2</code>,除以 2.0 得 <strong>−1.0</strong>(正解 <code>2147483647</code>)。<br>
+  <code>[INT_MIN] + [INT_MIN]</code> → 相加繞回 <code>0</code>,答 <strong>0</strong>(正解 <code>−2147483648</code>)。<br>
+  對照題目真正的值域:<code>[10⁶] + [10⁶]</code> → <strong>1000000</strong>,正確。<br><br>
+  <strong>怎麼修(兩處都要改):</strong>① 哨兵換成 <code>long long</code> 的 <code>LLONG_MIN</code> / <code>LLONG_MAX</code>,四個 <code>L/R</code> 變數也一併改型別;② 最後那行改成 <code>(max(L1,L2) + min(R1,R2)) / 2.0</code> 在 <code>long long</code> 下算,或直接寫成 <code>max(L1,L2) / 2.0 + min(R1,R2) / 2.0</code> 避開中間值。<br><br>
+  <b>教訓:</b>用哨兵等於<strong>借走值域裡的兩個數</strong>。借之前要先確認題目沒在用它們 —— 這題的 <code>±10⁶</code> 剛好讓這筆借貸是安全的,但那是<strong>約束給的,不是寫法本身安全</strong>。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 05 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">找切線不找數:左半格數固定 ⇒ 只剩 i 一個自由度;各自有序 ⇒ 只需兩個跨排比較;m≤n 的對調是 j 不越界的唯一保證。哨兵是跟值域借的兩個數 —— ±10⁶ 下安全(已證明並實測 18 萬組),放寬到整個 int 就 UBSan 報溢位。</div>
+    <div class="sc-summary-bar__detail">MEDIAN OF TWO SORTED ARRAYS · REVIEW</div>
+  </div>
+
+</body>
+</html>

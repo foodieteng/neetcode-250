@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 · Median of Two Sorted Arrays // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">05 · Binary Search</a> / P4</span>
+    <span><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">兩個有序陣列的中位數</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 二分切點 + 交叉比較</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 4</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>PARTITION BINARY SEARCH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給兩個<strong>各自有序</strong>的陣列 <code>nums1</code>(長 <code>m</code>)、<code>nums2</code>(長 <code>n</code>),
+        回傳兩者合起來的<strong>中位數</strong>。
+      </p>
+      <p style="margin-top:8px;">
+        而且題目<strong>明文要求 <code>O(log(m+n))</code></strong> —— 這句話才是這題的全部難度。
+      </p>
+    </div>
+
+    <p>
+      如果沒有那句複雜度要求,這題是 easy:合併兩個有序陣列取中間,五行寫完。
+      <strong>那句話把「合併」整條路封死了</strong> —— 你不能碰過每一個元素,連 <code>O(m+n)</code> 都不行。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      關鍵的視角轉換:中位數的定義是「<strong>把資料切成一樣大的兩半</strong>」。
+      所以不要去找那個<strong>數</strong>,去找那條<strong>切線</strong> ——
+      而切線的位置只有一個自由度,可以二分。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是二分切點<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">合併後取中間</span>
+            <span class="sc-ko-card__o">O(m + n)</span>
+          </div>
+          <div class="sc-ko-card__body">正確、好寫,而且 <code>m + n ≤ 2000</code> 跑起來完全沒問題。但<strong>題目點名要 <code>O(log(m+n))</code></strong> —— 這是一道<strong>指定解法</strong>的題目,不是效能題。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 不符要求</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">遞迴找第 k 小(每次丟掉 k/2)</span>
+            <span class="sc-ko-card__o">O(log(m+n))</span>
+          </div>
+          <div class="sc-ko-card__body">
+            複雜度<strong>達標</strong>,也是常見解法。但要處理「某一邊不夠 <code>k/2</code> 長」、「<code>k = 1</code> 的終止條件」、偶數時<strong>呼叫兩次</strong>等等,
+            <strong>邊界情形明顯更多</strong>,面試現場容易寫錯。
+          </div>
+          <div class="sc-ko-card__verdict">△ 可行 · 但邊界更雜</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">二分「nums1 出幾格到左半」</span>
+          <span class="sc-ko-card__o">O(log min(m,n))</span>
+        </div>
+        <div class="sc-ko-card__body">
+          左半總格數 <code>left</code> 是<strong>固定的</strong>,所以只要決定 <code>i</code>(nums1 出幾格),
+          <code>j = left − i</code> <strong>自動決定</strong> —— <strong>兩個自由度塌成一個</strong>。
+          再用<strong>交叉比較</strong> <code>L1 ≤ R2 且 L2 ≤ R1</code> 判斷「切多了還是切少了」,單調 ⇒ 可二分。
+          而且只在<strong>短的那個陣列</strong>上二分,比要求的 <code>log(m+n)</code> 還快。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(log min(m,n))</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>對調成 m ≤ n</strong>:<code>if (m &gt; n) return findMedianSortedArrays(nums2, nums1);</code>。這不只是為了快 —— 見第 6 節,它是 <code>j</code> 不越界的<strong>唯一保證</strong>。</li>
+      <li><strong>二分 i ∈ [0, m]</strong>:<code>j = left − i</code>,其中 <code>left = (m+n+1)/2</code>。取出切口旁的四個值 <code>L1 | R1</code> 與 <code>L2 | R2</code>,邊界用 <code>±∞</code> 哨兵。</li>
+      <li><strong>交叉比較</strong>:<code>L1 &gt; R2</code> → nums1 切太多 → <code>r = i − 1</code>;<code>L2 &gt; R1</code> → 切太少 → <code>l = i + 1</code>;兩者皆否 → <strong>合法</strong>,直接算答案。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      注意第 3 步<strong>沒有「收斂後再算」這一段</strong>。合法切點一被找到就<strong>當場回傳</strong> ——
+      這也是為什麼迴圈末尾那句 <code>return -1.0;</code> 在實測中<strong>一次都沒被執行過</strong>(12 萬組窮舉)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,3,5,13,25] + [6,12,15,18,21] → 12.5</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>藍 = 左半,橘 = 右半,紅框 = 切口旁的四個值。</strong>虛線就是那一刀。
+      前 5 步是主例(3 輪解出),<strong>最後 2 步換成 <code>[1,2]/[3,4]</code></strong>,示範 <code>i == m</code> 時 <code>R1 = +∞</code> 的哨兵怎麼運作。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Median of Two Sorted Arrays · 二分切點</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:400px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼只比四個數就夠<span class="sc-section__title-en">// THE CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 兩個交叉比較 ⇔ 左半每個數 ≤ 右半每個數</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          我們要的條件是「<strong>左半的每一個</strong> ≤ <strong>右半的每一個</strong>」,看起來要比 <code>O(mn)</code> 次。但因為兩排<strong>各自有序</strong>:
+        </p>
+        <p style="margin:0 0 10px;">
+          nums1 左半的最大值就是 <code>L1</code>、右半的最小值就是 <code>R1</code>;nums2 同理是 <code>L2</code> 和 <code>R2</code>。
+          <strong>同一排內部</strong>已經天然滿足(<code>L1 ≤ R1</code>、<code>L2 ≤ R2</code>,因為排序過了),完全不用檢查。
+          剩下的只有<strong>跨排</strong>那兩組:<code>L1 ≤ R2</code> 和 <code>L2 ≤ R1</code>。
+        </p>
+        <p style="margin:0;">
+          所以 <code>O(mn)</code> 個條件<strong>塌成 2 個</strong>。這就是為什麼程式只碰四個數。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 兩個失敗方向剛好指向相反的縮法</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong><code>L1 &gt; R2</code></strong> —— nums1 左半的最大值比 nums2 右半的最小值還大。
+          要修好它必須<strong>把 <code>L1</code> 變小</strong>,也就是 nums1 少出一點 ⇒ <code>i</code> 要變小 ⇒ <code>r = i − 1</code>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong><code>L2 &gt; R1</code></strong> —— 對稱的另一邊。要修好它必須<strong>把 <code>R1</code> 變大</strong>,也就是 nums1 多出一點 ⇒ <code>i</code> 要變大 ⇒ <code>l = i + 1</code>。
+        </p>
+        <p style="margin:0;">
+          兩者<strong>不可能同時成立</strong>(否則 <code>L1 &gt; R2 ≥ L2 &gt; R1 ≥ L1</code>,矛盾),所以三個分支<strong>恰好互斥且窮盡</strong>。
+          <code>i</code> 增大時 <code>L1</code> 單調不減、<code>R1</code> 單調不減、<code>L2</code> 單調不增、<code>R2</code> 單調不增 ⇒
+          「切太多 / 剛好 / 切太少」沿著 <code>i</code> 是<strong>一段一段連著的</strong> ⇒ 可以二分。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 兩個不起眼但關鍵的細節 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩個不起眼但關鍵的細節<span class="sc-section__title-en">// THE +1 AND THE SWAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>它在保證什麼</th><th>拿掉會怎樣(實測)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>left = (m+n+<strong>1</strong>)/2</code></td>
+          <td>總數<strong>奇數</strong>時,把多出來的那一格分給<strong>左半</strong> ⇒ 中位數就是 <code>max(L1, L2)</code>,奇偶兩種情形共用同一段程式</td>
+          <td class="mono">改成 <code>(m+n)/2</code>:<br>[0] + [1,1] → 0(正解 1)<br>錯 17176/119965</td>
+        </tr>
+        <tr>
+          <td><code>if (m &gt; n) swap</code></td>
+          <td><strong><code>j</code> 不越界的唯一保證</strong>(見下方推導),順帶讓二分跑在短陣列上</td>
+          <td class="mono">拿掉:<br>[0,1,1,1] + [0,0] → <strong>越界</strong><br>錯 10284/119965</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 為什麼 m ≤ n 就保證 j = left - i 落在 [0, n]</span>
+i ∈ [0, m],left = (m+n+1)/2,j = left - i
+
+j 的上界:j ≤ left = (m+n+1)/2 ≤ n  ⟺  m + n + 1 ≤ 2n + 1  ⟺  m ≤ n   ✓
+j 的下界:j ≥ left - m = (m+n+1)/2 - m ≥ 0  ⟺  m + n + 1 ≥ 2m  ⟺  n + 1 ≥ m   ✓
+<span class="sc-trace__out">// 兩個界都恰好靠 m ≤ n 成立 —— 對調不是優化,是正確性</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <code>m &gt; n</code> 那行是<strong>遞迴</strong>而不是 <code>std::swap</code>,所以參數必須是<strong>非 const 參考</strong> ——
+      這也是為什麼簽名寫 <code>vector&lt;int&gt;&amp;</code>。遞迴<strong>最多只會發生一層</strong>(對調後必定 <code>m ≤ n</code>)。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(log min(m, n))</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        比題目要求的 <code>O(log(m+n))</code> <strong>還嚴格</strong> —— 因為只在短陣列上二分。
+        <code>m, n ≤ 1000</code> ⇒ 實測最多 <strong>10</strong> 輪(<code>log₂1001 ≈ 10</code>)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(log min(m,n))</td><td>實測最多 10 輪</td></tr>
+        <tr><td>Space</td><td class="mono">O(1)</td><td>只有幾個 <code>int</code>;遞迴深度最多 1</td></tr>
+        <tr><td>每輪成本</td><td class="mono">O(1)</td><td>只讀四個值、比兩次</td></tr>
+        <tr><td>溢位</td><td class="mono">無</td><td>偶數分支<strong>實測從未拿到 ±∞</strong>,相加上限 2×10⁶(INT_MAX 的 0.09%)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <a href="../p410/index.html">410</a> 二分的是<strong>答案的值</strong>,<a href="../p1095/index.html">1095</a> 二分的是<strong>斜率的轉折</strong>,
+      這題二分的是<strong>一條切線的位置</strong>。共同點只有一個:
+      <strong>找到一個一維的量,使得「猜大了還是猜小了」能用 O(1) 判斷</strong>。
+      找到那個量,剩下的都是模板。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">不找中位數,找那條切線。左半格數固定 ⇒ 只剩 i 一個自由度 ⇒ 可二分。兩排各自有序讓 O(mn) 個條件塌成 L1≤R2 與 L2≤R1 兩個。m≤n 的對調是 j 不越界的唯一保證,(m+n+1)/2 的 +1 讓奇偶共用同一段程式。</div>
+    <div class="sc-summary-bar__detail">MEDIAN OF TWO SORTED ARRAYS · PARTITION SEARCH</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p4-partition.js"></script>
+</body>
+</html>
