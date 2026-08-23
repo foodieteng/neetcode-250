@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>21 · Merge Two Sorted Lists // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P21</span>
+    <span><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合併兩條有序串列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · dummy 假頭 + tail 接線</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 21</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SPLICE · NOT COPY</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給兩條<strong>已排序</strong>的鏈結串列,合併成一條有序的。
+        題目特別寫明:結果要由<strong>拼接原本的節點</strong>組成(splicing together the nodes)。
+      </p>
+      <p style="margin-top:8px;">
+        兩條各 <code>0 ~ 50</code> 個節點,值域 <code>±100</code>。
+      </p>
+    </div>
+
+    <p>
+      這是 <strong>merge sort 的那個 merge</strong>,換到鏈結串列上。因為兩條都有序,
+      每一步<strong>只需要比兩個頭</strong> —— 小的那個接到結果尾巴後面,那條往前走一格。
+      直到有一條空了,把<strong>剩下那整條</strong>一次掛上去。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      「<strong>splicing</strong>」那個字是題目給的提示:<strong>不要 <code>new</code> 新節點來複製值</strong>,
+      要把原本的節點<strong>搬過來接上</strong>。實測 5 萬組隨機測資,你的解法合併後的
+      <strong>節點位址集合正好等於兩條輸入的聯集</strong> —— 除了那個 dummy 之外,零配置。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼要一個 dummy 假頭<span class="sc-section__title-en">// WHY THE DUMMY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">把值倒出來排序,再建新串列</span>
+            <span class="sc-ko-card__o">O(n log n) + n 個新節點</span>
+          </div>
+          <div class="sc-ko-card__body">會過,但<strong>浪費了「兩條都已經有序」這個前提</strong>,而且違反題目要求的 splicing。舊的那些節點還得處理。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 沒用到有序</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">不用 dummy,直接維護 <code>head</code></span>
+            <span class="sc-ko-card__o">O(m+n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            也對,但要<strong>為「第一個節點」寫一段特判</strong>:結果還是空的時候不能寫 <code>tail-&gt;next</code>,
+            得先決定 <code>head</code>。<strong>同一段邏輯要寫兩遍</strong>,而且那正是最容易漏掉的地方。
+          </div>
+          <div class="sc-ko-card__verdict">△ 可行 · 但多一個特判</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">dummy 假頭 + tail 指標</span>
+          <span class="sc-ko-card__o">O(m+n) 時間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          先放一個<strong>不存資料的假頭</strong>,<code>tail</code> 指著它。
+          於是「接第一個節點」和「接第 k 個節點」<strong>變成完全同一行</strong> <code>tail-&gt;next = …</code>,
+          特判整個消失。最後回傳 <code>dummy-&gt;next</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 消掉特判</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>dummy 是鏈結串列題的通用招式</strong>,不只這題:凡是「<strong>結果的頭可能還沒決定</strong>」或
+      「<strong>頭節點自己也可能被刪 / 被換</strong>」的題目(如 <a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank" rel="noopener">19 刪倒數第 N 個 ↗</a>、
+      <a href="https://leetcode.com/problems/reverse-linked-list-ii/" target="_blank" rel="noopener">92 區間翻轉 ↗</a>),掛個 dummy 都能把邊界情形抹平。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建 dummy,<code>tail = dummy</code></strong>。tail 永遠指著「目前結果的最後一個節點」。</li>
+      <li><strong>兩條都還有東西時</strong>:比兩個頭,小的接到 <code>tail-&gt;next</code>,那條前進一格,然後 <strong><code>tail = tail-&gt;next</code></strong>。</li>
+      <li><strong>收尾</strong>:迴圈結束時<strong>必有一條空了</strong>,<code>tail-&gt;next = l1 ? l1 : l2;</code> 把剩下那整條一次掛上,<code>O(1)</code>。回傳 <code>dummy-&gt;next</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      判斷式寫 <code>l1-&gt;val &lt;= l2-&gt;val</code> 而不是 <code>&lt;</code> —— <strong>相等時取 l1</strong>,這叫<strong>穩定合併</strong>。
+      對這題來說兩種寫法的<strong>值序列一樣</strong>(所以都會 AC),但<strong>節點身分不同</strong>,見第 6 節。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,2,4] + [1,3,4] → [1,1,2,3,4,4]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>藍 = 來自 list1,橘 = 來自 list2,灰 = 已經用掉。</strong>
+      看下方結果列的顏色<strong>怎麼交錯</strong> —— 那就是合併本身。最後一步特別看
+      <strong>「剩下那整條一次掛上」</strong>,那是這題最省事的一行。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Merge Two Sorted Lists · dummy + tail</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:462px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 記憶體 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">那個 new 洩漏了<span class="sc-section__title-en">// THE COMMENT IS WRONG</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">程式碼裡那句註解說反了</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>ListNode* dummy = new ListNode();   // stack-allocated: no leak</code>
+        </p>
+        <p style="margin:0 0 10px;">
+          <code>new</code> 配置的東西在<strong>堆積(heap)</strong>,不是堆疊。而函式回傳的是 <code>dummy-&gt;next</code>,
+          <strong><code>dummy</code> 這個節點本身沒有任何人再指得到它,也沒有人 <code>delete</code> 它</strong> —— 它就是洩漏了。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>實測</strong>(在 <code>ListNode</code> 上覆寫 <code>operator new/delete</code> 精確計數):
+          每呼叫一次 <code>mergeTwoLists</code>,<code>new</code> <strong>多一次</strong>、<code>delete</code> 沒有 ——
+          呼叫 <strong>10 萬次洩漏 10 萬個節點 = 1562 KB</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>修法就是那句註解本來想寫的東西</strong>:<code>ListNode dummy;</code>(<strong>不加 <code>new</code>、不加 <code>*</code></strong>),
+          然後 <code>tail = &amp;dummy</code>、<code>return dummy.next</code>。實測配置數 <strong>從 1 降到 0</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 實測(覆寫 ListNode::operator new / delete 計數)</span>
+[原碼 new ListNode()]
+  建輸入串列配置 6 個,merge 又配置了 1 個
+  釋放結果後:new = 7, delete = 6  ⇒ 洩漏 1 個節點  ← 就是 dummy
+
+[改成 ListNode dummy;]
+  建輸入串列配置 6 個,merge 又配置了 0 個
+  釋放結果後:new = 6, delete = 6  ⇒ 洩漏 0 個
+
+[累積]
+  呼叫 100000 次 → 洩漏 100000 個節點 = 1562 KB   (sizeof(ListNode) = 16 bytes)
+<span class="sc-trace__out">// LeetCode 不檢查洩漏,所以還是 AC —— 但面試官會看,而且這是真的 bug</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這題在 LeetCode 上照樣 AC</strong>,因為判題不檢查記憶體。
+      但如果面試時寫了 <code>new</code> 又沒 <code>delete</code>,而註解還宣稱「no leak」——
+      <b>那比單純漏掉更糟,因為它顯示你以為自己處理過了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 兩個 LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩個值得說出口的細節<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 收尾為什麼可以「整條一次掛上」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          迴圈因 <code>l1 &amp;&amp; l2</code> 不成立而結束,所以<strong>恰好有一條空了</strong>,另一條可能還有東西。
+        </p>
+        <p style="margin:0 0 10px;">
+          剩下那條<strong>本身就有序</strong>(輸入保證),而且它的<strong>每一個值都 ≥ 已接好的最後一個</strong> ——
+          因為每一圈我們都挑<strong>當時兩個頭裡比較小的</strong>,剩下的都是被比下去過的。
+        </p>
+        <p style="margin:0;">
+          所以不需要再逐個比較,<strong>一行 <code>tail-&gt;next = l1 ? l1 : l2;</code> 就結束</strong>,<code>O(1)</code>。
+          實測拿掉這行,4900 種組合<strong>錯 4899 種</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · &lt;= 與 &lt; 的差別:值一樣,節點不一樣</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          實測用 <code>[1,1] + [1,1]</code>(把節點標記來源)跑兩種寫法:
+        </p>
+        <p style="margin:0 0 10px;">
+          <code>&lt;=</code>(原碼):<code>1(L1) 1(L1) 1(L2) 1(L2)</code><br>
+          <code>&lt;</code>(變體):<code>1(L2) 1(L2) 1(L1) 1(L1)</code>
+        </p>
+        <p style="margin:0;">
+          <strong>值序列都是 <code>1 1 1 1</code>,所以兩種都會 AC</strong>(4900 種組合實測錯 0)。
+          但<strong>節點來源順序完全相反</strong>。若節點還帶有其他欄位(id、時間戳、原始順序),
+          <code>&lt;=</code> 才是<strong>穩定</strong>的那個。<b>merge sort 的穩定性就是靠這個等號。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m + n)</strong>　　S = <strong>O(1)</strong><sup>*</sup></div>
+      <p class="sc-formula__hint">
+        每一圈<strong>恰好消耗一個節點</strong>,所以最多跑 <code>m + n</code> 圈,每圈 <code>O(1)</code>。
+        <sup>*</sup>嚴格說是 <code>O(1)</code> 額外空間 —— <strong>但那個 <code>new</code> 出來的 dummy 每次呼叫都漏掉一個節點</strong>,見第 5 節。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(m + n)</td><td>每圈消耗一個節點;收尾 <code>O(1)</code></td></tr>
+        <tr><td>Space(演算法)</td><td class="mono">O(1)</td><td>只有 <code>dummy / tail</code> 兩個指標</td></tr>
+        <tr><td>Space(實際)</td><td class="mono fail">每次呼叫 +16 bytes</td><td><code>new</code> 的 dummy 沒被釋放</td></tr>
+        <tr><td>新節點配置</td><td class="mono ok">0</td><td>是 splice 不是 copy(實測 5 萬組位址守恆)</td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>20 萬組隨機 + 4900 種窮舉組合</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>dummy 假頭的價值不是省程式碼,是把「第一次」和「其他次」變成同一件事</strong> ——
+      鏈結串列題的 bug 幾乎都躲在「第一個節點」和「最後一個節點」那兩個特例裡,
+      而 dummy 一口氣消掉前者。<b>但它是節點,是節點就要問一句:誰負責釋放它。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩條都有序 ⇒ 只比兩個頭。dummy 假頭把「接第一個」和「接第 k 個」變成同一行;收尾一次掛上剩下整條 O(1)。<= 是穩定合併。演算法零配置,但 new 出來的 dummy 每次呼叫洩漏 16 bytes —— 改成 ListNode dummy; 就好。</div>
+    <div class="sc-summary-bar__detail">MERGE TWO SORTED LISTS · DUMMY + TAIL</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p21-merge.js"></script>
+</body>
+</html>

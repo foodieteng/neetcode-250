@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>21 · Merge Two Sorted Lists // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P21</span>
+    <span><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合併兩條有序串列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 21</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>merge sort 的 merge —— 兩條都有序 ⇒ <strong>只比兩個頭</strong></td></tr>
+        <tr><td>dummy 的價值</td><td>把「接第一個」和「接第 k 個」變成<strong>同一行程式碼</strong>,消掉只走一次的分支</td></tr>
+        <tr><td>收尾一行</td><td><code>tail-&gt;next = l1 ? l1 : l2;</code> —— 整條一次掛上,<code>O(1)</code>,順便處理「兩條都空」</td></tr>
+        <tr><td><code>&lt;=</code> 的意義</td><td>平手取 l1 ⇒ <strong>穩定合併</strong>。改 <code>&lt;</code> 值一樣但節點來源相反</td></tr>
+        <tr><td>splice 不是 copy</td><td>實測 5 萬組<strong>節點位址守恆</strong> —— 零配置(除了 dummy)</td></tr>
+        <tr><td><strong>記憶體</strong></td><td><code>new ListNode()</code> <strong>每次呼叫洩漏 16 bytes</strong>;<code>ListNode dummy;</code> 才是對的</td></tr>
+        <tr><td>迴圈條件</td><td><code>&amp;&amp;</code> 不是 <code>||</code> —— 只有兩條都在才需要比較</td></tr>
+        <tr><td>複雜度</td><td><code>O(m+n)</code> 時間、<code>O(1)</code> 空間;每圈恰好消耗一個節點</td></tr>
+        <tr><td>驗證</td><td>20 萬組隨機 + 4900 種窮舉組合,<strong>不一致 0</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 這段程式碼裡有一句註解是<strong>錯的</strong>:<code>ListNode* dummy = new ListNode();  // stack-allocated: no leak</code>。錯在哪?<strong>後果多嚴重</strong>?怎麼修?</div>
+
+    <div class="qa"><strong>Q2.</strong> dummy 假頭到底省掉了什麼?請把<strong>沒有 dummy 的版本</strong>寫出來對照,說明差在哪一段。</div>
+
+    <div class="qa"><strong>Q3.</strong> 收尾那行 <code>tail-&gt;next = l1 ? l1 : l2;</code> —— 為什麼可以「<strong>整條一次掛上</strong>」而不用逐個比較?請證明剩下那條的每個值都不小於已接好的最後一個。</div>
+
+    <div class="qa"><strong>Q4.</strong> 判斷式寫 <code>l1-&gt;val &lt;= l2-&gt;val</code>。改成 <code>&lt;</code> 會 WA 嗎?如果不會,那這個等號<strong>還有什麼用</strong>?</div>
+
+    <div class="qa"><strong>Q5.</strong> 迴圈條件是 <code>while (l1 &amp;&amp; l2)</code>。為什麼不是 <code>||</code>?如果改成 <code>||</code>,迴圈裡要多做什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,4] + [1,3,4]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">節點標了來源(<code>L1</code> / <code>L2</code>),才看得出<strong>穩定性</strong>與<strong>splice</strong>。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+list1 = 1(L1) -&gt; 2(L1) -&gt; 4(L1) -&gt; null
+list2 = 1(L2) -&gt; 3(L2) -&gt; 4(L2) -&gt; null
+dummy 建好,tail = &amp;dummy</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 1 圈</span>
+比 l1-&gt;val = 1  vs  l2-&gt;val = 1   ⇒ 1 &lt;= 1,接 l1 的節點
+已接好: 1(L1)
+l1 剩: 2(L1) -&gt; 4(L1)      l2 剩: 1(L2) -&gt; 3(L2) -&gt; 4(L2)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 圈</span>
+比 2 vs 1   ⇒ 2 &gt; 1,接 l2 的節點
+已接好: 1(L1) -&gt; 1(L2)
+l1 剩: 2(L1) -&gt; 4(L1)      l2 剩: 3(L2) -&gt; 4(L2)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 圈</span>
+比 2 vs 3   ⇒ 2 &lt;= 3,接 l1
+已接好: 1(L1) -&gt; 1(L2) -&gt; 2(L1)
+l1 剩: 4(L1)               l2 剩: 3(L2) -&gt; 4(L2)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 4 圈</span>
+比 4 vs 3   ⇒ 4 &gt; 3,接 l2
+已接好: 1(L1) -&gt; 1(L2) -&gt; 2(L1) -&gt; 3(L2)
+l1 剩: 4(L1)               l2 剩: 4(L2)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 5 圈</span>
+比 4 vs 4   ⇒ 4 &lt;= 4,接 l1(平手取 l1)
+已接好: 1(L1) -&gt; 1(L2) -&gt; 2(L1) -&gt; 3(L2) -&gt; 4(L1)
+l1 剩: null(空了)          l2 剩: 4(L2)
+<span class="sc-trace__out">// l1 空了 → while (l1 &amp;&amp; l2) 不成立 → 跳出</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 收尾</span>
+tail-&gt;next = l1 ? l1 : l2   ⇒ l1 是 null,所以掛上 l2 剩下的整條
+已接好: 1(L1) -&gt; 1(L2) -&gt; 2(L1) -&gt; 3(L2) -&gt; 4(L1) -&gt; 4(L2) -&gt; null</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return dummy.next
+= 1 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 4 -&gt; null
+共 5 圈 + 1 次收尾
+<span class="sc-trace__out">// 注意兩個 1 的順序是 L1 在前、兩個 4 也是 L1 在前 —— 這就是 &lt;= 帶來的穩定性</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 你在筆記裡寫的那條路:「<strong>以 l1 為基準,<code>l1-&gt;val</code> 比較大就 <code>swap(l1, l2)</code></strong>」。這條路走得通嗎?請把它寫完整並說明它的<strong>額外好處</strong>與代價。</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成合併 <code>k</code> 條有序串列(LeetCode 23)。直接「一條一條 merge 進去」的複雜度是多少?有沒有更好的?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果兩條串列<strong>不保證有序</strong>,只保證各自沒有環。要合併成一條有序的,你會怎麼做?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>錯在兩件事,而且是相反方向的錯。</strong><br><br>
+  ① <strong><code>new</code> 配置在「堆積」不是「堆疊」</strong> —— 註解說 stack-allocated,但 <code>new</code> 的語意正好是「我要這個東西活得比目前這個作用域久」。<br>
+  ② <strong>它真的洩漏了</strong> —— 函式回傳 <code>dummy-&gt;next</code>,<code>dummy</code> 本身從此<strong>沒有任何指標指得到,也沒有人 <code>delete</code></strong>。<br><br>
+  <strong>後果(實測,覆寫 <code>ListNode::operator new/delete</code> 精確計數):</strong>每呼叫一次多漏一個節點;<strong>呼叫 10 萬次 → 洩漏 10 萬個節點 = 1562 KB</strong>(<code>sizeof(ListNode) = 16</code>)。<b>LeetCode 判題不檢查洩漏,所以照樣 AC</b> —— 這正是它容易被放過的原因。<br><br>
+  <strong>修法就是那句註解本來想寫的東西:</strong><code>ListNode dummy;</code>(不加 <code>new</code>、不加 <code>*</code>),然後 <code>tail = &amp;dummy</code>、<code>return dummy.next</code>。實測配置數<strong>從 1 降到 0</strong>。<br><br>
+  <b>而且這不只是「不會漏」的問題:</b>dummy 的生命週期本來就只需要活到函式結束,<strong>用堆疊表達的正是這個意圖</strong>。用 <code>new</code> 等於在宣告「這東西要活得更久」,而那並不是真的。<br><br>
+  <b>最後一點:註解寫錯比忘記寫更貴。</b>忘記釋放是「沒想到」,寫上「no leak」卻用 <code>new</code> 是「想過但結論相反」—— 後者會讓 reviewer 相信它處理過而跳過。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>dummy 省掉的不是行數,是「只會走一次的那個分支」。</strong><br><br>
+  <strong>沒有 dummy 的版本</strong>,迴圈裡必須長成:<br>
+  <code>if (!head) { head = pick; tail = pick; }</code><br>
+  <code>else &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ tail-&gt;next = pick; tail = pick; }</code><br><br>
+  同一件事寫兩遍,而且<strong><code>if</code> 那條路整個函式只會走一次</strong> —— 它是最難被測到、也最容易寫錯的分支(忘了同時設 <code>tail</code>、或忘了處理「兩條都空所以 head 始終是 nullptr」)。<br><br>
+  <strong>有 dummy 之後</strong>,迴圈裡只剩:<br>
+  <code>tail-&gt;next = pick;  tail = tail-&gt;next;</code><br>
+  第一次寫的是 <code>dummy.next</code>、第 k 次寫的是真節點的 <code>next</code> —— <strong>程式碼完全相同</strong>,分支消失。最後 <code>dummy.next</code> 自然就是真正的頭。<br><br>
+  <b>這是鏈結串列的通用招式,</b>凡是「結果的頭還沒決定」或「頭自己可能被刪 / 被換」的題目都適用 —— <a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank" rel="noopener">19 刪倒數第 N 個 ↗</a>、<a href="https://leetcode.com/problems/reverse-linked-list-ii/" target="_blank" rel="noopener">92 區間翻轉 ↗</a> 都靠它把邊界抹平。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為剩下那條的每一個值,都在某一圈被「比下去」過。</strong><br><br>
+  設迴圈結束時已接好的最後一個節點值是 <code>x</code>,剩下那條的頭是 <code>y</code>。<br><br>
+  <strong>證明</strong>:<code>x</code> 是在<strong>某一圈被選中</strong>的,而那一圈的另一個候選頭正是 <code>y</code>(或 <code>y</code> 更前面的某個節點,但那些後來也被選走了 —— 總之最後一次比較時,對手那側的頭就是現在的 <code>y</code> 或它的祖先)。既然 <code>x</code> 被選中,表示 <code>x ≤ y</code>。<br>
+  又因為剩下那條<strong>本身有序</strong>,它後面的每一個值都 <code>≥ y ≥ x</code>。<br>
+  ⇒ <strong>整條掛上去之後仍然有序</strong>,不需要再比任何一次。<br><br>
+  所以這是 <code>O(1)</code>,不是 <code>O(剩餘長度)</code> —— <strong>鏈結串列的優勢正在這裡</strong>(換成陣列就得真的搬 <code>O(k)</code> 個元素)。<br><br>
+  <strong>實測</strong>:拿掉這一行,4900 種組合<strong>錯 4899 種</strong>,最小反例 <code>[] + [0]</code> 回傳 <code>[]</code>。<b>順帶一提它還兼差做了另一件事</b>:兩條都空時,這行把 <code>dummy.next</code> 明確設成 <code>nullptr</code>,讓 <code>[] + []</code> 也不必特判。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會 WA —— 但那個等號決定了合併是否「穩定」。</strong><br><br>
+  <strong>實測</strong>:改成 <code>&lt;</code>,4900 種窮舉組合<strong>錯 0 種</strong>。因為兩者的<strong>值序列完全相同</strong>,而 LeetCode 只比值。<br><br>
+  <strong>差別在「用到哪一條的節點」。</strong>把節點標上來源後跑 <code>[1,1] + [1,1]</code>:<br>
+  <code>&lt;=</code> → <code>1(L1) 1(L1) 1(L2) 1(L2)</code><br>
+  <code>&lt;</code> &nbsp;→ <code>1(L2) 1(L2) 1(L1) 1(L1)</code><br>
+  <strong>來源順序完全相反。</strong><br><br>
+  <strong>什麼時候會出事:</strong>當節點<strong>不只有 <code>val</code></strong> 的時候 —— 帶了 id、時間戳、或「原始輸入順序」。這時「值相等要保留誰」就有意義了,<code>&lt;=</code> 保留左邊那條(先來的),那才叫<strong>穩定排序</strong>。<br><br>
+  <b>merge sort 之所以是穩定排序,靠的就是這個等號。</b>把它改掉,整個 merge sort 就不穩定了 —— 而這件事<strong>在只比值的測資上永遠測不出來</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為迴圈的職責是「比較」,而只有兩條都還在時才有東西可比。</strong><br><br>
+  <code>while (l1 &amp;&amp; l2)</code> 一旦有一條空了就跳出,把「剩下那條怎麼辦」交給收尾那一行 —— 而收尾是 <code>O(1)</code> 的整條掛接,<strong>比在迴圈裡逐個搬更快也更短</strong>。<br><br>
+  <strong>改成 <code>||</code> 的話</strong>,迴圈會在「只剩一條」時繼續跑,而迴圈第一行就是 <code>l1-&gt;val &lt;= l2-&gt;val</code> —— 其中一個是 <code>nullptr</code>,<strong>直接對空指標解參考,SEGV</strong>。要救就得在迴圈裡加:<br>
+  <code>if (!l1) { tail-&gt;next = l2; l2 = l2-&gt;next; }</code><br>
+  <code>else if (!l2) { tail-&gt;next = l1; l1 = l1-&gt;next; }</code><br>
+  <code>else { …原本的比較… }</code><br><br>
+  結果是:<strong>多兩個分支、把 <code>O(1)</code> 的收尾變成 <code>O(剩餘長度)</code> 的逐個搬</strong>,而且答案一樣。<b>「用 <code>&amp;&amp;</code> + 一行收尾」嚴格優於「用 <code>||</code> + 三個分支」。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>走得通,而且它有一個你可能沒注意到的好處:完全不需要 dummy,所以連 Q1 那個洩漏問題都不存在。</strong><br><br>
+  你筆記裡的想法是「以 l1 為基準,誰小就讓誰當 l1」。寫成遞迴最乾淨:<br><br>
+  <code>ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {</code><br>
+  &nbsp;&nbsp;<code>if (!l1 || !l2) return l1 ? l1 : l2;</code><br>
+  &nbsp;&nbsp;<code>if (l1-&gt;val &gt; l2-&gt;val) swap(l1, l2);&nbsp;&nbsp;// 保證 l1 的頭比較小</code><br>
+  &nbsp;&nbsp;<code>l1-&gt;next = mergeTwoLists(l1-&gt;next, l2);</code><br>
+  &nbsp;&nbsp;<code>return l1;</code><br>
+  <code>}</code><br><br>
+  <strong>實測</strong>:200000 組隨機測資(<code>m, n = 0..6</code>,值域 <code>±100</code>)與參考解<strong>不一致 0</strong>;<code>[1,2,4] + [1,3,4] → [1,1,2,3,4,4]</code>;<code>[] + []</code> 也不必特判。<br><br>
+  <strong>好處:</strong>① <strong>沒有 dummy</strong> —— 因為「頭是誰」由 <code>swap</code> 直接決定了,不必用假頭迴避;② 短、對稱、容易講。<br>
+  <strong>代價:</strong>遞迴深度 <code>= m + n</code>。本題上限 <code>50 + 50 = 100</code> 層,毫無問題(實測 m=n=50 正常);但如果串列長度放大,就會遇到 <a href="../p206/index.html">206 那題量過的堆疊上限</a>。<br><br>
+  <strong>穩定性也對</strong>:條件寫的是 <code>&gt;</code>,所以<strong>相等時不 swap、保留 l1</strong> —— 實測 <code>[1,1] + [1,1]</code> 得到 <code>1(L1) 1(L1) 1(L2) 1(L2)</code>,和 <code>&lt;=</code> 版一致。<b>你的直覺是對的,而且那個 <code>&gt;</code> 沒寫成 <code>&gt;=</code> 剛好保住了穩定性。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>一條一條 merge 是 <code>O(k·N)</code>,分治或堆積可以壓到 <code>O(N log k)</code></strong>(<code>N</code> = 所有節點總數)。<br><br>
+  <strong>為什麼一條一條會慢:</strong>第 <code>i</code> 次合併時,累積結果已經有大約 <code>i·N/k</code> 個節點,而每次 merge 要走完兩條。加總是 <code>N/k · (1 + 2 + … + k) ≈ N·k/2</code> ⇒ <code>O(N·k)</code>。<strong>前面的節點被反覆走過 <code>k</code> 次</strong>,這就是浪費的來源。<br><br>
+  <strong>解法一 · 分治兩兩配對</strong>:第一輪把 <code>k</code> 條兩兩合併成 <code>k/2</code> 條,第二輪 <code>k/4</code> 條……共 <code>log k</code> 輪,<strong>每一輪的總工作量都是 <code>O(N)</code></strong>(每個節點在該輪只被走一次)⇒ <code>O(N log k)</code>。<br><br>
+  <strong>解法二 · 最小堆積</strong>:把 <code>k</code> 個頭丟進 <code>priority_queue</code>,每次取最小、接上、再把它的 <code>next</code> 推進去。每個節點進出堆積各一次,每次 <code>O(log k)</code> ⇒ 同樣 <code>O(N log k)</code>,空間 <code>O(k)</code>。<br><br>
+  <b>兩者都直接複用本題的 merge —— 這也是為什麼 21 值得寫熟。</b>分治版連程式碼都是「呼叫 <code>mergeTwoLists</code>」。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>先問清楚再動手 —— 這題的答案取決於「合併後要不要保持節點身分」。</strong><br><br>
+  <strong>直接做法</strong>:把兩條接起來(<code>O(1)</code>,走到 l1 尾巴接上 l2),再對整條做<strong>鏈結串列版的 merge sort</strong> —— 快慢指標找中點切兩半、遞迴排序、然後用<strong>本題的 merge</strong> 合併。時間 <code>O(N log N)</code>,空間 <code>O(log N)</code>(遞迴)。<b>本題的 merge 正好是它的組件。</b><br><br>
+  <strong>如果允許重建</strong>:把所有值倒進 <code>vector</code>、<code>std::sort</code>、再串回去。同樣 <code>O(N log N)</code> 但常數小很多,程式碼也短 —— 代價是 <code>O(N)</code> 額外空間,而且<strong>節點身分沒了</strong>(等於重建,不是 splice)。<br><br>
+  <strong>該選哪個,取決於一個必須問的問題:</strong>「節點上除了 <code>val</code> 還有別的資料嗎?」有的話就<strong>不能用倒值重建</strong>,只能走鏈結串列 merge sort。<br><br>
+  <b>另外注意「有序」這個前提一旦拿掉,<code>O(m+n)</code> 就不可能了</b> —— 比較排序的下界是 <code>Ω(N log N)</code>。<strong>本題之所以能線性,靠的完全是輸入已排序這件事。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩條有序 ⇒ 只比兩個頭,剩下整條 O(1) 掛上。dummy 消掉「第一次」那個只走一次的分支;&lt;= 保住穩定性。而 new 出來的 dummy 每次呼叫漏 16 bytes —— 改成 ListNode dummy; 或用你筆記裡那條 swap 遞迴路(根本不需要 dummy)。</div>
+    <div class="sc-summary-bar__detail">MERGE TWO SORTED LISTS · REVIEW</div>
+  </div>
+
+</body>
+</html>

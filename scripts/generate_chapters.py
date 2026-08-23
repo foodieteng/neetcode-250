@@ -150,7 +150,7 @@ PROBLEMS = {
     ],
     '06': [  # Linked List
         ('p206','Reverse Linked List',             'reverse-linked-list',             'easy','done'),
-        ('p21', 'Merge Two Sorted Lists',          'merge-two-sorted-lists',          'easy','todo'),
+        ('p21', 'Merge Two Sorted Lists',          'merge-two-sorted-lists',          'easy','done'),
         ('p141','Linked List Cycle',               'linked-list-cycle',               'easy','todo'),
         ('p143','Reorder List',                    'reorder-list',                    'med', 'todo'),
         ('p19', 'Remove Nth Node From End of List','remove-nth-node-from-end-of-list','med', 'todo'),
