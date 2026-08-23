@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>92 · Reverse Linked List II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P92</span>
+    <span><a href="https://leetcode.com/problems/reverse-linked-list-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">反轉串列 II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 92</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>REVIEW</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心技巧</td><td><strong>定位 → 就地翻 n 圈 → 兩行接回</strong>,反轉本體與 <a href="../p206/index.html">206</a> 一字不差</td></tr>
+        <tr><td>段長</td><td><code>n = right − left + 1</code>,<strong>不是 <code>right − left</code></strong>(少 1 則 165/165 全錯)</td></tr>
+        <tr><td>定位</td><td>從 <strong><code>dummy</code></strong> 走 <code>left − 1</code> 步 —— 起點是 dummy 不是 head</td></tr>
+        <tr><td>接線順序</td><td><strong>先接尾、再接頭</strong>,因為第一行靠的是「<code>tail-&gt;next</code> 還沒被改」</td></tr>
+        <tr><td>順序為何重要</td><td><strong>是 aliasing 問題</strong>,不是語意問題 —— 先存一個變數就無所謂了(見 App 1)</td></tr>
+        <tr><td>dummy 為什麼必要</td><td><code>left == 1</code> 時「區間的前一個」不存在</td></tr>
+        <tr><td>迴圈結束時的三個端點</td><td><code>prev</code> = 新段頭、<code>next</code> = 後段頭、<code>tail-&gt;next</code> = 新段尾 —— <strong>都是反轉的副產品</strong></td></tr>
+        <tr><td>curr 與 next</td><td>接線處<strong>可互換</strong>(迴圈末行是 <code>curr = next</code>)—— 實測 37820 組恆相等</td></tr>
+        <tr><td>one pass</td><td>走 <code>left−1</code> + <code>n</code> = <strong>正好 <code>right</code> 步</strong>,沒有節點被走兩次</td></tr>
+        <tr><td>記憶體</td><td>原碼<strong>每次呼叫漏 1 個</strong>(dummy),10 萬次 = 1562 KB</td></tr>
+        <tr><td>驗證</td><td><strong>窮舉 n=1..100 的全部 (left,right) 共 171700 組,不一致 0</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 反轉迴圈跑完的那一刻,<code>prev</code>、<code>next</code>、<code>tail-&gt;next</code> 各自指著什麼?為什麼<strong>不用另外去找</strong>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼 <code>tail-&gt;next-&gt;next = next;</code> 一定要寫在 <code>tail-&gt;next = prev;</code> <strong>前面</strong>?對調會錯幾組?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>n</code> 為什麼是 <code>right − left + 1</code>?寫成 <code>right − left</code> 的話,<strong>最小的反例</strong>是什麼?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>dummy</code> 在這題解決的是<strong>哪一種輸入</strong>?拿掉它、但把步數改對,還會錯嗎?</div>
+
+    <div class="qa"><strong>Q5.</strong> 最後一行如果寫成 <code>tail-&gt;next-&gt;next = <strong>curr</strong>;</code>(而不是 <code>next</code>)會怎樣?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,4,5], left=2, right=4</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+dummy -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null
+              └── 要翻的段 ──┘
+n = right - left + 1 = 4 - 2 + 1 = 3</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// ① 定位:從 dummy 走 left-1 = 1 步</span>
+tail = 節點 1        （區間的前一個;之後全程不動）</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// ② 反轉 3 圈(和 206 一字不差)</span>
+起始     prev = null    curr = 節點 2   next = ?
+第 1 圈  next = 3       2-&gt;next = null    prev = 2   curr = 3
+第 2 圈  next = 4       3-&gt;next = 2       prev = 3   curr = 4
+第 3 圈  next = 5       4-&gt;next = 3       prev = 4   curr = 5
+<span class="sc-trace__out">// 迴圈結束。此刻整段從鏈上斷開:1 還指著 2,而 2 指著 null</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// ③ 接回去(順序不能換)</span>
+tail-&gt;next 此刻 = 節點 2   （舊段頭 = 新段尾)
+prev       此刻 = 節點 4   （舊段尾 = 新段頭)
+next       此刻 = 節點 5   （right 後面那個)
+
+① tail-&gt;next-&gt;next = next;   →  2 -&gt; 5
+② tail-&gt;next       = prev;   →  1 -&gt; 4
+
+return dummy.next  →  1 -&gt; 4 -&gt; 3 -&gt; 2 -&gt; 5
+<span class="sc-trace__out">// 共走 right = 4 步(定位 1 + 反轉 3),沒有節點被走第二次</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 邊界(皆為實測)</span>
+n=1, left=1, right=1   →  [1]        段長 1,翻了等於沒翻
+left == right          →  原樣不變    共 45 組(n=1..9),接線順序在這裡無所謂
+left == 1              →  頭會換掉    dummy 就是為了這 45 組
+right == n             →  next = nullptr,接線照舊成立
+<span class="sc-trace__out">// left == 1 與 left == right 是最容易漏測的兩類</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 那兩行的順序限制,<strong>能不能用「先把段尾存成一個變數」繞掉</strong>?如果可以,原本的限制到底是什麼性質的問題?</div>
+
+    <div class="qa"><strong>App 2.</strong> 題目保證 <code>1 ≤ left ≤ right ≤ n</code>。<strong>如果拿掉這個保證</strong>,<code>right</code> 可能超過串列長度,這份程式碼會怎樣?</div>
+
+    <div class="qa"><strong>App 3.</strong> 改成「<strong>每 <code>k</code> 個一組反轉</strong>」(<a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank" rel="noopener">LC 25 ↗</a>),這兩行接線還能用嗎?要加什麼?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>三個端點全部是反轉迴圈的副產品,一個都不用另外找。</strong><br><br>
+  · <code>prev</code> = 原本的第 <code>right</code> 個節點 = <strong>新的段頭</strong>(反轉之後它排最前面);<br>
+  · <code>next</code> = 原本第 <code>right</code> 個的下一個 = <strong>後段的頭</strong>(可能是 <code>nullptr</code>);<br>
+  · <code>tail-&gt;next</code> = 原本的第 <code>left</code> 個 = <strong>新的段尾</strong>(反轉之後它排最後面,而 <code>tail</code> 全程沒動,所以它還指著原來那個)。<br><br>
+  <b>這就是為什麼這個寫法只需要一趟</b>:如果要「切三段再接回」,你得<strong>額外走一趟</strong>去找 <code>right</code> 和 <code>right + 1</code>。而這裡反轉本身已經把它們掃過一次了,<strong>順手留在變數裡</strong>。<br><br>
+  <b>記法</b>:反轉讓一段的<strong>頭尾對調</strong> —— 所以前面接<strong>新頭(<code>prev</code>)</strong>、後面從<strong>新尾(<code>tail-&gt;next</code>)</strong>接出去。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為第一行讀的 <code>tail-&gt;next</code> 就是第二行要寫的那個欄位。</strong><br><br>
+  <code>tail-&gt;next-&gt;next = next;</code> 的意思是「<strong>找到新段尾,把它接上後段</strong>」—— 而「新段尾」這個資訊<strong>只存在 <code>tail-&gt;next</code> 裡</strong>。<br>
+  一旦先執行 <code>tail-&gt;next = prev;</code>,<code>tail-&gt;next</code> 就變成節點 4 了,<strong>通往節點 2 的唯一一條路被覆蓋掉</strong>。<br><br>
+  <strong>對調後實際發生的事</strong>(以 <code>[1,2,3,4,5], left=2, right=4</code>):<br>
+  <code>tail-&gt;next = prev</code> → <code>1 → 4</code>;接著 <code>tail-&gt;next-&gt;next = next</code> 改的是 <code>4-&gt;next</code>,把 <code>4 → 3</code> 打成 <code>4 → 5</code>。<br>
+  <strong>結果 <code>[1,4,5]</code> —— 節點 3 和 2 整段掉了。</strong><br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..9</code> 的全部 165 組,<strong>錯 120 組</strong>,最小反例 <code>n=2, left=1, right=2</code> 回傳 <code>[2]</code>(正解 <code>[2,1]</code>)。<br><br>
+  <b>答對的 45 組全部是 <code>left == right</code></b> —— 段長 1 時新段頭與新段尾是<strong>同一個節點</strong>,誰先誰後都一樣。<b>所以「翻一個節點」這種測資永遠測不出這個 bug。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為區間是<em>閉區間</em>,兩端都要算進去。</strong><br><br>
+  從第 <code>left</code> 個到第 <code>right</code> 個,含頭含尾,共 <code>right − left + 1</code> 個節點。<code>left = 2, right = 4</code> 是節點 2、3、4 —— <strong>3 個</strong>,不是 2 個。<br><br>
+  <strong>實測</strong>:寫成 <code>right − left</code>,窮舉 165 組<strong>全部 165 組都錯</strong>。<br>
+  <strong>最小反例是 <code>n=1, left=1, right=1</code></strong>:<code>n</code> 算成 0,反轉迴圈<strong>一圈都不跑</strong>,<code>prev</code> 保持 <code>nullptr</code>,於是 <code>tail-&gt;next = prev</code> 把整條串列砍成空的,回傳 <code>[]</code>(正解 <code>[1]</code>)。<br><br>
+  <b>這是三個陷阱裡最安全的一個</b>:165/165 全錯代表<strong>隨便一筆測資都會炸</strong>,不可能矇混過關。<b>真正危險的是 A4 那個只錯 36 組的。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>它解決的是 <code>left == 1</code> —— 而且就算把步數改對,忘了特判照樣會錯。</strong><br><br>
+  <code>left == 1</code> 時,要翻的段就從<strong>頭</strong>開始,而「頭的前一個」<strong>不存在</strong>。但 <code>tail-&gt;next = prev</code> 需要有個東西可以寫。<code>dummy</code> 就是憑空補上那一格,而 <code>return dummy.next</code> 順便處理了「頭被換掉」。<br><br>
+  <strong>實測兩種拿掉 dummy 的方式</strong>(165 組):<br>
+  · <strong>直接把 <code>tail = &amp;dummy</code> 換成 <code>tail = head</code></strong>,步數不變 → <strong>錯 120 組</strong>。整段定位偏一格,連 <code>left &gt; 1</code> 都跟著壞。<br>
+  · <strong>步數也改對(走 <code>left − 2</code> 步),但忘了替 <code>left == 1</code> 寫特例</strong> → <strong>錯 36 組</strong>,而且<strong>那 36 組全部落在 <code>left == 1</code> 裡</strong>(該類共 45 組,僥倖答對的 9 組全是 <code>left == right == 1</code>,翻一個節點等於沒翻)。<br>
+  · <strong>步數改對 + 手動特判 <code>left == 1</code></strong> → <strong>0 錯</strong>。合法,但要多一個 <code>if</code> 分支。<br><br>
+  <b>所以 dummy 買的不是正確性,是「少寫一個分支」</b> —— 它讓「翻頭」和「翻中間」變成<strong>完全同一段程式碼</strong>。<b>而 36/165 這個低失敗率,正是它最危險的地方:隨手測幾筆很容易全部通過。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>完全等價 —— 實測 0 錯。</strong><br><br>
+  反轉迴圈的最後一行是 <code>curr = next;</code>,所以<strong>每一圈結束時 <code>curr</code> 和 <code>next</code> 必定同值</strong>,迴圈跳出時當然也是。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..60</code> 的全部 <strong>37820</strong> 組 <code>(left, right)</code>,迴圈結束時 <code>curr != next</code> 的有 <strong>0 組</strong>;把接線那一行改成 <code>curr</code>,165 組<strong>錯 0 組</strong>。<br><br>
+  <b>但可讀性不等價</b>:<code>next</code> 這個名字說的是「<code>right</code> 後面那個」,正是這一行的意圖;<code>curr</code> 只是<strong>碰巧同值</strong>的迴圈變數。<b>面試時寫 <code>next</code>,順便講一句「這裡 <code>curr</code> 也一樣,因為迴圈末行剛把它同步了」—— 那句話本身就是在展示你知道迴圈的不變量。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>可以繞掉 —— 而這證明了那個限制是 <em>aliasing</em> 問題,不是語意問題。</strong><br><br>
+  在反轉之前(或之後,只要在改動 <code>tail-&gt;next</code> 之前)加一行:<br>
+  <div class="sc-trace" style="margin-top:8px;">ListNode* segTail = tail-&gt;next;   <span class="sc-trace__out">// 舊段頭 = 未來的段尾,先抓住</span>
+...反轉...
+segTail-&gt;next = next;
+tail-&gt;next    = prev;             <span class="sc-trace__out">// 這兩行現在誰先誰後都可以</span></div><br>
+  <strong>實測</strong>:加了 <code>segTail</code> 之後,<strong>照原順序 165 組錯 0</strong>,<strong>兩行對調也是 165 組錯 0</strong>。<br><br>
+  <b>所以原本的順序限制,本質是「<code>tail-&gt;next</code> 這個欄位同時被當成資料來源和寫入目標」</b> ——
+  <strong>和 <a href="../p206/index.html">206</a> 那個 <code>next = curr-&gt;next;</code> 必須先存的道理是同一個</strong>:
+  <b>指標重接題裡,只要一個欄位既要讀又要寫,就先把它存進區域變數。</b><br><br>
+  <b>兩種寫法怎麼選?</b>原碼少一個變數、更精簡,但<strong>順序成了隱性依賴</strong>;<code>segTail</code> 版多一行,但<strong>把依賴變成顯性的名字</strong>。<b>面試我會寫 <code>segTail</code> 版,因為它自己解釋了自己。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>會 SEGV —— 而且是在反轉迴圈裡,不是在定位迴圈裡。</strong><br><br>
+  反轉迴圈的條件是 <code>i &lt; n</code>,<strong>它完全不檢查 <code>curr</code> 是不是 <code>nullptr</code></strong> —— 因為題目保證了 <code>right ≤ n</code>,節點一定夠。保證一旦拿掉,<code>curr</code> 會走出串列尾,然後 <code>next = curr-&gt;next</code> 就是<strong>對 <code>nullptr</code> 取成員</strong>。<br><br>
+  <strong>實測</strong>(串列長度 3,呼叫 <code>reverseBetween(head, 1, 5)</code>,ASan 編譯):<br>
+  <div class="sc-trace" style="margin-top:8px;">AddressSanitizer: SEGV on unknown address 0x000000000008
+The signal is caused by a READ memory access.
+    #0 in reverseBetween(ListNode*, int, int) oob.cpp:7
+<span class="sc-trace__out">// 0x8 正是 ListNode::next 在物件裡的位移(val 4 bytes + padding)</span></div><br>
+  <b>崩在 <code>next = curr-&gt;next;</code> 那一行,和推理一致。</b><br><br>
+  <strong>防護</strong>:把迴圈條件加上守衛 —— <code>for (int i = 0; i &lt; n &amp;&amp; curr; i++)</code>,並在接線前檢查 <code>tail-&gt;next</code> 非空。<br><br>
+  <b>但更值得說的是:題目給的約束不是裝飾。</b><code>1 ≤ left ≤ right ≤ n</code> 這一行,買到的就是「反轉迴圈可以不寫任何 null 檢查」——
+  <b>和 <a href="../p19/index.html">19</a> 靠 <code>n ≤ sz</code> 保證指標剛好停在 <code>nullptr</code> 是同一種「借來的安全」。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>兩行接線一字不改就能用 —— 只要加「檢查夠不夠 k 個」和「把 tail 往前推」。</strong><br><br>
+  <a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank" rel="noopener">LC 25 ↗</a> 就是「把 92 重複做很多次」,每一組的區間是 <code>[1..k], [k+1..2k], …</code>。多出來的只有兩件事:<br>
+  <strong>① 開工前先數夠不夠 <code>k</code> 個</strong>(不足就整組保持原樣、直接結束);<br>
+  <strong>② 這一組接完後,<code>tail</code> 要移到「這一組的新段尾」</strong>,也就是<strong>反轉前的段頭</strong> —— 得在覆蓋 <code>tail-&gt;next</code> <em>之前</em>先存下來。<br><br>
+  <div class="sc-trace" style="margin-top:8px;">ListNode* newTail = tail-&gt;next;   <span class="sc-trace__out">// 舊段頭 = 這一組的新段尾</span>
+tail-&gt;next-&gt;next = next;          <span class="sc-trace__out">// ← 和 92 完全同一行</span>
+tail-&gt;next       = prev;          <span class="sc-trace__out">// ← 和 92 完全同一行</span>
+tail = newTail;                   <span class="sc-trace__out">// 下一組從這裡繼續</span></div><br>
+  <b>注意 <code>newTail</code> 又是 App 1 那一招</b> —— 一個欄位既要讀又要寫,就先存起來。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..10</code> × <code>k = 1..n</code> 共 55 組,<strong>錯 0</strong>。<br>
+  <code>[1..9], k=3</code> → <code>[3,2,1,6,5,4,9,8,7]</code>;<code>[1..5], k=3</code> → <code>[3,2,1,4,5]</code>(尾巴不足 3 個,保持原樣)。<br><br>
+  <b>這就是 92 值得寫熟的理由</b>:它不是一道獨立的題,而是 <strong><a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank" rel="noopener">LC 25(hard)</a> 的內層迴圈</strong>。<b>把這兩行接線練到手熟,25 就只剩「數夠不夠 k 個」這一件新事。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩行接線的順序限制是 aliasing 問題不是語意問題 —— 實測先存一個 segTail 之後,兩行對調也是 165 組全對。而這兩行一字不改就是 LC 25 的內層迴圈(窮舉 55 組 k-group 全對),只要多加「數夠不夠 k 個」與「tail 推到新段尾」。</div>
+    <div class="sc-summary-bar__detail">REVERSE LINKED LIST II · REVIEW</div>
+  </div>
+
+</body>
+</html>
