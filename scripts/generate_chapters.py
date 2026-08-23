@@ -156,7 +156,7 @@ PROBLEMS = {
         ('p19', 'Remove Nth Node From End of List','remove-nth-node-from-end-of-list','med', 'done'),
         ('p138','Copy List with Random Pointer',   'copy-list-with-random-pointer',   'med', 'done'),
         ('p2',  'Add Two Numbers',                 'add-two-numbers',                 'med', 'done'),
-        ('p287','Find the Duplicate Number',       'find-the-duplicate-number',       'med', 'todo'),
+        ('p287','Find the Duplicate Number',       'find-the-duplicate-number',       'med', 'done'),
         ('p92', 'Reverse Linked List II',          'reverse-linked-list-ii',          'med', 'todo'),
         ('p622','Design Circular Queue',           'design-circular-queue',           'med', 'todo'),
         ('p146','LRU Cache',                       'lru-cache',                       'med', 'todo'),

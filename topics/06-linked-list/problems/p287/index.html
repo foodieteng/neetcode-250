@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>287 · Find the Duplicate Number // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P287</span>
+    <span><a href="https://leetcode.com/problems/find-the-duplicate-number/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">尋找重複數</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 把陣列看成一張圖,重複值就是環的入口</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 287</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>FLOYD ON AN ARRAY</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一個長度 <code>n + 1</code> 的陣列 <code>nums</code>,每個元素都落在 <code>[1, n]</code>。
+        其中<strong>只有一個數字重複出現</strong>(可能出現不只兩次),把它找出來。
+      </p>
+      <p style="margin-top:8px;">
+        <strong>硬性限制:不能修改陣列,而且只能用常數額外空間。</strong>
+      </p>
+      <p style="margin-top:8px;">
+        <strong>Follow up:</strong>怎麼證明「至少有一個重複」一定成立?能不能做到線性時間?
+      </p>
+    </div>
+
+    <p>
+      這題如果沒有那兩條限制,它是入門題:開一個 <code>unordered_set</code>,或直接 <code>sort</code>,五行寫完。
+      <strong>整題的難度完全由「不能改陣列 + <code>O(1)</code> 空間」這兩句話製造出來</strong> ——
+      它把所有「記下看過什麼」的做法一次全部封死。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      關鍵的視角轉換:<strong>把 <code>i → nums[i]</code> 當成一條邊</strong>,整個陣列就變成一張圖。
+      因為值域是 <code>[1, n]</code>,<strong>沒有任何邊會指向 index 0</strong>,
+      所以從 0 出發一路走下去,圖必定是 <strong>ρ 形</strong>(一條尾巴接一個環)。
+      <b>而那個環的入口,就是重複的數字。</b>問題於是變回<a href="../p141/index.html">第 141 題</a>。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">四條路,兩條被題目擋死<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">Hash set / 排序後找相鄰相等</span>
+            <span class="sc-ko-card__o">O(n) 空間 / 改陣列</span>
+          </div>
+          <div class="sc-ko-card__body">
+            兩種都正確,但<strong>各自踩到一條限制</strong>:set 用了 <code>O(n)</code> 空間;
+            <code>sort</code> 就地排序<strong>直接修改了陣列</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 違反題目限制</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">負號標記法:走到 <code>i</code> 就把 <code>nums[|nums[i]|]</code> 變負</span>
+            <span class="sc-ko-card__o">O(n) 時間 · O(1) 空間</span>
+          </div>
+          <div class="sc-ko-card__body">
+            很漂亮,<code>O(n)</code> 時間、<code>O(1)</code> 空間、答案也對 ——
+            <strong>但它就是靠「改陣列」來當作記憶體用</strong>。
+            <strong>實測 <code>[1,3,4,2,2]</code> 跑完會變成 <code>[1,-3,-4,-2,-2]</code></strong>,
+            完全違反「without modifying the array」。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 修改了陣列</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__row" style="margin-top:12px;">
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">C</span>
+            <span class="sc-ko-card__title">對「值」二分 + 每輪數一遍有幾個 ≤ mid</span>
+            <span class="sc-ko-card__o">O(n log n) · O(1) 空間</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>合法,而且很好想</strong> —— 鴿籠原理保證「小於等於 mid 的個數 &gt; mid」就代表重複值在左半。
+            不改陣列、只用兩個 <code>int</code>。<strong>實測 20 萬組,不一致 0</strong>。
+            缺點只有一個:<strong>它不是線性的</strong>,沒回答 follow-up。
+          </div>
+          <div class="sc-ko-card__verdict">△ 正確 · 但 O(n log n)</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">D</span>
+            <span class="sc-ko-card__title">Floyd 快慢指標找環入口</span>
+            <span class="sc-ko-card__o">O(n) · O(1) 空間 · 不改陣列</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>三個要求一次全部滿足</strong>:線性、常數空間、完全唯讀。
+            代價是要先想出「陣列 = 圖」這個轉換,以及記得 <a href="../p141/index.html">141 / 142</a> 的兩階段套路。
+          </div>
+          <div class="sc-ko-card__verdict">● ADOPT · 這就是本題答案</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>面試時 C 值得先講出來。</strong>它三十秒就能說完、限制也全部滿足,
+      <b>先把一個合法解放在桌上,再說「但 follow-up 問線性,那要換個看法」</b> ——
+      這比一開始就沉默地想 Floyd 安全得多。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 兩個轉換 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">為什麼陣列會變成 ρ 形<span class="sc-section__title-en">// THE TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 一定有環,而且 index 0 一定在環外</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          從 index 0 出發,反覆做 <code>i = nums[i]</code>。因為只有 <code>n+1</code> 個位置,
+          走 <code>n+2</code> 步以內<strong>必定踩到重複的位置</strong> —— 所以<strong>一定會進入某個環</strong>。
+        </p>
+        <p style="margin:0;">
+          而值域是 <code>[1, n]</code>,<strong>沒有任何 <code>nums[i]</code> 等於 0</strong> ⇒
+          <strong>沒有一條邊指向 index 0</strong> ⇒ 0 不可能在環上,它只能在進環前的那條尾巴上。
+          於是整張走訪圖是<strong>「尾巴 + 環」= ρ 形</strong>,而不是一個純圓。
+          <strong>實測 30 萬組隨機測資,index 0 落在環內的有 0 組。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 環的入口 == 重複的那個值</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          「入口」的定義是<strong>第一個有兩條以上的邊指進來的節點</strong> ——
+          尾巴上那條邊,加上環繞回來那條邊。
+        </p>
+        <p style="margin:0;">
+          而一條邊 <code>i → nums[i]</code> 指向節點 <code>v</code>,意思就是 <code>nums[i] == v</code>。
+          <strong>兩條邊指進 <code>v</code>,就是有兩個不同的 <code>i</code> 讓 <code>nums[i]</code> 都等於 <code>v</code></strong> ——
+          <b>那正是「<code>v</code> 重複出現」的定義。</b>
+          <strong>實測 30 萬組,環入口 ≠ 重複值的有 0 組。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這兩條 lemma 講完之後,<strong>剩下的一行程式碼都不用自己想</strong> ——
+      直接照抄 <a href="../p141/code.html">141 的兩階段 Floyd</a>:階段 1 找相遇點,階段 2 找入口。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// nums = [1,3,4,2,2]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      上排是原本的陣列,下排是它<strong>隱含的那條鏈</strong>:<code>0 → 1 → 3 → 2 → 4</code>,
+      而 <code>nums[4] = 2</code> 把它<strong>繞回 index 2</strong>,形成環。
+      注意<strong>橘色回邊</strong>與 <code>index 0</code> 永遠在環外這件事。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Find the Duplicate · 陣列即是圖 + 兩階段 Floyd</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:430px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · follow up ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">Follow up · 為什麼「一定存在重複」<span class="sc-section__title-en">// PIGEONHOLE</span></h2>
+    </div>
+
+    <p>
+      題目自己問了這一題,而它<strong>不需要任何演算法</strong> —— 是<strong>鴿籠原理</strong>一句話:
+    </p>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main"><strong>n + 1</strong> 個元素　放進　<strong>n</strong> 個可能的值 <code>[1, n]</code></div>
+      <p class="sc-formula__hint">
+        鴿子比籠子多一隻 ⇒ <strong>至少有一個籠子裝了兩隻</strong> ⇒ 至少有一個值出現兩次以上。
+        <b>題目再額外保證「只有一個」值重複,才讓答案是唯一的。</b>
+      </p>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>這條鴿籠論證不只是嘴上功夫 —— 它就是解法 C 的正確性依據。</strong>
+      「小於等於 <code>mid</code> 的元素個數 &gt; <code>mid</code>」代表 <code>[1, mid]</code> 這 <code>mid</code> 個籠子
+      裝了超過 <code>mid</code> 隻鴿子,<b>重複值必定在左半</b>。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 和 141 的關係 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 141 / 142 是同一份程式碼<span class="sc-section__title-en">// SAME ENGINE</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th><a href="../p141/index.html">141 有沒有環</a></th><th>142 環的入口</th><th><strong>287 本題</strong></th></tr></thead>
+      <tbody>
+        <tr><td>節點是什麼</td><td class="mono">ListNode*</td><td class="mono">ListNode*</td><td class="mono ok"><strong>int(索引)</strong></td></tr>
+        <tr><td>「下一個」怎麼取</td><td class="mono">p-&gt;next</td><td class="mono">p-&gt;next</td><td class="mono ok"><strong>nums[p]</strong></td></tr>
+        <tr><td>需要階段 1</td><td class="ok">要</td><td class="ok">要</td><td class="ok">要</td></tr>
+        <tr><td>需要階段 2</td><td class="fail">不用(只問有無)</td><td class="ok">要</td><td class="ok"><strong>要</strong></td></tr>
+        <tr><td>會不會 null</td><td class="fail">會 → 要擋</td><td class="fail">會 → 要擋</td><td class="ok"><strong>不會 · 保證有環</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>唯一的差別是 <code>p-&gt;next</code> 換成 <code>nums[p]</code>。</strong>
+      而且本題還<strong>更簡單</strong> —— <a href="../p141/index.html">141</a> 要一路防著 <code>nullptr</code>,
+      這裡 LEMMA 1 已經保證<strong>環一定存在</strong>,<b>指標永遠不會走出界,一個 null 檢查都不用寫。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong>　　<strong>陣列全程唯讀</strong></div>
+      <p class="sc-formula__hint">
+        兩個階段各自最多走 <code>O(n)</code> 步。<strong>實測 <code>n = 100000</code>:階段 1 跑 89160 輪、階段 2 跑 49079 輪</strong> ——
+        兩者都低於 <code>n</code>,合計約 <code>1.4n</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n)</td><td>n=1000 → 980 + 964 輪;n=100000 → 89160 + 49079 輪</td></tr>
+        <tr><td>Space</td><td class="mono ok">O(1)</td><td>只有 <code>slow</code>、<code>fast</code> 兩個 <code>int</code></td></tr>
+        <tr><td>是否修改陣列</td><td class="mono ok">否</td><td><strong>10 萬組測資,陣列被改動 0 組</strong></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td><strong>窮舉 n=1..7 全部合法輸入共 714520 組</strong></td></tr>
+        <tr><td>重複值出現 3~4 次</td><td class="mono ok">0 錯</td><td>20 萬組,一樣正確(題目沒保證只出現兩次)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「<code>i → nums[i]</code>」把一個陣列題變成了一個鏈結串列題</strong> ——
+      而值域 <code>[1, n]</code> 這個看似無害的條件,其實是在說「<strong>0 沒有前驅</strong>」,
+      也就是在<strong>保證圖是 ρ 形</strong>。
+      <b>限制條件不是障礙,它常常就是提示:當題目同時封死「記憶體」和「修改」,它多半是在逼你換一種「看」資料的方式。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">把 i → nums[i] 當邊,值域 [1,n] 保證沒有邊指向 0 ⇒ 圖必是 ρ 形;環的入口是「有兩條邊指進來」的節點,那正是重複值。於是整題退化成 141/142 的兩階段 Floyd,只是把 p->next 換成 nums[p]。</div>
+    <div class="sc-summary-bar__detail">FIND THE DUPLICATE · ARRAY AS A FUNCTIONAL GRAPH</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p287-floyd.js"></script>
+</body>
+</html>

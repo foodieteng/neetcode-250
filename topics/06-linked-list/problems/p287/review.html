@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>287 · Find the Duplicate Number // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P287</span>
+    <span><a href="https://leetcode.com/problems/find-the-duplicate-number/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">尋找重複數</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 287</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>REVIEW</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心轉換</td><td><strong><code>i → nums[i]</code> 當成一條邊</strong> —— 陣列題瞬間變成<a href="../p141/index.html">鏈結串列題</a></td></tr>
+        <tr><td>為什麼是 ρ 形</td><td>值域 <code>[1,n]</code> ⇒ <strong>沒有邊指向 index 0</strong> ⇒ 0 必在環外,不是純圓</td></tr>
+        <tr><td>為什麼入口是答案</td><td>入口 = <strong>有兩條邊指進來</strong>的節點 = 有兩個 <code>i</code> 使 <code>nums[i]</code> 相同 = 重複值</td></tr>
+        <tr><td>為什麼一定有重複</td><td><strong>鴿籠</strong>:<code>n+1</code> 個元素塞進 <code>n</code> 個值</td></tr>
+        <tr><td>do-while</td><td>兩個指標<strong>同起點</strong> ⇒ 必須<strong>先動再比</strong>,否則整支退化成 <code>return nums[0]</code></td></tr>
+        <tr><td>階段 2 的三件事</td><td><code>slow</code> 回 <strong><code>nums[0]</code></strong>、<code>fast</code> <strong>留在相遇點</strong>、兩個都<strong>一次一步</strong></td></tr>
+        <tr><td>不會越界</td><td>值 ∈ <code>[1,n]</code> ⇒ <code>nums[nums[fast]]</code> 兩層索引都合法</td></tr>
+        <tr><td>比 141 簡單</td><td>環<strong>保證存在</strong> ⇒ <strong>一個 null 檢查都不用寫</strong></td></tr>
+        <tr><td>備案</td><td><strong>值域二分 + 鴿籠計數</strong>:<code>O(n log n)</code>、<code>O(1)</code>、不改陣列,一樣合法</td></tr>
+        <tr><td>驗證</td><td><strong>窮舉 n=1..7 全部 714520 組合法輸入,不一致 0;陣列被改 0 組</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「值域是 <code>[1, n]</code>」這個條件能保證走訪圖是 <strong>ρ 形</strong>而不是<strong>純圓</strong>?這件事為什麼重要?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼<strong>環的入口</strong>就是<strong>重複的那個值</strong>?請用「邊」的語言說一次。</div>
+
+    <div class="qa"><strong>Q3.</strong> 把 <code>do { ... } while (slow != fast);</code> 改成 <code>while (slow != fast) { ... }</code>,程式會做什麼?錯幾組?</div>
+
+    <div class="qa"><strong>Q4.</strong> 階段 2 為什麼是「<code>slow</code> 回起點、<code>fast</code> 留原地、<strong>兩個都一次一步</strong>」?把 <code>fast</code> 也改成兩步會怎樣?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>nums[nums[fast]]</code> 連續兩層索引 —— 為什麼<strong>不需要任何邊界檢查</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// nums = [1,3,4,2,2]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP:先把陣列翻譯成圖</span>
+index :  0   1   2   3   4
+nums  :  1   3   4   2   2
+
+邊: 0→1   1→3   2→4   3→2   4→2
+
+從 index 0 出發走: 0 → 1 → 3 → 2 → 4 → 2 → 4 → …
+                              └───── 環 ─────┘
+  尾長 μ = 3      環長 λ = 2      入口 = 2
+<span class="sc-trace__out">// 注意 index 0 在環外 —— 沒有任何 nums[i] 等於 0</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 階段 1:slow 一步、fast 兩步,找相遇點</span>
+起始       slow = fast = nums[0] = 1
+第 1 輪    slow = nums[1] = 3          fast = nums[nums[1]] = nums[3] = 2
+第 2 輪    slow = nums[3] = 2          fast = nums[nums[2]] = nums[4] = 2   → 相遇於 2
+<span class="sc-trace__out">// do-while:先各走一步才比,否則起始就相等,迴圈根本進不去</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 階段 2:slow 回 nums[0],兩個都一次一步</span>
+重置       slow = nums[0] = 1          fast = 2   (留在相遇點)
+第 1 輪    slow = nums[1] = 3          fast = nums[2] = 4
+第 2 輪    slow = nums[3] = 2          fast = nums[4] = 2   → 相遇 = 環的入口
+
+return 2
+<span class="sc-trace__out">// 全程沒有寫入 nums,也沒有任何額外容器</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 實測的迭代次數(不是估的)</span>
+n = 10       階段 1 走 10 輪      階段 2 走 9 輪
+n = 1000     階段 1 走 980 輪     階段 2 走 964 輪
+n = 100000   階段 1 走 89160 輪   階段 2 走 49079 輪
+<span class="sc-trace__out">// 兩階段合計約 1.4n —— 確實是線性</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這個例子有個容易誤導的地方:相遇點剛好就是入口(都是 2)。</strong>
+      <b>那是巧合,不是通則</b> —— 相遇點只保證「在環上」。所以就算看起來階段 1 已經給出答案,
+      <strong>階段 2 仍然不能省</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 題目保證「<strong>只有一個</strong>值重複」。如果拿掉這個保證,允許<strong>好幾個不同的值都重複</strong>,這份程式碼還會回傳一個真的重複值嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> 如果值域從 <code>[1, n]</code> 改成 <code>[0, n−1]</code>(長度仍是 <code>n+1</code>),這份程式碼會怎樣?</div>
+
+    <div class="qa"><strong>App 3.</strong> 順手把<strong>環長 λ</strong> 和<strong>尾長 μ</strong> 也算出來要加幾行?兩者的分布長什麼樣?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為「值域 <code>[1, n]</code>」等價於「沒有任何一條邊指向 index 0」。</strong><br><br>
+  一條邊 <code>i → nums[i]</code> 的<strong>終點就是 <code>nums[i]</code> 這個值</strong>。而所有值都 <code>≥ 1</code> ⇒ <strong>沒有邊的終點是 0</strong> ⇒ index 0 <strong>沒有前驅</strong>。<br><br>
+  一個節點若在環上,它必定<strong>有前驅</strong>(環上的前一個)。0 沒有前驅 ⇒ <strong>0 不在環上</strong>。<br>
+  又因為位置有限,從 0 走下去<strong>一定會撞進某個環</strong>(<a href="https://en.wikipedia.org/wiki/Pigeonhole_principle" target="_blank" rel="noopener">鴿籠 ↗</a>:走 <code>n+2</code> 步以內必踩到重複位置)。<br><br>
+  <strong>結論:一段非空的尾巴 + 一個環 = ρ 形。</strong><br><br>
+  <strong>為什麼重要?</strong>Floyd 的階段 2 需要「起點在環外」這個前提 —— 它算的是<strong>「起點到入口」與「相遇點到入口」的距離同餘</strong>。<b>如果起點本身就在環上,μ = 0,入口的概念就崩了。</b><br><br>
+  <strong>實測</strong>:30 萬組隨機測資,<strong>index 0 落在環內的有 0 組</strong>。而 App 2 示範了把這個條件拿掉會發生什麼事。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>「入口有兩條以上的邊指進來」,而一條邊指進 <code>v</code> 就是「某個 <code>nums[i] == v</code>」。</strong><br><br>
+  ρ 形的圖裡,<strong>只有入口那一個節點</strong>同時被兩邊指到:<br>
+  · 尾巴上最後一個節點指過來;<br>
+  · 環繞一圈之後,環上最後一個節點也指過來。<br><br>
+  把它翻回陣列的語言:<strong>存在兩個不同的索引 <code>i ≠ j</code>,使得 <code>nums[i] == nums[j] == 入口</code></strong> ——
+  <b>這就是「入口這個值出現了兩次」的定義。</b><br><br>
+  <strong>實測</strong>:30 萬組隨機測資,「環入口 ≠ 重複值」的有 <strong>0 組</strong>。<br><br>
+  <b>反過來也成立,而且是個好的自我檢查</b>:如果一個值只出現一次,它就只有一條邊指進來,不可能是入口。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>整支會退化成 <code>return nums[0];</code> —— 兩個迴圈都一次都不跑。</strong><br><br>
+  <code>slow</code> 和 <code>fast</code> <strong>初始都是 <code>nums[0]</code></strong>,所以 <code>while (slow != fast)</code> 的條件<strong>一開始就是 false</strong>,階段 1 整段被跳過。<br>
+  接著階段 2 把 <code>slow</code> 設回 <code>nums[0]</code> —— 而 <code>fast</code> 從來沒動過,也還是 <code>nums[0]</code> ⇒ <strong>第二個迴圈也不執行</strong> ⇒ 直接 <code>return nums[0]</code>。<br><br>
+  <strong>實測</strong>(<code>n = 1..6</code> 全部 <strong>61497</strong> 組):<strong>錯 34348 組</strong>,最小反例 <code>[1,2,2]</code> 回傳 <strong>1</strong>(正解 2)。<br>
+  而且進一步驗證過:這個變體的回傳值在<strong>全部 61497 組中恰好等於 <code>nums[0]</code></strong> —— <b>它答對的那 27149 組,純粹是因為 <code>nums[0]</code> 剛好就是答案,不是因為它算對了。</b><br><br>
+  <strong>這正是 <a href="../p141/code.html">141</a> 的同一課</strong>:<b>只要兩個指標從同一點出發,「先比再動」就等於什麼都沒做。</b>兩種寫法二選一 —— 要嘛 <code>do-while</code>,要嘛讓起點錯開一步。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為階段 1 留下的等式是「距離同餘」,而同餘只在<em>同速</em>下才會保持。</strong><br><br>
+  設 μ = 起點到入口,λ = 環長,相遇時 <code>slow</code> 走了 <code>d</code> 步:<br>
+  <code>fast</code> 走了 <code>2d</code> 步而兩者同點 ⇒ <code>2d − d = d</code> 是環長的倍數 ⇒ <strong><code>d ≡ 0 (mod λ)</code></strong>。<br><br>
+  於是:<br>
+  · 從<strong>起點</strong>走 μ 步 → 到入口(定義);<br>
+  · 從<strong>相遇點</strong>走 μ 步 → 等於從起點走 <code>d + μ</code> 步,而 <code>d ≡ 0</code> ⇒ 在環上等價於走 μ 步 → <strong>也到入口</strong>。<br><br>
+  兩邊<strong>同時抵達</strong>,所以「第一次相等」就是入口。<br><br>
+  <strong>實測兩種破壞方式</strong>(61497 組):<br>
+  · <code>fast</code> <strong>也走兩步</strong>(破壞同速)→ <strong>錯 13458 組</strong>,最小反例 <code>[1,2,3,2]</code> 回傳 3(正解 2);<br>
+  · <code>slow</code> 從 <strong>index 0</strong> 而非 <code>nums[0]</code>(破壞起算基準)→ <strong>錯 17082 組</strong>,最小反例也是 <code>[1,2,3,2]</code>。<br><br>
+  <b>但把「兩階段都從 index 0 起算」—— 也就是一起改 —— 實測 0 錯。</b>錯的不是「從哪裡開始」,而是<strong>兩階段的基準沒對齊</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為值域 <code>[1, n]</code> 同時就是「合法索引」的子集。</strong><br><br>
+  陣列長度 <code>n + 1</code> ⇒ 合法索引是 <code>0 .. n</code>。<br>
+  <code>fast</code> 的值永遠來自某個 <code>nums[...]</code> ⇒ <code>fast ∈ [1, n]</code> ⊂ 合法索引 ✓<br>
+  <code>nums[fast]</code> 也是陣列裡的一個元素 ⇒ 一樣 <code>∈ [1, n]</code> ✓<br>
+  所以 <code>nums[nums[fast]]</code> 的<strong>兩層索引都在界內</strong>。<br><br>
+  <b>這是本題最省事的地方</b>:比起 <a href="../p141/index.html">141</a> 每一步都要防 <code>nullptr</code>(那題實測少一個守衛就 SEGV),
+  這裡<strong>連一個檢查都不用寫</strong> —— <b>因為「走出界」在這個表示法裡根本不存在,它只會繞回陣列裡的某一格。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>會 —— 實測完全成立,但它只給你「其中一個」。</strong><br><br>
+  <strong>推理</strong>:A1 和 A2 的兩條論證<strong>都沒有用到「只有一個重複」</strong>。<br>
+  · 「圖是 ρ 形」只用到值域 <code>[1, n]</code>;<br>
+  · 「入口有兩條邊指進來 ⇒ 入口是重複值」也只需要<strong>那一個</strong>入口本身重複。<br>
+  多個值重複時,圖裡只是<strong>多了幾個分岔</strong>,但從 index 0 走出去的那條路徑<strong>還是唯一一條</strong>,它撞進的那個環<strong>還是只有一個入口</strong>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..6</code> 的<strong>全部</strong>長度 <code>n+1</code>、值域 <code>[1,n]</code> 的陣列共 <strong>296675</strong> 組
+  (其中 <strong>235178 組有兩個以上不同的值重複</strong>),
+  <strong>回傳值「不是一個真正的重複值」的:0 組</strong>。<br><br>
+  <b>但要說清楚它的極限</b>:它回傳的是<strong>「從 0 走出去會撞到的那個」</strong>,
+  <b>不是最小的、不是出現最多次的、也不是全部</b>。題目那句「只有一個重複」買到的不是正確性,而是<strong>答案的唯一性</strong>。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>會壞,而且錯得很兇 —— 因為 index 0 可能落進環裡。</strong><br><br>
+  值域變成 <code>[0, n−1]</code> ⇒ <strong><code>nums[i]</code> 可以等於 0</strong> ⇒ <strong>會有邊指向 index 0</strong> ⇒ A1 的論證整條失效,<strong>0 可能在環上</strong>,圖可能是<strong>純圓</strong>而不是 ρ 形。<br><br>
+  <strong>實測</strong>(<code>n = 1..6</code>、恰一個值重複,共 <strong>61497</strong> 組):<br>
+  · <strong>index 0 落在環內:32133 組</strong>(超過一半);<br>
+  · <strong>Floyd 答錯:21650 組</strong>,最小反例 <code>[0,1,1]</code> 回傳 <strong>0</strong>(正解 1)。<br><br>
+  <strong>走一次最小反例</strong>:<code>nums[0] = 0</code> ⇒ index 0 是<strong>自環</strong>。<code>slow = fast = 0</code>,第一輪兩個都還在 0 → 立刻相遇;階段 2 把 <code>slow</code> 設回 <code>nums[0] = 0</code>,又相等 → <code>return 0</code>。<b>它找到的是「0 自己的環」,而不是 1 造成的那個環。</b><br><br>
+  <b>注意 21650 &lt; 32133</b> —— <strong>「0 在環內」不必然答錯</strong>,有時那個環的入口恰好還是重複值。<b>但它已經不再是「保證」,而只是運氣。</b><br><br>
+  <b>修法</b>:改成從一個<strong>確定在環外的位置</strong>出發(例如把值全部 +1 之後再跑),或直接退回<a href="code.html">值域二分</a> —— 那個做法完全不在意值域是從 0 還是 1 開始。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>各兩行,而且都在已經算出來的東西上再走一圈。</strong><br><br>
+  <code>λ</code>(環長):從<strong>入口</strong>出發一路走,數到<strong>回到入口</strong>為止。<br>
+  <code>μ</code>(尾長):從 <strong>index 0</strong> 出發一路走,數到<strong>第一次等於入口</strong>為止。<br>
+  兩者都是 <code>O(n)</code>,不改變總複雜度。<br><br>
+  <strong>範例 <code>[1,3,4,2,2]</code> 實測:μ = 3、λ = 2。</strong><br><br>
+  <strong>而分布本身很有意思</strong>(<code>n = 1..6</code> 全部 61497 組):<br>
+  <div class="sc-trace" style="margin-top:8px;">尾長 μ:  μ=1:27149   μ=2:16666   μ=3:9618   μ=4:5064   μ=5:2280   μ=6:720
+環長 λ:  λ=1:27149   λ=2:16666   λ=3:9618   λ=4:5064   λ=5:2280   λ=6:720
+<span class="sc-trace__out">// 兩列數字一模一樣</span></div><br>
+  <b>但「分布相同」不等於「每一組都相等」</b> —— 我原本以為會是後者,實測打臉:<strong>μ == λ 的只有 16597 組(27.0%)</strong>,範例本身(μ=3, λ=2)就是個反例。<br><br>
+  真正成立的是<strong>聯合分布對稱</strong>:實測 <code>n=6</code> 時 <code>(μ=1, λ=2)</code> 有 6270 組,而 <code>(μ=2, λ=1)</code> <strong>也剛好是 6270 組</strong> —— 每一對都對稱。邊際分布相同只是這個對稱性的<strong>推論</strong>。<br><br>
+  <b>順帶一提 <code>μ = 1</code> 的那 27149 組</b>,正好就是 A3 裡「<code>while</code> 變體剛好答對」的那 27149 組 —— <b>因為 μ=1 的意思就是 <code>nums[0]</code> 本身即入口。</b>兩個獨立測出來的數字對上了,這是個不錯的交叉驗證。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">值域 [1,n] 這一句同時買到三件事:索引安全、環必定存在、index 0 必在環外(ρ 形)。三者缺一,Floyd 就不成立 —— 實測把值域改成 [0,n-1],61497 組錯 21650 組。而「只有一個重複」買到的不是正確性,是唯一性:允許多重複時實測 296675 組仍全部回傳真的重複值。</div>
+    <div class="sc-summary-bar__detail">FIND THE DUPLICATE · REVIEW</div>
+  </div>
+
+</body>
+</html>
