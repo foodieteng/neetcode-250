@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>141 · Linked List Cycle // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P141</span>
+    <span><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">判斷串列有沒有環</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 141</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心比喻</td><td>在圈上跑步,<strong>快的一定會套慢的一圈</strong>;路有盡頭則快的先撞牆</td></tr>
+        <tr><td>為什麼不會跳過</td><td>步長差 1 ⇒ 兩者距離<strong>每輪剛好減 1</strong> ⇒ 只會踩中 0,不會跨過</td></tr>
+        <tr><td>guard</td><td><code>do-while</code> 無條件先跑一次 ⇒ <code>if (!head || !head-&gt;next)</code> <strong>是必要的</strong>,拿掉 SEGV</td></tr>
+        <tr><td>比較的位置</td><td>必須在<strong>移動之後</strong> —— 兩者初始都在 head,先比會假相遇(錯 59/1891)</td></tr>
+        <tr><td>迴圈條件</td><td><code>fast &amp;&amp; fast-&gt;next</code> <strong>兩個都要</strong>:一個擋「已出界」,一個擋「即將出界」</td></tr>
+        <tr><td>比指標不比值</td><td>值可以重複 ⇒ 比 <code>val</code> 誤判率實測 <strong>40.3%</strong>,而且會先 SEGV</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> 時間、<strong><code>O(1)</code> 空間</strong>;實測無環 <code>⌈n/2⌉</code> 輪、有環最壞 <code>n</code> 輪</td></tr>
+        <tr><td>唯讀</td><td>全程<strong>不改任何 <code>next</code></strong> —— 所以能直接接上 142</td></tr>
+        <tr><td>相遇點</td><td><strong>不是</strong>環的入口。找入口要再走一段(見 App 1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼 <code>fast</code> 一定追得上 <code>slow</code>,而且<strong>不會恰好跳過去</strong>?請說明這跟「步長差」的關係。</div>
+
+    <div class="qa"><strong>Q2.</strong> 這份寫法用 <code>do-while</code>。如果把 <code>if (slow == fast) return true;</code> 移到<strong>移動之前</strong>會怎樣?</div>
+
+    <div class="qa"><strong>Q3.</strong> 開頭那行 <code>if (!head || !head-&gt;next) return false;</code> —— 它是「順手加的防禦」還是「非有不可」?請說明理由,並說你要<strong>怎麼確認</strong>。</div>
+
+    <div class="qa"><strong>Q4.</strong> 迴圈條件是 <code>while (fast &amp;&amp; fast-&gt;next)</code>。兩個條件分別在擋什麼?只留一個行不行?</div>
+
+    <div class="qa"><strong>Q5.</strong> 有人把 <code>slow == fast</code> 寫成 <code>slow-&gt;val == fast-&gt;val</code>。這會出什麼事?請給出<strong>兩種不同層次</strong>的問題。</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 有環 / 無環各一</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>例 A · <code>[3,2,0,-4]</code>,<code>pos = 1</code></strong>(官方範例 1,動畫用的也是這個)。
+      尾巴 index 3 的 <code>next</code> 接回 index 1 ⇒ 前段長 <code>μ = 1</code>、環長 <code>λ = 3</code>。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+guard: head 非空、head-&gt;next 非空 → 通過
+slow = index 0    fast = index 0</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 1 輪</span>
+slow 走 1 步 → index 1
+fast 走 2 步 → index 2        (0 → 1 → 2)
+slow != fast;fast 與 fast-&gt;next 都還在 → 繼續</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 輪</span>
+slow 走 1 步 → index 2
+fast 走 2 步 → index 1        (2 → 3 → 1,踩到回邊繞回來了)
+slow != fast → 繼續
+<span class="sc-trace__out">// fast 已經在環裡打轉,再也出不去</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 輪</span>
+slow 走 1 步 → index 3
+fast 走 2 步 → index 3        (1 → 2 → 3)
+slow == fast → return true</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+true,共 3 輪
+相遇在 index 3 —— 但環的入口是 index 1,兩者不同
+<span class="sc-trace__out">// 這題不需要入口;要入口是 142(見 App 1)</span></div>
+
+    <p style="margin:16px 0 12px;"><strong>例 B · <code>[1,2,3,4,5]</code> 無環</strong> —— 看 <code>fast</code> 怎麼撞到邊界。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第 1 ~ 2 輪</span>
+第 1 輪  slow → index 1    fast → index 2    slow != fast,兩個條件都成立 → 繼續
+第 2 輪  slow → index 2    fast → index 4    slow != fast
+         fast-&gt;next 是 nullptr → while (fast &amp;&amp; fast-&gt;next) 不成立 → 跳出
+return false
+<span class="sc-trace__out">// 沒有回邊,兩者距離只會越拉越開,永遠不可能相等</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 其他退化輸入(皆已實測)</span>
+head = nullptr        → guard 命中 → false
+[1] 無環              → guard 命中(head-&gt;next 是空) → false
+[1] 自環              → 第 1 輪 slow = fast = 自己 → true
+[1,2] pos = 0         → 第 2 輪相遇 → true
+<span class="sc-trace__out">// 單節點自環是唯一「guard 沒擋、一輪就結束」的情形</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>正確性驗證範圍:</strong>這題的結構空間<strong>可以完全窮舉</strong> —— 一條長 <code>n</code> 的串列,尾巴接回 index <code>k</code>(或 <code>-1</code>),
+      結構<strong>只由 <code>(n, k)</code> 決定</strong>。窮舉 <code>n = 0..60</code>、<code>k = -1..n-1</code> 共 <strong>1891</strong> 種,
+      全部在 <code>ASan + UBSan</code> 下跑,<strong>答案錯 0、記憶體報錯 0</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成回傳<strong>環的入口節點</strong>(LeetCode 142)。相遇之後還要做什麼?為什麼那樣做會剛好停在入口?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成回傳<strong>環的長度</strong>(沒有環回 0)。要加幾行?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果把 <code>fast</code> 改成<strong>一次走 3 步</strong>,還偵測得到環嗎?<strong>先想再看答案</strong> —— 這題我自己也猜錯了。</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為兩者的距離每一輪剛好減少 1 —— 只會踩中 0,不可能跨過。</strong><br><br>
+  slow 走進環之後,把「fast 在環上落後 slow 幾步」記成 <code>d</code>(在環上看,fast 是<strong>從後面追</strong>)。每輪 fast 走 2 步、slow 走 1 步 ⇒ <strong><code>d</code> 減少剛好 1</strong>。<br><br>
+  <code>d</code> 是非負整數且每輪 <strong>−1</strong>,所以必定<strong>剛好踩到 0</strong>,也就是相遇。而 <code>d &lt; λ</code>(環長),所以<strong>最多在 λ 輪內</strong>追上。<br><br>
+  <strong>無環的情形</strong>:沒有回邊,fast 只能一路往右,兩者距離<strong>只會越拉越開</strong>,永遠不相等,最後必定撞到 <code>nullptr</code>。<br><br>
+  <strong>實測輪數</strong>(窮舉 <code>n = 0..300</code>、所有尾接位置):有環最壞 <strong>300 輪</strong>(<code>n=300, k=0</code> 整條成環),無環最壞 <strong>150 輪</strong>(<code>= ⌈n/2⌉</code>)。上界是 <code>μ + λ ≤ n</code> ⇒ <code>O(n)</code>。<br><br>
+  <b>注意這裡的關鍵是「差 1」而不是「比較快」。</b>如果距離每輪減 2,就<em>有可能</em>從 1 跳到 −1 而錯過 —— 這個直覺是對的,但結論不是,見 App 3。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>會變成「任何輸入都回 true」。</strong><br><br>
+  <code>slow</code> 和 <code>fast</code> <strong>一開始都在 <code>head</code></strong>。把比較放在移動之前,<code>do</code> 區塊的第一件事就是 <code>if (slow == fast) return true;</code> —— 而它們此刻確實相等,所以<strong>第一次檢查就成立</strong>。<br><br>
+  <strong>實測</strong>:窮舉 1891 種結構,這個版本<strong>錯 59 種</strong> —— 正好是所有 <code>n ≥ 2</code> 的<strong>無環</strong>串列(<code>n = 2..60</code>,共 59 個)。有環的那些「碰巧對」,因為答案本來就是 true。<b>這是最陰險的一種錯:只在應該回 false 的時候錯。</b><br><br>
+  <strong><code>do-while</code> 的存在意義就是避開這個</strong>:它保證「先各走一步再比」,把「兩者都在起點」這個假相遇跳過去。<br><br>
+  <b>另一種等價的避法</b>是讓兩者<strong>錯開起跑</strong>(<code>slow = head; fast = head-&gt;next;</code>),然後用一般 <code>while</code>。<strong>三種寫法都對,選一種寫熟就好</strong> —— 但要知道自己選的那種在避什麼。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>非有不可 —— 而且我是用 sanitizer 確認的,不是用推的。</strong><br><br>
+  <strong>理由</strong>:<code>do-while</code> 的迴圈條件在<strong>迴圈體之後</strong>才檢查,所以<strong>第一次進入迴圈體是無條件的</strong>。而迴圈體第一行就是 <code>fast = fast-&gt;next-&gt;next;</code>。<br>
+  <code>head == nullptr</code> ⇒ <code>fast-&gt;next</code> 就爆。<br>
+  <code>head</code> 只有一個節點 ⇒ <code>fast-&gt;next</code> 是 <code>nullptr</code>,再取 <code>-&gt;next</code> 爆。<br><br>
+  <strong>怎麼確認</strong>:拿掉 guard,用 <code>g++ -O0 -fsanitize=address,undefined</code> 跑那兩個輸入。結果:<br>
+  <code>runtime error: member access within null pointer of type 'ListNode'</code><br>
+  <code>AddressSanitizer: SEGV on unknown address 0x000000000008</code><br>
+  兩個輸入都是同樣的報錯。<b>「跑跑看沒錯」在這裡沒有用 —— 空串列這種輸入很容易被跳過,而 UB 不見得每次都顯現。</b><br><br>
+  <strong>對照</strong>:改成標準的 <code>while (fast &amp;&amp; fast-&gt;next) { … }</code>,條件在前,<strong>連 guard 都可以省</strong>(<code>head = nullptr</code> 時迴圈直接不進),實測同樣 1891 種結構錯 0 種。<br><br>
+  <b>兩種寫法都對,差別是「安全由誰負責」</b>:<code>while</code> 版交給迴圈條件,<code>do-while</code> 版交給開頭那一行。<strong>後者少寫一行就會 SEGV,前者不會</strong> —— 要挑預設的話,失敗模式比較溫和的那個比較好。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>兩個都要,而且擋的是不同的東西。</strong><br><br>
+  <code>fast</code> 為空 ⇒ <strong>剛剛那兩步「剛好」走到界外了</strong>。下一輪的 <code>fast-&gt;next</code> 會直接解參考空指標。<br>
+  <code>fast-&gt;next</code> 為空 ⇒ <strong><code>fast</code> 還在,但它後面只剩盡頭</strong>。下一輪 <code>fast-&gt;next-&gt;next</code> 的第二個 <code>-&gt;next</code> 會爆。<br><br>
+  換句話說:第一個擋「<strong>已經出界</strong>」,第二個擋「<strong>再走兩步就會出界</strong>」。<strong>只留一個,另一種情形就會 SEGV。</strong><br><br>
+  <strong>順序也不能反。</strong><code>while (fast-&gt;next &amp;&amp; fast)</code> 會先解參考 <code>fast</code> 再檢查它是否為空 —— 完全失去保護。<b>這裡靠的是 <code>&amp;&amp;</code> 的短路求值:左邊為假就不會評估右邊。</b><br><br>
+  <b>小結</b>:一次走兩步的代價,就是要檢查兩格。<strong>走 k 步就要檢查 k 格</strong> —— 這也是為什麼實務上很少看到步長超過 2。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>兩個層次的問題,而且第一個會直接讓程式死掉。</strong><br><br>
+  <strong>層次一 · 記憶體:直接 SEGV。</strong><code>fast</code> 在 <code>fast = fast-&gt;next-&gt;next</code> 之後<strong>可能就是 <code>nullptr</code></strong>(無環時很常見),而 <code>if (s-&gt;val == f-&gt;val)</code> 在 <code>while</code> 檢查<strong>之前</strong>執行 —— 於是對空指標取 <code>val</code>。<br>
+  實測 <code>[1,2]</code> 無環,UBSan 報:<code>member access within null pointer</code> 與 <code>load of null pointer of type 'int'</code>,接著 SEGV。<br>
+  <em>(原本的 <code>slow == fast</code> 沒這個問題 —— 比較兩個指標<strong>不需要解參考</strong>,<code>nullptr</code> 拿來比也完全合法。)</em><br><br>
+  <strong>層次二 · 邏輯:值相同不代表是同一個節點。</strong>題目<strong>沒有保證值相異</strong>(<code>-10⁵ ≤ val ≤ 10⁵</code>)。就算加上 null 保護,拿 20 萬條<strong>無環</strong>的隨機串列(長度 2–9、值域 0–3)測,<strong>誤判成有環的佔 40.3%</strong>。最小反例是 <code>[0,0,0]</code> —— 第一輪 slow 到 index 1、fast 到 index 2,兩個值都是 0,直接回 true。<br><br>
+  <b>「有沒有環」問的是<em>身分</em>不是<em>內容</em>,所以只能比指標。</b>而且比指標還更便宜 —— 不用解參考。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>相遇之後,把一個指標拉回 <code>head</code>,然後兩個都<em>一次一步</em>往前走,碰頭的地方就是入口。</strong><br><br>
+  <code>// 接在 slow == fast 之後</code><br>
+  <code>ListNode* p = head;</code><br>
+  <code>while (p != slow) { p = p-&gt;next; slow = slow-&gt;next; }</code><br>
+  <code>return p;   // 環的入口</code><br><br>
+  <strong>為什麼會停在入口</strong>:設前段長 <code>μ</code>、環長 <code>λ</code>,相遇時 slow 走了 <code>s</code> 步、fast 走了 <code>2s</code> 步。兩者都在環上同一點 ⇒ <code>2s − s = s</code> 是 <code>λ</code> 的倍數。<br>
+  現在從 <code>head</code> 再走 <code>μ</code> 步會到入口;而從相遇點走 <code>μ</code> 步 = 總共走了 <code>s + μ</code> 步,由於 <code>s</code> 是 <code>λ</code> 的倍數,<strong>這等於「從入口再繞整數圈」⇒ 也在入口</strong>。所以兩者<strong>同時到達入口</strong>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..120</code> 的所有有環結構共 <strong>7260</strong> 種,找到的入口<strong>全部等於真正的 <code>k</code>(錯 0)</strong>。<br><br>
+  <b>這也是本題「全程唯讀」的價值</b> —— 因為沒有改過任何 <code>next</code>,141 的結果可以直接餵給這一段。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>加三行:相遇之後,讓其中一個指標<em>原地繞一圈</em>數回來。</strong><br><br>
+  <code>// 接在 slow == fast 之後</code><br>
+  <code>int len = 1;</code><br>
+  <code>for (ListNode* p = slow-&gt;next; p != slow; p = p-&gt;next) ++len;</code><br>
+  <code>return len;</code><br><br>
+  <strong>為什麼對</strong>:相遇點<strong>必定在環上</strong>,而從環上任一點出發、沿 <code>next</code> 走到回到自己,走過的步數<strong>就是環長</strong>。這一段是 <code>O(λ)</code>,不影響整體 <code>O(n)</code>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..200</code>、<code>k = -1..n-1</code> 共 <strong>20300</strong> 種結構,<strong>不一致 0</strong>(無環回 0、有環回 <code>n − k</code>)。<br><br>
+  <b>順帶一提</b>,拿到 <code>λ</code> 之後還能用另一種方式找入口:讓一個指標先走 <code>λ</code> 步,然後兩個一起一步一步走,碰頭處就是入口。<strong>和 App 1 等價,只是換個推導</strong>。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>會偵測得到 —— 我原本猜「可能會跳過去而漏掉」,實測打臉。</strong><br><br>
+  <strong>我的錯誤推理</strong>:步長 3 ⇒ 距離每輪減 2 ⇒ 如果距離是奇數而環長是偶數,就永遠踩不到 0。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..200</code> 的所有有環結構共 <strong>20100</strong> 種,步長 3 的版本<strong>漏掉 0 種</strong>。<br><br>
+  <strong>為什麼我錯了</strong>:slow 走進環的那一刻,fast 已經走了 <code>3μ</code> 步,所以它在環上領先 <code>(3μ − μ) mod λ = <strong>2μ mod λ</strong></code>。當 <code>λ</code> 是偶數時,<code>2μ mod λ</code> <strong>必定是偶數</strong> —— 那個「奇數距離配偶數環長」的壞情況<strong>根本構造不出來</strong>。<code>λ</code> 是奇數時,每次減 2 會走遍所有餘數,也一定踩到 0。<br><br>
+  <strong>但有一件事真的壞了 —— 142 的入口性質。</strong>App 1 那個「從 head 和相遇點各走一步會在入口碰頭」的推導,用到了 <code>2s − s = s</code>,<strong>只對步長 2 成立</strong>。實測 7260 種有環結構:<br>
+  <code>步長 2 → 入口找錯 <strong>0</strong> 種</code><br>
+  <code>步長 3 → 入口找錯 <strong>2112</strong> 種</code><br>
+  <code>步長 4 → 入口找錯 <strong>1746</strong> 種</code><br><br>
+  <b>所以「一定要走 2 步」這個說法是對的,但常見的理由(「不然會跳過」)是錯的。</b>真正的理由是:<strong>步長 2 讓「fast 走的距離剛好是 slow 的兩倍」,而 142 的整套推導都建立在那個「兩倍」上。</strong>
+  <b>這題我沒推對,是量出來的 —— 也是為什麼這類「聽起來很有道理」的結論值得動手驗一次。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">步長差 1 讓距離每輪剛好減 1,所以只會踩中不會跨過。do-while 避開假相遇,代價是 guard 變成必要的(拿掉 SEGV)。比指標不比值 —— 值可以重複,誤判率實測 40%。而「一定要走 2 步」是對的,但理由不是「怕跳過」,是 142 的入口推導需要那個「兩倍」。</div>
+    <div class="sc-summary-bar__detail">LINKED LIST CYCLE · REVIEW</div>
+  </div>
+
+</body>
+</html>

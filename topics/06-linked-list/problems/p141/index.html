@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>141 · Linked List Cycle // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P141</span>
+    <span><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">判斷串列有沒有環</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · Floyd 快慢指標</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 141</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>FAST &amp; SLOW POINTERS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一條鏈結串列,判斷它<strong>有沒有環</strong>。
+        有環的定義是:某個節點的 <code>next</code> 指回了前面走過的節點,於是走下去<strong>永遠走不完</strong>。
+      </p>
+      <p style="margin-top:8px;">
+        進階要求:<strong><code>O(1)</code> 額外空間</strong>。
+      </p>
+    </div>
+
+    <p>
+      有環的串列長得像一個 <strong>ρ</strong>(rho):前面一段直的,後面接一個圈。
+      這題就是問「<strong>後面那個圈存不存在</strong>」。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong><code>O(1)</code> 空間那句話是全部的難度。</strong>
+      如果可以用 <code>O(n)</code> 空間,拿個 <code>unordered_set</code> 記走過的節點就結束了 ——
+      但那句要求把這條路封死,逼你想出<strong>不用記憶體也能偵測循環</strong>的辦法。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是快慢指標<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">用 hash set 記走過的節點</span>
+            <span class="sc-ko-card__o">O(n) 空間</span>
+          </div>
+          <div class="sc-ko-card__body">最直覺、也一定對:走一遍,節點位址進 set,撞到重複就是有環。但<strong>題目點名要 <code>O(1)</code> 空間</strong>,這條路被封死了。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 空間不符</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">走 N 步還沒到終點就當有環</span>
+            <span class="sc-ko-card__o">O(n) · 但要先知道 n</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>你不知道 n</strong> —— 唯一能量長度的方法就是走一遍,但有環的話那一遍<strong>永遠走不完</strong>。
+            用「走超過某個上限就當有環」是把題目的約束偷渡進演算法,<strong>換個題目就壞了</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 依賴題目上限</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Floyd:一個走一步、一個走兩步</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(1) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>在圈上跑步,快的一定會套慢的一圈。</strong>所以 <code>fast</code> 追上 <code>slow</code> ⇒ 有環;
+          反過來,如果路有盡頭,<code>fast</code> 會<strong>先撞到 <code>nullptr</code></strong> ⇒ 無環。
+          只用兩個指標,不需要任何額外容器。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(1) 空間</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      關鍵不是「快的比較快」,是<strong>兩者的距離每一輪剛好縮短 1</strong> ——
+      所以只要 slow 進了環,fast 就會在<strong>不超過「環長」輪</strong>之內追上它,不可能跳過去。第 6 節有完整推導。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>擋掉太短的輸入</strong>:<code>if (!head || !head-&gt;next) return false;</code> —— 這份寫法用的是 <code>do-while</code>(先動再檢查),所以這一行<strong>不是防禦,是必要的</strong>,見第 5 節。</li>
+      <li><strong>兩個指標一起跑</strong>:<code>slow = slow-&gt;next; fast = fast-&gt;next-&gt;next;</code>,每輪比一次 <code>slow == fast</code>。</li>
+      <li><strong>迴圈條件</strong>:<code>while (fast &amp;&amp; fast-&gt;next)</code> —— <strong>兩個都要檢查</strong>。<code>fast</code> 為空是「剛好停在界外」,<code>fast-&gt;next</code> 為空是「再走兩步會出界」。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [3,2,0,-4] pos=1 → true</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>底下那條橘色弧線就是環</strong> —— index 3 的 <code>next</code> 接回 index 1。
+      看第 2 輪:<code>fast</code> 繞了一圈回到 index 1,<strong>它進了環就再也出不去</strong>。
+      最後兩步<strong>換成無環的串列</strong>對照,看 <code>fast</code> 怎麼撞到 <code>nullptr</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Floyd 快慢指標 · 有環 / 無環對照</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:360px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · do-while 的代價 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">do-while 換來什麼、付出什麼<span class="sc-section__title-en">// THE GUARD IS LOAD-BEARING</span></h2>
+    </div>
+
+    <p>
+      這份寫法用 <code>do { … } while (fast &amp;&amp; fast-&gt;next);</code> —— <strong>先移動,再檢查</strong>。
+      這麼寫有個好理由,也有個必須付的代價。
+    </p>
+
+    <div class="sc-dark-box" style="margin-top:12px;">
+      <div class="sc-dark-box__title">為什麼要 do-while(而不是先檢查 slow == fast)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>slow</code> 和 <code>fast</code> <strong>一開始都在 head</strong>。如果把 <code>if (slow == fast) return true;</code>
+          放在移動<strong>之前</strong>,第一次檢查就成立 —— <strong>任何輸入都會回 true</strong>。
+        </p>
+        <p style="margin:0;">
+          <code>do-while</code> 保證<strong>先各走一步再比</strong>,把這個假相遇避開了。
+          實測把檢查提前,1891 種結構<strong>錯 59 種</strong>(所有 <code>n ≥ 2</code> 的無環串列全部誤判)。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">代價:開頭那個 guard 變成「必要」而不是「保險」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>do-while</code> 的迴圈條件在<strong>迴圈體之後</strong>才檢查,所以<strong>第一次進入迴圈體是無條件的</strong>。
+          而迴圈體第一行就是 <code>fast = fast-&gt;next-&gt;next;</code> ——
+          <code>head</code> 是 <code>nullptr</code> 或只有一個節點時,這行就爆了。
+        </p>
+        <p style="margin:0;">
+          <strong>實測(<code>g++ -fsanitize=address,undefined</code>)</strong>,拿掉 guard 之後:<br>
+          <code>head = nullptr</code> → <code>member access within null pointer</code> + <strong>SEGV</strong><br>
+          <code>head = 單節點</code> → 同樣 <strong>SEGV</strong>(<code>fast-&gt;next</code> 是空,再取 <code>-&gt;next</code>)<br>
+          <b>所以 <code>if (!head || !head-&gt;next) return false;</code> 這一行是這個寫法的一部分,不能省。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 對照:標準 while 版連 guard 都不需要</span>
+ListNode *slow = head, *fast = head;
+while (fast &amp;&amp; fast-&gt;next) {          // 條件在前 → 迴圈體永遠是安全的
+    slow = slow-&gt;next;
+    fast = fast-&gt;next-&gt;next;
+    if (slow == fast) return true;      // 移動之後才比,也沒有假相遇問題
+}
+return false;
+
+實測:同樣 1891 種結構,錯 0 種,而且 head = nullptr 也不會爆
+<span class="sc-trace__out">// 兩種都對;while 版把「安全」交給迴圈條件,do-while 版交給開頭的 guard</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 為什麼一定追得上 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">為什麼 fast 一定追得上、而且不會跳過<span class="sc-section__title-en">// THE LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 兩者的距離每輪剛好縮短 1</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          先看<strong>有環</strong>的情形。slow 走進環之後,把「fast 在環上落後 slow 幾步」記成 <code>d</code>
+          (在環上看,fast 其實是在<strong>後面追</strong>)。每一輪 fast 走 2 步、slow 走 1 步 ⇒
+          <strong><code>d</code> 減少剛好 1</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <code>d</code> 每輪 <strong>−1</strong>,所以它必定會<strong>剛好踩到 0</strong> —— <strong>不可能跳過</strong>。
+          (如果 fast 一次走 3 步,<code>d</code> 每輪 −2,就<em>有可能</em>跨過去而永遠錯開。)
+          而 <code>d &lt; 環長</code>,所以<strong>最多在「環長」輪之內相遇</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>無環</strong>的情形更簡單:沒有回邊,fast 只能一路往右,和 slow 的距離<strong>只會越拉越開</strong>,
+          所以永遠不會相等,最後必定撞到 <code>nullptr</code>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 「每輪 −1」正是 2 這個步長的意義(實測輪數)</span>
+窮舉所有 n = 0..300、所有尾接位置 k = -1..n-1:
+  有環最壞 = 300 輪  (n=300, k=0,也就是整條成環)
+  無環最壞 = 150 輪  (= ceil(n/2))
+
+幾個具體例子(μ = 前段長 = k,λ = 環長 = n−k):
+  n=10  k=0   λ=10  → 10 輪
+  n=10  k=5   λ=5   →  5 輪
+  n=100 k=50  λ=50  → 50 輪
+  n=100 k=99  λ=1   → 99 輪
+<span class="sc-trace__out">// 輪數上界是 μ + λ ≤ n,所以整體是 O(n)</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        <strong>實測</strong>:無環最壞 <code>⌈n/2⌉</code> 輪(fast 走完全程就結束),有環最壞 <code>n</code> 輪(整條成環時)。
+        空間只有兩個指標。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time · 無環</td><td class="mono">⌈n/2⌉ 輪</td><td>fast 每輪前進 2,走到底就停</td></tr>
+        <tr><td>Time · 有環</td><td class="mono">≤ n 輪</td><td>上界 μ + λ;實測最壞 n(k = 0)</td></tr>
+        <tr><td>Space</td><td class="mono ok"><strong>O(1)</strong></td><td>兩個指標,符合進階要求</td></tr>
+        <tr><td>修改輸入</td><td class="mono ok">否</td><td>全程唯讀,不動任何 <code>next</code></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>窮舉 n=0..60 × 所有尾接位置,共 1891 種結構</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      對照 hash set 解法:時間同樣 <code>O(n)</code>,但空間 <code>O(n)</code>,而且常數大很多(每個節點都要 hash 一次)。
+      <strong>Floyd 唯一的成本是兩個指標。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>兩個速度不同的指標,把「有沒有循環」變成了「會不會相遇」</strong> ——
+      而相遇這件事<strong>不需要記憶體去記</strong>,只需要比較兩個指標。
+      步長差 1 是關鍵:它保證距離每輪剛好減 1,所以<strong>只會踩中、不會跨過</strong>。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">在圈上跑步,快的一定套慢的一圈。步長差 1 ⇒ 距離每輪剛好減 1 ⇒ 只會踩中不會跨過。do-while 避開「兩者都在 head」的假相遇,代價是開頭那個 guard 變成必要的 —— 拿掉會 SEGV(ASan 實錘)。</div>
+    <div class="sc-summary-bar__detail">LINKED LIST CYCLE · FLOYD</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p141-floyd.js"></script>
+</body>
+</html>
