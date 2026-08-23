@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>143 · Reorder List // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P143</span>
+    <span><a href="https://leetcode.com/problems/reorder-list/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">重排串列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 143</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心困難</td><td>目標順序要<strong>倒著走</strong>,但單向串列只能往前 ⇒ <strong>先把後半翻過來</strong></td></tr>
+        <tr><td>三階段</td><td><a href="../p141/index.html">141</a> 找中點 → <a href="../p206/index.html">206</a> 迭代翻轉 → <a href="../p21/index.html">21</a> 交錯合併</td></tr>
+        <tr><td>切斷那行</td><td><code>slow-&gt;next = nullptr</code> <strong>一行擋兩種災難</strong>:成環 + 結果沒終點</td></tr>
+        <tr><td>順序</td><td>階段 2 <strong>先翻轉、再切斷</strong> —— 顛倒的話後半整段失聯</td></tr>
+        <tr><td>長度不變式</td><td><code>|l1| = ⌊n/2⌋ + 1</code> ⇒ <strong><code>|l1| &gt; |l2|</code> 恆成立</strong></td></tr>
+        <tr><td>不必收尾</td><td>因為最後接的必是 l1 的尾,而它已被切斷那行設成 <code>nullptr</code></td></tr>
+        <tr><td>dummy</td><td>這題<strong>根本不需要</strong> —— 結果的頭確定是 <code>head</code>,而且函式回傳 <code>void</code></td></tr>
+        <tr><td>翻轉要用迭代版</td><td><code>n</code> 到 <code>5×10⁴</code>;遞迴版會吃約 <strong>1.14 MB</strong> 堆疊(見 App 3)</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> 時間、<code>O(1)</code> 空間、<strong>零節點配置</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼要<strong>翻轉後半</strong>?如果不翻,直接「每次從頭找目前的尾巴」會是什麼複雜度?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>slow-&gt;next = nullptr;</code> 這一行如果拿掉會怎樣?請說出<strong>症狀</strong>,不是「會錯」。</div>
+
+    <div class="qa"><strong>Q3.</strong> 合併迴圈裡<strong>從來沒有寫過 <code>tail-&gt;next = nullptr</code></strong>。結果為什麼不會多出一截?請證明。</div>
+
+    <div class="qa"><strong>Q4.</strong> 階段 2 是「<code>l2 = reverseList(slow-&gt;next); slow-&gt;next = nullptr;</code>」。<strong>兩行對調</strong>會怎樣?</div>
+
+    <div class="qa"><strong>Q5.</strong> 這段程式建了一個 <code>dummy</code>。<a href="../p21/index.html">21</a> 和 <a href="../p2/index.html">2</a> 也建了 —— 三題的 dummy 是<strong>同一回事</strong>嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,4,5] → [1,5,2,4,3]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 階段 1 · 快慢指標找中點</span>
+原串列: 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null
+初始    slow = 第 1 個   fast = 第 1 個
+第 1 輪  slow → 第 2 個   fast → 第 3 個
+第 2 輪  slow → 第 3 個   fast → 第 5 個
+fast-&gt;next 是 null → 跳出
+slow 停在第 3 個</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 階段 2 · 翻轉後半 + 切斷</span>
+後半(slow-&gt;next)= 4 -&gt; 5 -&gt; null
+reverseList 之後   l2 = 5 -&gt; 4 -&gt; null
+slow-&gt;next = nullptr
+  ⇒ l1 = 1 -&gt; 2 -&gt; 3 -&gt; null   (長度 3)
+  ⇒ l2 = 5 -&gt; 4 -&gt; null        (長度 2)
+<span class="sc-trace__out">// |l1| = 3 &gt; |l2| = 2 —— 這是「不必收尾」的關鍵</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 階段 3 · 交錯合併</span>
+第 1 圈  接 l1 的 1  →  1
+         接 l2 的 5  →  1 -&gt; 5
+第 2 圈  接 l1 的 2  →  1 -&gt; 5 -&gt; 2
+         接 l2 的 4  →  1 -&gt; 5 -&gt; 2 -&gt; 4
+第 3 圈  接 l1 的 3  →  1 -&gt; 5 -&gt; 2 -&gt; 4 -&gt; 3
+         l2 已空,跳過
+兩條都空 → 跳出</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+1 -&gt; 5 -&gt; 2 -&gt; 4 -&gt; 3 -&gt; null
+
+最後接上的是 l1 的尾巴 3
+而 3 就是 slow,它的 next 早在階段 2 被設成 nullptr
+⇒ 結果自動收尾,merge 迴圈裡不必寫 tail-&gt;next = nullptr
+<span class="sc-trace__out">// [1,5,2,4,3]</span></div>
+
+    <p style="margin-top:16px;">其他長度的實測結果:</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 小例子(值 = 1..n)</span>
+n=1 → [1]                n=2 → [1,2]            n=3 → [1,3,2]
+n=4 → [1,4,2,3]          n=5 → [1,5,2,4,3]      n=6 → [1,6,2,5,3,4]
+n=7 → [1,7,2,6,3,5,4]
+
+窮舉 n = 1..2000:順序錯 0,未終結 / 成環 0
+n = 50000(上限):正確,前 8 個 = 1 50000 2 49999 3 49998 4 49997 …
+節點守恆(n = 1..300):重排前後節點位址集合完全相同
+<span class="sc-trace__out">// n=2 是最容易忘記測的:|l2| = 0,後半是空的</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用階段 1 + 2 來做<strong>回文判斷</strong>(LeetCode 234)。可以<strong>直接把這題的中點程式碼搬過去</strong>嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> 如果允許 <code>O(n)</code> 額外空間,有沒有更短的寫法?什麼時候該選它?</div>
+
+    <div class="qa"><strong>App 3.</strong> 階段 2 如果用 <a href="../p206/index.html">206 的<strong>遞迴</strong>版</a>翻轉,在 <code>n = 5×10⁴</code> 時會不會出事?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為單向串列只能往後走,而目標順序需要往回走。</strong><br><br>
+  目標是 <code>L₀ → Lₙ → L₁ → Lₙ₋₁ → …</code>,也就是<strong>交替從頭和從尾取</strong>。但「從尾取」在單向串列裡沒有捷徑 —— 你拿不到「尾巴的前一個」。<br><br>
+  <strong>不翻轉的話</strong>:每次要取當前的尾巴,都得從頭走一遍找到倒數第二個、把它的 <code>next</code> 設成 <code>nullptr</code>。一次 <code>O(n)</code>,要做 <code>n/2</code> 次 ⇒ <strong><code>O(n²)</code></strong>。<code>n = 5×10⁴</code> 時是 <code>2.5×10⁹</code> 級,必定 TLE。<br><br>
+  <strong>翻轉之後</strong>,「往回走」變成「往前走」——後續每一步都是 <code>O(1)</code>。翻轉本身只花一次 <code>O(n)</code>。<br><br>
+  <b>這是鏈結串列題的通用交易:用一次 O(n) 的翻轉,把每一步的 O(n) 換成 O(1)。</b>同樣的招式在 <a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank" rel="noopener">234</a>、<a href="https://leetcode.com/problems/add-two-numbers-ii/" target="_blank" rel="noopener">445</a> 都會再出現。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>症狀是「程式吊死」,不是回傳錯的答案。</strong><br><br>
+  翻轉後半之後,<strong>前半的尾巴(<code>slow</code>)還指著後半的舊頭</strong>——而那個舊頭現在是 <code>l2</code> 的<strong>尾巴</strong>。合併時把 <code>l2</code> 接進來,前後就接成了一個回路。<br><br>
+  <strong>實測</strong>:拿掉這一行,<code>n = 1..400</code> 有 <strong>398 種長度</strong>成環(只有 n=1、n=2 逃過,因為後半是空的)。最小反例 <code>n = 3</code>,走出 <code>1,3,2,3,2,3,2…</code> <strong>永遠走不完</strong>。<br><br>
+  <b>而且這裡有個測試上的實務陷阱</b>:如果你的 dump / 比對函式沒有步數上限,<strong>第一個成環的變體就會把整個測試程式卡死</strong>,連「哪裡錯了」都看不到。本頁所有對拍的走訪都放了 <code>guard &gt; 3n + 10</code> 的計數器。<br><br>
+  <b>這已經是 06 章第三次遇到「成環而非答錯」了</b>(<a href="../p206/review.html">206</a> 七種錯法有三種成環)。<strong>鏈結串列題的預設假設應該是:錯誤會以吊死的形式出現。</strong></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為 <code>|l1| &gt; |l2|</code> 恆成立,所以最後接上的一定是 l1 的尾巴 —— 而它早就被切斷了。</strong><br><br>
+  <strong>步驟一:證明 <code>|l1| &gt; |l2|</code>。</strong>這個切法(兩者都從 <code>head</code> 起跑、<code>while (fast &amp;&amp; fast-&gt;next)</code>)得到 <code>|l1| = ⌊n/2⌋ + 1</code>,所以 <code>|l1| − |l2|</code> 是 <strong>1(n 奇數)或 2(n 偶數)</strong>。實測 <code>n = 1..8</code>:<code>(1,0) (2,0) (2,1) (3,1) (3,2) (4,2) (4,3) (5,3)</code>。<br><br>
+  <strong>步驟二:</strong>合併時每圈先接 l1 一個、再接 l2 一個。既然 l1 比較長,<strong>l2 必定先空</strong>,之後的圈數只接 l1 —— 所以<strong>最後接上的必定是 l1 的尾巴</strong>。<br><br>
+  <strong>步驟三:</strong>l1 的尾巴就是 <code>slow</code>,而 <code>slow-&gt;next</code> 在階段 2 就被設成 <code>nullptr</code> 了。<br><br>
+  <b>所以那行「切斷」做了兩件事:防止成環,以及順便把結果收尾。</b>實測 <code>n = 1..2000</code> 全部長度,<strong>未終結 / 成環 0 次</strong>。<br><br>
+  <b>但這是「靠不變量省下來的一行」,不是「本來就不需要」。</b>如果換一種找中點的方式讓 <code>|l1| == |l2|</code>(見 App 1),這個論證就垮了 —— 那時最後接的是 l2 的尾,得另外確認它有沒有被終結。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>後半整段會失聯,結果只剩前半。</strong><br><br>
+  <code>slow-&gt;next</code> 是<strong>通往後半的唯一入口</strong>。如果先寫 <code>slow-&gt;next = nullptr;</code>,那麼下一行 <code>reverseList(slow-&gt;next)</code> 讀到的是 <code>nullptr</code>,回傳 <code>nullptr</code> —— <code>l2</code> 是空的,後半那些節點<strong>再也沒有任何指標指得到</strong>。<br><br>
+  結果會是「前半原樣輸出」,而不是重排。<br><br>
+  <b>這和 <a href="../p206/index.html">206 的「先存 next 再改指標」是完全同一種依賴關係</b>:<strong>覆蓋任何一根 <code>next</code> 之前,先確認沒有東西會因此失聯。</strong>206 用一個暫存變數買後路,這裡是靠「先用完再切」的順序。<br><br>
+  <b>一個檢查習慣</b>:每寫一行 <code>x-&gt;next = …</code>,回頭問一句「原本那個 <code>x-&gt;next</code> 指的東西,還有別人指得到嗎?」</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不是同一回事 —— 前兩題需要,這題不需要。</strong><br><br>
+  dummy 的用途是<strong>消掉「結果的頭是誰還沒決定」這個特例</strong>。所以判準是:<strong>動手接線之前,你知不知道第一個節點是誰?</strong><br><br>
+  <table class="sc-table" style="margin:10px 0;">
+    <thead><tr><th>題目</th><th>結果的頭事先知道嗎</th><th>dummy</th></tr></thead>
+    <tbody>
+      <tr><td><a href="../p21/index.html">21 合併</a></td><td class="fail">不知道(看哪條的頭比較小)</td><td class="ok">需要</td></tr>
+      <tr><td><a href="../p2/index.html">2 相加</a></td><td class="fail">不知道(要算完第一位才有那個節點)</td><td class="ok">需要</td></tr>
+      <tr class="ok"><td><strong>143 本題</strong></td><td class="ok"><strong>知道 —— 就是 <code>head</code></strong></td><td class="fail"><strong>不需要</strong></td></tr>
+    </tbody>
+  </table>
+  這題的函式<strong>回傳 <code>void</code>、就地修改</strong>,而結果的第一個節點<strong>必定是 <code>L₀</code> = <code>head</code></strong>。所以直接 <code>tail = head; l1 = head-&gt;next;</code> 就能開始接。<strong>實測</strong>無 dummy 版跑 <code>n = 1..400</code> <strong>全對</strong>。<br><br>
+  <strong>而且原碼那個 dummy 是 <code>new</code> 出來的、沒有 <code>delete</code></strong> —— 實測每次呼叫洩漏 1 個節點,呼叫 10 萬次漏 <strong>1562 KB</strong>。<b>三題同一個洩漏,但只有這題的最佳修法是「整個拿掉」而不是「放堆疊」——因為它在這裡沒有解決任何問題。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>不能直接搬 —— 而且我原本以為可以,是實測打臉的。</strong><br><br>
+  回文判斷的做法確實是「找中點 → 翻轉後半 → 兩段對走比值」,骨架看起來完全一樣。但<strong>中點的定義不同</strong>:<br><br>
+  <strong>143 需要前半比較長</strong>(那是 A3 那個不變量的來源),<strong>234 需要兩半盡量等長</strong>(否則沒得比)。同一行 <code>while (fast &amp;&amp; fast-&gt;next)</code> 在偶數時讓兩半<strong>差 2</strong>:<br><br>
+  <code>&nbsp;n&nbsp;&nbsp;&nbsp;143 切法&nbsp;&nbsp;&nbsp;&nbsp;234 該用的切法</code><br>
+  <code>&nbsp;2&nbsp;&nbsp;&nbsp;(2, 0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1, 1)</code><br>
+  <code>&nbsp;4&nbsp;&nbsp;&nbsp;(3, 1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2, 2)</code><br>
+  <code>&nbsp;6&nbsp;&nbsp;&nbsp;(4, 2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3, 3)</code><br><br>
+  <strong>實測</strong>(30 萬組隨機,一半刻意造成回文):<br>
+  照搬 <code>while (fast &amp;&amp; fast-&gt;next)</code> → <strong>判斷錯 18556/300000</strong>,最小反例 <code>[1,0]</code>(<code>|l2| = 0</code>,比較迴圈一次都沒跑就回 true)。<br>
+  改成 <code>while (fast-&gt;next &amp;&amp; fast-&gt;next-&gt;next)</code> → <strong>錯 0/300000</strong>。<br><br>
+  <b>另外 234 還多一個責任:比完要把後半翻回去還原</b>,否則呼叫端拿到的是被改壞的串列。實測加上 <code>slow-&gt;next = reverseList(second);</code> 之後,30 萬組<strong>沒還原的 0 組</strong>。<br><br>
+  <b>教訓:「這兩題骨架一樣」通常是對的,但「所以可以整段複製」通常不是。</b>三個階段可以復用,<strong>但每個階段的邊界要按新題目重新確認一次。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>有,而且短很多:把節點<em>指標</em>倒進 <code>vector</code>,再用雙指標從兩頭往中間接。</strong><br><br>
+  <code>vector&lt;ListNode*&gt; a;</code><br>
+  <code>for (ListNode* p = head; p; p = p-&gt;next) a.push_back(p);</code><br><br>
+  <code>int i = 0, j = a.size() - 1;</code><br>
+  <code>while (i &lt; j) {</code><br>
+  &nbsp;&nbsp;<code>a[i]-&gt;next = a[j];  ++i;</code><br>
+  &nbsp;&nbsp;<code>if (i == j) break;</code><br>
+  &nbsp;&nbsp;<code>a[j]-&gt;next = a[i];  --j;</code><br>
+  <code>}</code><br>
+  <code>a[i]-&gt;next = nullptr;&nbsp;&nbsp;// 這裡就必須自己收尾了</code><br><br>
+  <strong>注意存的是「指標」不是「值」</strong>,所以<strong>沒有違反</strong>題目「不准改值」的要求 —— 我們仍然只是在重新接線。<br><br>
+  <strong>實測</strong>:<code>n = 1..500</code> 順序錯 <strong>0</strong>;與三階段版<strong>逐項對拍不一致 0</strong>。<br><br>
+  <strong>取捨</strong>:時間同樣 <code>O(n)</code>,但空間從 <code>O(1)</code> 變成 <code>O(n)</code>。<b>什麼時候選它:</b>面試時如果卡在三階段的邊界、或時間不夠,<strong>先寫出這個版本拿到正確答案,再說「我知道可以用快慢指標 + 翻轉做到 <code>O(1)</code> 空間」</strong> —— 比寫不完好得多。<b>而題目沒有明文要求 <code>O(1)</code> 空間,所以它也是合法解。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>不會崩,但餘裕比想像中小 —— 而且完全沒必要冒這個險。</strong><br><br>
+  <strong>算一下</strong>:<code>n = 5×10⁴</code> 時後半長度約 <strong>25000</strong>,所以遞迴深度 25000 層。<a href="../p206/index.html">206 那題實測過</a>每層 <strong>48 bytes</strong>:<br><br>
+  <code>25000 × 48 = 1200000 bytes = 1171 KB ≈ <strong>1.14 MB</strong></code><br>
+  <code>ulimit -s = 8176 KB ⇒ 佔用 <strong>14.3%</strong></code><br>
+  <code>206 實測的崩潰臨界約 173437 層 ⇒ 餘裕只剩 <strong>6.9 倍</strong></code><br><br>
+  所以<strong>在這個題目的上限下是安全的</strong>。但:<br>
+  ① <strong>6.9 倍不算寬</strong> —— 換個堆疊上限更小的環境(某些執行緒預設 512 KB 或 1 MB)就會爆;<br>
+  ② <strong>迭代版一個字都不用多寫</strong>(<a href="../p206/code.html">206 的迭代版</a>本來就只有四行),<strong>而且空間是 <code>O(1)</code></strong>。<br><br>
+  <b>換句話說:這是一個「有風險但沒有回報」的選擇。</b>遞迴版在 206 那題還有「比較好講直覺」的價值,但這裡它只是階段 2 的一個零件 —— <strong>沒有人會因為你用遞迴翻轉而覺得你想得比較清楚。</strong><br><br>
+  <b>順帶一提:如果題目把 n 放大到 10⁶,遞迴版就直接爆了</b>(500000 層 × 48 bytes = 24 MB,遠超 8 MB),而迭代版毫無感覺。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">用一次 O(n) 翻轉,把「每步 O(n) 的回頭找」換成「每步 O(1)」。切斷那行擋成環也順便收尾(靠 |l1| > |l2| 這個不變量)。三階段可以復用,但每個階段的邊界要按新題目重新確認 —— 234 的中點就跟這題不同。</div>
+    <div class="sc-summary-bar__detail">REORDER LIST · REVIEW</div>
+  </div>
+
+</body>
+</html>

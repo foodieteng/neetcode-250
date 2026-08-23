@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>143 · Reorder List // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P143</span>
+    <span><a href="https://leetcode.com/problems/reorder-list/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">重排串列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 找中點 + 翻轉後半 + 交錯合併</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 143</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>THREE-IN-ONE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        把 <code>L₀ → L₁ → … → Lₙ₋₁ → Lₙ</code> 重排成
+        <code>L₀ → Lₙ → L₁ → Lₙ₋₁ → L₂ → Lₙ₋₂ → …</code> ——
+        <strong>頭一個、尾一個、頭二個、尾二個…</strong>
+      </p>
+      <p style="margin-top:8px;">
+        <strong>不准改節點的值,只能改節點之間的連接。</strong>節點數 <code>1 ~ 5×10⁴</code>。
+      </p>
+    </div>
+
+    <p>
+      這題是 <strong>06 章前三題的組合技</strong>。困難點只有一個:目標順序需要<strong>從尾巴往回走</strong>,
+      而單向串列<strong>只能往後走</strong>,拿不到「尾巴的前一個」。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      解法是<strong>把問題拆成三個已經會的小題</strong>:
+      <a href="../p141/index.html">141 的快慢指標</a>找中點 →
+      <a href="../p206/index.html">206 的迭代翻轉</a>把後半反過來 →
+      <a href="../p21/index.html">21 的 dummy + tail</a> 交錯接起來。
+      <b>三個骨架幾乎一字不改就能貼過來。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼要翻轉後半<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每次都從頭走去找目前的尾巴</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">拿一次尾巴要走 <code>O(n)</code>,要拿 <code>n/2</code> 次 ⇒ <code>O(n²)</code>。<code>n = 5×10⁴</code> 時是 <code>2.5×10⁹</code> 級,超時。</div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">把所有節點指標倒進 <code>vector</code>,再雙指標接線</span>
+            <span class="sc-ko-card__o">O(n) 時間 · O(n) 空間</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>完全正確,而且好寫</strong>:<code>vector&lt;ListNode*&gt;</code> 存指標(不是值,所以沒違反題目),
+            然後 <code>i</code> 從頭、<code>j</code> 從尾往中間接。<strong>代價是 <code>O(n)</code> 額外空間</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">△ 可行 · 但吃空間</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">找中點 → 翻轉後半 → 交錯合併</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(1) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>翻轉後半就等於「把倒著走變成正著走」</strong> —— 之後只要兩條各往前推,交錯接起來即可。
+          三個階段各 <code>O(n)</code>,加起來還是 <code>O(n)</code>,而且<strong>只用幾個指標</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(1) 空間</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「翻轉」在鏈結串列題裡的真正用途,就是把「往回走」變成「往前走」。</strong>
+      同樣的招式在 <a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank" rel="noopener">234 回文判斷 ↗</a>、
+      <a href="https://leetcode.com/problems/add-two-numbers-ii/" target="_blank" rel="noopener">445 正序相加 ↗</a> 都會再出現。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三階段<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>找中點</strong>(<a href="../p141/index.html">141</a> 的骨架):<code>while (fast &amp;&amp; fast-&gt;next)</code>,<code>slow</code> 一步、<code>fast</code> 兩步。</li>
+      <li><strong>翻轉後半 + 切斷</strong>(<a href="../p206/index.html">206</a> 的骨架):<code>l2 = reverseList(slow-&gt;next);</code> 然後 <strong><code>slow-&gt;next = nullptr;</code></strong> —— 切斷那行少不得,見第 5 節。</li>
+      <li><strong>交錯合併</strong>(<a href="../p21/index.html">21</a> 的骨架):每圈<strong>先接 l1 一個、再接 l2 一個</strong>,直到兩條都空。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這種「<strong>把大題拆成三個已知小題</strong>」的解法,面試時<strong>要先把三步說出來再動手寫</strong> ——
+      一次寫完三十行再解釋,面試官很難跟。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,2,3,4,5] → [1,5,2,4,3]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      三個階段串成一段。特別注意<strong>階段 2 的兩件事</strong>:先翻轉、<strong>再切斷</strong> ——
+      少了切斷那一行,階段 3 就會把串列接成環(實測 400 種長度錯 398 種)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Reorder List · 三階段</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:450px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 三個 LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">三件不明顯但成立的事<span class="sc-section__title-en">// THREE LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 前半永遠比後半長</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          這個切法(兩者都從 <code>head</code> 起跑、<code>while (fast &amp;&amp; fast-&gt;next)</code>)得到
+          <code>|l1| = ⌊n/2⌋ + 1</code>、<code>|l2| = n − |l1|</code>,所以 <code>|l1| − |l2|</code> 是 <strong>1(n 奇數)或 2(n 偶數)</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:<code>n = 1..8</code> 分別是 <code>(1,0) (2,0) (2,1) (3,1) (3,2) (4,2) (4,3) (5,3)</code> ——
+          <strong><code>|l1| &gt; |l2|</code> 恆成立</strong>。這一點是下一個 LEMMA 的前提。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · merge 迴圈裡不必寫 tail-&gt;next = nullptr</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          合併迴圈<strong>從頭到尾沒有把結果收尾成 <code>nullptr</code></strong>。為什麼結果不會多出一截?
+        </p>
+        <p style="margin:0 0 10px;">
+          由 LEMMA 1,<code>|l1| &gt; |l2|</code>,所以<strong>最後接上的一定是 l1 的尾巴</strong>。
+          而 l1 的尾巴就是 <code>slow</code>,它的 <code>next</code> <strong>早在階段 2 就被 <code>slow-&gt;next = nullptr</code> 設好了</strong>。
+        </p>
+        <p style="margin:0;">
+          <b>所以那行「切斷」其實做了兩件事:防止成環,以及順便把結果收尾。</b>
+          實測 <code>n = 1..2000</code> 全部長度,<strong>未終結 / 成環 0 次</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 3 · 那個 dummy 在這題是多餘的</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <a href="../p21/index.html">21</a> 和 <a href="../p2/index.html">2</a> 需要 dummy,是因為<strong>「結果的頭是誰」事先不知道</strong>。
+          但這題<strong>知道</strong> —— 結果的第一個節點<strong>必定是 <code>head</code></strong>(<code>L₀</code>),而且函式回傳 <code>void</code>、就地修改。
+        </p>
+        <p style="margin:0;">
+          所以可以直接 <code>tail = head; l1 = head-&gt;next;</code> 開始合併,<strong>連 dummy 都不需要</strong>。
+          <strong>實測</strong>:無 dummy 版跑 <code>n = 1..400</code> 全部正確(錯 0)。<b>而現在這個 <code>new ListNode()</code> 每次呼叫還會漏一個節點</b> —— 見程式碼頁。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 三題複用 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">三個階段各自來自哪一題<span class="sc-section__title-en">// REUSE MAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>階段</th><th>來自</th><th>差別</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>① 找中點</td>
+          <td><a href="../p141/index.html">141 Linked List Cycle</a></td>
+          <td>同樣的 <code>while (fast &amp;&amp; fast-&gt;next)</code>,只是<strong>不比 <code>slow == fast</code></strong>,而是用 <code>slow</code> 最後停的位置</td>
+        </tr>
+        <tr>
+          <td>② 翻轉後半</td>
+          <td><a href="../p206/index.html">206 Reverse Linked List</a></td>
+          <td><strong>迭代版一字不改</strong>。這裡不能用遞迴版 —— <code>n</code> 到 <code>5×10⁴</code>,遞迴會吃 <code>2.4 MB</code> 堆疊</td>
+        </tr>
+        <tr>
+          <td>③ 交錯合併</td>
+          <td><a href="../p21/index.html">21 Merge Two Sorted Lists</a></td>
+          <td>骨架相同,但<strong>不比大小</strong> —— 固定「一邊一個」輪流接</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      階段 ② 用<strong>迭代版而非遞迴版</strong>是刻意的:<a href="../p206/index.html">206 那題量過</a>,
+      遞迴每層 <strong>48 bytes</strong>,而這題 <code>n</code> 上限是 <code>5×10⁴</code> ⇒ 約 <strong>2.4 MB</strong> 堆疊。
+      雖然還沒到 8 MB 的崩潰線,但<strong>沒有理由為此冒險</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        三個階段各走一遍:找中點 <code>n/2</code> 輪、翻轉 <code>n/2</code> 步、合併 <code>n</code> 步 ⇒ 約 <strong>2n</strong> 次指標操作。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>階段</th><th>成本</th><th>額外空間</th></tr></thead>
+      <tbody>
+        <tr><td>① 找中點</td><td class="mono">O(n)</td><td class="mono ok">O(1)(兩個指標)</td></tr>
+        <tr><td>② 翻轉後半</td><td class="mono">O(n)</td><td class="mono ok">O(1)(迭代版)</td></tr>
+        <tr><td>③ 交錯合併</td><td class="mono">O(n)</td><td class="mono ok">O(1)</td></tr>
+        <tr><td>新節點配置</td><td colspan="2" class="mono">0(<strong>但那個 dummy 每次呼叫漏一個</strong>)</td></tr>
+        <tr><td>正確性</td><td colspan="2" class="mono ok">窮舉 n = 1..2000 全對;n = 5×10⁴ 亦正確</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>單向串列不能往回走,所以「需要倒著走」的題目,一律先想「能不能把那一段翻過來」。</strong>
+      翻轉的成本是 <code>O(n)</code> 一次,但它把後續的每一步都變成 <code>O(1)</code> ——
+      這比「每次都回頭找」的 <code>O(n²)</code> 划算太多。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">三題組合技:141 找中點 → 206 迭代翻轉後半 → 21 交錯合併。切斷那行做了兩件事(防成環 + 順便收尾)。|l1| 恆大於 |l2|,所以最後接的一定是 l1 的尾,merge 裡才不必寫 tail->next = nullptr。而這題的 dummy 是多餘的。</div>
+    <div class="sc-summary-bar__detail">REORDER LIST · THREE-IN-ONE</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p143-reorder.js"></script>
+</body>
+</html>
