@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2 · Add Two Numbers // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P2</span>
+    <span><a href="https://leetcode.com/problems/add-two-numbers/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">兩數相加</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 逐位相加 + 進位</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BIG-NUM ADDITION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        兩條串列各代表一個<strong>非負整數</strong>,數字<strong>以相反順序存放</strong> ——
+        也就是<strong>個位在最前面</strong>,每個節點放一位數。把兩數相加,結果也用同樣格式回傳。
+      </p>
+      <p style="margin-top:8px;">
+        每條 <code>1 ~ 100</code> 個節點,每位 <code>0 ~ 9</code>,保證無前導零。
+      </p>
+    </div>
+
+    <p>
+      「相反順序」聽起來很怪,但它其實是<strong>題目送的禮物</strong>:
+      直式加法本來就<strong>從個位開始</strong>算,而個位剛好就在串列的頭 ——
+      <strong>從頭往後走一遍就好,不必先翻轉、也不必先算長度</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      如果數字是<strong>正序</strong>存放(高位在前),同樣一題會難很多 —— 得先翻轉、或用堆疊、或先對齊長度。
+      <b>看到「reverse order」不要皺眉,那是在幫你。</b>(正序的版本是
+      <a href="https://leetcode.com/problems/add-two-numbers-ii/" target="_blank" rel="noopener">445 ↗</a>。)
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼不能先轉成整數<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">兩條各轉成 <code>long long</code>,加完再拆回去</span>
+            <span class="sc-ko-card__o">O(n) · 但會溢位</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>直接爆掉。</strong><code>LLONG_MAX</code> 只裝得下 <strong>19 位</strong>十進位,而題目每條可以有 <strong>100 位</strong> —— 差了 81 位。
+            實測把 20 個 9 塞進 <code>long long</code>,得到 <code>7766279631452241919</code>(正確值是 20 個 9)。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 溢位</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">先補零對齊長度,再逐位加</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案會對,但<strong>多了一趟「量長度 + 補零」</strong>,還要處理「補完之後最高位又進位」。
+            <strong>兩個 <code>if</code> 就能做到的事,不需要一整段前處理。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">△ 可行 · 但多做工</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">一邊走一邊加,用 <code>carry</code> 串起來</span>
+          <span class="sc-ko-card__o">O(max(m,n))</span>
+        </div>
+        <div class="sc-ko-card__body">
+          就是<strong>小學的直式加法</strong>:每一位算 <code>carry + a + b</code>,留下 <code>% 10</code>、把 <code>/ 10</code> 帶到下一位。
+          <strong>永遠只有一位數在運算</strong>,所以<strong>不管數字多大都不會溢位</strong> ——
+          這正是所有大數運算的作法。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 不會溢位</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>dummy 假頭 + <code>tail</code></strong>,和 <a href="../p21/index.html">21</a> 一樣 —— 讓「接第一個節點」和「接第 k 個」變成同一行。</li>
+      <li><strong>一個迴圈條件管三件事</strong>:<code>while (carry || l1 || l2)</code>。長度不等、其中一條先走完、最後還剩一個進位 —— <strong>全部涵蓋</strong>。</li>
+      <li><strong>每圈三行算術</strong>:<code>v = carry + (l1?) + (l2?)</code>、<code>carry = v / 10</code>、<code>v %= 10</code>,然後把 <code>v</code> 接成新節點。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <code>if (l1)</code> / <code>if (l2)</code> 這兩個判斷,就是「<strong>長度不等</strong>」的全部處理 ——
+      空的那條<strong>直接不加</strong>,效果等同補零,但不需要真的去補。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [9,9,9] + [9,9] = 999 + 99 = 1098</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      這個例子四圈剛好把三種情形都演一遍:<strong>進位串聯</strong>(第 1–2 圈)、
+      <strong>其中一條先用完</strong>(第 3 圈)、<strong>最後只剩進位</strong>(第 4 圈)。
+      特別看第 4 圈 —— 那一圈完全靠 <code>while</code> 條件裡的 <code>carry</code> 撐起來。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Add Two Numbers · 逐位相加 + 進位</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:472px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 那個 while 條件 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">一個條件管三件事<span class="sc-section__title-en">// carry || l1 || l2</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 為什麼 carry 必須在迴圈條件裡</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>l1</code> 和 <code>l2</code> 都走完之後,<strong>可能還有一個進位沒地方放</strong> ——
+          例如 <code>[9] + [1] = 10</code>,兩條各一位,結果卻要兩位。
+        </p>
+        <p style="margin:0 0 10px;">
+          把 <code>carry</code> 寫進 <code>while</code>,就多跑一圈把那個 1 變成<strong>新的最高位</strong>。
+          而且因為 <code>carry</code> 最多是 1(見下),<strong>最多只會多跑一圈</strong>,不會沒完沒了。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:把 <code>carry</code> 從條件裡拿掉,窮舉 100 萬組<strong>錯 504495 組</strong>,
+          最小反例 <code>[1] + [9]</code> 答 <code>[0]</code>(正解 <code>[0,1]</code>)—— <strong>剛好一半的測資會錯</strong>。
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>條件的哪一項</th><th>它在處理什麼情形</th><th>例子</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">l1</td><td>l1 還有位數沒加</td><td class="mono">[1,2,3] + [1]</td></tr>
+        <tr><td class="mono">l2</td><td>l2 還有位數沒加(<strong>兩條長度不等</strong>)</td><td class="mono">[1] + [1,2,3]</td></tr>
+        <tr><td class="mono">carry</td><td>兩條都空了,<strong>但還有一個進位</strong></td><td class="mono">[9] + [1] → [0,1]</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// carry 為什麼最多是 1(實測)</span>
+每一圈 v 的最大值 = carry(1) + l1 位數(9) + l2 位數(9) = 19
+⇒ carry = v / 10 ≤ 1
+
+實測 30 萬組隨機測資,逐圈記錄:
+  v 的最大值     = 19    ← 恰好等於理論上界
+  carry 的最大值 = 1
+<span class="sc-trace__out">// 所以 carry 是個布林量,不會累積成大數 —— int 完全夠用</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 和 21 的對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 21 的對照:同一個 dummy,不同的 new<span class="sc-section__title-en">// SPLICE vs BUILD</span></h2>
+    </div>
+
+    <p>
+      這題和 <a href="../p21/index.html">21 合併兩條有序串列</a> 的骨架幾乎一樣(dummy + tail + 一個迴圈),
+      但<strong>對 <code>new</code> 的態度完全相反</strong>:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>21 · 合併</th><th>2 · 相加(本題)</th></tr></thead>
+      <tbody>
+        <tr><td>結果的節點</td><td class="ok"><strong>搬</strong>原本的節點(splice)</td><td class="mono"><strong>必須 <code>new</code></strong> 出來</td></tr>
+        <tr><td>為什麼</td><td>題目明寫 "splicing together the nodes"</td><td>和的每一位是<strong>算出來的新值</strong>,原本沒有這個節點</td></tr>
+        <tr><td>結果的節點數</td><td class="mono">m + n(不多不少)</td><td class="mono">max(m,n) 或 +1</td></tr>
+        <tr><td>額外配置</td><td class="mono ok">0(除了 dummy)</td><td class="mono">max(m,n) 或 +1 個(<strong>正當的</strong>)</td></tr>
+        <tr><td>dummy</td><td colspan="2" class="fail"><strong>兩題一樣:寫成 <code>new ListNode()</code> 就每次呼叫漏一個節點</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box" style="margin-top:16px;">
+      <div class="sc-dark-box__title">結果節點的 new 是對的;dummy 的 new 不是</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>結果節點</strong>必須 <code>new</code>,而且<strong>刻意要活得比函式久</strong> —— 它們被回傳出去給呼叫端。<strong>這正是 <code>new</code> 的正確用途。</strong>
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>dummy</strong> 不一樣:它<strong>只需要活到函式結束</strong>,而且<strong>不會被回傳</strong>(回傳的是 <code>dummy-&gt;next</code>)。
+          用 <code>new</code> 配置它,就等於宣告「這東西要活得更久」—— 而那不是真的,結果就是<strong>沒有人 <code>delete</code> 它</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>(覆寫 <code>ListNode::operator new/delete</code> 計數,以 <code>[2,4,3] + [5,6,4]</code> 為例):
+          <code>addTwoNumbers</code> 配置 <strong>4</strong> 個節點 —— <strong>dummy 1 個 + 結果 3 個</strong>。
+          把結果整條釋放後,<code>new = 10、delete = 9</code> ⇒ <strong>洩漏 1 個</strong>,正是 dummy。
+          改成 <code>ListNode dummy;</code> 之後,配置變成 <strong>3 個(全是結果節點)</strong>,<strong>洩漏 0</strong>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(max(m, n))</strong>　　S = <strong>O(max(m, n))</strong><sup>*</sup></div>
+      <p class="sc-formula__hint">
+        <sup>*</sup>那個空間是<strong>結果本身</strong>,不算「額外」空間 —— 除了幾個變數之外沒有別的開銷。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(max(m,n))</td><td>每圈消耗至少一位,最多 <code>max(m,n)+1</code> 圈</td></tr>
+        <tr><td>結果長度</td><td class="mono">max(m,n) 或 +1</td><td>實測 100 + 100 位全 9 → <strong>101 位</strong></td></tr>
+        <tr><td>額外空間</td><td class="mono ok">O(1)</td><td>只有 <code>carry / v / tail</code></td></tr>
+        <tr><td>溢位</td><td class="mono ok">無</td><td>單格 <code>v</code> 實測最大 <strong>19</strong>,<code>carry</code> 最大 <strong>1</strong></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>30 萬組隨機 + 100 萬組窮舉</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>大數運算的通則:永遠只算一位,把溢出的部分往下一位帶。</strong>
+      這樣<strong>不管數字多長,運算永遠在 <code>int</code> 範圍內</strong> ——
+      而「先轉成整數再算」看起來簡單,卻在第 20 位就死了。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">低位在前是禮物 —— 從頭走一遍就是直式加法。while (carry || l1 || l2) 一個條件管三件事:長度不等、一條先完、最後剩進位。v 最大 19、carry 最大 1(實測),所以永不溢位。結果節點的 new 是對的,dummy 的 new 不是。</div>
+    <div class="sc-summary-bar__detail">ADD TWO NUMBERS · DIGIT-WISE + CARRY</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p2-addtwo.js"></script>
+</body>
+</html>
