@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>19 · Remove Nth Node From End // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P19</span>
+    <span><a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除倒數第 N 個節點</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 19</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心技巧</td><td><strong>固定間距雙指標</strong> —— 拉開之後鎖住,前面出界時後面自動到位</td></tr>
+        <tr><td>間距為什麼是 n+1</td><td>要<strong>刪</strong>一個節點需要它的<strong>前驅</strong>;只要<strong>拿到</strong>它的話間距是 n(見 App 3)</td></tr>
+        <tr><td>dummy 為什麼必要</td><td><code>n == sz</code> 時要刪的是頭,而<strong>頭沒有前驅</strong> —— dummy 補上那一格</td></tr>
+        <tr><td>迴圈條件</td><td><code>while (curr)</code>,不是 <code>while (curr-&gt;next)</code>(差一步就刪錯一個)</td></tr>
+        <tr><td>不會越界</td><td><code>n ≤ sz</code> ⇒ <code>curr</code> 最遠剛好停在 <code>nullptr</code>,不會再取 <code>-&gt;next</code></td></tr>
+        <tr><td>兩處記憶體</td><td><strong>dummy</strong> 要放堆疊,<strong>被移除的節點</strong>要 <code>delete</code> —— 原碼各漏一個</td></tr>
+        <tr><td>「繞過去」≠「刪掉」</td><td>改指標只是讓沒人指著它,<strong>記憶體還在</strong></td></tr>
+        <tr><td>複雜度</td><td><code>O(sz)</code> 一趟、<code>O(1)</code> 空間;<strong>走兩趟也是 <code>O(sz)</code></strong></td></tr>
+        <tr><td>驗證</td><td>測資空間<strong>可完全窮舉</strong> —— 只有 <strong>465</strong> 種合法輸入,全跑,不一致 0</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼<strong>間距是 <code>n + 1</code> 而不是 <code>n</code></strong>?請說明「多的那一格」在買什麼。</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>dummy</code> 在這題解決的是<strong>哪一種輸入</strong>?拿掉它會錯幾組、錯在哪裡?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>curr</code> 先走 <code>n + 1</code> 步 —— 會不會<strong>走出界</strong>?請用題目的約束證明。</div>
+
+    <div class="qa"><strong>Q4.</strong> 迴圈條件是 <code>while (curr)</code>。如果寫成 <code>while (curr-&gt;next)</code> 會怎樣?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>tail-&gt;next = tail-&gt;next-&gt;next;</code> 這一行<strong>把節點刪掉了嗎</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// sz=5, n=2 → 移除值 4</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SETUP</span>
+串列: dummy -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null
+tail = curr = dummy
+要移除的是「倒數第 2 個」= 值 4</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 拉開間距:curr 走 n+1 = 3 步</span>
+第 1 步 → 1
+第 2 步 → 2
+第 3 步 → 3
+⇒ tail 在 dummy、curr 在 3,間距 3 格</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 同步前進(間距全程不變)</span>
+第 1 次:tail = 1   curr = 4
+第 2 次:tail = 2   curr = 5
+第 3 次:tail = 3   curr = null   ← while 條件不成立,跳出</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 移除</span>
+tail 停在 3,tail-&gt;next 正是要移除的 4
+tail-&gt;next = tail-&gt;next-&gt;next   ⇒ 3 直接接到 5
+
+return dummy-&gt;next = [1, 2, 3, 5]
+<span class="sc-trace__out">// 一趟走完(這就是 follow-up 問的 one pass)</span></div>
+
+    <p style="margin-top:16px;">關鍵邊界的實測結果:</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 邊界(皆為實測)</span>
+sz=1  n=1  → []      刪掉唯一的節點;tail 就是 dummy,回傳 dummy.next = null
+sz=2  n=2  → [2]     刪頭 —— 這一組正是「沒有 dummy 就會壞」的那種
+sz=2  n=1  → [1]     刪尾
+sz=30 n=30 → 刪頭;curr 走 31 步剛好到 null(走最遠的情形)
+<span class="sc-trace__out">// sz=1 n=1 與 n=sz 是最容易漏測的兩個</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這題可以「證明測完了」,不是抽樣。</strong>
+      <code>sz ≤ 30</code>、<code>1 ≤ n ≤ sz</code>,而<strong>值不影響任何分支</strong>(只看位置)——
+      所以合法輸入<strong>總共只有 <code>1+2+…+30 = 465</code> 種</strong>。
+      全部跑過,<strong>不一致 0</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 題目的 follow-up 問「能不能一趟」。那<strong>兩趟的版本</strong>長什麼樣、複雜度差多少?什麼時候該寫哪一個?</div>
+
+    <div class="qa"><strong>App 2.</strong> 如果拿掉「<code>1 ≤ n ≤ sz</code>」這個保證,<code>n</code> 可能大於串列長度。這份程式碼會怎樣?怎麼防護?</div>
+
+    <div class="qa"><strong>App 3.</strong> 改成「<strong>回傳</strong>倒數第 <code>k</code> 個節點」(不刪除)。間距要設多少?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>多的那一格,買的是「前驅」。</strong><br><br>
+  <strong>推導</strong>:同步前進時<strong>間距完全不變</strong>,而迴圈在 <code>curr == nullptr</code> 時停 —— 可以把 <code>nullptr</code> 想成「尾巴後面那一格」。所以結束時 <code>tail</code> 距離那一格<strong>剛好等於間距</strong>。<br><br>
+  間距 <code>= n</code> ⇒ <code>tail</code> 落在<strong>倒數第 n 個</strong>,也就是<strong>要刪的那個節點本身</strong>。但<strong>單向串列刪不掉自己</strong> —— 要把一個節點從鏈上摘掉,你需要改<strong>它前面那個</strong>的 <code>next</code>。<br>
+  間距 <code>= n+1</code> ⇒ <code>tail</code> 落在<strong>倒數第 n+1 個</strong> = 前驅 ✓<br><br>
+  <strong>實測</strong>:少了那個 <code>+1</code>,<strong>全部 465 組合法輸入統統錯</strong>,最小反例 <code>sz=1, n=1</code> 回傳 <code>[1]</code>(正解 <code>[]</code>)。<br><br>
+  <b>反過來看更清楚:如果題目只是要「拿到」倒數第 n 個節點而不刪它,間距就該是 <code>n</code>。</b>見 App 3 —— 那個對照最能說明這個 <code>+1</code> 到底在做什麼。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>它解決的是「要刪的就是頭」,也就是 <code>n == sz</code>。</strong><br><br>
+  A1 說刪一個節點需要它的<strong>前驅</strong>。但當要刪的是<strong>第一個節點</strong>時,<strong>它沒有前驅</strong> —— 整個推論就沒有落腳點了。<br><br>
+  <code>dummy</code> 就是<strong>憑空補上那個不存在的前驅</strong>。有了它:<br>
+  · 「刪頭」和「刪中間任何一個」變成<strong>完全同一段程式碼</strong>;<br>
+  · 回傳 <code>dummy-&gt;next</code> 自動處理了「頭被換掉」——不必另外判斷。<br><br>
+  <strong>實測</strong>:拿掉 dummy、兩個指標都從 <code>head</code> 出發,465 組<strong>錯 30 組</strong> —— 而且<strong>剛好就是每個 <code>sz</code> 的 <code>n == sz</code> 那一組</strong>(<code>sz = 1..30</code>,一個 <code>sz</code> 一組)。<br><br>
+  <b>注意這個失敗率只有 6.5%,反而最危險</b> —— 它只在「刪頭」時出錯,而那正是隨手測幾筆最容易跳過的 case。<b>三個陷阱裡,全錯的那個(<code>+1</code>)其實最安全,因為一測就發現。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不會 —— 而且是「剛好」不會,靠的正是題目那句 <code>n ≤ sz</code>。</strong><br><br>
+  <strong>數一下位置</strong>:<code>dummy</code> 加上 <code>sz</code> 個節點 = 共 <code>sz + 1</code> 個位置(索引 <code>0 .. sz</code>),再往後就是 <code>nullptr</code>(可以記成索引 <code>sz + 1</code>)。<br><br>
+  <code>curr</code> 從索引 0 出發走 <code>n + 1</code> 步 → 停在索引 <code>n + 1</code>。<br>
+  題目保證 <code>1 ≤ n ≤ sz</code> ⇒ <code>n + 1 ≤ sz + 1</code>。<br><br>
+  所以<strong>最遠的情形(<code>n == sz</code>)剛好停在 <code>nullptr</code> 那一格</strong> —— 迴圈到此為止,<strong>不會再對 <code>nullptr</code> 取 <code>-&gt;next</code></strong>。<br><br>
+  <strong>實測</strong>:<code>sz = 1..30</code> 的 <code>n = sz</code>(走最遠)情形,<code>curr</code> 走完 <code>sz+1</code> 步之後<strong>正好是 <code>nullptr</code></strong> —— 30 種全部如此。<br><br>
+  <b>但這個安全是「借來的」</b>:它完全依賴 <code>n ≤ sz</code>。約束一旦拿掉就會 SEGV —— 見 App 2。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>會少走一步,刪錯一個節點。</strong><br><br>
+  <code>while (curr)</code> 讓 <code>curr</code> 一路走到 <code>nullptr</code>,<code>tail</code> 停在倒數第 <code>n+1</code> 個 ✓<br>
+  <code>while (curr-&gt;next)</code> 在 <code>curr</code> 是<strong>最後一個節點</strong>時就停了,少走一步 ⇒ <code>tail</code> 停在<strong>倒數第 <code>n+2</code> 個</strong> ⇒ <code>tail-&gt;next</code> 是<strong>倒數第 <code>n+1</code> 個</strong> ⇒ <strong>刪錯一個</strong>(刪成了要刪的那個的前一個)。<br><br>
+  <strong>實測</strong>:465 組<strong>錯 435 組</strong>(93.5%),最小反例 <code>sz=2, n=1</code> 回傳 <code>[2]</code>(正解 <code>[1]</code>)。<br><br>
+  <b>沒錯的那 30 組是哪些?</b>正是 <code>n == sz</code> ——那時 <code>tail</code> 少走一步剛好還在 dummy 上,而 <code>dummy-&gt;next</code> 就是頭,答案碰巧對。<b>又是「刪頭」那批,只是這次它們是唯一沒壞的。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>沒有 —— 它只是「繞過去」,節點還在記憶體裡。</strong><br><br>
+  <code>tail-&gt;next = tail-&gt;next-&gt;next;</code> 做的事是:<strong>讓沒有人再指向那個節點</strong>。但那塊記憶體<strong>還是配置出去的狀態</strong>,只是變成了孤兒。<br><br>
+  <strong>修法</strong>:先抓住它再刪。<br>
+  <code>ListNode* victim = tail-&gt;next;</code><br>
+  <code>tail-&gt;next = victim-&gt;next;</code><br>
+  <code>delete victim;</code><br><br>
+  <strong>實測</strong>(覆寫 <code>ListNode::operator new/delete</code> 計數,<code>sz=5</code>、移除倒數第 2 個):原碼在函式內配置 1 個(dummy),把結果串列整條 <code>delete</code> 之後 <code>new = 6、delete = 4</code> ⇒ <strong>洩漏 2 個</strong> = <strong>dummy(1) + 被移除的節點(1)</strong>。改成 <code>ListNode dummy(0, head);</code> 並 <code>delete victim</code> 之後,<strong>洩漏 0</strong>。累積:呼叫 10 萬次原碼漏 <strong>3125 KB</strong>。<br><br>
+  <b>LeetCode 上看不出來,因為判題框架擁有那些節點、函式結束後統一回收。</b>但<strong>那是框架的責任邊界,不是程式碼正確</strong> —— 而且這一項是<strong>刪除類題目獨有的</strong>:前面 <a href="../p21/index.html">21</a>、<a href="../p2/index.html">2</a>、<a href="../p143/index.html">143</a> 只漏 dummy,這題漏兩個。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>兩趟版一樣是 <code>O(sz)</code> —— follow-up 買到的不是漸進上的改進。</strong><br><br>
+  <code>int sz = 0; for (ListNode* p = head; p; p = p-&gt;next) ++sz;&nbsp;&nbsp;// 第一趟:數長度</code><br>
+  <code>ListNode dummy(0, head); ListNode* t = &amp;dummy;</code><br>
+  <code>for (int i = 0; i &lt; sz - n; ++i) t = t-&gt;next;&nbsp;&nbsp;// 第二趟:走到前驅</code><br>
+  <code>ListNode* v = t-&gt;next; t-&gt;next = v-&gt;next; delete v;</code><br>
+  <code>return dummy.next;</code><br><br>
+  <strong>實測</strong>:窮舉全部 465 組,<strong>不一致 0</strong>,與一趟版<strong>結果完全相同</strong>。<br><br>
+  <strong>複雜度</strong>:兩趟仍是 <code>O(sz)</code> —— <code>2n</code> 和 <code>n</code> 是同一個量級。空間也一樣 <code>O(1)</code>。<strong>差別只在常數與「掃描次數」。</strong><br><br>
+  <b>什麼時候寫哪個:</b>如果資料在<strong>串流</strong>上(只能讀一次)、或走訪成本很高(每次讀取要 I/O),一趟才有實質意義。<b>面試時最好的答法是先講兩趟版證明自己會做,再說「既然 follow-up 問了,可以用固定間距的雙指標做到一趟」——而不是直接跳到一趟版然後解釋半天。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>會 SEGV —— 因為那個「剛好不越界」的保證(A3)沒了。</strong><br><br>
+  <code>n &gt; sz</code> 時,<code>curr</code> 要走 <code>n + 1 &gt; sz + 1</code> 步。走到第 <code>sz + 1</code> 步時它已經是 <code>nullptr</code>,<strong>第 <code>sz + 2</code> 步就對空指標取 <code>-&gt;next</code></strong>。<br><br>
+  <strong>防護版</strong>:在拉開間距的迴圈裡順便檢查。<br>
+  <code>for (int i = 0; i &lt; n + 1; ++i) {</code><br>
+  &nbsp;&nbsp;<code>if (!curr) return head;&nbsp;&nbsp;// n 超過長度 —— 沒有這個節點</code><br>
+  &nbsp;&nbsp;<code>curr = curr-&gt;next;</code><br>
+  <code>}</code><br><br>
+  <strong>實測</strong>:<br>
+  <code>sz=3, n=3</code> → <code>[2,3]</code>(合法,正常刪頭)<br>
+  <code>sz=3, n=4</code> / <code>sz=3, n=10</code> / <code>sz=1, n=2</code> → <strong>偵測到越界,原樣回傳</strong><br><br>
+  <b>要不要寫這段,取決於函式的契約。</b>題目<strong>明文保證</strong> <code>1 ≤ n ≤ sz</code>,所以在 LeetCode 上不必寫 —— 但如果這是一個<strong>對外的函式庫 API</strong>,呼叫端不見得守規矩,那就該擋。<b>面試時值得說一句「題目保證了所以我不擋,但如果是產品程式碼我會加」。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>間距是 <code>k</code>,不是 <code>k + 1</code> —— 而這個對照剛好解釋了本題那個 <code>+1</code>。</strong><br><br>
+  <code>ListNode *lead = head, *trail = head;</code><br>
+  <code>for (int i = 0; i &lt; k; ++i) lead = lead-&gt;next;&nbsp;&nbsp;// 間距 k</code><br>
+  <code>while (lead) { lead = lead-&gt;next; trail = trail-&gt;next; }</code><br>
+  <code>return trail;&nbsp;&nbsp;// 倒數第 k 個</code><br><br>
+  <strong>實測</strong>:<code>sz = 1..50</code>、<code>k = 1..sz</code> 共 <strong>1275</strong> 組,<strong>不一致 0</strong>。<br><br>
+  <strong>差在哪</strong>:<br>
+  · <strong>只要「拿到」那個節點</strong> ⇒ 間距 <code>k</code>,<code>trail</code> 直接落在目標上。<br>
+  · <strong>要「刪掉」那個節點</strong> ⇒ 間距 <code>k+1</code>,因為單向串列需要<strong>前驅</strong>才能摘掉它。<br><br>
+  <b>順帶一提這個版本連 dummy 都不需要</b> —— 因為它不修改串列,自然沒有「頭可能被換掉」的問題。<br><br>
+  <b>把兩者並排記:間距 = 「你需要停在目標前面幾格」。</b>要讀就 0 格(間距 k),要刪就 1 格(間距 k+1)。<b>這比死背「記得 +1」有用得多。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">間距 = 「你需要停在目標前面幾格」:要讀就 k、要刪就 k+1(因為單向串列刪節點需要前驅)。dummy 補上「頭的前驅」。而「繞過去」不等於「刪掉」—— 原碼每次呼叫漏 dummy 與 victim 共 2 個節點。</div>
+    <div class="sc-summary-bar__detail">REMOVE NTH FROM END · REVIEW</div>
+  </div>
+
+</body>
+</html>
