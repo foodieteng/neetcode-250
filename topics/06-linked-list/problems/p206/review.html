@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>206 · Reverse Linked List // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P206</span>
+    <span><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">翻轉鏈結串列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 206</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>翻轉 = 把 <code>n</code> 根 <code>next</code> 全部反向,<strong>節點一個都不動</strong></td></tr>
+        <tr><td>驗證方式</td><td>翻轉前後<strong>節點位址集合要守恆</strong> —— 實測 20 萬組皆守恆</td></tr>
+        <tr><td>迭代四行</td><td>存 next → 反向 → 推 prev → 推 curr,<strong>順序唯一</strong></td></tr>
+        <tr><td>迭代回傳</td><td><code>return prev</code>,<strong>不是 <code>curr</code></strong>(迴圈正是因為 <code>curr</code> 變空才停)</td></tr>
+        <tr><td>遞迴兩行</td><td>「接上」<code>head-&gt;next-&gt;next = head</code> 與「斷開」<code>head-&gt;next = nullptr</code> <strong>必須成對</strong></td></tr>
+        <tr><td>遞迴回傳</td><td><code>return node</code>,它<strong>全程都是原串列的最後一個節點</strong></td></tr>
+        <tr><td>base case</td><td><code>!head</code> 擋空串列、<code>!head-&gt;next</code> 擋空指標解參考,<strong>各擋各的</strong></td></tr>
+        <tr><td>最常見死法</td><td><strong>成環</strong>(七種錯法佔三種)—— 症狀是<strong>吊死</strong>不是答錯</td></tr>
+        <tr><td>複雜度</td><td>都是 <code>O(n)</code> 時間;遞迴 <code>O(n)</code> 空間、迭代 <code>O(1)</code></td></tr>
+        <tr><td>實測堆疊</td><td>每層 <strong>48 bytes</strong>,<code>n=5000</code> → <strong>234 KB</strong>,崩潰臨界約 <strong>17 萬層</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 迭代版的 <code>next = curr-&gt;next;</code> 看起來像可以省的暫存。<strong>能省嗎?</strong>如果直接寫成「先反向、再 <code>curr = curr-&gt;next</code>」會發生什麼?</div>
+
+    <div class="qa"><strong>Q2.</strong> 迭代版最後 <code>return prev;</code> —— 為什麼不是 <code>return curr;</code>?請說明迴圈是<strong>怎麼結束</strong>的。</div>
+
+    <div class="qa"><strong>Q3.</strong> 遞迴版的 <code>head-&gt;next = nullptr;</code> 少寫會怎樣?請說出<strong>症狀</strong>(不是「會錯」,而是實際會發生什麼)。</div>
+
+    <div class="qa"><strong>Q4.</strong> 遞迴版 base case 寫 <code>if (!head || !head-&gt;next)</code>。如果只寫 <code>if (!head)</code> 呢?這是「少一層防禦」還是「直接崩潰」?你要<strong>怎麼確認</strong>?</div>
+
+    <div class="qa"><strong>Q5.</strong> 兩種寫法時間都是 <code>O(n)</code>,那為什麼一般建議<strong>預設寫迭代版</strong>?請給出<strong>實測數字</strong>,不要只說「遞迴比較耗空間」。</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,4,5],兩種走法</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;"><strong>解法 B · 迭代</strong> —— 看「已翻好 / 未動」兩段怎麼此消彼長。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 初始</span>
+prev = null   curr = 1
+已翻好: null                 未動: 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 1 圈</span>
+① next = curr-&gt;next        (存下 2)
+② curr-&gt;next = prev        (1 的箭頭反過來,指向 null)
+③ prev = curr              (prev → 1)
+④ curr = next              (curr → 2)
+   prev = 1  curr = 2  next = 2
+   已翻好: 1 -&gt; null            未動: 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 ~ 4 圈(同樣四行)</span>
+第 2 圈  prev = 2  curr = 3     已翻好: 2 -&gt; 1 -&gt; null            未動: 3 -&gt; 4 -&gt; 5 -&gt; null
+第 3 圈  prev = 3  curr = 4     已翻好: 3 -&gt; 2 -&gt; 1 -&gt; null       未動: 4 -&gt; 5 -&gt; null
+第 4 圈  prev = 4  curr = 5     已翻好: 4 -&gt; 3 -&gt; 2 -&gt; 1 -&gt; null  未動: 5 -&gt; null</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 5 圈</span>
+① next = curr-&gt;next        (取到 null)
+②③④ 之後  prev = 5  curr = null
+   已翻好: 5 -&gt; 4 -&gt; 3 -&gt; 2 -&gt; 1 -&gt; null      未動: null</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+while (curr) 不成立 → 跳出
+return prev = 節點 5
+共 5 圈
+<span class="sc-trace__out">// 5 -&gt; 4 -&gt; 3 -&gt; 2 -&gt; 1 -&gt; null</span></div>
+
+    <p style="margin:16px 0 12px;"><strong>解法 A · 遞迴</strong> —— 注意<strong>下潛時什麼都沒做</strong>,全部工作在回程。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 下潛(不改任何指標)</span>
+→ reverseList(1)   這段: 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null
+  → reverseList(2)   這段: 2 -&gt; 3 -&gt; 4 -&gt; 5 -&gt; null
+    → reverseList(3)   這段: 3 -&gt; 4 -&gt; 5 -&gt; null
+      → reverseList(4)   這段: 4 -&gt; 5 -&gt; null
+        → reverseList(5)   這段: 5 -&gt; null
+          ★ base case → 回傳 5(這就是最終的新 head)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 回程(每層兩行)</span>
+← 回到 4:  5 指回 4,4 斷尾    已翻好: 5 -&gt; 4 -&gt; null                  回傳 5
+← 回到 3:  4 指回 3,3 斷尾    已翻好: 5 -&gt; 4 -&gt; 3 -&gt; null             回傳 5
+← 回到 2:  3 指回 2,2 斷尾    已翻好: 5 -&gt; 4 -&gt; 3 -&gt; 2 -&gt; null        回傳 5
+← 回到 1:  2 指回 1,1 斷尾    已翻好: 5 -&gt; 4 -&gt; 3 -&gt; 2 -&gt; 1 -&gt; null   回傳 5</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+5 -&gt; 4 -&gt; 3 -&gt; 2 -&gt; 1 -&gt; null
+最大堆疊深度 5
+<span class="sc-trace__out">// 回傳值從頭到尾都是節點 5,沒有任何一層改過它</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      把兩份 trace 疊起來看:<strong>指標被反向的順序剛好相反</strong> ——
+      迭代是 <code>1,2,3,4,5</code>,遞迴是 <code>5,4,3,2,1</code>。
+      但<strong>最終每一根指標的狀態完全相同</strong>,這也是 20 萬組對拍零不一致的原因。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成<strong>只翻轉第 <code>m</code> 到第 <code>n</code> 個節點</strong>(LeetCode 92)。迭代版要怎麼改?最麻煩的是哪一步?</div>
+
+    <div class="qa"><strong>App 2.</strong> 用「翻轉」來<strong>判斷串列是否為回文</strong>(LeetCode 234),而且要 <code>O(1)</code> 空間。怎麼做?有什麼副作用?</div>
+
+    <div class="qa"><strong>App 3.</strong> 節點數放大到 <code>10⁶</code>。兩份實作各會怎樣?請給出<strong>實測依據</strong>。</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不能省 —— 那一行買的是「後路」。</strong><br><br>
+  單向串列裡,<code>curr-&gt;next</code> 是<strong>通往後半段的唯一一條路</strong>。<code>curr-&gt;next = prev;</code> 執行完的那一瞬間,原本後面那些節點<strong>沒有任何指標指得到</strong> —— 它們不是「暫時找不到」,是<strong>永遠失聯</strong>(在 LeetCode 上是答錯,在真實系統裡就是記憶體洩漏)。<br><br>
+  所以「先反向、再 <code>curr = curr-&gt;next</code>」讀到的已經是 <code>prev</code>,指標會<strong>往回走</strong>而不是往前。<strong>實測</strong>:窮舉 <code>n = 0..7</code> 共 8 種結構,這個寫法<strong>錯 6 種</strong>,最小反例 <code>[1,2]</code> 回傳 <code>[1]</code> —— 整整丟了一半。<br><br>
+  <b>這是鏈結串列題的通則:覆蓋任何一根 <code>next</code> 之前,先問「有沒有東西會因此失聯」。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為迴圈正是「<code>curr</code> 變成 <code>nullptr</code>」才結束的。</strong><br><br>
+  <code>while (curr)</code> 跳出時,<code>curr</code> 必定是 <code>nullptr</code> —— 回傳它就是回傳空串列。<br><br>
+  而 <code>prev</code> 的不變量是「<strong>已翻好那段的頭</strong>」。迴圈結束代表「還沒動那段」是空的,也就是<strong>整條都翻好了</strong>,所以 <code>prev</code> 指著的就是翻轉後的頭 —— 也就是原串列的<strong>最後一個節點</strong>。<br><br>
+  <strong>實測</strong>:寫成 <code>return curr</code>,8 種結構<strong>錯 7 種</strong>,連 <code>n = 1</code> 的 <code>[1]</code> 都回<strong>空串列</strong>(唯一「對」的是 <code>n = 0</code>,因為答案本來就是空的)。<br><br>
+  <b>記法:迴圈變數走到界外才停,所以答案永遠在「落後一步」的那個指標上。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>症狀是「程式吊死」,不是「回傳錯的答案」。</strong><br><br>
+  <code>head-&gt;next-&gt;next = head;</code> 讓<strong>後面那個節點指回自己</strong>,但<strong>自己本來也還指著它</strong> —— 這一瞬間兩個節點<strong>互相指</strong>,形成長度 2 的環。<code>head-&gt;next = nullptr;</code> 就是把自己那一根斷掉。<br><br>
+  <strong>實測</strong>:拿掉這一行,<code>[1,2]</code> 走出來是 <code>2 → 1 → 2 → 1 → …</code> <strong>永遠走不完</strong>;8 種結構錯 6 種。<br><br>
+  <b>而且這類錯誤在測試裡有個實務陷阱:</b>如果你的 dump / 比對函式沒有步數上限,<strong>第一個成環的變體就會把整個測試程式卡死</strong>,你連「哪裡錯了」都看不到。本頁所有對拍都在走訪裡放了 <code>guard &gt; 3n + 10</code> 的計數器,才問得出「它是成環還是答錯」。<br><br>
+  順帶一提:七種陷阱裡<strong>有三種都是成環</strong>(遞迴忘了斷尾、迭代 <code>prev</code> 初值寫 <code>head</code>、迭代 <code>prev = curr</code> 提前)。<strong>成環是這類題最典型的死法。</strong></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>是直接崩潰,不是「少一層防禦」。</strong><br><br>
+  <strong>推導</strong>:少了 <code>!head-&gt;next</code>,遞迴會一路下潛到<strong>最後一個節點的 <code>next</code></strong>,也就是傳進 <code>nullptr</code>。<code>!head</code> 命中回傳 <code>nullptr</code>,回到最後一個節點那一層時 <code>head-&gt;next</code> 是 <code>nullptr</code>,於是 <code>head-&gt;next-&gt;next = head</code> 就是<strong>對空指標做寫入</strong>。<br><br>
+  <strong>怎麼確認 —— 用 sanitizer,不要用「跑跑看」。</strong>對 <code>[1,2]</code> 跑 <code>g++ -fsanitize=address,undefined</code>:<br>
+  <code>runtime error: member access within null pointer of type 'ListNode'</code><br>
+  <code>AddressSanitizer: SEGV on unknown address 0x000000000008</code><br>
+  <code>The signal is caused by a WRITE memory access.</code><br><br>
+  <b>兩個條件擋的是不同的東西:</b><code>!head</code> 擋「一開始就傳空串列」(<code>n = 0</code>),<code>!head-&gt;next</code> 擋「遞迴到底」。<strong>不是同一件事的兩種寫法。</strong></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為遞迴版的空間是 <code>O(n)</code>,而且這個 <code>n</code> 是<em>呼叫堆疊</em>的層數 —— 它有硬上限。</strong><br><br>
+  <strong>實測堆疊用量</strong>(拿區域變數的位址當堆疊指標代理量出來的):<br>
+  <code>n = 100 → 4752 bytes</code>、<code>n = 1000 → 47952 bytes</code>、<code>n = 5000 → <strong>239952 bytes(234 KB)</strong></code> —— <strong>每層固定 48.0 bytes</strong>。<br><br>
+  <strong>崩潰臨界</strong>:系統 <code>ulimit -s = 8176 KB</code>,理論可容 <code>8176×1024 / 48 ≈ 174421</code> 層;<strong>二分實測崩潰起點約 173437 層</strong>,與理論差 <strong>0.6%</strong>。<br><br>
+  所以在本題(<code>n ≤ 5000</code>)遞迴<strong>是安全的</strong> —— 只用了上限的 2.9%,餘裕 34.9 倍。<b>但面試官只要加一句「如果串列有一百萬個節點呢」,遞迴版就直接爆</b>,而迭代版一個字都不用改。<br><br>
+  <b>另外,「能不能做到 <code>O(1)</code> 空間」本身就是這題最常見的追問。</b>先給迭代版,再說「還可以用遞迴,但那是 <code>O(n)</code> 堆疊」,順序反過來會顯得沒想到。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>核心四行完全不用動,難的是「接回去」。</strong><br><br>
+  作法:先走到第 <code>m−1</code> 個節點,把它記成 <code>prevLeft</code>(它是翻轉段的<strong>前驅</strong>);再從第 <code>m</code> 個開始跑<strong>一模一樣的四行</strong>,跑 <code>n − m + 1</code> 圈。<br><br>
+  <strong>最麻煩的是收尾的兩根指標</strong>:<br>
+  ① 翻轉段的<strong>原頭</strong>(第 <code>m</code> 個)翻完之後成了<strong>段尾</strong>,要接上「第 <code>n+1</code> 個節點」——所以跑之前得先把它存起來。<br>
+  ② <code>prevLeft-&gt;next</code> 要改指向翻轉段的<strong>新頭</strong>(也就是四行跑完後的 <code>prev</code>)。<br><br>
+  <strong>另一個坑是 <code>m == 1</code></strong> —— 這時沒有 <code>prevLeft</code>,而且<strong>整條串列的頭會變</strong>。標準解法是<strong>在最前面掛一個 dummy 節點</strong>,讓「頭也可能被換掉」這件事消失,最後回傳 <code>dummy-&gt;next</code>。<br><br>
+  <b>「翻轉一段」+「dummy 頭」這兩招合起來,就是 25 題「K 個一組翻轉」的全部骨架。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>快慢指標找中點 → 翻轉後半段 → 兩段對走比對。</strong><br><br>
+  ① 用快慢指標(<code>fast</code> 走兩步、<code>slow</code> 走一步)找到中點,<code>O(n)</code>。<br>
+  ② <strong>對後半段套用本題的迭代版</strong>,得到一條反向的後半。<br>
+  ③ 從原頭與反向後半的頭同時往前走,逐個比 <code>val</code>;任何一個不等就回 <code>false</code>。<br><br>
+  時間 <code>O(n)</code>,空間 <code>O(1)</code> —— 相對於「把值倒進 <code>vector</code> 再雙指標比對」的 <code>O(n)</code> 空間,這就是它存在的理由。<br><br>
+  <strong>副作用:它把輸入改壞了。</strong>函式回傳時,原串列的後半段是反的。<b>面試時一定要主動說這件事</b>,並補一句「如果呼叫端還要用這條串列,我會在回傳前<strong>再翻一次後半段還原</strong>」—— 那只是再跑一次同樣的四行,仍是 <code>O(1)</code> 空間。<br><br>
+  <b>「修改輸入」是 <code>O(1)</code> 空間解法很常見的隱藏代價,說出來比被問出來好。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>迭代版毫無問題;遞迴版必爆,而且我量過臨界值。</strong><br><br>
+  <strong>迭代版</strong>:空間 <code>O(1)</code>,與 <code>n</code> 無關。<code>10⁶</code> 個節點只是多跑 <code>10⁶</code> 圈,時間仍是 <code>O(n)</code>,<strong>一個字都不用改</strong>。<br><br>
+  <strong>遞迴版</strong>:每層 <strong>48 bytes</strong>(實測,<code>n = 100 / 1000 / 5000</code> 三個點算出來都是 48.0),<code>10⁶</code> 層需要約 <code>48 MB</code> 堆疊。而系統預設 <code>ulimit -s = 8176 KB</code> —— <strong>差了約 6 倍</strong>。<br><br>
+  <strong>實測崩潰臨界</strong>:我用二分找了一次,<code>n ≈ 173437</code> 還能跑、<code>n ≈ 175000</code> 就 stack overflow(理論值 174421,差 0.6%)。所以 <code>10⁶</code> <strong>遠遠超過</strong>,必定崩潰。<br><br>
+  <strong>如果非要用遞迴</strong>,有兩條路:① 手動用一個 <code>std::stack</code> 模擬遞迴 —— 但那等於把 <code>O(n)</code> 從堆疊搬到堆積,不如直接寫迭代;② 改成<strong>尾遞迴</strong>形式並期待編譯器最佳化掉 —— <b>但那不可靠</b>(<code>-O0</code> 下必定不會發生,標準也不保證)。<br><br>
+  <b>結論:這題的迭代版不只是「另一種寫法」,它是唯一能規模化的那個。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">覆蓋任何一根 next 之前,先問「有沒有東西會因此失聯」—— 迭代用暫存變數買後路,遞迴用還沒返回的堆疊框買。七種錯法三種成環,症狀是吊死不是答錯,所以測試的走訪一定要加步數上限。</div>
+    <div class="sc-summary-bar__detail">REVERSE LINKED LIST · REVIEW</div>
+  </div>
+
+</body>
+</html>

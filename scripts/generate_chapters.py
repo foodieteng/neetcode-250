@@ -149,7 +149,7 @@ PROBLEMS = {
         ('p1095','Find in Mountain Array',                 'find-in-mountain-array',                 'hard','done'),
     ],
     '06': [  # Linked List
-        ('p206','Reverse Linked List',             'reverse-linked-list',             'easy','todo'),
+        ('p206','Reverse Linked List',             'reverse-linked-list',             'easy','done'),
         ('p21', 'Merge Two Sorted Lists',          'merge-two-sorted-lists',          'easy','todo'),
         ('p141','Linked List Cycle',               'linked-list-cycle',               'easy','todo'),
         ('p143','Reorder List',                    'reorder-list',                    'med', 'todo'),

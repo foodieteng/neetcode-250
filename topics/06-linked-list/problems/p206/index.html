@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>206 · Reverse Linked List // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P206</span>
+    <span><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">翻轉鏈結串列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 遞迴 vs 迭代,兩種寫法</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 206</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>POINTER REWIRING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給單向鏈結串列的 <code>head</code>,把它<strong>翻轉</strong>,回傳新的頭。
+        節點數 <code>0 ~ 5000</code>,值域 <code>±5000</code>。
+      </p>
+    </div>
+
+    <p>
+      這是整個 06 章的<strong>地基</strong>。後面的
+      <strong>兩兩交換</strong>、<strong>K 個一組翻轉</strong>、<strong>回文判斷</strong>、<strong>重排串列</strong>
+      全部都會在某一步呼叫「翻轉一段」——把這題的<strong>指標順序</strong>刻進肌肉記憶,後面會省很多力氣。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      題目本身不難,難的是<strong>手不能亂</strong>:鏈結串列每個節點<strong>只有一條出路</strong>,
+      一旦把 <code>next</code> 覆蓋掉<strong>就再也回不去</strong>。所以這題真正在考的是
+      「<strong>改一根指標之前,先想清楚有沒有東西會因此失聯</strong>」。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是原地改指標<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">把值倒進 vector,再造一條新串列</span>
+            <span class="sc-ko-card__o">O(n) 額外空間</span>
+          </div>
+          <div class="sc-ko-card__body">會過,但<strong>配置了 n 個新節點</strong>,而且舊的那條要嘛外洩、要嘛還要多寫一段釋放。<strong>面試官問「能不能原地做」你就得重寫。</strong></div>
+          <div class="sc-ko-card__verdict">× REJECT · 白花空間</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">只把<strong>值</strong>倒過來,不動指標</span>
+            <span class="sc-ko-card__o">O(n) 額外空間</span>
+          </div>
+          <div class="sc-ko-card__body">
+            對這題「碰巧」可行,但它<strong>沒有真的翻轉串列</strong> —— 節點的相對位置一個都沒變。
+            換成「K 個一組翻轉」或節點帶有其他欄位時,這條路<strong>直接死掉</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 學不到東西</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">原地把每根 <code>next</code> 反過來接</span>
+          <span class="sc-ko-card__o">O(n) 時間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          一條 <code>n</code> 個節點的串列有 <code>n</code> 根 <code>next</code> 指標,翻轉就是<strong>把每一根反向</strong>。
+          節點本身<strong>一個都不動</strong>。實測 20 萬組隨機測資,翻轉前後<strong>節點位址集合完全相同</strong> ——
+          <strong>零配置、零釋放</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 原地翻轉</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      剩下的問題只有一個:<strong>用什麼順序去反向這 n 根指標</strong>。
+      <strong>從後往前</strong>就是遞迴版,<strong>從前往後</strong>就是迭代版 —— 這正是你給的兩份程式碼。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">兩種寫法的骨架<span class="sc-section__title-en">// TWO SHAPES</span></h2>
+    </div>
+
+    <p><strong>解法 A · 遞迴(從後往前)</strong></p>
+    <ol>
+      <li><strong>下潛</strong>:一路呼叫到最後一個節點,<strong>途中什麼都不改</strong>。base case 回傳的那個節點<strong>就是最終的新 head</strong>,之後每層原封不動往上傳。</li>
+      <li><strong>回程接線</strong>:<code>head-&gt;next-&gt;next = head</code> —— 讓後面那個節點指回自己。</li>
+      <li><strong>斷尾</strong>:<code>head-&gt;next = nullptr</code> —— 自己不能再指著後面,<strong>否則兩節點互指成環</strong>。</li>
+    </ol>
+
+    <p style="margin-top:14px;"><strong>解法 B · 迭代(從前往後)</strong></p>
+    <ol>
+      <li><strong>先存後路</strong>:<code>next = curr-&gt;next</code> —— 下一行就要覆蓋它了,<strong>不先存住後半段就永遠失聯</strong>。</li>
+      <li><strong>反向</strong>:<code>curr-&gt;next = prev</code>。</li>
+      <li><strong>兩指標前進</strong>:<code>prev = curr; curr = next;</code>。迴圈結束時 <code>curr</code> 是 <code>nullptr</code>,<strong><code>prev</code> 正好停在最後一個節點 = 新的 head</strong>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      兩者<strong>做的事完全一樣</strong> —— 都是把那 n 根指標一根根反向,只是走的方向相反。
+      實測 20 萬組隨機測資,兩份程式碼的輸出<strong>逐位元相同</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示 · 解法 A(遞迴)<span class="sc-section__title-en">// [1,2,3,4,5] → 5,4,3,2,1</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>橘箭頭 = 還沒翻,藍箭頭 = 已翻好,∅ = <code>nullptr</code>。</strong>
+      注意<strong>下潛的路上什麼都不改</strong> —— 所有工作都發生在回程,而且每一層都是同樣的兩行。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · 遞迴 · 回程上一格一格反向</div>
+      <div class="sc-viz__cvwrap"><canvas id="va-canvas" class="sc-viz__canvas" style="height:355px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+  </section>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">動畫演示 · 解法 B(迭代)<span class="sc-section__title-en">// 三指標往前推,5 圈</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      同一條串列,換成<strong>從前往後</strong>。看 <code>prev</code> 和 <code>curr</code> 怎麼<strong>把串列切成「已翻好」和「還沒動」兩段</strong> ——
+      這個不變量是迭代版的全部。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ B · 迭代 · prev / curr / next 三指標</div>
+      <div class="sc-viz__cvwrap"><canvas id="vb-canvas" class="sc-viz__canvas" style="height:345px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 迭代版為什麼一定要先存 next</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          單向串列裡,<strong><code>curr-&gt;next</code> 是通往後半段的唯一一條路</strong>。
+          <code>curr-&gt;next = prev</code> 這一行會把它<strong>覆蓋掉</strong> ——
+          執行完之後,後面那 <code>n−k</code> 個節點<strong>沒有任何指標指得到</strong>,永遠失聯。
+        </p>
+        <p style="margin:0;">
+          所以 <code>next = curr-&gt;next;</code> 必須在<strong>它之前</strong>。
+          實測把這一行拿掉(直接寫 <code>curr = curr-&gt;next</code> 在改完之後),
+          <code>[1,2]</code> 就只回 <code>[1]</code> —— <strong>丟了一半的串列</strong>,8 種結構錯 6 種。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 遞迴版為什麼一定要斷尾</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>head-&gt;next-&gt;next = head</code> 讓<strong>後面那個節點指回自己</strong>,
+          但<strong>自己本來也還指著它</strong> —— 這一瞬間兩個節點<strong>互相指</strong>,形成一個長度 2 的環。
+        </p>
+        <p style="margin:0;">
+          <code>head-&gt;next = nullptr</code> 就是把自己那一根斷掉。實測拿掉這行,
+          <code>[1,2]</code> 會走成 <code>2 → 1 → 2 → 1 → …</code> <strong>永遠走不完</strong>。
+          <b>成環是鏈結串列題最典型的死法 —— 它不會答錯,它會直接把你的程式吊死。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 三種改法都會成環(實測,n = 0..7 共 8 種結構)</span>
+[迭代] prev 初值寫成 head 而非 nullptr   → 錯 7/8,[1] 就自己指自己
+[迭代] prev = curr 寫在接線之前          → 錯 7/8,同樣自環
+[遞迴] 忘了 head->next = nullptr         → 錯 6/8,[1,2] → 2 ⇄ 1
+<span class="sc-trace__out">// 都不是「答錯」,是「永遠跑不完」</span></div>
+  </section>
+
+  <!-- ════════════ 7 · A vs B 對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">遞迴 vs 迭代 · 該選哪個<span class="sc-section__title-en">// SIDE BY SIDE</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>A · 遞迴</th><th>B · 迭代</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono">O(n)</td><td class="mono">O(n)</td></tr>
+        <tr><td><strong>空間</strong></td><td class="mono fail"><strong>O(n)</strong>(呼叫堆疊)</td><td class="mono ok"><strong>O(1)</strong></td></tr>
+        <tr><td>n = 5000 實測堆疊</td><td class="mono"><strong>234 KB</strong>(每層 48 bytes)</td><td class="mono">0</td></tr>
+        <tr><td>崩潰門檻(實測)</td><td class="mono">深度約 <strong>173437</strong> 層</td><td class="mono">不存在</td></tr>
+        <tr><td>指標改動順序</td><td>從後往前(回程)</td><td>從前往後</td></tr>
+        <tr><td>最容易寫錯的地方</td><td>忘了 <code>head-&gt;next = nullptr</code> → 成環</td><td>忘了先存 <code>next</code> → 丟半條串列</td></tr>
+        <tr><td>面試現場</td><td>好講「假設後面已翻好」的直覺</td><td class="ok"><strong>通常是期待的答案</strong>(<code>O(1)</code> 空間)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 遞迴堆疊用量(實測,用區域變數位址量出來的)</span>
+n =  100  →   4752 bytes  (4.6 KB)   每層 48.0 bytes
+n = 1000  →  47952 bytes  (46.8 KB)  每層 48.0 bytes
+n = 5000  → 239952 bytes  (234.3 KB) 每層 48.0 bytes
+
+系統堆疊上限 ulimit -s = 8176 KB
+  → 理論可容 8176×1024 / 48 ≈ 174421 層
+  → 實測崩潰臨界 ≈ 173437 層(與理論差 0.6%)
+<span class="sc-trace__out">// 題目上限 n=5000 只用了 2.9%,餘裕 34.9 倍 —— 這題遞迴是安全的</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這題兩種都能過</strong>,但如果面試官加一句「串列可能有一百萬個節點」,
+      遞迴版就<strong>直接爆堆疊</strong>(實測 17 萬層就崩)。
+      <b>所以預設寫迭代版,遞迴版當作「我知道還有另一種寫法」的補充。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      鏈結串列題的通則:<strong>每個節點只有一條出路,所以覆蓋任何一根 <code>next</code> 之前,
+      先問「有沒有東西會因此失聯」</strong>。
+      迭代版用 <code>next</code> 暫存來回答它,遞迴版用<strong>還沒返回的堆疊框</strong>來回答它 ——
+      兩者都是在<strong>買一份後路</strong>,只是一個用變數、一個用堆疊。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">翻轉 = 把 n 根 next 全部反向,節點一個都不動(實測位址集合守恆)。從後往前是遞迴、從前往後是迭代。迭代要先存 next(否則丟半條),遞迴要斷尾(否則成環)。時間都是 O(n),但遞迴吃 O(n) 堆疊 —— n=5000 實測 234 KB,17 萬層就崩。</div>
+    <div class="sc-summary-bar__detail">REVERSE LINKED LIST · TWO APPROACHES</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p206a-recursive.js"></script>
+  <script src="../../../../assets/js/viz/p206b-iterative.js"></script>
+</body>
+</html>
