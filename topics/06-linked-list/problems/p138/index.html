@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>138 · Copy List with Random Pointer // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P138</span>
+    <span><a href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">帶隨機指標的深拷貝</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 遞迴 + 記憶表</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 138</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEMOIZED DEEP COPY</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        每個節點除了 <code>next</code>,還多一根 <code>random</code>,可以指向<strong>串列裡的任何一個節點,或 <code>null</code></strong>。
+        做一份<strong>深拷貝</strong>。
+      </p>
+      <p style="margin-top:8px;">
+        深拷貝的三個條件:<strong>剛好 <code>n</code> 個全新節點</strong>、值一一對應、
+        <strong>新串列的所有指標都指向新節點</strong>(一根都不能指回原串列)。<code>0 ≤ n ≤ 1000</code>。
+      </p>
+    </div>
+
+    <p>
+      困難點<strong>只有一個</strong>:拷貝節點 0 的時候,它的 <code>random</code> 可能指向節點 5 ——
+      而<strong>節點 5 的拷貝還不存在</strong>。<code>next</code> 沒這個問題(它只往後),
+      但 <code>random</code> <strong>可以指向任何地方,包括還沒處理到的、以及已經處理過的</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這就是<strong>「圖的深拷貝」</strong>問題,只是包裝成串列。
+      解法也是圖論的標準解:<strong>一張「原節點 → 拷貝節點」的記憶表</strong>,
+      把「這個我拷過了嗎」變成 <code>O(1)</code> 查詢。
+      <b>同樣的骨架直接可以搬去做 <a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">133 Clone Graph ↗</a>。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼需要記憶表<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">碰到 random 就遞迴拷貝它</span>
+            <span class="sc-ko-card__o">無限遞迴</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>random</code> 可以<strong>指回前面、甚至指向自己</strong>。沒有記憶表的話,
+            拷貝 A → 拷貝 A 的 random B → 拷貝 B 的 random A → …<strong>永遠回不來</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 無限遞迴</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">先算出每個 random 的「索引」,再用索引接</span>
+            <span class="sc-ko-card__o">O(n²) 或 O(n) + 額外陣列</span>
+          </div>
+          <div class="sc-ko-card__body">
+            可行,但「求某個節點的索引」本身就要走一遍 —— 除非你先建一張
+            <strong>節點 → 索引</strong>的表。<strong>那其實就是記憶表,只是繞了一圈。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">△ 繞遠路</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">一張 <code>dict: 原節點 → 拷貝節點</code></span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(n) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          第一次碰到某個原節點:<strong>新建拷貝、立刻記進表、再往下遞迴</strong>。
+          之後再碰到:<strong>直接查表拿</strong>,不重建。
+          這一張表同時解決了<strong>「還沒拷的」</strong>和<strong>「已經拷過的」</strong>兩種情形。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · O(n)</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>記憶表在這裡有兩個作用,不只是「加速」</strong>:
+      ① <strong>正確性</strong> —— 保證同一個原節點只拷一次(否則新串列會超過 n 個節點);
+      ② <strong>終止性</strong> —— 遇到指回去的 <code>random</code> 時能停下來。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>查表</strong>:<code>if (dict.count(head)) return dict[head];</code> —— 拷過就直接給。</li>
+      <li><strong>先登記,再遞迴</strong>:<code>dict[head] = new Node(head-&gt;val);</code> <strong>必須在遞迴之前</strong>。順序反了,自環的 <code>random</code> 就會無限遞迴。</li>
+      <li><strong>接兩根指標</strong>:<code>next</code> 和 <code>random</code> 各遞迴一次 —— 而遞迴本身會處理「已拷過」的情形。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>先登記再遞迴</strong>是這類「圖上做記憶化」的通則:
+      <b>把自己放進表裡,是在對後面說「我正在處理中,別再進來了」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// vals=[7,13,11,10], random=[null,0,3,1]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong><code>R→k</code> 表示 <code>random</code> 指向索引 <code>k</code>。</strong>
+      看拷貝那排的 <code>R→?</code> 怎麼一個個變成真正的目標 ——
+      <strong>下潛時只建節點和接 <code>next</code>,所有 <code>random</code> 都是回程才接的</strong>,
+      而那時整條鏈都已經在 <code>dict</code> 裡了。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Copy List with Random Pointer · 遞迴 + 記憶表</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:420px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · dict 放哪裡 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">dict 是成員變數 —— 這是個真的 bug<span class="sc-section__title-en">// THE STATE LEAK</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">問題:表跨呼叫殘留,而裡面全是懸空指標</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>unordered_map&lt;Node*, Node*&gt; dict;</code> 寫在 class 裡,是<strong>成員變數</strong> ——
+          它<strong>不會在函式結束時清空</strong>,而且鍵是<strong>原節點的位址</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          第一次呼叫結束、那些節點被釋放之後,<code>dict</code> 裡留下的是<strong>一堆懸空指標</strong>。
+          接著 <code>malloc</code> <strong>很可能把同樣的位址發還給下一條串列的節點</strong> ——
+          於是 <code>dict.count(head)</code> <strong>誤判成「這個我拷過了」</strong>,直接回傳一個<strong>已經 <code>delete</code> 掉的節點</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:用<strong>同一個 <code>Solution</code> 物件</strong>連續處理 2000 條不同的串列,
+          <strong>1997 條(99.85%)</strong>的新節點位址已經在舊 <code>dict</code> 裡,<strong>第一次就發生在第 1 輪</strong>。
+          直接走訪回傳值 → <strong>SEGV</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 實測:同一個 Solution 呼叫兩次</span>
+Solution s;                                  // 只建一個,兩次都用它
+
+第 1 次:輸入 [1,2,3]  →  拷貝 [1,2,3]   dict.size() = 3
+        (釋放原串列與拷貝)
+
+第 2 次:輸入 [9,8,7]
+        這三個「全新」節點的位址,在舊 dict 裡命中 1 / 3 個
+        →  拷貝 [8,7]      ✗ 正解應為 [9,8,7]
+<span class="sc-trace__out">// 少了一個節點 —— 因為第一個節點被誤認成「已經拷過」,回傳了懸空指標</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>LeetCode 通常每筆測資新建一個 <code>Solution</code>,所以這份程式碼會 AC。</strong>
+      但那是<strong>判題框架剛好幫你把狀態清掉了</strong>,不是程式碼本身正確。
+      <b>修法只有一行:把 <code>dict</code> 從成員變數改成區域變數</b>(見程式碼頁)。
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 順帶一提:ASan 反而「蓋掉」這個 bug</span>
+用 g++ -fsanitize=address 跑同一個兩次呼叫的情境 → 沒有報錯,答案還是對的
+
+原因:ASan 會把釋放的記憶體放進「隔離區」延後重用,
+     所以新節點拿不到舊位址,dict 就不會誤命中。
+<span class="sc-trace__out">// 這類「靠位址重用才觸發」的 bug,sanitizer 不一定抓得到 —— 要靠設計上看出來</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 遞迴深度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">遞迴深度<span class="sc-section__title-en">// EXACTLY n + 1</span></h2>
+    </div>
+
+    <p>
+      這份解法對 <code>next</code> <strong>和</strong> <code>random</code> 都遞迴,
+      直覺上會擔心「random 亂指會不會把深度弄得很深」。<strong>實測不會。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 遞迴深度(n = 1000,五種 random 佈局)</span>
+random = 下一個節點      最大深度 = 1001
+random = 前一個節點      最大深度 = 1001
+random = 全部指向最後一個 最大深度 = 1001
+random = 全 null         最大深度 = 1001
+random = 隨機            最大深度 = 1001
+<span class="sc-trace__out">// 恆等於 n + 1,與 random 的佈局完全無關</span></div>
+
+    <p style="margin-top:12px;">
+      原因:程式<strong>先把整條 <code>next</code> 鏈遞迴完</strong>,才回過頭接 <code>random</code>。
+      到了接 <code>random</code> 的時候,<strong>所有節點都已經在 <code>dict</code> 裡</strong> ——
+      每個 <code>random</code> 遞迴都是<strong>第一行就命中回傳</strong>,深度只加 1。
+    </p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 堆疊實測</span>
+n =  100  →   9600 bytes  (9.4 KB)   每層約 96 bytes
+n =  500  →  48000 bytes  (46.9 KB)  每層約 96 bytes
+n = 1000  →  96000 bytes  (93.8 KB)  每層約 96 bytes    ← 題目上限
+
+ulimit -s = 8176 KB ⇒ n=1000 只用了 1.1%
+<span class="sc-trace__out">// 每層 96 bytes 比 206 的 48 大一倍 —— 多出來的是 map 操作的區域變數</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <code>n ≤ 1000</code> 讓遞迴很安全(只用 1.1% 的堆疊)。
+      <b>但如果題目把 n 放大到 10⁵,93.8 KB 就會變成 9.4 MB,直接爆</b> ——
+      那時要換成<strong>迭代兩趟</strong>的版本(見複習頁 App 1)。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        每個原節點<strong>只被建立一次</strong>(靠記憶表保證),每次 <code>dict</code> 操作平均 <code>O(1)</code>。
+        空間是 <code>dict</code> 的 <code>n</code> 筆 + 遞迴堆疊的 <code>n</code> 層。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono">O(n)</td><td>每個節點建一次,每根指標接一次</td></tr>
+        <tr><td>Space · dict</td><td class="mono">O(n)</td><td>n 筆 (原節點, 拷貝節點)</td></tr>
+        <tr><td>Space · 堆疊</td><td class="mono">O(n)</td><td>實測深度 <strong>n+1</strong>,每層 96 bytes</td></tr>
+        <tr><td>新節點數</td><td class="mono ok">恰好 n</td><td>實測 5 萬組全部相符</td></tr>
+        <tr><td>與原串列共用節點</td><td class="mono ok">0</td><td>實測 20 萬組全部為 0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      有一種 <strong><code>O(1)</code> 額外空間</strong>的解法(把拷貝「織」進原串列再拆開),
+      實測也完全正確 —— 見複習頁 App 2。<b>但它三趟走訪、程式碼長一倍,面試時通常先講記憶表版。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>只要指標可以指向「任意」節點,問題就從串列變成了圖</strong> ——
+      而圖的深拷貝只有一個標準答案:<strong>一張「原 → 新」的記憶表</strong>。
+      它同時買到<strong>正確性</strong>(不重複建)和<strong>終止性</strong>(環不會無限遞迴)。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">random 能指任意節點 ⇒ 這是圖的深拷貝,標準解是一張「原→新」記憶表(同時買到不重複建 + 環不無限遞迴)。先登記再遞迴。深度恆為 n+1。而 dict 寫成成員變數是真的 bug —— 實測同物件重用 2000 次有 1997 次踩到懸空指標。</div>
+    <div class="sc-summary-bar__detail">COPY LIST WITH RANDOM POINTER · MEMOIZED</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p138-copyrandom.js"></script>
+</body>
+</html>

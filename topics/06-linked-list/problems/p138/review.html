@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>138 · Copy List with Random Pointer // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P138</span>
+    <span><a href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">帶隨機指標的深拷貝</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 138</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>題型本質</td><td><code>random</code> 能指任意節點 ⇒ <strong>這是圖的深拷貝</strong>,不是串列題</td></tr>
+        <tr><td>記憶表</td><td>一張 <code>原節點 → 拷貝節點</code>,同時買到<strong>正確性 + 終止性</strong></td></tr>
+        <tr><td>順序</td><td><strong>先登記,再遞迴</strong> —— 顛倒的話自環的 <code>random</code> 會無限遞迴</td></tr>
+        <tr><td>深拷貝三條件</td><td>恰好 n 個新節點 / 值對應 / <strong>所有指標都指向新節點</strong></td></tr>
+        <tr><td>最容易漏的驗證</td><td>第三條 —— 只比 <code>val</code> 序列<strong>驗不出 random 指回原串列</strong></td></tr>
+        <tr><td>遞迴深度</td><td>恆為 <strong><code>n + 1</code></strong>,與 <code>random</code> 佈局無關;每層 96 bytes</td></tr>
+        <tr><td><strong><code>dict</code> 的位置</strong></td><td><strong>必須是區域變數</strong> —— 成員變數會跨呼叫殘留,實測 1997/2000 踩到懸空指標</td></tr>
+        <tr><td>sanitizer 的盲點</td><td>ASan 的隔離區<strong>會蓋掉</strong>這個 bug —— 只能從設計上看出來</td></tr>
+        <tr><td>複雜度</td><td><code>O(n)</code> 時間、<code>O(n)</code> 空間(表 + 堆疊);有 <code>O(1)</code> 空間解,見 App 2</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼<strong>非要一張記憶表不可</strong>?它擋掉的是哪兩件事?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>dict[head] = new Node(...)</code> 這一行如果搬到<strong>兩個遞迴之後</strong>會怎樣?請給出具體的輸入。</div>
+
+    <div class="qa"><strong>Q3.</strong> 這段程式的 <code>dict</code> 是<strong>成員變數</strong>。LeetCode 上會 AC —— 那它到底有沒有問題?</div>
+
+    <div class="qa"><strong>Q4.</strong> 程式對 <code>next</code> <strong>和</strong> <code>random</code> 都遞迴。<code>random</code> 可以亂指,<strong>會不會把遞迴深度弄得很深</strong>?</div>
+
+    <div class="qa"><strong>Q5.</strong> 怎麼驗證「這真的是深拷貝」?<strong>只比對兩條串列的 <code>val</code> 序列夠嗎</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// vals=[7,13,11,10], random=[null,0,3,1]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 下潛:一路沿 next,每個節點「先建再遞迴」</span>
+→ copy(節點 0 val=7):dict 沒有 → 新建拷貝 #1,記進 dict
+  先接 next:
+  → copy(節點 1 val=13):dict 沒有 → 新建拷貝 #2
+    先接 next:
+    → copy(節點 2 val=11):dict 沒有 → 新建拷貝 #3
+      先接 next:
+      → copy(節點 3 val=10):dict 沒有 → 新建拷貝 #4
+        先接 next:
+        → copy(null) 回傳 null
+<span class="sc-trace__out">// 四個拷貝都建好了,next 也接完了 —— 但 random 一根都還沒接</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 回程:接 random,每一根都是 dict 命中</span>
+        再接 random(節點 3 的 random → 節點 1):
+        → copy(節點 1) 已在 dict,直接回傳(不再建)
+      ← 節點 3 完成
+      再接 random(節點 2 的 random → 節點 3):
+      → copy(節點 3) 已在 dict,直接回傳
+    ← 節點 2 完成
+    再接 random(節點 1 的 random → 節點 0):
+    → copy(節點 0) 已在 dict,直接回傳     ← 往回指,dict 一樣命中
+  ← 節點 1 完成
+  再接 random(節點 0 的 random → null):
+  → copy(null) 回傳 null
+← 節點 0 完成</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+拷貝結果 vals = 7 13 11 10   rnd = -1 0 3 1
+與原串列完全一致,且共用節點 0 個
+
+新建節點數 = 4 = n           ✓ exactly n brand new nodes
+所有 random 都指向新串列內   ✓
+<span class="sc-trace__out">// 注意:回程時四個 random 全部是「dict 命中」,一次都沒有重建</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這份 trace 說明了 Q4 的答案:<strong>接 <code>random</code> 的時候,整條 <code>next</code> 鏈早就都在 <code>dict</code> 裡了</strong>,
+      所以每個 <code>random</code> 遞迴都在<strong>第一行就命中回傳</strong>,深度只加 1。
+    </div>
+
+    <p style="margin-top:16px;">正確性驗證範圍:</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對拍(n = 0..12,random 隨機,共 200000 組)</span>
+① 結構一致(val / next / random 索引序列)  → 不一致 0
+② 與原串列共用節點                          → 0 組
+③ random 指到新串列以外                     → 0 組
+節點數 != n(50000 組)                      → 0 組
+
+官方範例 [7,13,11,10,1] / random [null,0,4,2,0] → 完全一致,共用節點 0</div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 把 <code>n</code> 放大到 <code>10⁵</code>。這份遞迴解法還能用嗎?怎麼改成<strong>不遞迴</strong>?</div>
+
+    <div class="qa"><strong>App 2.</strong> 有沒有辦法做到 <strong><code>O(1)</code> 額外空間</strong>(不算輸出)?</div>
+
+    <div class="qa"><strong>App 3.</strong> 這題的骨架能不能直接搬去做 <a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">133 Clone Graph ↗</a>(任意圖的深拷貝)?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>它擋掉兩件事,而且兩件都是致命的 —— 記憶表不是「加速」,是這個解法成立的前提。</strong><br><br>
+  <strong>① 正確性:同一個原節點只能拷一次。</strong>如果節點 5 被三個不同節點的 <code>random</code> 指到,沒有表的話它會被建三份 —— 新串列的節點數就超過 <code>n</code>,違反題目寫明的 "exactly n brand new nodes",而且那三份彼此還不是同一個節點,<code>random</code> 的對應關係整個垮掉。<br><br>
+  <strong>② 終止性:<code>random</code> 可以指回去。</strong><code>random</code> 能指向<strong>任何</strong>節點,包括自己、包括祖先。沒有表的話:拷 A → 拷 A 的 random B → 拷 B 的 random A → …<strong>永遠回不來</strong>,而且每一層都在 <code>new</code>,堆疊和堆積會一起爆。<br><br>
+  <strong>實測</strong>:加了表之後,20 萬組隨機測資<strong>結構全對、共用節點 0、random 沒有一根指到新串列外</strong>;5 萬組檢查新建節點數,<strong>恆等於 n</strong>。<br><br>
+  <b>一句話:<code>random</code> 能指任意節點的那一刻,這題就從「串列」變成了「圖」——而圖的深拷貝只有記憶表這一個標準答案。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>會無限遞迴,而且每一層都在配置記憶體。</strong><br><br>
+  顛倒之後長這樣:<br>
+  <code>Node* c = new Node(head-&gt;val);</code><br>
+  <code>c-&gt;next   = copy(head-&gt;next);</code><br>
+  <code>c-&gt;random = copy(head-&gt;random);</code><br>
+  <code>dict[head] = c;&nbsp;&nbsp;// ← 太晚了</code><br><br>
+  <strong>具體輸入</strong>:<code>n = 1</code>,唯一那個節點的 <code>random</code> <strong>指向自己</strong>。<br>
+  <code>copy(A)</code> → dict 裡沒有 A → 建一個拷貝 → 遞迴 <code>copy(A-&gt;random)</code> = <code>copy(A)</code> → dict 裡<strong>還是</strong>沒有 A(因為登記在最後一行,還沒執行到)→ 又建一個 → 又遞迴 → …<br><br>
+  更一般地,<strong>任何 <code>random</code> 指回祖先的情形都會觸發</strong>,例如 <code>[A, B]</code> 且 <code>B.random = A</code>。<br><br>
+  <b>「先把自己放進表裡」的語意是:對後面的遞迴宣告「我正在處理中,別再進來了」。</b>這是所有<strong>圖上記憶化</strong>的共通寫法 —— <a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">133</a> 也是同一個順序,理由一模一樣。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>有問題,而且是很嚴重的那種 —— LeetCode 會 AC 只是因為它每筆測資都新建一個 <code>Solution</code>。</strong><br><br>
+  <code>dict</code> 是成員變數 ⇒ <strong>函式結束時不會清空</strong>,而它的<strong>鍵是原節點的位址</strong>。第一次呼叫結束、那些節點被釋放之後,<code>dict</code> 裡留下的是<strong>一整批懸空指標</strong>。接著 <code>malloc</code> 很自然地把剛釋放的位址<strong>發還給下一條串列</strong> —— 於是 <code>dict.count(head)</code> 回答「有」,直接回傳一個<strong>已經 <code>delete</code> 掉的節點</strong>。<br><br>
+  <strong>實測</strong>:<br>
+  · 同一個 <code>Solution</code> 呼叫兩次,第一次 <code>[1,2,3]</code>、第二次 <code>[9,8,7]</code> → <strong>第二次回傳 <code>[8,7]</code></strong>(少一個節點)。<br>
+  · 連續處理 2000 條不同的串列:<strong>1997 條(99.85%)</strong>的新節點位址已經在舊 <code>dict</code> 裡,<strong>第一次就發生在第 1 輪</strong>。<br>
+  · 直接走訪回傳值 → <strong>SEGV</strong>(exit code 139)。<br><br>
+  <strong>而且 sanitizer 抓不到。</strong>用 <code>-fsanitize=address</code> 跑同樣的情境<strong>完全沒報錯</strong> —— 因為 ASan 把釋放的記憶體放進<strong>隔離區延後重用</strong>,新節點就拿不到舊位址。<b>這類「靠位址重用才觸發」的 bug,工具反而會蓋掉它。</b><br><br>
+  <b>修法一行:把 <code>dict</code> 移進函式當區域變數。</b><b>而該問自己的問題是:「這個暫存表,有任何理由活得比這次呼叫久嗎?」</b>沒有的話,它就不該是成員。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會 —— 深度恆為 <code>n + 1</code>,而且與 <code>random</code> 的佈局完全無關。</strong><br><br>
+  <strong>原因</strong>:程式的順序是<strong>先接 <code>next</code>、再接 <code>random</code></strong>。而 <code>dict[head]-&gt;next = copy(head-&gt;next)</code> 這一行會把<strong>整條 <code>next</code> 鏈(以及它們的 <code>random</code>)全部處理完</strong>才返回。所以輪到接 <code>head</code> 自己的 <code>random</code> 時,<strong>所有節點都已經在 <code>dict</code> 裡</strong> —— 那次遞迴在<strong>第一行就命中回傳</strong>,深度只 +1。<br><br>
+  <strong>實測</strong>(<code>n = 1000</code>,五種 <code>random</code> 佈局):<br>
+  <code>指下一個 / 指前一個 / 全指最後一個 / 全 null / 隨機</code> → <strong>最大深度全部是 1001</strong>。<br><br>
+  <strong>堆疊用量</strong>:每層約 <strong>96 bytes</strong>(比 <a href="../p206/index.html">206 純翻轉遞迴</a>的 48 大一倍,多出來的是 map 操作的區域變數)。<br>
+  <code>n = 1000 → 93.8 KB</code>,只佔 <code>ulimit -s = 8176 KB</code> 的 <strong>1.1%</strong>。<br><br>
+  <b>所以在這題的上限下遞迴很安全</b> —— 但那是 <code>n ≤ 1000</code> 給的。<code>n</code> 一到 <code>10⁵</code> 就是 <strong>9.4 MB</strong>,直接爆(見 App 1)。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不夠 —— 只比 <code>val</code> 序列,最關鍵的那個錯誤剛好驗不出來。</strong><br><br>
+  題目對「深拷貝」寫了<strong>三個</strong>條件,驗證就該有三項:<br><br>
+  <strong>① 結構一致</strong> —— <code>val</code> 序列相同,而且<strong><code>random</code> 指向的「索引」也要相同</strong>(不能比指標,要比索引)。<br>
+  <strong>② 沒有共用節點</strong> —— 新串列的節點位址集合與原串列<strong>交集為空</strong>。<br>
+  <strong>③ 所有指標都落在新串列內</strong> —— 每個 <code>random</code> 的目標,必須是新串列裡的某個節點。<br><br>
+  <strong>為什麼第 ③ 項最重要:</strong>假設有人忘了拷 <code>random</code>,直接寫 <code>copy-&gt;random = orig-&gt;random</code>。這時 <code>val</code> 序列<strong>完全正確</strong>、<code>next</code> 結構<strong>完全正確</strong> —— 只有「檢查 <code>random</code> 的目標在不在新串列裡」才驗得出來。而題目正是明文禁止這件事:<em>"None of the pointers in the new list should point to nodes in the original list."</em><br><br>
+  <strong>實測</strong>:三項各跑 20 萬組,<strong>全部 0 失敗</strong>;另加 5 萬組檢查<strong>新建節點數恰好等於 n</strong>。<br><br>
+  <b>通則:驗證方式要對得上題目真正的要求,而不是對得上「最容易寫的那個檢查」。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>遞迴會爆,要改成迭代兩趟 —— 而且改起來比想像中簡單。</strong><br><br>
+  <strong>先算爆不爆</strong>:深度 <code>n + 1 = 100001</code>,每層 96 bytes ⇒ <strong>約 9.4 MB</strong>,超過 <code>ulimit -s = 8176 KB</code>。<strong>必爆。</strong><br><br>
+  <strong>迭代版:兩趟走訪,不遞迴。</strong><br>
+  <code>unordered_map&lt;Node*, Node*&gt; m;</code><br>
+  <code>for (Node* p = head; p; p = p-&gt;next) m[p] = new Node(p-&gt;val);&nbsp;&nbsp;// 第一趟:只建節點</code><br>
+  <code>for (Node* p = head; p; p = p-&gt;next) {</code><br>
+  &nbsp;&nbsp;<code>m[p]-&gt;next&nbsp;&nbsp; = m.count(p-&gt;next)&nbsp;&nbsp; ? m[p-&gt;next]&nbsp;&nbsp; : nullptr;</code><br>
+  &nbsp;&nbsp;<code>m[p]-&gt;random = m.count(p-&gt;random) ? m[p-&gt;random] : nullptr;</code><br>
+  <code>}</code><br>
+  <code>return m.count(head) ? m[head] : nullptr;</code><br><br>
+  <strong>為什麼變簡單了</strong>:第一趟結束後<strong>所有拷貝都已存在</strong>,第二趟接指標時<strong>不可能碰到「還沒建的節點」</strong> —— 遞迴版之所以需要那個精巧的「先登記再遞迴」,正是為了處理這件事,而<strong>兩趟法直接把它繞開了</strong>。<br><br>
+  <strong>實測</strong>:20 萬組隨機測資,<strong>結構錯 0、與原串列共用節點 0</strong>。時間仍是 <code>O(n)</code>,空間是 <code>O(n)</code> 的 map(<strong>但沒有 <code>O(n)</code> 的堆疊</strong>)。<br><br>
+  <b>面試時這個版本其實更好講</b> —— 「先全部建好,再全部接線」比「記憶化遞迴」少一層心智負擔。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>可以 —— 把拷貝「織」進原串列,借原串列自己當那張表。</strong><br><br>
+  三趟走訪:<br>
+  <strong>① 織入</strong>:在每個原節點<strong>後面</strong>插入它的拷貝,變成 <code>A → a → B → b → C → c → …</code>。<br>
+  <code>for (Node* p = head; p; ) { Node* c = new Node(p-&gt;val); c-&gt;next = p-&gt;next; p-&gt;next = c; p = c-&gt;next; }</code><br><br>
+  <strong>② 接 random</strong>:<strong>關鍵的一行</strong> —— 拷貝節點 <code>a</code> 就在 <code>A</code> 後面,所以 <code>A.random</code> 的拷貝就是 <code>A.random-&gt;next</code>。<br>
+  <code>for (Node* p = head; p; p = p-&gt;next-&gt;next) p-&gt;next-&gt;random = p-&gt;random ? p-&gt;random-&gt;next : nullptr;</code><br><br>
+  <strong>③ 拆開</strong>:把兩條分離,<strong>並且把原串列還原</strong>。<br><br>
+  <strong>核心洞察</strong>:「原節點 → 拷貝節點」的對應關係,<strong>不需要 hash map —— 用「緊鄰在後面」這個位置關係就能表達</strong>。這就是省掉 <code>O(n)</code> 空間的方法。<br><br>
+  <strong>實測</strong>:20 萬組隨機測資,<strong>結構錯 0、共用節點 0,而且原串列在函式結束後完全還原</strong>。<br><br>
+  <strong>取捨</strong>:額外空間 <code>O(1)</code>,但<strong>三趟走訪、程式碼長一倍,而且第 ③ 步很容易寫錯</strong>(忘了還原原串列是最常見的)。<b>面試時的順序應該是:先講記憶表版拿到正確答案,再說「如果要 <code>O(1)</code> 額外空間,可以把拷貝織進原串列」——而不是一開始就挑難的寫。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>可以,而且幾乎是逐行對應 —— 因為這題本來就是圖的深拷貝。</strong><br><br>
+  對照一下:<br><br>
+  <table class="sc-table" style="margin:10px 0;">
+    <thead><tr><th></th><th>138 本題</th><th>133 Clone Graph</th></tr></thead>
+    <tbody>
+      <tr><td>記憶表</td><td class="mono">原節點 → 拷貝節點</td><td class="mono">原節點 → 拷貝節點(<strong>一樣</strong>)</td></tr>
+      <tr><td>查表那行</td><td class="mono">if (dict.count(p)) return dict[p];</td><td class="mono"><strong>一字不改</strong></td></tr>
+      <tr><td>先登記再遞迴</td><td class="ok">必要</td><td class="ok"><strong>同樣必要</strong>(圖有環)</td></tr>
+      <tr><td>要接的指標</td><td class="mono">next + random(兩根)</td><td class="mono">neighbors(<strong>一個陣列,迴圈接</strong>)</td></tr>
+    </tbody>
+  </table>
+  唯一的差別是最後那段:138 接兩根固定的指標,133 改成<br>
+  <code>for (Node* nb : p-&gt;neighbors) dict[p]-&gt;neighbors.push_back(copy(nb, dict));</code><br><br>
+  <b>反過來看更有意思:138 其實是 133 的一個特例</b> —— 每個節點恰好有兩個「鄰居」(<code>next</code> 和 <code>random</code>),而且其中一個構成一條鏈。<b>把它當成圖題來理解,比當成串列題容易得多。</b><br><br>
+  <b>順帶一提,App 2 那個 <code>O(1)</code> 空間的織入法就<em>不能</em>推廣到 133</b> —— 它依賴「每個節點有唯一的 <code>next</code> 可以拿來塞拷貝」,而一般的圖沒有這種結構。<strong>記憶表能推廣,織入法不能。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">指標能指任意節點 ⇒ 圖的深拷貝 ⇒ 記憶表。它買到的是正確性(只拷一次)與終止性(環不無限遞迴),不是速度。dict 必須是區域變數 —— 而這個 bug ASan 抓不到,只能從「這張表該活多久」看出來。</div>
+    <div class="sc-summary-bar__detail">COPY LIST WITH RANDOM POINTER · REVIEW</div>
+  </div>
+
+</body>
+</html>

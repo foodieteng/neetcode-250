@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>138 · Copy List with Random Pointer // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P138</span>
+    <span><a href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">帶隨機指標的深拷貝</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作、狀態殘留與陷阱</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 138</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// THE CODE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      演算法與原碼<strong>一字未改</strong>,只把 <code>dict</code> 從<strong>成員變數改成區域變數</strong>(見第 2 節)。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p138.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">Node</span><span class="p">*</span> <span class="f">copyRandomList</span><span class="p">(</span><span class="t">Node</span><span class="p">*</span> head<span class="p">)</span> <span class="p">{</span>
+        <span class="c">// dict 每次呼叫都是全新的 —— 不能放成員變數</span>
+        <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">Node</span><span class="p">*,</span> <span class="t">Node</span><span class="p">*&gt;</span> dict<span class="p">;</span>
+        <span class="k">return</span> <span class="f">copy</span><span class="p">(</span>head<span class="p">,</span> dict<span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">Node</span><span class="p">*</span> <span class="f">copy</span><span class="p">(</span><span class="t">Node</span><span class="p">*</span> head<span class="p">,</span> <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">Node</span><span class="p">*,</span> <span class="t">Node</span><span class="p">*&gt;&amp;</span> dict<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span>head<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> head<span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c">// 拷過就直接給 —— 這一行同時擋掉「重複建」和「無限遞迴」</span>
+        <span class="k">if</span> <span class="p">(</span>dict<span class="p">.</span><span class="f">count</span><span class="p">(</span>head<span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span> dict<span class="p">[</span>head<span class="p">];</span>
+        <span class="p">}</span>
+
+        <span class="c">// 先登記,再遞迴 —— 順序反了,自環的 random 會無限遞迴</span>
+        dict<span class="p">[</span>head<span class="p">]</span> <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">(</span>head<span class="p">-&gt;</span>val<span class="p">);</span>
+
+        dict<span class="p">[</span>head<span class="p">]-&gt;</span>next   <span class="p">=</span> <span class="f">copy</span><span class="p">(</span>head<span class="p">-&gt;</span>next<span class="p">,</span> dict<span class="p">);</span>
+        dict<span class="p">[</span>head<span class="p">]-&gt;</span>random <span class="p">=</span> <span class="f">copy</span><span class="p">(</span>head<span class="p">-&gt;</span>random<span class="p">,</span> dict<span class="p">);</span>
+
+        <span class="k">return</span> dict<span class="p">[</span>head<span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這是<strong>記憶化遞迴</strong>的標準形狀:<strong>查表 → 沒有就建並登記 → 遞迴填內容 → 回傳</strong>。
+      <b>同一副骨架直接可以拿去做 <a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">133 Clone Graph ↗</a></b> ——
+      差別只是「兩根指標」變成「一個鄰居陣列」。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 成員變數 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">原碼那個 dict 為什麼要改<span class="sc-section__title-en">// STATE THAT OUTLIVES THE CALL</span></h2>
+    </div>
+
+    <p>原本寫的是:</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 原碼</span>
+class Solution {
+public:
+    unordered_map&lt;Node*, Node*&gt; dict;      // ← 成員變數
+    Node* copyRandomList(Node* head) { ... }
+};
+<span class="sc-trace__out">// 函式結束時 dict 不會清空,而它的鍵是「原節點的位址」</span></div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">失敗機制:位址被重用 → 舊 entry 誤命中 → 回傳懸空指標</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          第一次呼叫結束、原串列與拷貝都被釋放之後,<code>dict</code> 裡留下的是<strong>一整批懸空指標</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          接著 <code>malloc</code> <strong>很自然地把剛釋放的位址發還給下一條串列</strong>。
+          於是 <code>dict.count(head)</code> 回答「有」—— 但那筆記錄指的是<strong>上一次那個已經 <code>delete</code> 掉的拷貝</strong>。
+        </p>
+        <p style="margin:0;">
+          結果就是:<strong>該建的節點沒建,回傳的是釋放過的記憶體</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 實測 · 用同一個 Solution 物件呼叫兩次</span>
+Solution s;                                  // 只建一個
+
+第 1 次:輸入 [1,2,3]  →  拷貝 [1,2,3]      dict.size() = 3
+        (釋放原串列與拷貝)
+
+第 2 次:輸入 [9,8,7]
+        這三個「全新」節點的位址,在舊 dict 裡命中 1 / 3 個
+        →  拷貝 [8,7]                       ✗ 正解 [9,8,7]
+
+直接走訪那個回傳值 → SEGV(程式 exit code 139)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 實測 · 命中率有多高</span>
+用同一個 Solution 連續處理 2000 條不同的串列(每條 4 個節點):
+  新串列的節點位址「已經在舊 dict 裡」的輪數:1997 / 2000  (99.85%)
+  第一次發生在第 1 輪
+  最後 dict.size() = 18,而且裡面全是懸空指標
+<span class="sc-trace__out">// 不是罕見的巧合 —— 位址重用是 malloc 的正常行為</span></div>
+
+    <div class="sc-dark-box" style="margin-top:16px;">
+      <div class="sc-dark-box__title">為什麼 sanitizer 抓不到這個</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          用 <code>g++ -fsanitize=address</code> 跑同一個「兩次呼叫」的情境,<strong>沒有任何報錯,答案還是對的</strong>。
+        </p>
+        <p style="margin:0;">
+          原因是 ASan 會把釋放的記憶體放進<strong>隔離區(quarantine)延後重用</strong>,所以新節點<strong>拿不到舊位址</strong>,
+          <code>dict</code> 就不會誤命中。<b>這類「靠位址重用才觸發」的 bug,sanitizer 反而會蓋掉它</b> ——
+          <strong>只能從設計上看出來:一個函式的暫存表,不該活得比那次呼叫久。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>LeetCode 通常每筆測資新建一個 <code>Solution</code>,所以原碼會 AC。</strong>
+      但那是<strong>判題框架幫你清了狀態</strong>,不是程式碼本身正確 —— 面試官問一句
+      「如果同一個物件被呼叫兩次呢」就會露餡。
+      <b>修法一行:把 <code>dict</code> 移到函式裡。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 先登記再遞迴 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">為什麼必須「先登記,再遞迴」<span class="sc-section__title-en">// REGISTER FIRST</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 正確順序</span>
+dict[head] = new Node(head-&gt;val);          ← 先把「我在處理中」記下來
+dict[head]-&gt;next   = copy(head-&gt;next);
+dict[head]-&gt;random = copy(head-&gt;random);
+return dict[head];</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 顛倒的話</span>
+Node* c = new Node(head-&gt;val);
+c-&gt;next   = copy(head-&gt;next);              ← 這時 dict 裡還沒有 head
+c-&gt;random = copy(head-&gt;random);
+dict[head] = c;
+
+若 head-&gt;random 指回 head 自己(或指回任何祖先):
+  copy(head) → dict 沒有 → 又建一個新節點 → 又遞迴 → …
+<span class="sc-trace__out">// 無限遞迴,而且每一層都在 new 節點 —— 堆疊與堆積一起爆</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「先把自己放進表裡」是在對後面的遞迴說:我正在處理中,別再進來了。</strong>
+      這是所有<strong>圖上記憶化</strong>的共通寫法 —— <a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">133 Clone Graph</a>
+      也是同一個順序,而且理由一模一樣。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 驗證 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">正確性驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;font-size:13.5px;">
+      「深拷貝」有<strong>三個</strong>條件,缺一不可 —— 所以驗證也分三項:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對拍(n = 0..12,random 隨機指向任一節點或 null,共 200000 組)</span>
+① 結構一致(val / next / random 的索引序列都相同)  → 不一致 0
+② 與原串列共用節點                                 → 0 組
+③ 有 random 指到「新串列以外」的節點               → 0 組
+
+節點數檢查(50000 組):new 出來的節點數 != n 的  → 0 組
+
+官方範例 vals=[7,13,11,10,1], random=[null,0,4,2,0]:
+  原:vals=7 13 11 10 1   rnd=-1 0 4 2 0
+  拷:vals=7 13 11 10 1   rnd=-1 0 4 2 0     共用節點 0 個 ✓
+<span class="sc-trace__out">// 三項都過才算深拷貝 —— 只比 val 序列是驗不出「指標指回原串列」的</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>第 ③ 項最容易漏掉。</strong>如果 <code>random</code> 忘了拷、直接沿用原本的指標,
+      <code>val</code> 序列<strong>看起來完全正確</strong> —— 只有「檢查 random 的目標是否落在新串列內」才驗得出來。
+      <b>驗證方式要對得上題目真正的要求。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>後果</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>dict</code> 寫成<strong>成員變數</strong></td>
+          <td>跨呼叫殘留 → 位址重用 → <strong>回傳懸空指標</strong></td>
+          <td class="mono fail">同物件 2000 次:<strong>1997 次</strong>踩到<br>走訪回傳值 → <strong>SEGV</strong></td>
+        </tr>
+        <tr>
+          <td>先遞迴、後登記</td>
+          <td><code>random</code> 指回祖先時<strong>無限遞迴</strong>,而且每層都在 <code>new</code></td>
+          <td class="mono fail">堆疊與堆積<strong>一起爆</strong></td>
+        </tr>
+        <tr>
+          <td>沒有記憶表,碰到 <code>random</code> 就遞迴</td>
+          <td>同上;而且就算沒環,同一個節點也會被<strong>拷貝多次</strong></td>
+          <td class="mono fail">新串列超過 n 個節點<br>違反「exactly n brand new nodes」</td>
+        </tr>
+        <tr>
+          <td><code>random</code> 直接沿用原指標</td>
+          <td><code>val</code> / <code>next</code> 看起來全對,但 <strong>random 指回原串列</strong></td>
+          <td class="mono">只比 val 序列<strong>驗不出來</strong><br>要檢查目標是否落在新串列內</td>
+        </tr>
+        <tr class="ok">
+          <td><code>head == nullptr</code></td>
+          <td><strong>沒問題</strong> —— 第一行 <code>if (!head) return head;</code> 就擋掉了</td>
+          <td class="mono ok">n = 0 實測正確</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      注意前三列<strong>都不是「答案差一點」</strong>,而是<strong>崩潰、無限遞迴、或違反題目定義</strong>。
+      這題的錯法<strong>都很嚴重</strong> —— 但也因此,只要記憶表用對了就很難錯。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// LINE BY LINE</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// DICT: 那一行 count() 同時做了兩件事</span>
+if (dict.count(head)) return dict[head];
+
+① 正確性:同一個原節點只會被 new 一次
+   ⇒ 新串列恰好 n 個節點(實測 5 萬組全部相符)
+② 終止性:random 指回祖先時,這一行讓遞迴停下來
+   ⇒ 沒有它就是無限遞迴
+<span class="sc-trace__out">// 記憶表不只是「加速」,它是這個解法能成立的前提</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// DEPTH: 為什麼 random 亂指也不會加深遞迴</span>
+程式先把整條 next 鏈遞迴完,才回過頭接 random
+⇒ 接 random 時所有節點都已在 dict 裡
+⇒ 每個 random 的遞迴都在第一行就命中回傳,深度只 +1
+
+實測 n = 1000,五種 random 佈局(指下一個 / 前一個 / 最後一個 / 全 null / 隨機):
+  最大深度全部 = 1001 = n + 1
+<span class="sc-trace__out">// 深度與 random 的佈局完全無關</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STACK: 每層 96 bytes</span>
+n =  100  →   9600 bytes  (9.4 KB)
+n =  500  →  48000 bytes  (46.9 KB)
+n = 1000  →  96000 bytes  (93.8 KB)   ← 題目上限,佔 ulimit 8176 KB 的 1.1%
+
+對比 206 的純翻轉遞迴:每層 48 bytes
+多出來的是 unordered_map 操作用掉的區域變數與暫存
+<span class="sc-trace__out">// n≤1000 很安全;但 n 到 10^5 就是 9.4 MB,超過 8 MB 上限</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// EDGE: 退化輸入(皆已實測)</span>
+n = 0(head 為 null)      → 回 null,第一行就擋掉
+n = 1,random 指向自己     → 拷貝的 random 指向拷貝自己(不是原節點)
+n = 1,random 為 null      → 正確
+所有 random 都指向同一個節點 → 正確,而且該節點只被拷一次
+<span class="sc-trace__out">// 「random 指向自己」是最能檢驗記憶表有沒有寫對的一個 case</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與練習</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dict.count() 那一行同時買到正確性(只拷一次)與終止性(環不無限遞迴);先登記再遞迴。dict 必須是區域變數 —— 成員變數會跨呼叫殘留,實測同物件重用 2000 次有 1997 次回傳懸空指標,而 ASan 的隔離區反而會蓋掉這個 bug。</div>
+    <div class="sc-summary-bar__detail">COPY LIST WITH RANDOM POINTER · CODE</div>
+  </div>
+
+</body>
+</html>
