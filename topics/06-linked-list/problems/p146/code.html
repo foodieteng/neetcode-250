@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>146 · LRU Cache // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P146</span>
+    <span><a href="https://leetcode.com/problems/lru-cache/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">LRU 快取</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作、變體實測與記憶體</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 146</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// THE CODE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>原碼一字未改</strong>,只補上註解。在 LeetCode 的約束下<strong>完全正確</strong> ——
+      實測與 <code>O(n)</code> 暴力解交叉比對 <strong>1200008 次 <code>get</code>,不一致 0</strong>,
+      而且<strong>每一步都比對完整的 LRU→MRU 順序</strong>,180 萬次檢查全數通過。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p146.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Node</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> key<span class="p">,</span> val<span class="p">;</span>
+    <span class="t">Node</span> <span class="p">*</span>prev<span class="p">,</span> <span class="p">*</span>next<span class="p">;</span>
+    <span class="c">// key 也要存 —— 淘汰時要拿它去 cache.erase()</span>
+    <span class="f">Node</span><span class="p">(</span><span class="t">int</span> k <span class="p">=</span> <span class="n">0</span><span class="p">,</span> <span class="t">int</span> v <span class="p">=</span> <span class="n">0</span><span class="p">)</span> <span class="p">:</span> <span class="f">key</span><span class="p">(</span>k<span class="p">),</span> <span class="f">val</span><span class="p">(</span>v<span class="p">),</span> <span class="f">prev</span><span class="p">(</span><span class="k">nullptr</span><span class="p">),</span> <span class="f">next</span><span class="p">(</span><span class="k">nullptr</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="t">LRUCache</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> sz<span class="p">;</span>
+    <span class="t">Node</span> <span class="p">*</span>left<span class="p">,</span> <span class="p">*</span>right<span class="p">;</span>              <span class="c">// left 端 = 最舊,right 端 = 最新</span>
+    <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">Node</span><span class="p">*&gt;</span> cache<span class="p">;</span>  <span class="c">// key → 節點位址(這根指標就是橋)</span>
+
+    <span class="c">// 接到 right 之前 = 最新端。零個 if,因為 right 保證存在</span>
+    <span class="t">void</span> <span class="f">insert</span><span class="p">(</span><span class="t">Node</span><span class="p">*</span> node<span class="p">)</span> <span class="p">{</span>
+        <span class="t">Node</span> <span class="p">*</span>back <span class="p">=</span> right<span class="p">-&gt;</span>prev<span class="p">;</span>
+        back<span class="p">-&gt;</span>next <span class="p">=</span> node<span class="p">;</span>
+        node<span class="p">-&gt;</span>prev <span class="p">=</span> back<span class="p">;</span>
+        node<span class="p">-&gt;</span>next <span class="p">=</span> right<span class="p">;</span>
+        right<span class="p">-&gt;</span>prev <span class="p">=</span> node<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c">// 就地拆下來。雙向串列才做得到 —— 前驅直接就在 node->prev</span>
+    <span class="t">void</span> <span class="f">remove</span><span class="p">(</span><span class="t">Node</span><span class="p">*</span> node<span class="p">)</span> <span class="p">{</span>
+        <span class="t">Node</span> <span class="p">*</span>prev <span class="p">=</span> node<span class="p">-&gt;</span>prev<span class="p">,</span> <span class="p">*</span>next <span class="p">=</span> node<span class="p">-&gt;</span>next<span class="p">;</span>
+        prev<span class="p">-&gt;</span>next <span class="p">=</span> next<span class="p">;</span>
+        next<span class="p">-&gt;</span>prev <span class="p">=</span> prev<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="f">LRUCache</span><span class="p">(</span><span class="t">int</span> capacity<span class="p">)</span> <span class="p">{</span>
+        sz <span class="p">=</span> capacity<span class="p">;</span>
+        left <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">();</span>            <span class="c">// 兩個哨兵,先互相接起來</span>
+        right <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">();</span>
+        left<span class="p">-&gt;</span>next <span class="p">=</span> right<span class="p">;</span>
+        right<span class="p">-&gt;</span>prev <span class="p">=</span> left<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">int</span> <span class="f">get</span><span class="p">(</span><span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>cache<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">)</span> <span class="p">==</span> cache<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>  <span class="c">// miss 不算使用</span>
+
+        <span class="t">Node</span> <span class="p">*</span>node <span class="p">=</span> cache<span class="p">[</span>key<span class="p">];</span>
+        <span class="f">remove</span><span class="p">(</span>node<span class="p">);</span>                    <span class="c">// 拆下來</span>
+        <span class="f">insert</span><span class="p">(</span>node<span class="p">);</span>                    <span class="c">// 接到最新端</span>
+        <span class="k">return</span> node<span class="p">-&gt;</span>val<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">put</span><span class="p">(</span><span class="t">int</span> key<span class="p">,</span> <span class="t">int</span> value<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>cache<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">)</span> <span class="p">!=</span> cache<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="t">Node</span> <span class="p">*</span>node <span class="p">=</span> cache<span class="p">[</span>key<span class="p">];</span>
+            node<span class="p">-&gt;</span>key <span class="p">=</span> key<span class="p">;</span>              <span class="c">// 這行是多餘的:node->key 本來就等於 key</span>
+            node<span class="p">-&gt;</span>val <span class="p">=</span> value<span class="p">;</span>
+            <span class="f">remove</span><span class="p">(</span>node<span class="p">);</span>
+            <span class="f">insert</span><span class="p">(</span>node<span class="p">);</span>                <span class="c">// put 也算一次使用</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span>cache<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> sz<span class="p">)</span> <span class="p">{</span>
+            <span class="t">Node</span> <span class="p">*</span>lru <span class="p">=</span> left<span class="p">-&gt;</span>next<span class="p">;</span>     <span class="c">// 受害者不用找,它就在 left 端</span>
+            <span class="f">remove</span><span class="p">(</span>lru<span class="p">);</span>                 <span class="c">// 兩張表都要清 ——</span>
+            cache<span class="p">.</span><span class="f">erase</span><span class="p">(</span>lru<span class="p">-&gt;</span>key<span class="p">);</span>      <span class="c">// 這裡就是 node->key 的用途</span>
+        <span class="p">}</span>
+
+        <span class="t">Node</span> <span class="p">*</span>node <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">(</span>key<span class="p">,</span> value<span class="p">);</span>
+        <span class="f">insert</span><span class="p">(</span>node<span class="p">);</span>
+        cache<span class="p">[</span>key<span class="p">]</span> <span class="p">=</span> node<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>Node</code> 裡存 <code>key</code> 看起來重複(雜湊表的 key 不就是它嗎?),但它是必要的。</strong>
+      <b>淘汰時你是從<em>串列</em>那一端拿到節點的,而你需要把它從<em>雜湊表</em>裡刪掉 ——
+      這時只有節點自己知道它的 key 是什麼。</b>
+      <strong>缺了它,你就得反過來掃整張雜湊表找哪個 value 等於這個指標。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 變體實測 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">七個變體,實測誰會壞<span class="sc-section__title-en">// ADVERSARIAL VARIANTS</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      每一處改成「看起來也對」的寫法,拿 <strong>6 萬條隨機序列(共 899995 次 <code>get</code>)</strong>與暴力解交叉比對,
+      最小反例則另外<strong>窮舉短序列搜出來</strong>:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>把哪裡改掉</th><th>get 答錯</th><th>出錯的序列</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>put</code> 命中時<strong>忘了 <code>remove</code></strong> 就 <code>insert</code></td>
+          <td class="mono fail"><strong>74466</strong></td>
+          <td class="mono">23056 / 60000</td>
+          <td class="mono"><code>cap=1: put(0,0) put(0,0) put(1,10) put(0,0) get(1)</code> → <code>10</code>(正解 <code>-1</code>)</td>
+        </tr>
+        <tr>
+          <td><code>cache.size() &gt; sz</code>(而非 <code>==</code>)</td>
+          <td class="mono fail"><strong>70330</strong></td>
+          <td class="mono">26135 / 60000</td>
+          <td class="mono"><code>cap=1: put(0,0) put(1,10) get(0)</code> → <code>0</code>(正解 <code>-1</code>)</td>
+        </tr>
+        <tr>
+          <td><code>insert</code> 改成插到 <strong>front</strong></td>
+          <td class="mono fail"><strong>62902</strong></td>
+          <td class="mono">19511 / 60000</td>
+          <td class="mono"><code>cap=2: put(0,0) put(1,10) put(2,20) get(0)</code> → <code>0</code>(正解 <code>-1</code>)</td>
+        </tr>
+        <tr>
+          <td>淘汰 <code>right-&gt;prev</code> 而非 <code>left-&gt;next</code></td>
+          <td class="mono fail"><strong>62902</strong></td>
+          <td class="mono">19511 / 60000</td>
+          <td class="mono">同上</td>
+        </tr>
+        <tr>
+          <td><code>put</code> 命中時只改值,<strong>不搬到最新端</strong></td>
+          <td class="mono fail"><strong>14295</strong></td>
+          <td class="mono">7040 / 60000</td>
+          <td class="mono"><code>cap=2: put(0,0) put(1,10) put(0,0) put(2,20) get(0)</code> → <code>-1</code>(正解 <code>0</code>)</td>
+        </tr>
+        <tr>
+          <td><code>get</code> 命中時<strong>不搬到最新端</strong>(變成 FIFO)</td>
+          <td class="mono fail"><strong>12937</strong></td>
+          <td class="mono">6828 / 60000</td>
+          <td class="mono"><code>cap=2: put(0,0) put(1,10) get(0) put(2,20) get(0)</code> → <code>-1</code>(正解 <code>0</code>)</td>
+        </tr>
+        <tr class="ok">
+          <td>淘汰時<strong>先 <code>cache.erase</code> 再 <code>remove</code></strong></td>
+          <td class="mono ok"><strong>0</strong></td>
+          <td class="mono ok">0 / 60000</td>
+          <td class="ok"><strong>等價 —— 但有個但書,見第 4 節</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意「插到 front」和「淘汰 <code>right-&gt;prev</code>」的錯誤數<em>完全相同</em>:62902 / 19511。</strong>
+      <b>那不是巧合,因為它們其實是同一個錯誤</b> ——
+      兩者都是<strong>把「哪一端是最舊的」搞反</strong>,只是一個從插入端下手、一個從淘汰端下手。
+      <strong>結果是完全對稱的行為。</strong>
+    </div>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>而失敗率最低的兩個(12937 與 14295)反而最危險。</strong>
+      <b>「不搬到最新端」不會讓快取內容變髒,只會讓它變成 FIFO</b> ——
+      <strong>資料結構看起來完全正常,只是淘汰策略悄悄換了一個</strong>。
+      <b>只有在「用過的東西後來被淘汰了」這種特定序列上才看得出來。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 記憶體 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">被淘汰的節點沒有人回收<span class="sc-section__title-en">// THE LEAK</span></h2>
+    </div>
+
+    <p>
+      <code>remove(lru)</code> 只是<strong>把節點從串列上拆下來</strong>,<code>cache.erase</code> 只是<strong>把雜湊表項目刪掉</strong> ——
+      <b>那個節點本身還好端端地佔著記憶體,而且此刻已經沒有任何指標指向它了。</b>
+    </p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 實測(覆寫 Node::operator new / delete,sizeof(Node) = 24 bytes)</span>
+cap=2,put 三次(觸發 1 次淘汰),物件離開作用域後:
+  new = 5, delete = 0  → 洩漏 5 個
+  = 2 個哨兵 + 2 個還在快取裡的 + <span class="sc-trace__out">1 個被淘汰的</span>
+
+cap=10,put 10 萬個「不同」的 key(觸發 99990 次淘汰):
+  new = 100002, delete = 0  → 洩漏 100002 個 = <span class="sc-trace__out">2.3 MB</span>
+  快取本身明明只該佔 10 個節點
+
+cap=10,反覆 put 同樣那 10 個 key(<span class="sc-trace__out">從不淘汰</span>):
+  new = 12, delete = 0  → 洩漏 12 個(2 哨兵 + 10 個活的)
+
+<span class="sc-trace__out">// ⇒ 洩漏量正比於「淘汰次數」,不是操作次數</span></div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>漏掉的東西</th><th>為什麼</th><th>修法</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>被淘汰的節點</strong></td>
+          <td><code>remove</code> 只改指標,節點還在</td>
+          <td class="mono ok">cache.erase(lru-&gt;key);<br><strong>delete lru;</strong></td>
+        </tr>
+        <tr>
+          <td><strong>兩個哨兵 + 所有還活著的節點</strong></td>
+          <td><strong>沒有解構子</strong></td>
+          <td class="mono ok">寫一個 <code>~LRUCache()</code> 走一遍串列全部 delete</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>LeetCode 每個測資都是新開一個物件、跑完就結束,所以這不影響判題。</strong>
+      <b>但「快取」這個東西的本質就是「記憶體有上限」</b> ——
+      <strong>一個會隨著淘汰次數無限長大的 LRU,已經違背了它存在的理由。</strong>
+      <b>這也是面試裡最常被追問的一句。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 兩個順序陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">補上 delete 之後,順序就變重要了<span class="sc-section__title-en">// THE ORDER TRAP</span></h2>
+    </div>
+
+    <p>
+      上面的變體表裡,「先 <code>cache.erase</code> 再 <code>remove</code>」實測 <strong>0 錯</strong> ——
+      因為 <code>remove</code> 只碰指標、<code>erase</code> 只碰雜湊表,兩者互不相干,
+      <b>而且 <code>lru-&gt;key</code> 在兩種順序下都還讀得到。</b>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>但那個「還讀得到」,靠的正是「節點沒有被 <code>delete</code>」。</strong>
+      <b>一旦補上 <code>delete lru;</code>,順序就從無所謂變成致命。</b>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 補上 delete 但寫成「先 delete 再 erase」</span>
+delete lru;
+cache.erase(lru-&gt;key);      <span class="sc-trace__out">// ← 讀已經被釋放的記憶體</span>
+
+<span class="sc-trace__head">// ASan 的說法</span>
+ERROR: AddressSanitizer: heap-use-after-free
+READ of size 4 at 0x603000001c30
+    #4 in main uaf.cpp:15
+<span class="sc-trace__out">// 讀 4 bytes —— 正是那個 int key</span></div>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 正確順序</span>
+remove(lru);                 <span class="sc-trace__out">// 從串列拆下</span>
+cache.erase(lru-&gt;key);       <span class="sc-trace__out">// 趁節點還活著,讀它的 key</span>
+delete lru;                  <span class="sc-trace__out">// 最後才釋放</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這和 <a href="../p92/index.html">92</a> 那兩行接線是同一類問題</strong>:
+      <b>一個東西同時是「資料來源」和「銷毀目標」時,順序就不是風格問題了。</b>
+      <strong>92 是「先讀再覆蓋」,這裡是「先讀再釋放」。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 修好的版本 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">修好的版本<span class="sc-section__title-en">// THE FIXED VERSION</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      三件事:<strong>淘汰時 <code>delete</code></strong>、<strong>加解構子</strong>、
+      以及<strong><code>capacity == 0</code> 的守衛</strong>(理由見<a href="review.html">複習頁 App 1</a>)。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p146_fixed.cpp</span>
+        <span class="sc-codewindow__lang">O(1) · 無洩漏</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">LRUCache</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="f">LRUCache</span><span class="p">(</span><span class="t">int</span> capacity<span class="p">)</span> <span class="p">:</span> <span class="f">sz</span><span class="p">(</span>capacity<span class="p">)</span> <span class="p">{</span>
+        left <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">();</span> right <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">();</span>
+        left<span class="p">-&gt;</span>next <span class="p">=</span> right<span class="p">;</span> right<span class="p">-&gt;</span>prev <span class="p">=</span> left<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="p">~</span><span class="f">LRUCache</span><span class="p">()</span> <span class="p">{</span>                           <span class="c">// 哨兵與所有活著的節點</span>
+        <span class="t">Node</span><span class="p">*</span> p <span class="p">=</span> left<span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span>p<span class="p">)</span> <span class="p">{</span> <span class="t">Node</span><span class="p">*</span> n <span class="p">=</span> p<span class="p">-&gt;</span>next<span class="p">;</span> <span class="k">delete</span> p<span class="p">;</span> p <span class="p">=</span> n<span class="p">;</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c">// 類別裡有裸指標 ⇒ 預設的複製建構會造成 double free,直接禁掉</span>
+    <span class="f">LRUCache</span><span class="p">(</span><span class="k">const</span> <span class="t">LRUCache</span><span class="p">&amp;)</span> <span class="p">=</span> <span class="k">delete</span><span class="p">;</span>
+    <span class="t">LRUCache</span><span class="p">&amp;</span> <span class="k">operator</span><span class="p">=(</span><span class="k">const</span> <span class="t">LRUCache</span><span class="p">&amp;)</span> <span class="p">=</span> <span class="k">delete</span><span class="p">;</span>
+
+    <span class="t">int</span> <span class="f">get</span><span class="p">(</span><span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> it <span class="p">=</span> cache<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">==</span> cache<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>
+        <span class="f">remove</span><span class="p">(</span>it<span class="p">-&gt;</span>second<span class="p">);</span> <span class="f">insert</span><span class="p">(</span>it<span class="p">-&gt;</span>second<span class="p">);</span>
+        <span class="k">return</span> it<span class="p">-&gt;</span>second<span class="p">-&gt;</span>val<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">put</span><span class="p">(</span><span class="t">int</span> key<span class="p">,</span> <span class="t">int</span> value<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>sz <span class="p">&lt;=</span> <span class="n">0</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>                  <span class="c">// capacity 0 的守衛</span>
+
+        <span class="k">auto</span> it <span class="p">=</span> cache<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">!=</span> cache<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="p">{</span>
+            it<span class="p">-&gt;</span>second<span class="p">-&gt;</span>val <span class="p">=</span> value<span class="p">;</span>
+            <span class="f">remove</span><span class="p">(</span>it<span class="p">-&gt;</span>second<span class="p">);</span> <span class="f">insert</span><span class="p">(</span>it<span class="p">-&gt;</span>second<span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="t">int</span><span class="p">)</span>cache<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;=</span> sz<span class="p">)</span> <span class="p">{</span>     <span class="c">// &gt;= 而非 ==,並顯式轉型</span>
+            <span class="t">Node</span><span class="p">*</span> lru <span class="p">=</span> left<span class="p">-&gt;</span>next<span class="p">;</span>
+            <span class="f">remove</span><span class="p">(</span>lru<span class="p">);</span>
+            cache<span class="p">.</span><span class="f">erase</span><span class="p">(</span>lru<span class="p">-&gt;</span>key<span class="p">);</span>          <span class="c">// 必須在 delete 之前讀 key</span>
+            <span class="k">delete</span> lru<span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="t">Node</span><span class="p">*</span> node <span class="p">=</span> <span class="k">new</span> <span class="t">Node</span><span class="p">(</span>key<span class="p">,</span> value<span class="p">);</span>
+        <span class="f">insert</span><span class="p">(</span>node<span class="p">);</span> cache<span class="p">[</span>key<span class="p">]</span> <span class="p">=</span> node<span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">void</span> <span class="f">insert</span><span class="p">(</span><span class="t">Node</span><span class="p">*</span> n<span class="p">)</span> <span class="p">{</span>
+        <span class="t">Node</span><span class="p">*</span> b <span class="p">=</span> right<span class="p">-&gt;</span>prev<span class="p">;</span>
+        b<span class="p">-&gt;</span>next <span class="p">=</span> n<span class="p">;</span> n<span class="p">-&gt;</span>prev <span class="p">=</span> b<span class="p">;</span> n<span class="p">-&gt;</span>next <span class="p">=</span> right<span class="p">;</span> right<span class="p">-&gt;</span>prev <span class="p">=</span> n<span class="p">;</span>
+    <span class="p">}</span>
+    <span class="t">void</span> <span class="f">remove</span><span class="p">(</span><span class="t">Node</span><span class="p">*</span> n<span class="p">)</span> <span class="p">{</span>
+        <span class="t">Node</span> <span class="p">*</span>p <span class="p">=</span> n<span class="p">-&gt;</span>prev<span class="p">,</span> <span class="p">*</span>q <span class="p">=</span> n<span class="p">-&gt;</span>next<span class="p">;</span>
+        p<span class="p">-&gt;</span>next <span class="p">=</span> q<span class="p">;</span> q<span class="p">-&gt;</span>prev <span class="p">=</span> p<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">int</span> sz<span class="p">;</span>
+    <span class="t">Node</span> <span class="p">*</span>left<span class="p">,</span> <span class="p">*</span>right<span class="p">;</span>
+    <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">Node</span><span class="p">*&gt;</span> cache<span class="p">;</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 修好版的實測</span>
+與暴力解交叉比對 2500015 次 get（20 萬條序列,capacity 0 ~ 5)→ 不一致 <span class="sc-trace__out">0</span>
+cap=10,put 10 萬個不同 key：new = 100002, delete = 100002 → 洩漏 <span class="sc-trace__out">0</span>（原碼 100002）</div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與練習</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">「插到 front」與「淘汰 right->prev」實測錯誤數一模一樣(62902 / 19511)—— 因為它們是同一個錯誤的兩種寫法。而失敗率最低的兩個(不搬到最新端,12937 / 14295)最危險:快取內容完全正常,只是策略悄悄從 LRU 變成 FIFO。</div>
+    <div class="sc-summary-bar__detail">LRU CACHE · CODE</div>
+  </div>
+
+</body>
+</html>

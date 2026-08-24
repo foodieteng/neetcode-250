@@ -159,7 +159,7 @@ PROBLEMS = {
         ('p287','Find the Duplicate Number',       'find-the-duplicate-number',       'med', 'done'),
         ('p92', 'Reverse Linked List II',          'reverse-linked-list-ii',          'med', 'done'),
         ('p622','Design Circular Queue',           'design-circular-queue',           'med', 'todo'),
-        ('p146','LRU Cache',                       'lru-cache',                       'med', 'todo'),
+        ('p146','LRU Cache',                       'lru-cache',                       'med', 'done'),
         ('p460','LFU Cache',                       'lfu-cache',                       'hard','done'),
         ('p23', 'Merge K Sorted Lists',            'merge-k-sorted-lists',            'hard','todo'),
         ('p25', 'Reverse Nodes in k-Group',        'reverse-nodes-in-k-group',        'hard','todo'),

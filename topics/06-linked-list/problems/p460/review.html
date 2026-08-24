@@ -219,7 +219,11 @@ capacity = 10000:  原碼 <span class="sc-trace__out">92.0</span> ns/op    有�
   <strong>機制</strong>:新 key 進來次數是 1,<code>minFreq</code> 立刻歸 1;<b>下一個新 key 進來時,受害者就是「上一個新 key」</b> —— 舊的四個高次數 key <strong>連被考慮的機會都沒有</strong>。新 key 之間互相淘汰,老 key 永遠不動。<br><br>
   <b>這就是 LFU 的「快取污染 / 老化」問題</b>,也是真實系統很少用純 LFU 的原因。實務上的解法是<strong>週期性把所有次數砍半(aging)</strong>,或改用
   <a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_frequent_recently_used_(LFRU)" target="_blank" rel="noopener">LFU 與 LRU 的混合策略 ↗</a>(例如 TinyLFU、ARC)。<br><br>
-  <b>但要說公平話:LRU 也有它的死穴</b> —— 一次「掃過全表」的循序存取就能把 LRU 整個沖掉,<strong>而 LFU 對這種情形反而免疫</strong>。<b>沒有普遍最好的淘汰策略,只有適合特定存取模式的策略。</b></div>
+  <b>但要說公平話:LRU 也有它的死穴,而且這個也量過了。</b>讓 10 個熱點 key 各被用 50 次,然後<strong>一次性掃過 1000 個冷 key</strong>,再回頭存取熱點(<code>capacity = 20</code>):<br>
+  <div class="sc-trace" style="margin-top:8px;">LRU  掃描後第一輪 10 個熱點:命中 <span class="sc-trace__out"> 0</span>/10     ← 熱點被掃描整批沖掉
+LFU  掃描後第一輪 10 個熱點:命中 <span class="sc-trace__out">10</span>/10     ← 冷 key 次數都是 1,擠不掉次數 50 的熱點</div><br>
+  <b>但也別把這個差距說得太大</b>:LRU 只是<strong>多付了 10 次 miss</strong>,之後 490 次存取兩者都是 100%。<b>而且掃描如果是<em>反覆循環</em>而不是一次性的,LFU 也一樣救不了</b> —— 實測循序掃 500 個 key × 20 圈、cache 只裝 100 個,<strong>LRU 與 LFU 都是 0% 命中</strong>(每個 key 次數都一樣,LFU 的平手規則就退回 LRU)。<br><br>
+  <b>沒有普遍最好的淘汰策略,只有適合特定存取模式的策略 —— 而且差距要量過才知道有多大。</b></div>
 
   <div class="qa qa--answer"><strong>App 3.</strong> <strong>答案一模一樣,但最壞情形慢 30 倍 —— 而且慢的幅度隨 capacity 線性成長。</strong><br><br>
   改成「每次升級都從 <code>front</code> 掃過去找 key 的位置」:<br><br>

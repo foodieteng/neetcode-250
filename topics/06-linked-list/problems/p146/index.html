@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>146 · LRU Cache // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P146</span>
+    <span><a href="https://leetcode.com/problems/lru-cache/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">LRU 快取</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 串列管順序,雜湊表管速度</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 146</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(1) PER OP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        實作一個 <strong>LRU(Least Recently Used)快取</strong>,支援 <code>get(key)</code> 與 <code>put(key, value)</code>。
+        容量滿了要插入新 key 時,<strong>淘汰最久沒被使用的那個</strong>。
+      </p>
+      <p style="margin-top:8px;">
+        <code>get</code> 與 <code>put</code> <strong>都算一次使用</strong>。查不到的 <code>get</code> 回傳 <code>-1</code>。
+      </p>
+      <p style="margin-top:8px;">
+        <code>1 ≤ capacity ≤ 3000</code>、<code>0 ≤ key ≤ 10⁴</code>、<code>0 ≤ value ≤ 10⁵</code>、最多 <code>2×10⁵</code> 次呼叫。
+      </p>
+      <p style="margin-top:8px;">
+        <strong>兩個操作都要 <code>O(1)</code> 平均時間複雜度。</strong>
+      </p>
+    </div>
+
+    <p>
+      這題要同時做到兩件事,而<strong>單一資料結構都只能做到其中一件</strong>:
+    </p>
+
+    <table class="sc-table" style="margin-top:12px;">
+      <thead><tr><th>需求</th><th>誰做得到</th><th>誰做不到</th></tr></thead>
+      <tbody>
+        <tr><td><strong>用 key 找到資料</strong>,<code>O(1)</code></td><td class="ok">雜湊表</td><td class="fail">串列(要走過去,<code>O(n)</code>)</td></tr>
+        <tr><td><strong>維持「誰最久沒用」的順序</strong></td><td class="ok">串列</td><td class="fail">雜湊表(根本沒有順序)</td></tr>
+        <tr><td><strong>把某一項搬到最新端</strong>,<code>O(1)</code></td><td class="ok">雙向串列</td><td class="fail">陣列 / vector(搬移要 <code>O(n)</code>)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>所以答案是「兩個一起用」</strong>:<b>雙向串列負責順序,雜湊表負責速度</b>,
+      而<strong>雜湊表的值存的是「節點的指標」</strong> ——
+      <b>一次查表就直接握住那個節點,不必走串列。</b>
+      這樣「找到它」與「搬動它」<strong>兩步都是 <code>O(1)</code></strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼非要「雙向」串列不可<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">只用雜湊表 + 每筆存一個時間戳</span>
+            <span class="sc-ko-card__o">O(n) / 淘汰</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>正確,而且好寫</strong> —— 本頁所有實測數字的<strong>參考解就是它</strong>。
+            但淘汰時要<strong>掃過所有項目找最小時間戳</strong>,<code>O(capacity)</code>。
+          </div>
+          <div class="sc-ko-card__verdict">△ 正確 · 但不是 O(1)</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">雜湊表 + <code>vector</code> 記順序</span>
+            <span class="sc-ko-card__o">O(n) / 使用</span>
+          </div>
+          <div class="sc-ko-card__body">
+            順序有了,但<strong>「把中間某一項搬到最後」要搬動後面全部元素</strong>。
+            而且<strong>搬完之後所有索引都變了</strong> —— 雜湊表裡存的位置<strong>全部失效</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 搬移成本 O(n)</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__row" style="margin-top:12px;">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">C</span>
+            <span class="sc-ko-card__title">雜湊表 + <strong>單向</strong>串列</span>
+            <span class="sc-ko-card__o">O(n) / 刪除</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>這是最容易踩的坑。</strong>就算雜湊表直接給你節點指標,
+            <b>單向串列要把一個節點拆下來,還是得先找到「它前面那個」</b> ——
+            而唯一的辦法是從頭走過去。<strong><code>O(1)</code> 的查表被 <code>O(n)</code> 的拆除抵銷掉了。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 拆不下來</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">D</span>
+            <span class="sc-ko-card__title">雜湊表 + <strong>雙向</strong>串列 + 兩個哨兵</span>
+            <span class="sc-ko-card__o">O(1) 平均</span>
+          </div>
+          <div class="sc-ko-card__body">
+            節點自己知道前後是誰,所以<strong>拆下來只要改四根指標</strong>,不必找前驅。
+            再加兩個哨兵,<strong>連 <code>nullptr</code> 判斷都省了</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">● ADOPT · 這就是本題答案</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>C 值得特別記住:「雙向」不是為了「可以往回走」,是為了「可以就地把自己拆下來」。</strong>
+      <b>這也是 <a href="../p460/index.html">460 LFU</a> 用 <code>std::list</code> 而不是 <code>vector</code> 的同一個理由</b> ——
+      <strong><code>list</code> 從中間刪除不會讓其他指標/迭代器失效。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 兩個哨兵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">兩個哨兵買到了什麼<span class="sc-section__title-en">// THE SENTINELS</span></h2>
+    </div>
+
+    <p>
+      <code>left</code> 與 <code>right</code> 是兩個<strong>不存任何資料</strong>的節點,建構時就先接起來。
+      有了它們,<strong>串列永遠非空</strong>,於是:
+    </p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// remove:把 node 從串列上拆下來</span>
+Node *prev = node-&gt;prev, *next = node-&gt;next;
+prev-&gt;next = next;
+next-&gt;prev = prev;
+<span class="sc-trace__out">// 四行,零個 if —— 因為 node 的前後「保證存在」(最差就是哨兵)</span>
+
+<span class="sc-trace__head">// insert:把 node 接到 right 之前(= 最新端)</span>
+Node *back = right-&gt;prev;
+back-&gt;next = node;
+node-&gt;prev = back;
+node-&gt;next = right;
+right-&gt;prev = node;
+<span class="sc-trace__out">// 一樣零個 if</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>沒有哨兵的話,這兩個函式各要處理「拆的是頭」「拆的是尾」「串列空了」三種特例。</strong>
+      <b>哨兵不是省了幾行,是把「特例」整類消滅掉</b> ——
+      和 <a href="../p19/index.html">19</a>、<a href="../p92/index.html">92</a> 的 <code>dummy</code> 是同一招,
+      只是這裡<strong>頭尾各放一個</strong>。
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>哪一端</th><th>是什麼</th><th>誰會用到</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">left-&gt;next</td><td><strong>最久沒用的</strong></td><td class="ok">淘汰時直接取它</td></tr>
+        <tr><td class="mono">right-&gt;prev</td><td><strong>剛剛用過的</strong></td><td class="ok"><code>insert</code> 永遠接在這後面</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// LRUCache(2) · 官方範例</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;">
+      重點看<strong>第 3 步</strong>:<code>get(1)</code> 把 key 1 從中間<strong>拆下來再接到最新端</strong> ——
+      <b>這一個動作就是它躲過第一次淘汰的原因</b>。
+      然後看<strong>第 4 步與第 6 步</strong>:兩次淘汰都是<strong>直接取 <code>left-&gt;next</code></strong>,不用比較也不用掃描。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ LRU Cache · 雙向串列 + 雜湊表</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:410px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 三個操作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">三種情形,兩個動作拼出來<span class="sc-section__title-en">// THE THREE CASES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情形</th><th>做什麼</th><th>要動幾張表</th></tr></thead>
+      <tbody>
+        <tr><td><code>get</code> 命中</td><td class="mono"><code>remove(node)</code> → <code>insert(node)</code></td><td>只動串列</td></tr>
+        <tr><td><code>get</code> miss</td><td class="mono">直接 <code>return -1</code></td><td class="ok">兩張都不動</td></tr>
+        <tr><td><code>put</code> 命中</td><td class="mono">改值 → <code>remove</code> → <code>insert</code></td><td>只動串列</td></tr>
+        <tr class="ok"><td><strong><code>put</code> 未命中 + 已滿</strong></td><td class="mono"><strong>淘汰 <code>left-&gt;next</code> → 新增</strong></td><td class="fail"><strong>兩張都要動</strong></td></tr>
+        <tr><td><code>put</code> 未命中 + 未滿</td><td class="mono">直接新增</td><td>兩張都要動</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>唯一需要小心的是最後兩列 —— 只要有節點進出,兩張表就必須同步。</strong>
+      <b>淘汰時如果只 <code>remove</code> 而忘了 <code>cache.erase</code></b>,雜湊表就留下一個指向已下架節點的<strong>幽靈項目</strong>;
+      <b>反過來只 <code>erase</code> 沒 <code>remove</code></b>,串列上就留下一個<strong>永遠淘汰不掉的孤兒</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 和 LFU 對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 LFU 差在哪<span class="sc-section__title-en">// LRU vs LFU</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th><strong>146 LRU 本題</strong></th><th><a href="../p460/index.html">460 LFU</a></th></tr></thead>
+      <tbody>
+        <tr><td>淘汰誰</td><td class="ok"><strong>最久沒用的</strong></td><td>次數最少的;平手才看最久沒用</td></tr>
+        <tr><td>需要幾條串列</td><td class="mono ok"><strong>1</strong></td><td class="mono">每個次數一條</td></tr>
+        <tr><td>「使用」時做什麼</td><td class="ok">搬到同一條的最新端</td><td>搬到<strong>下一條</strong>的最新端</td></tr>
+        <tr><td>額外狀態</td><td class="ok">無</td><td class="mono">minFreq</td></tr>
+        <tr><td>要不要存節點位置</td><td class="ok">要(雜湊表存指標)</td><td class="ok">要(<code>iter</code> 表)</td></tr>
+        <tr><td>難度</td><td>Medium</td><td class="fail">Hard</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>LFU 就是「一堆 LRU 疊起來」</strong> —— 每個次數一條 LRU 串列,再多一個指標告訴你該從哪條下手。
+      <b>先把這題寫熟,460 就只剩「桶」和「minFreq」兩件新事。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">get / put = <strong>O(1) 平均</strong>　　空間 = <strong>O(capacity)</strong></div>
+      <p class="sc-formula__hint">
+        每個操作都只做一次雜湊查詢 + 固定幾根指標賦值。
+        <strong>「平均」是因為雜湊表本身有碰撞與重新雜湊的攤還成本</strong> —— 串列那半是真正的最壞情形 <code>O(1)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono ok">O(1)</td><td>40 萬次操作,capacity <strong>100 → 100000</strong>,<strong>27 ~ 43 ns/op,無成長趨勢</strong></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>與 <code>O(n)</code> 暴力解交叉比對 <strong>1200008 次 get</strong></td></tr>
+        <tr><td>順序正確性</td><td class="mono ok">0 錯</td><td>每一步比對<strong>完整的 LRU→MRU 順序</strong>,<strong>180 萬次</strong></td></tr>
+        <tr><td>結構完整性</td><td class="mono ok">0 錯</td><td>每一步檢查雙向連結與 <code>cache.size()</code></td></tr>
+        <tr><td>Space(原碼)</td><td class="mono fail">會累積</td><td><strong>被淘汰的節點沒有 <code>delete</code></strong>:cap=10 放進 10 萬個 key → 洩漏 <strong>2.3 MB</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>當一個需求裡有兩件事,而每種資料結構只擅長其中一件 —— 那就兩個一起用,並讓其中一個<em>指向</em>另一個。</strong>
+      <b>這題的關鍵不是「用雜湊表」也不是「用串列」,而是「雜湊表的值存的是串列節點的位址」</b> ——
+      <strong>那根指標就是兩個世界之間的橋。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">雙向串列管順序、雜湊表管速度,而雜湊表存的是「節點的位址」—— 那根指標就是兩者之間的橋。「雙向」不是為了往回走,是為了能就地把自己拆下來;兩個哨兵則把「拆頭 / 拆尾 / 串列空了」三種特例整類消滅。</div>
+    <div class="sc-summary-bar__detail">LRU CACHE · LIST FOR ORDER, HASH FOR SPEED</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p146-lru.js"></script>
+</body>
+</html>
