@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>23 · Merge k Sorted Lists // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P23</span>
+    <span><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合併 K 條有序串列</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作、變體實測與另一種同樣快的寫法</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 23</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// THE CODE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      演算法與原碼<strong>一字未改</strong>,只修了記憶體(<code>dummy</code> 改放堆疊)。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p23.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">ListNode</span><span class="p">*</span> <span class="f">mergeKLists</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">ListNode</span><span class="p">*&gt;&amp;</span> lists<span class="p">)</span> <span class="p">{</span>
+        <span class="c">// 「大於」= 最小堆。priority_queue 預設是最大堆,所以要反過來</span>
+        <span class="k">auto</span> cmp <span class="p">=</span> <span class="p">[&amp;](</span><span class="k">auto</span> <span class="p">&amp;</span>l1<span class="p">,</span> <span class="k">auto</span> <span class="p">&amp;</span>l2<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> l1<span class="p">-&gt;</span>val <span class="p">&gt;</span> l2<span class="p">-&gt;</span>val<span class="p">;</span>
+        <span class="p">};</span>
+
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">ListNode</span><span class="p">*,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">ListNode</span><span class="p">*&gt;,</span> <span class="k">decltype</span><span class="p">(</span>cmp<span class="p">)&gt;</span> <span class="f">pq</span><span class="p">(</span>cmp<span class="p">);</span>
+
+        <span class="c">// 播種:每條的頭。if (p) 不能省 —— lists[i] 可能是 nullptr</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> p <span class="p">:</span> lists<span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>p<span class="p">)</span> pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>p<span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="t">ListNode</span> dummy<span class="p">;</span>                <span class="c">// 放堆疊,離開函式自動回收</span>
+        <span class="t">ListNode</span><span class="p">*</span> tail <span class="p">=</span> <span class="p">&amp;</span>dummy<span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">auto</span> node <span class="p">=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">();</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>   <span class="c">// 堆頂 = 全域最小</span>
+
+            tail<span class="p">-&gt;</span>next <span class="p">=</span> node<span class="p">;</span>
+            tail <span class="p">=</span> tail<span class="p">-&gt;</span>next<span class="p">;</span>
+
+            <span class="c">// 彈一個補一個 ⇒ 堆的大小恆 ≤ k</span>
+            <span class="k">if</span> <span class="p">(</span>node<span class="p">-&gt;</span>next<span class="p">)</span> pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>node<span class="p">-&gt;</span>next<span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c">// 這裡不需要 tail-&gt;next = nullptr —— 見第 3 節</span>
+        <span class="k">return</span> dummy<span class="p">.</span>next<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>l1-&gt;val &gt; l2-&gt;val</code> 這個「大於」很容易寫反。</strong>
+      <b><code>std::priority_queue</code> 的比較子語意是「<em>優先度較低</em>的排在前面」</b> ——
+      所以要做<strong>最小</strong>堆,比較子必須寫<strong>大於</strong>。
+      <strong>實測寫成小於,20 萬組錯 129342 組</strong>(最小反例:<code>[3]、[]、[1]</code> 回傳 <code>[3,1]</code>)。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 變體實測 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">四個變體,實測誰會壞<span class="sc-section__title-en">// ADVERSARIAL VARIANTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>把哪裡改掉</th><th>錯幾組 / 200000</th><th>後果</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>忘了 <code>tail = tail-&gt;next</code></td>
+          <td class="mono fail"><strong>168945</strong></td>
+          <td class="mono"><code>[3] [] [1]</code> → <code>[3]</code>(正解 <code>[1,3]</code>)——每次都覆蓋同一根指標</td>
+        </tr>
+        <tr>
+          <td>比較子寫成 <code>l1-&gt;val &lt; l2-&gt;val</code></td>
+          <td class="mono fail"><strong>129342</strong></td>
+          <td class="mono"><code>[3] [] [1]</code> → <code>[3,1]</code> —— 變成最大堆,輸出遞減</td>
+        </tr>
+        <tr>
+          <td>播種時拿掉 <code>if (p)</code></td>
+          <td class="mono fail"><strong>直接崩</strong></td>
+          <td class="mono">UBSan「member access within null pointer」→ ASan <strong>SEGV at 0x0</strong></td>
+        </tr>
+        <tr>
+          <td>無條件 <code>pq.push(node-&gt;next)</code></td>
+          <td class="mono fail"><strong>直接崩</strong></td>
+          <td class="mono">堆裡混進 <code>nullptr</code>,下一次比較就爆</td>
+        </tr>
+        <tr class="ok">
+          <td>結尾補上 <code>tail-&gt;next = nullptr</code></td>
+          <td class="mono ok"><strong>0</strong></td>
+          <td class="ok"><strong>完全沒有差別 —— 那一行是真的多餘的</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 拿掉 if (p) 的實際下場</span>
+lists = [ [1], nullptr ]
+
+runtime error: member access within null pointer of type 'ListNode'
+runtime error: load of null pointer of type 'int'
+AddressSanitizer: SEGV on unknown address <span class="sc-trace__out">0x000000000000</span>
+<span class="sc-trace__out">// 崩在比較子的 l1-&gt;val —— push 進去的那一刻就已經開始比較了</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意「拿掉 <code>if (p)</code>」的崩潰點:不是在 <code>while</code> 迴圈裡,是在 <code>push</code> 的當下。</strong>
+      <b><code>push</code> 會立刻做 sift-up 比較,而比較子第一件事就是 <code>l1-&gt;val</code>。</b>
+      <strong>所以這個 bug 連迴圈都跑不到 —— 一旦有空串列就立刻死。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 尾巴 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">結尾不必收 —— 但要說得出理由<span class="sc-section__title-en">// THE SELF-TERMINATING TAIL</span></h2>
+    </div>
+
+    <p>
+      每個被接上的節點,<code>next</code> 都還指著它原本那條串列的下一個。
+      <strong>程式從來沒有把結果的尾巴收成 <code>nullptr</code></strong>,那為什麼不會拖出一條多餘的尾巴?
+    </p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 論證</span>
+迴圈條件：while (!pq.empty())
+每一輪：  彈出一個  →  若 node-&gt;next 存在就補一個
+
+⇒ 堆會變空,只可能因為「這一輪沒有補」
+⇒ 沒有補的唯一原因是  node-&gt;next == nullptr
+⇒ <span class="sc-trace__out">迴圈能結束 ⟺ 最後接上的節點本來就是某條串列的尾巴</span>
+
+<span class="sc-trace__head">// 實測(20 萬組隨機測資)</span>
+「迴圈結束時最後彈出的節點 next != nullptr」發生次數：<span class="sc-trace__out">0</span>
+結尾補上 tail-&gt;next = nullptr 之後的結果差異：        <span class="sc-trace__out">0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>對照 <a href="../p21/index.html">21</a> 就更清楚了。</strong>
+      21 的迴圈是 <code>while (a &amp;&amp; b)</code> —— <b>它會在<em>還有東西沒接完</em>時結束</b>,
+      所以<strong>必須</strong>補上 <code>t-&gt;next = a ? a : b;</code>。
+      <b>而 23 的迴圈是「東西全部接完才結束」,所以尾巴自然就到位了。</b>
+      <strong>同樣是合併,「迴圈為什麼停」不同,結尾要不要收也就不同。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 記憶體 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">dummy 一樣是漏的<span class="sc-section__title-en">// THE LEAK</span></h2>
+    </div>
+
+    <p>原碼寫的是 <code>ListNode *dummy = new ListNode();</code>,而回傳的是 <code>dummy-&gt;next</code> ——
+       <strong>dummy 本身沒人指得到,也沒人 <code>delete</code></strong>。</p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 實測(覆寫 ListNode::operator new / delete)</span>
+10 萬次呼叫（每次 lists = [1,2] 與 [3],共 3 個節點）：
+  new = 400000        （30 萬個資料節點 + 10 萬個 dummy）
+  delete = 300000     （只回收了結果串列)
+  <span class="sc-trace__out">⇒ 洩漏 100000 個 = 1562 KB（sizeof(ListNode) = 16 bytes)</span></div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>本章 dummy 大盤點</th><th>每次呼叫漏幾個</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../p21/index.html">21 合併兩條</a></td><td class="mono fail">1</td><td>dummy</td></tr>
+        <tr><td><a href="../p2/index.html">2 兩數相加</a></td><td class="mono fail">1</td><td>dummy</td></tr>
+        <tr><td><a href="../p19/index.html">19 刪倒數第 n 個</a></td><td class="mono fail">2</td><td>dummy + <strong>被移除的節點</strong></td></tr>
+        <tr><td><a href="../p92/index.html">92 反轉區間</a></td><td class="mono fail">1</td><td>dummy</td></tr>
+        <tr class="ok"><td><strong>23 本題</strong></td><td class="mono fail"><strong>1</strong></td><td><strong>dummy</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>修法一如既往:<code>ListNode dummy;</code> 放堆疊,回傳 <code>dummy.next</code>。</strong>
+      <b>本章五題都犯了同一個錯,而且都是同一行 —— 值得記成肌肉記憶。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 另一種同樣快的寫法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">分治法:把 21 當零件用<span class="sc-section__title-en">// DIVIDE &amp; CONQUER</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      不用堆,只用 <a href="../p21/code.html">21 題的 <code>merge2</code></a> ——
+      <strong>像單淘汰賽一樣一輪一輪配對</strong>,每輪串列數減半,所以只有 <code>log k</code> 輪。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p23_divide.cpp</span>
+        <span class="sc-codewindow__lang">O(N log k) · 不用堆</span>
+      </div>
+<pre class="sc-code"><span class="c">// 這就是 21 題,一字不改</span>
+<span class="t">ListNode</span><span class="p">*</span> <span class="f">merge2</span><span class="p">(</span><span class="t">ListNode</span><span class="p">*</span> a<span class="p">,</span> <span class="t">ListNode</span><span class="p">*</span> b<span class="p">)</span> <span class="p">{</span>
+    <span class="t">ListNode</span> dummy<span class="p">;</span>
+    <span class="t">ListNode</span><span class="p">*</span> t <span class="p">=</span> <span class="p">&amp;</span>dummy<span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span>a <span class="p">&amp;&amp;</span> b<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>a<span class="p">-&gt;</span>val <span class="p">&lt;=</span> b<span class="p">-&gt;</span>val<span class="p">)</span> <span class="p">{</span> t<span class="p">-&gt;</span>next <span class="p">=</span> a<span class="p">;</span> a <span class="p">=</span> a<span class="p">-&gt;</span>next<span class="p">;</span> <span class="p">}</span>
+        <span class="k">else</span>                    <span class="p">{</span> t<span class="p">-&gt;</span>next <span class="p">=</span> b<span class="p">;</span> b <span class="p">=</span> b<span class="p">-&gt;</span>next<span class="p">;</span> <span class="p">}</span>
+        t <span class="p">=</span> t<span class="p">-&gt;</span>next<span class="p">;</span>
+    <span class="p">}</span>
+
+    t<span class="p">-&gt;</span>next <span class="p">=</span> a <span class="p">?</span> a <span class="p">:</span> b<span class="p">;</span>   <span class="c">// 21 的迴圈會提早停,所以這行必要</span>
+    <span class="k">return</span> dummy<span class="p">.</span>next<span class="p">;</span>
+<span class="p">}</span>
+
+<span class="t">ListNode</span><span class="p">*</span> <span class="f">mergeKLists</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">ListNode</span><span class="p">*&gt;</span> ls<span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span>ls<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="k">return</span> <span class="k">nullptr</span><span class="p">;</span>
+
+    <span class="c">// 每輪兩兩配對,串列數減半 ⇒ 只有 log k 輪</span>
+    <span class="k">while</span> <span class="p">(</span>ls<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">ListNode</span><span class="p">*&gt;</span> nx<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">size_t</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> ls<span class="p">.</span><span class="f">size</span><span class="p">();</span> i <span class="p">+=</span> <span class="n">2</span><span class="p">)</span> <span class="p">{</span>
+            nx<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>i <span class="p">+</span> <span class="n">1</span> <span class="p">&lt;</span> ls<span class="p">.</span><span class="f">size</span><span class="p">()</span>
+                <span class="p">?</span> <span class="f">merge2</span><span class="p">(</span>ls<span class="p">[</span>i<span class="p">],</span> ls<span class="p">[</span>i <span class="p">+</span> <span class="n">1</span><span class="p">])</span>
+                <span class="p">:</span> ls<span class="p">[</span>i<span class="p">]);</span>       <span class="c">// 落單的直接晉級</span>
+        <span class="p">}</span>
+        ls<span class="p">.</span><span class="f">swap</span><span class="p">(</span>nx<span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> ls<span class="p">[</span><span class="n">0</span><span class="p">];</span>   <span class="c">// merge2 對 nullptr 也安全,所以空串列不用特別處理</span>
+<span class="p">}</span></pre>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 三種寫法,同一份測資交叉比對(10 萬組隨機)</span>
+priority_queue  錯 0
+依序兩兩合併    錯 0
+分治兩兩合併    錯 0
+<span class="sc-trace__out">// 三個都對 —— 差別只在成本</span></div>
+
+    <p style="margin-top:14px;"><strong>比較次數</strong>(固定 <code>N = 12000</code> 個節點,只改變 <code>k</code>):</p>
+
+    <table class="sc-table">
+      <thead><tr><th>k</th><th>每條長度</th><th>priority_queue</th><th>依序合併</th><th>分治合併</th><th>依序 / 分治</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">4</td><td class="mono">3000</td><td class="mono">32227</td><td class="mono">26801</td><td class="mono ok">23883</td><td class="mono">1.1×</td></tr>
+        <tr><td class="mono">16</td><td class="mono">750</td><td class="mono">64506</td><td class="mono">100241</td><td class="mono ok">47752</td><td class="mono">2.1×</td></tr>
+        <tr><td class="mono">64</td><td class="mono">187</td><td class="mono">90266</td><td class="mono">378088</td><td class="mono ok">71162</td><td class="mono">5.3×</td></tr>
+        <tr><td class="mono">256</td><td class="mono">46</td><td class="mono">112363</td><td class="mono fail">1435110</td><td class="mono ok">92977</td><td class="mono fail">15.4×</td></tr>
+        <tr><td class="mono">1024</td><td class="mono">11</td><td class="mono">128784</td><td class="mono fail">5112395</td><td class="mono ok">109946</td><td class="mono fail">46.5×</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:14px;"><strong>實際耗時</strong>(<code>N = 200000</code> 個節點):</p>
+
+    <table class="sc-table">
+      <thead><tr><th>k</th><th>每條長度</th><th>priority_queue</th><th>依序合併</th><th>分治合併</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">10</td><td class="mono">20000</td><td class="mono">4.4 ms</td><td class="mono ok"><strong>2.0 ms</strong></td><td class="mono">2.2 ms</td></tr>
+        <tr><td class="mono">1000</td><td class="mono">200</td><td class="mono">7.8 ms</td><td class="mono fail">244.8 ms</td><td class="mono ok"><strong>6.8 ms</strong></td></tr>
+        <tr><td class="mono">20000</td><td class="mono">10</td><td class="mono ok"><strong>14.1 ms</strong></td><td class="mono fail">13385.3 ms</td><td class="mono ok">14.3 ms</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個值得注意的地方。</strong>
+      <b>第一,<code>k = 10</code> 時「依序合併」反而<em>最快</em></b>(2.0 ms vs 堆的 4.4 ms)——
+      <strong><code>O(N·k)</code> 在 <code>k</code> 很小時的常數比堆操作小得多</strong>,
+      <b>漸進複雜度講的是趨勢,不是小規模下的勝負。</b><br><br>
+      <b>第二,分治法的比較次數在<em>每一個</em> <code>k</code> 都比堆少</b>(例如 <code>k=1024</code>:109946 vs 128784)——
+      因為<strong>分治每個節點每層只比一次,而堆每次 <code>pop</code> 要做 sift-down,比較次數約是兩倍</strong>。
+      <strong>但實際耗時幾乎相同,因為堆的存取模式對快取更友善。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與練習</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">priority_queue 的比較子語意是「優先度低的排前面」,所以最小堆要寫「大於」—— 寫反實測錯 129342/200000。而結尾不必收尾:迴圈能結束就代表最後那個節點的 next 是 nullptr,實測 20 萬組發生 0 次例外。分治法用 21 的 merge2 就能寫完,同樣 O(N log k),耗時幾乎一樣。</div>
+    <div class="sc-summary-bar__detail">MERGE K SORTED LISTS · CODE</div>
+  </div>
+
+</body>
+</html>

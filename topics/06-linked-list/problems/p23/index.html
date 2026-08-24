@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>23 · Merge k Sorted Lists // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P23</span>
+    <span><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合併 K 條有序串列</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 全域最小只可能在某一條的頭</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 23</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(N log k)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一個陣列,裡面裝著 <code>k</code> 條<strong>各自已經排序</strong>的串列頭。
+        把它們<strong>合併成一條排序好的串列</strong>並回傳。
+      </p>
+      <p style="margin-top:8px;">
+        <code>0 ≤ k ≤ 10⁴</code>、每條長度 <code>0 ≤ len ≤ 500</code>、<strong>總節點數 <code>N ≤ 10⁴</code></strong>、
+        <code>−10⁴ ≤ Node.val ≤ 10⁴</code>。<strong><code>lists[i]</code> 可能是 <code>nullptr</code>(空串列)。</strong>
+      </p>
+    </div>
+
+    <p>
+      <a href="../p21/index.html">第 21 題</a>已經解決了 <code>k = 2</code>:兩條有序串列,
+      <strong>每次比較兩個頭,小的接走</strong>。這題只是把 2 換成 <code>k</code> ——
+      <b>但「比較兩個」和「比較 k 個」的成本差很多。</b>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>核心觀察只有一句:<b>整體的最小值,一定是某一條串列的<em>頭</em></b></strong> ——
+      因為每條都已經排序,不可能有更小的藏在中間。
+      <b>所以問題退化成:「在 k 個候選裡反覆取最小」</b>,
+      <strong>而那正是最小堆(priority queue)的工作</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">三種合法解法,差在「怎麼找最小」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">全部值倒進 vector,排序後重建串列</span>
+            <span class="sc-ko-card__o">O(N log N) 時間 · O(N) 空間</span>
+          </div>
+          <div class="sc-ko-card__body">
+            會過,但它<strong>完全沒有用到「每條已經排序」這個條件</strong> ——
+            <b>把有序的資料丟掉順序再重新排一次</b>。
+            而且花了 <code>O(N)</code> 額外空間。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 浪費了前提</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">依序兩兩合併:先 1+2,結果再 +3,再 +4…</span>
+            <span class="sc-ko-card__o">O(N·k)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>正確,而且只用 <a href="../p21/index.html">21 題</a>的 <code>merge2</code> 就寫完了。</strong>
+            問題是<strong>前面的結果會被反覆掃過</strong>:第 <code>i</code> 次合併時,累積的長度已經很長了。
+            <b>實測 <code>k=1024</code> 時比較次數是分治法的 46.5 倍。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ 正確 · 但 O(N·k)</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__row" style="margin-top:12px;">
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">C</span>
+            <span class="sc-ko-card__title"><strong>分治</strong>兩兩合併:1+2、3+4 … 再兩兩合併</span>
+            <span class="sc-ko-card__o">O(N log k)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            同樣只用 <code>merge2</code>,但改成<strong>像比賽晉級一樣一輪一輪配對</strong>。
+            每個節點只會被掃過 <code>log k</code> 輪。<b>實測比較次數甚至<em>比堆還少</em></b>,
+            而且<strong>不需要額外的資料結構</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">● 同樣優秀</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">D</span>
+            <span class="sc-ko-card__title"><strong>最小堆</strong>:k 個頭放進堆,反覆取最小</span>
+            <span class="sc-ko-card__o">O(N log k) · O(k) 空間</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>把「找最小」外包給堆。</strong>彈一個、補一個,<strong>堆的大小恆 ≤ <code>k</code></strong>。
+            <b>寫起來最直白,而且「一次處理一個節點」的節奏很適合改成串流版本</b>
+            (見<a href="review.html">複習頁 App 3</a>)。
+          </div>
+          <div class="sc-ko-card__verdict">● ADOPT · 本題的寫法</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>C 和 D 的漸進複雜度<em>一樣</em>,實測耗時也幾乎一樣</strong>
+      (<code>N=200000, k=20000</code>:堆 <strong>14.1 ms</strong>、分治 <strong>14.3 ms</strong>)。
+      <b>差別在「你想付什麼代價」:堆多用 <code>O(k)</code> 空間換來更簡單的控制流,分治不用額外空間但要多寫一層迴圈。</b>
+      <strong>面試時兩個都值得會 —— 而且能說出它們一樣快,比只會其中一個更有說服力。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>播種</strong>:把每條的<strong>頭</strong>推進最小堆 ——
+          <strong><code>if (p)</code> 的守衛不能省</strong>,因為 <code>lists[i]</code> 可能是 <code>nullptr</code>。</li>
+      <li><strong>彈一個、補一個</strong>:取堆頂接到輸出尾端,
+          再把 <code>node-&gt;next</code>(若存在)補進堆 ——
+          <b>這保證了「堆裡每條串列最多一個節點」,所以堆頂永遠是全域最小</b>。</li>
+      <li><strong>堆空了就結束</strong>:此時<strong>不必寫 <code>tail-&gt;next = nullptr</code></strong> ——
+          理由見第 5 節,那是本題最容易被忽略的一點。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>不變量:「堆裡的節點,每條串列最多貢獻一個」。</strong>
+      <b>因為只有在彈出某條的節點時,才會補進那條的下一個。</b>
+      而由於每條都已排序,<strong>那條「還沒被拿走的最小值」就是它現在在堆裡的那個</strong> ——
+      <b>所以堆頂就是全域最小,不需要再看其他任何節點。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// lists = [1,4] [1,3] [2,6]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;">
+      注意<strong>堆的大小</strong>怎麼變化:播種後是 <code>k</code>,
+      之後<strong>每彈一個就補一個</strong>維持不變,直到某條用完才開始縮小。
+      <b>最後一步特別重要 —— 它解釋了為什麼結尾不需要收尾。</b>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Merge k Lists · 最小堆</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:376px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 尾巴為什麼自己收好 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼沒寫 tail-&gt;next = nullptr 也沒事<span class="sc-section__title-en">// THE HIDDEN LEMMA</span></h2>
+    </div>
+
+    <p>
+      <strong>這支程式從頭到尾沒有任何一行把結果的尾巴收成 <code>nullptr</code>。</strong>
+      每個接上去的節點,<code>next</code> 都還指著它原本那條串列的下一個。
+      <b>那結果串列為什麼不會拖著一條不該存在的尾巴?</b>
+    </p>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA · 最後被彈出的節點,next 必定是 nullptr</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          迴圈的結束條件是 <strong>「堆空了」</strong>。而每一輪的動作是:<strong>彈出一個,若 <code>node-&gt;next</code> 存在就補一個</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          所以<strong>堆會變空,只可能是因為這一輪<em>沒有補</em></strong> ——
+          <b>而「沒有補」的唯一原因就是 <code>node-&gt;next == nullptr</code>。</b>
+        </p>
+        <p style="margin:0;">
+          <strong>換句話說:迴圈能結束 ⟺ 最後接上的那個節點本來就已經是某條串列的尾巴。</strong>
+          <b>它天生就是收好的。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 實測(20 萬組隨機測資)</span>
+「迴圈結束時最後彈出的節點 next != nullptr」發生次數：<span class="sc-trace__out">0</span>
+在結尾補上 tail-&gt;next = nullptr 之後的結果差異：      <span class="sc-trace__out">0</span>
+<span class="sc-trace__out">// 那一行是真的多餘的,不是「碰巧沒事」</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>但這個結論是「借來的」——它完全依賴迴圈的終止條件。</strong>
+      <b>如果哪天把迴圈改成別的寫法(例如「彈滿 N 次就停」),這個保證立刻失效。</b>
+      <strong>所以雖然實測證明那一行多餘,寫上去也不算錯</strong> ——
+      <b>它把一個隱性的保證變成顯性的,代價只有一行。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 和 21 的關係 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 21 的關係<span class="sc-section__title-en">// FROM k=2 TO k</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th><a href="../p21/index.html">21 合併兩條</a></th><th><strong>23 本題</strong></th></tr></thead>
+      <tbody>
+        <tr><td>怎麼找最小</td><td>比一次就好</td><td class="ok"><strong>最小堆 / 分治</strong></td></tr>
+        <tr><td>時間</td><td class="mono">O(N)</td><td class="mono ok"><strong>O(N log k)</strong></td></tr>
+        <tr><td>額外空間</td><td class="mono ok">O(1)</td><td class="mono">O(k)(堆)</td></tr>
+        <tr><td>dummy</td><td class="ok">要</td><td class="ok">要</td></tr>
+        <tr><td>結尾要不要收</td><td class="ok">要(<code>t-&gt;next = a ? a : b</code>)</td><td class="fail"><strong>不用 —— 見第 5 節</strong></td></tr>
+        <tr><td>能不能直接重用</td><td>—</td><td class="ok"><strong>能 · 分治法就是重複呼叫 21</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>分治解法是「把 <a href="../p21/index.html">21</a> 當成零件」的最佳示範</strong> ——
+      <b>整個 hard 題只是「用 21 的 <code>merge2</code> 打一場單淘汰賽」</b>。
+      <strong>面試時先說「我可以重用兩條合併」,再說「但依序合併是 <code>O(N·k)</code>,改成分治就是 <code>O(N log k)</code>」,
+      比直接搬出 priority queue 更能展示推導過程。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(N log k)</strong>　　S = <strong>O(k)</strong>(堆)</div>
+      <p class="sc-formula__hint">
+        <strong>每個節點恰好被 push 一次、pop 一次</strong> —— 實測 6 萬個節點:
+        <strong>push 60000 次、pop 60000 次,一次不多一次不少</strong>。
+        而堆裡最多 <code>k</code> 個,所以每次操作是 <code>O(log k)</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono ok">O(N log k)</td><td><code>N=200000</code>:<code>k=10</code> → 4.4 ms、<code>k=1000</code> → 7.8 ms、<code>k=20000</code> → 14.1 ms</td></tr>
+        <tr><td>堆的大小</td><td class="mono ok">≤ k</td><td><code>k=200</code>、6 萬節點:<strong>最大 size 恰好 200</strong></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>窮舉 1110 組 + 隨機 20 萬組 + <code>k=200</code>×6 萬節點 × 40 次</td></tr>
+        <tr><td>對照 · 依序合併</td><td class="mono fail">O(N·k)</td><td><code>k=20000</code> 時要 <strong>13385 ms</strong> —— 慢 <strong>950 倍</strong></td></tr>
+        <tr><td>對照 · 分治合併</td><td class="mono ok">O(N log k)</td><td><code>k=20000</code> → <strong>14.3 ms</strong>,和堆幾乎一樣</td></tr>
+        <tr><td>記憶體</td><td class="mono fail">每次漏 1 個</td><td><code>dummy</code> 是 <code>new</code> 出來的,10 萬次 = 1562 KB</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>但有個反直覺的實測結果:<code>k</code> 很小時,「依序合併」反而<em>比堆快</em></strong> ——
+      <code>N=200000, k=10</code> 時依序只要 <strong>2.0 ms</strong>,而堆要 <strong>4.4 ms</strong>。
+      <b>因為 <code>O(N·k)</code> 在 <code>k=10</code> 時的常數比堆操作小得多。</b>
+      <strong>漸進複雜度講的是趨勢,不是小規模下的勝負。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「每條已經排序」這個前提,把「在 N 個裡找最小」壓縮成「在 k 個裡找最小」。</strong>
+      <b>而 <code>k</code> 個候選是不是還能再壓縮?不行 —— 但可以讓「取最小」變便宜,那就是堆。</b>
+      <strong>所有「合併有序資料」的題目都是同一個形狀:先問「候選有幾個」,再問「怎麼在候選裡快速取最小」。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每條已排序 ⇒ 全域最小只可能在某一條的頭 ⇒ 問題退化成「在 k 個候選裡反覆取最小」。彈一個補一個讓堆恆 ≤ k,而迴圈能結束就代表最後那個節點的 next 本來就是 nullptr —— 尾巴天生收好,不必再寫一行。</div>
+    <div class="sc-summary-bar__detail">MERGE K SORTED LISTS · MIN-HEAP OVER k HEADS</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p23-mergek.js"></script>
+</body>
+</html>

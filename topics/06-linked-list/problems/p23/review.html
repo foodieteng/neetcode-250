@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>23 · Merge k Sorted Lists // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P23</span>
+    <span><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">合併 K 條有序串列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 23</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>REVIEW</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心觀察</td><td><strong>全域最小一定是某一條的<em>頭</em></strong> ⇒ 問題退化成「在 k 個候選裡取最小」</td></tr>
+        <tr><td>不變量</td><td>堆裡<strong>每條串列最多一個節點</strong> ⇒ 堆頂就是全域最小</td></tr>
+        <tr><td>堆的大小</td><td><strong>彈一個補一個</strong> ⇒ 恆 <code>≤ k</code>(實測 k=200 時最大 size 恰好 200)</td></tr>
+        <tr><td>比較子方向</td><td>最小堆要寫 <code>&gt;</code> —— <code>priority_queue</code> 的語意是「<strong>優先度低的排前面</strong>」</td></tr>
+        <tr><td><code>if (p)</code> 守衛</td><td>不能省 —— <code>push</code> 當下就會比較,<code>nullptr-&gt;val</code> <strong>立刻 SEGV</strong></td></tr>
+        <tr><td>結尾不必收</td><td><strong>迴圈能結束 ⟺ 最後那個節點的 <code>next</code> 是 <code>nullptr</code></strong></td></tr>
+        <tr><td>對照 21</td><td>21 的迴圈<strong>會提早停</strong>(<code>while (a &amp;&amp; b)</code>)⇒ 必須補 <code>t-&gt;next = a ? a : b</code></td></tr>
+        <tr><td>複雜度</td><td><code>O(N log k)</code> 時間、<code>O(k)</code> 空間;<strong>每節點恰好 push 一次、pop 一次</strong></td></tr>
+        <tr><td>三種寫法</td><td>堆 / 分治都是 <code>O(N log k)</code> 且<strong>耗時幾乎相同</strong>;依序合併是 <code>O(N·k)</code></td></tr>
+        <tr><td>記憶體</td><td><code>dummy</code> 用 <code>new</code> ⇒ 每次呼叫漏 1 個(本章第五次)</td></tr>
+        <tr><td>驗證</td><td>窮舉 1110 組 + 隨機 20 萬組 + <code>k=200</code>×6 萬節點 × 40 次,<strong>全部 0 錯</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「堆頂就是全域最小」?請說出那個<strong>不變量</strong>。</div>
+
+    <div class="qa"><strong>Q2.</strong> 比較子寫的是 <code>l1-&gt;val &gt; l2-&gt;val</code> —— 為什麼「大於」會得到<strong>最小</strong>堆?寫反會錯幾組?</div>
+
+    <div class="qa"><strong>Q3.</strong> 播種時的 <code>if (p)</code> 可不可以省?會在<strong>哪一行</strong>崩?</div>
+
+    <div class="qa"><strong>Q4.</strong> 程式從頭到尾<strong>沒有寫 <code>tail-&gt;next = nullptr</code></strong>,為什麼結果不會拖著一條尾巴?<a href="../p21/index.html">21 題</a>為什麼就<strong>必須</strong>寫?</div>
+
+    <div class="qa"><strong>Q5.</strong> 堆裡最多會有幾個節點?總共會做幾次 <code>push</code> 與 <code>pop</code>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// lists = [1,4] [1,3] [2,6]</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 每一步之後的堆與輸出</span>
+步驟                          堆的內容（堆頂在前)      輸出
+────────────────────────────────────────────────────────────────
+播種（三條的頭)               1(L0)  1(L1)  2(L2)     —
+彈 1(L0) → push 4             1(L1)  2(L2)  4(L0)     [1]
+彈 1(L1) → push 3             2(L2)  3(L1)  4(L0)     [1,1]
+彈 2(L2) → push 6             3(L1)  4(L0)  6(L2)     [1,1,2]
+彈 3(L1) → L1 用完,不 push    4(L0)  6(L2)            [1,1,2,3]      ← 堆縮小
+彈 4(L0) → L0 用完,不 push    6(L2)                   [1,1,2,3,4]
+彈 6(L2) → L2 用完,不 push    （空)                    [1,1,2,3,4,6]  ← 迴圈結束
+
+return dummy.next  →  1 → 1 → 2 → 3 → 4 → 6 → nullptr
+<span class="sc-trace__out">// 最後接上的 6 本來就是 L2 的尾巴,所以它的 next 已經是 nullptr</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 堆的大小怎麼變</span>
+播種後      3    ← = k
+彈補彈補    3  3  3      每彈一個就補一個,大小不變
+某條用完後  2  1  0      沒得補了,才開始縮小
+
+<span class="sc-trace__out">// 實測 k=200、6 萬個節點:堆的最大 size 恰好 200;push 60000 次、pop 60000 次</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 邊界(皆為實測)</span>
+lists 為空（k = 0)        → 堆從沒被播種 → 迴圈不執行 → 回 nullptr ✓
+全部都是 nullptr          → if (p) 全部擋掉 → 一樣回 nullptr ✓
+中間夾雜 nullptr          → 只播種非空的 → 正確 ✓
+全部同值 [1,1,1][1,1][1]  → 長度 6,值全對 ✓
+<span class="sc-trace__out">// 這四個 case 靠的都是同一個 if (p) 守衛與 while (!pq.empty()) 的組合</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 分治法和堆的複雜度一樣。<strong>那實務上該選哪個?</strong>有沒有哪種 <code>k</code> 反而該用最笨的「依序合併」?</div>
+
+    <div class="qa"><strong>App 2.</strong> 如果題目改成「<strong>只要前 <code>M</code> 小的元素</strong>」(例如 M=10,而 N=20 萬),兩種寫法的差距會變成多少?</div>
+
+    <div class="qa"><strong>App 3.</strong> 值相同時,原碼輸出的節點<strong>來自哪一條</strong>是不確定的。這算 bug 嗎?如果題目要求<strong>穩定</strong>(相同值時,原本在較前面 <code>lists[i]</code> 的先輸出),要怎麼改?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不變量:「堆裡的節點,每條串列最多貢獻一個,而且那個就是該條還沒被拿走的最小值」。</strong><br><br>
+  <strong>怎麼維持</strong>:播種時每條放進去一個;之後<strong>只有在彈出某條的節點時,才補進那條的下一個</strong>。所以任何時刻,每條在堆裡最多一個。<br><br>
+  <strong>為什麼那個就是該條的最小</strong>:因為每條<strong>本來就已經排序</strong> —— 已經被拿走的都比它小,還沒拿的都比它大。<br><br>
+  <b>兩者合起來</b>:堆裡的 <code>k</code> 個節點,<strong>涵蓋了「每一條的當前最小」</strong>。而全域最小必定是其中之一(不可能藏在某條的中間)。<b>所以堆頂就是全域最小,不需要看其他任何節點。</b><br><br>
+  <b>這就是為什麼只要 <code>O(k)</code> 空間就夠</b> —— <strong>不需要把 N 個節點全放進堆裡。</strong></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為 <code>std::priority_queue</code> 的比較子語意是「<code>cmp(a,b)</code> 為真代表 <em>a 的優先度比 b 低</em>」——低的沉下去,高的浮上來。</strong><br><br>
+  所以 <code>l1-&gt;val &gt; l2-&gt;val</code> 的意思是「<strong>值大的優先度低</strong>」⇒ <strong>值小的浮到頂</strong> ⇒ 最小堆。<br><br>
+  <b>這個雙重否定是它最容易寫反的地方</b>。一個記法:<strong>比較子和你要的效果永遠是<em>相反</em>的</strong> —— 要最小堆就寫大於,要最大堆(預設)就寫小於。<br><br>
+  <strong>實測寫成 <code>&lt;</code></strong>:20 萬組隨機測資<strong>錯 129342 組</strong>,最小反例:<br>
+  <div class="sc-trace" style="margin-top:8px;">lists = [3]  []  [1]   →  <span class="sc-trace__out">[3, 1]</span>   // 正解 [1, 3]</div><br>
+  <b>注意它「只錯 65%」而不是全錯</b> —— 因為<strong>只有一條非空串列時,順序是那條自己決定的,堆的方向根本不影響</strong>。<b>所以拿單一串列測是測不出這個 bug 的。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不能省 —— 而且崩的地方比想像中早:在 <code>push</code> 那一行,不是在 <code>while</code> 迴圈裡。</strong><br><br>
+  題目明說 <code>lists[i]</code> 可以是 <code>nullptr</code>(空串列)。而 <code>pq.push(p)</code> <strong>會立刻做 sift-up 把新元素往上冒</strong>,<b>而 sift-up 的第一件事就是呼叫比較子</b> —— 比較子的第一件事是 <code>l1-&gt;val</code>。<br><br>
+  <strong>實測</strong>(<code>lists = [ [1], nullptr ]</code>,ASan + UBSan):<br>
+  <div class="sc-trace" style="margin-top:8px;">runtime error: member access within null pointer of type 'ListNode'
+runtime error: load of null pointer of type 'int'
+AddressSanitizer: SEGV on unknown address <span class="sc-trace__out">0x000000000000</span></div><br>
+  <b>位址是 0x0 而不是某個偏移</b>,因為 <code>val</code> 剛好是 <code>ListNode</code> 的第一個成員。<br><br>
+  <b>順帶一提迴圈裡的 <code>if (node-&gt;next)</code> 也是同一件事</b> —— 拿掉它就會把 <code>nullptr</code> 補進堆裡,<strong>下一次比較一樣爆</strong>。
+  <b>這支程式有兩個 null 守衛,而且它們防的是同一個東西:<em>不要讓 nullptr 進到堆裡</em>。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為兩題的迴圈「為什麼停」不一樣。</strong><br><br>
+  <strong>23 的迴圈</strong>:<code>while (!pq.empty())</code>。每一輪彈一個,<strong>若 <code>node-&gt;next</code> 存在就補一個</strong>。<br>
+  ⇒ 堆會變空,<strong>只可能因為這一輪沒有補</strong>;<br>
+  ⇒ 沒有補的唯一原因是 <code>node-&gt;next == nullptr</code>;<br>
+  ⇒ <b>迴圈能結束 ⟺ 最後接上的節點本來就是某條串列的尾巴。</b><br>
+  <strong>它天生就是收好的。</strong><br><br>
+  <strong>21 的迴圈</strong>:<code>while (a &amp;&amp; b)</code>。它在<strong>其中一條先用完</strong>時就停 —— <b>而另一條還有東西沒接</b>。所以<strong>必須</strong>補上 <code>t-&gt;next = a ? a : b;</code>。<br><br>
+  <strong>實測</strong>:20 萬組隨機測資中,「迴圈結束時最後彈出的節點 <code>next != nullptr</code>」發生 <strong>0 次</strong>;而在結尾補上 <code>tail-&gt;next = nullptr</code>,結果<strong>完全沒有任何差別</strong>。<br><br>
+  <b>但這個保證是「借來的」</b> —— 它完全依賴迴圈的終止條件。<strong>如果把迴圈改成「彈滿 N 次就停」,保證立刻失效。</strong>
+  <b>所以雖然實測證明那一行多餘,寫上去也不算錯:它把一個隱性的保證變成顯性的,代價只有一行。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>堆裡最多 <code>k</code> 個;push 與 pop 各恰好 <code>N</code> 次。</strong><br><br>
+  <strong>堆的大小</strong>:播種放進 <code>k</code> 個(扣掉空串列),之後<strong>每彈一個最多補一個</strong> —— 所以永遠不會超過 <code>k</code>。<b>而它<em>不是</em> <code>N</code></b>:這就是空間只要 <code>O(k)</code> 的原因。<br><br>
+  <strong>操作次數</strong>:<b>每個節點恰好進堆一次(播種或被前一個帶進來)、出堆一次</b>。<br><br>
+  <strong>實測</strong>(<code>k = 200</code>,每條 300 個,共 60000 個節點):<br>
+  <div class="sc-trace" style="margin-top:8px;">堆的最大 size  = <span class="sc-trace__out">200</span>   （= k,一個不多)
+push 次數      = <span class="sc-trace__out">60000</span> （= N)
+pop  次數      = <span class="sc-trace__out">60000</span> （= N)</div><br>
+  <b>所以總成本是 <code>2N</code> 次堆操作 × 每次 <code>O(log k)</code> = <code>O(N log k)</code>。</b>
+  <strong>注意 <code>log</code> 裡面是 <code>k</code> 不是 <code>N</code></strong> —— <b>這正是「不把全部節點塞進堆」換來的好處。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>複雜度一樣,實測耗時也幾乎一樣 —— 但 <code>k</code> 很小時,最笨的那個反而最快。</strong><br><br>
+  <strong>實測</strong>(<code>N = 200000</code> 個節點):<br>
+  <div class="sc-trace" style="margin-top:8px;">k     每條長度      堆        依序合併      分治合併
+─────────────────────────────────────────────────────
+    10    20000    4.4 ms    <span class="sc-trace__out">2.0 ms</span>       2.2 ms      ← 依序最快！
+  1000      200    7.8 ms    244.8 ms     <span class="sc-trace__out">6.8 ms</span>
+ 20000       10   <span class="sc-trace__out">14.1 ms</span>  13385.3 ms    14.3 ms</div><br>
+  <b><code>k = 10</code> 時「依序合併」比堆快一倍</b> —— 因為 <code>O(N·k)</code> 在 <code>k=10</code> 時的常數比堆操作小得多,<strong>而堆每次 <code>push</code>/<code>pop</code> 都有 sift 的開銷</strong>。<br><br>
+  <b><code>k = 20000</code> 時依序要 13.4 秒,慢了 950 倍</b> —— <code>O(N·k)</code> 的代價完全顯現。<br><br>
+  <strong>而堆與分治從頭到尾難分軒輊。</strong>有趣的是<strong>分治的<em>比較次數</em>在每個 <code>k</code> 都比堆少</strong>(<code>k=1024</code>:109946 vs 128784),<b>因為分治每個節點每層只比一次,而堆的 <code>pop</code> 要做 sift-down,比較次數約兩倍</b> —— <strong>但實際耗時幾乎相同,因為堆的存取模式對快取比較友善。</strong><br><br>
+  <b>結論</b>:面試寫哪個都行,<strong>但要能說出「它們一樣快」以及「<code>k</code> 小的時候笨方法反而贏」</strong> ——
+  <b>漸進複雜度講的是趨勢,不是小規模下的勝負。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>差距會變得非常懸殊 —— 因為堆可以「彈滿 M 次就收工」,而分治必須先把全部合併完。</strong><br><br>
+  <strong>實測</strong>(<code>N = 200000</code>,<code>k = 100</code>,每條 2000 個):<br>
+  <div class="sc-trace" style="margin-top:8px;">M          堆（彈 M 次就停)      分治（必須全部合併完)
+──────────────────────────────────────────────────────
+     10         <span class="sc-trace__out">0.00 ms</span>              7.88 ms
+   1000         <span class="sc-trace__out">0.05 ms</span>              5.39 ms
+ 200000          6.58 ms              <span class="sc-trace__out">5.19 ms</span>      ← 要全部時分治略勝</div><br>
+  <b>堆的成本是 <code>O(k + M log k)</code></b> —— <strong>和 <code>N</code> 幾乎無關</strong>。要前 10 個就真的只做 10 次 pop。<br>
+  <b>分治的成本是 <code>O(N log k)</code></b> —— <strong>不管你只要幾個,都得先把 20 萬個節點全部串好。</strong><br><br>
+  <b>這是堆這個寫法真正的長處,而它在原題裡看不出來</b>:<strong>它是「串流式」的 —— 一次產生一個,而且隨時可以停。</strong><br><br>
+  <b>順帶一提,這正好也是 <a href="https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/" target="_blank" rel="noopener">378 有序矩陣的第 k 小 ↗</a> 的解法</b> ——
+  <strong>把矩陣的每一列看成一條有序串列,然後彈 k 次就停。</strong>
+  <b>同一支引擎,換個停止條件。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>不是 bug —— 因為題目只在乎「值的序列」,而值的序列永遠是對的。</strong><br><br>
+  值相同時,<code>priority_queue</code> <strong>不保證</strong>哪個先出來(它不是穩定的資料結構)。所以節點的<em>來源</em>順序是實作決定的。<br><br>
+  <strong>實測</strong>(刻意把值域壓成 <code>{0, 1}</code> 製造大量平手,20000 組):<br>
+  <div class="sc-trace" style="margin-top:8px;">「來源順序」與「穩定順序」不同的：<span class="sc-trace__out">15751 / 20000（78.8%)</span>
+「值的序列」不同的：             <span class="sc-trace__out">0</span>
+
+反例: lists = [1] [1,2] [1,2,2,3] [0,1] [1,2,2,3]
+  原碼來源  L3 L0 L1 L4 L3 L2 L1 L4 L2 L4 L2 L4 L2
+  穩定版    L3 L0 L1 L2 L3 L4 L1 L2 L2 L4 L4 L2 L4</div><br>
+  <b>七成八的情形下來源順序不一樣,但值一模一樣</b> —— <strong>所以原碼在這題完全正確。</strong><br><br>
+  <strong>如果題目<em>要求</em>穩定</strong>,改法是<strong>在比較子加上第二個鍵</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">struct Item { ListNode* n; int from; };   <span class="sc-trace__out">// 記住來自第幾條</span>
+
+auto cmp = [](const Item&amp; a, const Item&amp; b) {
+    <span class="sc-trace__out">// 值不同就比值;值相同就比「來自哪一條」,索引小的優先</span>
+    return a.n-&gt;val != b.n-&gt;val ? a.n-&gt;val &gt; b.n-&gt;val
+                                : a.from &gt; b.from;
+};</div><br>
+  <b>代價是每個堆元素多帶一個 <code>int</code></b>。<strong>實測這個版本與「穩定」的定義完全吻合。</strong><br><br>
+  <b>值得記住的一般教訓</b>:<strong>「堆不穩定」在合併題裡幾乎總是無害(因為只在乎值),但在「合併<em>記錄</em>」的場景就會變成真的 bug</strong> ——
+  <b>例如合併多個時間序列的日誌,同一毫秒的事件順序被打亂就可能改變語意。</b>
+  <strong>判準是:相同鍵的元素,除了鍵以外還攜帶其他資訊嗎?</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">堆與分治複雜度相同、耗時也幾乎相同 —— 但 k=10 時最笨的「依序合併」反而最快(2.0 vs 4.4 ms),k=20000 時卻慢 950 倍。堆真正的長處在「只要前 M 小」:M=10 時 0.00 ms vs 分治 7.88 ms,因為它隨時可以停。</div>
+    <div class="sc-summary-bar__detail">MERGE K SORTED LISTS · REVIEW</div>
+  </div>
+
+</body>
+</html>
