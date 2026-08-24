@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>460 · LFU Cache // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P460</span>
+    <span><a href="https://leetcode.com/problems/lfu-cache/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">LFU 快取</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 三張表分工,把「找最小」變成一次查表</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 460</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(1) PER OP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        實作一個 <strong>LFU(Least Frequently Used)快取</strong>,支援 <code>get(key)</code> 與 <code>put(key, value)</code>。
+        容量滿了要插入新 key 時,<strong>淘汰使用次數最少的那個</strong>;
+        <strong>若有多個並列最少,淘汰其中最久沒被用到的</strong>(也就是平手時退回 LRU)。
+      </p>
+      <p style="margin-top:8px;">
+        <code>get</code> 與 <code>put</code> <strong>都算一次使用</strong>。查不到的 <code>get</code> 回傳 <code>-1</code>。
+      </p>
+      <p style="margin-top:8px;">
+        <code>0 ≤ capacity ≤ 10⁴</code>、<code>0 ≤ key ≤ 10⁵</code>、<strong><code>0 ≤ value ≤ 10⁹</code></strong>、最多 <code>2×10⁵</code> 次呼叫。
+      </p>
+      <p style="margin-top:8px;">
+        <strong>Follow up:兩個操作都要 <code>O(1)</code> 平均時間複雜度。</strong>
+      </p>
+    </div>
+
+    <p>
+      <a href="../p146/index.html">LRU(146)</a>只要回答「<strong>最久沒用的是誰</strong>」——
+      一條 list 就夠了,front 就是答案。
+      而 LFU 要回答的是<strong>兩層問題</strong>:先比次數,次數平手再比時間。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      如果每次淘汰都去掃一遍找最小次數,那是 <code>O(capacity)</code>,follow-up 直接不及格。
+      <b>整題的難點就是:怎麼把「找最小」壓成一次查表。</b>
+      答案是 <strong>把「次數」當成桶的編號</strong> ——
+      <code>freq[f]</code> 裝著所有次數為 <code>f</code> 的 key,桶內再照使用順序排。
+      再<strong>額外記一個 <code>minFreq</code></strong>,淘汰就是 <code>freq[minFreq].front()</code>,一步到位。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">四種「找最小」的方式<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">淘汰時掃過所有 key,挑次數最小的</span>
+            <span class="sc-ko-card__o">O(capacity) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>最直覺,而且答案一定對</strong> —— 本頁所有實測數字的<strong>參考解就是它</strong>。
+            但 <code>capacity</code> 上限 10⁴、呼叫 2×10⁵ 次,最壞是 <strong>2×10⁹ 次比較</strong>。
+            <b>正確,但沒回答 follow-up。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ 正確 · 但不是 O(1)</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title"><code>priority_queue</code> 依 (次數, 時間戳) 排</span>
+            <span class="sc-ko-card__o">O(log n) + 髒資料</span>
+          </div>
+          <div class="sc-ko-card__body">
+            堆疊沒辦法「就地更新」某個元素的優先度,所以每次使用都得<strong>再塞一份新的進去</strong>,
+            淘汰時<strong>反覆彈出過期的舊紀錄</strong>。<b>會動,但變成 <code>O(log n)</code>,而且堆裡的髒資料量沒有上界。</b>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 不是 O(1)</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__row" style="margin-top:12px;">
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">C</span>
+            <span class="sc-ko-card__title"><code>map&lt;int, list&lt;int&gt;&gt;</code> 有序容器,取 <code>begin()</code></span>
+            <span class="sc-ko-card__o">O(log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            用有序的 <code>std::map</code>,最小次數就是 <code>begin()</code>,<strong>連 <code>minFreq</code> 這個變數都不用維護</strong>。
+            寫起來最不容易錯。<b>缺點只有一個:紅黑樹是 <code>O(log n)</code>,不是 <code>O(1)</code>。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ 好寫 · 但 O(log n)</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--good">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">D</span>
+            <span class="sc-ko-card__title">雜湊桶 + 自己維護 <code>minFreq</code></span>
+            <span class="sc-ko-card__o">O(1) 平均</span>
+          </div>
+          <div class="sc-ko-card__body">
+            用 <code>unordered_map</code> 當桶,再<strong>自己記住最小次數</strong>。
+            關鍵在於 <code>minFreq</code> <strong>只會以兩種方式變動</strong>:
+            插入新 key 時<strong>直接歸 1</strong>,或是最小桶被搬空時<strong>恰好 +1</strong> ——
+            <b>兩種都是 <code>O(1)</code>,永遠不需要「重新尋找最小」。</b>
+          </div>
+          <div class="sc-ko-card__verdict">● ADOPT · 這就是本題答案</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>面試時 C 值得先講。</strong>它三句話說得完、正確性顯而易見,
+      <b>然後再說「但 follow-up 要 O(1),那個 <code>log</code> 來自紅黑樹,我可以用桶 + 自己維護 minFreq 拿掉它」</b> ——
+      <strong>這比一開始就硬幹 D 安全得多</strong>,而且正好展示你知道 <code>log</code> 是從哪裡來的。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 三張表 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">三張表,各自負責一件事<span class="sc-section__title-en">// THE THREE MAPS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>表</th><th>型別</th><th>負責回答</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">m</td><td class="mono">key → {值, 次數}</td><td>「這個 key 在嗎?值多少?現在幾次?」</td></tr>
+        <tr><td class="mono">freq</td><td class="mono">次數 → list&lt;key&gt;</td><td>「次數是 <code>f</code> 的有哪些 key?<strong>誰最久沒用?</strong>」(front)</td></tr>
+        <tr class="ok"><td class="mono"><strong>iter</strong></td><td class="mono">key → list 裡的位置</td><td><strong>「這個 key 在它那條 list 的哪一格?」</strong></td></tr>
+        <tr><td class="mono">minFreq</td><td class="mono">int</td><td>「現在最小的次數是多少?」</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>iter</code> 這張表最容易被漏掉,但少了它整個 <code>O(1)</code> 就垮了。</strong>
+      key 升級時要<strong>從舊桶的 list 中間拔出來</strong> ——
+      <code>std::list::erase(iterator)</code> 本身是 <code>O(1)</code>,
+      <b>但前提是你手上要有那個 iterator</b>。沒有 <code>iter</code>,就得從 front 掃過去找,變成 <code>O(桶大小)</code>。
+      <b>而 <code>list</code>(而不是 <code>vector</code>)之所以必要,正是因為它從中間刪除不會讓其他 iterator 失效。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// LFUCache(2) · 官方範例</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;">
+      特別注意<strong>第 4 步</strong>與<strong>第 7 步</strong>兩次淘汰:
+      <b>第一次淘汰的是比較晚進來的 key 2</b>(因為它次數少),
+      <b>第二次淘汰的是次數平手但比較久沒用的 key 1</b>。
+      還有<strong>第 6 步</strong> —— <code>minFreq</code> 從 1 爬到 2 的那一刻。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ LFU Cache · 三張表 + minFreq</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:424px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · minFreq ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">minFreq 為什麼永遠不用「重新尋找」<span class="sc-section__title-en">// THE KEY LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · minFreq 只有兩種變動方式,都是 O(1)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>① 插入新 key ⇒ <code>minFreq = 1</code>。</strong>
+          新 key 的次數固定是 1,而 1 是可能的最小值 —— <strong>不必比較,直接賦值</strong>。
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>② 使用某個 key,而它剛好是最小桶裡的最後一個 ⇒ <code>minFreq</code> 恰好 +1。</strong>
+          那個 key 從 <code>freq[minFreq]</code> 搬到 <code>freq[minFreq + 1]</code>,舊桶空了。
+          <b>而新的最小值不可能大於 <code>minFreq + 1</code></b> —— 因為剛剛那個 key 就落在那裡。
+          所以答案必定是 <code>minFreq + 1</code>,<strong><code>++</code> 一下就對了</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>③ 淘汰不會讓 <code>minFreq</code> 需要變動</strong> ——
+          淘汰之後緊接著就是插入新 key,而 ① 又把它設回 1。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>整支程式最關鍵的一行就是 ② 那一行:<code>if (freq[minFreq].size() == 0) ++minFreq;</code></strong>
+      <b>而它最詭異的地方是:把它刪掉,答案一次都不會錯</b> ——
+      <strong>它會直接記憶體錯誤</strong>。實測細節見<a href="code.html">程式碼頁</a>。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 和 LRU 對照 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">和 LRU 差在哪<span class="sc-section__title-en">// LFU vs LRU</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th><a href="../p146/index.html">146 LRU</a></th><th><strong>460 LFU 本題</strong></th></tr></thead>
+      <tbody>
+        <tr><td>淘汰誰</td><td>最久沒用的</td><td class="ok"><strong>次數最少的;平手才看最久沒用</strong></td></tr>
+        <tr><td>需要幾條 list</td><td class="mono">1</td><td class="mono ok"><strong>每個次數一條</strong></td></tr>
+        <tr><td>「使用」時做什麼</td><td>移到 list 尾端</td><td class="ok"><strong>搬到下一個桶的尾端</strong></td></tr>
+        <tr><td>要不要 iter 表</td><td class="ok">要</td><td class="ok">要</td></tr>
+        <tr><td>額外狀態</td><td class="fail">無</td><td class="mono ok"><strong>minFreq</strong></td></tr>
+        <tr><td>難度</td><td>Medium</td><td class="fail"><strong>Hard</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>LFU 就是「一堆 LRU 疊起來」</strong>:每個次數一條 LRU list,
+      <b>再多一個指標告訴你該從哪一條下手。</b>
+      <strong>先把 <a href="../p146/index.html">146</a> 寫熟,460 才不會亂。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">get / put = <strong>O(1) 平均</strong>　　空間 = <strong>O(capacity)</strong> ✻</div>
+      <p class="sc-formula__hint">
+        每個操作都只做固定次數的雜湊查詢 + 一次 <code>list::erase</code> + 一次 <code>push_back</code>。
+        <strong>✻ 但原碼的空間實際上是 <code>O(操作次數)</code> 而不是 <code>O(capacity)</code></strong> —— 見下表與<a href="code.html">程式碼頁</a>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>量級</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono ok">O(1)</td><td>40 萬次操作,capacity <strong>100 → 100000</strong>,平均 <strong>89.7 → 145.5 ns/op</strong></td></tr>
+        <tr><td>正確性</td><td class="mono ok">0 錯</td><td>與 <code>O(n)</code> 暴力解交叉比對 <strong>1010737 次 get</strong></td></tr>
+        <tr><td>內部結構</td><td class="mono ok">0 不一致</td><td>每一步檢查 <code>m</code> 與 <code>freq</code> 是否對得上,<strong>250 萬次</strong></td></tr>
+        <tr><td>Space(原碼)</td><td class="mono fail">O(操作次數)</td><td><code>freq</code> 的空桶永不清除:cap=10 跑 10 萬次 → <strong>8529 個桶,其中 8519 個是空的</strong></td></tr>
+        <tr><td>Space(補一行後)</td><td class="mono ok">O(capacity)</td><td>同樣測資 → <strong>10 個桶</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>capacity 放大 1000 倍,單次成本只變 1.6 倍</strong> —— 那 1.6 倍是<strong>快取局部性變差</strong>,
+      不是演算法變慢。<b>這就是「實測 O(1)」長的樣子:不是完全水平,而是隨規模幾乎不動。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「找最小」之所以貴,是因為你每次都重新找。</strong>
+      而這題的最小值<strong>每次只會往下跳到 1、或往上爬 1 格</strong> ——
+      <b>只要變化量有界,就可以用一個變數增量維護它,而不必重算。</b>
+      <strong>設計題的核心往往不是資料結構本身,而是「哪個量的變化夠小,小到可以用一個變數追蹤」。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">把「次數」當桶編號,桶內用 list 維持 LRU 順序,再用 iter 表讓「從中間拔出來」是 O(1)。minFreq 不必重找 —— 插入新 key 就歸 1,最小桶被搬空就恰好 +1。變化量有界,所以一個變數就能增量維護。</div>
+    <div class="sc-summary-bar__detail">LFU CACHE · BUCKETS BY FREQUENCY</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p460-lfu.js"></script>
+</body>
+</html>

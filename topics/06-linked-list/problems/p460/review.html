@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>460 · LFU Cache // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P460</span>
+    <span><a href="https://leetcode.com/problems/lfu-cache/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">LFU 快取</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 460</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>REVIEW</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心轉換</td><td><strong>把「次數」當成桶的編號</strong> —— <code>freq[f]</code> 裝所有次數為 <code>f</code> 的 key</td></tr>
+        <tr><td>桶內順序</td><td><code>push_back</code> 追加 ⇒ <strong><code>front</code> 是這桶裡最久沒用的</strong>(平手時的 LRU 規則)</td></tr>
+        <tr><td>iter 表在幹嘛</td><td>讓「從 list 中間拔出來」是 <code>O(1)</code> —— <strong>少了它就變 <code>O(桶大小)</strong></code></td></tr>
+        <tr><td>為什麼是 list 不是 vector</td><td><code>list</code> 從中間刪除<strong>不會讓其他 iterator 失效</strong></td></tr>
+        <tr><td>minFreq 怎麼維護</td><td><strong>插入新 key 就歸 1;最小桶被搬空就恰好 +1</strong> —— 永遠不用重找</td></tr>
+        <tr><td>為什麼是「恰好 +1」</td><td>剛剛那個 key 就落在 <code>minFreq + 1</code>,新最小值<strong>不可能更大</strong></td></tr>
+        <tr><td>最關鍵的一行</td><td><code>if (freq[minFreq].size() == 0) ++minFreq;</code> —— <strong>拿掉它答案不會錯,會記憶體錯誤</strong></td></tr>
+        <tr><td>put 呼叫 get</td><td>因為題目規定 <code>put</code> 也算一次使用,<code>get</code> 剛好把升級全做完</td></tr>
+        <tr><td>潛伏問題 ①</td><td><code>-1</code> 哨兵靠題目保證 <code>value ≥ 0</code>;放寬值域就會誤判 <strong>257/105752</strong></td></tr>
+        <tr><td>潛伏問題 ②</td><td><code>freq</code> 的<strong>空桶永不清除</strong> ⇒ 空間是 <code>O(操作次數)</code> 而非 <code>O(capacity)</code></td></tr>
+        <tr><td>驗證</td><td>與 <code>O(n)</code> 暴力解比對 <strong>1010737 次 get,不一致 0</strong>;內部結構檢查 250 萬次,不一致 0</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>minFreq</code> 為什麼<strong>永遠不需要「重新尋找最小值」</strong>?請把它會變動的所有情形列出來。</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>iter</code> 這張表看起來很多餘 —— key 明明就在 <code>freq[f]</code> 那條 list 裡。<strong>拿掉它會怎樣?</strong></div>
+
+    <div class="qa"><strong>Q3.</strong> 升級時為什麼是 <code>push_back</code> 而不是 <code>push_front</code>?改了會錯幾組?</div>
+
+    <div class="qa"><strong>Q4.</strong> 把 <code>if (freq[minFreq].size() == 0) ++minFreq;</code> 拿掉,<strong>會答錯還是會崩</strong>?最短的觸發序列是什麼?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>put</code> 用 <code>if (get(key) != -1)</code> 判斷 key 存不存在。<strong>這個寫法有什麼隱憂</strong>?為什麼在 LeetCode 上不會出事?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// LFUCache(2) · 官方範例</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 每一步之後的三張表狀態</span>
+操作                  m（key → 值 / 次數）        freq                     minFreq
+─────────────────────────────────────────────────────────────────────────────────
+LFUCache(2)          {}                          {}                       —
+put(1, 1)            {1 → 1/次1}                 {1: [1]}                 1
+put(2, 2)            {1 → 1/次1, 2 → 2/次1}      {1: [1, 2]}              1
+get(1) = 1           {1 → 1/次2, 2 → 2/次1}      {1: [2], 2: [1]}         1   ← freq[1] 還有人
+put(3, 3)            {1 → 1/次2, 3 → 3/次1}      {1: [3], 2: [1]}         1   ← 淘汰 key 2
+get(2) = -1          （不變）                     （不變）                  1
+get(3) = 3           {1 → 1/次2, 3 → 3/次2}      {2: [1, 3]}              2   ← freq[1] 空了,++
+put(4, 4)            {3 → 3/次2, 4 → 4/次1}      {1: [4], 2: [3]}         1   ← 淘汰 key 1
+get(1) = -1
+get(3) = 3
+get(4) = 4
+<span class="sc-trace__out">// 與 LeetCode 官方範例的期望輸出完全一致</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 兩次淘汰,兩種理由</span>
+第 1 次(put(3,3)):key 1 次數 2、key 2 次數 1
+  → <span class="sc-trace__out">比次數</span>,淘汰 key 2。注意 key 1 <span class="sc-trace__out">更早進來卻活下來</span> —— LFU 不是 FIFO
+
+第 2 次(put(4,4)):key 1 次數 2、key 3 次數 2
+  → <span class="sc-trace__out">次數平手,比誰久沒用</span>:key 1 上次用是 get(1),key 3 是 get(3),key 3 比較新
+  → 淘汰 key 1。而 freq[2] = [1, 3] 的 front 剛好就是 key 1 ✓</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 邊界(皆為實測)</span>
+capacity = 0        put 第一行就 return,任何 get 都是 -1（200 次操作,全對)
+剛建構就 get        m 是空的,第一行 return —— <span class="sc-trace__out">這條路徑完全沒讀 minFreq</span>
+剛建構就 put        內部 get 立刻 return -1;m.size()=0 &lt; cap 不淘汰;最後才 minFreq = 1</div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>順帶回答一個看了會發毛的問題:<code>minFreq</code> 在建構式裡<em>沒有初始化</em>,會不會讀到垃圾?</strong>
+      <b>實測不會。</b>把 <code>minFreq</code> 換成一個會記錄「讀取前是否寫入過」的型別,
+      跑 20 萬條隨機序列共 600 萬次操作,<strong><code>minFreq</code> 被讀取 4998084 次,沒有任何一次發生在被寫入之前</strong>。
+      <b>理由是:讀它的兩個位置都要求 <code>m</code> 非空,而 <code>m</code> 非空必定經過 <code>put</code> 尾端的 <code>minFreq = 1</code>。</b>
+      <strong>但這仍然該補上</strong> —— 它靠的是「目前的控制流剛好如此」,而不是任何保證。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 把 <code>freq</code> 換成<strong>有序的 <code>std::map</code></strong>,最小次數就是 <code>begin()</code>,<code>minFreq</code> 這個變數整個不用維護。<strong>實際上慢多少?</strong>值得換嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> LFU 有一個著名的弱點:<strong>早期紅過的 key 會賴著不走</strong>。請構造一個工作負載讓它現形,並和 <a href="../p146/index.html">LRU</a> 對照。</div>
+
+    <div class="qa"><strong>App 3.</strong> 承 Q2 —— <strong>拿掉 <code>iter</code> 表到底會慢多少?</strong>請量出來,而不是只說「變 <code>O(n)</code>」。</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為 <code>minFreq</code> 的變化量有界:要嘛歸 1,要嘛剛好 +1。</strong><br><br>
+  <strong>① 插入新 key ⇒ <code>minFreq = 1</code>。</strong>新 key 次數固定是 1,而 1 是可能的最小值 —— 不必比較,<strong>直接賦值</strong>。<br><br>
+  <strong>② 使用某個 key,而它是最小桶裡的最後一個 ⇒ <code>++minFreq</code>。</strong><br>
+  它從 <code>freq[minFreq]</code> 搬到 <code>freq[minFreq + 1]</code>,舊桶空了。<b>而新的最小值不可能大於 <code>minFreq + 1</code></b> —— 因為剛剛那個 key 就落在那裡。所以答案<strong>必定</strong>是 <code>minFreq + 1</code>。<br><br>
+  <strong>③ 使用某個 key,但最小桶還有別人 ⇒ 不變。</strong><br>
+  <strong>④ 淘汰 ⇒ 不需要處理。</strong>因為淘汰之後緊接著就是插入,①又把它設回 1。<br><br>
+  <b>這就是整題的關鍵洞察:「找最小」之所以貴,是因為每次都重新找。只要變化量有界,就可以用一個變數<em>增量維護</em>。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>答案完全不會變,但每次 <code>get</code> 從 <code>O(1)</code> 退化成 <code>O(桶大小)</code>。</strong><br><br>
+  key 升級時要<strong>從舊桶的 list 中間把它拔出來</strong>。<code>std::list::erase(it)</code> 本身是 <code>O(1)</code> —— <b>但前提是你手上要有那個 iterator</b>。沒有 <code>iter</code> 表,就得從 <code>front</code> 一路 <code>++</code> 找過去。<br><br>
+  <strong>實測(見 App 3)</strong>:改成掃描版,<strong>1250014 次 <code>get</code> 答案完全一致</strong> —— <b>它不是錯,是慢</b>。而在「桶內全滿、每次都存取排最後面那個」的持續最壞情形下,<code>capacity = 2000</code> 時<strong>每次 get 平均掃過 1000 個節點,慢 30 倍</strong>。<br><br>
+  <b>順帶說明為什麼是 <code>list</code> 而不是 <code>vector</code></b>:<code>vector</code> 從中間刪一個會讓後面所有元素移位,<strong><code>iter</code> 表裡存的位置全部失效</strong>。<code>list</code> 的節點各自獨立,刪一個不影響其他 iterator —— <b>這是「存 iterator」這個做法能成立的前提。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為桶內要維持「front = 最久沒用」,而 <code>push_back</code> 從尾巴追加才會有這個性質。</strong><br><br>
+  LFU 規定<strong>次數平手時退回 LRU</strong>。所以同一桶內必須照「上次使用時間」排序,最舊的在前面 —— 剛用過的 key 是<strong>最新</strong>的,當然排到<strong>最後</strong>。<br><br>
+  <strong>實測</strong>:改成 <code>push_front</code>,4 萬條隨機序列共 410030 次 <code>get</code>,<strong>錯 5366 次</strong>(1840 條序列受影響)。<br>
+  <strong>窮舉搜到的最小反例</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">cap = 2
+put(0,0)  get(0)  put(1,0)  get(1)  put(2,0)  get(0) → <span class="sc-trace__out">0</span>   // 正解 -1</div><br>
+  <b>注意它需要 6 個操作才現形</b> —— 因為它<strong>只在「同一桶裡有兩個以上的 key,而且剛好要淘汰」時才會出錯</strong>。桶裡只有一個 key 時,<code>front</code> 和 <code>back</code> 是同一個,前後推無所謂。<b>所以隨手測兩三筆完全測不出來。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>會崩,不會答錯 —— 而這正是它可怕的地方。</strong><br><br>
+  <strong>實測</strong>(4 萬條隨機序列,410030 次 <code>get</code>):<br>
+  · <strong>答錯次數:0</strong><br>
+  · <strong>淘汰時撈到空 list:30670 次</strong><br><br>
+  <b>「一次都沒答錯」不是因為它是對的,是因為它活不到答錯 —— 程式先壞了。</b><br><br>
+  <strong>最短觸發序列</strong>(窮舉搜出):<br>
+  <div class="sc-trace" style="margin-top:8px;">LFUCache cache(1);
+cache.put(0, 0);   // freq[1] = [0],minFreq = 1
+cache.get(0);      // 0 升到 freq[2];freq[1] 空了,但 minFreq 沒跟著爬
+cache.put(1, 0);   // 滿了 → freq[minFreq=1].front()   <span class="sc-trace__out">← 空的 list</span>
+
+// ASan:
+ERROR: AddressSanitizer: attempting free on address which was not malloc()-ed
+    #7 in std::list&lt;int&gt;::pop_front()</div><br>
+  對空 <code>list</code> 呼叫 <code>front()</code> / <code>pop_front()</code> 是 <strong>UB</strong>,不是「回傳某個預設值」。<br><br>
+  <b>這一課值得單獨記下來:「所有測資都過」和「沒有 bug」是兩件事。</b><b>對答案比對而言,記憶體毀損是隱形的 —— 它只有 sanitizer 看得見,而且可能在很久以後、在完全無關的地方才爆出來。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>隱憂是:<code>-1</code> 既被當成「不存在」,也可能是一個合法的值。</strong><br><br>
+  <code>if (get(key) != -1)</code> 用<strong>回傳值</strong>判斷 key 在不在。存了 <code>-1</code> 的 key,<code>get</code> 回傳 <code>-1</code>,於是 <code>put</code> <strong>誤判它不存在</strong>,走進「插入新 key」那條分支。<br><br>
+  <strong>為什麼在 LeetCode 上不會出事</strong>:題目保證 <code>0 ≤ value ≤ 10⁹</code>,<strong>值永遠不可能是 <code>-1</code></strong>。<br><br>
+  <strong>把值域放寬到允許負值,實測就現形</strong>:105752 次 <code>get</code> 中<strong>不一致 257 次</strong>。窮舉搜到的最小反例:<br>
+  <div class="sc-trace" style="margin-top:8px;">cap = 2
+put(0, -1)   put(1, 7)   put(0, -1)   get(1) → <span class="sc-trace__out">-1</span>   // 正解 7</div><br>
+  <b>而且壞的不只是答案,是結構本身</b>。誤判之後 <code>m[key] = {value, 1}</code> 直接覆蓋,<strong>但舊的那筆在 <code>freq</code> 裡的節點沒有被移除</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">put(1,-1); put(2,5);  → m 有 2 個 key,freq 裡也 2 個,一致 ✓
+再 put(1,9);           → m 只剩 <span class="sc-trace__out">1</span> 個,freq 裡還是 2 個,而且 <span class="sc-trace__out">key 1 出現兩次</span>
+接著 get(2) = -1       // key 2 被那次誤判當成受害者淘汰掉了</div><br>
+  <b>修法一行:用 <code>m.find(key) != m.end()</code> 判斷存在,不要看回傳值。</b>
+  <b>更一般的教訓:哨兵值(<code>-1</code>、<code>0</code>、<code>INT_MIN</code>)只有在它落在合法值域之外時才安全 —— 而那通常是題目給的,不是你能保證的。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>正確性完全一樣,而且慢得沒有想像中多 —— 但差距的方向很有意思。</strong><br><br>
+  把 <code>freq</code> 換成 <code>std::map&lt;int, list&lt;int&gt;&gt;</code>,最小次數就是 <code>freq.begin()->first</code>,<strong><code>minFreq</code> 這個變數整個消失</strong>(空桶也必須 <code>erase</code>,否則 <code>begin()</code> 會指到空桶)。<br><br>
+  <strong>實測正確性</strong>:與原碼交叉比對 <strong>2499982 次 <code>get</code>,不一致 0</strong>。<br><br>
+  <strong>實測速度</strong>(40 萬次操作):<br>
+  <div class="sc-trace" style="margin-top:8px;">capacity =   100:  原碼 <span class="sc-trace__out">72.2</span> ns/op    有序 map <span class="sc-trace__out">121.1</span> ns/op   →  1.68 倍
+capacity = 10000:  原碼 <span class="sc-trace__out">92.0</span> ns/op    有序 map  <span class="sc-trace__out">99.1</span> ns/op   →  1.08 倍</div><br>
+  <b>反直覺的地方:capacity 越大,兩者反而越接近。</b>因為 <code>map</code> 的 <code>log</code> 是對<strong>桶數</strong>取的,而<strong>桶數大約是「不同次數的個數」,通常遠小於 capacity</strong> —— capacity 大的時候 key 分散,每個 key 次數都低,桶反而少,<code>log</code> 幾乎等於常數。<br><br>
+  <b>結論</b>:面試時 <strong>先寫有序 <code>map</code> 版</strong>(短、不需要維護 <code>minFreq</code>、少一整類 bug),<b>然後說「這裡有一個 <code>log</code>,來自紅黑樹;follow-up 要 <code>O(1)</code> 的話我改用 <code>unordered_map</code> 加自己維護 <code>minFreq</code>」。</b>知道 <code>log</code> 從哪裡來,比直接寫出最快的版本更能證明你懂。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>只要工作集換人,LFU 的命中率會掉到 0%,而且永遠回不來。</strong><br><br>
+  <strong>構造</strong>(<code>capacity = 4</code>):<br>
+  <strong>階段一</strong>:key 0~3 各被使用 N 圈,次數衝到 N。<br>
+  <strong>階段二</strong>:工作集整個換成 key 100~103,反覆循環 300 圈(共 1200 次存取)。<br><br>
+  <strong>實測</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">暖身   10 圈  →  LFU 命中    <span class="sc-trace__out">0</span>/1200 ( 0.0%)     LRU 命中 1196/1200 (99.7%)
+暖身  100 圈  →  LFU 命中    <span class="sc-trace__out">0</span>/1200 ( 0.0%)     LRU 命中 1196/1200 (99.7%)
+暖身 1000 圈  →  LFU 命中    <span class="sc-trace__out">0</span>/1200 ( 0.0%)     LRU 命中 1196/1200 (99.7%)</div><br>
+  <b>連暖身 10 圈就已經完全鎖死了</b>,而且再多的暖身也不會更糟 —— 因為 <strong>0% 已經到底</strong>。<br><br>
+  <strong>機制</strong>:新 key 進來次數是 1,<code>minFreq</code> 立刻歸 1;<b>下一個新 key 進來時,受害者就是「上一個新 key」</b> —— 舊的四個高次數 key <strong>連被考慮的機會都沒有</strong>。新 key 之間互相淘汰,老 key 永遠不動。<br><br>
+  <b>這就是 LFU 的「快取污染 / 老化」問題</b>,也是真實系統很少用純 LFU 的原因。實務上的解法是<strong>週期性把所有次數砍半(aging)</strong>,或改用
+  <a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_frequent_recently_used_(LFRU)" target="_blank" rel="noopener">LFU 與 LRU 的混合策略 ↗</a>(例如 TinyLFU、ARC)。<br><br>
+  <b>但要說公平話:LRU 也有它的死穴</b> —— 一次「掃過全表」的循序存取就能把 LRU 整個沖掉,<strong>而 LFU 對這種情形反而免疫</strong>。<b>沒有普遍最好的淘汰策略,只有適合特定存取模式的策略。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>答案一模一樣,但最壞情形慢 30 倍 —— 而且慢的幅度隨 capacity 線性成長。</strong><br><br>
+  改成「每次升級都從 <code>front</code> 掃過去找 key 的位置」:<br><br>
+  <strong>正確性</strong>:1250014 次 <code>get</code>,<strong>不一致 0</strong>。<b>它不是錯的,只是慢。</b><br><br>
+  <strong>速度</strong>(持續最壞情形:桶內全滿,而且每一圈都存取排在最後面的那個):<br>
+  <div class="sc-trace" style="margin-top:8px;">capacity =  200:  有 iter <span class="sc-trace__out">53.2</span> ns/get    無 iter  <span class="sc-trace__out">139.9</span> ns/get   慢  2.6 倍   平均掃過  <span class="sc-trace__out">100</span> 個節點
+capacity = 2000:  有 iter <span class="sc-trace__out">55.0</span> ns/get    無 iter <span class="sc-trace__out">1627.4</span> ns/get   慢 29.6 倍   平均掃過 <span class="sc-trace__out">1000</span> 個節點</div><br>
+  <b>兩個數字要一起看</b>:<br>
+  · <strong>「平均掃過的節點數」正好是 <code>capacity / 2</code></strong> —— 這是 <code>O(桶大小)</code> 的直接證據;<br>
+  · <strong>有 <code>iter</code> 那一欄從 53.2 到 55.0,幾乎不動</strong> —— <b>capacity 放大 10 倍,成本沒變。這才是 <code>O(1)</code> 長的樣子。</b><br><br>
+  <b>而且要注意「最壞情形」是怎麼構造出來的</b>:我第一次量的時候忘了<strong>每圈要換方向</strong>,結果目標永遠落在 <code>front</code>,掃描版反而比較快(每次只掃 1 個)。<b>只有讓目標持續落在桶的另一端,<code>O(n)</code> 才會現形</b> —— <strong>這也提醒:效能測試如果不刻意構造最壞情形,量到的往往是最好情形。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">minFreq 只會歸 1 或 +1 —— 變化量有界,所以一個變數就能增量維護,不必重找。iter 表讓「從 list 中間拔出」是 O(1):拿掉它答案不變(125 萬次 get 全對)但最壞情形慢 30 倍。而 LFU 的代價是老化:工作集一換,實測命中率直接掉到 0%,LRU 同一場景是 99.7%。</div>
+    <div class="sc-summary-bar__detail">LFU CACHE · REVIEW</div>
+  </div>
+
+</body>
+</html>
