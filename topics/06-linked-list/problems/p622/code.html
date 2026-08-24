@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>622 · Design Circular Queue // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P622</span>
+    <span><a href="https://leetcode.com/problems/design-circular-queue/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">設計環狀佇列</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作與六個變體實測</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 622</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// THE CODE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>原碼一字未改</strong>,只補上註解。這是本章唯一<strong>沒有任何 <code>new</code>、也沒有任何指標</strong>的一題 ——
+      <b>沒有洩漏、沒有 null、沒有懸空</b>。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p622.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">MyCircularQueue</span> <span class="p">{</span>
+<span class="k">private</span><span class="p">:</span>
+    <span class="c">// 狀態只有這兩個:頭在哪、有幾個。rear 不存,要用時再算</span>
+    <span class="t">int</span> size<span class="p">,</span> front<span class="p">,</span> capacity<span class="p">;</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> q<span class="p">;</span>
+
+<span class="k">public</span><span class="p">:</span>
+    <span class="f">MyCircularQueue</span><span class="p">(</span><span class="t">int</span> k<span class="p">)</span> <span class="p">{</span>
+        q<span class="p">.</span><span class="f">resize</span><span class="p">(</span>k<span class="p">,</span> <span class="n">0</span><span class="p">);</span>          <span class="c">// 恰好 k 格,不多不少</span>
+        size <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        front <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        capacity <span class="p">=</span> k<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">enQueue</span><span class="p">(</span><span class="t">int</span> value<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="f">isFull</span><span class="p">())</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="c">// 下一個空位 = 從頭往後數 size 格</span>
+        q<span class="p">[(</span>front <span class="p">+</span> size<span class="p">)</span> <span class="p">%</span> capacity<span class="p">]</span> <span class="p">=</span> value<span class="p">;</span>
+        size<span class="p">++;</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">deQueue</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="f">isEmpty</span><span class="p">())</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="c">// 只移動邊界,不碰陣列內容 —— 舊值留著等下次繞回來覆蓋</span>
+        front <span class="p">=</span> <span class="p">(</span>front <span class="p">+</span> <span class="n">1</span><span class="p">)</span> <span class="p">%</span> capacity<span class="p">;</span>
+        size<span class="p">--;</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">int</span> <span class="f">Front</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="f">isEmpty</span><span class="p">())</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>
+        <span class="k">return</span> q<span class="p">[</span>front<span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="t">int</span> <span class="f">Rear</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="f">isEmpty</span><span class="p">())</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>   <span class="c">// 這個守衛是必要的,見第 3 節</span>
+        <span class="c">// 空位再往回一格 —— 那個 -1 不能少</span>
+        <span class="k">return</span> q<span class="p">[(</span>front <span class="p">+</span> size <span class="p">-</span> <span class="n">1</span><span class="p">)</span> <span class="p">%</span> capacity<span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="c">// 兩個判斷落在數線的兩端,永遠不可能同時成立</span>
+    <span class="t">bool</span> <span class="f">isEmpty</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> size <span class="p">==</span> <span class="n">0</span><span class="p">;</span> <span class="p">}</span>
+    <span class="t">bool</span> <span class="f">isFull</span><span class="p">()</span>  <span class="p">{</span> <span class="k">return</span> size <span class="p">==</span> capacity<span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>enQueue</code> 與 <code>deQueue</code> 都是先呼叫自己的 <code>isFull</code> / <code>isEmpty</code>。</strong>
+      <b>這不只是省事 —— 它保證了「守衛條件」與「對外回報的狀態」永遠是同一份邏輯</b>,
+      <strong>不會出現「<code>isFull()</code> 說沒滿但 <code>enQueue</code> 卻拒絕」這種矛盾。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 完全窮舉 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">這題的測資空間可以真的窮舉<span class="sc-section__title-en">// EXHAUSTIVE</span></h2>
+    </div>
+
+    <p>
+      六個操作、狀態只有 <code>(front, size)</code> 兩個小整數 ——
+      <strong>對小的 <code>k</code>,「所有可能的操作序列」是可以真的全部跑一遍的</strong>。
+    </p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 窮舉:k = 1..4,7 種操作,長度 1 到 7 的「全部」序列</span>
+序列數：            3843196
+總呼叫：           26261872
+回傳值不一致：            <span class="sc-trace__out">0</span>
+每次呼叫後比對佇列內容,不一致：  <span class="sc-trace__out">0</span>
+索引檢查 9711316 次,越界：      <span class="sc-trace__out">0</span>
+
+<span class="sc-trace__head">// 再補上窮舉搆不到的規模</span>
+k 隨機 1~1000,400 × 20000 次操作 = 800 萬次 → 不一致 <span class="sc-trace__out">0</span>
+k = 7,繞圈 200 萬輪（front 繞了約 <span class="sc-trace__out">142857</span> 圈)→ 不一致 <span class="sc-trace__out">0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「比對回傳值」還不夠 —— 這裡是<em>每一次呼叫之後</em>都把整個佇列的內容跟參考解比一遍。</strong>
+      <b>因為有些 bug(例如寫錯位置)不會立刻反映在回傳值上,要等好幾步之後才浮現。</b>
+      <strong>逐步檢查不變量,才能讓 bug 在它<em>發生</em>的那一步被抓到,而不是在它<em>被看見</em>的那一步。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 變體實測 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">六個變體,實測誰會壞<span class="sc-section__title-en">// ADVERSARIAL VARIANTS</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      每一處改成「看起來也對」的寫法,拿 <strong><code>k = 1..4</code> × 長度 1..6 的全部序列(3202668 次呼叫)</strong>去跑。
+      <strong>最小反例是窮舉搜出來的</strong>:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>把哪裡改掉</th><th>回傳錯</th><th>內容錯</th><th>索引越界</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>用 <code>(front, rear)</code> 且<strong>不浪費格子</strong></td>
+          <td class="mono fail"><strong>546467</strong></td>
+          <td class="mono fail">658550</td>
+          <td class="mono">0</td>
+          <td class="mono"><code>k=1: enQueue(1)</code> → <code>false</code>(正解 <code>true</code>)</td>
+        </tr>
+        <tr>
+          <td><code>Rear()</code> 少了 <code>isEmpty</code> 守衛</td>
+          <td class="mono fail"><strong>264364</strong></td>
+          <td class="mono">0</td>
+          <td class="mono fail"><strong>176841</strong></td>
+          <td class="mono"><code>k=1: Rear()</code> → <code>0</code>(正解 <code>-1</code>)</td>
+        </tr>
+        <tr>
+          <td><code>isFull</code> 用 <code>size &gt; capacity</code></td>
+          <td class="mono fail"><strong>167270</strong></td>
+          <td class="mono fail">243076</td>
+          <td class="mono">0</td>
+          <td class="mono"><code>k=1: enQueue(1) enQueue(1)</code> → <code>true</code>(正解 <code>false</code>)</td>
+        </tr>
+        <tr>
+          <td><code>Rear()</code> 用 <code>(front+size) % cap</code>(掉了 <code>−1</code>)</td>
+          <td class="mono fail"><strong>134334</strong></td>
+          <td class="mono">0</td>
+          <td class="mono">0</td>
+          <td class="mono"><code>k=2: enQueue(1) Rear()</code> → <code>0</code>(正解 <code>1</code>)</td>
+        </tr>
+        <tr>
+          <td><code>enQueue</code> 寫成 <code>q[size % cap]</code>(忘了 <code>front</code>)</td>
+          <td class="mono fail"><strong>11880</strong></td>
+          <td class="mono fail">86840</td>
+          <td class="mono">0</td>
+          <td class="mono"><code>k=2: enQueue(1) deQueue enQueue(1) Front()</code> → <code>0</code>(正解 <code>1</code>)</td>
+        </tr>
+        <tr>
+          <td><code>deQueue</code> 忘了 <code>% capacity</code></td>
+          <td class="mono fail"><strong>2184</strong></td>
+          <td class="mono">0</td>
+          <td class="mono fail"><strong>2184</strong></td>
+          <td class="mono"><code>k=1: enQueue(1) deQueue enQueue(1) Front()</code> → 越界</td>
+        </tr>
+        <tr>
+          <td><code>enQueue</code> 忘了 <code>% capacity</code></td>
+          <td class="mono fail"><strong>300</strong></td>
+          <td class="mono fail">6220</td>
+          <td class="mono fail">8368</td>
+          <td class="mono"><code>k=2: enQueue enQueue deQueue enQueue Rear()</code> → <code>1</code>(正解 <code>2</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「回傳錯」與「內容錯」兩欄要分開看。</strong>
+      <b><code>Rear()</code> 那兩個變體「內容錯 0」——因為 <code>Rear</code> 是唯讀的,它只是<em>回報</em>錯了</b>;
+      <b>而 <code>enQueue</code> 寫錯位置的那個「回傳錯」只有 11880、「內容錯」卻高達 86840</b> ——
+      <strong>它默默把資料寫到不該寫的地方,而錯誤要好幾步之後才會被 <code>Front</code>/<code>Rear</code> 看見。</strong>
+      <b>只比對回傳值的測試會嚴重低估這種 bug。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 負數取餘數 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">Rear 的守衛為什麼不能省<span class="sc-section__title-en">// NEGATIVE MODULO</span></h2>
+    </div>
+
+    <p>
+      <code>Rear()</code> 算的是 <code>(front + size − 1) % capacity</code>。
+      <strong>如果 <code>size == 0</code> 而 <code>front == 0</code>,那就是 <code>(−1) % capacity</code>。</strong>
+      而 C++ 的 <code>%</code> 是<strong>往零截斷</strong>,不是數學上的模:
+    </p>
+
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 實測(C++11 起,負數取餘數的結果跟著被除數的正負號)</span>
+(-1) % 1 = <span class="sc-trace__out">0</span>       ← k=1 時剛好落在界內,讀到 q[0] 的殘留值
+(-1) % 3 = <span class="sc-trace__out">-1</span>      ← k≥2 時就是 q[-1]
+(-1) % 5 = <span class="sc-trace__out">-1</span>
+
+<span class="sc-trace__head">// 拿掉守衛的實測後果(3202668 次呼叫)</span>
+回傳錯：      264364
+索引越界：    <span class="sc-trace__out">176841</span>
+最小反例：    k=1  Rear() → 0（正解 -1)</div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意 <code>k = 1</code> 那個反例特別陰險:<code>(−1) % 1 == 0</code>,所以它<em>沒有越界</em></strong> ——
+      <b>它安安靜靜地讀了 <code>q[0]</code>,回傳一個殘留的舊值。</b>
+      <strong>sanitizer 抓不到它,只有跟參考解比對才看得出來。</strong>
+      <b>而 <code>k ≥ 2</code> 時才會真的變成 <code>q[-1]</code> —— 同一個 bug,兩種完全不同的表現。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 沒有的問題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">本章其他題的隱憂,這題一個都沒有<span class="sc-section__title-en">// WHAT'S ABSENT</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>常見隱憂</th><th>這題有沒有</th><th>為什麼</th></tr></thead>
+      <tbody>
+        <tr><td>記憶體洩漏</td><td class="ok">沒有</td><td>整支沒有任何 <code>new</code>,<code>vector</code> 自己管</td></tr>
+        <tr><td><code>nullptr</code> 解參考</td><td class="ok">沒有</td><td>沒有指標</td></tr>
+        <tr><td>整數溢位</td><td class="ok">沒有</td><td><code>front + size</code> 最大 <strong>1999</strong>,是 <code>INT_MAX</code> 的 <strong>0.000093%</strong></td></tr>
+        <tr><td>除以零</td><td class="ok">沒有</td><td>每個 <code>% capacity</code> 都在 <code>isFull</code> / <code>isEmpty</code> 守衛之後</td></tr>
+        <tr><td>索引越界</td><td class="ok">沒有</td><td><strong>971 萬次檢查,越界 0 次</strong></td></tr>
+        <tr><td><code>capacity = 0</code></td><td class="ok">安全</td><td>見<a href="review.html">複習頁 App 2</a> —— 和 <a href="../p146/index.html">146</a> 形成強烈對比</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這不是運氣好,是「用 <code>vector</code> 而不是手寫節點」與「先守衛再算術」兩個決定的直接結果。</strong>
+      <b>本章前面幾題的洩漏、SEGV、懸空指標,幾乎都來自「自己配置記憶體」與「算完才檢查」。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習與練習</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">窮舉 k=1..4 的全部操作序列共 26261872 次呼叫、每次都比對佇列內容 —— 0 不一致、0 越界。而變體表裡「回傳錯」與「內容錯」要分開看:enQueue 寫錯位置只讓 11880 次回傳出錯,卻讓 86840 次的內容是壞的。</div>
+    <div class="sc-summary-bar__detail">CIRCULAR QUEUE · CODE</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>622 · Design Circular Queue // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P622</span>
+    <span><a href="https://leetcode.com/problems/design-circular-queue/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">設計環狀佇列</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 622</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>REVIEW</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心決定</td><td>存 <strong><code>(front, size)</code></strong> 而不是 <code>(front, rear)</code> —— <strong>歧義壓根不發生</strong></td></tr>
+        <tr><td>為什麼沒有歧義</td><td>「空」是 <code>size == 0</code>、「滿」是 <code>size == capacity</code>,<strong>落在數線兩端</strong></td></tr>
+        <tr><td>環在哪裡</td><td><strong>只在 <code>% capacity</code> 這個算術裡</strong> —— 底層陣列從頭到尾都是線性的</td></tr>
+        <tr><td>下一個空位</td><td><code>(front + size) % capacity</code> —— 從頭往後數 <code>size</code> 格</td></tr>
+        <tr><td>最後一個元素</td><td><code>(front + size <strong>− 1</strong>) % capacity</code> —— 少了 <code>−1</code> 錯 134334 次</td></tr>
+        <tr><td>出隊為什麼不清資料</td><td>「哪些格子算數」只由 <code>front</code>/<code>size</code> 決定,<strong>陣列的值不參與判斷</strong></td></tr>
+        <tr><td>Rear 的守衛</td><td>不能省 —— <code>size=0, front=0</code> 時算出 <code>(−1) % k</code>,C++ 是<strong>往零截斷</strong></td></tr>
+        <tr><td>複雜度</td><td>每個操作 <strong><code>O(1)</code> 最壞情形</strong>(不是平均 —— 這裡沒有雜湊表)</td></tr>
+        <tr><td>空間</td><td><strong>恰好 <code>k</code> 格</strong>;浪費一格的教科書寫法要 <code>k+1</code></td></tr>
+        <tr><td>驗證</td><td><strong>窮舉 k=1..4 的全部操作序列:26261872 次呼叫,不一致 0,越界 0</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼選 <code>(front, size)</code> 而不是教科書的 <code>(front, rear)</code>?兩者的資訊量不是一樣嗎?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>Rear()</code> 為什麼是 <code>(front + size − 1) % cap</code>?那個 <code>−1</code> 拿掉會錯幾次?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>Rear()</code> 的 <code>isEmpty</code> 守衛可不可以省?<code>(−1) % 5</code> 在 C++ 裡等於多少?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>deQueue</code> 為什麼<strong>完全不碰陣列內容</strong>?舊資料留著不會出事嗎?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>isFull</code> 寫成 <code>size &gt; capacity</code> 會怎樣?最小反例是什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// MyCircularQueue(5)</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 每一步之後的狀態(· = 從未寫過,灰底 = 舊值但已不屬於佇列)</span>
+操作            q[0] q[1] q[2] q[3] q[4]   front  size   寫到哪
+──────────────────────────────────────────────────────────────
+（初始)          ·    ·    ·    ·    ·       0     0
+enQueue(10)     10    ·    ·    ·    ·       0     1     (0+0)%5 = 0
+enQueue(20)     10   20    ·    ·    ·       0     2     (0+1)%5 = 1
+enQueue(30)     10   20   30    ·    ·       0     3     (0+2)%5 = 2
+deQueue()      [10]  20   30    ·    ·       1     2     ← 只推 front,沒碰陣列
+deQueue()      [10] [20]  30    ·    ·       2     1
+enQueue(40)    [10] [20]  30   40    ·       2     2     (2+1)%5 = 3
+enQueue(50)    [10] [20]  30   40   50       2     3     (2+2)%5 = 4
+enQueue(60)     60  [20]  30   40   50       2     4     (2+3)%5 = <span class="sc-trace__out">0</span>  ← 繞回開頭
+enQueue(70)     60   70   30   40   50       2     5     (2+4)%5 = 1  ← 滿了
+enQueue(80)     （不變)                       2     5     isFull → return false
+<span class="sc-trace__out">// 那個舊的 10,是在 enQueue(60) 那一刻被自然覆蓋的 —— 從來不需要主動清空</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 官方範例 k=3(實測輸出)</span>
+enQueue(1) → true    enQueue(2) → true    enQueue(3) → true    enQueue(4) → false
+Rear() → 3           isFull() → true      deQueue() → true     enQueue(4) → true
+Rear() → 4
+<span class="sc-trace__out">// 與期望輸出完全一致</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 邊界(皆為實測)</span>
+k = 1            enQueue → deQueue → enQueue 反覆,front 一直是 0（(0+1)%1 = 0)
+空佇列的四個查詢  Front / Rear 回 -1,deQueue 回 false,全部不碰陣列
+滿了再 enQueue    回 false,<span class="sc-trace__out">陣列一格都沒動</span>
+繞圈 14 萬圈      k=7 跑 200 萬輪,front 繞了約 142857 圈 → 不一致 0
+<span class="sc-trace__out">// k = 0 也是安全的,但那是題目保證之外的事 —— 見 App 2</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 教科書的 <code>(front, rear)</code> 寫法有兩種補救方式:<strong>浪費一格</strong>,或<strong>加一個 <code>full</code> 旗標</strong>。<strong>它們都對嗎?</strong>和本題的寫法比,差在哪?</div>
+
+    <div class="qa"><strong>App 2.</strong> 題目保證 <code>1 ≤ k</code>。<strong>如果 <code>k = 0</code> 呢?</strong>(<a href="../p146/index.html">146</a> 的 <code>capacity = 0</code> 會 SEGV,這題呢?)</div>
+
+    <div class="qa"><strong>App 3.</strong> 常聽說「<code>%</code> 是除法,很慢,應該換成條件減法」。<strong>在這題實際上快多少?</strong></div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>資訊量確實一樣(彼此可互推),但「歧義落在哪裡」完全不同。</strong><br><br>
+  <code>rear</code> 和 <code>size</code> 可以互相算出來:<code>rear = (front + size) % k</code>。所以它們攜帶的資訊是等價的。<b>但等價的資訊,擺在不同的變數裡,產生的<em>特例</em>不一樣。</b><br><br>
+  <strong>用 <code>(front, rear)</code></strong>:「空」是 <code>front == rear</code>,而「滿」<em>也是</em> <code>front == rear</code>(繞了一整圈回到原點)。<b>同一組數字,兩種完全相反的狀態</b> —— 所以必須額外做點什麼來區分。<br><br>
+  <strong>用 <code>(front, size)</code></strong>:「空」是 <code>size == 0</code>,「滿」是 <code>size == capacity</code>。<b>兩個判斷落在數線的兩端,<em>不可能</em>同時成立</b>(除非 <code>capacity == 0</code>,而那正好是 App 2)。<br><br>
+  <b>關鍵在於:歧義不是被「修掉」的,是壓根沒發生。</b><br><br>
+  <strong>實測那個「不補救就直接用 <code>(front, rear)</code>」的版本</strong>:320 萬次呼叫<strong>錯 546467 次</strong>,最小反例是 <code>k=1</code> 的<strong>第一個操作</strong> —— <code>enQueue(1)</code> 直接回 <code>false</code>,因為 <code>(0+1) % 1 == 0 == front</code>,它認為滿了。<b>那個佇列從出生到死亡連一個元素都裝不進去。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為 <code>front + size</code> 指的是「下一個要寫的空位」,不是最後一個元素。</strong><br><br>
+  佇列裡有 <code>size</code> 個元素,佔據 <code>front</code>、<code>front+1</code>、…、<code>front+size−1</code>(都取模)。<br>
+  · <strong>最後一個</strong>在 <code>front + size − 1</code>;<br>
+  · <strong>下一個空位</strong>在 <code>front + size</code> —— 這正是 <code>enQueue</code> 用的位置。<br><br>
+  <b>所以 <code>enQueue</code> 和 <code>Rear</code> 的算式只差那個 <code>−1</code>,而它們指的是完全不同的格子。</b><br><br>
+  <strong>實測拿掉 <code>−1</code></strong>:3202668 次呼叫<strong>錯 134334 次</strong>,而<strong>索引越界 0 次</strong> —— <b>它一直讀的是界內的格子,只是讀錯格子</b>。最小反例只要兩個操作:<br>
+  <div class="sc-trace" style="margin-top:8px;">k = 2
+enQueue(1) → true
+Rear()     → <span class="sc-trace__out">0</span>      // 正解 1,它讀到的是還沒寫過的 q[1]</div><br>
+  <b>這種 bug 特別討厭,因為它讀到的是「合法初始化過的 0」,看起來完全像一個正常的值。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不能省 —— 而且它的表現會隨 <code>k</code> 而變,這才是最陰險的地方。</strong><br><br>
+  <code>size == 0</code> 且 <code>front == 0</code> 時,算式變成 <code>(0 + 0 − 1) % capacity</code>,也就是 <code>(−1) % k</code>。<br><br>
+  <strong>C++ 的 <code>%</code> 是「往零截斷」,不是數學上的模</strong> —— 結果的正負號跟著<strong>被除數</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">(-1) % 1 = <span class="sc-trace__out">0</span>      ← 剛好落在界內
+(-1) % 3 = <span class="sc-trace__out">-1</span>
+(-1) % 5 = <span class="sc-trace__out">-1</span>     ← q[-1],真的越界了</div><br>
+  <strong>實測拿掉守衛</strong>(3202668 次呼叫):<strong>回傳錯 264364 次,索引越界 176841 次</strong>。<br><br>
+  <b>注意「回傳錯」比「越界」多了 87523 次 —— 差額就是 <code>k = 1</code> 的情形。</b>
+  最小反例是 <code>k=1</code> 時直接 <code>Rear()</code> 回傳 <code>0</code>(正解 <code>-1</code>):<br>
+  <b><code>(−1) % 1 == 0</code>,所以它<em>沒有越界</em>,只是安安靜靜地讀了 <code>q[0]</code> 的殘留值。</b><br><br>
+  <strong>換句話說:同一個 bug,<code>k ≥ 2</code> 時 sanitizer 會抓到,<code>k = 1</code> 時完全隱形。</strong>
+  <b>只有跟參考解逐步比對才能兩種都抓到 —— 這也是為什麼我不只跑 ASan,還要有一個暴力參考解。</b><br><br>
+  <b>如果真的想寫得更防禦一點</b>,可以用 <code>(front + size − 1 + capacity) % capacity</code> ——
+  <strong>先加一個 <code>capacity</code> 把被除數推成非負</strong>,這樣即使守衛失效也不會越界。<b>但守衛本身仍然要留,因為空佇列該回的是 <code>-1</code>,不是任何一格的值。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為「哪些格子算數」完全由 <code>front</code> 和 <code>size</code> 決定,陣列裡的值從不參與判斷。</strong><br><br>
+  形式化地說:索引 <code>j</code> 屬於佇列 ⟺ <code>(j − front + k) % k &lt; size</code>。<br>
+  <b>這個式子裡沒有 <code>q[j]</code></b> —— 所以把 <code>front</code> 推一格、<code>size</code> 減一之後,那格<strong>自動就不算數了</strong>。<br><br>
+  它會在<strong>下次繞回來時被自然覆蓋</strong>。動畫第 7 步 <code>enQueue(60)</code> 寫進 <code>q[0]</code>,蓋掉的正是第 3 步 <code>deQueue</code> 留下的那個 <code>10</code>。<br><br>
+  <b>反過來說,如果真的去清空(例如填 0),有兩個壞處</b>:<br>
+  · 多做一次沒有必要的寫入;<br>
+  · <strong>而 <code>0</code> 是題目允許的合法 value</strong>(<code>0 ≤ value ≤ 1000</code>)—— <b>「這格是 0」從此無法區分「空的」還是「真的存了 0」</b>。<br><br>
+  <strong>這就是環狀佇列每個操作都是嚴格 <code>O(1)</code> 的原因</strong>:<b>出隊是「移動邊界」而不是「刪除資料」,入隊是「覆蓋」而不是「插入」——全程沒有任何元素被搬動過。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>它會讓佇列多裝一個,然後把最舊的元素默默蓋掉。</strong><br><br>
+  <code>size &gt; capacity</code> 在 <code>size == capacity</code> 時是 <code>false</code> —— <strong>已經滿了卻說沒滿</strong>,於是 <code>enQueue</code> 繼續寫。而它要寫的位置是 <code>(front + capacity) % capacity == front</code> —— <b>正好就是隊頭那一格</b>。<br><br>
+  <strong>實測</strong>:3202668 次呼叫<strong>回傳錯 167270 次,佇列內容錯 243076 次</strong>。<br>
+  <strong>最小反例只要兩個操作</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">k = 1
+enQueue(1) → true
+enQueue(1) → <span class="sc-trace__out">true</span>    // 正解 false</div><br>
+  <b>注意「內容錯」比「回傳錯」多了 75806 次</b> —— 因為它蓋掉隊頭之後,<strong>錯誤的資料要等後面的 <code>Front()</code> 才會被看見</strong>,而中間那些操作的回傳值全都是「對的」。<br><br>
+  <b>這是本題的通用教訓:唯讀操作(<code>Front</code>/<code>Rear</code>)寫錯只會<em>回報</em>錯,寫入操作寫錯會<em>污染狀態</em></b> ——
+  <strong>後者的破壞範圍大得多,但在只比對回傳值的測試裡反而顯得比較輕微。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>兩種補救都是正確的 —— 這不是對錯問題,是「哪一種比較不容易寫錯」。</strong><br><br>
+  三種表示法各自窮舉 <code>k = 1..4</code> × 長度 1..6 的全部序列:<br>
+  <div class="sc-trace" style="margin-top:8px;">A (front, size)  ← 本題    回傳錯 0 / 3202668    k=1000 時陣列佔 <span class="sc-trace__out">4000</span> bytes
+B (front, rear) + 浪費一格  回傳錯 0 / 3202668    k=1000 時陣列佔 <span class="sc-trace__out">4004</span> bytes
+C (front, rear) + full 旗標  回傳錯 0 / 3202668    k=1000 時陣列佔 <span class="sc-trace__out">4000</span> bytes</div><br>
+  <strong>三個都對。</strong>差別在成本:<br><br>
+  <strong>B 浪費一格</strong> —— 必須配置 <code>k + 1</code>,而且<strong>容量與陣列長度不再相等</strong>,所有算式都要用 <code>k+1</code> 取模。<b>最容易寫錯的地方就是不小心用了 <code>k</code>。</b><br><br>
+  <strong>C 加旗標</strong> —— 不浪費空間,但那個 <code>bool full</code> <strong>要在 <code>enQueue</code> 和 <code>deQueue</code> 兩處各自維護</strong>。<b>多一個必須同步的狀態,就多一處會忘記更新 —— 和 <a href="../p146/index.html">146</a> 的「兩張表要同步」是同一類風險。</b><br><br>
+  <strong>A(本題)</strong> —— 不浪費空間、不需要旗標、不需要任何補救。<b>它的優勢不是「更快」或「更省」,而是<em>沒有東西需要記得去維護</em>。</b><br><br>
+  <b>面試時值得把這段講出來</b>:<strong>「教科書的做法是浪費一格,但如果改存 size 而不是 rear,歧義根本不會發生」</strong> —— <b>這比直接寫出答案更能證明你知道為什麼要浪費那一格。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>完全安全 —— 而這一點和 <a href="../p146/index.html">146</a> 形成很好的對比。</strong><br><br>
+  <strong>實測 <code>MyCircularQueue(0)</code></strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">isEmpty()   → true      (size == 0)
+isFull()    → true      (size == 0 == capacity)
+enQueue(1)  → false     isFull 為真,<span class="sc-trace__out">在碰到 % capacity 之前就 return 了</span>
+deQueue()   → false     isEmpty 為真,同樣提早 return
+Front()     → -1
+Rear()      → -1
+<span class="sc-trace__out">// 沒有崩潰,沒有除以零,沒有越界</span></div><br>
+  <b>「空」和「滿」同時為真,聽起來很怪 —— 但對一個容量為 0 的佇列來說,那正是<em>正確</em>的描述。</b><br><br>
+  <strong>安全的真正原因是:每一個 <code>% capacity</code> 都寫在守衛<em>之後</em>。</strong>
+  <code>enQueue</code> 先 <code>isFull</code>、<code>deQueue</code> 先 <code>isEmpty</code>、<code>Front</code>/<code>Rear</code> 先 <code>isEmpty</code> ——
+  <b>而 <code>capacity == 0</code> 時這些守衛<em>全部</em>成立,所以除法一次都執行不到。</b><br><br>
+  <strong>對照 <a href="../p146/code.html">146</a></strong>:那題 <code>capacity = 0</code> 時,<code>cache.size() == sz</code> 變成 <code>0 == 0</code> 為真,<b>於是進入淘汰分支,對空串列取 <code>left-&gt;next</code>(就是 <code>right</code> 哨兵本身),然後對 <code>nullptr</code> 寫入 → SEGV。</b><br><br>
+  <b>兩題的差別不是運氣</b>:<strong>622 的守衛是「這件事能不能做」,而 146 的判斷是「要不要先騰位置」</strong> ——
+  <b>前者在容量為 0 時退化成「什麼都不能做」(安全),後者退化成「先騰一個不存在的位置」(災難)。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>完全沒有變快 —— 這個「優化」在這裡是純粹的迷信。</strong><br><br>
+  把 <code>% capacity</code> 換成條件減法(<code>if (i &gt;= cap) i -= cap;</code>),理論上避開了整數除法指令:<br>
+  <div class="sc-trace" style="margin-top:8px;">k =    8,2000 萬次操作:  % 版 <span class="sc-trace__out">3.85</span> ns/op    條件減法 <span class="sc-trace__out">3.83</span> ns/op   →  1.01 倍
+k = 1000,2000 萬次操作:  % 版 <span class="sc-trace__out">3.71</span> ns/op    條件減法 <span class="sc-trace__out">3.72</span> ns/op   →  0.99 倍</div><br>
+  <b>差距在量測誤差之內。</b>(條件減法版也窮舉驗證過:3202668 次呼叫,不一致 0 —— 它是對的,只是沒比較快。)<br><br>
+  <strong>為什麼會這樣?</strong>因為<strong>瓶頸根本不在除法</strong>。每個操作只有幾個算術指令加一次陣列存取,而<strong>編譯器對 <code>%</code> 有很多手段</strong>(常數傳播、乘法倒數、以及分支預測極好的判斷)。<b>把 3.8 ns 裡佔不到一成的東西優化掉,總時間看不出差別。</b><br><br>
+  <b>更值得注意的是:條件減法版<em>沒有</em>比較好讀</b> —— <code>Rear()</code> 那行變成一個三元運算式,而 <code>%</code> 版本一眼就看得懂在做什麼。<br><br>
+  <strong>結論:這是一個「代價明確、收益為零」的交易。</strong>
+  <b>而唯一能知道這件事的方法就是量它 —— 「除法很慢」這句話本身是對的,錯的是「所以在這裡值得避開」這個推論。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">三種表示法實測都正確 —— 差別是 (front,rear) 需要補救(浪費一格或加旗標),而 (front,size) 讓歧義壓根不發生。capacity=0 在這題完全安全(守衛全部成立,除法執行不到),對照 146 同樣情形卻 SEGV。而「% 換成條件減法」實測 1.01 倍,是純迷信。</div>
+    <div class="sc-summary-bar__detail">CIRCULAR QUEUE · REVIEW</div>
+  </div>
+
+</body>
+</html>
