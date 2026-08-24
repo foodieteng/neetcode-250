@@ -162,7 +162,7 @@ PROBLEMS = {
         ('p146','LRU Cache',                       'lru-cache',                       'med', 'done'),
         ('p460','LFU Cache',                       'lfu-cache',                       'hard','done'),
         ('p23', 'Merge K Sorted Lists',            'merge-k-sorted-lists',            'hard','done'),
-        ('p25', 'Reverse Nodes in k-Group',        'reverse-nodes-in-k-group',        'hard','todo'),
+        ('p25', 'Reverse Nodes in k-Group',        'reverse-nodes-in-k-group',        'hard','done'),
     ],
     '07': [  # Trees
         ('p94',  'Binary Tree Inorder Traversal',                            'binary-tree-inorder-traversal',                            'easy','todo'),

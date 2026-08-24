@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>25 · Reverse Nodes in k-Group // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">06 · Linked List</a> / P25</span>
+    <span><a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">每 K 個一組反轉</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 25</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>REVIEW</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>遞迴的形狀</td><td><strong>翻好一組,剩下的交給自己,再把兩截接起來</strong></td></tr>
+        <tr><td>那一行接線</td><td><code>head-&gt;next = reverseKGroup(curr, k);</code> —— 因為 <strong><code>head</code> 翻完之後是段尾</strong></td></tr>
+        <tr><td>回傳什麼</td><td><code>prev</code> —— 它是<strong>這一組的新段頭</strong></td></tr>
+        <tr><td>base case</td><td>不足 <code>k</code> 個就原樣回傳,<strong>正好實現「尾巴保持原順序」</strong></td></tr>
+        <tr><td>遞迴傳誰</td><td><code>curr</code>(下一組的開頭),<strong>傳 <code>prev</code> 會把串列接成環 → 無限遞迴</strong></td></tr>
+        <tr><td>反轉本體</td><td>與 <a href="../p206/index.html">206</a> / <a href="../p92/index.html">92</a> <strong>一字不差</strong></td></tr>
+        <tr><td>比 92 少一行</td><td>另一條接線由<strong>遞迴的回傳值</strong>處理掉了 —— 呼叫堆疊取代了手動的 <code>tail</code></td></tr>
+        <tr><td>時間複雜度</td><td>原碼是 <strong><code>O(n²/k)</code></strong>,因為<strong>每一層都重數一次整條長度</strong></td></tr>
+        <tr><td>怎麼修</td><td><strong>只走 <code>k</code> 步</strong>就好 —— 「夠不夠 k 個」不需要知道總長度</td></tr>
+        <tr><td>遞迴深度</td><td><code>n/k + 1</code>;每層 <strong>64 bytes</strong>,<code>n=5000, k=1</code> 用掉 <strong>313 KB</strong></td></tr>
+        <tr><td>驗證</td><td>窮舉 <code>n=0..12 × k=1..n+2</code> 共 104 組 + 隨機 20 萬組,<strong>不一致 0</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>head-&gt;next = reverseKGroup(curr, k);</code> —— 為什麼是 <code>head</code>,而不是別的節點?</div>
+
+    <div class="qa"><strong>Q2.</strong> 遞迴為什麼傳 <code>curr</code> 而不是 <code>prev</code>?傳錯會怎樣?</div>
+
+    <div class="qa"><strong>Q3.</strong> 這支程式的時間複雜度是多少?<strong>不是 <code>O(n)</code>,為什麼?</strong></div>
+
+    <div class="qa"><strong>Q4.</strong> <code>if (n &lt; k)</code> 改成 <code>if (n &lt;= k)</code> 會錯幾組?錯在<strong>哪一類</strong>輸入?</div>
+
+    <div class="qa"><strong>Q5.</strong> 這題的遞迴會不會爆堆疊?請用實測數字回答。</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,4,5], k = 2</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 往下遞迴</span>
+第 1 層  head = 1  →  數長度 n = 5 ≥ 2         （走了 5 步)
+         翻 [1,2]  →  1 → ∅,2 → 1
+         prev = 2（新段頭)  curr = 3（下一組)  head = 1（新段尾)
+         呼叫 reverseKGroup(3, 2) …
+
+第 2 層  head = 3  →  數長度 n = 3 ≥ 2         （<span class="sc-trace__out">又走了 3 步 —— 累計 8</span>)
+         翻 [3,4]  →  3 → ∅,4 → 3
+         prev = 4  curr = 5  head = 3
+         呼叫 reverseKGroup(5, 2) …
+
+第 3 層  head = 5  →  數長度 n = 1 &lt; 2         （又走了 1 步 —— 累計 9)
+         <span class="sc-trace__out">return 5（原封不動)</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 回捲</span>
+回到第 2 層  head(3)-&gt;next = 5    →  4 → 3 → 5
+             return prev = 4
+
+回到第 1 層  head(1)-&gt;next = 4    →  2 → 1 → 4 → 3 → 5
+             return prev = 2      ← 這就是最終的頭
+
+結果 [2, 1, 4, 3, 5]  ✓
+<span class="sc-trace__out">// 兩層的接線形狀完全一樣 —— 那個「上一組的段尾」由呼叫堆疊自動保存</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 「數長度」的累計代價</span>
+這個例子：5 個節點,卻走了 5 + 3 + 1 = <span class="sc-trace__out">9</span> 步只為了數長度
+
+實測放大之後：
+  n=1000  k=1  →   500500 次
+  n=5000  k=1  → <span class="sc-trace__out">12502500</span> 次   （而不是 5000)
+  n=5000  k=500 →   27500 次   （k 大就沒事 —— k 在分母)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 邊界(皆為實測)</span>
+n = 0（空串列)     n=0 &lt; k → 直接回 nullptr ✓
+k = 1              每組一個,翻了等於沒翻,但會遞迴 n 層
+k = n              整條翻成一組,遞迴兩層（第二層 n=0 &lt; k)
+k &gt; n              n &lt; k → 原樣返回 ✓
+<span class="sc-trace__out">// 這四種都在窮舉 n=0..12 × k=1..n+2 的 104 組裡</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 這題的 <code>n</code> 上限是 5000。<strong>如果上限是 10⁵ 呢?</strong>請把原碼的成長曲線量出來,並確認它真的是二次的。</div>
+
+    <div class="qa"><strong>App 2.</strong> 把遞迴改成迭代,<strong>需要多寫什麼?</strong>那個「多寫的東西」對應到遞迴版的哪一部分?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果題目改成「<strong>連不足 <code>k</code> 個的尾巴也要翻</strong>」,要怎麼改?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為反轉會讓一段的頭尾對調 —— 進來時是頭的 <code>head</code>,翻完之後就是<em>尾</em>。</strong><br><br>
+  進入這一層時,<code>head</code> 是這一組的<strong>第一個</strong>節點。翻完之後,它排到<strong>最後</strong>。<br>
+  而「這一組的最後一個」該接的,正是<strong>後面那一整段的處理結果</strong> —— 也就是遞迴的回傳值。<br><br>
+  <b>同時 <code>prev</code> 停在原本的最後一個 = 新的<em>段頭</em>,所以 <code>return prev;</code>。</b><br><br>
+  <strong>兩個端點都是反轉迴圈的副產品,一個都不用另外找</strong> —— 和 <a href="../p92/review.html">92 的 A1</a> 是同一件事。<br><br>
+  <strong>實測拿掉那一行</strong>(只 <code>return prev</code>):窮舉 77 組<strong>錯 45 組</strong>,最小反例 <code>n=2, k=1: [1,2] → [1]</code> —— <b>後面整段全部掉了,因為沒人把它接回來。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為 <code>curr</code> 是「下一組的開頭」,而 <code>prev</code> 是「這一組的新段頭」—— 傳 <code>prev</code> 等於叫遞迴再處理一次剛翻完的東西。</strong><br><br>
+  反轉迴圈跑完時:<br>
+  · <code>prev</code> = 這一組翻好之後的<strong>頭</strong>(還在這一組裡);<br>
+  · <code>curr</code> = <strong>第 k+1 個節點</strong>,也就是下一組的開頭。<br><br>
+  <b>傳 <code>prev</code> 的話,遞迴會處理同一批節點,而它回傳的結果又被接回這一組</b> —— <strong>串列被接成了環</strong>。<br><br>
+  <strong>實測</strong>:窮舉 77 組<strong>錯 55 組</strong>,而且<strong>最小反例是 <code>n=1, k=1</code></strong> —— 回傳的串列走 200 步還走不完(測試裡加了守衛才沒有真的跑不停)。<br><br>
+  <b>這不是「答案錯」,是「程式不會停」</b> —— <strong>而它在最簡單的輸入上就會發生。</strong>
+  <b>四個變體裡這個最危險:另外三個會給你一個錯的答案,這個直接讓程式掛住。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong><code>O(n² / k)</code> —— 因為每一層都重新數一次整條剩餘串列的長度。</strong><br><br>
+  第 1 層走 <code>n</code> 步、第 2 層走 <code>n−k</code> 步、第 3 層走 <code>n−2k</code> 步…… 加起來:<br>
+  <div class="sc-trace" style="margin-top:8px;">n + (n-k) + (n-2k) + ... + k  =  k · (1 + 2 + ... + n/k)  ≈  <span class="sc-trace__out">n² / 2k</span></div><br>
+  <strong>實測「數長度」那個迴圈實際跑了幾次</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">n=1000  k=  1:   500500     （n²/2k =   500000)
+n=5000  k=  1: <span class="sc-trace__out">12502500</span>     （n²/2k = 12500000)
+n=5000  k=500:    27500     （n²/2k =    25000)
+<span class="sc-trace__out">// 每一組都貼著理論值 —— 這不是估的,是數出來的</span></div><br>
+  <b>而它問的問題不需要總長度</b>:<strong>「還夠不夠 <code>k</code> 個?」只要<em>試著走 <code>k</code> 步</em></strong> —— 走得到就夠。<br>
+  <strong>把 <code>while (tail)</code> 換成 <code>for (i &lt; k)</code>,複雜度立刻變 <code>O(n)</code>。</strong><br><br>
+  <b>但要說清楚:這在 LeetCode 上會過</b>,<code>n ≤ 5000</code> 時最壞約 16 ms。
+  <strong>是題目上限剛好夠小救了它,不是演算法沒問題。</strong></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>錯 17 / 77 組 —— 而且全部落在「剩下的節點<em>剛好</em>等於 k 個」這一類。</strong><br><br>
+  <code>n == k</code> 時,<strong>剛好還有一整組</strong>,應該要翻。但 <code>n &lt;= k</code> 會把它當成 base case 原樣返回。<br><br>
+  <strong>最小反例</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">n = 2, k = 2
+[1,2] → <span class="sc-trace__out">[1,2]</span>     // 正解 [2,1]</div><br>
+  <b>22% 的失敗率,而它需要的觸發條件很精確</b>:某一層的剩餘長度恰好是 <code>k</code> 的倍數收尾。<br><br>
+  <strong>四個變體裡它的失敗率最低,也最容易漏測</strong> ——
+  <b>拿 <code>[1,2,3,4,5], k=2</code> 這種官方範例測是<em>測不出來</em>的</b>(剩 1 個,不足 k),
+  <strong>要剛好用 <code>n</code> 是 <code>k</code> 的倍數的輸入才會現形。</strong></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不會 —— 用掉 313 KB,只佔預設堆疊的 3.8%。但這同樣是題目上限救的。</strong><br><br>
+  遞迴深度是 <code>⌊n/k⌋ + 1</code>,<strong><code>k=1</code> 時就等於 <code>n</code></strong>。題目上限 <code>n=5000</code> ⇒ 最深 <strong>5001 層</strong>。<br><br>
+  <strong>實測每層 frame 大小</strong>(比較深度 100 與 200 的堆疊指標):<br>
+  <div class="sc-trace" style="margin-top:8px;">深度 100 → 用掉  6416 bytes
+深度 200 → 用掉 12816 bytes
+  ⇒ 每層 <span class="sc-trace__out">64.0</span> bytes
+
+n=5000, k=1  →  堆疊最深用掉 320080 bytes = <span class="sc-trace__out">313 KB</span>
+系統預設上限                              = <span class="sc-trace__out">8176 KB</span>（3.8%)</div><br>
+  <strong>崩潰門檻</strong>(把堆疊上限調成 1024 KB 之後二分搜):<br>
+  <div class="sc-trace" style="margin-top:8px;">實測活得下來的最大 n ≈ <span class="sc-trace__out">16234</span>
+理論值 1048576 / 64  = <span class="sc-trace__out">16384</span>      ⇒ 誤差 0.9%</div><br>
+  <b>依同樣比例推算,預設 8176 KB 下的門檻約 13 萬層。</b><br><br>
+  <strong>對照 <a href="../p206/review.html">206 的遞迴解</strong>:每層 48 bytes、門檻約 17 萬層</a>。
+  <b>兩題都是「n 上限五千,所以沒事」</b> —— <strong>而迭代版根本沒有這個問題,它的空間是 <code>O(1)</code>。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>量出來確實是二次的:n 每加倍,耗時變 4 倍。而 <code>n = 10⁵</code> 會直接超時。</strong><br><br>
+  <strong>實測</strong>(<code>k = 1</code> 最壞情形,每組取三次的中位數):<br>
+  <div class="sc-trace" style="margin-top:8px;">n         原碼        迭代版      比上一列
+──────────────────────────────────────────────
+  5000    16.10 ms    0.014 ms      —
+ 10000    48.34 ms    0.029 ms      3.00×
+ 20000   195.43 ms    0.055 ms      <span class="sc-trace__out">4.04×</span>
+ 40000   782.29 ms    0.118 ms      <span class="sc-trace__out">4.00×</span>
+<span class="sc-trace__out">// 4.04 與 4.00 —— 教科書等級的 O(n²) 驗證</span></div><br>
+  <b>(<code>5000 → 10000</code> 那格只有 3.00 倍,是因為小規模時快取效應還壓得住;規模拉大之後就完全貼合了。)</b><br><br>
+  <strong>外推到 <code>n = 10⁵</code></strong>:<code>782 ms × (100000/40000)² ≈ <strong>4.9 秒</strong></code> —— <b>穩穩超時。</b><br>
+  而<strong>迭代版在 <code>n=40000</code> 只要 0.118 ms</strong>,外推到 10⁵ 也不到 0.3 ms。<br><br>
+  <b>這就是為什麼「會過」和「正確」是兩件不同的事</b>:
+  <strong>同一份程式碼,題目上限改一個數字就從 AC 變成 TLE,而演算法本身從頭到尾沒變過。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>要多寫兩樣東西:一個 <code>dummy</code>,和一個 <code>tail</code> 指標 —— 而 <code>tail</code> 就是「手動版的呼叫堆疊」。</strong><br><br>
+  <b>遞迴版每一層都有自己的區域變數 <code>head</code></b>,那個「這一組的段尾」由<strong>呼叫堆疊自動保存</strong>,回捲時自然拿得回來。<br>
+  <b>迭代版沒有堆疊可以靠,所以必須自己拿一個變數記住它</b>:<br>
+  <div class="sc-trace" style="margin-top:8px;">ListNode* newTail = tail-&gt;next;   <span class="sc-trace__out">// 舊段頭 = 這一組的新段尾,先存住</span>
+tail-&gt;next-&gt;next = next;          <span class="sc-trace__out">// 接尾  ← 和 92 完全同一行</span>
+tail-&gt;next       = prev;          <span class="sc-trace__out">// 接頭  ← 和 92 完全同一行</span>
+tail = newTail;                   <span class="sc-trace__out">// 下一組從這裡繼續</span></div><br>
+  <b>那個 <code>newTail</code> 就是 <a href="../p92/review.html">92 的 App 1</a> 那一招</b> —— <strong>一個欄位同時是「資料來源」和「寫入目標」時,先存進區域變數。</strong><br><br>
+  <strong>另外還要多一件事:<code>dummy</code></strong>。因為<strong>第一組翻完之後,整條串列的頭會變</strong> —— 遞迴版靠回傳值處理,迭代版就需要一個「頭的前驅」。<b>和 <a href="../p19/index.html">19</a>、<a href="../p92/index.html">92</a> 同一個理由。</b><br><br>
+  <strong>換來的是</strong>:<code>O(1)</code> 空間、沒有堆疊深度上限。<strong>實測 200104 組(窮舉 + 隨機)不一致 0。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>只要把「檢查夠不夠 k 個」換成「數出這一組實際有幾個」,然後翻那個數字。</strong><br><br>
+  原題的邏輯是「<strong>不足 k 個就不翻</strong>」,所以要先確認有 k 個。改版的邏輯是「<strong>有幾個翻幾個</strong>」:<br>
+  <div class="sc-trace" style="margin-top:8px;">while (tail-&gt;next) {
+    <span class="sc-trace__out">// 不是「夠不夠 k 個」,而是「這一組實際有幾個」</span>
+    int cnt = 0;
+    for (ListNode* p = tail-&gt;next; p &amp;&amp; cnt &lt; k; p = p-&gt;next) cnt++;
+    if (cnt == 0) break;
+
+    <span class="sc-trace__out">// 翻 cnt 圈,而不是 k 圈</span>
+    ListNode *prev = nullptr, *curr = tail-&gt;next, *next = nullptr;
+    for (int i = 0; i &lt; cnt; i++) { next = curr-&gt;next; curr-&gt;next = prev; prev = curr; curr = next; }
+
+    <span class="sc-trace__out">// 接線完全不用改</span>
+    ListNode* newTail = tail-&gt;next;
+    tail-&gt;next-&gt;next = next;
+    tail-&gt;next       = prev;
+    tail = newTail;
+}</div><br>
+  <strong>實測</strong>:窮舉 <code>n=0..12 × k=1..n+2</code> + 隨機 20 萬組共 <strong>200104 組,不一致 0</strong>。<br><br>
+  <strong>兩者的差別</strong>:<br>
+  <div class="sc-trace" style="margin-top:8px;">[1,2,3,4,5]  k=2:  原題 [2,1,4,3,<span class="sc-trace__out">5</span>]      改版 [2,1,4,3,<span class="sc-trace__out">5</span>]   （尾巴只有 1 個,翻了一樣)
+[1,2,3,4,5]  k=3:  原題 [3,2,1,<span class="sc-trace__out">4,5</span>]      改版 [3,2,1,<span class="sc-trace__out">5,4</span>]   ← 這裡才看得出差別</div><br>
+  <b>值得注意的是:接線那三行<em>一個字都沒改</em></b> ——
+  <strong>因為它們處理的是「一段翻完之後怎麼接回去」,而那和「這段有多長」無關。</strong>
+  <b>這正是 <a href="../p92/index.html">92</a> 那兩行值得練熟的理由:206 → 92 → 25,核心一直是同一組指標動作,變的只有邊界。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 06 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">head 翻完之後是段尾,所以 head->next = 遞迴結果 —— 呼叫堆疊取代了 92 手動維護的 tail。但每層重數一次長度讓時間變 O(n²/k):實測 n 每加倍耗時變 4.04 / 4.00 倍,外推到 n=10⁵ 約 4.9 秒。是題目上限 5000 救了它。</div>
+    <div class="sc-summary-bar__detail">REVERSE NODES IN K-GROUP · REVIEW</div>
+  </div>
+
+</body>
+</html>
