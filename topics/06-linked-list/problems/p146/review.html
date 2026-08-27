@@ -63,6 +63,11 @@
         <tr><td>最危險的變體</td><td><strong>「不搬到最新端」</strong> —— 結構完全正常,只是策略悄悄變成 FIFO</td></tr>
         <tr><td>記憶體</td><td>被淘汰的節點<strong>沒有 <code>delete</code></strong>,洩漏量正比於<strong>淘汰次數</strong></td></tr>
         <tr><td>驗證</td><td>與暴力解比對 <strong>1200008 次 get,不一致 0</strong>;每一步比對完整順序與雙向連結,180 萬次全過</td></tr>
+        <tr class="ok"><td><strong>寫法二</strong></td><td><code>std::list</code> + <code>splice</code> + <code>unordered_map&lt;int, list&lt;...&gt;::iterator&gt;</code> —— <strong>資料結構完全一樣</strong>,只是節點交給容器管</td></tr>
+        <tr class="ok"><td>為什麼 list 能存 iterator</td><td><strong>插入不失效、<code>erase</code> 只失效被刪的那一個、<code>splice</code> 全部不失效</strong>(<code>vector</code> 三條都不成立)</td></tr>
+        <tr class="ok"><td>splice 做了什麼</td><td><strong>只改前後鏈結,節點原地不動</strong> —— 實測前後位址皆 <code>0x11d605ff0</code>,所以 <code>m</code> 不用更新</td></tr>
+        <tr class="ok"><td>list 版的記憶體</td><td><strong>未釋放 0</strong> —— 容器解構時自己歸還全部節點,不必寫 <code>delete</code> 也不必寫解構子</td></tr>
+        <tr class="fail"><td>list 版最致命的一行</td><td><code>pop_back()</code> <strong>不回傳值而且直接釋放節點</strong> ⇒ <strong>先抄 key,再 pop</strong>;倒過來就是 <code>heap-use-after-free</code></td></tr>
       </tbody>
     </table>
   </section>
@@ -83,6 +88,11 @@
     <div class="qa"><strong>Q4.</strong> 如果 <code>get</code> 命中時<strong>不做 <code>remove</code> + <code>insert</code></strong>,這個快取會變成什麼?錯幾組?</div>
 
     <div class="qa"><strong>Q5.</strong> 「<code>insert</code> 插到 front」和「淘汰 <code>right-&gt;prev</code>」——這兩個 bug 的實測錯誤數<strong>完全相同</strong>。為什麼?</div>
+
+    <div class="qa"><strong>Q6.</strong> 寫法二的 <code>get</code> 做完 <code>l.splice(l.begin(), l, it-&gt;second)</code> 之後,<strong>為什麼不必回頭更新 <code>m[key]</code></strong>?如果把 <code>list</code> 換成 <code>vector</code>,同一招為什麼就不能用?</div>
+
+    <div class="qa"><strong>Q7.</strong> 寫法二的淘汰是三行:<code>int k = l.rbegin()-&gt;first; l.pop_back(); m.erase(k);</code>。
+      <strong>如果把前兩行對調</strong>會發生什麼事?為什麼「<code>l.erase(it)</code> 之後其他 iterator 還活著」這條規則<strong>救不了這個 bug</strong>?</div>
   </section>
 
   <!-- ════════════ 3 · 範例 Trace ════════════ -->
@@ -124,6 +134,39 @@ get miss         第一行就 return,<span class="sc-trace__out">串列一根指
 put 命中         只改值 + 搬到最新端,<span class="sc-trace__out">不會觸發淘汰</span>(cache.size() 沒變)
 剛建構就 get     cache 是空的,find 直接 end() → -1
 <span class="sc-trace__out">// capacity = 0 會出事,但題目保證 1 ≤ capacity —— 見 App 1</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 同一個範例,換成寫法二(std::list)—— 注意方向相反,而且節點位址全程不變</span>
+操作              l（前端 = 最新，後端 = 最舊）          m
+────────────────────────────────────────────────────────────────────────
+LRUCache(2)      []                                   {}
+put(1, 1)        [(1,1)@N1]                           {1→@N1}
+put(2, 2)        [(2,2)@N2, (1,1)@N1]                 {1→@N1, 2→@N2}    ← 滿了
+get(1) = 1       [(1,1)@N1, (2,2)@N2]                 {1→@N1, 2→@N2}    ← splice，<span class="sc-trace__out">m 完全沒動</span>
+put(3, 3) ①     [(3,3)@N3, (1,1)@N1, (2,2)@N2]       {1,2,3}           ← 先插 → <span class="sc-trace__out">size 3 &gt; cap 2</span>
+put(3, 3) ②     [(3,3)@N3, (1,1)@N1]                 {1→@N1, 3→@N3}    ← 抄 key 2 → pop_back → erase
+get(2) = -1      （不變）                              （不變）
+put(4, 4)        [(4,4)@N4, (3,3)@N3]                 {3→@N3, 4→@N4}    ← 淘汰 l.back() = key 1
+get(1) = -1
+get(3) = 3
+get(4) = 4
+<span class="sc-trace__out">// 兩版對拍 1201325 次 get 不一致 0；240 萬次完整順序比對不一致 0</span></div>
+
+    <p style="margin:18px 0 8px;"><strong>兩個寫法的對照</strong>(資料結構是同一個 —— 差別只在「節點誰管」和「哪一端是最新」):</p>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>寫法一(手刻)</th><th>寫法二(<code>std::list</code>)</th></tr></thead>
+      <tbody>
+        <tr><td>最新在哪一端</td><td class="mono"><code>right</code> 端</td><td class="mono ok"><strong>前端</strong> <code>l.begin()</code></td></tr>
+        <tr><td>最舊在哪一端</td><td class="mono"><code>left-&gt;next</code></td><td class="mono ok"><strong>後端</strong> <code>l.back()</code></td></tr>
+        <tr><td>「使用一次」怎麼寫</td><td class="mono"><code>remove(node)</code> + <code>insert(node)</code></td><td class="mono ok"><code>l.splice(l.begin(), l, it)</code></td></tr>
+        <tr><td>雜湊表存什麼</td><td class="mono"><code>Node*</code></td><td class="mono"><code>list&lt;pair&lt;int,int&gt;&gt;::iterator</code></td></tr>
+        <tr><td>淘汰誰</td><td class="mono"><code>left-&gt;next</code></td><td class="mono"><code>l.back()</code></td></tr>
+        <tr><td>何時檢查滿了</td><td>插入<strong>前</strong></td><td>插入<strong>後</strong> ⇒ 所以是 <code>&gt;</code> 而不是 <code>&gt;=</code></td></tr>
+        <tr><td><strong>節點誰釋放</strong></td><td class="fail"><strong>你自己</strong> —— 原碼沒寫 ⇒ 漏 <strong>2.3 MB</strong></td><td class="ok"><strong>容器</strong> —— 實測未釋放 <strong>0</strong></td></tr>
+        <tr><td>需要哨兵嗎</td><td>要,自己接兩個</td><td class="ok">不用,<code>list</code> 自己有</td></tr>
+        <tr><td>最容易寫錯的一行</td><td class="mono">插到 front / 淘汰 <code>right-&gt;prev</code>(62902 錯)</td><td class="mono"><code>splice</code> 方向(13985 錯)、<code>pop_back</code> 順序(崩潰)</td></tr>
+      </tbody>
+    </table>
   </section>
 
   <!-- ════════════ 4 · 應用題 ════════════ -->
@@ -190,6 +233,38 @@ put(0,0)  put(1,10)  get(0)  put(2,20)  get(0) → <span class="sc-trace__out">-
 put(0,0)  put(1,10)  put(2,20)  get(0) → <span class="sc-trace__out">0</span>   // 正解 -1</div><br>
   <b>而如果<em>兩個一起</em>翻過來,它會變回完全正確的 LRU —— 只是串列的方向和你想的相反。</b>
   <strong>這類「約定型」的 bug 的特徵就是這樣:單獨翻一個會壞,一起翻反而沒事。</strong></div>
+
+  <div class="qa qa--answer"><strong>A6.</strong> <strong>因為 <code>splice</code> 沒有搬動任何資料 —— 它只改前後兩根鏈結,節點本體原地不動。</strong><br><br>
+  實測直接印位址:<code>splice</code> <b>之前</b> <code>&amp;*it = 0x11d605ff0</code>,<code>splice</code> <b>之後</b> <code>&amp;*it = 0x11d605ff0</code> ——
+  <strong>完全相同</strong>,而且 <code>it == l.begin()</code> 成立。<b><code>m[key]</code> 裡存的那個 iterator 指的還是同一塊記憶體</b>,
+  所以它<strong>依然有效、依然指向正確的節點</strong>,一個字都不用改。<br><br>
+  <strong>換成 <code>vector</code> 就完全不成立</strong>,而且是<b>兩層失敗</b>:<br>
+  ① <strong>「把中間某一項搬到最前」本身就是 <code>O(n)</code></strong> —— 後面所有元素都要往後挪一格。<br>
+  ② <strong>挪完之後,你存在雜湊表裡的每一個位置都指向了錯的元素</strong>;
+  更糟的是 <code>push_back</code> 一旦觸發重新配置,<b>整個 <code>vector</code> 換一塊記憶體,你存的每一根指標/迭代器全部作廢</b>。<br><br>
+  <strong>所以「雜湊表存位置」這一招,靠的不是雜湊表,是被指向的那個容器<em>保證不亂動它的元素</em>。</strong>
+  <b><code>list</code> 的三條保證(插入不失效、<code>erase</code> 只失效被刪的、<code>splice</code> 全部不失效)就是這題選它的全部理由。</b></div>
+
+  <div class="qa qa--answer"><strong>A7.</strong> <strong>對調之後就是 <code>heap-use-after-free</code> —— ASan 實測抓到,而且指得出是哪一個位元組。</strong><br><br>
+  把 <code>int k = l.rbegin()-&gt;first;</code> 和 <code>l.pop_back();</code> 對調,變成:<br>
+  <code>l.pop_back(); m.erase(l.rbegin()-&gt;first);</code><br><br>
+  <strong>問題有兩個,而且是疊在一起的:</strong><br>
+  ① <strong><code>pop_back()</code> 不回傳被刪的值</strong>(和 <code>vector::pop_back</code> 一樣) —— 想拿被淘汰的 key,<b>只能在刪之前拿</b>。<br>
+  ② <strong>它會<em>直接釋放</em>那個節點</strong>。所以 <code>pop_back</code> 之後 <code>l.rbegin()</code> 指到的已經是<b>另一個</b>元素 ——
+  <strong>你會從雜湊表刪掉一個還活著的 key</strong>,而<b>剛被淘汰的那個 key 反而留在 <code>m</code> 裡,指著一塊已經還掉的記憶體</b>。<br><br>
+  <strong>實測(ASan)</strong>:<code>heap-use-after-free</code>,<code>READ of size 8</code>,
+  <b>爆點不在 <code>pop_back</code> 那一行,而在後來的某一次 <code>l.splice(...)</code></b> ——
+  它讀的是那個幽靈 iterator 的鏈結指標 —— ASan 說得更精確:
+  <b>位址落在一個 <strong>24 byte</strong> 區塊<strong>往內 8 bytes</strong> 的地方</b>,
+  而 <code>pair&lt;int,int&gt;</code> 的 list 節點正好是 <code>prev(8) + next(8) + pair(8) = 24</code> ——
+  <strong>位移 8 就是 <code>next</code> 指標</strong>;
+  <strong><code>freed by</code> 的堆疊指回 <code>pop_back</code>。</strong><br><br>
+  <strong>而「<code>erase</code> 只讓被刪的那一個失效」這條規則救不了它,原因就藏在那句話裡</strong> ——
+  <b>它保證的是「<em>其他</em> iterator 還活著」,而這裡出事的正是<em>被刪掉的那一個</em></b>。
+  <strong>規則沒有被違反,是我們拿去用的剛好就是唯一那個已經死掉的。</strong><br><br>
+  <b>對照<a href="code.html">程式碼頁</a>第 6 節的陷阱表看很有意思:這個 bug 會崩,所以 ASan 一跑就抓到;
+  而「<code>put</code> 命中忘了 <code>l.erase</code>」ASan 完全乾淨,只是安靜地答錯 23032 次。</b>
+  <strong>記憶體錯誤有工具幫你找,邏輯錯誤只有對拍找得到。</strong></div>
 
   <div class="qa qa--answer"><strong>App 1.</strong> <strong>會直接 SEGV —— 而且是寫入 <code>nullptr</code>,不是讀。</strong><br><br>
   <code>capacity = 0</code> 時,第一次 <code>put</code>:<code>cache.size()</code> 是 0,<code>sz</code> 也是 0,<strong><code>0 == 0</code> 成立</strong>,於是進入淘汰分支。但快取是空的,所以:<br>
@@ -266,7 +341,7 @@ LFU  掃描後第一輪 10 個熱點:命中 <span class="sc-trace__out">10</span
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">「雙向」是為了能就地拆下自己,不是為了往回走;兩個哨兵消滅的是「拆頭 / 拆尾 / 只剩一個」三類特例。而 LRU vs LFU 沒有贏家:工作集一換 LFU 掉到 0%,一次性掃描 LRU 掉到 0/10,循環掃描兩個都是 0%。</div>
+    <div class="sc-summary-bar__body">「雙向」是為了能就地拆下自己,不是為了往回走;兩個哨兵消滅的是「拆頭 / 拆尾 / 只剩一個」三類特例。換成 std::list 之後這些全部免費,而你要記住的變成一條:splice 只改鏈結、節點位址不變(實測前後皆 0x11d605ff0),所以存在雜湊表裡的 iterator 搬完仍然有效 —— 這正是 vector 做不到的那一條。</div>
     <div class="sc-summary-bar__detail">LRU CACHE · REVIEW</div>
   </div>
 

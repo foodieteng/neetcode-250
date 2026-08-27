@@ -206,24 +206,50 @@ right-&gt;prev = node;
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// LRUCache(2) · 官方範例</span></h2>
+      <h2 class="sc-section__title">動畫演示 · 兩種寫法<span class="sc-section__title-en">// LRUCache(2) · 官方範例</span></h2>
     </div>
 
     <p style="margin:2px 0 12px;">
-      重點看<strong>第 3 步</strong>:<code>get(1)</code> 把 key 1 從中間<strong>拆下來再接到最新端</strong> ——
+      <strong>同一個官方範例,兩種寫法各看一次。</strong>
+      <b>A 是手刻雙向串列</b>(自己定義 <code>Node</code>、自己接兩個哨兵),
+      <b>B 是 <code>std::list</code> + <code>splice</code></b>(第 5 節有完整程式碼)。
+      <strong>兩者的資料結構其實是同一個</strong> —— 差別只在「自己寫」還是「交給標準函式庫」。
+    </p>
+
+    <p style="margin:2px 0 12px;">
+      <strong>A</strong>:重點看<strong>第 3 步</strong>:<code>get(1)</code> 把 key 1 從中間<strong>拆下來再接到最新端</strong> ——
       <b>這一個動作就是它躲過第一次淘汰的原因</b>。
       然後看<strong>第 4 步與第 6 步</strong>:兩次淘汰都是<strong>直接取 <code>left-&gt;next</code></strong>,不用比較也不用掃描。
     </p>
 
     <div class="sc-viz">
-      <div class="sc-viz__title">▶ LRU Cache · 雙向串列 + 雜湊表</div>
-      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:410px;"></canvas></div>
+      <div class="sc-viz__title">A ▶ 寫法一 · 手刻雙向串列 + 兩個哨兵</div>
+      <div class="sc-viz__cvwrap"><canvas id="va-canvas" class="sc-viz__canvas" style="height:410px;"></canvas></div>
       <div class="sc-viz__controls">
-        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
-        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
-        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 07</span>
       </div>
-      <div class="sc-viz__label" id="viz-label">載入中…</div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <p style="margin:22px 0 12px;">
+      <strong>寫法二把整條手刻串列換成 <code>std::list</code></strong>,雜湊表的值從「節點指標」換成 <strong><code>list</code> 的 iterator</strong>。
+      <b>這個動畫只要說明一件事:每一格右下角的<strong>節點位址 <code>@Nk</code> 從頭到尾不會變</strong></b> ——
+      <strong>第 3 步的 <code>splice</code> 只改前後鏈結,節點本體原地不動</strong>,所以 <code>m</code> 裡存的 iterator 搬完仍然有效,
+      <b>整個 <code>get</code> 完全不必回頭更新雜湊表</b>。另外注意<strong>第 4 步</strong>:這個寫法是
+      <strong>先插進去、再檢查有沒有超載</strong>,所以串列會<b>短暫地存在 <code>cap + 1</code> 個節點</b>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">B ▶ 寫法二 · std::list + splice</div>
+      <div class="sc-viz__cvwrap"><canvas id="vb-canvas" class="sc-viz__canvas" style="height:430px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
     </div>
   </section>
 
@@ -335,5 +361,6 @@ right-&gt;prev = node;
   </div>
 
   <script src="../../../../assets/js/viz/p146-lru.js"></script>
+  <script src="../../../../assets/js/viz/p146-splice.js"></script>
 </body>
 </html>

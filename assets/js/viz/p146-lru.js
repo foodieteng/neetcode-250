@@ -11,12 +11,12 @@
    所有狀態取自實測 trace(見 review.html 範例 Trace),未手推。
    ============================================================ */
 (function () {
-  const canvas = document.getElementById('viz-canvas');
+  const canvas = document.getElementById('va-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const stepEl = document.getElementById('viz-step'), labelEl = document.getElementById('viz-label');
-  const bPrev = document.getElementById('viz-prev'), bNext = document.getElementById('viz-next'),
-        bPlay = document.getElementById('viz-play'), bReset = document.getElementById('viz-reset');
+  const stepEl = document.getElementById('va-step'), labelEl = document.getElementById('va-label');
+  const bPrev = document.getElementById('va-prev'), bNext = document.getElementById('va-next'),
+        bPlay = document.getElementById('va-play'), bReset = document.getElementById('va-reset');
 
   const C = { paper:'#ffffff', dim:'#9a9a9a', text:'#1f3550', grid:'#cfcfcf',
     win:'#e3edf5', winS:'#4478c0', winT:'#2f5f9e',

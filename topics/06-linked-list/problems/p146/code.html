@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">LRU 快取</h1>
-    <p class="sc-mast__subtitle">// CODE · 實作、變體實測與記憶體</p>
+    <p class="sc-mast__subtitle">// CODE · 兩種寫法、變體實測與 std::list</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★★☆</span>
       <span class="sc-mast__sep">|</span>
@@ -46,7 +46,7 @@
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// THE CODE</span></h2>
+      <h2 class="sc-section__title">寫法一 · 手刻雙向串列<span class="sc-section__title-en">// THE CODE</span></h2>
     </div>
 
     <p style="margin:0 0 12px;">
@@ -60,7 +60,7 @@
         <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
         <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
         <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
-        <span class="sc-codewindow__tab">p146.cpp</span>
+        <span class="sc-codewindow__tab">p146_handrolled.cpp</span>
         <span class="sc-codewindow__lang">C++17</span>
       </div>
 <pre class="sc-code"><span class="k">class</span> <span class="t">Node</span> <span class="p">{</span>
@@ -395,6 +395,286 @@ delete lru;                  <span class="sc-trace__out">// 最後才釋放</spa
 cap=10,put 10 萬個不同 key：new = 100002, delete = 100002 → 洩漏 <span class="sc-trace__out">0</span>（原碼 100002）</div>
   </section>
 
+
+  <!-- ════════════ 6 · 寫法二 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">寫法二 · <code>std::list</code> + <code>splice</code><span class="sc-section__title-en">// THE STL VERSION</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      上面那五節談的全是<strong>「手刻雙向串列的代價」</strong> —— 節點誰配置、誰釋放、順序不能顛倒。
+      <b>把整條串列換成 <code>std::list</code>,這些問題一次全部消失</b>:節點由容器自己配置與釋放,
+      <strong>解構時全部歸還,不必寫 <code>delete</code>、不必寫解構子</strong>。
+      而<strong>能這樣換的唯一理由</strong>是 <code>list</code> 的兩個保證 ——
+      <b>給定 iterator 就能 <code>O(1)</code> 刪除/搬移</b>,而且 <b>iterator 幾乎不會失效</b>,
+      所以才敢把 iterator 存進雜湊表。<code>vector</code> / <code>deque</code> 兩件都做不到。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p146_list.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">LRUCache</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="f">LRUCache</span><span class="p">(</span><span class="t">int</span> capacity<span class="p">)</span> <span class="p">{</span>
+        cap <span class="p">=</span> capacity<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">int</span> <span class="f">get</span><span class="p">(</span><span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> it <span class="p">=</span> m<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">);</span>                  <span class="c">// 一定要 find —— m[key] 會替不存在的 key 插一筆</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">==</span> m<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="k">return</span> <span class="p">-</span><span class="n">1</span><span class="p">;</span>           <span class="c">// miss 不算使用,l 一根鏈結都不動</span>
+        l<span class="p">.</span><span class="f">splice</span><span class="p">(</span>l<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> l<span class="p">,</span> it<span class="p">-&gt;</span>second<span class="p">);</span>     <span class="c">// 第二個參數是 l 自己 = 串列內部搬移</span>
+        <span class="k">return</span> it<span class="p">-&gt;</span>second<span class="p">-&gt;</span>second<span class="p">;</span>              <span class="c">// 搬完 it 仍有效,m 不用更新</span>
+    <span class="p">}</span>                                             <span class="c">//   it->second 是 iterator,再 -> 取 pair</span>
+
+    <span class="t">void</span> <span class="f">put</span><span class="p">(</span><span class="t">int</span> key<span class="p">,</span> <span class="t">int</span> value<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> it <span class="p">=</span> m<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">!=</span> m<span class="p">.</span><span class="f">end</span><span class="p">())</span> l<span class="p">.</span><span class="f">erase</span><span class="p">(</span>it<span class="p">-&gt;</span>second<span class="p">);</span>   <span class="c">// 命中:先把舊節點拆掉,否則會留孤兒</span>
+        l<span class="p">.</span><span class="f">push_front</span><span class="p">(</span><span class="f">make_pair</span><span class="p">(</span>key<span class="p">,</span> value<span class="p">));</span>     <span class="c">// 一律插到最新端(前端)</span>
+        m<span class="p">[</span>key<span class="p">]</span> <span class="p">=</span> l<span class="p">.</span><span class="f">begin</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span>m<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;</span> cap<span class="p">)</span> <span class="p">{</span>                     <span class="c">// 先插再檢查 → 所以是 &gt; 而不是 &gt;=</span>
+            <span class="t">int</span> k <span class="p">=</span> l<span class="p">.</span><span class="f">rbegin</span><span class="p">()-&gt;</span>first<span class="p">;</span>           <span class="c">// 必須先把 key 抄下來</span>
+            l<span class="p">.</span><span class="f">pop_back</span><span class="p">();</span>                        <span class="c">//   pop_back 不回傳值,而且直接釋放節點</span>
+            m<span class="p">.</span><span class="f">erase</span><span class="p">(</span>k<span class="p">);</span>                          <span class="c">// 兩張表同步清理</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">int</span> cap<span class="p">;</span>
+    <span class="t">list</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;</span> l<span class="p">;</span>                     <span class="c">// 順序:前端最新,後端最舊</span>
+    <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">list</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;::</span><span class="t">iterator</span><span class="p">&gt;</span> m<span class="p">;</span>   <span class="c">// 速度:key → 節點的 iterator</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個寫法的資料結構是同一個</strong> —— 雙向串列 + 雜湊表,雜湊表的值指向串列上的節點。
+      <b>差別只在「節點誰管」</b>:手刻版你要自己 <code>new</code>、自己 <code>delete</code>、自己接哨兵;
+      <code>list</code> 版全部交給容器。<strong>方向也相反</strong> ——
+      手刻版 <code>right</code> 端是最新,<code>list</code> 版<strong>前端</strong>是最新。
+    </div>
+
+    <p style="margin:20px 0 10px;">
+      <strong>實測(與 <code>O(n)</code> 時間戳暴力解交叉比對)</strong>:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>結果</th></tr></thead>
+      <tbody>
+        <tr><td>官方範例</td><td class="ok"><code>1 / -1 / -1 / 3 / 4</code> 全數吻合</td></tr>
+        <tr><td>對拍</td><td class="mono ok"><strong>1201325</strong> 次 <code>get</code>,不一致 <strong>0</strong></td></tr>
+        <tr><td>順序正確性</td><td class="mono ok">每一步比對<strong>完整 MRU→LRU 順序</strong>,<strong>240 萬</strong>次,不一致 <strong>0</strong></td></tr>
+        <tr><td><strong>記憶體</strong></td><td class="ok">cap=10 放進 10 萬個不同 key:配置 <strong>200003</strong>、釋放 <strong>200003</strong>,<strong>未釋放 0</strong><br>(手刻版同樣壓力<strong>漏 100002 個節點 / 2.3 MB</strong>)</td></tr>
+        <tr><td><code>size()</code> 是否 <code>O(1)</code></td><td class="mono ok">長度 <strong>1000 / 10⁵ / 10⁷</strong> → <strong>0.32 / 0.38 / 0.31 ns</strong>,無成長</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>最後一列是這個寫法最大的好處:不會洩漏。</strong>
+      <b>第 3、4、5 節花了整整三節在處理「誰 <code>delete</code>、什麼時候 <code>delete</code>、順序能不能顛倒」</b> ——
+      <strong>換成 <code>std::list</code> 之後,那三節的問題一個都不存在。</strong>
+    </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// 可以再快一點:<code>put</code> 命中時用 <code>splice</code> 取代 <code>erase</code> + <code>push_front</code></h3>
+
+    <p style="margin:0 0 12px;">
+      原版 <code>put</code> 在<strong>命中</strong>時是「<code>erase</code> 舊節點 → <code>push_front</code> 新節點」——
+      <b>等於把一個節點釋放掉再配置一個新的</b>。既然 <code>get</code> 已經證明「<code>splice</code> 之後 iterator 仍然有效」,
+      <strong><code>put</code> 命中也可以就地改值再搬移,完全不碰記憶體配置器</strong>:
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p146_list_splice.cpp</span>
+        <span class="sc-codewindow__lang">同樣 O(1) · 少一次配置</span>
+      </div>
+<pre class="sc-code">    <span class="t">void</span> <span class="f">put</span><span class="p">(</span><span class="t">int</span> key<span class="p">,</span> <span class="t">int</span> value<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> it <span class="p">=</span> m<span class="p">.</span><span class="f">find</span><span class="p">(</span>key<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">!=</span> m<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="p">{</span>
+            it<span class="p">-&gt;</span>second<span class="p">-&gt;</span>second <span class="p">=</span> value<span class="p">;</span>            <span class="c">// 直接改值,節點不動</span>
+            l<span class="p">.</span><span class="f">splice</span><span class="p">(</span>l<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> l<span class="p">,</span> it<span class="p">-&gt;</span>second<span class="p">);</span>   <span class="c">// 搬到最前,iterator 仍有效</span>
+            <span class="k">return</span><span class="p">;</span>                                 <span class="c">// m 一個字都不用改</span>
+        <span class="p">}</span>
+        l<span class="p">.</span><span class="f">push_front</span><span class="p">({</span>key<span class="p">,</span> value<span class="p">});</span>
+        m<span class="p">[</span>key<span class="p">]</span> <span class="p">=</span> l<span class="p">.</span><span class="f">begin</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span>l<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;</span> <span class="p">(</span><span class="t">size_t</span><span class="p">)</span>cap<span class="p">)</span> <span class="p">{</span>
+            m<span class="p">.</span><span class="f">erase</span><span class="p">(</span>l<span class="p">.</span><span class="f">back</span><span class="p">().</span>first<span class="p">);</span>              <span class="c">// back() 比 rbegin()-&gt; 好讀</span>
+            l<span class="p">.</span><span class="f">pop_back</span><span class="p">();</span>                          <span class="c">//   一樣:先讀完再 pop</span>
+        <span class="p">}</span>
+    <span class="p">}</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th><code>put</code> 全命中 300 萬次</th><th>耗時</th><th>每次</th></tr></thead>
+      <tbody>
+        <tr><td><code>erase</code> + <code>push_front</code>(原版)</td><td class="mono">78.7 ms</td><td class="mono">26.2 ns</td></tr>
+        <tr class="ok"><td><strong><code>splice</code> 就地搬移</strong></td><td class="mono ok"><strong>9.4 ms</strong></td><td class="mono ok"><strong>3.1 ns</strong></td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px;">
+      <strong>8.4 倍</strong>,差距全部來自<strong>省下的那一次 <code>new</code> / <code>delete</code></strong>。
+      <b>兩版對拍 <strong>1201325</strong> 次 <code>get</code>、<strong>240 萬</strong>次完整順序比對,結果完全一致</b> ——
+      這是純粹的常數優化,不影響任何行為。
+    </p>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>(兩種寫法都在裡面)
+    </p>
+
+    <p style="margin:20px 0 10px;"><strong>這個寫法自己的陷阱</strong>(同樣是 6 萬條隨機序列實測):</p>
+
+    <table class="sc-table">
+      <thead><tr><th>寫錯的地方</th><th>失敗率</th><th>最小反例 / 症狀</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">(正確版)</td><td class="mono ok">0 / 900476</td><td class="ok">—</td></tr>
+        <tr class="fail"><td class="mono">先 <code>pop_back()</code> 再讀 <code>rbegin()</code> 取 key</td><td class="mono fail"><strong>直接崩潰</strong></td><td class="fail"><strong>ASan:<code>heap-use-after-free</code></strong>,<code>READ of size 8</code> 發生在下一次 <code>splice</code>,<br>釋放者正是 <code>pop_back</code> —— <b><code>rbegin()</code> 讀的是已經被還掉的節點</b></td></tr>
+        <tr><td class="mono"><code>put</code> 命中忘了 <code>l.erase(it-&gt;second)</code></td><td class="mono fail">23032 / 785559</td><td class="mono"><code>LRUCache(2) put(1,72) put(0,9) put(1,26) put(2,1) get(0)→9</code>(應為 <code>-1</code>)<br><b>ASan 乾淨</b> —— 純邏輯錯,舊節點變成永遠淘汰不掉的孤兒</td></tr>
+        <tr><td class="mono"><code>splice</code> 寫成 <code>l.splice(l.end(), ...)</code></td><td class="mono fail">13985 / 828943</td><td class="mono"><code>LRUCache(2) put(0,3) put(3,53) get(0) put(1,4) get(0)→-1</code>(應為 <code>3</code>)<br>方向反了 = 每次使用都把它推向受害端,<b>LRU 整個顛倒</b></td></tr>
+        <tr><td class="mono"><code>get</code> 命中不 <code>splice</code></td><td class="mono fail">7988 / 861805</td><td class="mono"><code>LRUCache(2) put(1,23) put(3,9) get(1) put(2,53) get(3)→9</code>(應為 <code>-1</code>)<br><b>退化成 FIFO</b>,結構完全正常 —— 最難察覺</td></tr>
+        <tr class="ok"><td class="mono">淘汰條件用 <code>l.size()</code> 取代 <code>m.size()</code></td><td class="mono ok">0 / 900476</td><td class="ok"><strong>等價</strong> —— 只要 <code>put</code> 命中有 <code>erase</code>,兩張表的大小永遠一致</td></tr>
+        <tr><td class="mono"><code>get</code> 寫成 <code>m[key]</code> 而不是 <code>m.find</code></td><td class="mono fail">未定義行為</td><td class="fail"><code>operator[]</code> 會<strong>替不存在的 key 插入一筆</strong>,值是<b>未初始化的 iterator</b>;<br>之後拿去 <code>splice</code> 就是 UB,而且 <code>m</code> 會無限膨脹</td></tr>
+        <tr><td class="mono"><code>m.size() &gt; cap</code>(<code>cap</code> 是 <code>int</code>)</td><td class="mono">編譯警告</td><td class="mono"><code>-Wsign-compare</code>:<code>unsigned long</code> vs <code>int</code>。<br><code>cap ≥ 1</code> 所以實際安全,想乾淨就寫 <code>(size_t)cap</code> 或把 <code>cap</code> 宣告成 <code>size_t</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意前兩列的對比:會崩潰的那個反而是好消息。</strong>
+      <b><code>pop_back</code> 順序寫反,ASan 一跑就抓到;而「<code>put</code> 命中忘了 <code>erase</code>」ASan 完全乾淨</b>,
+      只是安靜地答錯 <strong>23032 次</strong>。<strong>記憶體錯誤有工具幫你找,邏輯錯誤只有對拍找得到。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · std::list 用法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title"><code>std::list</code> 需要知道的用法<span class="sc-section__title-en">// THE LIST TOOLKIT</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>std::list</code> 是<strong>雙向鏈結串列</strong>。LRU 會選它,理由只有兩條 ——
+      <b>給定 iterator 就能 <code>O(1)</code> 刪除/搬移</b>,而且 <b>iterator 極度穩定</b>
+      (只有被 <code>erase</code> 掉的那一個會失效,其餘永遠有效)。
+      <strong>所以才敢把 iterator 存進雜湊表。</strong>
+    </p>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:22px 0 10px;">// 本題真正用到的七個</h3>
+
+    <table class="sc-table">
+      <thead><tr><th>用法</th><th>作用</th><th>複雜度</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">l.push_front({k, v})</td><td>前端插入</td><td class="mono ok">O(1)</td></tr>
+        <tr><td class="mono">l.pop_back()</td><td>刪最後一個 —— <strong>不回傳值</strong>,而且<strong>直接釋放節點</strong></td><td class="mono ok">O(1)</td></tr>
+        <tr><td class="mono">l.erase(it)</td><td>刪指定節點,回傳<strong>下一個</strong> iterator</td><td class="mono ok">O(1)</td></tr>
+        <tr><td class="mono">l.begin()</td><td>第一個元素的 iterator</td><td class="mono ok">O(1)</td></tr>
+        <tr><td class="mono">l.back() / l.rbegin()</td><td>最後一個元素 —— <code>back()</code> 回<strong>參考</strong>,<code>rbegin()</code> 回 <strong>reverse_iterator</strong></td><td class="mono ok">O(1)</td></tr>
+        <tr class="ok"><td class="mono"><strong>l.splice(pos, l2, it)</strong></td><td><strong>把 <code>l2</code> 的 <code>it</code> 節點搬到 <code>pos</code> 前面</strong></td><td class="mono ok">O(1)</td></tr>
+        <tr><td class="mono">l.size()</td><td>元素個數 —— <strong>C++11 起保證 <code>O(1)</code></strong></td><td class="mono ok">O(1)</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px;">
+      <strong><code>size()</code> 那一列實測過</strong>:串列長度 <strong>1000 / 10⁵ / 10⁷</strong>,
+      每次 <code>size()</code> 分別是 <strong>0.32 / 0.38 / 0.31 ns</strong> —— <b>完全看不出成長</b>。
+      <strong>C++11 之前這是 <code>O(n)</code></strong>,舊教材的「別在迴圈裡呼叫 <code>list::size()</code>」是那個時代的建議。
+    </p>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// splice:最該搞懂的一個</h3>
+
+    <p style="margin:0 0 12px;">
+      三種形式,<code>pos</code> 一律是「<strong>插入到這個 iterator 的前面</strong>」:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// SPLICE: 三種形式</span>
+l.splice(pos, l2);                <span class="sc-trace__out">// 把 l2 整串搬過來,l2 變成空的</span>
+l.splice(pos, l2, it);            <span class="sc-trace__out">// 只搬 it 這一個節點</span>
+l.splice(pos, l2, first, last);   <span class="sc-trace__out">// 搬 [first, last) 這個區間</span>
+
+<span class="sc-trace__head">// 關鍵:第二個參數可以是「自己」—— 這就變成串列內部搬移</span>
+l.splice(l.begin(), l, it);       <span class="sc-trace__out">// 把 it 移到最前面,O(1) —— 本題 get 用的就是這行</span></div>
+
+    <p style="margin-top:12px;">
+      <strong>搬完之後 <code>it</code> 依然有效、依然指向同一個節點</strong>,只是位置換了。
+      <b>實測:<code>splice</code> 前後 <code>&amp;*it</code> 皆為 <code>0x11d605ff0</code>,完全相同</b>,
+      而且 <code>it == l.begin()</code> 成立。
+      <strong>這就是為什麼 <code>get()</code> 裡搬完不必回頭更新 <code>m[key]</code> —— 節點的記憶體位址根本沒動。</strong>
+    </p>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// iterator 失效規則(這張表就是 LRU 選 list 的全部理由)</h3>
+
+    <table class="sc-table">
+      <thead><tr><th>操作</th><th><code>list</code></th><th><code>vector</code></th></tr></thead>
+      <tbody>
+        <tr><td>插入</td><td class="ok"><strong>全部仍有效</strong></td><td class="fail">可能<strong>全部失效</strong>(重新配置)</td></tr>
+        <tr><td><code>erase</code></td><td class="ok"><strong>只有被刪的那一個失效</strong></td><td class="fail">該位置<strong>之後全部失效</strong></td></tr>
+        <tr><td><code>splice</code></td><td class="ok"><strong>全部仍有效(含被搬走的那個)</strong></td><td class="fail">沒有這個操作</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>把這張表和第 2 節的淘汰表放在一起看</strong>:
+      <b>「雜湊表存位置」這招之所以成立,靠的不是雜湊表,而是被指向的那個容器<em>不會亂動它的元素</em></b>。
+      <strong><code>vector</code> 一次 <code>push_back</code> 就能讓你存的每一個位置全部作廢。</strong>
+    </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// 其他常見用法</h3>
+
+    <div class="sc-trace"><span class="sc-trace__head">// BASICS</span>
+list&lt;int&gt; l = {3, 1, 2};
+
+l.push_back(4);   l.emplace_front(0);      <span class="sc-trace__out">// 兩端插入</span>
+l.front();  l.back();                      <span class="sc-trace__out">// 取值,回傳 reference —— 可以直接改</span>
+l.insert(it, 9);                           <span class="sc-trace__out">// 回傳「新元素」的 iterator</span>
+l.remove(3);                               <span class="sc-trace__out">// 刪掉所有「值等於 3」的元素</span>
+l.remove_if([](int x) { return x &lt; 0; });
+l.sort();                                  <span class="sc-trace__out">// 成員函式 —— 不能用 std::sort</span>
+l.reverse();   l.unique();                 <span class="sc-trace__out">// unique 只去掉「相鄰」重複 ⇒ 要先 sort</span>
+l.merge(l2);                               <span class="sc-trace__out">// 兩條都已排序時合併,O(n),不配置記憶體</span>
+l.clear();     l.empty();
+
+for (auto&amp; x : l) x *= 2;                  <span class="sc-trace__out">// 走訪只能循序</span></div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// 三個容易踩的雷</h3>
+
+    <table class="sc-table">
+      <thead><tr><th>雷</th><th>為什麼</th><th>怎麼寫</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>沒有 <code>operator[]</code>,也不能 <code>l.begin() + 3</code></strong></td>
+          <td>iterator 不是 random access,只能一格一格走</td>
+          <td class="mono ok">std::next(it, 3)<br>std::advance(it, 3)</td>
+        </tr>
+        <tr>
+          <td><strong><code>std::sort(l.begin(), l.end())</code> 編譯不過</strong></td>
+          <td>同上 —— <code>std::sort</code> 要求 random access iterator</td>
+          <td class="mono ok">l.sort()</td>
+        </tr>
+        <tr>
+          <td><strong><code>rbegin()</code> 不能直接餵給 <code>erase()</code></strong></td>
+          <td>它是 <code>reverse_iterator</code>,型別不同</td>
+          <td class="mono ok">std::prev(l.end())<br>或直接用 l.back() / l.pop_back()</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>前兩個雷是同一件事的兩種症狀</strong> —— <b><code>list</code> 沒有「第 k 個」這個概念</b>,
+      因為節點散落在記憶體各處,只有鄰居知道彼此在哪。
+      <strong>你放棄隨機存取,換到的就是「<code>O(1)</code> 從中間拆節點」與「iterator 永遠有效」</strong> ——
+      <b>而這題要的剛好就是這兩件,一件隨機存取都用不到。</b>
+    </div>
+  </section>
+
   <!-- ── pager ── -->
   <nav class="sc-pager">
     <a class="sc-pager__item sc-pager__item--prev" href="index.html">
@@ -407,8 +687,8 @@ cap=10,put 10 萬個不同 key：new = 100002, delete = 100002 → 洩漏 <span 
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">「插到 front」與「淘汰 right->prev」實測錯誤數一模一樣(62902 / 19511)—— 因為它們是同一個錯誤的兩種寫法。而失敗率最低的兩個(不搬到最新端,12937 / 14295)最危險:快取內容完全正常,只是策略悄悄從 LRU 變成 FIFO。</div>
-    <div class="sc-summary-bar__detail">LRU CACHE · CODE</div>
+    <div class="sc-summary-bar__body">手刻版:「插到 front」與「淘汰 right-&gt;prev」實測錯誤數一模一樣(62902 / 19511)—— 因為它們是同一個錯誤的兩種寫法;而失敗率最低的兩個(不搬到最新端,12937 / 14295)最危險,結構完全正常,只是策略悄悄從 LRU 變成 FIFO。std::list 版則把「誰 delete」整類問題消滅(未釋放 0),代價是要記住 splice 的方向與 pop_back 的順序 —— 前者答錯 13985 次,後者直接 heap-use-after-free。</div>
+    <div class="sc-summary-bar__detail">LRU CACHE · CODE · HAND-ROLLED vs STD::LIST</div>
   </div>
 
 </body>
