@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">LFU 快取</h1>
-    <p class="sc-mast__subtitle">// CONCEPT · 三張表分工,把「找最小」變成一次查表</p>
+    <p class="sc-mast__subtitle">// CONCEPT · 四個結構分工,把「找最小」變成一次查表</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★★★</span>
       <span class="sc-mast__sep">|</span>
@@ -157,55 +157,158 @@
     </div>
   </section>
 
-  <!-- ════════════ 3 · 三張表 ════════════ -->
+  <!-- ════════════ 3 · 四個結構 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">三張表,各自負責一件事<span class="sc-section__title-en">// THE THREE MAPS</span></h2>
+      <h2 class="sc-section__title">四個結構,各自回答一個問題<span class="sc-section__title-en">// THE FOUR STRUCTURES</span></h2>
     </div>
 
+    <p style="margin:0 0 12px;">
+      LFU 要回答的是一個<strong>複合問題</strong>:「<b>次數最少的那些 key 裡面,最久沒用的是誰?</b>」
+      <strong>沒有任何單一結構做得到</strong>,所以拆成四個 —— 每一個只回答問題的一小塊。
+    </p>
+
     <table class="sc-table">
-      <thead><tr><th>表</th><th>型別</th><th>負責回答</th></tr></thead>
+      <thead><tr><th>#</th><th>結構</th><th>型別</th><th>它回答的問題</th></tr></thead>
       <tbody>
-        <tr><td class="mono">m</td><td class="mono">key → {值, 次數}</td><td>「這個 key 在嗎?值多少?現在幾次?」</td></tr>
-        <tr><td class="mono">freq</td><td class="mono">次數 → list&lt;key&gt;</td><td>「次數是 <code>f</code> 的有哪些 key?<strong>誰最久沒用?</strong>」(front)</td></tr>
-        <tr class="ok"><td class="mono"><strong>iter</strong></td><td class="mono">key → list 裡的位置</td><td><strong>「這個 key 在它那條 list 的哪一格?」</strong></td></tr>
-        <tr><td class="mono">minFreq</td><td class="mono">int</td><td>「現在最小的次數是多少?」</td></tr>
+        <tr><td class="mono">①</td><td class="mono"><strong>m</strong></td><td class="mono">unordered_map&lt;int, pair&lt;int,int&gt;&gt;</td><td>「這個 key 在嗎?值多少?<strong>現在幾次?</strong>」</td></tr>
+        <tr><td class="mono">②</td><td class="mono"><strong>freq</strong></td><td class="mono">unordered_map&lt;int, list&lt;int&gt;&gt;</td><td>「次數是 <code>f</code> 的有哪些 key?<strong>它們之中誰最久沒用?</strong>」(<code>front</code>)</td></tr>
+        <tr class="ok"><td class="mono">③</td><td class="mono"><strong>iter</strong></td><td class="mono">unordered_map&lt;int, list&lt;int&gt;::iterator&gt;</td><td><strong>「這個 key 在它那條 list 的<em>哪一格</em>?」</strong></td></tr>
+        <tr><td class="mono">④</td><td class="mono"><strong>minFreq</strong></td><td class="mono">int</td><td>「<strong>現在最小的次數是多少?</strong>」= 該從哪一桶下手</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin:18px 0 8px;"><strong>四個湊起來,淘汰就只剩一行:</strong></p>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">受害者 = <strong>freq[minFreq].front()</strong></div>
+      <p class="sc-formula__hint">
+        <strong>④ 告訴你看哪一桶,② 的 <code>front</code> 告訴你那一桶裡挑誰</strong> ——
+        <b>不用比較、不用掃描、不用排序。</b>
+      </p>
+    </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// ② freq:為什麼「平手看誰久沒用」這條規則不用寫</h3>
+
+    <p style="margin:0 0 12px;">
+      每次把 key 放進桶裡都是 <code>push_back</code>(追加在尾巴),所以<strong>同一桶裡的順序天生就是「由舊到新」</strong>。
+      <b>於是 <code>front</code> 永遠就是這一桶裡最久沒被碰過的那個</b> ——
+      <strong>LFU 的平手規則是這條 list 的順序免費送的,程式裡沒有任何一行在比較時間。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 一個桶就是一條小 LRU</span>
+freq[2] = [ 1, 3, 7 ]
+            ↑        ↑
+          front     back
+        最久沒用   剛剛用過
+<span class="sc-trace__out">// 所以 LFU 常被說成「一堆 LRU 疊起來」—— 每個次數一條,再多一個 minFreq 指向該用哪條</span></div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// ③ iter:最容易被漏掉,但少了它整個 O(1) 就垮了</h3>
+
+    <p style="margin:0 0 12px;">
+      key 升級時要<strong>從舊桶的 list 中間把自己拔出來</strong>。
+      <code>std::list::erase(iterator)</code> 本身是 <code>O(1)</code> ——
+      <b>但前提是你手上要有那個 iterator</b>。沒有 <code>iter</code>,就得從 <code>front</code> 一格一格找過去。
+    </p>
+
+    <p style="margin:0 0 12px;">
+      <strong>這件事到底多常發生?實測 —— 一般隨機工作負載(capacity 3000、40 萬次操作、6000 種 key):</strong>
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>觀察</th><th>實測值</th></tr></thead>
+      <tbody>
+        <tr><td>從桶裡拔出 key 的次數</td><td class="mono">196943</td></tr>
+        <tr class="fail"><td><strong>其中「不在 <code>front</code>」的</strong></td><td class="mono fail"><strong>194582 次 = 98.8%</strong></td></tr>
+        <tr><td>要掃到它平均得往裡走</td><td class="mono fail"><strong>95.8 格</strong></td></tr>
+        <tr><td>出現過的最大桶</td><td class="mono fail"><strong>1131 個 key</strong></td></tr>
+        <tr class="ok"><td><strong>有 <code>iter</code></strong>(直接定位)</td><td class="mono ok"><strong>78 ns/op</strong></td></tr>
+        <tr class="fail"><td><strong>拿掉 <code>iter</code></strong>(改成線性掃)</td><td class="mono fail"><strong>173 ns/op ⇒ 慢 2.2 倍</strong>,而且是 <code>O(桶大小)</code></td></tr>
+        <tr class="fail"><td>同樣拿掉,<strong>持續最壞情形</strong></td><td class="mono fail">capacity 2000 時 <strong>慢 29.6 倍</strong>(見<a href="review.html">複習頁</a> App 3)</td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong><code>iter</code> 這張表最容易被漏掉,但少了它整個 <code>O(1)</code> 就垮了。</strong>
-      key 升級時要<strong>從舊桶的 list 中間拔出來</strong> ——
-      <code>std::list::erase(iterator)</code> 本身是 <code>O(1)</code>,
-      <b>但前提是你手上要有那個 iterator</b>。沒有 <code>iter</code>,就得從 front 掃過去找,變成 <code>O(桶大小)</code>。
-      <b>而 <code>list</code>(而不是 <code>vector</code>)之所以必要,正是因為它從中間刪除不會讓其他 iterator 失效。</b>
+      <strong>98.8% —— 幾乎每一次拔出都不在桶口。</strong>
+      <b>「從 <code>front</code> 掃過去找」聽起來只是慢一點,但實際上它掃的是<em>幾乎整條 list</em></b>,
+      而最大的桶量到過 <strong>1131 個 key</strong>。
+      <b>而 <code>list</code>(不是 <code>vector</code>)之所以必要,正是因為<strong>從中間刪除不會讓其他 iterator 失效</strong></b> ——
+      <a href="../p146/code.html">146 的第 7 節</a>那張失效規則表,在這裡是同一個理由。
     </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// ④ minFreq:為什麼不能少,也不能用「掃一遍」代替</h3>
+
+    <p style="margin:0 0 12px;">
+      <code>freq</code> 是 <code>unordered_map</code> —— <strong>它連「由小到大走一遍」都做不到</strong>。
+      所以「現在最小的非空桶是哪個」<b>沒有辦法臨時算出來</b>,只能一路記著。
+      <strong>而它的維護只有兩種情況,兩種都是 <code>O(1)</code></strong>(第 5 節證明)。
+    </p>
   </section>
 
   <!-- ════════════ 4 · 動畫 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// LFUCache(2) · 官方範例</span></h2>
+      <h2 class="sc-section__title">動畫演示 · 四個結構同時看<span class="sc-section__title-en">// TWO WALKTHROUGHS</span></h2>
     </div>
 
     <p style="margin:2px 0 12px;">
-      特別注意<strong>第 4 步</strong>與<strong>第 7 步</strong>兩次淘汰:
-      <b>第一次淘汰的是比較晚進來的 key 2</b>(因為它次數少),
-      <b>第二次淘汰的是次數平手但比較久沒用的 key 1</b>。
-      還有<strong>第 6 步</strong> —— <code>minFreq</code> 從 1 爬到 2 的那一刻。
+      <strong>兩個動畫都把上一節那四個結構<em>同時</em>畫出來</strong> ——
+      每一步哪一張表被動到,它的標題就會標紅。
+      <b><code>iter</code> 那一排不是另外填的,是由 <code>m</code> 和 <code>freq</code> 直接推導出來的</b>,
+      所以它<strong>不可能和上面兩張表對不上</strong>。
+    </p>
+
+    <p style="margin:2px 0 12px;">
+      <strong>A 是 LeetCode 官方範例</strong>(<code>capacity = 2</code>),先把基本流程走一遍。
+      <strong>B 是加長範例</strong>(<code>capacity = 3</code>)—— 因為 <b>cap = 2 有兩件事永遠看不到</b>:
+      桶裡最多只有兩個 key,所以<strong>「從正中間拔出」不可能發生</strong>;桶也太少,
+      <strong>「空掉的桶剛好<em>不是</em>最小桶」也碰不到</strong>。這兩件事正好是最容易寫錯的地方。
     </p>
 
     <div class="sc-viz">
-      <div class="sc-viz__title">▶ LFU Cache · 三張表 + minFreq</div>
-      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:424px;"></canvas></div>
+      <div class="sc-viz__title">A ▶ 官方範例 · LFUCache(2)</div>
+      <div class="sc-viz__cvwrap"><canvas id="va-canvas" class="sc-viz__canvas" style="height:618px;"></canvas></div>
       <div class="sc-viz__controls">
-        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
-        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
-        <span class="sc-viz__step" id="viz-step">00 / 08</span>
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 08</span>
       </div>
-      <div class="sc-viz__label" id="viz-label">載入中…</div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <p style="margin:22px 0 10px;">
+      <strong>B 的四個關鍵時刻</strong> —— 這四步就是 LFU 全部的難點:
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>步</th><th>操作</th><th>它示範的是</th></tr></thead>
+      <tbody>
+        <tr class="ok"><td class="mono">4</td><td class="mono">get(2)</td><td><strong>從桶的正中間拔出</strong> —— <code>freq[1] = [1,2,3]</code>,拔掉中間的 2。<b>這是 <code>iter</code> 唯一的存在理由</b></td></tr>
+        <tr class="ok"><td class="mono">5</td><td class="mono">get(2)</td><td><strong><code>freq[2]</code> 空了,但 <code>minFreq</code> 不動</strong> —— 因為空的不是最小桶</td></tr>
+        <tr class="ok"><td class="mono">7</td><td class="mono">get(3)</td><td><strong><code>freq[1]</code> 空了,<code>minFreq</code> 爬升 1 → 2</strong> —— 和第 5 步剛好構成對照</td></tr>
+        <tr class="ok"><td class="mono">8</td><td class="mono">put(4,40)</td><td><strong>次數平手,看誰久沒用</strong>;而且淘汰完插入新 key,<code>minFreq</code> 一步歸 1</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-viz" style="margin-top:14px;">
+      <div class="sc-viz__title">B ▶ 加長範例 · LFUCache(3)</div>
+      <div class="sc-viz__cvwrap"><canvas id="vb-canvas" class="sc-viz__canvas" style="height:722px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>第 5 步和第 7 步請一定要連著看。</strong>
+      <b>兩步都是「有一個桶空了」,但一個要動 <code>minFreq</code>、一個不用</b> ——
+      差別只在<strong>空掉的那個是不是 <code>freq[minFreq]</code></strong>。
+      <strong>那行 <code>if (freq[minFreq].size() == 0) ++minFreq;</code> 檢查的是「最小桶空了嗎」,
+      不是「有沒有桶空了」</strong> —— 這是最常被讀錯的一行。
     </div>
   </section>
 
@@ -328,7 +431,7 @@
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">把「次數」當桶編號,桶內用 list 維持 LRU 順序,再用 iter 表讓「從中間拔出來」是 O(1)。minFreq 不必重找 —— 插入新 key 就歸 1,最小桶被搬空就恰好 +1。變化量有界,所以一個變數就能增量維護。</div>
+    <div class="sc-summary-bar__body">四個結構各答一個問題:m 給值與次數、freq 把同次數的排成一列(front 免費送你平手時的答案)、iter 給桶內位置、minFreq 給該看哪一桶 —— 湊起來淘汰就只剩 freq[minFreq].front() 一行。iter 不是多餘的:實測 98.8% 的拔出都不在 front,平均要往裡走 95.8 格。而 minFreq 那行判斷檢查的是「最小桶空了嗎」,不是「有沒有桶空了」。</div>
     <div class="sc-summary-bar__detail">LFU CACHE · BUCKETS BY FREQUENCY</div>
   </div>
 

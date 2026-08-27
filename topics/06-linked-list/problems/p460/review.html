@@ -56,6 +56,8 @@
         <tr><td>桶內順序</td><td><code>push_back</code> 追加 ⇒ <strong><code>front</code> 是這桶裡最久沒用的</strong>(平手時的 LRU 規則)</td></tr>
         <tr><td>iter 表在幹嘛</td><td>讓「從 list 中間拔出來」是 <code>O(1)</code> —— <strong>少了它就變 <code>O(桶大小)</strong></code></td></tr>
         <tr><td>為什麼是 list 不是 vector</td><td><code>list</code> 從中間刪除<strong>不會讓其他 iterator 失效</strong></td></tr>
+        <tr class="ok"><td>拔出真的都在中間嗎</td><td>實測一般工作負載下 <strong>98.8% 不在 <code>front</code></strong>,平均要往裡走 <strong>95.8 格</strong>,最大桶 <strong>1131 個 key</strong></td></tr>
+        <tr class="fail"><td><strong>那行 ++ 檢查的是什麼</strong></td><td><strong>「<code>freq[minFreq]</code> 空了嗎」,不是「有沒有桶空了」</strong> —— 別的桶空掉完全不影響</td></tr>
         <tr><td>minFreq 怎麼維護</td><td><strong>插入新 key 就歸 1;最小桶被搬空就恰好 +1</strong> —— 永遠不用重找</td></tr>
         <tr><td>為什麼是「恰好 +1」</td><td>剛剛那個 key 就落在 <code>minFreq + 1</code>,新最小值<strong>不可能更大</strong></td></tr>
         <tr><td>最關鍵的一行</td><td><code>if (freq[minFreq].size() == 0) ++minFreq;</code> —— <strong>拿掉它答案不會錯,會記憶體錯誤</strong></td></tr>
@@ -83,16 +85,19 @@
     <div class="qa"><strong>Q4.</strong> 把 <code>if (freq[minFreq].size() == 0) ++minFreq;</code> 拿掉,<strong>會答錯還是會崩</strong>?最短的觸發序列是什麼?</div>
 
     <div class="qa"><strong>Q5.</strong> <code>put</code> 用 <code>if (get(key) != -1)</code> 判斷 key 存不存在。<strong>這個寫法有什麼隱憂</strong>?為什麼在 LeetCode 上不會出事?</div>
+
+    <div class="qa"><strong>Q6.</strong> 在 <code>LFUCache(3)</code> 的走讀裡,<strong>第 5 步和第 7 步都發生了「某個桶變空」</strong>,
+      但只有第 7 步動了 <code>minFreq</code>。<strong>差別在哪?</strong>如果把判斷式改成「只要有任何桶空了就 <code>++minFreq</code>」會怎樣?</div>
   </section>
 
   <!-- ════════════ 3 · 範例 Trace ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// LFUCache(2) · 官方範例</span></h2>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// LFUCache(2) 官方範例 + LFUCache(3) 加長範例</span></h2>
     </div>
 
-    <div class="sc-trace"><span class="sc-trace__head">// 每一步之後的三張表狀態</span>
+    <div class="sc-trace"><span class="sc-trace__head">// 每一步之後的四個結構狀態</span>
 操作                  m（key → 值 / 次數）        freq                     minFreq
 ─────────────────────────────────────────────────────────────────────────────────
 LFUCache(2)          {}                          {}                       —
@@ -115,6 +120,45 @@ get(4) = 4
 第 2 次(put(4,4)):key 1 次數 2、key 3 次數 2
   → <span class="sc-trace__out">次數平手,比誰久沒用</span>:key 1 上次用是 get(1),key 3 是 get(3),key 3 比較新
   → 淘汰 key 1。而 freq[2] = [1, 3] 的 front 剛好就是 key 1 ✓</div>
+
+    <p style="margin:18px 0 8px;">
+      <strong>官方範例有兩件事跑不到</strong>(<code>capacity = 2</code>,桶裡最多兩個 key):
+      <b>「從桶正中間拔出」</b>與<b>「空掉的桶剛好不是最小桶」</b>。
+      <strong>把容量放大到 3 就都跑得到了</strong> —— 這也是<a href="index.html">概念頁</a>動畫 B 走的那一趟:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// LFUCache(3) 加長範例 —— 四個關鍵時刻標了 ★（值省略,只看次數與桶）</span>
+操作           m（key→次數）        freq                             minFreq
+──────────────────────────────────────────────────────────────────────────
+LFUCache(3)   {}                   {}                               —
+put(1, 10)    {1→1}                {1: [1]}                         1
+put(2, 20)    {1→1, 2→1}           {1: [1, 2]}                      1
+put(3, 30)    {1→1, 2→1, 3→1}      {1: [1, 2, 3]}                   1   <span class="sc-trace__out">← 滿</span>
+get(2) = 20   {1→1, 2→2, 3→1}      {1: [1, 3], 2: [2]}              1   <span class="sc-trace__out">★ 1</span>
+get(2) = 20   {1→1, 2→3, 3→1}      {1: [1, 3], 3: [2]}              1   <span class="sc-trace__out">★ 2</span>
+get(1) = 10   {1→2, 2→3, 3→1}      {1: [3], 2: [1], 3: [2]}         1
+get(3) = 30   {1→2, 2→3, 3→2}      {2: [1, 3], 3: [2]}              2   <span class="sc-trace__out">★ 3</span>
+put(4, 40)    {2→3, 3→2, 4→1}      {1: [4], 2: [3], 3: [2]}         1   <span class="sc-trace__out">★ 4</span>
+get(1) = -1   （不變）               （不變）                          1
+get(2) = 20   {2→4, 3→2, 4→1}      {1: [4], 2: [3], 4: [2]}         1
+
+<span class="sc-trace__out">★ 1  freq[1] = [1, 2, 3],key 2 在正中間 —— 沒有 iter 就得掃過去找</span>
+<span class="sc-trace__out">★ 2  freq[2] 空了,但它不是最小桶(minFreq = 1,freq[1] 還有人)⇒ minFreq 不動</span>
+<span class="sc-trace__out">★ 3  freq[1] 空了,而它就是最小桶 ⇒ ++minFreq = 2</span>
+<span class="sc-trace__out">★ 4  freq[2] = [1, 3] 次數平手 ⇒ 取 front = key 1 淘汰;插入新 key 後 minFreq 歸 1</span>
+<span class="sc-trace__out">// 每一行都是 g++ -O2 跑真的 LFUCache 印出來的,不是手推</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 把第 5 步和第 7 步並排 —— 那行判斷式的全部意思都在這裡</span>
+第 5 步  get(2):  key 2 從 freq[2] 搬到 freq[3]
+         空掉的是 freq[2]，而 minFreq = 1
+         → freq[minFreq] = freq[1] = [1, 3] <span class="sc-trace__out">還有人</span>  ⇒ <span class="sc-trace__out">不動</span>
+
+第 7 步  get(3):  key 3 從 freq[1] 搬到 freq[2]
+         空掉的是 freq[1]，而 minFreq = 1
+         → freq[minFreq] = freq[1] = [] <span class="sc-trace__out">空了</span>          ⇒ <span class="sc-trace__out">++minFreq = 2</span>
+
+<span class="sc-trace__out">// 兩步都「有桶空了」,差別只在空的那個是不是 freq[minFreq]</span>
+<span class="sc-trace__out">// if (freq[minFreq].size() == 0) —— 它問的是「最小桶空了嗎」,不是「有沒有桶空了」</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 邊界(皆為實測)</span>
 capacity = 0        put 第一行就 return,任何 get 都是 -1（200 次操作,全對)
@@ -198,6 +242,24 @@ put(0, -1)   put(1, 7)   put(0, -1)   get(1) → <span class="sc-trace__out">-1<
   <b>修法一行:用 <code>m.find(key) != m.end()</code> 判斷存在,不要看回傳值。</b>
   <b>更一般的教訓:哨兵值(<code>-1</code>、<code>0</code>、<code>INT_MIN</code>)只有在它落在合法值域之外時才安全 —— 而那通常是題目給的,不是你能保證的。</b></div>
 
+  <div class="qa qa--answer"><strong>A6.</strong> <strong>差別是「空掉的那個桶,是不是 <code>freq[minFreq]</code>」。</strong><br><br>
+  <b>第 5 步</b>:key 2 從 <code>freq[2]</code> 搬到 <code>freq[3]</code>,<strong>空掉的是 <code>freq[2]</code></strong>。
+  但當時 <code>minFreq = 1</code>,而 <code>freq[1] = [1, 3]</code> <b>還坐著兩個 key</b> ——
+  <strong>最小的次數仍然是 1,沒有任何理由改。</strong><br><br>
+  <b>第 7 步</b>:key 3 從 <code>freq[1]</code> 搬到 <code>freq[2]</code>,<strong>空掉的是 <code>freq[1]</code>,而它正是 <code>freq[minFreq]</code></strong>。
+  現在最小的次數確實變了,所以 <code>++minFreq</code>。<br><br>
+  <strong>換句話說,那行 <code>if (freq[minFreq].size() == 0)</code> 問的是「<em>最小桶</em>空了嗎」,
+  不是「<em>有沒有桶</em>空了」。</strong>
+  <b>非最小桶空掉是完全無關的事件</b> —— 空桶不佔成本、不影響任何操作,程式從頭到尾不需要清理它們。<br><br>
+  <strong>如果改成「只要有任何桶空了就 <code>++minFreq</code>」,第 5 步就會把 <code>minFreq</code> 錯誤地推到 2</strong>,
+  而 <code>freq[1]</code> 裡明明還有 key 1 和 key 3。
+  <b>後果是下一次淘汰會從 <code>freq[2]</code> 下手,砍掉一個「次數比較多」的 key</b> ——
+  <strong>答案會錯(淘汰了不該淘汰的),而且 <code>freq[1]</code> 裡的兩個 key 從此再也不會被當成淘汰對象,
+  除非它們自己升級。</strong><br><br>
+  <b>值得注意的是,這個錯法不會崩潰</b> —— <code>freq[2]</code> 是有人的,<code>front()</code> 合法。
+  <strong>它只會安靜地給出錯的淘汰決策</strong>,和<a href="../p146/code.html">146</a> 那個「<code>put</code> 命中忘了 <code>erase</code>」是同一類:
+  <b>ASan 抓不到,只有對拍抓得到。</b></div>
+
   <div class="qa qa--answer"><strong>App 1.</strong> <strong>正確性完全一樣,而且慢得沒有想像中多 —— 但差距的方向很有意思。</strong><br><br>
   把 <code>freq</code> 換成 <code>std::map&lt;int, list&lt;int&gt;&gt;</code>,最小次數就是 <code>freq.begin()->first</code>,<strong><code>minFreq</code> 這個變數整個消失</strong>(空桶也必須 <code>erase</code>,否則 <code>begin()</code> 會指到空桶)。<br><br>
   <strong>實測正確性</strong>:與原碼交叉比對 <strong>2499982 次 <code>get</code>,不一致 0</strong>。<br><br>
@@ -248,7 +310,7 @@ capacity = 2000:  有 iter <span class="sc-trace__out">55.0</span> ns/get    無
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">minFreq 只會歸 1 或 +1 —— 變化量有界,所以一個變數就能增量維護,不必重找。iter 表讓「從 list 中間拔出」是 O(1):拿掉它答案不變(125 萬次 get 全對)但最壞情形慢 30 倍。而 LFU 的代價是老化:工作集一換,實測命中率直接掉到 0%,LRU 同一場景是 99.7%。</div>
+    <div class="sc-summary-bar__body">minFreq 只會歸 1 或 +1 —— 變化量有界,所以一個變數就能增量維護,不必重找;而那行判斷檢查的是「最小桶空了嗎」,別的桶空掉完全無關。iter 表讓「從 list 中間拔出」是 O(1):實測 98.8% 的拔出都不在 front,拿掉它一般負載慢 2.2 倍、持續最壞情形慢 30 倍(答案倒是一次都不會錯)。而 LFU 的代價是老化:工作集一換,實測命中率直接掉到 0%,LRU 同一場景是 99.7%。</div>
     <div class="sc-summary-bar__detail">LFU CACHE · REVIEW</div>
   </div>
 
