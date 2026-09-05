@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>110 · Balanced Binary Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P110</span>
+    <span><a href="https://leetcode.com/problems/balanced-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">平衡二元樹</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 110</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>定義</td><td><strong>「每一個節點」</strong>的左右高度差 ≤ 1 —— 不是只看根</td></tr>
+        <tr><td>核心陷阱</td><td>只看根 → 錯 <strong>164/2056</strong>,<strong><code>n ≤ 5</code> 全部碰巧對</strong>,最小反例 6 節點</td></tr>
+        <tr><td><strong>複雜度真相</strong></td><td>由上往下<strong>不是 <code>O(n²)</code></strong>,是 <strong><code>O(n log n)</code></strong> —— <code>&amp;&amp;</code> 會短路</td></tr>
+        <tr><td>短路的效果</td><td>退化鏈在<strong>根就 false</strong>,<code>isBalanced()</code> 只呼叫 <strong>1 次</strong></td></tr>
+        <tr><td>真正的最壞</td><td><strong>平衡樹</strong>(因為它會被完整走完),實測 <code>n=4095</code> 差 <strong>11 倍</strong></td></tr>
+        <tr><td>優化方向</td><td>由下往上一趟:<strong>回傳高度,壞了就回 <code>−1</code></strong> 並往上傳</td></tr>
+        <tr><td>無害的錯誤</td><td><code>depth</code> base case 回 1 → <strong>0/2056 失敗</strong>(偏移被減法消掉)</td></tr>
+        <tr><td>過嚴的錯誤</td><td>用節點數代替高度 → 錯 42/2056,<strong>只誤殺、不漏抓</strong></td></tr>
+        <tr><td>單向的錯誤</td><td>忘記 <code>abs</code> → 錯 275/2056,<strong>右重的樹全數漏判</strong></td></tr>
+        <tr><td>實務成本</td><td><code>n=5000</code> 最壞 <strong>0.347 ms</strong> —— LeetCode 上餘裕約 3000 倍</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼不能只檢查根節點的左右高度差?請說明<strong>為什麼手畫小樹永遠測不出這個 bug</strong>,並給實測數字。</div>
+
+    <div class="qa"><strong>Q2.</strong> 很多題解說「由上往下是 <code>O(n²)</code>,最壞情況是退化成一條鏈」。<strong>這個說法對嗎?</strong>請用實測數字回答。</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>depth()</code> 的 base case 如果寫成 <code>return 1</code>,這題會錯嗎?<strong>和 104 那題的結果一樣嗎?</strong>為什麼?</div>
+
+    <div class="qa"><strong>Q4.</strong> 由下往上的寫法用 <code>−1</code> 當「不平衡」的旗標。<strong>為什麼 <code>−1</code> 是安全的?</strong>有沒有更好的做法?</div>
+
+    <div class="qa"><strong>Q5.</strong> 如果把「左右<strong>高度</strong>差 ≤ 1」誤寫成「左右<strong>節點數</strong>差 ≤ 1」,錯誤的<strong>方向</strong>是什麼 —— 會誤殺還是會漏抓?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [3,9,20,null,null,15,7] → true</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例。<strong>方括號裡是「這次 <code>depth()</code> 花了幾次呼叫」</strong>。
+      <strong>以下每一步都是實跑印出來的。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第 1 步:檢查根節點</span>
+isBalanced(3)
+    depth(9)  = 1   [3 次呼叫,走訪 {9}]
+    depth(20) = 2   [7 次呼叫,走訪 {20, 15, 7}]      ← 15 和 7 第一次被走
+    abs(1 - 2) = 1 <= 1   ✓ 通過
+    → && 沒有短路,繼續遞迴檢查兩棵子樹
+<span class="sc-trace__out">// 光是量根的左右高度,整棵樹就已經被走過一遍了</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 2 步:檢查節點 9(葉節點)</span>
+  isBalanced(9)
+      depth(nullptr) = 0   [1 次]
+      depth(nullptr) = 0   [1 次]
+      abs(0 - 0) = 0 <= 1   ✓
+      isBalanced(nullptr) → true
+      isBalanced(nullptr) → true
+      → 節點 9 回傳 true
+<span class="sc-trace__out">// 葉節點必定平衡 —— 但程式碼還是老實跑了兩次 depth(nullptr),沒有特判</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 第 3 步:檢查節點 20 —— 這裡出現重複</span>
+  isBalanced(20)
+      depth(15) = 1   [3 次呼叫]      ← 15 「第二次」被走訪
+      depth(7)  = 1   [3 次呼叫]      ← 7  「第二次」被走訪
+      abs(1 - 1) = 0 <= 1   ✓
+      → 繼續遞迴檢查 15 和 7(都是葉節點,各 2 次呼叫,都通過)
+      → 節點 20 回傳 true
+
+  → 節點 3 回傳 true
+<span class="sc-trace__out">// 15 和 7 在第 1 步就被走過了,這裡又走一次 —— 這就是「由上往下」的代價</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return true
+
+每個節點被 depth() 走訪的次數:
+    節點 9  → 1 次        節點 20 → 1 次
+    節點 15 → 2 次 ★      節點 7  → 2 次 ★
+
+總計 depth() 呼叫 22 次
+由下往上版只需要 11 次(2n+1 = 2×5+1)—— 剛好一半
+
+一般規律:深度 d 的節點會被 depth() 走 d+1 次(它自己 + 每個祖先各一次)
+<span class="sc-trace__out">// 這棵樹只有 5 個節點就差了一倍;完美樹 n=4095 時差 11 倍</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意這棵範例樹是<em>平衡</em>的,所以兩個 <code>&amp;&amp;</code> 短路<em>都沒有</em>觸發</strong> ——
+      整棵樹被完整探索。<b>這正是「最壞情況是平衡樹」的具體樣子</b>:
+      <strong>能讓程式走完全程的樹,必定是通過所有檢查的樹,也就是平衡樹。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 把由下往上的 <code>−1</code> 旗標改成<strong>回傳 <code>pair</code></strong>。為什麼這個版本<strong>更通用</strong>?什麼情況下 <code>−1</code> 的技巧<strong>會失效</strong>?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成回傳<strong>「第一個不平衡的節點」</strong>而不只是 true/false。要怎麼改?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果題目改成「<strong>左右高度差不超過 <code>k</code></strong>」,或者「<strong>左右<em>節點數</em>差不超過 1</strong>」(權重平衡),程式要怎麼改?後者為什麼是<strong>更嚴格</strong>的條件?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為不平衡可能藏在某棵子樹「內部」,而根看起來完全正常 —— 這種形狀最少需要 6 個節點。</strong><br><br>
+  要騙過「只檢查根」,樹必須<strong>同時滿足兩件事</strong>:根的左右高度差 ≤ 1(看起來沒事),<strong>但某棵子樹內部的高度差 ≥ 2</strong>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n ≤ 8</code> 全部 <strong>2056 種樹形</strong>,「只看根」<strong>錯 164 種</strong>,但:<br>
+  · <code>n = 0,1,2,3,4,5</code> → <strong>0 種失敗</strong>(全部 65 種樹形都碰巧正確)<br>
+  · <code>n = 6</code> → <strong>16 例</strong>　· <code>n = 7</code> → <strong>32 例</strong>　· <code>n = 8</code> → <strong>116 例</strong><br><br>
+  <strong>最小反例</strong> <code>[1,1,1,null,1,null,1,null,null,null,1]</code>(<code>n = 6</code>):<br>
+  · <strong>根</strong>:左高 3、右高 2 → 差 <strong>1</strong>,看起來完全沒問題 ✓<br>
+  · <strong>但左小孩</strong>:左高 0、右高 2 → 差 <strong>2</strong> ✗ <b>—— 不平衡藏在這裡</b><br><br>
+  <b>「<code>n ≤ 5</code> 全部碰巧正確」就是它難發現的原因。</b>你在紙上畫的例子幾乎都在這個範圍內,<strong>那裡「只看根」永遠是對的</strong>。<br><br>
+  <b>而且這和 <a href="../p543/index.html">543 直徑</a>那題是<em>同一種</em>陷阱</b>:兩題的最小反例都要 6 個節點,兩題都是「局部的極端值藏在子樹裡,根看不到」。<strong>看到「每一個節點」或「不一定通過根」這類字眼,就要立刻想到窮舉驗證,而不是手算幾個例子。</strong></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>不對。實測退化鏈是<em>線性</em>的,真正的上限是 <code>O(n log n)</code>。</strong><br><br>
+  <strong>為什麼退化鏈不慢:<code>&amp;&amp;</code> 會短路。</strong>一條長度 <code>n</code> 的鏈,在<strong>根節點</strong>就有 <code>depth(左) = n−1</code>、<code>depth(右) = 0</code>,<code>abs(n−1) &gt; 1</code> <strong>第一個條件就 false</strong> —— <b>兩個 <code>isBalanced</code> 遞迴<em>完全不會被呼叫</em></b>。<br><br>
+  <strong>實測 <code>depth()</code> 呼叫次數(退化左鏈):</strong><br>
+  <code>n=250 → 500</code>、<code>n=500 → 1000</code>、<code>n=1000 → 2000</code>、<code>n=2000 → 4000</code><br>
+  <b>每次加倍只變 2.0 倍 —— 嚴格線性。</b>若真是 <code>O(n²)</code>,<code>n=2000</code> 應該要 <code>4002000</code> 次,<strong>實測只有 4000 次,差 1000 倍</strong>。而 <code>isBalanced()</code> 的呼叫次數<strong>永遠是 1</strong>。<br><br>
+  <strong>真正的最壞情況是「平衡樹」。</strong>推理很簡單:<b>一棵樹要被「完整探索」,就代表它處處通過檢查 —— 也就是它是平衡的</b>;而<strong>平衡樹的高度 <code>h = O(log n)</code></strong>,每個節點最多被重複走 <code>O(log n)</code> 次 ⇒ 上限 <code>O(n log n)</code>,<strong>不可能到 <code>O(n²)</code></strong>。<br><br>
+  <strong>實測完美樹的額外成本</strong>:<code>n=1023</code> → <strong>9.0 倍</strong>、<code>n=4095</code> → <strong>11.0 倍</strong>、<code>n=4180</code> → <strong>11.5 倍</strong>。<b>倍率每次加倍約 +0.7,正是 <code>Θ(log n)</code> 的成長。</b><br><br>
+  <b>教訓:短路運算子會改變複雜度分析,而紙上分析很容易漏掉這一點。</b>(對比 <a href="../p104/review.html">104</a>:那題用的是 <code>max</code> —— 普通函式,<strong>不短路</strong>,所以兩邊一定都走完。)</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>這題完全不會錯(0/2056);但 104 那題會全錯(626/626)。</strong><br><br>
+  <strong>原因是「這個值後來怎麼被使用」。</strong><br><br>
+  base case 回 <code>1</code> 會讓每個節點的高度<strong>一律 +1</strong>(常數偏移,見 <a href="../p104/review.html">104 的 A1</a>:<code>max</code> 不會累加偏移,所以它乾淨地傳到最上面)。<br><br>
+  · <strong>104</strong> 把高度<strong>直接當答案回傳</strong> → 偏移一路傳到輸出 → <strong>全錯,而且是恆定 +1</strong>。<br>
+  · <strong>110</strong> 只用到高度的<strong>差</strong>:<br>
+  <code>abs( (H(左)+1) − (H(右)+1) ) = abs( H(左) − H(右) )</code><br>
+  <b>兩邊的 +1 在減法裡乾淨地互相消掉了。</b><br><br>
+  <strong>實測</strong>:窮舉 2056 種樹形,這個變體<strong>失敗 0 種</strong> —— 它是九個變體裡<strong>唯一一個「錯了但完全無害」</strong>的。<br><br>
+  <b>值得記住的一般原則:一個 bug 會不會造成傷害,取決於下游怎麼消費那個值。</b>常數偏移<strong>會被減法消掉,但不會被加法或直接回傳消掉</strong>。<b>所以「這段程式碼有 bug」和「這個 bug 會讓答案錯」是兩件事</b> —— 不過在正式的程式碼裡我還是會把它改對,因為<strong>下一個人可能會把 <code>depth()</code> 拿去別的地方用</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為高度永遠不可能是負的,所以 <code>−1</code> 不會和任何真實高度混淆。</strong><br><br>
+  這是一個常見手法:<strong>用值域裡「不可能出現的值」來夾帶一個額外的布林資訊</strong>,免得多開一個回傳值或多傳一個參數。空樹回 <code>0</code>、任何非空樹回 <code>≥ 1</code>,所以 <code>−1</code> 是<strong>安全的哨兵值</strong>。<br><br>
+  <strong>它還帶來一個附加好處:提早結束。</strong>一旦某處回傳 <code>−1</code>,上面每一層都<strong>直接往上傳、不再計算</strong> —— 等於免費得到了短路。<br><br>
+  <strong>更好的做法(見 App 1):回傳 <code>pair&lt;int, bool&gt;</code> 或一個小 struct。</strong>理由:<br>
+  ① <strong>不依賴「剛好有個不可能的值」這個巧合</strong>。如果哪天題目改成「高度可以是負的」(例如帶權重的樹),<code>−1</code> 的技巧<strong>立刻失效</strong>。<br>
+  ② <strong>可讀性更好</strong> —— <code>{height, isBalanced}</code> 直接說出它在表達什麼,不必靠註解解釋 <code>−1</code> 是什麼意思。<br><br>
+  <b>面試時兩種都可以,但要能說出「為什麼 <code>−1</code> 是安全的」</b> —— 也就是<strong>你知道自己在依賴一個值域假設,而不是碰巧寫對</strong>。這正是這類問題想聽到的東西。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>會誤殺,不會漏抓 —— 因為「節點數差 ≤ 1」是比「高度差 ≤ 1」<em>嚴格得多</em>的條件。</strong><br><br>
+  <strong>實測</strong>:窮舉 2056 種樹形,這個變體<strong>錯 42 種</strong>,而且 <b>42 個失敗<em>全部</em>是「把平衡樹判成不平衡」(false-BAD)</b> —— <strong>一個漏抓都沒有</strong>。最小反例 <code>[1,1,1,null,null,1,1]</code>:高度平衡 ✓,但左子樹 1 個節點、右子樹 3 個節點,<strong>節點數差 2</strong> ✗。<br><br>
+  <strong>為什麼嚴格得多:</strong>高度只看<strong>最長的那條路</strong>,節點數看的是<strong>整棵子樹的量</strong>。一棵高度 3 的子樹可以有 3 個節點(一條鏈),也可以有 7 個(完美樹)—— <b>高度相同,節點數可以差很多</b>。所以「節點數平衡 ⇒ 高度平衡」,但<strong>反過來不成立</strong>。<br><br>
+  <b>順帶一提,這個「錯誤」其實是一個<em>真實存在</em>的資料結構條件</b>,叫做<strong>權重平衡(weight-balanced)</strong>,用在某些平衡樹的實作裡。<strong>它不是「壞掉的高度平衡」,而是「另一種更強的平衡定義」</strong> —— 只是這題要的不是它。<br><br>
+  <b>「知道 bug 的方向」比「知道它錯幾筆」有用得多:</b><br>
+  · <strong>過嚴</strong>(只誤殺)→ 你的測資裡要有<strong>「形狀不對稱但仍平衡」</strong>的樹才抓得到。<br>
+  · <strong>過鬆</strong>(只漏抓,例如「只看根」)→ 要有<strong>「不平衡藏在深處」</strong>的樹才抓得到。<br>
+  <strong>兩種 bug 需要的測資完全不同</strong> —— 這就是為什麼本頁的陷阱表要窮舉所有樹形,而不是挑幾筆。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>回傳 <code>pair&lt;int,bool&gt;</code>,把「高度」和「平衡與否」分成兩個欄位。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">pair&lt;int, bool&gt; check(TreeNode* root) {
+    if (root == nullptr) {
+        return {0, true};
+    }
+
+    auto [leftHeight,  leftOk]  = check(root-&gt;left);
+    auto [rightHeight, rightOk] = check(root-&gt;right);
+
+    int  height = 1 + max(leftHeight, rightHeight);
+    bool ok     = leftOk &amp;&amp; rightOk &amp;&amp; abs(leftHeight - rightHeight) &lt;= 1;
+
+    return {height, ok};
+}
+// isBalanced(root) 就是 check(root).second</pre>
+  <strong>為什麼更通用:它不依賴「值域裡剛好有個不可能的值」。</strong><br><br>
+  <strong><code>−1</code> 技巧會失效的情況:</strong><br>
+  ① <strong>合法值域包含負數</strong>。例如題目改成「節點帶權重,高度是路徑上的權重和」,權重可以是負的 —— 這時 <code>−1</code> 就是一個<strong>合法的高度</strong>,哨兵和真實值混在一起,<strong>整個技巧崩潰</strong>。<br>
+  ② <strong>要回傳的東西不只一個</strong>。例如同時要高度和節點數,你就沒有第二個哨兵可用了。<br>
+  ③ <strong>別人來維護時容易誤解</strong> —— <code>−1</code> 是什麼意思要靠註解,<code>{height, ok}</code> 則自我說明。<br><br>
+  <b>代價:<code>pair</code> 版少了「早退」</b>(上面這寫法會把兩邊都算完)。<strong>要保留早退就在拿到 <code>leftOk == false</code> 時直接 <code>return {0, false};</code></strong> —— 兩者可以兼得。<br><br>
+  <b>一般原則:哨兵值是「借用值域的空隙」,而 <code>pair</code>/<code>struct</code> 是「誠實地擴充回傳型別」。</b>前者短、後者穩;<strong>值域一旦變寬,前者就得改寫。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>把回傳型別換成節點指標,並確保「回報最先發現的那一個」。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">TreeNode* culprit = nullptr;      // 第一個不平衡的節點
+
+int check(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    int left  = check(root-&gt;left);
+    int right = check(root-&gt;right);
+
+    if (culprit == nullptr &amp;&amp; abs(left - right) &gt; 1) {
+        culprit = root;           // 只記第一個,之後不再覆蓋
+    }
+
+    return 1 + max(left, right);
+}</pre>
+  <b>關鍵在 <code>culprit == nullptr</code> 這個守衛</b>:沒有它,<strong>後來發現的不平衡節點會蓋掉先發現的</strong>。<br><br>
+  <strong>但「第一個」是什麼意思?這裡要講清楚。</strong>因為這是<strong>後序</strong>走訪,「最先被發現」的是<strong>最深、最左</strong>的那個不平衡節點 —— <b>不是「離根最近」的那個</b>。<br><br>
+  <strong>如果你要的是「離根最近的不平衡節點」</strong>,那就<strong>不能用早退</strong>,要改成<strong>由上往下</strong>檢查:<strong>從根開始,第一個高度差 &gt; 1 的節點就是答案</strong>(而它上面的祖先都通過了)。<b>這正好是你原本那份「由上往下」寫法的優勢 —— 它天然就是從根往下檢查的順序。</b><br><br>
+  <b>一般原則:「回傳第一個違規者」這種需求,一定要先問清楚「第一個」是按哪種走訪順序定義的。</b>不同的順序需要不同的骨架,而且兩者都合理 —— <strong>這是值得在面試裡主動澄清的問題</strong>。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>「差 ≤ k」只要改一個常數;「節點數差 ≤ 1」則要換掉回傳的量。</strong><br><br>
+  <strong>① 高度差 ≤ <code>k</code>:</strong>把 <code>abs(left − right) &lt;= 1</code> 改成 <code>&lt;= k</code>,<strong>其他一個字都不用動</strong>。<br>
+  值得注意的是 <code>k</code> 會影響「不平衡有多難出現」:<code>k = 0</code> 要求<strong>完全等高</strong>(只有完美樹通過);<code>k</code> 越大條件越鬆,<strong><code>k ≥ n</code> 時所有樹都通過</strong>。<b>實測 <code>k = 0</code>(也就是把 <code>&lt;= 1</code> 寫成 <code>&lt; 1</code>)錯 64/2056,全部是誤殺</b> —— 和 A5 一樣是「過嚴」型的錯誤。<br><br>
+  <strong>② 節點數差 ≤ 1(權重平衡):</strong>要把遞迴回傳的東西<strong>從「高度」換成「節點數」</strong>:<br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int size(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    return 1 + size(root-&gt;left) + size(root-&gt;right);   // max 換成 +
+}</pre>
+  <b>注意合併運算從 <code>max</code> 變成 <code>+</code></b> —— 這正是 <a href="../p104/review.html">104 的 A5</a> 提過的:<strong>同一個骨架,換掉合併運算就換一題</strong>(<code>max</code> → 樹高、<code>+</code> → 節點數)。<br><br>
+  <strong>為什麼節點數版更嚴格:</strong>高度只看<strong>最長的那條路</strong>,節點數看<strong>整棵子樹的量</strong>。高度 3 的子樹可以有 3 個節點(鏈)也可以有 7 個(完美樹)—— <b>所以「節點數平衡 ⇒ 高度平衡」,反之不成立</b>。<strong>實測</strong>:用節點數判斷會把 <strong>42/2056</strong> 棵<em>真正平衡</em>的樹誤判成不平衡,<strong>而且一個漏抓都沒有</strong> —— 正是「嚴格得多」的實證。<br><br>
+  <b>這個更強的條件在實務上有名字:權重平衡樹(weight-balanced tree)</b>,某些平衡樹實作用的就是它,因為它能給出比高度平衡更強的操作成本保證。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">「每一個節點」五個字就是全部 —— 漏掉錯 164/2056 而 n≤5 全對。短路運算子會改變複雜度分析:由上往下在退化鏈上是線性的,真正的最壞是平衡樹的 O(n log n)。一個 bug 會不會造成傷害,取決於下游怎麼用那個值。</div>
+    <div class="sc-summary-bar__detail">BALANCED BINARY TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>
