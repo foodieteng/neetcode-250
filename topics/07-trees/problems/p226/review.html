@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>226 · Invert Binary Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P226</span>
+    <span><a href="https://leetcode.com/problems/invert-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">翻轉二元樹</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 226</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>翻轉 = 鏡射 = <strong>每個節點交換自己的兩根子樹指標</strong></td></tr>
+        <tr><td>最關鍵的區別</td><td><strong>換指標,不是換值</strong> —— 換值錯 <strong>194/197</strong></td></tr>
+        <tr><td>為什麼</td><td>換一根指標<strong>就搬動整棵子樹</strong>;換值只搬得動一個節點</td></tr>
+        <tr><td>驗證恆等式</td><td><code>inorder(invert(T)) == reverse(inorder(T))</code> —— 實測 <strong>2056/2056</strong></td></tr>
+        <tr><td><strong>不能</strong>用的類比</td><td>前序版<strong>不成立</strong>,只中 <strong>2/2056</strong>(前序把根釘在第一個)</td></tr>
+        <tr><td>翻兩次</td><td><code>invert(invert(T)) == T</code> —— 實測 <strong>2056/2056</strong>(是自身的反函數)</td></tr>
+        <tr><td>不是陷阱的事</td><td><strong>先 swap 再遞迴也對</strong>(實測 0/197 失敗)—— 翻轉是「上下無關」的</td></tr>
+        <tr><td>原地性</td><td><strong>零配置</strong>:2000 棵樹位址集合守恆;回傳指標<strong>恆為傳入的 root</strong></td></tr>
+        <tr><td>手寫 swap</td><td>沒暫存會<strong>弄丟節點</strong>或<strong>製造別名</strong> —— 兩種病狀都實測到了</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(n)</code>(呼叫 2n+1 次),空間 <code>O(h)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼要交換<strong>子樹指標</strong>而不是交換<strong>節點的值</strong>?請給<strong>最小反例</strong>,並說出換值會犯的<strong>兩種</strong>病。</div>
+
+    <div class="qa"><strong>Q2.</strong> 如果把 <code>swap</code> <strong>移到兩個遞迴呼叫之前</strong>,還對嗎?為什麼?請給實測依據。</div>
+
+    <div class="qa"><strong>Q3.</strong> 怎麼<strong>驗證</strong>你的翻轉真的對了?請給一條<strong>可以直接寫成測試</strong>的恆等式,並說明<strong>為什麼不能用前序版</strong>。</div>
+
+    <div class="qa"><strong>Q4.</strong> 手寫 <code>swap</code> 時忘了暫存變數(<code>a = b; b = a;</code>),症狀是什麼?<strong>會當場崩潰嗎</strong>?</div>
+
+    <div class="qa"><strong>Q5.</strong> 程式碼裡的 <code>root-&gt;left = invertTree(root-&gt;left);</code> —— 這個<strong>回寫</strong>是必要的嗎?什麼情況下它<strong>會</strong>變成必要?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [4,2,7,1,3,6,9] → [4,7,2,9,6,3,1]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例。<strong>注意 swap 發生的順序是後序的</strong> ——
+      <code>1 → 3 → 2 → 6 → 9 → 7 → 4</code>,<strong>根在最後</strong>。
+      <strong>以下每一步都是實跑印出來的。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 左半邊:下潛到底,然後回程 swap</span>
+ENTER invertTree(node 4)              // 根,先不動
+  ENTER invertTree(node 2)            // 也先不動
+    ENTER invertTree(node 1)
+      invertTree(null) → return nullptr
+      invertTree(null) → return nullptr
+    ★ SWAP 於 node 1:  L=null &lt;-&gt; R=null      (葉子,無效果)
+    RETURN node 1
+    ENTER invertTree(node 3)
+      invertTree(null) ×2 → return nullptr
+    ★ SWAP 於 node 3:  L=null &lt;-&gt; R=null      (葉子,無效果)
+    RETURN node 3
+  ★ SWAP 於 node 2:  L=子樹(1) &lt;-&gt; R=子樹(3)   ← 第一次真的動到東西
+  RETURN node 2                       // 2 現在是 (3, 1)
+<span class="sc-trace__out">// 葉節點也照樣執行 swap,只是交換兩個 nullptr —— 程式碼裡沒有葉節點的特判</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 右半邊:完全相同的流程</span>
+  ENTER invertTree(node 7)
+    ENTER invertTree(node 6)
+      invertTree(null) ×2 → return nullptr
+    ★ SWAP 於 node 6:  無效果
+    RETURN node 6
+    ENTER invertTree(node 9)
+      invertTree(null) ×2 → return nullptr
+    ★ SWAP 於 node 9:  無效果
+    RETURN node 9
+  ★ SWAP 於 node 7:  L=子樹(6) &lt;-&gt; R=子樹(9)
+  RETURN node 7                       // 7 現在是 (9, 6)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 最後一步:根</span>
+★ SWAP 於 node 4:  L=子樹(2) &lt;-&gt; R=子樹(7)
+   注意此時 子樹(2) 已經是 (3,1)、子樹(7) 已經是 (9,6)
+   → 根只需要把「這兩整塊」對調,不必管它們內部長什麼樣
+RETURN node 4</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return root = [4,7,2,9,6,3,1]
+
+統計:16 次 invertTree() 進入(7 實節點 + 8 個 nullptr = 2n+1 = 2×7+1 ✓)
+      7 次 SWAP(每個實節點一次;其中 4 次發生在葉子上,交換 null &lt;-&gt; null 無效果)
+      SWAP 順序:1 → 3 → 2 → 6 → 9 → 7 → 4   ← 完全是後序,根在最後
+<span class="sc-trace__out">// 全程零配置:節點位址集合前後完全相同,回傳的就是傳進來的那個 root</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>用中序檢查這個結果</strong>:原樹中序 = <code>[1,2,3,4,6,7,9]</code>,
+      翻轉後中序 = <code>[9,7,6,4,3,2,1]</code> —— <strong>恰好是倒序</strong> ✓。
+      <b>這就是 <code>inorder(invert(T)) == reverse(inorder(T))</code> 的具體樣子,
+      也是你在面試現場最快能自我驗證的方法。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用<strong>迭代</strong>寫翻轉(不准遞迴)。用 BFS 還是 DFS?程式碼骨架長什麼樣?</div>
+
+    <div class="qa"><strong>App 2.</strong> 判斷一棵樹是不是<strong>左右對稱</strong>(LeetCode 101)。能不能「翻轉右子樹然後比較兩邊相等」?這樣做<strong>有什麼副作用</strong>?更好的做法是什麼?</div>
+
+    <div class="qa"><strong>App 3.</strong> 節點數放大到 <code>10⁵</code>,而且測資含<strong>退化成鏈</strong>的樹。這份遞迴會怎樣?請給實測依據。</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為換一根指標就搬動整棵子樹,換值只搬得動一個節點。最小反例是 <code>[1,null,2]</code>。</strong><br><br>
+  <strong>病一:單邊子樹時,swap 根本不會發生。</strong><code>[1,null,2]</code> 只有右小孩,<code>root-&gt;left</code> 是 <code>nullptr</code>。想換值就得寫 <code>swap(root-&gt;left-&gt;val, root-&gt;right-&gt;val)</code> —— <strong>解參考 <code>nullptr</code> 直接爆</strong>。加上「兩邊都非空才換」的保護之後,它就<strong>什麼都不做</strong>了:輸出 <code>[1,null,2]</code>,正解是 <code>[1,2]</code>。<br><br>
+  <strong>病二:就算兩邊都在,換值也只換了「一個節點的內容」,形狀完全沒動。</strong>任何<strong>左右形狀不同</strong>的樹都會壞掉。<br><br>
+  <strong>實測</strong>:窮舉 197 種樹形<strong>錯 194 種</strong>。巧合對的只有 3 種:<code>[]</code>、<code>[1]</code>、<code>[1,2,3]</code> —— <b>而 <code>[1,2,3]</code> 過關純屬巧合</b>(兩個孩子都是葉節點,換值和換子樹剛好結果相同)。只要任一孩子有自己的後代、或某節點只有一個孩子,<strong>立刻現形</strong>。<br><br>
+  <b>一句話:指標是「整棵子樹的把手」,值只是一個節點的內容物。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>還是對的 —— 實測窮舉 197 種樹形,失敗 0 種。</strong><br><br>
+  這常被誤當成陷阱,擔心「先換了,遞迴進去的不就是<strong>已經被搬過</strong>的孩子嗎?」<br><br>
+  <strong>為什麼沒問題:翻轉是「上下無關」的操作。</strong><br>
+  · <code>swap(root-&gt;left, root-&gt;right)</code> 動的是 <strong><code>root</code> 自己的兩根指標</strong>。<br>
+  · <code>invertTree(子樹)</code> 動的是 <strong>子樹「內部」的指標</strong>。<br>
+  <strong>兩者碰的是不同的東西,互不干擾。</strong>而且每個孩子「要被翻成什麼樣子」<strong>只取決於它自己的結構</strong>,和「它現在掛在左邊還是右邊」<strong>完全無關</strong> —— 所以先換再各自翻、和先各自翻再換,<strong>結果同構</strong>。<br><br>
+  <b>對比:這一點和 <a href="../p145/index.html">145 後序</a>那類題目正好相反。</b>在 104(求深度)、110(判平衡)、543(求直徑)裡,「自己的答案<strong>依賴</strong>子樹的答案」,<strong>順序就是死的,必須後序</strong>。而翻轉<strong>不依賴</strong>子樹的任何回傳資訊,所以順序自由。<br><br>
+  <b>判斷法則:問「我這一步需要子樹先算出什麼東西給我嗎?」需要 → 順序固定;不需要 → 順序自由。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>用中序:<code>inorder(invert(T)) == reverse(inorder(T))</code>。</strong><br><br>
+  這是「鏡射」的一個<strong>可以直接寫成測試</strong>的定義:把樹左右照鏡子之後,由左而右讀出來的順序,恰好是原本的<strong>倒序</strong>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..8</code> 全部 <strong>2056 棵樹</strong>,<strong>命中 2056/2056</strong>,零反例。<br><br>
+  用本頁的範例驗算:原樹中序 <code>[1,2,3,4,6,7,9]</code> → 翻轉後中序 <code>[9,7,6,4,3,2,1]</code> ✓。<br><br>
+  <strong>為什麼不能用前序:</strong><code>preorder(invert(T)) == reverse(preorder(T))</code> <strong>只命中 2/2056</strong>(只有 <code>n ≤ 1</code> 的平凡情形)。<br>
+  <b>原因很直接:前序<em>把根釘在第一個</em>,但反轉會<em>把根丟到最後</em></b> —— 這兩件事天生矛盾,只有在「頭尾同一格」(單節點)時才碰巧相容。最小反例 <code>[1,null,2]</code>:<code>preorder = [1,2]</code>、<code>reverse = [2,1]</code>,但 <code>preorder(invert) = [1,2]</code>。<br><br>
+  <strong>只有中序撐得住反轉</strong>,因為它的結構是 <code>[左 | 根 | 右]</code> —— <strong>根在中間、左右對稱</strong>,鏡射之後就變成 <code>[右' | 根 | 左']</code>,整個反轉剛好對上。<br><br>
+  <b>另一條也很好用的性質:<code>invert(invert(T)) == T</code>(實測 2056/2056)</b> —— 翻兩次會還原,所以 <code>invert</code> 是自身的反函數。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>症狀有兩種,而且<em>都不會當場崩潰</em> —— 這才是最麻煩的地方。</strong><br><br>
+  錯誤寫法:<code>root-&gt;left = root-&gt;right;</code> 然後 <code>root-&gt;right = root-&gt;left;</code>。第二行讀到的 <code>left</code> <strong>已經被第一行改掉了</strong>,所以等於 <code>right = right</code>。<br><br>
+  <strong>實測兩種病狀(都是真的量出來的):</strong><br>
+  ① <strong>弄丟節點</strong> —— <code>[1,2]</code>(只有左孩子):distinct 節點數 <code>before = 2 → after = <strong>1</strong></code>。左子樹被 <code>nullptr</code> 覆蓋,那個節點<strong>從樹上消失、也沒被釋放 = 記憶體洩漏</strong>。<br>
+  ② <strong>製造別名</strong> —— <code>[1,null,2]</code>(只有右孩子):輸出印成 <code>[1,2,2]</code>。<strong>同一個節點同時掛在 <code>left</code> 和 <code>right</code> 兩個槽</strong>,節點數「看起來」從 2 變成 3。<br><br>
+  <strong>為什麼「不崩潰」比崩潰更糟:</strong>兩種病狀都是<strong>答案悄悄變錯</strong>,不是拋例外。而別名共享在真實系統裡更危險 —— <b>之後要釋放這棵樹時會 <code>delete</code> 同一個節點兩次(double free)</b>,那時才崩,而且崩在離現場很遠的地方。<br><br>
+  <strong>修法</strong>:直接用 <code>std::swap(root-&gt;left, root-&gt;right)</code>;非要手寫就三行,<strong>先存 <code>tmp</code></strong>。實測窮舉 197 種樹形,這個 bug 錯 <strong>195 種</strong>,只有 <code>[]</code> 和 <code>[1]</code> 倖免。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>在這題是冗餘的;但在「會替換節點」的操作裡就變成必要。</strong><br><br>
+  <strong>為什麼這題冗餘</strong>:<code>invertTree()</code> 回傳的<strong>永遠就是傳進去的那個指標</strong> —— 它只交換孩子,<strong>從不建立或替換節點</strong>。實測 2000 棵隨機非空樹,<code>invertTree(root) == root</code> <strong>命中 2000/2000</strong>。所以 <code>root-&gt;left = invertTree(root-&gt;left)</code> 實際等於 <code>root-&gt;left = root-&gt;left</code>,寫成下面這樣完全等價:<br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">invertTree(root-&gt;left);
+invertTree(root-&gt;right);
+swap(root-&gt;left, root-&gt;right);</pre>
+  <strong>什麼時候會變成必要 —— 當遞迴「可能回傳不同的節點」時。</strong>典型例子:<br>
+  · <strong>BST 插入</strong>(LeetCode 701):往空位插入時<strong>會 new 一個新節點</strong>,那個新節點必須被<strong>接回父節點</strong>,靠的就是 <code>root-&gt;left = insert(root-&gt;left, val);</code>。<br>
+  · <strong>BST 刪除</strong>(LeetCode 450):刪掉一個節點後,<strong>子樹的根會換人</strong>,同樣得靠回寫接回去。<br>
+  · <strong>刪除葉節點</strong>(LeetCode 1325):子樹可能整棵消失變成 <code>nullptr</code>。<br><br>
+  <b>這個「<code>node-&gt;child = recurse(node-&gt;child)</code>」的回寫模式,是所有「會改變樹結構」的遞迴的標準骨架。</b>它讓「這一層可能換掉子樹的根」這件事<strong>自動被處理掉</strong>,不必在父節點裡寫一堆 if。<br><br>
+  <b>面試時值得主動說</b>:「這個回寫在本題是冗餘的,因為節點不會被替換;但我習慣這樣寫,因為換成 BST 插入或刪除時它就是必要的。」</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>BFS 或 DFS 都可以 —— 因為順序無關(見 A2),隨便挑一個好寫的。</strong><br><br>
+  <strong>BFS 版(用 <code>queue</code>,最直觀):</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr) return nullptr;
+
+    queue&lt;TreeNode*&gt; q;
+    q.push(root);
+
+    while (!q.empty()) {
+        TreeNode* curr = q.front();
+        q.pop();
+        swap(curr-&gt;left, curr-&gt;right);      // 出隊就換,順序無所謂
+
+        if (curr-&gt;left)  q.push(curr-&gt;left);
+        if (curr-&gt;right) q.push(curr-&gt;right);
+    }
+
+    return root;
+}</pre>
+  <strong>把 <code>queue</code> 換成 <code>stack</code> 就是 DFS 版,其他一個字都不用改</strong> —— <b>這正是「翻轉是上下無關操作」的最好證明:走訪順序完全不影響結果。</b>(對比:如果是求深度或判平衡,你就<strong>不能</strong>這樣隨便換,因為那些需要子樹先回報結果。)<br><br>
+  <strong>複雜度</strong>:時間仍是 <code>O(n)</code>。空間變成 <code>O(w)</code>(w = 最大寬度)而不是 <code>O(h)</code> —— <b>對<em>平衡</em>樹來說 BFS 其實更耗空間</b>(最底層有 n/2 個節點),對<strong>退化鏈</strong>則相反(BFS 佇列裡永遠只有 1 個)。<strong>迭代版的真正好處不是省空間,是不會 stack overflow</strong>(<code>queue</code> 用的是 heap)。<br><br>
+  上面這個 BFS 版正是本頁對拍用的<strong>獨立參考解</strong> —— 20 萬組零不一致。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>可以,但會「改壞輸入」;更好的做法是寫一個「鏡像比較」的雙參數遞迴。</strong><br><br>
+  <strong>「翻轉右子樹再比較」的做法</strong>:<code>invert(root-&gt;right)</code>,然後檢查 <code>isSameTree(root-&gt;left, root-&gt;right)</code>。<strong>邏輯上正確</strong>,因為對稱的定義就是「左子樹 = 右子樹的鏡像」。<br><br>
+  <strong>副作用:它把輸入改壞了。</strong>函式回傳時,原樹的右半邊<strong>已經被翻掉</strong>,整棵樹<strong>不再是原來那棵</strong>。這是一個<strong>純查詢函式產生了寫入的副作用</strong> —— <b>在面試裡一定要主動說出來</b>,並補一句「如果呼叫端還要用這棵樹,我會在回傳前再翻一次還原」。而且它還多跑了一趟 <code>O(n)</code>。<br><br>
+  <strong>更好的做法 —— 直接寫「鏡像比較」,不修改任何東西:</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">bool isMirror(TreeNode* a, TreeNode* b) {
+    if (a == nullptr &amp;&amp; b == nullptr) return true;
+    if (a == nullptr || b == nullptr) return false;
+
+    return a-&gt;val == b-&gt;val
+        &amp;&amp; isMirror(a-&gt;left,  b-&gt;right)     // 交叉比較!
+        &amp;&amp; isMirror(a-&gt;right, b-&gt;left);
+}
+// isSymmetric(root) 就是 root == nullptr || isMirror(root-&gt;left, root-&gt;right)</pre>
+  <b>關鍵在那兩行「交叉」</b>:<code>a</code> 的左要和 <code>b</code> 的<strong>右</strong>比。<strong>「交叉遞迴」本身就表達了鏡像</strong>,所以完全不需要真的去翻轉任何東西。時間 <code>O(n)</code>、空間 <code>O(h)</code>,<strong>而且不碰輸入</strong>。<br><br>
+  <b>一般原則:能用「比較」表達的,就不要用「修改再比較」—— 少一個副作用就少一類 bug。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>這份遞迴在 <code>10⁵</code> 的退化鏈上<em>還撐得住</em> —— 我量過臨界值是 26 萬層。</strong><br><br>
+  <strong>實測數字</strong>:每層 <strong>64 bytes</strong>(n=5000 的鏈量到 320224 bytes,收斂到 64.0),系統 <code>ulimit -s = 8176 KB</code>。<strong>二分實測崩潰臨界:261327 層存活、261718 層 SIGSEGV。</strong><br><br>
+  所以 <code>10⁵ = 100000 &lt; 261327</code> —— <b>會過,但餘裕只剩 2.6 倍</b>。<br><br>
+  <strong>但我不會直接說「安全」,因為這個數字不可移植:</strong><br>
+  ① 崩潰臨界完全取決於 <code>ulimit -s</code>。評測機常見的 <strong>1 MB 或 512 KB</strong> 堆疊會把臨界壓到 <strong>三萬多層 / 八千層</strong> —— <code>10⁵</code> 就<strong>過不了</strong>。<br>
+  ② frame 大小取決於編譯器和最佳化等級。同一份程式碼,<strong>加了量測探針就從 64 bytes 變成 80</strong>,臨界跟著往下掉。<b>「在我機器上跑得過」對這類問題不算證據。</b><br><br>
+  <strong>我會怎麼改 —— 換成 App 1 的迭代版。</strong>理由:<code>queue</code>/<code>stack</code> 的儲存在<strong>堆積</strong>上,<strong>上限是可用記憶體而不是 8 MB</strong>。空間複雜度沒有變好(<code>O(w)</code> 對 <code>O(h)</code>,平衡樹上 BFS 甚至更耗),<b>但它不會 stack overflow</b> —— <strong>同樣的複雜度、不同的失敗模式</strong>。<br><br>
+  <b>面試講法:「這題 n ≤ 100,遞迴有 2613 倍餘裕,我會直接寫遞迴。如果 n 到 10⁵ 而且樹可能退化,我會改迭代 —— 呼叫堆疊有硬上限,heap 沒有。」</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">指標是整棵子樹的把手,值只是一個節點的內容物 —— 所以換指標不換值。翻轉是「上下無關」的,順序自由;但 104/110/543 那類「自己的答案依賴子樹」的題目,順序就是死的。驗證用中序,不能用前序。</div>
+    <div class="sc-summary-bar__detail">INVERT BINARY TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>

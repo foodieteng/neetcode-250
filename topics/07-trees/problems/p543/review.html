@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>543 · Diameter of Binary Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P543</span>
+    <span><a href="https://leetcode.com/problems/diameter-of-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的直徑</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 543</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心陷阱</td><td><strong>直徑不一定通過根</strong> —— 實測 <strong>48/626</strong> 種樹形不通過</td></tr>
+        <tr><td>為何難發現</td><td><code>n ≤ 5</code> 的 65 種樹形<strong>全部碰巧正確</strong>,最小反例要 <code>n = 6</code></td></tr>
+        <tr><td>正確性論證</td><td><strong>每條路徑都有唯一的「最高點」</strong> ⇒ 在每個節點試一次<strong>不漏也不重</strong></td></tr>
+        <tr><td>兩行的差別</td><td>穿過我 = <code>left + right</code>;往上延伸 = <code>1 + max(left, right)</code></td></tr>
+        <tr><td>為什麼</td><td><strong>路徑不能在同一個節點分岔兩次</strong></td></tr>
+        <tr><td>單位</td><td>回傳「節點數高度」但 <code>left+right</code> 出來是<strong>邊數</strong> —— 混用剛好正確</td></tr>
+        <tr><td>驗證</td><td><code>n = 1</code> 單節點回傳 <strong>0</strong>(不是 1);實測 2055/2055 = 節點數 − 1</td></tr>
+        <tr><td><strong>真實隱患</strong></td><td><code>longestPath</code> 是成員變數且<strong>從不重置</strong> —— 同物件連呼兩次會錯</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(n)</code>(呼叫 2n+1 次),空間 <code>O(h)</code>,每層 48 bytes</td></tr>
+        <tr><td>答案只看形狀</td><td>與節點值<strong>完全無關</strong> —— 2000 組三種值集實測答案相同</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼不能只算「根節點的左高 + 右高」?請說出<strong>為什麼手畫幾棵小樹永遠發現不了這個 bug</strong>,並給實測數字。</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼更新全域最大時用 <code>left + right</code>,但回傳給父節點時卻用 <code>1 + max(left, right)</code>?這兩個為什麼<strong>不能一樣</strong>?</div>
+
+    <div class="qa"><strong>Q3.</strong> 「在每個節點都試一次」為什麼<strong>保證不會漏掉任何路徑</strong>,也<strong>不會重複計算</strong>?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>path()</code> 回傳的是「節點數」,但 <code>longestPath</code> 要的是「邊數」。這樣<strong>混用不會錯嗎</strong>?請用 <code>n = 1</code> 驗證你的說法。</div>
+
+    <div class="qa"><strong>Q5.</strong> 這份程式碼有一個 <strong>LeetCode 抓不到、但真實使用會出錯</strong>的問題。是什麼?怎麼修?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,3,4,5] → 3</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例:根 <code>1</code>;<code>1.left=2, 1.right=3</code>;<code>2.left=4, 2.right=5</code>。
+      <code>longestPath</code> 起始 <code>0</code>。<strong>以下每一步都是實跑印出來的。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 兩個葉節點:候選都是 0,不更新</span>
+ 1. ENTER path(node 1)
+ 2.   ENTER path(node 2)
+ 3.     ENTER path(node 4)
+ 4.       path(4.left)  → nullptr, return 0
+ 5.       path(4.right) → nullptr, return 0
+ 6.     節點 4:  left=0  right=0
+              候選 = 0+0 = 0     longestPath 0 → 0(不變)
+              return 1 + max(0,0) = 1
+ 7.     ENTER path(node 5)
+ 8.       path(5.left) / path(5.right) → return 0, 0
+10.     節點 5:  left=0  right=0
+              候選 = 0          longestPath 0 → 0(不變)
+              return 1
+<span class="sc-trace__out">// 葉節點的候選恆為 0 —— 「穿過一個葉節點」的路徑長度是 0 條邊</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 節點 2:第一次更新</span>
+11. 節點 2:  left=1  right=1
+           候選 = 1+1 = 2       longestPath 0 → 2   ★ 更新
+           return 1 + max(1,1) = 2
+
+這個 2 對應的路徑是  4 → 2 → 5,共 2 條邊
+注意:它「穿過節點 2」,完全沒有碰到根節點
+<span class="sc-trace__out">// 如果這棵樹的右子樹再深一點,這條路徑就會是最終答案 —— 而「只看根」會漏掉它</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 節點 3 與根:第二次更新</span>
+12. ENTER path(node 3)
+13.   path(3.left) / path(3.right) → return 0, 0
+15. 節點 3:  left=0  right=0
+           候選 = 0             longestPath 2 → 2(不變)
+           return 1
+
+16. 節點 1(根):  left=2  right=1
+                候選 = 2+1 = 3   longestPath 2 → 3   ★ 更新
+                return 1 + max(2,1) = 3
+
+這個 3 對應的路徑是  4 → 2 → 1 → 3,共 3 條邊
+<span class="sc-trace__out">// 這一題根「剛好」贏了 —— 但那是這棵樹的性質,不是一般規律</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return longestPath = 3
+
+統計:11 次 path() 呼叫(5 實節點 + 6 個 nullptr = 2n+1 = 2×5+1 ✓)
+      5 次「試算候選」(每個實節點一次)
+      2 次「真的更新」(節點 2 的 0→2、根的 2→3)
+      最大遞迴深度 3
+<span class="sc-trace__out">// 5 次試算裡只有 2 次真的改變了答案 —— 但你必須「五次都試」才知道是哪兩次</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這棵範例樹其實「不夠壞」</strong> —— 它的直徑剛好通過根,
+      所以<strong>連「只看根」的錯誤寫法都會給出正確答案 3</strong>。
+      <b>要真正測出這題的核心陷阱,你需要
+      <a href="code.html">程式碼頁</a>裡那棵手工構造的樹</b>:
+      一邊很淺、另一邊掛著一個內部的深分岔。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成回傳<strong>直徑那條路徑本身</strong>(節點序列),而不只是長度。要怎麼做?</div>
+
+    <div class="qa"><strong>App 2.</strong> 用這題的骨架寫 <strong>LeetCode 124 二元樹最大路徑和</strong>(Hard)。要改哪裡?<strong>新增的唯一難題</strong>是什麼?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果樹的節點可以有<strong>任意多個小孩</strong>(N 元樹),直徑要怎麼算?<code>left + right</code> 要換成什麼?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為最長路徑可能整條落在某棵子樹裡,完全不碰根 —— 而這種形狀最少需要 6 個節點。</strong><br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..7</code> 全部 <strong>626 種樹形</strong>,統計「直徑 &gt; 根的左高+右高」:<br>
+  · <code>n = 0,1,2,3,4,5</code> → <strong>各 0 種</strong>(全部 65 種樹形都通過根!)<br>
+  · <code>n = 6</code> → <strong>8 / 132</strong>　　· <code>n = 7</code> → <strong>40 / 429</strong><br>
+  合計 <strong>48 / 626 = 7.67%</strong>。<br><br>
+  <b>「<code>n ≤ 5</code> 全部碰巧正確」就是這個 bug 難發現的原因。</b>你在紙上畫的例子幾乎都是 3~5 個節點,<strong>那個範圍裡「只看根」永遠是對的</strong>。要露餡,你必須刻意造出<strong>「一邊很淺、另一邊掛著一條深的斜鏈」</strong>的不對稱形狀。<br><br>
+  <strong>最小反例 <code>[1,null,2,3,4,null,5,null,6]</code></strong>:「只看根」給 <strong>3</strong>,正解 <strong>4</strong>。<br><br>
+  <b>教訓有兩層:</b>① 題目敘述裡「<strong>不一定要通過根節點</strong>」那句話是<strong>明示的提示</strong>,讀題時不能滑過去;② <strong>「我手算了幾個例子都對」不是正確性的證據</strong> —— 本頁所有陷阱表都是窮舉 626 種樹形跑出來的,正是因為手算會系統性地漏掉這一族。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為「穿過我」和「從我往上」是兩件不同的事 —— 路徑不能在同一個節點分岔兩次。</strong><br><br>
+  <strong>更新用 <code>left + right</code>:</strong>「穿過我的最長路徑」可以<strong>從左子樹的最深處走上來、經過我、再走到右子樹的最深處</strong>。<strong>左右兩段都算數</strong>,所以是相加。<br><br>
+  <strong>回傳用 <code>1 + max(left, right)</code>:</strong>父節點接到的必須是<strong>一條路</strong>。如果我回報 <code>left + right</code>,父節點再往上接,那條「路徑」就會<strong>在我這裡分岔成兩支</strong> —— <b>那不是一條路徑,是一棵子樹。</b>所以往上回報時<strong>只能挑比較長的那一邊</strong>。<br><br>
+  <strong>實測互換的後果</strong>:<br>
+  · 更新誤用 <code>max</code> → 錯 <strong>280/626</strong>。它算的其實是<strong>樹高(邊數)</strong> —— 實測 626/626 與 <code>height − 1</code> 完全相符。<br>
+  · 回傳誤用 <code>+</code> → 錯 <strong>369/626</strong>。回傳值變成<strong>子樹的節點數</strong>。<br><br>
+  <b>記法:「+ 是給答案用的,max 是給父親用的」。</b>這個雙軌結構(<strong>一個值往上傳、另一個值進全域最大</strong>)在 124 最大路徑和裡一字不改地重現。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為每條路徑都有唯一的「最高點」。</strong><br><br>
+  <strong>定義</strong>:一條路徑的「最高點」= 路徑上<strong>離根最近</strong>的那個節點。任何一條路徑<strong>都恰好有一個</strong>(路徑是連通的,不可能有兩個都最高)。<br><br>
+  <strong>不會漏</strong>:設某條路徑的最高點是節點 <code>v</code>。那條路徑從 <code>v</code> 往左下走一段、往右下走一段(或只走一邊)。<strong>而我們在 <code>v</code> 上恰好算了 <code>left + right</code></strong> —— 也就是「從 <code>v</code> 往左最遠 + 往右最遠」,<b>它 ≥ 那條路徑的長度</b>。既然我們對<strong>每個節點</strong>都算了,<strong>每條路徑的最高點都輪到過</strong>。<br><br>
+  <strong>不會重</strong>:每條路徑<strong>只有一個</strong>最高點,所以它只會在那一個節點被算到一次。(就算重複算也不影響,因為取的是 <code>max</code> —— 但不重複讓論證更乾淨。)<br><br>
+  <strong>所以</strong>:<code>max</code> 遍歷所有節點 = <code>max</code> 遍歷所有路徑 = <strong>直徑</strong>。<br><br>
+  <strong>實測佐證</strong>:窮舉 626 種樹形與 <code>O(n²)</code> 暴力解(對每個節點各算一次左右高度)逐棵比對,<strong>不一致 0</strong>;隨機 20 萬組亦零不一致。<br><br>
+  <b>這個論證是可以直接搬到 124 的</b> —— 那題只是把「路徑長度」換成「路徑上的值總和」,「每條路徑有唯一最高點」這件事完全不變。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會錯 —— 而且 <code>n = 1</code> 正是最好的驗證。</strong><br><br>
+  <code>path()</code> 回傳「節點數高度」(葉節點回 1、空樹回 0)。但 <code>left + right</code> 出來的<strong>本來就是邊數</strong>,理由是:<br><br>
+  <code>left</code> 是「左子樹裡最長的<strong>節點數</strong>」。從<strong>我</strong>走到左子樹最深處,要經過:我 → 左小孩(<strong>1 條邊</strong>),左小孩再往下(<strong>left − 1 條邊</strong>)—— <strong>合計正好 <code>left</code> 條邊</strong>。<b>那個「節點數 → 邊數」的 −1,剛好被「我到左小孩」的 +1 抵消掉了。</b>右邊同理。<br><br>
+  <strong><code>n = 1</code> 的驗證</strong>:單節點樹,<code>left = right = 0</code>,候選 <code>= 0 + 0 = <strong>0</strong></code>。<b>正確 —— 一個節點的樹沒有任何邊,直徑是 0。</b>(如果單位搞錯了,這裡就會回 1 或 2。)<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..8</code> 全部 <strong>2055 棵樹</strong>,回傳值 <code>== (最長路徑的節點數) − 1</code> <strong>命中 2055/2055</strong>。<br><br>
+  <b>但這件事值得在面試時主動說一句</b>,因為<strong>它看起來很像 bug</strong>。實測「刻意把單位統一」的寫法(更新改成 <code>1 + left + right</code>)反而<strong>錯 625/626,而且是恆定 +1</strong> —— <strong>它算的是節點數,不是題目要的邊數。</strong></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong><code>longestPath</code> 是成員變數,而且<em>從不重置</em> —— 同一個 <code>Solution</code> 物件呼叫第二次就會錯。</strong><br><br>
+  它只在<strong>建構時</strong>初始化為 0,而 <code>max</code> 只會讓它<strong>單調變大</strong>。所以第二次呼叫的答案 <code>= max(兩棵樹的直徑)</code>,<strong>永遠 ≥ 正解</strong>。<br><br>
+  <strong>實測</strong>:<br>
+  <code>Solution s;</code><br>
+  <code>s.diameterOfBinaryTree([1,2,3,4,5]);</code> → <strong>3</strong> ✓<br>
+  <code>s.diameterOfBinaryTree([1,2]);</code> → <strong>3</strong> ✗(正解 <strong>1</strong>)<br>
+  最小反例對是 <code>T1 = [1,null,2]</code>、<code>T2 = [1]</code>,第二次回 1 而正解是 0。<br><br>
+  <b>為什麼 LeetCode 抓不到:它每個 test case 都會 <code>new</code> 一個全新的 <code>Solution</code></b>,所以這個 bug 在平台上<strong>完全隱形</strong>。但只要你自己寫一個跑多筆測資的 <code>main()</code>、或面試官現場說「那再跑這棵樹看看」,<strong>它就會當場現形</strong>。<br><br>
+  <strong>兩種修法:</strong><br>
+  ① <strong>最小改動</strong> —— 在 <code>diameterOfBinaryTree</code> 開頭加 <code>longestPath = 0;</code>。<br>
+  ② <strong>更乾淨</strong> —— 不用成員變數,改成<strong>區域變數 + 傳參考</strong>:<code>int best = 0; path(root, best); return best;</code>,helper 簽名加一個 <code>int&amp; best</code>。<br><br>
+  <b>寫法 ② 和 <a href="../p94/code.html">94 那題「<code>ans</code> 傳參考」是同一個手法</b>:<strong>把狀態放在呼叫端,而不是掛在物件上</strong> —— 這樣函式就沒有跨呼叫的殘留狀態,天生可重入。<b>面試時主動指出這一點,是很少見的加分項,因為它顯示你在想「這段程式碼會被怎麼<em>用</em>」,而不只是「它能不能過測資」。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>多記「在哪個節點取到最大值」,以及每個節點「往下最深的那條路」。</strong><br><br>
+  <strong>作法分兩步:</strong><br>
+  ① <strong>記錄最佳節點</strong>:更新全域最大時,順便把當時的節點存下來 ——<br>
+  <code>if (left + right &gt; longestPath) { longestPath = left + right; bestNode = root; }</code><br>
+  <b>注意這裡要用 <code>&gt;</code> 而不是 <code>max</code></b>,因為我們需要知道「是哪一次更新贏的」。<br><br>
+  ② <strong>從最佳節點往兩邊各走一次「最深路徑」</strong>:寫一個輔助函式,從 <code>bestNode</code> 出發,每一步<strong>挑高度較大的那個小孩</strong>走到底,分別得到左半段和右半段;把<strong>左半段反轉</strong>,接上 <code>bestNode</code>,再接右半段,就是完整路徑。<br><br>
+  <strong>要注意的細節:</strong>第 ② 步需要知道每個節點的高度才能「挑比較深的那邊」。<b>最省事的做法是在第一趟遞迴時就把高度存進一個 <code>unordered_map&lt;TreeNode*, int&gt;</code></b>,第二步直接查。這樣總複雜度仍是 <code>O(n)</code> 時間、<code>O(n)</code> 空間(多了那張表)。<br><br>
+  <b>一般原則:「求最佳值」和「求達成最佳值的方案」的差別,就是<em>在更新最大值時順便記下決策</em>。</b>這在 DP 題裡是完全一樣的手法(記 <code>parent</code> / <code>choice</code> 陣列再回溯)。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>骨架一字不改,唯一的新難題是「負數要不要」。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int best = INT_MIN;                 // ← 不能初始化成 0!
+
+int gain(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    int left  = max(gain(root-&gt;left),  0);   // ← 唯一的新東西
+    int right = max(gain(root-&gt;right), 0);
+
+    best = max(best, root-&gt;val + left + right);   // 穿過我:左右都要
+
+    return root-&gt;val + max(left, right);          // 往上:只能挑一邊
+}</pre>
+  <strong>對照 543,結構完全相同</strong>:中間一行更新全域最大(用 <code>+</code>),最後一行回報給父節點(用 <code>max</code>)。<br><br>
+  <strong>新增的唯一難題:子樹的貢獻可能是負的。</strong>543 裡「多走一段路」永遠讓路徑更長,所以左右都拿;但 124 裡<strong>如果某邊的最大貢獻是負數,那就<em>寧可不要</em></strong> —— 直接在這裡截斷。<b>這就是 <code>max(gain(...), 0)</code> 那個 <code>0</code> 的意思:「這一邊我可以選擇不走」。</b><br><br>
+  <strong>兩個容易錯的地方:</strong><br>
+  ① <code>best</code> <strong>不能初始化成 0</strong>。如果所有節點都是負數(例如 <code>[-3]</code>),答案應該是 <code>-3</code>,初始化成 0 會回 0。要用 <code>INT_MIN</code>,或直接用 <code>root-&gt;val</code>。<br>
+  ② <strong>截斷只用在「子樹的貢獻」上,不能用在「自己」上</strong> —— 路徑至少要包含一個節點,所以 <code>root-&gt;val</code> 一定要算進去,不管它是不是負的。<br><br>
+  <b>把 543 學透之後,124 真的只剩這一個新觀念</b> —— 這也是為什麼 543 標 Easy 而 124 標 Hard,但兩題的骨架完全相同。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong><code>left + right</code> 換成「所有小孩的高度裡<em>最大的兩個</em>相加」。</strong><br><br>
+  <strong>推廣的邏輯完全一樣</strong>:穿過節點 <code>v</code> 的最長路徑,是「從某個小孩的子樹最深處上來,經過 <code>v</code>,再下去另一個小孩的子樹最深處」。二元樹只有兩個小孩,所以就是 <code>left + right</code>;<strong>N 元樹要從所有小孩裡挑<em>最深的兩個</em></strong>。<br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int path(Node* root) {
+    if (root == nullptr) return 0;
+
+    int best1 = 0, best2 = 0;              // 最大與次大的小孩高度
+    for (Node* child : root-&gt;children) {
+        int h = path(child);
+        if (h &gt; best1) {
+            best2 = best1;
+            best1 = h;
+        } else if (h &gt; best2) {
+            best2 = h;
+        }
+    }
+
+    longestPath = max(longestPath, best1 + best2);   // 穿過我:最深的兩條
+    return 1 + best1;                                // 往上:只能挑最深那一條
+}</pre>
+  <b>注意 <code>best1</code> 和 <code>best2</code> 都初始化成 0</b> —— 這樣<strong>小孩少於兩個的情況會自動處理</strong>:只有一個小孩時 <code>best2 = 0</code>,候選就是 <code>best1 + 0</code>;葉節點兩個都是 0,候選 0。<b>又是「用一個中性值取代特判」的手法</b>,和二元樹版裡 <code>nullptr</code> 回傳 0 是同一招。<br><br>
+  <strong>複雜度不變</strong>:每個節點的小孩只被掃一次,總共掃過所有邊 → 仍是 <code>O(n)</code> 時間、<code>O(h)</code> 空間。<br><br>
+  <b>這正是圖論裡「樹的直徑」的標準解法</b>(另一個經典解法是「隨便找一點做 BFS 找最遠點 u,再從 u 做 BFS 找最遠點 v,<code>dist(u,v)</code> 就是直徑」—— 兩趟 BFS,不需要遞迴)。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每條路徑都有唯一的最高點,所以在每個節點試一次就不漏也不重。n≤5 全部碰巧正確,所以手算永遠發現不了「直徑不過根」——要窮舉才測得出來。成員變數不重置是 LeetCode 抓不到但真實會錯的隱患。</div>
+    <div class="sc-summary-bar__detail">DIAMETER OF BINARY TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>

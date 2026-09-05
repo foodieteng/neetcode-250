@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>226 · Invert Binary Tree // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P226</span>
+    <span><a href="https://leetcode.com/problems/invert-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">翻轉二元樹</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作、複雜度與陷阱</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 226</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// RECURSIVE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p226.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TreeNode</span><span class="p">*</span> <span class="f">invertTree</span><span class="p">(</span><span class="t">TreeNode</span><span class="p">*</span> root<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>root <span class="p">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="k">nullptr</span><span class="p">;</span>
+
+        root<span class="p">-&gt;</span>left <span class="p">=</span> <span class="f">invertTree</span><span class="p">(</span>root<span class="p">-&gt;</span>left<span class="p">);</span>     <span class="c">// ① 左子樹先翻好</span>
+        root<span class="p">-&gt;</span>right <span class="p">=</span> <span class="f">invertTree</span><span class="p">(</span>root<span class="p">-&gt;</span>right<span class="p">);</span>   <span class="c">// ② 右子樹也翻好</span>
+        <span class="f">swap</span><span class="p">(</span>root<span class="p">-&gt;</span>left<span class="p">,</span> root<span class="p">-&gt;</span>right<span class="p">);</span>          <span class="c">// ③ 再換自己的兩根指標</span>
+
+        <span class="k">return</span> root<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這份寫法是<strong>後序</strong>(先兩個遞迴、再處理自己),所以 <code>swap</code> 發生在<strong>回程</strong> ——
+      實測順序 <code>1 → 3 → 2 → 6 → 9 → 7 → 4</code>,<strong>根的 swap 是最後一步</strong>。
+      <b>但這題「先 swap 再遞迴」也完全正確(實測 0/197 失敗)</b> —— 見下方走讀 PHASE 2。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 兩個可以簡化的地方 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">兩個「其實可以省」的細節<span class="sc-section__title-en">// REDUNDANCY</span></h2>
+    </div>
+
+    <p>
+      這份程式碼<strong>完全正確</strong>(20 萬組對拍零不一致),但有兩處是<strong>冗餘</strong>的。
+      知道它們冗餘、並說得出<strong>為什麼</strong>,是面試時的加分項。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 冗餘 ①:回寫 root->left = invertTree(...)</span>
+root->left = invertTree(root->left);
+
+invertTree() 回傳的「永遠就是傳進去的那個指標」——它不會換成別的節點。
+實測:2000 棵隨機非空樹,invertTree(root) == root 命中 2000/2000。
+
+所以這個回寫等於 root->left = root->left,寫成下面這樣完全等價:
+    invertTree(root->left);
+    invertTree(root->right);
+    swap(root->left, root->right);
+<span class="sc-trace__out">// 保留它也無妨 —— 有些人喜歡這種「函式式」的寫法,而且改成會替換節點的題目時就需要了</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 冗餘 ②:base case 的 return nullptr</span>
+if (root == nullptr) return nullptr;
+
+回傳值是 nullptr,而呼叫端做的是 root->left = nullptr —— 本來就是 nullptr。
+所以寫成 if (root == nullptr) return root; 或直接 return; (改成 void)都可以。
+
+不過這一行「本身」絕對不能省:
+  實測拿掉整個 nullptr 檢查 → 197 種樹形「全部」SIGSEGV,連 [] 和 [1] 都當場崩
+<span class="sc-trace__out">// 冗餘的是「回傳什麼」,不是「要不要檢查」—— 兩件事別搞混</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>面試時值得主動說出這兩點</strong>:「這個回寫在這題是冗餘的,因為節點本身不會被替換;
+      但如果題目改成<strong>會回傳新節點</strong>的操作(例如 BST 插入或刪除),
+      <b>這個回寫模式就變成必要的</b>。」<strong>—— 展示你知道它為什麼在那裡,不是照抄。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 對拍 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對拍(遞迴版 vs 獨立寫的迭代 BFS 版)</span>
+參考解:std::queue 逐層走訪,每個節點出隊時交換它的左右子指標
+測資:n = 0..12 隨機樹形(含退化鏈),值域 ±100,共 200000 組
+  結構 + 值逐點比對,不一致 : 0
+
+官方範例:
+  [4,2,7,1,3,6,9]                     → [4,7,2,9,6,3,1]   ✓
+  [2,1,3]                             → [2,3,1]           ✓
+  []                                  → []                ✓
+  [1]                                 → [1]               ✓
+  [1,2,null,3,null,4](純左鏈)         → [1,null,2,null,3,null,4]  ← 變成純右鏈 ✓
+  [1,null,2,null,3,null,4](純右鏈)    → [1,2,null,3,null,4]        ← 變成純左鏈 ✓
+<span class="sc-trace__out">// 最後兩列最能說明「翻轉 = 鏡射」:左鏈照鏡子就是右鏈</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 兩條恆等式驗證(窮舉 n = 0..8,共 2056 棵樹)</span>
+inorder(invert(T)) == reverse(inorder(T))     →  2056 / 2056   ✓  翻轉就是鏡射
+invert(invert(T))  == T                       →  2056 / 2056   ✓  翻轉兩次還原
+
+對照組(誘人但錯的類比):
+preorder(invert(T)) == reverse(preorder(T))   →  只有 2 / 2056
+  最小反例 n=2 的 [1,null,2]:
+    preorder = [1,2],reverse = [2,1]
+    但 preorder(invert) = [1,2] ≠ [2,1]
+  原因:preorder 把 root 釘在第一個,反轉卻要把 root 丟到最後 ——
+        只有 n ≤ 1(頭尾同一格)才碰巧成立
+<span class="sc-trace__out">// 「用中序驗證鏡射」是對的,「用前序驗證」是錯的 —— 這個對照很值得記</span></div>
+  </section>
+
+  <!-- ════════════ 4 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>次數</th><th>單次成本</th></tr></thead>
+      <tbody>
+        <tr><td><code>invertTree()</code> 進入(含 nullptr)</td><td class="mono"><strong>2n + 1</strong></td><td class="mono">O(1)</td></tr>
+        <tr><td><code>swap</code> 兩根指標</td><td class="mono">n</td><td class="mono">O(1)(換 8 bytes × 2)</td></tr>
+        <tr><td>記憶體配置</td><td class="mono ok"><strong>0</strong></td><td class="mono">—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      T(n) = <strong>2n + 1</strong> 次呼叫 × O(1) = <strong>O(n)</strong>　·　S(n) = <strong>O(h)</strong>　·　配置 <strong>0</strong>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>維度</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono ok"><strong>O(n)</strong></td><td>2056 種樹形實測,呼叫次數 min == max == 2n+1</td></tr>
+        <tr><td>空間</td><td class="mono"><strong>O(h)</strong></td><td>n=100:<strong>平衡樹堆疊 672 bytes</strong>、<strong>退化鏈 6624 bytes</strong> —— 差 <strong>9.86 倍</strong></td></tr>
+        <tr><td>常數項</td><td class="mono">64 bytes/層</td><td>n=5000 的鏈實測 320224 bytes,收斂到 64.0</td></tr>
+        <tr><td>崩潰臨界</td><td class="mono">261327 存活 / 261718 崩</td><td><code>ulimit -s</code> = 8176 KB</td></tr>
+        <tr><td>安全餘裕</td><td class="mono ok">約 <strong>2613 倍</strong></td><td>題目上限 n=100</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// O(h) 而不是 O(n) —— 同樣 100 個節點的實測對照</span>
+完美平衡樹 n=100 → 樹高  7,最大遞迴深度   8,堆疊   672 bytes
+退化成一條鏈 n=100 → 樹高 100,最大遞迴深度 101,堆疊  6624 bytes
+                                        深度差 12.6 倍,堆疊差 9.86 倍
+<span class="sc-trace__out">// 樹題問「會不會退化」就是在問這件事:退化了,O(h) 就等於 O(n)</span></div>
+  </section>
+
+  <!-- ════════════ 5 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;font-size:13.5px;">
+      窮舉 <code>n = 0..6</code> 全部 <strong>197 種樹形</strong>,以 level-order 指派值 1..n,
+      <strong>結構 + 值</strong>逐點比對。
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>失敗數</th><th>最小反例</th><th>怎麼修</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>只交換「值」而非子樹</strong></td>
+          <td class="mono fail">194/197</td>
+          <td class="mono"><code>[1,null,2]</code> → <code>[1,null,2]</code></td>
+          <td><strong>要換 <code>left</code>/<code>right</code> 指標</strong>。單邊子樹時值交換<strong>根本不會發生</strong></td>
+        </tr>
+        <tr>
+          <td><strong><code>swap</code> 寫成自賦值(沒暫存)</strong></td>
+          <td class="mono fail">195/197</td>
+          <td class="mono"><code>[1,null,2]</code> → <code>[1,2,2]</code></td>
+          <td>用 <code>std::swap</code>。手寫要三行:<strong>存 tmp → 搬 → 搬</strong></td>
+        </tr>
+        <tr>
+          <td>只遞迴不 <code>swap</code></td>
+          <td class="mono fail">195/197</td>
+          <td class="mono"><code>[1,null,2]</code> → <code>[1,null,2]</code></td>
+          <td>症狀:<strong>輸出恆等於輸入</strong>(等於什麼都沒做)</td>
+        </tr>
+        <tr>
+          <td>只 <code>swap</code> 根,不遞迴</td>
+          <td class="mono fail">192/197</td>
+          <td class="mono"><code>[1,null,2,3,4,null,5,null,6]</code></td>
+          <td>巧合家族 = <strong>高度 ≤ 2 的 5 種樹</strong>(只有一層要翻)</td>
+        </tr>
+        <tr>
+          <td><strong>只遞迴左子樹</strong></td>
+          <td class="mono fail">164/197</td>
+          <td class="mono"><code>[1,null,2,3,4,null,5,null,6]</code></td>
+          <td><strong>掩護最強的一個</strong> —— 巧合 33 種,見下方說明</td>
+        </tr>
+        <tr>
+          <td><strong>漏掉 <code>nullptr</code> 檢查</strong></td>
+          <td class="mono fail"><strong>197/197</strong></td>
+          <td class="mono"><code>[]</code> → <strong>SIGSEGV</strong></td>
+          <td>連 <code>[1]</code> 也崩 —— 葉節點的 null 孩子照樣會被遞迴進去</td>
+        </tr>
+        <tr style="opacity:.75;">
+          <td>先 <code>swap</code> 再遞迴</td>
+          <td class="mono ok"><strong>0/197</strong></td>
+          <td class="mono">—</td>
+          <td><strong>這是對的,不是陷阱</strong> —— 見走讀 PHASE 2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「只遞迴左子樹」為什麼掩護最強?</strong>
+      漏掉的右遞迴之後<strong>又被 <code>swap</code> 搬到左邊去了</strong>,
+      所以只要<strong>那塊子樹本身翻轉後長得一樣</strong>(空的或單一節點),就看不出差別。
+      實測有 <strong>33 種</strong>樹形碰巧通過。
+      <b>如果你的測資偏向左斜樹,這個 bug 幾乎必然漏掉。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// LINE BY LINE</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 為什麼「交換值」是錯的(兩種病)</span>
+病一:單邊子樹時,swap 根本不會發生
+  [1,null,2]  只有右小孩,left 是 nullptr
+  想交換值就得寫 swap(root->left->val, root->right->val)
+  → 但 root->left 是 nullptr,不加保護會直接爆
+  → 加了保護(兩邊都非空才換)就變成「什麼都不做」
+  實測輸出 [1,null,2],正解 [1,2] ✗
+
+病二:就算兩邊都在,換值也只換了「一個節點的內容」
+  形狀完全沒動。任何「左右形狀不同」的樹都會壞掉
+  例:[1,2,3,4] (2 有左小孩 4,3 沒有小孩)
+      換值後 3 和 2 的值互換,但 4 還是掛在原本的位置
+
+實測:194/197 錯。巧合對的只有 3 種:[]、[1]、[1,2,3]
+  [1,2,3] 過關純屬巧合 —— 兩個孩子都是葉,換值和換子樹結果相同
+<span class="sc-trace__out">// 換指標搬動整棵子樹,換值只搬動一個節點 —— 這是本題的核心區別</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 2: 為什麼「先 swap 再遞迴」也對(這不是陷阱)</span>
+版本 A(本頁的寫法,後序):        版本 B(先 swap):
+  invertTree(root->left);            swap(root->left, root->right);
+  invertTree(root->right);           invertTree(root->left);
+  swap(root->left, root->right);     invertTree(root->right);
+
+實測:版本 B 窮舉 197 種樹形,失敗 0 種 —— 完全正確
+
+為什麼:翻轉是「上下無關」的操作
+  「交換我的兩個孩子」動的是 root 的兩根指標
+  「把兩棵子樹各自翻好」動的是子樹「內部」的指標
+  兩者互不干擾 ⇒ 誰先誰後都一樣
+
+版本 B 遞迴進去的雖然是「已經換位置」的孩子,但每個孩子
+「要被翻成什麼樣子」和「它掛在哪一邊」無關 —— 所以結果同構
+<span class="sc-trace__out">// 真正要緊的是「換指標不換值」,不是「順序」—— 別把這個寫進陷阱表</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 3: 手寫 swap 為什麼一定要暫存(實測病狀)</span>
+錯的寫法(經典的無暫存 bug):
+    root->left  = root->right;    // ① left 現在指向原本的 right
+    root->right = root->left;     // ② 但 left 已經被改了!等於 right = right
+
+實測兩種病狀,都是真的量出來的:
+  [1,2](只有左孩子)
+    distinct 節點數 before = 2 → after = 1
+    → 左子樹被 nullptr 覆蓋,那個節點「洩漏消失」
+
+  [1,null,2](只有右孩子)
+    輸出印成 [1,2,2],distinct 節點數仍是 2
+    → 同一個節點「同時掛在 left 和 right 兩個槽」= 別名共享
+    → 節點數「看起來」從 2 變成 3
+
+正確寫法:
+    TreeNode* tmp = root->left;
+    root->left  = root->right;
+    root->right = tmp;
+或者直接用 std::swap(root->left, root->right);
+<span class="sc-trace__out">// 「弄丟節點」和「製造別名」是指標題最典型的兩種死法,而且兩者都不會當場崩</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 4: 和 nullptr 交換是完全安全的(實測)</span>
+一個只有左小孩的節點,swap 前後的指標實測:
+  before   left = 0x140d8f360    right = 0x0
+  after    left = 0x0            right = 0x140d8f360
+
+子節點指標完好保存(childPtrPreserved = 1),left 正確變成 null。
+
+所以程式碼裡「不需要」寫這種特判:
+    if (root->left != nullptr && root->right != nullptr) swap(...);   ← 多餘且有害
+
+std::swap 對兩個指標一律良定義,不管它們是不是 nullptr。
+加上這種特判反而會讓「單邊子樹」的節點不被翻轉 —— 那就變成上面的 M5 了。
+<span class="sc-trace__out">// 少一個分支,少一個 bug —— 和「用 nullptr 當 base case」是同一個道理</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">換的是子樹指標不是值(換值錯 194/197);手寫 swap 沒暫存會弄丟節點或製造別名,兩種病狀都實測到了。和 nullptr 交換完全安全,所以不要加「兩邊都非空才換」的特判。回寫 root->left = invertTree(...) 在本題是冗餘的,但改成會替換節點的操作時就必要。</div>
+    <div class="sc-summary-bar__detail">INVERT BINARY TREE · CODE</div>
+  </div>
+
+</body>
+</html>

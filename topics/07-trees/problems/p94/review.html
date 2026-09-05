@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>94 · Binary Tree Inorder Traversal // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P94</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-inorder-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹中序走訪</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 94</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>中序 = <strong>左 → 根 → 右</strong>,<code>push_back</code> <strong>夾在兩個遞迴中間</strong></td></tr>
+        <tr><td>核心直覺</td><td>「<strong>被走到</strong>」和「<strong>被收錄</strong>」是兩個時刻,中間隔著<strong>整棵左子樹</strong></td></tr>
+        <tr><td>第一個元素</td><td>永遠是<strong>一路往左走到底</strong>的那個節點</td></tr>
+        <tr><td>根的位置</td><td>下標 = <strong>左子樹的節點數</strong>(這是 105 題重建二元樹的基礎)</td></tr>
+        <tr><td>終止條件</td><td><code>root == nullptr</code>,<strong>不是</strong>「是不是葉節點」—— 後者 197 種樹形全錯</td></tr>
+        <tr><td><code>ans</code> 的 <code>&amp;</code></td><td>是<strong>正確性</strong>不是效能。少了它,<strong>任何非空樹都回空陣列</strong></td></tr>
+        <tr><td>呼叫次數</td><td>恆為 <strong>2n + 1</strong>(n 實節點 + n+1 個 nullptr),<strong>與樹形無關</strong></td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(n)</code>,空間 <code>O(h)</code> —— <strong>是樹高不是節點數</strong></td></tr>
+        <tr><td>實測堆疊</td><td>每層 <strong>96 bytes</strong>;崩潰臨界 <strong>87150 層</strong>,n=100 有 <strong>871 倍</strong>餘裕</td></tr>
+        <tr><td>最陰險的錯</td><td>前序/後序寫反,在<strong>斜鏈上會碰巧全對</strong> —— 單筆測資測不出來</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 終止條件為什麼寫 <code>root == nullptr</code>,而不是「<strong>如果是葉節點就 return</strong>」?後者看起來更早停、更有效率。請說出<strong>實際會發生什麼</strong>。</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>void inorder(vector&lt;int&gt;&amp; ans, ...)</code> 的那個 <code>&amp;</code>,是為了<strong>效能</strong>還是為了<strong>正確性</strong>?如果拿掉,<strong>症狀</strong>是什麼?</div>
+
+    <div class="qa"><strong>Q3.</strong> 有人說「中序走訪就是把樹裡的值<strong>由小到大</strong>排出來」。這句話<strong>什麼時候對、什麼時候錯</strong>?</div>
+
+    <div class="qa"><strong>Q4.</strong> 這題空間複雜度是 <code>O(h)</code> 還是 <code>O(n)</code>?兩者<strong>什麼時候一樣</strong>?請給<strong>實測數字</strong>。</div>
+
+    <div class="qa"><strong>Q5.</strong> 你把前序和中序<strong>寫反了</strong>,但用 <code>[1,null,2,null,3]</code>(純右鏈)測試卻<strong>通過了</strong>。為什麼?這告訴你關於<strong>測資設計</strong>的什麼事?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,null,2,3] → [1,3,2]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      用官方範例的小樹:根 <code>1</code>,<strong>沒有左子樹</strong>,右子樹是 <code>2</code>,而 <code>2</code> 的左子樹是 <code>3</code>。
+      縮排 = 遞迴深度。<strong>以下每一步都是實跑印出來的,不是手推。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 進入根節點 1</span>
+ans = []
+→ inorder(1)
+    1 非 null,先遞迴 LEFT
+  → inorder(1-&gt;left = null)
+      root == nullptr → return              ans = []
+    ★ push_back(1)                          ans = [1]
+<span class="sc-trace__out">// 1 沒有左子樹,所以它「立刻」就被收錄 —— 不用等</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 1 的第三行:進入右子樹 2</span>
+  → inorder(1-&gt;right = 2)
+      2 非 null,先遞迴 LEFT
+    → inorder(2-&gt;left = 3)
+        3 非 null,先遞迴 LEFT
+      → inorder(3-&gt;left = null)
+          return                            ans = [1]
+      ★ push_back(3)                        ans = [1,3]
+      → inorder(3-&gt;right = null)
+          return                            ans = [1,3]
+      節點 3 結束,return
+<span class="sc-trace__out">// 2 一直在等 —— 它的左子樹(3)整棵做完,才輪到它</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 回到 2,再回到 1</span>
+    ★ push_back(2)                          ans = [1,3,2]
+    → inorder(2-&gt;right = null)
+        return                              ans = [1,3,2]
+    節點 2 結束,return
+  節點 1 結束,return</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return ans = [1,3,2]
+
+統計:8 次 inorder() 進入(3 個實節點 + 5 個 nullptr = 2n+1 = 2×3+1 ✓)
+      3 次 push_back
+      最大遞迴深度 4
+<span class="sc-trace__out">// [1,3,2] —— 注意 3 排在 2 前面,因為 3 是 2 的左子樹</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      這棵小樹剛好示範了<strong>兩種極端</strong>:節點 <code>1</code> <strong>沒有左子樹,所以走到就收錄</strong>;
+      節點 <code>2</code> <strong>有左子樹,所以要等</strong>。
+      <b>整個中序走訪,就是這兩種情況不斷重複而已。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改用<strong>顯式 <code>std::stack</code></strong> 寫,不准用遞迴(這題最常見的追問)。請說出骨架,以及<strong>最難的那一步是什麼</strong>。</div>
+
+    <div class="qa"><strong>App 2.</strong> 給你一棵 <strong>BST</strong>,要找<strong>第 k 小的元素</strong>(LeetCode 230)。怎麼用這題的程式碼改?能不能<strong>不走完整棵樹</strong>?</div>
+
+    <div class="qa"><strong>App 3.</strong> 節點數放大到 <code>10⁵</code>,而且測資裡有<strong>退化成一條鏈</strong>的樹。這份遞迴會怎樣?請給<strong>實測依據</strong>,並說出你會怎麼改。</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>寫成葉節點判斷會「同時」犯兩個病,實測 197 種樹形全錯。</strong><br><br>
+  <strong>病一:崩潰。</strong><code>if (root-&gt;left == nullptr &amp;&amp; root-&gt;right == nullptr)</code> 這一行<strong>本身</strong>就在解參考 <code>root</code>。空樹 <code>[]</code> 傳進來,<code>root</code> 就是 <code>nullptr</code>,<strong>當場 SIGSEGV</strong>。而且不只空樹 —— 任何有「<strong>單邊子節點</strong>」的節點,遞迴進那個 <code>nullptr</code> 子樹時同樣爆炸。<br><br>
+  <strong>病二:漏收。</strong>就算形狀剛好躲過崩潰(例如完美二元樹),葉節點<strong>在 <code>push_back</code> 之前就 return 了</strong> —— 所有葉節點都被吞掉。實測 <code>[1]</code> 回 <code>[]</code>。<br><br>
+  <b>「用 nullptr 當底」的價值就在這裡:葉節點不需要任何特殊待遇。</b>它的左右各進去一層、各自立刻 return,然後它照常被 <code>push_back</code> —— <strong>程式碼裡根本沒有「這是葉節點嗎」這種判斷</strong>,少一個分支就少一個寫錯的地方。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>是正確性,不是效能。</strong><br><br>
+  少了 <code>&amp;</code>,每一層拿到的是 <code>ans</code> 的<strong>一份拷貝</strong>。<code>push_back</code> 寫進拷貝,那一層 <code>return</code> 時<strong>拷貝連同寫進去的東西一起消失</strong>。最外層那個 <code>ans</code> <strong>從頭到尾沒有被寫過</strong>。<br><br>
+  <strong>症狀非常好認:任何非空樹都回空陣列。</strong>實測窮舉 197 種樹形<strong>錯 196 種</strong>,最小反例 <code>[1]</code> → <code>[]</code>;唯一「對」的是空樹 <code>[]</code>,因為<strong>答案本來就是空的</strong>。<br><br>
+  <b>除錯口訣:看到「答案永遠是空的」,先去看 helper 的簽名有沒有 <code>&amp;</code>。</b>(順帶一提,傳值<strong>也</strong>很慢 —— 每層複製整個 vector 會讓複雜度變成 <code>O(n²)</code> —— 但那是附帶傷害,主要問題是它<strong>根本不對</strong>。)</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>只有對 BST 才對;對一般二元樹完全錯。</strong><br><br>
+  <strong>BST 的定義</strong>是「左子樹所有值 &lt; 根 &lt; 右子樹所有值」。中序走訪剛好是「左 → 根 → 右」,所以<strong>對 BST 而言中序輸出必定遞增</strong> —— 這是一個非常有用的性質(第 98 題「驗證 BST」、第 230 題「第 k 小」用的都是它)。<br><br>
+  <strong>但這題沒說是 BST。</strong>一般二元樹的中序<strong>和值的大小毫無關係</strong>,它是<strong>位置</strong>決定的順序。實測本頁的範例樹輸出是 <code>[4,2,6,5,7,1,3,9,8]</code> —— <strong>一點都不遞增</strong>。<br><br>
+  <b>這是這題最常見的觀念混淆:把「中序」和「排序」畫上等號。</b>正確的說法是:<strong>中序是一種走訪順序;BST 的中序碰巧是遞增的</strong>。因果不能反過來。<br><br>
+  順帶一提,如果真的把這題當排序做(壓平後 <code>sort</code>),不只複雜度變 <code>O(n log n)</code>,答案在非 BST 上<strong>根本是錯的</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>是 <code>O(h)</code>;當樹退化成一條鏈時,<code>h = n</code>,兩者才一樣。</strong><br><br>
+  呼叫堆疊在<strong>任一瞬間</strong>只裝著「<strong>從根到目前節點</strong>」那一條路徑上的框,所以最深就是<strong>樹高</strong>(再加最底那層 <code>nullptr</code>)。<br><br>
+  <strong>實測(同樣是 100 個節點)</strong>:<br>
+  · 退化成一條鏈 → 最大遞迴深度 <strong>101</strong>,堆疊約 <strong>9.7 KB</strong><br>
+  · 完美平衡樹 → 樹高只有 <strong>7</strong>,深度 <strong>8</strong><br>
+  <strong>同樣的 n,堆疊用量差了十幾倍。</strong><br><br>
+  每層實測固定 <strong>96 bytes</strong>(clean build,用 n=10000 的鏈量出 960000 bytes 除得)。系統 <code>ulimit -s = 8176 KB</code>,二分實測 <strong>87149 層存活、87150 層 SIGSEGV</strong>,回推 96.07 bytes/層,與量到的相符。<br><br>
+  <b>所以本題(n ≤ 100)遞迴有 871 倍餘裕,絕對安全。</b>但「<code>O(h)</code>,最壞退化成 <code>O(n)</code>」這句話要說完整 —— 只說 <code>O(log n)</code> 是<strong>默默假設了樹是平衡的</strong>,而題目沒有給這個保證。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為純右鏈是前序和中序「碰巧相等」的唯一一族。</strong><br><br>
+  純右鏈上,<strong>每個節點的左子樹都是空的</strong>。中序的第一行 <code>inorder(root-&gt;left)</code> 變成 no-op,於是「左 → 根 → 右」<strong>退化成「根 → 右」</strong> —— 那正是前序。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..8</code> 全部 <strong>2056 種樹形</strong>,前序輸出等於中序輸出的<strong>每個 n 恰好只有 1 種</strong>,而且<strong>100% 都是純右鏈</strong>,無一例外。對稱地,後序寫成中序在<strong>純左鏈</strong>上也會碰巧全對。<br><br>
+  <strong>關於測資設計,這件事的教訓是:</strong><br>
+  ① <strong>斜鏈是「退化」測資,不是「極端」測資。</strong>它讓左右不對稱的 bug 全部隱形 —— 因為根本沒有左右可比。<br>
+  ② <strong>能區分三種走訪的最小樹,是有「左右都非空」的節點的樹。</strong>最小的是 <code>[1,2,3]</code>:前序 <code>[1,2,3]</code>、中序 <code>[2,1,3]</code>、後序 <code>[2,3,1]</code> —— <strong>三個都不一樣</strong>。<br>
+  ③ 所以本頁所有陷阱表都是<strong>窮舉 197 種樹形</strong>跑出來的,而不是幾筆手寫測資。<b>「我測過了」和「我窮舉過了」差很多。</b><br><br>
+  <b>面試現場的版本:自己舉例時,永遠先舉 <code>[1,2,3]</code>,不要舉斜鏈。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>骨架:一路往左壓進 stack → 彈出即收錄 → 轉向右子樹。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">vector&lt;int&gt; ans;
+stack&lt;TreeNode*&gt; st;
+TreeNode* curr = root;
+while (curr != nullptr || !st.empty()) {
+    while (curr != nullptr) {      // ① 一路往左壓到底
+        st.push(curr);
+        curr = curr-&gt;left;
+    }
+    curr = st.top(); st.pop();     // ② 彈出 = 它的左邊做完了
+    ans.push_back(curr-&gt;val);
+    curr = curr-&gt;right;            // ③ 轉向右子樹
+}</pre>
+  <strong>最難的那一步是 ②。</strong>遞迴版裡,「這個節點的左子樹做完了沒」是<strong>由呼叫堆疊自動回答</strong>的 —— 函式 return 回來,就代表做完了。顯式版<strong>沒有人幫你記這件事</strong>,你得自己設計一個規則。<br><br>
+  這裡的規則很漂亮:<strong>一個節點被 pop 出來的那一刻,就代表它的左子樹已經處理完</strong>。因為 ① 把它壓進去之後,只會繼續往<strong>更左邊</strong>壓;那些更左的節點<strong>一定比它先被 pop</strong>(stack 是後進先出)。<b>所以「pop 出來」就等價於遞迴版的「左邊那個呼叫 return 了」。</b><br><br>
+  <strong>複雜度不變</strong>:時間 <code>O(n)</code>(每個節點恰好進出 stack 一次),空間 <code>O(h)</code> —— <b>只是把「編譯器管的堆疊」換成「你自己管的堆疊」,那個 <code>O(h)</code> 一分都沒省。</b>真正 <code>O(1)</code> 空間的走訪要用 <strong>Morris</strong>(把葉節點的空指標暫時接成「線索」),但那會<strong>暫時改動樹的結構</strong>,是另一個層次的題目。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>用「BST 的中序是遞增的」這個性質,而且可以提早停 —— 這正是 230 題。</strong><br><br>
+  既然 BST 的中序輸出必定遞增,那<strong>第 k 小就是中序的第 k 個</strong>。所以最直接的作法:跑這題的程式碼,回傳 <code>ans[k-1]</code>。<br><br>
+  <strong>但可以不走完整棵樹。</strong>把 <code>ans</code> 換成一個計數器,在 <code>push_back</code> 那個位置改成:<br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">inorder(root-&gt;left);
+if (++count == k) { result = root-&gt;val; return; }   // 找到就記下
+inorder(root-&gt;right);</pre>
+  再加上「<strong>已經找到就不要再往下走</strong>」的剪枝(每次進入函式先檢查 <code>count &gt;= k</code> 就 return),<strong>時間就從 <code>O(n)</code> 降成 <code>O(h + k)</code></strong> —— 只走到第 k 個就停。<br><br>
+  <b>值得注意的是:改的地方仍然是「push_back 的那個位置」。</b>「在中序的第 ② 步做事」這個模式,在 BST 題裡會一直出現 —— 98 題驗證 BST 是在那裡比較「有沒有比前一個大」,230 題是在那裡數數。<b>換句話說,你學的不是一題,是一個插槽。</b><br><br>
+  <strong>顯式 stack 版更適合這題</strong>,因為「提早停」在迭代裡就是一個 <code>break</code>,不必處理遞迴的層層 return。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>退化鏈 + <code>10⁵</code> 節點,深度就是 <code>10⁵</code> —— 在這台機器上還撐得住,但餘裕已經不大,而且會因環境而異。</strong><br><br>
+  <strong>實測數字</strong>:每層 <strong>96 bytes</strong>,系統 <code>ulimit -s = 8176 KB</code>,二分實測<strong>崩潰臨界 87150 層</strong>。<br>
+  → <code>10⁵ = 100000 層 &gt; 87150</code>,<b>在這台機器的預設堆疊上,退化鏈的 10⁵ 會直接 stack overflow。</b><br><br>
+  <strong>而且這個數字不可移植。</strong>崩潰臨界完全取決於 <code>ulimit -s</code> 和每層的 frame 大小,而 frame 大小又取決於編譯器和最佳化等級(本頁 instrumented build 量到 112 bytes/層、clean build 是 96)。<b>「在我機器上跑得過」對這類問題不是證據。</b><br><br>
+  <strong>我會怎麼改 —— 換成 App 1 的顯式 <code>std::stack</code> 版。</strong>理由:<br>
+  ① <code>std::stack</code> 的儲存在<strong>堆積(heap)</strong>上,不是呼叫堆疊,<strong>heap 的上限大得多</strong>(通常是可用記憶體,不是 8 MB)。<br>
+  ② 空間複雜度<strong>還是 <code>O(h)</code></strong> —— 一分都沒省 —— <strong>但它不會 stack overflow</strong>。<b>這是「同樣的複雜度、不同的失敗模式」的典型例子。</b><br>
+  ③ 程式碼長一點,但<strong>不會因為換一台機器就掛掉</strong>。<br><br>
+  <b>面試時的說法:「遞迴版在 n ≤ 100 完全沒問題,我量過有 871 倍餘裕;但如果 n 到 10⁵ 而且樹可能退化,我會改寫成顯式 stack,因為呼叫堆疊有硬上限而 heap 沒有。」</b>—— 給出臨界值,比說「遞迴比較耗空間」有說服力得多。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">中序不是排序 —— 是位置決定的順序,只有 BST 碰巧遞增。終止條件用 nullptr 讓葉節點不必特判;ans 的 & 是正確性。前序/後序寫反在斜鏈上會碰巧全對,所以永遠拿 [1,2,3] 當測資,不要拿斜鏈。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE INORDER TRAVERSAL · REVIEW</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>145 · Binary Tree Postorder Traversal // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P145</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-postorder-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹後序走訪</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 145</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>後序 = <strong>左 → 右 → 根</strong>,<code>push_back</code> 在<strong>兩個遞迴之後</strong></td></tr>
+        <tr><td>核心直覺</td><td><strong>等最久的一種</strong> —— 要等左右兩棵子樹都做完</td></tr>
+        <tr><td>簽名性質</td><td><strong>根恆在最後</strong>(實測 2055/2055);第一個<strong>必是某個葉節點</strong></td></tr>
+        <tr><td>定義性質</td><td><strong>任何節點的兩棵子樹,輸出位置都在它自己之前</strong></td></tr>
+        <tr><td>正確恆等式</td><td><code>postorder = reverse(根 → <strong>右</strong> → <strong>左</strong>)</code></td></tr>
+        <tr><td>錯誤信念</td><td><code>postorder ≠ reverse(preorder)</code> —— 錯 <strong>133/197</strong>,最小反例 <code>[1,2,3]</code></td></tr>
+        <tr><td>為什麼重要</td><td><strong>釋放記憶體</strong>與<strong>由下往上聚合</strong>唯一正確的順序</td></tr>
+        <tr><td>是誰的模板</td><td><strong>104</strong> 求深度、<strong>110</strong> 判平衡、<strong>543</strong> 求直徑、<strong>124</strong> 最大路徑和</td></tr>
+        <tr><td>呼叫次數</td><td>恆為 <strong>2n + 1</strong>,<strong>與樹形無關</strong>;和前序、中序<strong>成本完全相同</strong></td></tr>
+        <tr><td>迭代版難度</td><td><strong>三種裡最難</strong> —— 因為要判斷「右子樹回來了沒」</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 有人說「後序就是把前序反過來」。<strong>對不對</strong>?請給<strong>最小反例</strong>,並說出<strong>正確的恆等式</strong>是什麼。</div>
+
+    <div class="qa"><strong>Q2.</strong> 後序輸出的<strong>第一個</strong>元素有什麼保證?<strong>最後一個</strong>呢?請給實測數字。</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼<strong>釋放一棵樹的記憶體</strong>必須用後序?用前序寫會發生什麼<strong>具體</strong>的事?</div>
+
+    <div class="qa"><strong>Q4.</strong> 三種走訪的迭代版裡,<strong>為什麼後序最難寫</strong>?請說出難在哪一個判斷。</div>
+
+    <div class="qa"><strong>Q5.</strong> 你把後序寫成了<strong>左右對調</strong>,測了幾筆都過。這一族樹是什麼?它和「誤用 <code>reverse(preorder)</code>」的巧合家族有什麼<strong>關係</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 9 節點 → [4,6,7,5,2,9,8,3,1]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      和另外兩題<strong>同一棵樹</strong>:根 <code>1</code>;<code>1.left=2, 1.right=3</code>;
+      <code>2.left=4, 2.right=5</code>;<code>3.right=8</code>;<code>5.left=6, 5.right=7</code>;<code>8.left=9</code>。
+      <strong>以下每一步都是實跑印出來的。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 左半邊:一路下潛到最左的葉節點</span>
+postOrder(node 1)                      // 根,什麼都還沒做
+  postOrder(node 2)                    // 也什麼都還沒做
+    postOrder(node 4)
+      postOrder(4.left)  → nullptr, return
+      postOrder(4.right) → nullptr, return
+    ★ push_back(4)                   ans = [4]
+<span class="sc-trace__out">// 4 是葉節點 —— 左右都立刻 return,所以它「第一個」被收錄</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 節點 5 的兩棵子樹,然後才是 5 自己</span>
+    postOrder(node 5)                  // 2 的右子樹
+      postOrder(node 6)
+        postOrder(6.left) → return
+        postOrder(6.right) → return
+      ★ push_back(6)                 ans = [4,6]
+      postOrder(node 7)
+        postOrder(7.left) → return
+        postOrder(7.right) → return
+      ★ push_back(7)                 ans = [4,6,7]
+    ★ push_back(5)                   ans = [4,6,7,5]
+  ★ push_back(2)                     ans = [4,6,7,5,2]
+<span class="sc-trace__out">// 注意 5 排在 6、7 之後,2 又排在 5 之後 —— 子樹永遠在自己前面</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 右半邊,規則完全相同</span>
+  postOrder(node 3)                    // 1 的右子樹
+    postOrder(3.left) → nullptr, return
+    postOrder(node 8)
+      postOrder(node 9)
+        postOrder(9.left) → return
+        postOrder(9.right) → return
+      ★ push_back(9)                 ans = [4,6,7,5,2,9]
+      postOrder(8.right) → nullptr, return
+    ★ push_back(8)                   ans = [4,6,7,5,2,9,8]
+  ★ push_back(3)                     ans = [4,6,7,5,2,9,8,3]
+★ push_back(1)                       ans = [4,6,7,5,2,9,8,3,1]</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return ans = [4,6,7,5,2,9,8,3,1]
+                              └┬┘
+                            根,最後一個
+
+統計:19 次 postOrder() 進入(9 實節點 + 10 個 nullptr = 2n+1 ✓)
+      9 次 push_back
+      根節點 1 在第 1 步就被走到,到第 28 步(倒數第一次 push)才被收錄
+<span class="sc-trace__out">// 對照同一棵樹:前序 [1,2,4,5,6,7,3,8,9]、中序 [4,2,6,5,7,1,3,9,8]</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      把三題的 trace 疊起來看:<strong>同一棵樹、同樣 19 次呼叫、同樣 9 次 <code>push_back</code></strong>。
+      <b>唯一的差別是每個節點在「進來時 / 左邊回來後 / 兩邊都回來後」哪一刻被推進去。</b>
+      根節點 <code>1</code> 分別排在<strong>第 1 個(前序)、第 6 個(中序)、第 9 個(後序)</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用後序的骨架算出<strong>二元樹的最大深度</strong>(LeetCode 104)。請寫出來,並說明它和本題的程式碼<strong>差在哪一行</strong>。</div>
+
+    <div class="qa"><strong>App 2.</strong> 判斷一棵樹是否<strong>平衡</strong>(任一節點的左右高度差 ≤ 1,LeetCode 110)。用後序<strong>一次走訪</strong>就能做完 —— 怎麼做?為什麼「對每個節點各算一次高度」是<strong>錯的複雜度</strong>?</div>
+
+    <div class="qa"><strong>App 3.</strong> 用<strong>顯式 <code>std::stack</code></strong> 寫後序,而且<strong>不准用 <code>reverse</code></strong>。要多記什麼東西?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不對。最小反例是 <code>[1,2,3]</code>。</strong><br><br>
+  對 <code>[1,2,3]</code>(根 1,左 2,右 3):<br>
+  · 前序 = <code>[1,2,3]</code> → <code>reverse</code> 得 <code>[3,2,1]</code><br>
+  · 真正的後序 = <code>[2,3,1]</code> ← <strong>不一樣</strong><br><br>
+  <strong>錯在哪:</strong><code>reverse</code> 會把「<strong>左在右前面</strong>」這個關係<strong>也一併反轉</strong>,變成「右在左前面」。但後序要的是 <code>左 → 右 → 根</code> —— <strong>只有根被移到最後,左右的相對順序不變</strong>。<br><br>
+  <strong>正確的恆等式:</strong><br>
+  <code>postorder = reverse(根 → <strong>右</strong> → <strong>左</strong> 的走訪)</code><br>
+  也就是<strong>先把走訪本身的左右對調</strong>,再整個反轉 —— <b>兩次反轉剛好抵消,左右就回到正確順序了</b>。驗證:鏡像前序 <code>[1,3,2]</code> → reverse → <code>[2,3,1]</code> ✓。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..8</code> 共 <strong>2056 棵樹</strong>,這條正確恆等式 <strong>2056/2056 成立,零反例</strong>;而錯誤的 <code>reverse(preorder)</code> 只在 <strong>64/197</strong> 種樹形上碰巧對(<code>n ≤ 6</code>)。<br><br>
+  <b>這條恆等式不只是冷知識 —— 它正是後序迭代版最好寫的那個實作的基礎。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>第一個必是某個葉節點;最後一個必是根。</strong><br><br>
+  <strong>最後一個 = 根</strong>:<code>push_back</code> 是函式體的<strong>最後一個動作</strong>,最外層那次呼叫最晚結束,所以根<strong>必定最後被推進去</strong>。<strong>實測</strong>:窮舉 <code>n = 1..8</code> 全部 <strong>2055 棵樹</strong>,<code>ans.back() == root-&gt;val</code> <strong>命中 2055/2055</strong>;而 <code>ans.front() == root-&gt;val</code> 只中 <strong>1/2055</strong>(單節點樹)。<br><br>
+  <strong>第一個 = 某個葉節點</strong>:能被最先收錄的節點,必須<strong>不用等任何人</strong> —— 也就是左右兩次遞迴都立刻 return,<strong>那正是葉節點的定義</strong>。(具體是哪一個葉節點?是「一路往左優先走到底」碰到的第一片葉子。)<br><br>
+  <strong>三種走訪的根位置,一起記:</strong><br>
+  · <strong>前序</strong> → 根在<strong>最前</strong>(實測 2055/2055)<br>
+  · <strong>後序</strong> → 根在<strong>最後</strong>(實測 2055/2055)<br>
+  · <strong>中序</strong> → 根在「<strong>左子樹節點數</strong>」那一格<br><br>
+  <b>拿到一串輸出想判斷它是哪種走訪?先看根在頭還是在尾。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為 <code>delete</code> 之後那個指標就懸空了,你再也不能透過它找到子節點。</strong><br><br>
+  <strong>錯的寫法(前序順序):</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">delete root;                 // ① 先把自己刪了
+freeTree(root-&gt;left);        // ② root 已懸空,讀 root-&gt;left 是 UB
+freeTree(root-&gt;right);</pre>
+  <strong>具體會發生什麼:</strong>第 ② 行在<strong>存取已釋放的記憶體</strong>(use-after-free)。它<strong>不一定當場崩潰</strong> —— 那塊記憶體可能還沒被覆蓋,於是讀到看似正常的指標值,程式「好像」跑得過去。<b>這比直接崩潰更糟</b>:它是不可重現的隨機錯誤,而且在 ASan 之外很難抓。就算沒讀壞,兩棵子樹也<strong>永遠沒被釋放 = 記憶體洩漏</strong>。<br><br>
+  <strong>對的寫法(後序順序):</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">freeTree(root-&gt;left);        // ① 先把左子樹整棵釋放
+freeTree(root-&gt;right);       // ② 再把右子樹整棵釋放
+delete root;                 // ③ 最後才刪自己 —— 此時沒有人還需要它</pre>
+  <b>一般原則:「要用到某個資源的操作,必須排在釋放它之前」。</b>子樹的位址<strong>只能透過 root 取得</strong>,所以 <code>delete root</code> 必須是最後一步 —— <strong>這就是後序</strong>。<br><br>
+  順帶一提,如果用 <code>unique_ptr</code> 或 <code>shared_ptr</code> 管理子節點,解構子會<strong>自動按後序釋放</strong>(先解構成員,再解構自己)—— <b>C++ 的物件生命週期本身就是後序的</b>。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>難在「右子樹到底回來了沒」這個判斷。</strong><br><br>
+  比較三者在迭代版裡各要回答什麼問題:<br>
+  · <strong>前序</strong> —— <strong>什麼都不用問</strong>。pop 出來就直接輸出,四行搞定。<br>
+  · <strong>中序</strong> —— 要問「<strong>左子樹做完了沒</strong>」。技巧:一路往左壓到底,<strong>pop 出來就代表左邊做完了</strong>。<br>
+  · <strong>後序</strong> —— 要問「<strong>左右<em>兩棵</em>都做完了沒</strong>」。麻煩之處在於:一個節點會被「碰到」兩次 —— 第一次是要下去右子樹,第二次才是輪到自己。<strong>光靠「它在 stack 頂端」分不出這是第幾次。</strong><br><br>
+  <strong>所以後序需要額外狀態。</strong>兩種標準解法:<br>
+  ① <strong>記一個 <code>lastVisited</code> 指標</strong> —— peek 到某節點時,檢查「它的右子樹是空的,<strong>或者</strong>剛剛訪問完的就是它的右子樹」;成立才輪到它。<br>
+  ② <strong>走「根→右→左」再整個 <code>reverse</code></strong>(見 <a href="code.html">程式碼頁</a>)—— 用一次反轉換掉那個狀態,<strong>程式碼短得多</strong>,代價是多一次 <code>O(n)</code> 的反轉和一個「先存起來再倒過來」的中介陣列。<br><br>
+  <b>面試時給法 ②,並主動說「還有一種不用 reverse 的寫法,要多記一個 lastVisited」</b> —— 這樣既簡潔又展示你知道取捨在哪。<br><br>
+  <b>一般規律:走訪的迭代版有多複雜,取決於那個順序需要「等」多久。</b>前序不等、中序等一邊、後序等兩邊 —— <strong>難度剛好照這個順序排。</strong></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>是「每個節點至多一個小孩」的鏈狀樹;而且這兩個 bug 的巧合家族<em>完全相同</em>。</strong><br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..6</code> 共 197 種樹形 ——<br>
+  · <strong>左右對調</strong> → 錯 <strong>133</strong>、對 <strong>64</strong><br>
+  · <strong>誤用 <code>reverse(preorder)</code></strong> → 錯 <strong>133</strong>、對 <strong>64</strong><br>
+  <strong>而且程式已逐棵驗證:兩者的「通過集合」是同一個集合,零 mismatch。</strong><br><br>
+  <strong>這 64 種是什麼?</strong>分佈是 <code>1,1,2,4,8,16,32</code>,即 <code>n ≥ 1</code> 時的 <code>2ⁿ⁻¹</code>。特徵是<strong>每個節點至多只有一個小孩</strong> —— 也就是<strong>鏈狀樹</strong>(不只純左鏈、純右鏈,任何左右轉彎的單子鏈都算)。<br><br>
+  <strong>為什麼兩個 bug 剛好同一族:</strong>兩者的病根其實是<strong>同一個</strong> —— 都是<strong>把左右的相對順序搞反了</strong>。而「左右順序」這件事,<strong>只有在某個節點<em>同時</em>擁有左右小孩時才觀察得到</strong>。鏈狀樹上每個節點<strong>總有一邊是空的</strong>,<b>先走空的還是先走非空的,結果一模一樣</b> —— 所以兩個 bug 同時隱形。<br><br>
+  <strong>最小反例是 <code>[1,2,3]</code></strong>(根同時有左右小孩):正解 <code>[2,3,1]</code>,兩個 bug 都給 <code>[3,2,1]</code>。<br><br>
+  <b>測資鐵則:一定要有「同時擁有左右小孩」的節點。</b><code>[1,2,3]</code> 就是最小的那個,而且它<strong>同時能區分前中後三種走訪</strong>(<code>[1,2,3]</code> / <code>[2,1,3]</code> / <code>[2,3,1]</code>)—— <strong>這一題手上有一個 <code>[1,2,3]</code> 就夠了。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>差在第三行:把 <code>push_back</code> 換成 <code>return 1 + max(左, 右)</code>。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int maxDepth(TreeNode* root) {
+    if (root == nullptr) return 0;          // 空樹深度 0
+
+    return 1 + max(maxDepth(root-&gt;left),    // ① 左子樹的深度
+                   maxDepth(root-&gt;right));  // ② 右子樹的深度
+                                            // ③ 自己這一層 +1
+}</pre>
+  <strong>骨架完全一樣</strong>:<code>nullptr</code> 當底 → 先做左 → 再做右 → <strong>最後處理自己</strong>。差別只在「處理自己」那一步做什麼:本題是 <code>push_back</code>,104 是 <code>1 + max(...)</code>。<br><br>
+  <b>關鍵直覺:值是從葉子「往上傳」的。</b>下潛的路上什麼都沒算,<strong>每個數字都誕生於某次 <code>return 0</code></strong>(碰到 <code>nullptr</code>),然後每經過一層 <code>+1</code>。所以葉節點回傳 1、它的父節點回傳 2、依此類推。<br><br>
+  <strong>常見錯誤(實測窮舉 <code>n = 0..7</code> 共 626 種樹形)</strong>:<br>
+  · 忘了 <code>+1</code> → <strong>錯 625/626</strong>,最小反例 <code>[1]</code> 回 0<br>
+  · base case 回傳 1 而非 0 → <strong>錯 626/626</strong>,而且是<strong>恆定 +1 的偏移</strong>(626 種樹形的誤差集合只有 <code>{1}</code> 這一個值)<br>
+  · <code>max</code> 寫成 <code>min</code> → <strong>錯 622/626</strong>;<b>而且它算的<em>也不是</em>最小深度</b>(LeetCode 111)—— 真正的 minDepth 必須走到<strong>葉節點</strong>,而 <code>1+min</code> 會被「不存在的空子樹」吃掉。最小反例 <code>[1,null,2]</code>:<code>1+min</code> 給 1,但真 minDepth 是 2。<br>
+  · <code>max</code> 誤寫成加法 <code>1 + 左 + 右</code> → 這其實是在<strong>數節點總數</strong>(實測 626/626 與節點數完全相符),也就是寫成了 LeetCode 222。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>讓遞迴同時回傳「高度」和「是否平衡」—— 一次走訪、<code>O(n)</code>。</strong><br><br>
+  <strong>成本較高的「由上往下」做法</strong>:對每個節點呼叫一次 <code>height()</code> 來比較左右。這樣<strong>每個節點會被重複走訪</strong> —— 深度 <code>d</code> 的節點被走 <code>d+1</code> 次(每個祖先各走它一次)。<br><br>
+  <b>但它到底多慢,值得實測而不是套公式。</b><strong>實測</strong>(見 <a href="../p110/index.html">110 那一頁</a>):真正的瓶頸<strong>不是退化鏈</strong> —— 鏡在根節點就因為左右高度差過大而<strong>短路結束</strong>,實測呼叫次數只有 <code>2n</code>,<strong>是線性的</strong>。<b>真正被完整走完的是<em>平衡</em>樹</b>,而平衡樹的 <code>h = O(log n)</code>,所以實際上限是 <strong><code>O(n log n)</code></strong>,不是 <code>O(n²)</code>。實測完美樹 <code>n=4095</code> 的額外成本是 <strong>11 倍</strong>。<br><br>
+  <strong>正確做法:借用後序「值往上傳」的特性,一趟解決。</strong>技巧是<strong>用回傳值兼作旗標</strong> —— 回傳高度,但一旦發現不平衡就回傳 <code>-1</code>,並讓 <code>-1</code> 一路往上傳:<br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int check(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    int left = check(root-&gt;left);
+    if (left == -1) return -1;              // 左邊已經壞了,直接往上傳
+
+    int right = check(root-&gt;right);
+    if (right == -1) return -1;
+
+    if (abs(left - right) &gt; 1) return -1;   // 這一層不平衡
+
+    return 1 + max(left, right);            // 平衡,回傳高度
+}
+// isBalanced(root) 就是 check(root) != -1</pre>
+  <strong>為什麼是 <code>O(n)</code></strong>:每個節點<strong>只被進入一次</strong>,高度是「順便」在回程算出來的,<strong>沒有任何重複計算</strong>。而且 <code>-1</code> 的早退還讓它可以<strong>提早結束</strong>。<br><br>
+  <b>「用一個不可能的回傳值兼作失敗旗標」是這類題目很常見的手法</b>(高度不可能是負的,所以 <code>-1</code> 安全)。<b>更一般的做法是回傳一個 <code>pair</code> 或小 struct</b>,可讀性更好、也不依賴「有個不可能的值」這個巧合 —— 面試時兩種都可以,但要能說出為什麼 <code>-1</code> 是安全的。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>要多記一個 <code>lastVisited</code>「上一個被輸出的節點」。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">vector&lt;int&gt; ans;
+stack&lt;TreeNode*&gt; st;
+TreeNode* curr = root;
+TreeNode* lastVisited = nullptr;
+
+while (curr != nullptr || !st.empty()) {
+    while (curr != nullptr) {          // ① 一路往左壓到底
+        st.push(curr);
+        curr = curr-&gt;left;
+    }
+
+    TreeNode* peek = st.top();         // ② 只看,先不 pop
+
+    if (peek-&gt;right != nullptr &amp;&amp; lastVisited != peek-&gt;right) {
+        curr = peek-&gt;right;            // ③ 右邊還沒做 → 轉過去
+    } else {
+        ans.push_back(peek-&gt;val);      // ④ 兩邊都完成 → 輪到它
+        lastVisited = peek;
+        st.pop();
+    }
+}</pre>
+  <strong>核心是第 ② 步用 <code>top()</code> 而不是 <code>pop()</code></strong> —— 因為一個節點會被<strong>碰到兩次</strong>:第一次要下去右子樹(<strong>不能 pop,等一下還要回來</strong>),第二次才輪到它自己。<br><br>
+  <strong><code>lastVisited</code> 就是用來分辨這兩次的。</strong>條件 <code>lastVisited != peek-&gt;right</code> 的意思是「<strong>我剛剛輸出的不是它的右小孩,代表右邊還沒做完</strong>」。如果剛輸出的<em>正是</em>它的右小孩,就表示右子樹整棵完成了 —— 這是因為右子樹的<strong>最後一個輸出必定是右子樹的根</strong>(<b>又是「根在最後」這個性質</b>)。<br><br>
+  <strong>對照 <code>reverse</code> 版</strong>(見<a href="code.html">程式碼頁</a>):那個版本只有 8 行,不需要 <code>lastVisited</code>,代價是最後多一次 <code>O(n)</code> 反轉。<b>兩者複雜度相同(時間 <code>O(n)</code>、空間 <code>O(h)</code>),差別純粹是「多一個狀態變數」還是「多一次反轉」。</b><br><br>
+  <b>面試建議:先寫 <code>reverse</code> 版(不容易錯),再說明這個 <code>lastVisited</code> 版存在且不需要額外的輸出緩衝。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">後序 = 等最久的那一種,根恆在最後、第一個必是葉節點。postorder = reverse(根→右→左),不是 reverse(preorder)。「先辦完子樹再辦自己」是釋放記憶體與由下往上聚合的唯一順序 —— 104、110、124、543 全是這個骨架,只改最後一行。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE POSTORDER TRAVERSAL · REVIEW</div>
+  </div>
+
+</body>
+</html>

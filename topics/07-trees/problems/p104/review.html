@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>104 · Maximum Depth of Binary Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P104</span>
+    <span><a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的最大深度</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 104</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td><strong>值從葉子往上長</strong> —— 誕生於 <code>return 0</code>,每層 <code>+1</code></td></tr>
+        <tr><td>三個決定</td><td><code>0</code> = 空樹沒節點、<code>+1</code> = 算上自己、<code>max</code> = 取深的那邊</td></tr>
+        <tr><td>base case 錯成 1</td><td><strong>恆定 +1</strong>(626 種樹形誤差集合只有 <code>{1}</code>)—— 因為 <code>max</code> 不累加偏移</td></tr>
+        <tr><td><code>min</code> 的陷阱</td><td><code>1+min</code> <strong>既不是最大也不是最小深度</strong>,與真 minDepth 差 496/626</td></tr>
+        <tr><td><code>max</code> 換成加法</td><td>變成<strong>數節點總數</strong>(LC222)—— 實測 626/626 與節點數相符</td></tr>
+        <tr><td>沒有短路</td><td><code>max</code> 是普通函式,<strong>兩個遞迴都會被完整執行</strong></td></tr>
+        <tr><td>呼叫次數</td><td>恆為 <strong>2n + 1</strong>,與樹形無關</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(n)</code>,空間 <code>O(h)</code> —— n=10⁴ 時<strong>平衡 15 層 vs 鏈 10001 層</strong></td></tr>
+        <tr><td><strong>堆疊安全</strong></td><td>每層 <strong>48 bytes</strong>,退化鏈需 <strong>469 KB</strong>;8 MB 上安全,<strong>512 KB 上只剩 8% 餘裕</strong></td></tr>
+        <tr><td>是誰的模板</td><td><strong>110</strong> 判平衡、<strong>543</strong> 求直徑、<strong>124</strong> 最大路徑和</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> base case 為什麼回傳 <code>0</code> 而不是 <code>1</code>?如果寫成 <code>1</code>,錯誤會<strong>隨著樹變深而放大</strong>,還是<strong>固定不變</strong>?請說明理由並給實測數字。</div>
+
+    <div class="qa"><strong>Q2.</strong> 把 <code>max</code> 換成 <code>min</code>,是不是就得到 LeetCode 111 的<strong>最小深度</strong>?請給最小反例。</div>
+
+    <div class="qa"><strong>Q3.</strong> 如果左子樹已經很深了,右子樹的遞迴會不會被<strong>跳過</strong>(短路)?為什麼?</div>
+
+    <div class="qa"><strong>Q4.</strong> 這題 <code>n</code> 的上限是 <code>10⁴</code>。<strong>遞迴會不會爆堆疊</strong>?請給<strong>實測數字</strong>,並說明你的答案在<strong>什麼條件下會改變</strong>。</div>
+
+    <div class="qa"><strong>Q5.</strong> 把 <code>max</code> 誤寫成加法(<code>1 + 左 + 右</code>),你會得到什麼?這是<strong>算錯的深度</strong>,還是<strong>另一個有意義的量</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [3,9,20,null,null,15,7] → 3</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例:根 <code>3</code>;<code>3.left=9</code>(葉)、<code>3.right=20</code>;
+      <code>20.left=15</code>、<code>20.right=7</code>(都是葉)。
+      <strong>以下每一步都是實跑印出來的。</strong>縮排 = 遞迴深度。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 下潛:一路走到 nullptr,途中什麼都沒算</span>
+ 1. ENTER maxDepth(node 3)                 [root]
+ 2.   ENTER maxDepth(node 9)               [3.left]
+ 3.     ENTER maxDepth(nullptr)            [9.left]
+ 4.     return 0                           ← 第一個數字誕生
+ 5.     ENTER maxDepth(nullptr)            [9.right]
+ 6.     return 0
+ 7.   return 1 + max(0, 0) = 1             ← 節點 9 回報 1
+<span class="sc-trace__out">// 步驟 1~3 完全沒有計算 —— 只是「走到底」</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 右半邊:兩個葉節點各回報 1</span>
+ 8.   ENTER maxDepth(node 20)              [3.right]
+ 9.     ENTER maxDepth(node 15)            [20.left]
+10.       ENTER maxDepth(nullptr) → return 0
+12.       ENTER maxDepth(nullptr) → return 0
+14.     return 1 + max(0, 0) = 1           ← 節點 15 回報 1
+15.     ENTER maxDepth(node 7)             [20.right]
+16.       ENTER maxDepth(nullptr) → return 0
+18.       ENTER maxDepth(nullptr) → return 0
+20.     return 1 + max(0, 0) = 1           ← 節點 7 回報 1
+21.   return 1 + max(1, 1) = 2             ← 節點 20 回報 2(兩邊一樣深)</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 根節點:max 在這裡真正發揮作用</span>
+22. return 1 + max(1, 2) = 3
+                    ↑  ↑
+                    │  └─ 節點 20 回報的 2
+                    └──── 節點 9 回報的 1  ← 被 max 丟掉
+
+FINAL = 3</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return 3
+
+統計:11 次 maxDepth() 呼叫(5 實節點 + 6 個 nullptr = 2n+1 = 2×5+1 ✓)
+      6 次 return 0(每個 nullptr 一次)—— 所有數字的起點
+      最大遞迴深度 3
+
+數字的成長路徑:
+  0(nullptr) → 1(葉節點 9、15、7) → 2(節點 20) → 3(根)
+<span class="sc-trace__out">// 答案 3 對應的最長路徑是 3 → 20 → 15(或 3 → 20 → 7),共 3 個節點</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>整個 trace 裡,<code>max</code> 只有在<em>最後一步</em>真正做了決定</strong> ——
+      前面幾次都是 <code>max(0,0)</code> 或 <code>max(1,1)</code>,兩邊一樣。
+      <b>只有根節點的 <code>max(1, 2)</code> 丟掉了一條比較短的路。</b>
+      這就是為什麼「左右不對稱」的測資才測得出 <code>max</code> 有沒有寫對。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用 <strong>BFS 逐層</strong>算最大深度(不用遞迴)。骨架長什麼樣?它和遞迴版相比,<strong>空間上誰比較好</strong>?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成算 <strong>LeetCode 111 最小深度</strong>。要改哪裡?為什麼<strong>不能只把 <code>max</code> 換成 <code>min</code></strong>?</div>
+
+    <div class="qa"><strong>App 3.</strong> 用這題的骨架寫 <strong>LeetCode 543 二元樹的直徑</strong>。要多加什麼?為什麼<strong>不能只看根節點的左右深度相加</strong>?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為 <code>nullptr</code> 不是節點;而且錯誤是<em>固定的 +1</em>,不會放大。</strong><br><br>
+  深度的定義是「路徑上的<strong>節點數</strong>」,而 <code>nullptr</code> 代表「這裡沒有樹」,<strong>它不佔一個節點</strong>。所以空樹的深度是 <code>0</code>。<br><br>
+  <strong>為什麼錯誤不會放大 —— 因為 <code>max</code> 不累加偏移。</strong>設 <code>H'</code> 是錯誤版本、<code>H</code> 是正確版本,假設左右子樹都偏移了 1:<br>
+  <code>H'(x) = 1 + max(H(左)+1, H(右)+1) = 1 + max(H(左), H(右)) + 1 = H(x) + 1</code><br>
+  <b>兩邊「同時 +1」可以被提到 <code>max</code> 外面</b>,所以偏移<strong>一路乾淨地傳上來,始終是 1</strong>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..7</code> 共 <strong>626 種樹形全錯</strong>,而且 <code>H'(t) − H(t)</code> 的<strong>取值集合只有 <code>{1}</code> 這一個值</strong> —— 與樹形完全無關。連空樹都回 1。<br><br>
+  <b>對比:如果換成加法(<code>1 + 左 + 右</code>),偏移就會<em>翻倍累積</em></b>,那才是「越深錯越多」。<strong>「<code>max</code> 對常數偏移是透明的、加法不是」——這個性質在 110 那題還會再出現一次</strong>(見 <a href="../p110/index.html">110</a>:那裡 base case 寫錯 1 竟然<strong>完全不影響答案</strong>,因為它被減法消掉了)。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>不是。最小反例 <code>[1,null,2]</code>。</strong><br><br>
+  最小深度的定義是「根到<strong>最近的<em>葉節點</em></strong>」,而葉節點的定義是<strong>左右都空</strong>。<br><br>
+  <code>[1,null,2]</code>:節點 1 有右小孩、<strong>沒有左小孩</strong>。<br>
+  <code>1 + min(maxDepth(null), maxDepth(2)) = 1 + min(0, 1) = 1 + 0 = <strong>1</strong></code><br>
+  <b>那個 <code>0</code> 來自「不存在的左子樹」,直接把 <code>min</code> 吃掉了。</b>但深度 1 的位置是節點 1,<strong>它有小孩,根本不是葉節點</strong>。真正的 minDepth 是 <strong>2</strong>(路徑 <code>1 → 2</code>)。<br><br>
+  <strong>實測</strong>:<code>1+min</code> 與真 minDepth <strong>在 496/626 種樹形上不同</strong>,而且 <code>1+min == 真minDepth ⟺ 該樹是「滿二元樹」</code>(每個節點 0 或 2 個小孩)—— 因為滿二元樹<strong>沒有單邊子樹的節點</strong>,那個陷阱就不存在。<br><br>
+  <strong>正確寫法要特判「某一邊空就強制走另一邊」:</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">if (root == nullptr) return 0;
+if (root-&gt;left  == nullptr) return 1 + minDepth(root-&gt;right);
+if (root-&gt;right == nullptr) return 1 + minDepth(root-&gt;left);
+return 1 + min(minDepth(root-&gt;left), minDepth(root-&gt;right));</pre>
+  <b><code>max</code> 版<em>不需要</em>這個特判,因為 <code>max</code> 會自動忽略那個 0。</b><strong>這是 <code>max</code> 和 <code>min</code> 的不對稱之處</strong> —— 也是「把 max 改成 min」這種看似無害的修改為什麼危險。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不會跳過 —— 兩個遞迴都會被完整執行。</strong><br><br>
+  <code>std::max(a, b)</code> 是一個<strong>普通函式</strong>。C++ 的規則是:<strong>引數必須先全部算完,才能呼叫函式</strong>。所以 <code>maxDepth(root-&gt;left)</code> 和 <code>maxDepth(root-&gt;right)</code> <strong>兩個都得先跑完</strong>,結果才會被送進 <code>max</code>。<br><br>
+  這和 <code>&amp;&amp;</code> / <code>||</code> <strong>完全不同</strong> —— 那兩個是<strong>短路運算子</strong>,語言明文保證右邊可能不被求值。<b><code>max</code> 沒有這種保證,也不可能有。</b><br><br>
+  <strong>實測</strong>:刻意造一棵極不對稱的樹(左邊掛 5 條邊的鏈、右邊只有 1 個節點),觀察到深度 6、<strong>呼叫次數 15 = 2×7+1</strong>;把它左右鏡像過來,<strong>還是深度 6、呼叫 15 次</strong>。<b>兩邊都被走完,和哪邊比較深無關。</b><br><br>
+  <strong>這正是複雜度乾淨的原因:</strong>沒有任何節點被跳過,所以呼叫次數<strong>恆為 <code>2n+1</code></strong>,與樹形完全無關(窮舉 2056 種樹形實測,每個 <code>n</code> 的 min == max)。<br><br>
+  <b>對比 <a href="../p110/index.html">110 判平衡</a>:那題用的是 <code>&amp;&amp;</code>,<em>真的會</em>短路 —— 而且短路大幅改變了它的實際複雜度。</b>同樣是樹遞迴,「用的是函式還是短路運算子」會導致完全不同的成本分析。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>在一般環境不會爆(餘裕 17 倍),但這是第一題需要真的算一下的。</strong><br><br>
+  <strong>實測數字</strong>(clean <code>-O2</code> build,未插樁):<br>
+  · 每層 <strong>48 bytes</strong> —— 由崩潰深度回推得 48.03,並與組語 <code>stp x22, x21, [sp, #-48]!</code> 核對相符<br>
+  · <strong>崩潰臨界 174300 層</strong>(三次二分皆得同一個邊界:174299 存活、174300 崩)<br>
+  · <code>ulimit -s</code> = 8176 KB<br><br>
+  <strong>最壞情況</strong>:樹退化成一條鏈,深度 <code>10001</code>,需要約 <code>10000 × 48 = <strong>469 KB</strong></code>。<br><br>
+  <strong>不同堆疊上限下的實測結果:</strong><br>
+  · <code>8176 KB</code>(本機預設)→ <strong>存活</strong>,只用 5.7%,餘裕約 <strong>17 倍</strong><br>
+  · <code>1024 KB</code> → <strong>存活</strong><br>
+  · <code>512 KB</code> → <strong>存活,但實測 10802 層就崩</strong> —— 對 <code>10⁴</code> 而言<strong>只剩約 8% 餘裕</strong><br>
+  · <code>448 KB</code> → <strong>SIGSEGV</strong><br><br>
+  <strong>我的答案在什麼條件下會改變 —— 兩個:</strong><br>
+  ① <strong>堆疊上限</strong>。512 KB 就已經很緊,再小就過不了。<br>
+  ② <strong>最佳化等級</strong>。<code>-O0</code> 每層變成 <strong>64 bytes</strong>,實測在 512 KB 上 <strong>8099 層就崩,<code>10⁴</code> 直接過不了</strong>。<br><br>
+  <b>所以正確說法是:「在 8 MB 或 1 MB 堆疊上安全;但這個結論依賴堆疊上限和編譯選項,不是演算法本身的性質。」</b>如果要一個與環境無關的保證,就改用 App 1 的 BFS 版 —— <code>queue</code> 在 heap 上,沒有 8 MB 這種硬上限。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>你會得到「節點總數」—— 那是另一個有意義的量,正好是 LeetCode 222。</strong><br><br>
+  <code>1 + 左 + 右</code> 的遞迴式,<strong>就是「子樹大小」的定義式</strong>:自己算 1 個,加上左右子樹各有幾個。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..7</code> 共 626 種樹形,這個版本的輸出與<strong>節點總數完全相符(626/626)</strong>;而與「葉節點數」只相符 2/626(就是 <code>[]</code> 和單節點)。<b>所以它不是「算錯的深度」,它是<em>正確的 countNodes</em>。</b><br><br>
+  <strong>它作為 maxDepth 的錯誤率</strong>:錯 <strong>498/626</strong>。巧合對的 <strong>128 種</strong>恰好是<strong>「樹退化成一條鏈」</strong>的情形 —— 因為鏈上<strong>節點數剛好等於深度</strong>。<br><br>
+  <b>這個對照很值得記,因為它示範了「同一個遞迴骨架,換掉合併運算就變成另一題」:</b><br>
+  · <code>1 + max(左, 右)</code> → <strong>樹高</strong>(LC104)<br>
+  · <code>1 + 左 + 右</code> → <strong>節點數</strong>(LC222)<br>
+  · <code>1 + min(左, 右)</code> + 單邊特判 → <strong>最小深度</strong>(LC111)<br>
+  · <code>左 + 右</code> 並記錄全域最大 → <strong>直徑</strong>(LC543)<br><br>
+  <b>骨架永遠是「先問兩邊,再合併」;真正定義題目的是「合併那一步做什麼」。</b>這也是為什麼把 <code>max</code> 換成 <code>+</code> 這種「小改動」會徹底換一題 —— 它改的正是題目的核心。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>BFS 逐層,數有幾層;空間上「誰比較好」取決於樹的形狀。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int maxDepth(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    queue&lt;TreeNode*&gt; q;
+    q.push(root);
+    int levels = 0;
+
+    while (!q.empty()) {
+        int levelSize = q.size();       // 先記下這一層有幾個
+
+        for (int i = 0; i &lt; levelSize; i++) {
+            TreeNode* curr = q.front();
+            q.pop();
+            if (curr-&gt;left)  q.push(curr-&gt;left);
+            if (curr-&gt;right) q.push(curr-&gt;right);
+        }
+
+        levels++;                        // 排乾一整層 = 深度 +1
+    }
+
+    return levels;
+}</pre>
+  <b>關鍵是 <code>int levelSize = q.size();</code> 這一行</b> —— <strong>先把「這一層有幾個」拍照存下來</strong>,再剛好排乾那麼多個。如果直接寫 <code>while (!q.empty())</code> 而不分層,你就數不出「層數」了。<strong>這個「先記 <code>q.size()</code>」的模式是所有層序題(102、107、199、515)的共同骨架。</strong><br><br>
+  <strong>空間比較 —— 沒有一面倒的贏家:</strong><br>
+  · 遞迴版 <code>O(h)</code>,BFS 版 <code>O(w)</code>(w = 最大寬度)<br>
+  · <strong>完美平衡樹</strong>:<code>h ≈ log n</code> 但 <code>w ≈ n/2</code> → <b>遞迴版好非常多</b><br>
+  · <strong>退化成鏈</strong>:<code>h = n</code> 但 <code>w = 1</code> → <b>BFS 版好非常多</b><br><br>
+  <b>但 BFS 有一個結構性優勢:<code>queue</code> 配置在 heap 上,不會 stack overflow。</b>所以在 A4 那種「堆疊上限很小」的環境下,<strong>BFS 是唯一穩的選擇</strong>,即使它在平衡樹上用更多記憶體。<strong>——「同樣的複雜度、不同的失敗模式」。</strong><br><br>
+  這個 BFS 版正是本頁對拍用的<strong>獨立參考解</strong>,20 萬組零不一致。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>要加「單邊子樹」的特判 —— 不能只把 <code>max</code> 換成 <code>min</code>(理由見 A2)。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int minDepth(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    // 只有單邊子樹時,「空的那邊」不算一條通往葉節點的路
+    if (root-&gt;left  == nullptr) return 1 + minDepth(root-&gt;right);
+    if (root-&gt;right == nullptr) return 1 + minDepth(root-&gt;left);
+
+    return 1 + min(minDepth(root-&gt;left), minDepth(root-&gt;right));
+}</pre>
+  <strong>根源是「最小深度必須走到<em>葉節點</em>」這個條件。</strong><code>maxDepth</code> 不需要這個特判,因為 <code>max</code> 會自動忽略掉空子樹回傳的 0;但 <code>min</code> <strong>會被那個 0 綁架</strong>,回報一條「根本走不到葉子」的假路徑。<br><br>
+  <strong>實測</strong>:不加特判的 <code>1+min</code> 與正確 minDepth <strong>在 496/626 種樹形上不同</strong>,兩者相等<strong>當且僅當該樹是滿二元樹</strong>(沒有單邊子樹的節點)。<br><br>
+  <b>順帶一提,minDepth 用 BFS 其實更漂亮:第一個碰到的葉節點就是答案,可以<em>立刻 return</em>,不必走完整棵樹。</b>對「有一條很淺的路、但其他地方很深」的樹,BFS 版會快非常多 —— <strong>這是少數幾個「BFS 明顯優於 DFS」的樹題</strong>。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>要多一個「全域最大值」—— 因為直徑不一定通過根節點。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">int longestPath = 0;                       // 全域,記錄目前看過的最大直徑
+
+int path(TreeNode* root) {                 // 回傳「高度」,順便更新全域最大
+    if (root == nullptr) return 0;
+
+    int left = path(root-&gt;left), right = path(root-&gt;right);
+    longestPath = max(longestPath, left + right);   // ← 在「每個節點」都試一次
+
+    return 1 + max(left, right);           // 這一行和 104 一模一樣
+}</pre>
+  <strong>骨架完全是 104</strong>:<code>return 1 + max(左, 右)</code> 那一行<strong>一個字都沒改</strong>。多的只有<strong>中間那一行</strong> —— 在<strong>每一個節點</strong>都試算一次「穿過我的最長路徑 = 左高 + 右高」,並更新全域最大。<br><br>
+  <strong>為什麼不能只看根 —— 因為直徑可能整條落在某棵子樹裡,根本沒碰到根。</strong><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..7</code> 共 626 種樹形,<strong>有 48 種(7.67%)的直徑不通過根</strong>。<br>
+  <b>而且最小反例要 <code>n = 6</code> 才出現</b> —— <code>n ≤ 5</code> 的 65 種樹形,「只看根」<strong>全部碰巧正確</strong>。<b>這就是為什麼這個 bug 幾乎不可能靠手算小例子發現</b>:你得刻意造出「一邊很淺、另一邊掛著一條深的斜鏈」的形狀。<br><br>
+  詳細內容見 <a href="../p543/index.html">543 那一頁</a> —— 它把「為什麼需要全域最大」這件事完整展開。<br><br>
+  <b>值得注意的是這裡有個單位陷阱:<code>path()</code> 回傳的是「節點數」,而 <code>left + right</code> 出來的卻是「邊數」</b>(兩邊各自的「+1 根節點」都不在裡面)。<strong>這個混用剛好是對的</strong>,而題目要的正是邊數 —— 實測 <code>n=1</code> 的單節點樹回傳 <code>0</code> ✓。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">骨架永遠是「先問兩邊,再合併」;定義題目的是合併那一步:max 是樹高、加法是節點數、min 加特判是最小深度、左+右取全域最大是直徑。max 對常數偏移透明所以 base case 錯成 1 只會恆定 +1;max 不短路所以兩邊都走完。</div>
+    <div class="sc-summary-bar__detail">MAXIMUM DEPTH OF BINARY TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>

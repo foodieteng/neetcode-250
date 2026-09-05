@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>144 · Binary Tree Preorder Traversal // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P144</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-preorder-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹前序走訪</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 144</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>前序 = <strong>根 → 左 → 右</strong>,<code>push_back</code> 在<strong>兩個遞迴之前</strong></td></tr>
+        <tr><td>核心直覺</td><td><strong>走到就收錄,不用等任何人</strong> —— 三種走訪裡唯一如此</td></tr>
+        <tr><td>簽名性質 ①</td><td><strong>第一個元素恆為根</strong>(實測 2055/2055;而 <code>back()==root</code> 只中 1/2055)</td></tr>
+        <tr><td>簽名性質 ②</td><td>輸出恆為 <code>[根 | 整棵左子樹 | 整棵右子樹]</code> —— <strong>三段連續不交錯</strong></td></tr>
+        <tr><td>為什麼重要</td><td>「三段連續」是 <strong>105 重建二元樹</strong>、<strong>297 序列化</strong>的基礎</td></tr>
+        <tr><td>終止條件</td><td><code>root == nullptr</code>,<strong>不是</strong>葉節點判斷 —— 後者 197 種樹形<strong>全錯</strong></td></tr>
+        <tr><td>呼叫次數</td><td>恆為 <strong>2n + 1</strong>,<strong>與樹形完全無關</strong>(2056 種樹形實測)</td></tr>
+        <tr><td>複雜度</td><td>時間 <code>O(n)</code>,空間 <code>O(h)</code>;與中序、後序<strong>成本完全相同</strong></td></tr>
+        <tr><td>最危險的錯</td><td><strong>左右對調</strong> —— 在所有鏈狀樹上碰巧全對(64/197,<strong>巧合率 32.5%</strong>)</td></tr>
+        <tr><td>測資鐵則</td><td>永遠用 <code>[1,2,3]</code>,<strong>不要用斜鏈</strong> —— 斜鏈上前序與中序輸出相同</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 前序輸出的<strong>第一個</strong>元素一定是根 —— 為什麼?<strong>最後一個</strong>呢,有沒有類似的保證?</div>
+
+    <div class="qa"><strong>Q2.</strong> 「前序輸出是<strong>三段連續</strong>」是什麼意思?請說明它<strong>為什麼讓「用前序 + 中序重建二元樹」變得可能</strong>。</div>
+
+    <div class="qa"><strong>Q3.</strong> 你把前序寫成了<strong>左右對調</strong>(<code>push, right, left</code>),但跑了好幾筆測資都過。<strong>為什麼</strong>?這一族樹有什麼共同特徵?</div>
+
+    <div class="qa"><strong>Q4.</strong> 用<strong>顯式 <code>std::stack</code></strong> 寫前序,為什麼要<strong>先 push 右子樹、再 push 左子樹</strong>?寫反了會怎樣?</div>
+
+    <div class="qa"><strong>Q5.</strong> 前序、中序、後序<strong>誰比較快</strong>?請給<strong>實測數字</strong>,並說明你看到的差異是<strong>演算法差異</strong>還是<strong>別的原因</strong>。</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 9 節點 → [1,2,4,5,6,7,3,8,9]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      樹:根 <code>1</code>;<code>1.left=2, 1.right=3</code>;<code>2.left=4, 2.right=5</code>;
+      <code>3.right=8</code>;<code>5.left=6, 5.right=7</code>;<code>8.left=9</code>。
+      縮排 = 遞迴深度。<strong>以下每一步都是實跑印出來的。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 根 + 整棵左子樹(前 6 個元素)</span>
+preorder(node 1)
+  ★ push_back(1)                      ans = [1]
+  preorder(node 2)                      // 1 的左
+    ★ push_back(2)                    ans = [1,2]
+    preorder(node 4)                    // 2 的左
+      ★ push_back(4)                  ans = [1,2,4]
+      preorder(null) → return           // 4 是葉節點
+      preorder(null) → return
+    preorder(node 5)                    // 2 的右
+      ★ push_back(5)                  ans = [1,2,4,5]
+      preorder(node 6)
+        ★ push_back(6)                ans = [1,2,4,5,6]
+        preorder(null) ×2 → return
+      preorder(node 7)
+        ★ push_back(7)                ans = [1,2,4,5,6,7]
+        preorder(null) ×2 → return
+<span class="sc-trace__out">// 到這裡 [1 | 2,4,5,6,7] —— 根 + 整棵左子樹,「一整塊」排在一起</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 整棵右子樹(後 3 個元素)</span>
+  preorder(node 3)                      // 1 的右,現在才輪到
+    ★ push_back(3)                    ans = [1,2,4,5,6,7,3]
+    preorder(null) → return             // 3 沒有左子樹
+    preorder(node 8)                    // 3 的右
+      ★ push_back(8)                  ans = [1,2,4,5,6,7,3,8]
+      preorder(node 9)                  // 8 的左
+        ★ push_back(9)                ans = [1,2,4,5,6,7,3,8,9]
+        preorder(null) ×2 → return
+      preorder(null) → return           // 8 沒有右子樹
+<span class="sc-trace__out">// 右子樹的 3 個節點也是「一整塊」—— 沒有和左子樹的任何節點交錯</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return ans = [1,2,4,5,6,7,3,8,9]
+             └┬┘ └───┬───┘ └──┬──┘
+             根   整棵左子樹  整棵右子樹
+
+統計:19 次 preorder() 進入(9 實節點 + 10 個 nullptr = 2n+1 = 2×9+1 ✓)
+      9 次 push_back
+      最大遞迴深度 4(節點 6 與 7 所在的那一層)
+<span class="sc-trace__out">// 對照:同一棵樹的中序是 [4,2,6,5,7,1,3,9,8] —— 根 1 被夾在正中間</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      把這個 trace 和<a href="../p94/review.html">中序那一頁</a>的疊起來看:
+      <strong>同一棵樹、同樣 19 次呼叫、同樣 9 次 <code>push_back</code></strong>,
+      <b>差別只在每次 <code>push_back</code> 發生在哪一個時刻。</b>
+      前序在「進入時」推、中序在「左邊回來後」推、後序在「兩邊都回來後」推。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 給你一棵樹的<strong>前序序列</strong>和<strong>中序序列</strong>,重建這棵樹(LeetCode 105)。請說出作法,以及<strong>為什麼只有前序不夠</strong>。</div>
+
+    <div class="qa"><strong>App 2.</strong> 用<strong>顯式 <code>std::stack</code></strong> 改寫前序。為什麼前序的迭代版<strong>比中序的迭代版簡單得多</strong>?</div>
+
+    <div class="qa"><strong>App 3.</strong> 要把一棵樹<strong>序列化成字串再還原</strong>(LeetCode 297)。為什麼<strong>前序</strong>是最自然的選擇?<code>null</code> 要怎麼處理?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>第一個一定是根;最後一個沒有對應的保證。</strong><br><br>
+  <code>push_back</code> 是函式體的<strong>第一個動作</strong>(<code>nullptr</code> 檢查之後)。最外層那次呼叫傳進來的就是 <code>root</code>,所以它<strong>必定第一個被推進去</strong>,任何子樹的節點都排在它後面。<br><br>
+  <strong>實測</strong>:窮舉 <code>n = 1..8</code> 全部 <strong>2055 棵樹</strong>,<code>ans.front() == root-&gt;val</code> <strong>命中 2055/2055</strong>。<br><br>
+  <strong>最後一個沒有保證</strong> —— 作為對照組實測 <code>ans.back() == root-&gt;val</code> 只命中 <strong>1/2055</strong>,那唯一一棵是<strong>單節點樹</strong>(頭尾同一格)。<br><br>
+  <b>「根在最後」是後序的簽名,不是前序的。</b>三種走訪的根位置各自是:前序<strong>最前</strong>、後序<strong>最後</strong>、中序<strong>在「左子樹節點數」那一格</strong>。<b>記住這三句,就能一眼認出一串輸出是哪種走訪。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>「三段連續」= 左子樹的所有節點是一整塊、右子樹的所有節點也是一整塊,兩塊不交錯。</strong><br><br>
+  前序輸出永遠長這樣:<code>[根 | 整棵左子樹的前序 | 整棵右子樹的前序]</code>。以本頁範例樹為例:<code>[1 | 2,4,5,6,7 | 3,8,9]</code>。<b>中序就不是這樣</b> —— 中序是 <code>[左子樹 | 根 | 右子樹]</code>,根被<strong>夾在中間</strong>。<br><br>
+  <strong>為什麼這讓重建成為可能:</strong><br>
+  ① 前序的<strong>第一個</strong>元素 —— 直接讀出<strong>根是誰</strong>(這是前序給的資訊)。<br>
+  ② 拿這個根去<strong>中序</strong>裡找位置 —— 它<strong>左邊的所有元素</strong>就是左子樹、<strong>右邊的</strong>就是右子樹(這是中序給的資訊)。<strong>於是我們知道了左子樹有幾個節點,設為 k。</strong><br>
+  ③ 回到前序:根後面的 <strong>k 個</strong>就是左子樹的前序,<strong>再後面的</strong>就是右子樹的前序 —— <b>而這一步之所以能切,正是因為「三段連續」</b>。如果左右子樹的節點在前序裡是交錯的,你根本不知道該切在哪。<br>
+  ④ 對兩半遞迴。<br><br>
+  <b>一句話:前序告訴你「誰是根」,中序告訴你「左右各有多少」,兩個資訊合起來才唯一決定一棵樹。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為左右對調在所有「鏈狀樹」上碰巧完全正確 —— 這一族佔了 32.5%。</strong><br><br>
+  <strong>實測</strong>:窮舉 <code>n = 0..6</code> 共 197 種樹形,左右對調<strong>錯 133 種、對 64 種</strong>。這 64 種的分佈是 <code>1, 1, 2, 4, 8, 16, 32</code>,也就是 <code>n ≥ 1</code> 時的 <strong><code>2ⁿ⁻¹</code></strong>。<br><br>
+  <strong>這一族的共同特徵:每個節點<em>至多只有一個</em>小孩</strong> —— 也就是<strong>鏈狀樹</strong>。注意<strong>不只是純左鏈或純右鏈</strong>,而是<strong>任何左右轉彎的單子鏈</strong>都算,例如 <code>[1,null,2,3]</code>、<code>[1,2,null,null,3]</code>。<br><br>
+  <strong>為什麼:</strong>交換 <code>left</code> 和 <code>right</code> 的遞迴順序,只有在「<strong>兩邊都有東西</strong>」時才看得出差別。如果每個節點<strong>至多一個小孩</strong>,那麼其中一邊永遠是 <code>nullptr</code> —— <b>先走空的還是先走非空的,結果一模一樣。</b><br><br>
+  <strong>最小反例是 <code>[1,2,3]</code></strong>:根同時有左右小孩,正解 <code>[1,2,3]</code>、對調後 <code>[1,3,2]</code>。<br><br>
+  <b>教訓:測資裡一定要有「同時擁有左右小孩」的節點。</b>這也是為什麼本頁所有陷阱表都是窮舉 197 種樹形跑出來的 —— 這個 bug 的巧合率高到單靠幾筆手寫測資幾乎必然漏掉。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為 stack 是後進先出 —— 要讓左邊先被處理,就必須把它後放。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">vector&lt;int&gt; ans;
+if (root == nullptr) return ans;
+stack&lt;TreeNode*&gt; st;
+st.push(root);
+while (!st.empty()) {
+    TreeNode* curr = st.top(); st.pop();
+    ans.push_back(curr-&gt;val);
+    if (curr-&gt;right) st.push(curr-&gt;right);   // 先放右
+    if (curr-&gt;left)  st.push(curr-&gt;left);    // 後放左 → 先被 pop
+}</pre>
+  <strong>寫反了(先 push left 再 push right)會得到「鏡像前序」</strong> —— 也就是 <code>根 → 右 → 左</code>。這正是上一題那個左右對調的變體,<strong>會錯 133/197 種樹形</strong>,而且在鏈狀樹上還是碰巧全對,<b>所以你很可能測不出來</b>。<br><br>
+  <strong>記法</strong>:stack 的 <code>push</code> 順序和 <code>pop</code> 順序<strong>永遠相反</strong>。你想要的輸出順序是「左先」,所以 push 順序就要「右先」。<b>每次寫 stack 版走訪都要停下來問一次這件事。</b><br><br>
+  順帶一提,<strong>這個迭代版比中序的迭代版簡單很多</strong> —— 原因見 App 2。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>三者的工作量完全相同;看到的時間差是量測雜訊與快取效應,不是演算法差異。</strong><br><br>
+  <strong>指令數層面 —— 完全相同</strong>:同樣的 <code>n = 100</code> 樹,三者的呼叫次數<strong>都是 201</strong>(<code>2n+1</code>),差 <strong>0</strong>。這不是巧合:三份程式碼<strong>只差 <code>push_back</code> 那一行的位置</strong>,遞迴結構一個字都沒變。<br><br>
+  <strong>牆鐘層面(10⁵ 次重複,實測)</strong>:<br>
+  · 平衡樹 → 前序 <strong>77.7ms</strong>、中序 <strong>75.9ms</strong>、後序 <strong>74.0ms</strong>(差異在雜訊內)<br>
+  · 退化左鏈 → 前序 <strong>116.3ms</strong>、中序 <strong>122.3ms</strong>、後序 <strong>134.9ms</strong><br>
+  · 退化右鏈 → 前序 <strong>69.1ms</strong>、中序 <strong>69.7ms</strong>、後序 <strong>127.6ms</strong>(<strong>後序慢了 1.85 倍</strong>)<br><br>
+  <strong>怎麼解讀:</strong>注意<strong>差異的正負號會隨樹形翻轉</strong> —— 平衡樹上後序最快,右鏈上後序最慢。<b>一個真正的演算法差異不會這樣忽正忽負。</b>這種模式是<strong>分支預測與記憶體存取樣式</strong>造成的,和「哪一種走訪比較快」無關。<br><br>
+  <b>面試時的正確答案:「三者複雜度完全相同,都是 O(n) 時間、O(h) 空間,指令數也一樣 —— 選哪一種只看你要什麼順序,不看效能。」</b>拿牆鐘差異去論證「前序比較快」是<strong>過度解讀量測雜訊</strong>,反而扣分。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>前序給「誰是根」,中序給「左右各多少」—— 缺一不可。</strong><br><br>
+  <strong>作法</strong>:<br>
+  ① 取前序的第一個元素 → <strong>就是根</strong>。<br>
+  ② 在中序裡找到這個值的位置 <code>i</code> → 中序的 <code>[0, i)</code> 是左子樹、<code>(i, end)</code> 是右子樹,<strong>左子樹有 <code>k = i</code> 個節點</strong>。<br>
+  ③ 回到前序,根後面的 <code>k</code> 個是<strong>左子樹的前序</strong>、再後面的是<strong>右子樹的前序</strong>(靠的就是「三段連續」)。<br>
+  ④ 對兩半遞迴。<br><br>
+  <strong>優化</strong>:第 ② 步的「在中序裡找位置」如果每次都線性掃,總複雜度會退化成 <code>O(n²)</code>。<b>先用一個 <code>unordered_map&lt;int,int&gt;</code> 把「值 → 中序下標」建好</b>,查詢就變 <code>O(1)</code>,整體 <code>O(n)</code>。(這也是為什麼那題會保證<strong>節點值互不相同</strong> —— 否則這個 map 就建不起來。)<br><br>
+  <strong>為什麼只有前序不夠</strong>:前序 <code>[1,2]</code> 可能來自「2 是 1 的左小孩」,也可能來自「2 是 1 的右小孩」 —— <strong>兩棵不同的樹,前序完全相同</strong>。前序只說了「1 在 2 前面」,<strong>沒說 2 掛在哪一邊</strong>。中序補的正是這個資訊:中序 <code>[2,1]</code> 表示 2 在左、<code>[1,2]</code> 表示 2 在右。<br><br>
+  <b>順帶一提:「前序 + 後序」則<em>不足以</em>唯一決定一棵樹</b>(單子節點的情形仍然有歧義)—— 必須是「前序 + 中序」或「後序 + 中序」。<strong>中序是那個不可或缺的。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>因為前序「走到就收錄」,所以節點被 pop 出來的當下就能直接輸出 —— 不必記住任何額外狀態。</strong><br><br>
+  骨架見 A4:<code>pop → 輸出 → push right → push left</code>,<strong>四行</strong>。<br><br>
+  <strong>對比中序的迭代版</strong>(見 <a href="../p94/review.html">94 那一頁的 App 1</a>):它需要一個<strong>雙層迴圈</strong> —— 外層判斷「還有沒有東西要做」,內層「一路往左壓到底」,pop 出來之後還要<strong>轉向右子樹</strong>。<br><br>
+  <strong>差別的根源</strong>:中序必須回答「<strong>這個節點的左子樹做完了沒</strong>」。遞迴版靠函式 return 自動回答;顯式版<strong>沒人幫你記</strong>,得靠「一路往左壓到底,pop 出來就代表左邊做完了」這個技巧來間接表達。<br><br>
+  <b>前序根本不需要問這個問題</b> —— 它進來就收錄,<strong>沒有任何「等待」要追蹤</strong>。所以狀態機退化成「一個 stack、pop 就輸出」。<br><br>
+  <b>一般規律:走訪的迭代版有多複雜,取決於那個順序需要「等」多久。</b>前序不等(最簡單),中序等左邊(中等),<strong>後序要等兩邊,迭代版最麻煩</strong> —— 標準技巧是走「根 → 右 → 左」再把結果整個反轉,或者額外記一個「上次訪問的節點」來判斷右子樹回來了沒。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>因為前序的第一個就是根,反序列化時可以「邊讀邊建」,一次掃完。</strong><br><br>
+  <strong>序列化</strong>:跑前序,但<strong>連 <code>nullptr</code> 也要輸出一個標記</strong>(例如 <code>#</code>):<br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">void ser(TreeNode* root, string&amp; out) {
+    if (root == nullptr) { out += "#,"; return; }
+    out += to_string(root-&gt;val) + ",";
+    ser(root-&gt;left, out);
+    ser(root-&gt;right, out);
+}</pre>
+  <strong>反序列化</strong>:維護一個「讀到第幾個」的游標,每次取出一個 token:是 <code>#</code> 就回傳 <code>nullptr</code>,否則<strong>建節點,然後遞迴建左、遞迴建右</strong> —— <b>順序和序列化時完全一樣,所以游標一路往前走就對了,不用回頭。</b><br><br>
+  <strong>為什麼 <code>null</code> 標記不能省:</strong>這正是 App 1 提到的歧義 —— 沒有 <code>#</code>,前序 <code>[1,2]</code> 分不出 2 是左小孩還是右小孩。<b>加上 <code>null</code> 標記之後,前序序列就<em>唯一</em>決定一棵樹了</b>,不再需要中序來補資訊。<br><br>
+  <strong>為什麼前序比中序、後序適合:</strong><br>
+  · <strong>前序</strong> —— 根先出現,反序列化時<strong>先建根再建子樹</strong>,遞迴方向和讀取方向一致,一次掃完。<br>
+  · <strong>中序</strong> —— 根在中間,你<strong>不知道該在哪裡切</strong>,即使加了 <code>null</code> 標記也還原不出來(這是中序的已知缺陷)。<br>
+  · <strong>後序</strong> —— 可以做,但要<strong>從後往前讀</strong>(根在最後),而且左右子樹的建立順序要跟著反過來,比較容易寫錯。<br><br>
+  <b>所以 297 題的標準解就是「前序 + null 標記」。</b>另一個常見選擇是 BFS 層序(LeetCode 自己顯示樹的格式就是這個),但遞迴寫起來沒有前序漂亮。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">前序走到就收錄,所以根恆在最前、輸出恆為三段連續 —— 這正是重建二元樹與序列化的地基。迭代版四行就夠(記得先 push 右),因為前序不需要追蹤任何「等待」。三種走訪成本完全相同,牆鐘差異是雜訊不是演算法。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE PREORDER TRAVERSAL · REVIEW</div>
+  </div>
+
+</body>
+</html>

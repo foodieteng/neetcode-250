@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>104 · Maximum Depth of Binary Tree // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P104</span>
+    <span><a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的最大深度</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 值從葉子往上長</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 104</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BOTTOM-UP DFS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給二元樹的根節點 <code>root</code>,回傳它的<strong>最大深度</strong> ——
+        也就是<strong>從根到最遠葉節點那條路徑上的<em>節點數</em></strong>。
+        節點數 <code>0 ~ 10⁴</code>,節點值 <code>−100 ~ 100</code>。
+      </p>
+    </div>
+
+    <p>
+      這是<a href="../p145/index.html">後序骨架</a>的第一個「<strong>算出一個值</strong>」的應用。
+      和前面三題走訪不同,這題<strong>不收集東西</strong> —— 它讓<strong>每個節點回報一個數字給父節點</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>核心直覺:值是從葉子「往上長」的。</strong>
+      下潛的路上<strong>一個數字都沒算</strong> —— 遞迴只是一路走到 <code>nullptr</code>。
+      <b>每個數字都誕生於某次 <code>return 0</code>,然後每往上經過一層就 <code>+1</code>。</b>
+      看懂這個「值往上傳」的方向,110、543、124 就都是同一件事。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">三行的每一個字都在做事<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">base case 回傳 <strong>1</strong> 而不是 <strong>0</strong></span>
+            <span class="sc-ko-card__o">錯 626/626</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>全部答錯,而且是「恆定 +1」的偏移</strong> ——
+            實測窮舉 626 種樹形,誤差集合<strong>只有 <code>{1}</code> 這一個值</strong>。
+            空樹 <code>[]</code> 也會回 1。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 全盤 +1</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title"><code>max</code> 寫成 <code>min</code>(以為在算最小深度)</span>
+            <span class="sc-ko-card__o">錯 622/626</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>它算的既不是最大深度、也不是最小深度。</strong>
+            真正的 minDepth(LC111)<strong>必須走到葉節點</strong>,
+            而 <code>1+min</code> 會被「不存在的空子樹」吃掉。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 兩邊都不是</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title"><code>return 1 + max(左, 右);</code></span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(h) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong><code>0</code></strong> 是「空樹沒有節點」、
+          <strong><code>+1</code></strong> 是「算上我自己這一層」、
+          <strong><code>max</code></strong> 是「深度取決於<strong>比較深</strong>的那一邊」。
+          <b>三個部分各自對應題目裡的一個字。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 一行遞迴</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這題最好的自我檢查方式:把三個部分各自拆掉,看它會變成什麼題目。</strong>
+      拿掉 <code>+1</code> → 恆回 0;把 <code>max</code> 換成 <code>+</code> → <strong>變成在數節點總數</strong>(實測 626/626 與節點數完全相符,那是 LC222);
+      base case 改成 1 → 全部 +1。<b>三個都改對了,才是這一題。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>終止</strong>:<code>if (root == nullptr) return 0;</code> ——
+        <strong>空樹的深度是 0</strong>。這個 <code>0</code> 是<strong>所有數字的起點</strong>。</li>
+      <li><strong>問兩邊</strong>:<code>maxDepth(root-&gt;left)</code> 和 <code>maxDepth(root-&gt;right)</code>
+        各自回報一個數字。<strong>兩邊都一定會被完整執行</strong>(<code>max</code> 沒有短路)。</li>
+      <li><strong>回報給父節點</strong>:<code>return 1 + max(左, 右);</code> ——
+        <strong>取比較深的那一邊,再加上自己這一層</strong>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和走訪三題的差別</strong>:那三題的 helper 是 <code>void</code>,靠<strong>參考參數</strong>把結果帶出來;
+      這題的 helper <strong>有回傳值</strong>,靠 <code>return</code> 把結果<strong>往上傳一層</strong>。
+      <b>「回傳值 = 這棵子樹的答案」是後續所有樹形 DP 的共同語言。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [3,9,20,null,null,15,7] → 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      節點<strong>右上角的小方塊</strong>是「它回傳給父節點的值」,
+      節點<strong>下方的 <code>0 0</code></strong> 是它兩個 <code>nullptr</code> 小孩回傳的 0。
+      <strong>注意所有數字都是由下往上出現的</strong> —— 下潛時整棵樹都是灰的。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 最大深度 · 值從葉子往上長</div>
+      <div class="sc-viz__cvwrap"><canvas id="v104-canvas" class="sc-viz__canvas" style="height:396px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v104-reset">Reset</button><button class="sc-btn" id="v104-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v104-play">Play</button><button class="sc-btn" id="v104-next">Next</button>
+        <span class="sc-viz__step" id="v104-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="v104-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個會被追問的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 為什麼 base case 是 0 而不是 1</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>nullptr</code> 代表「<strong>這裡沒有樹</strong>」,不是「這裡有一棵空樹佔一層」。
+          深度的定義是<strong>路徑上的節點數</strong>,而 <code>nullptr</code> <strong>不是節點</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:改成 <code>return 1</code>,窮舉 <code>n = 0..7</code> 共 <strong>626 種樹形全錯</strong>,
+          而且誤差是<strong>恆定的 +1</strong>(626 種樹形的誤差集合<strong>只有 <code>{1}</code> 一個值</strong>,與樹形無關)。
+          <b>連空樹都會回 1 —— 而正確答案是 0。</b><br>
+          數學上的原因:<code>1 + max(a+1, b+1) = (1 + max(a,b)) + 1</code>,
+          <strong><code>max</code> 不會把偏移累加,所以它一路乾淨地傳到最上面。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · <code>1 + min(...)</code> 不是最小深度</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          很多人以為把 <code>max</code> 換成 <code>min</code> 就得到 LeetCode 111 的最小深度。
+          <strong>不對。</strong>最小深度的定義是「根到<strong>最近的<em>葉節點</em></strong>」,
+          而葉節點的定義是<strong>左右都空</strong>。
+        </p>
+        <p style="margin:0;">
+          問題出在<strong>只有單邊子樹</strong>的節點:<code>min(0, 某個正數)</code> 會被那個
+          「<strong>不存在的空子樹</strong>」直接吃掉,回傳 1 ——
+          但那個位置<strong>根本不是葉節點</strong>。<br>
+          <strong>實測</strong>:<code>1+min</code> 與真正的 minDepth <strong>在 496/626 種樹形上不同</strong>。
+          最小反例 <code>[1,null,2]</code>:<code>1+min</code> 給 <strong>1</strong>,真 minDepth 是 <strong>2</strong>。<br>
+          <b>正確的 minDepth 必須特判:某一邊空的時候,強制走另一邊。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 七種改法的實測結果(窮舉 n = 0..7,共 626 種樹形)</span>
+base case 回傳 1 而非 0     → 錯 626/626,恆定 +1 偏移,[] 就回 1
+忘記 +1                     → 錯 625/626,最小反例 [1] → 0(depth 恆為 0)
+max 寫成 min                → 錯 622/626,巧合家族 = 完美二元樹(左右處處等深)
+max 誤寫成加法 1 + 左 + 右  → 錯 498/626,它其實在「數節點總數」(626/626 相符 = LC222)
+只遞迴左子樹                → 錯 562/626,巧合家族 = 最左脊上處處「左 ≥ 右」的樹
+漏掉 nullptr 檢查           → 錯 626/626,[] 就 SIGSEGV
+base case 誤寫成葉節點判斷  → 崩 617/626;不崩的 9 種恰好是「滿二元樹」且答案全對
+<span class="sc-trace__out">// 最後一列最陰險:滿二元樹永遠不會踩到 nullptr,測資剛好都是滿樹就完全看不出 bug</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>　·　空間 <strong>O(h)</strong>,最壞(退化成鏈)<strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono ok"><strong>O(n)</strong></td><td>呼叫次數<strong>恆為 2n+1</strong>(窮舉 n=0..8 共 2056 種樹形,與形狀無關)</td></tr>
+        <tr><td>空間</td><td class="mono"><strong>O(h)</strong></td><td>n=10⁴ 時:<strong>平衡樹深度 15</strong> vs <strong>退化鏈深度 10001</strong></td></tr>
+        <tr><td>n=10⁴ 最壞堆疊</td><td class="mono"><strong>480 KB</strong></td><td>退化鏈,每層 <strong>48 bytes</strong>(clean <code>-O2</code> build)</td></tr>
+        <tr><td>崩潰臨界</td><td class="mono"><strong>174300</strong></td><td>三次二分皆得 174299 存活 / 174300 崩(<code>ulimit -s</code> = 8176 KB)</td></tr>
+        <tr><td>回傳型別</td><td class="mono ok"><code>int</code> 綽綽有餘</td><td>最大可能值 = <strong>10000</strong>,離 <code>INT_MAX</code> 極遠</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>⚠ 這題的 <code>n</code> 上限是 <code>10⁴</code>,比前面幾題的 <code>100</code> 大兩個數量級</strong> ——
+      所以「遞迴會不會爆」<strong>第一次成為需要認真回答的問題</strong>。
+      實測答案:<strong>8 MB 堆疊上安全(用 480 KB,餘裕 17 倍)</strong>,
+      <b>但在 512 KB 堆疊的環境下就只剩 ~8% 餘裕</b> —— 詳見<a href="code.html">程式碼頁</a>的實測表。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>下潛只是「走到底」,所有計算都發生在回程。</strong>
+      每個數字誕生於一次 <code>return 0</code>,每往上一層 <code>+1</code>,而 <code>max</code> 負責<strong>丟掉比較短的那一邊</strong>。
+      <b>把這三件事拆開看,你就同時看懂了 110(把 max 換成「差值檢查」)、
+      543(把 max 換成「左+右並記錄全域最大」)、124(把 max 換成「負的就不要」)。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">值從葉子往上長:每個數字誕生於一次 return 0,每往上一層 +1,max 丟掉比較短的那一邊。三個部分各對應題目裡的一個字 —— 拿掉 +1 恆回 0、把 max 換成加法就變成數節點總數(LC222)、base case 回 1 則全盤 +1。</div>
+    <div class="sc-summary-bar__detail">MAXIMUM DEPTH OF BINARY TREE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p104-maxdepth.js"></script>
+</body>
+</html>

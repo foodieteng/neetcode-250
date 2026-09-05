@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>226 · Invert Binary Tree // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P226</span>
+    <span><a href="https://leetcode.com/problems/invert-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">翻轉二元樹</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每個節點交換左右子樹</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 226</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TREE RECURSION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給二元樹的根節點 <code>root</code>,<strong>翻轉</strong>它,回傳根節點。
+        節點數 <code>0 ~ 100</code>,節點值 <code>−100 ~ 100</code>。
+      </p>
+    </div>
+
+    <p>
+      「翻轉」的意思是<strong>鏡射</strong> —— 把整棵樹左右照鏡子。
+      做法是:<strong>每一個節點都把自己的左右子樹交換</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      這題是<a href="../p145/index.html">後序骨架</a>的第一個真正應用,而且它示範了一個新東西:
+      <strong>遞迴不只可以「收集」東西,也可以「修改」結構</strong>。
+      <b>而修改結構時最重要的一件事是:交換的是<em>子樹指標</em>,不是<em>節點的值</em>。</b>
+      實測把它寫成交換值,<strong>197 種樹形錯 194 種</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">交換指標,不是交換值<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">交換左右小孩的<strong>值</strong></span>
+            <span class="sc-ko-card__o">錯 194/197</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>swap(root-&gt;left-&gt;val, root-&gt;right-&gt;val)</code> ——
+            <strong>值換了,形狀沒動</strong>。任何左右<strong>形狀不同</strong>的樹都會壞掉。
+            最小反例 <code>[1,null,2]</code>:只有一邊有小孩,<strong>swap 根本不會發生</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 只換了值</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">只交換根的左右,不遞迴</span>
+            <span class="sc-ko-card__o">錯 192/197</span>
+          </div>
+          <div class="sc-ko-card__body">
+            只翻了<strong>最上面那一層</strong>。實測<strong>只在「高度 ≤ 2」的 5 種樹上碰巧正確</strong> ——
+            因為那時<strong>只有一層需要翻</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 只翻一層</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">每個節點都 <code>swap</code> 自己的<strong>左右子樹指標</strong></span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(h) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          交換的是<strong>兩根指標</strong>,等於<strong>把兩整棵子樹搬過去</strong> ——
+          <strong>節點本身一個都不動、也不新增</strong>。
+          實測 2000 棵隨機樹,翻轉前後<strong>節點位址集合完全相同(2000/2000)</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 原地鏡射</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>為什麼「交換指標」比「交換值」強:</strong>
+      交換一根指標,<strong>底下整棵子樹都跟著過去了</strong> —— <code>O(1)</code> 的動作搬動 <code>O(n)</code> 的資料。
+      交換值只搬動<strong>一個</strong>節點的內容,<b>而且當一邊是 <code>nullptr</code> 時,你根本沒有值可以交換。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>終止</strong>:<code>if (root == nullptr) return nullptr;</code> ——
+        空子樹翻轉之後還是空的。</li>
+      <li><strong>先把兩棵子樹各自翻好</strong>:
+        <code>invertTree(root-&gt;left)</code> 和 <code>invertTree(root-&gt;right)</code>。</li>
+      <li><strong>再交換自己的兩根指標</strong>:<code>swap(root-&gt;left, root-&gt;right);</code>
+        然後 <code>return root;</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>這份寫法是「先遞迴、後 swap」,所以交換發生在<em>回程</em></strong> ——
+      實測 swap 的發生順序是 <code>1 → 3 → 2 → 6 → 9 → 7 → 4</code>,<strong>根的 swap 是最後一步</strong>。
+      <b>但這題有個好消息:順序其實無所謂</b>(見下方 LEMMA 2)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [4,2,7,1,3,6,9] → [4,7,2,9,6,3,1]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      注意<strong>樹的節點位置會真的左右對調</strong>。
+      重點看<strong>根節點 <code>4</code> 是最後一個被 swap 的</strong> ——
+      輪到它時,兩棵子樹<strong>內部早就翻好了</strong>,它只要把這兩整塊對調。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 翻轉 · swap 發生在回程(後序)</div>
+      <div class="sc-viz__cvwrap"><canvas id="v226-canvas" class="sc-viz__canvas" style="height:412px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v226-reset">Reset</button><button class="sc-btn" id="v226-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v226-play">Play</button><button class="sc-btn" id="v226-next">Next</button>
+        <span class="sc-viz__step" id="v226-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="v226-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個值得知道的性質<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 翻轉 = 鏡射,而且可以用中序驗證</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          「翻轉」的正式說法是<strong>鏡射</strong>,而鏡射有一個<strong>可以直接測</strong>的定義:
+          <strong><code>inorder(invert(T)) == reverse(inorder(T))</code></strong>。
+          翻轉之後的中序,恰好是原本中序的<strong>倒序</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:窮舉 <code>n = 0..8</code> 全部 <strong>2056 棵樹</strong>,
+          這條恆等式<strong>命中 2056/2056</strong>。<br>
+          <b>但同樣的說法換成前序就<em>不成立</em></b>:
+          <code>preorder(invert(T)) == reverse(preorder(T))</code> 只命中 <strong>2/2056</strong>
+          (只有 <code>n ≤ 1</code> 的平凡情形)。
+          原因是<strong>前序把根釘在第一個,而反轉會把根丟到最後</strong> ——
+          只有中序的「根在中間、左右對稱」才撐得住反轉。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 先 swap 再遞迴也是對的(這不是陷阱)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          很多人會擔心:「<strong>先交換再遞迴</strong>的話,遞迴進去的不就是<strong>已經被換過</strong>的孩子了嗎?」
+          <strong>實測答案:完全沒問題。</strong>把 <code>swap</code> 移到兩個遞迴呼叫之前,
+          窮舉 197 種樹形<strong>失敗 0 種</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>為什麼</strong>:翻轉是一個<strong>「上下無關」</strong>的操作 ——
+          「交換我的兩個孩子」和「把兩棵子樹各自翻好」<strong>互不干擾</strong>。
+          先換再各自翻,和先各自翻再換,<strong>結果同構</strong>。
+          <b>所以這一題請不要把「順序」寫進陷阱表 —— 真正要緊的是「換指標而不是換值」。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 七種改法的實測結果(窮舉 n = 0..6,共 197 種樹形)</span>
+只交換值不交換子樹         → 錯 194/197,最小反例 [1,null,2] → [1,null,2](正解 [1,2])
+只 swap 根,不遞迴          → 錯 192/197,巧合家族 = 高度 ≤ 2 的 5 種樹
+只遞迴不 swap               → 錯 195/197,輸出恆等於輸入(等於什麼都沒做)
+只遞迴左子樹                → 錯 164/197,「掩護最強」的一個
+swap 寫成自賦值(無暫存)    → 錯 195/197,而且會「弄丟節點」或「製造別名」
+漏掉 nullptr 檢查           → 錯 197/197,連 [] 都 SIGSEGV
+先 swap 再遞迴              → 錯 0/197 ← 這個是「對的」,不是陷阱
+<span class="sc-trace__out">// 「只遞迴左子樹」錯 164/197 —— 但它在偏左斜的測資上很容易矇混過關</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>　·　空間 <strong>O(h)</strong>　·　額外配置 <strong>0</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono ok"><strong>O(n)</strong></td><td>呼叫次數<strong>恆為 2n+1</strong>(窮舉 n=0..8 共 2056 種樹形,與形狀無關)</td></tr>
+        <tr><td>空間</td><td class="mono"><strong>O(h)</strong></td><td>同樣 n=100:<strong>平衡樹深度 8</strong>、<strong>退化鏈深度 101</strong> —— 差 12.6 倍</td></tr>
+        <tr><td><strong>額外配置</strong></td><td class="mono ok"><strong>0</strong></td><td>2000 棵隨機樹,<strong>節點位址集合前後完全相同(2000/2000)</strong></td></tr>
+        <tr><td>回傳的指標</td><td class="mono ok">恆為傳入的 root</td><td>2000 棵樹實測 <code>invertTree(root) == root</code> <strong>2000/2000</strong></td></tr>
+        <tr><td>常數項</td><td class="mono">64 bytes/層</td><td>n=5000 的鏈實測收斂到 64.0</td></tr>
+        <tr><td>崩潰臨界</td><td class="mono">約 <strong>261000</strong></td><td>261327 存活、261718 SIGSEGV(<code>ulimit -s</code> = 8176 KB)</td></tr>
+        <tr><td>安全餘裕</td><td class="mono ok"><strong>約 2613 倍</strong></td><td>題目上限 n=100 —— <strong>遞迴絕對安全</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 「原地」的實測驗證(2000 棵隨機樹,n ∈ [1,100])</span>
+翻轉前後節點位址集合相同     → 2000 / 2000    ← 零配置、零釋放
+節點數守恆且無重複            → 2000 / 2000    ← 沒有遺失、沒有別名
+回傳指標 == 傳入的 root       → 2000 / 2000    ← 這份寫法的回傳值其實是冗餘的
+節點值完全未被觸碰            → 只動指標,連 INT_MIN/INT_MAX 都原封不動
+
+對照:「swap 寫成自賦值」的實測病狀
+  [1,2]      distinct 節點數 before=2 → after=1   ← 弄丟一個節點
+  [1,null,2] 輸出印成 [1,2,2]                      ← 同一節點掛在兩個槽,製造別名
+<span class="sc-trace__out">// 「位址集合守恆」是這類原地修改題最好用的健檢</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      翻轉二元樹 = <strong>每個節點交換自己的兩根子樹指標</strong>。
+      <strong>交換一根指標就搬動了整棵子樹</strong>,所以是 <code>O(1)</code> 的動作搬 <code>O(n)</code> 的資料 ——
+      這也是為什麼「交換值」是錯的:它只搬得動一個節點。
+      <b>驗證方式記住這一條:<code>inorder(invert(T)) == reverse(inorder(T))</code>
+      —— 而換成前序就不成立,因為前序把根釘在最前面。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">翻轉 = 每個節點交換兩根子樹指標,不是交換值(交換值錯 194/197)。交換一根指標就搬動整棵子樹,全程零配置 —— 實測 2000 棵樹位址集合守恆。驗證用 inorder(invert(T)) == reverse(inorder(T)),換成前序則不成立。先 swap 再遞迴也對,不是陷阱。</div>
+    <div class="sc-summary-bar__detail">INVERT BINARY TREE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p226-invert.js"></script>
+</body>
+</html>

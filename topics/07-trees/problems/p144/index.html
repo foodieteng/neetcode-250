@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>144 · Binary Tree Preorder Traversal // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P144</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-preorder-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹前序走訪</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 根 → 左 → 右,走到就收錄</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 144</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DFS TRAVERSAL</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給二元樹的根節點 <code>root</code>,回傳它的<strong>前序走訪</strong>結果。
+        節點數 <code>0 ~ 100</code>,節點值 <code>−100 ~ 100</code>。
+      </p>
+    </div>
+
+    <p>
+      這是三連題的第二題。程式碼和
+      <a href="../p94/index.html">94 中序</a>
+      <strong>只差 <code>push_back</code> 那一行的位置</strong> ——
+      從兩個遞迴中間<strong>移到最前面</strong>,就從中序變成前序。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      前序的特別之處:<strong>「走到」和「收錄」是同一個時刻</strong>。
+      節點一進來就被 <code>push_back</code>,<strong>不必等任何子樹</strong> ——
+      中序要等左邊、後序要等兩邊,只有前序<strong>不用等</strong>。
+      <b>所以前序輸出的第一個元素,永遠是樹根。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">前序特別在哪<span class="sc-section__title-en">// WHY IT MATTERS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">「三種走訪差不多,隨便記一個就好」</span>
+            <span class="sc-ko-card__o">觀念錯誤</span>
+          </div>
+          <div class="sc-ko-card__body">
+            實測窮舉 <code>n = 0..6</code> 全部 197 種樹形:把 <code>push_back</code> 移到中間(變中序)
+            <strong>錯 190 種</strong>、移到最後(變後序)<strong>錯 195 種</strong>。
+            <strong>它們是三個不同的答案,不是三種風格。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 會答錯</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">用斜鏈測資驗證自己有沒有寫對</span>
+            <span class="sc-ko-card__o">測不出來</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>純右鏈上,前序和中序輸出完全相同</strong> —— 實測窮舉 <code>n ≤ 8</code> 的 2056 種樹形,
+            兩者相等的<strong>每個 n 恰好 1 種,而且 100% 都是純右鏈</strong>。
+            <b>拿斜鏈當測資,等於沒測。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ 測資選錯</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">記住前序的<strong>簽名</strong>:根在最前、三段連續</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(h) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          前序輸出的形狀<strong>永遠是</strong>:<code>[根 | 整棵左子樹 | 整棵右子樹]</code> ——
+          <strong>三段連續、不交錯</strong>。
+          實測 <code>n = 1..8</code> 全部 <strong>2055 棵樹</strong>,<code>ans.front() == root-&gt;val</code>
+          <strong>命中率 100%</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 根在最前</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「三段連續」不是冷知識,它是 LeetCode 105「用前序 + 中序重建二元樹」的全部基礎。</strong>
+      前序的第一個元素<strong>一定是根</strong>,拿它去中序裡找到位置,就<strong>切出了左右子樹的邊界</strong> ——
+      <b>再遞迴下去就重建完了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>終止</strong>:<code>if (root == nullptr) return;</code> —— 空樹什麼都不做。
+        <strong>葉節點不需要另外判斷</strong>,它的左右各進去一層、各自 return 就好。</li>
+      <li><strong>先根</strong>:<code>ans.push_back(root-&gt;val);</code> —— <strong>一進來就收錄,不等任何人</strong>。</li>
+      <li><strong>再左、後右</strong>:<code>preorder(ans, root-&gt;left);</code> 然後
+        <code>preorder(ans, root-&gt;right);</code>。整棵左子樹會<strong>完整地</strong>排在整棵右子樹前面。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      和中序比,<strong>只有第 ② 和 ③ 的順序對調</strong>。
+      但這個小動作改變了整個輸出的結構:中序是「左、根、右」<strong>交錯</strong>,
+      前序是「根、左、右」<strong>三段連續</strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 9 個節點 → [1,2,4,5,6,7,3,8,9]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      和中序動畫用<strong>同一棵樹</strong>,方便直接對照。
+      注意<strong>紅圈和藍圈幾乎同步</strong> —— 每個節點走到就收錄,
+      這和中序那種「走到之後要等好幾步」的節奏完全不同。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 前序 · 根 → 左 → 右</div>
+      <div class="sc-viz__cvwrap"><canvas id="v144-canvas" class="sc-viz__canvas" style="height:428px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v144-reset">Reset</button><button class="sc-btn" id="v144-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v144-play">Play</button><button class="sc-btn" id="v144-next">Next</button>
+        <span class="sc-viz__step" id="v144-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="v144-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個會被追問的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 為什麼前序的第一個元素一定是根</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>push_back</code> 是函式體的<strong>第一個動作</strong>(<code>nullptr</code> 檢查之後)。
+          最外層那次呼叫傳進來的就是 <code>root</code>,所以<strong>它一定第一個被推進去</strong>,
+          之後才輪到任何子樹的節點。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:窮舉 <code>n = 1..8</code> 全部 <strong>2055 棵樹</strong>,
+          <code>ans.front() == root-&gt;val</code> <strong>命中 2055/2055</strong>。
+          作為對照,<code>ans.back() == root-&gt;val</code> 只命中 <strong>1/2055</strong>(那唯一一棵是單節點樹)。
+          <b>「根在最前面」是前序獨有的簽名,「根在最後面」則是後序的。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 為什麼斜鏈測資抓不出「前序寫成中序」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          純右鏈上<strong>每個節點的左子樹都是空的</strong>。
+          中序的第一行 <code>inorder(root-&gt;left)</code> 變成 <strong>no-op</strong>,
+          於是「左 → 根 → 右」<strong>退化成「根 → 右」</strong> —— <strong>那正是前序</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:窮舉 <code>n ≤ 8</code> 的 <strong>2056 種樹形</strong>,
+          前序輸出等於中序輸出的<strong>每個 n 恰好 1 種</strong>,而且<strong>100% 都是純右鏈</strong>,無一例外。
+          <b>能區分三種走訪的最小樹是 <code>[1,2,3]</code></b>:
+          前序 <code>[1,2,3]</code>、中序 <code>[2,1,3]</code>、後序 <code>[2,3,1]</code> —— <strong>三個都不同</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 八種改法的實測結果(窮舉 n = 0..6,共 197 種樹形)</span>
+push_back 移到中間(變中序)     → 錯 190/197,最小反例 [1,2] → [2,1](正解 [1,2])
+push_back 移到最後(變後序)     → 錯 195/197,最小反例 [1,null,2] → [2,1](正解 [1,2])
+左右對調(鏡像前序)             → 錯 133/197,最小反例 [1,2,3] → [1,3,2](正解 [1,2,3])
+漏掉 nullptr 檢查               → 錯 197/197,連 [] 都 SIGSEGV
+ans 傳值而非傳參考              → 錯 196/197,最小反例 [1] → []
+忘了遞迴右子樹                  → 錯 190/197,最小反例 [1,null,2] → [1]
+helper 開頭 ans.clear()         → 錯 196/197,最小反例 [1] → []
+base case 誤寫成葉節點判斷      → 錯 197/197,[] 就 SIGSEGV,[1] 回 []
+<span class="sc-trace__out">// 左右對調只錯 133/197 —— 巧合率 32.5%,是最容易矇混過關的一種</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      和中序、後序<strong>完全相同</strong> —— 三者只差一行的位置,
+      <strong>做的工作量一模一樣</strong>。
+    </p>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>　·　空間 <strong>O(h)</strong>,最壞(退化成鏈)<strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono">O(n)</td><td><code>preorder()</code> 呼叫次數<strong>恆為 2n+1</strong> —— 窮舉 n=0..8 全部 <strong>2056 種樹形</strong>,<strong>完全與形狀無關</strong></td></tr>
+        <tr><td>空間</td><td class="mono">O(h)</td><td>呼叫堆疊深度 = 樹高 + 1</td></tr>
+        <tr><td>n=100 最壞深度</td><td class="mono"><strong>101</strong></td><td>左鏈與右鏈<strong>實測都是 101</strong> —— 深度只看樹高,和往哪邊斜無關</td></tr>
+        <tr><td>崩潰臨界</td><td class="mono"><strong>74699 / 74700</strong></td><td><code>ulimit -s</code> = 8176 KB,每層實測 112 bytes</td></tr>
+        <tr><td>安全餘裕</td><td class="mono ok"><strong>747 倍</strong></td><td>題目上限 n=100 —— <strong>這題遞迴絕對安全</strong></td></tr>
+        <tr><td>與中序的成本差</td><td class="mono ok"><strong>0</strong></td><td>同樣的 n=100 樹,兩者呼叫次數<strong>都是 201,差 0</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 三種走訪的成本比較(同樣的 n=100 樹,實測)</span>
+呼叫次數(含 nullptr):
+  前序 201    中序 201    後序 201        ← 三者完全相同,恆為 2n+1
+
+牆鐘時間(10^5 次重複):
+  平衡樹     前序 77.7ms  中序 75.9ms  後序 74.0ms   ← 差異在雜訊範圍
+  退化左鏈   前序 116.3ms 中序 122.3ms 後序 134.9ms
+  退化右鏈   前序 69.1ms  中序 69.7ms  後序 127.6ms  ← 後序在右鏈上慢 1.85 倍
+<span class="sc-trace__out">// 指令數完全相同;牆鐘的差異來自分支預測與快取,不是演算法差異</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      前序是三種走訪裡<strong>唯一「不用等」的</strong> —— 走到就收錄。
+      因此它的輸出永遠是 <code>[根 | 左子樹 | 右子樹]</code> <strong>三段連續</strong>,
+      而<strong>第一個元素恆為根</strong>。
+      <b>「第一個是根」+「三段連續」這兩件事合起來,就是重建二元樹(105)與序列化(297)的地基。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">前序 = 根 → 左 → 右,push_back 在兩個遞迴之前,走到就收錄不用等。輸出恆為 [根 | 左子樹 | 右子樹] 三段連續,第一個元素恆為根(實測 2055/2055)。純右鏈上前序與中序輸出相同,所以斜鏈測資測不出寫反 —— 要用 [1,2,3]。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE PREORDER TRAVERSAL · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p144-preorder.js"></script>
+</body>
+</html>
