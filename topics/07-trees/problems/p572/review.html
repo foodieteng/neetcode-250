@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>572 · Subtree of Another Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P572</span>
+    <span><a href="https://leetcode.com/problems/subtree-of-another-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">另一棵樹的子樹</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 572</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>結構</td><td><strong>兩層遞迴</strong>:外層找位置、內層比到底</td></tr>
+        <tr><td>兩種短路</td><td>外層 <code>||</code> <strong>樂觀</strong>(找到就停)、內層 <code>&amp;&amp;</code> <strong>悲觀</strong>(差一個就停)</td></tr>
+        <tr><td><strong>核心陷阱</strong></td><td>「子樹」= <strong>從那個節點往下<em>整棵</em>相同</strong>,不是「開頭對得上」</td></tr>
+        <tr><td>誰在執行它</td><td><code>isSame</code> 的 <code>if (!p || !q) return p == q;</code> —— 一邊空一邊有就 <code>false</code></td></tr>
+        <tr><td>最陰險的 bug</td><td>「<code>sub</code> 走完就成功」—— <strong>18556 對只有 1700 對抓得到</strong>(9%)</td></tr>
+        <tr><td>為何難抓</td><td>兩個部分匹配 bug <strong>只多報 <code>true</code>、從不漏報</strong> —— <strong>正例全對</strong></td></tr>
+        <tr><td>複雜度</td><td><code>O(n×m)</code> 最壞,但<strong>實測 61% 的 <code>isSame</code> 比第一個值就死</strong></td></tr>
+        <tr><td>實測平均</td><td>每次 <code>isSubtree</code> 只觸發 <strong>0.62 次</strong> <code>isSame</code></td></tr>
+        <tr><td>guard 順序</td><td>只影響「<strong>兩個都空</strong>」那一格 —— 題目保證兩者 ≥ 1,不會發生</td></tr>
+        <tr><td>線性解</td><td>序列化 + KMP <code>O(n+m)</code>,但<strong>分隔符號沒加好會誤判</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 「子樹」的定義為什麼比「<code>root</code> 裡有一段長得像 <code>subRoot</code>」<strong>嚴格</strong>?是<strong>哪一行程式碼</strong>在把關?</div>
+
+    <div class="qa"><strong>Q2.</strong> 有人把 <code>isSame</code> 的 base case 改成「<code>subRoot</code> 走完就回 <code>true</code>」,測了好幾筆都對。<strong>為什麼測不出來?</strong>請說明這個 bug 的<strong>方向</strong>。</div>
+
+    <div class="qa"><strong>Q3.</strong> 這題有<strong>兩個 <code>&amp;&amp;</code>/<code>||</code> 短路</strong>,方向相反。分別在做什麼?請各舉一個實測數字說明它們省了多少。</div>
+
+    <div class="qa"><strong>Q4.</strong> 複雜度是 <code>O(n×m)</code>。<strong>實務上真的這麼慢嗎?</strong>請給實測依據。</div>
+
+    <div class="qa"><strong>Q5.</strong> 有人說「把兩棵樹序列化成字串,再判斷子字串就好,<code>O(n+m)</code>」。這個做法<strong>有什麼坑</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// root=[3,4,5,1,2] sub=[4,1,2] → true</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例 1。<strong>以下是插樁後直接印出來的呼叫樹</strong>,縮排 = 巢狀深度。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 完整呼叫樹(實跑)</span>
+isSubtree#1(root=3)
+    guard1 (!subRoot)? sub=4 非空 → 不開火
+    guard2 (!root)?    root=3 非空 → 不開火
+
+  isSame#1(3,4) = false           ← 根值 3 != 4
+      ★ 短路 A:&& 的第一個運算元就 false
+        → 節點 3 底下的 1、2「完全沒被 isSame 走訪」
+        → 這次比對只花「1 次」呼叫,不是 3 次
+
+  isSubtree#2(root=4)             ← isSame 失敗 → || 繼續,往左子樹找
+    isSame#2(4,4)                 4 == 4 ✓
+      isSame#3(1,1)               1 == 1 ✓
+        isSame#4(null,null)       guard → p==q → true
+        isSame#5(null,null)       guard → p==q → true
+      = true
+      isSame#6(2,2)               2 == 2 ✓
+        isSame#7(null,null)       guard → true
+        isSame#8(null,null)       guard → true
+      = true
+    = true                        ← 整棵子樹逐位對齊到底
+  = true
+
+  ★ 短路 B:isSubtree(root->left) 回 true
+    → isSubtree(root->right) 「一次都沒有被呼叫」
+    → 節點 5 從頭到尾沒被搜尋過
+= true</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+return true
+
+isSubtree 呼叫 2 次、isSame 呼叫 8 次
+
+注意兩個「沒發生的事」:
+  ① 節點 3 底下的 1、2 —— 被短路 A 跳過(isSame 一比就死)
+  ② 節點 5 整棵 —— 被短路 B 跳過(找到了就不再找)
+<span class="sc-trace__out">// 5 個節點的 root,實際只有 3 個被 isSame 碰過</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 對照:官方範例 2(只多掛一個節點,答案就翻了)</span>
+root = [3,4,5,1,2,null,null,null,null,0]      ← 比範例 1 多一個節點 0 掛在 2 底下
+sub  = [4,1,2]
+→ false     (實測 isSubtree 13 次、isSame 11 次)
+
+關鍵那一步:
+  isSame(節點2, 節點2):值相同 ✓
+    isSame(節點0, null)   ← root 的 2 有左子 0,sub 的 2 沒有
+      !p||!q 成立 → return p == q → 「非 null == null」→ false   ✓ 正確拒絕
+
+而且因為在節點 4 沒匹配成功,|| 會繼續往下找 —— 所以呼叫次數比範例 1 多得多
+<span class="sc-trace__out">// 兩個官方範例只差一個節點 —— 題目自己就在考「部分匹配不算子樹」</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>把兩個範例並排看,就是這題的全部</strong>:
+      <b>範例 1 命中(整棵對齊到底),範例 2 只差一個多出來的節點就失敗。</b>
+      而<strong>錯誤的「走完就算」版本會把範例 2 也判成 <code>true</code></strong> ——
+      <strong>官方範例 2 存在的唯一目的,就是抓這個 bug。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用<strong>序列化 + KMP</strong> 做到 <code>O(n+m)</code>。序列化要注意什麼?請寫出<strong>會出錯的具體例子</strong>。</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成回傳<strong>所有匹配位置</strong>(不只是有沒有)。要改哪裡?複雜度會變嗎?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果<strong>只要求結構相同、不管節點值</strong>呢?程式怎麼改?這樣<strong>會不會比較快</strong>?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為「子樹」要求「從那個節點<em>往下整棵</em>都相同」,<code>root</code> 那邊<em>不能有多出來的節點</em>。把關的是 <code>isSame</code> 的 base case。</strong><br><br>
+  <code>if (!p || !q) return p == q;</code><br><br>
+  當 <code>subRoot</code> 已經走到 <code>nullptr</code>、而 <code>root</code> 那邊<strong>還有一個真節點</strong>時:<code>p</code> 非空、<code>q</code> 是 <code>nullptr</code> → <code>p == q</code> 是 <strong><code>false</code></strong> → <b>整個匹配當場失敗。</b><br><br>
+  <strong>最小反例</strong> <code>root=[1,2]</code>、<code>subRoot=[1]</code>:根值都是 1、對上了,<strong>但 <code>root</code> 的節點 1 底下還掛著一個 2</strong>,所以<strong>不是</strong>子樹。<br><br>
+  <strong>官方範例 2 就是這件事的放大版</strong>:<code>root=[3,4,5,1,2,null,null,null,null,0]</code> 比範例 1 <strong>只多了一個節點 <code>0</code> 掛在 <code>2</code> 底下</strong>,答案就從 <code>true</code> 翻成 <code>false</code>。<br><br>
+  <b>換句話說:「子樹」不是「包含一段」,而是「某個節點連同它的全部後代」。</b>這和字串的 substring 很像但更嚴格 —— <strong>字串的 substring 可以在中間停,樹的子樹不行,它必須一路到葉子。</strong></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為這個 bug <em>只會多報 <code>true</code>、從不漏報</em> —— 所以你拿正例去測,它全部答對。</strong><br><br>
+  <strong>實測</strong>:18556 個配對中,「<code>sub</code> 走完就成功」<strong>只錯 1700 個(9%)</strong>,而且 <b>失敗全部是 false-positive</b>。<strong>正解為 <code>true</code> 的 1252 個配對,它<em>一個都沒錯</em></strong>。<br><br>
+  <strong>為什麼</strong>:當 <code>subRoot</code> <em>真的</em>是子樹時,「走完就算成功」和「比到底」<strong>結論一樣</strong> —— 因為那時候本來就<strong>剛好同時走完</strong>。<b>兩者只在「<code>root</code> 那邊多出東西」時才分岔</b>,而那種情形的正確答案是 <code>false</code>。<br><br>
+  <strong>所以測不出來的原因是測資的形狀不對:</strong>你需要的不是更多正例,而是<strong>「差一點點就不是子樹」的反例</strong> —— <code>subRoot</code> 是某棵子樹的<strong>嚴格前綴</strong>。<br><br>
+  <b>「知道 bug 的方向」在這裡特別有用:</b><br>
+  · <strong>只會多報 <code>true</code></strong>(如本題兩個部分匹配 bug)→ 要用<strong>應該回 <code>false</code> 的反例</strong>抓。<br>
+  · <strong>只會漏報</strong>(如「只遞迴左子樹」,實測 448 個失敗全是 false-negative)→ 要用<strong>應該回 <code>true</code> 的正例</strong>抓,而且匹配要藏在右子樹。<br>
+  <strong>兩種 bug 需要的測資完全相反。</strong></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>外層 <code>||</code> 是「樂觀」的、內層 <code>&amp;&amp;</code> 是「悲觀」的 —— 同一個機制的兩種極性。</strong><br><br>
+  <strong>外層 <code>||</code>(找位置):一旦某個位置成功,就<em>不再找其他位置</em>。</strong><br>
+  實測 <code>root</code> 是 <code>n=127</code> 的完美樹、<code>subRoot</code> 是一片葉子:<strong><code>isSubtree</code> 只呼叫 7 次</strong>,而拿掉短路要 <strong>255 次</strong> —— <b>省 97%</b>。<br><br>
+  <strong>內層 <code>&amp;&amp;</code>(比對):一旦某處不同,就<em>不再往下比</em>。</strong><br>
+  實測同一組:<strong><code>isSame</code> 15 次</strong> vs 拿掉短路的 <strong>381 次</strong> —— <b>省 96%</b>。<br>
+  更極端的例子:兩條 <code>n=100</code> 的鏈在根就匹配,<strong><code>isSame</code> 201 次</strong> vs <strong>10200 次</strong> —— <b>省 98%</b>。<br><br>
+  <strong>官方範例 1 裡兩個短路都看得到</strong>:<code>isSame(3,4)</code> 在根值就死(所以節點 3 底下的 1、2 <strong>沒被走訪</strong>,那次比對只花 <strong>1</strong> 次呼叫);接著左子樹匹配成功,<strong>節點 5 整棵從未被搜尋</strong>。全程 <strong><code>isSubtree</code> 2 次、<code>isSame</code> 8 次</strong>。<br><br>
+  <b>一個有趣的例外:當答案必定是 <code>false</code> 時,外層短路救不了你</b> —— 實測「<code>sub</code> 的值在 <code>root</code> 裡不存在」的情形,<code>isSubtree</code> 短路版與無短路版<strong>同樣是 201 次</strong>。<strong><code>||</code> 只在「找得到」時才省得下來</strong>,而 <code>&amp;&amp;</code> 在任何情況都省。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會 —— 實測平均每次 <code>isSubtree</code> 只觸發 0.62 次 <code>isSame</code>。</strong><br><br>
+  <code>O(n×m)</code> 的推導是「對 <code>n</code> 個位置各做一次 <code>O(m)</code> 的比較」,但那假設<strong>每次比較都真的走完 <code>m</code> 個節點</strong>。<b>實際上絕大多數位置在「比第一個值」就出局了。</b><br><br>
+  <strong>實測 20 萬組隨機配對:</strong><br>
+  · <code>isSame</code> 呼叫中 <strong>61.0%</strong> 在<strong>第一次值比較</strong>就返回<br>
+  · 平均每次 <code>isSubtree</code> 觸發 <strong>0.62 次</strong> <code>isSame</code>(總計 1317499 / 2129681)<br><br>
+  <strong>連刻意構造的最壞情況也沒碰到上界</strong>:<code>root</code> 是 100 個全 0 的鏈、<code>subRoot</code> 是 50 個全 0 再接一個 9 —— 理論上界 <code>100×50 = 5000</code>,<strong>實測 <code>isSame</code> 3875 次</strong>。而<strong>一般情況(值不同)只要 100~150 次</strong>,<strong>差了三十幾倍</strong>。<br><br>
+  <b>所以真正的成本更接近 <code>O(n + 匹配到的位置數 × m)</code></b>。<b>面試時的說法:「最壞是 <code>O(n×m)</code>,但要湊出最壞情況需要大量重複值;隨機資料下 <code>&amp;&amp;</code> 讓大多數比對退化成 <code>O(1)</code>,我量過平均每個位置不到一次呼叫。」</b> —— 說得出「為什麼上界很鬆」比只背上界有價值得多。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>坑在「分隔符號」—— 沒處理好會把一個 token 的<em>後半截</em>當成匹配。</strong><br><br>
+  <strong>具體會錯的例子(實測驗證過):</strong><br>
+  · <code>root = [12]</code>(單一節點,值 <strong>12</strong>)→ naive 前序序列化 <code>"12##"</code><br>
+  · <code>subRoot = [2]</code>(單一節點,值 <strong>2</strong>)→ 序列化 <code>"2#"</code><br>
+  · <code>"2#"</code> <strong>是</strong> <code>"12##"</code> 的 substring → <b>naive 判定 <code>true</code></b><br>
+  · <strong>但正確答案是 <code>false</code></strong> —— <code>root</code> 裡根本沒有值為 2 的節點,<strong>那個 <code>2</code> 是 <code>12</code> 的後半個字元</strong>。<br><br>
+  <strong>修法:每個 token 都要有明確的邊界。</strong>本頁對拍用的參考解是:<strong>每個實節點前綴 <code>^</code> 當 node-start marker、每個 token 後接 <code>,</code></strong>:<br>
+  · <code>[12]</code> → <code>"^12,#,#,"</code>,<strong>不含</strong> <code>"^2,#,#,"</code> → 正確 <code>false</code> ✓<br>
+  · <code>[1,2]</code>(1 有左子 2)→ <code>"^1,^2,#,#,#,"</code>,<strong>含</strong> <code>"^2,#,#,"</code> → 正確 <code>true</code> ✓<br><br>
+  <b>而這個坑最危險的地方是:隨機測資完全測不到。</b>本頁的 20 萬組對拍用的值域是 <code>[0,3]</code> —— <strong>全是單字元,naive 版和正確版差異 0 組</strong>。<b>必須手工構造 <code>12</code> vs <code>2</code> 這種「多位數」的例子才會現形。</b><br><br>
+  <strong>另外別忘了 <code>null</code> 標記本身也不能省</strong>(見 <a href="../p144/review.html">144 的 App 3</a>):沒有 <code>#</code>,<code>[1,2]</code> 和 <code>[1,null,2]</code> 會序列化成同一個字串。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>把兩棵樹序列化成帶 <code>null</code> 標記<em>與分隔符號</em>的字串,再用 KMP 找子字串 —— <code>O(n+m)</code>。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">void ser(TreeNode* t, string&amp; out) {
+    if (t == nullptr) {
+        out += "#,";                       // null 標記 + 分隔
+        return;
+    }
+
+    out += "^" + to_string(t-&gt;val) + ",";   // node-start marker + 值 + 分隔
+    ser(t-&gt;left,  out);
+    ser(t-&gt;right, out);
+}
+// isSubtree = KMP(serialize(root), serialize(subRoot))</pre>
+  <strong>三個都不能省的細節:</strong><br>
+  ① <strong><code>null</code> 標記(<code>#</code>)</strong> —— 沒有它,<code>[1,2]</code> 和 <code>[1,null,2]</code> 序列化相同。<br>
+  ② <strong>分隔符號(<code>,</code>)+ node-start marker(<code>^</code>)</strong> —— 沒有它,<code>[12]</code> 會「包含」<code>[2]</code>(見 A5,實測驗證過)。<br>
+  ③ <strong>用 KMP 而不是 <code>string::find</code></strong> —— 樸素找子字串最壞是 <code>O(n×m)</code>,那就白做了。<br><br>
+  <strong>複雜度</strong>:序列化 <code>O(n+m)</code>、KMP <code>O(n+m)</code> ⇒ <strong>總共 <code>O(n+m)</code></strong>,但<strong>額外空間也是 <code>O(n+m)</code></strong>(遞迴版只要 <code>O(h)</code>)。<br><br>
+  <b>面試時的取捨:</b>先給遞迴版(短、好懂、實測夠快),再說「如果 <code>n×m</code> 真的會爆,可以序列化成字串用 KMP 做到線性,但要小心分隔符號」。<b>能主動講出那個 <code>12</code> vs <code>2</code> 的坑,比會寫 KMP 更能顯示你想過細節。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>把回傳型別從 <code>bool</code> 換成收集容器,並且<em>拿掉外層的短路</em>。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">void collect(TreeNode* root, TreeNode* subRoot, vector&lt;TreeNode*&gt;&amp; hits) {
+    if (root == nullptr) {
+        return;
+    }
+
+    if (isSame(root, subRoot)) {
+        hits.push_back(root);       // 記下來,但「不 return」
+    }
+
+    collect(root-&gt;left,  subRoot, hits);   // 兩邊都還是要繼續找
+    collect(root-&gt;right, subRoot, hits);
+}</pre>
+  <b>關鍵是「找到之後不能停」</b> —— 原版的 <code>||</code> 一找到就短路,那正是我們現在<strong>不要</strong>的行為。<br><br>
+  <strong>複雜度會變嗎 —— 上界不變,實際成本變高。</strong><br>
+  · <strong>上界仍是 <code>O(n×m)</code></strong>:本來最壞也是每個位置都要比一次。<br>
+  · <b>但「實際」會變慢</b>,因為<strong>失去了外層短路</strong>。實測參考:完美樹 <code>n=127</code> 找一片葉子,<strong>有短路 <code>isSubtree</code> 7 次、無短路 255 次</strong> —— <b>這 36 倍的差距現在必須付出去</b>。<br>
+  · <strong>內層 <code>&amp;&amp;</code> 的短路還在</strong>(那 61% 的提早退出照樣有效),所以不會退化到理論最壞。<br><br>
+  <b>一個值得注意的細節:巢狀匹配是可能的。</b>如果 <code>subRoot</code> 是一棵「自相似」的樹(例如全部節點同值的鏈),<strong>一個匹配位置的<em>祖先</em>也可能是匹配位置</strong> —— <strong>所以 <code>hits</code> 裡的節點之間可能有祖孫關係</strong>,不是互斥的。要不要去重、怎麼去重,得看題目怎麼定義。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>把值比較那一項拿掉就好 —— 但<em>會變慢</em>,而且慢得很明顯。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">bool sameShape(TreeNode* p, TreeNode* q) {
+    if (!p || !q) {
+        return p == q;                     // 這一行完全不變
+    }
+
+    return sameShape(p-&gt;left,  q-&gt;left)    // 只少了 p-&gt;val == q-&gt;val
+        &amp;&amp; sameShape(p-&gt;right, q-&gt;right);
+}</pre>
+  <strong>為什麼「會變慢」而不是變快 —— 這題的直覺是反的。</strong><br><br>
+  值比較是<strong>最便宜、也最容易失敗</strong>的那個條件,<b>而它排在 <code>&amp;&amp;</code> 的最前面</b>。實測顯示 <strong>61% 的 <code>isSame</code> 呼叫就是靠它提早退出</strong>的。<b>拿掉它,你就失去了最有效的剪枝</b> —— 每次比對都得<strong>真的走完整個形狀</strong>才知道成不成立。<br><br>
+  <strong>而且「形狀相同」比「完全相同」<em>寬鬆得多</em></strong>,所以匹配會變多、外層 <code>||</code> 也更早找到 —— 這一項是變快的。<b>兩個效應方向相反,淨結果取決於資料</b>:值很分散時<strong>大幅變慢</strong>(失去了主要剪枝),值本來就重複很多時<strong>差不多</strong>(那個剪枝本來就沒在發揮作用)。<br><br>
+  <b>一般教訓:<code>&amp;&amp;</code> 鏈裡「便宜且容易失敗」的條件要放最前面。</b>這題把 <code>p-&gt;val == q-&gt;val</code> 放在兩個遞迴之前,<strong>不是隨手寫的順序,而是效能上的正確選擇</strong> —— 把它放到後面(先遞迴再比值)結果一樣正確,但<strong>剪枝就完全失效了</strong>。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">「子樹」必須從那個節點往下整棵相同,不能有多出來的節點 —— 而兩個部分匹配的 bug 只多報 true 從不漏報,所以正例永遠測不出它們。&& 鏈裡「便宜且容易失敗」的條件要放最前面:實測 61% 的 isSame 就是靠值比較提早退出的。</div>
+    <div class="sc-summary-bar__detail">SUBTREE OF ANOTHER TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>

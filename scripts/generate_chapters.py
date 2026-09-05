@@ -173,7 +173,7 @@ PROBLEMS = {
         ('p543', 'Diameter of Binary Tree',                                  'diameter-of-binary-tree',                                  'easy','done'),
         ('p110', 'Balanced Binary Tree',                                     'balanced-binary-tree',                                     'easy','done'),
         ('p100', 'Same Tree',                                                'same-tree',                                                'easy','done'),
-        ('p572', 'Subtree of Another Tree',                                  'subtree-of-another-tree',                                  'easy','todo'),
+        ('p572', 'Subtree of Another Tree',                                  'subtree-of-another-tree',                                  'easy','done'),
         ('p235', 'Lowest Common Ancestor of a Binary Search Tree',           'lowest-common-ancestor-of-a-binary-search-tree',           'med', 'todo'),
         ('p701', 'Insert into a Binary Search Tree',                         'insert-into-a-binary-search-tree',                         'med', 'todo'),
         ('p450', 'Delete Node in a BST',                                     'delete-node-in-a-bst',                                     'med', 'todo'),

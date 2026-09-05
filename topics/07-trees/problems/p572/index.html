@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>572 · Subtree of Another Tree // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P572</span>
+    <span><a href="https://leetcode.com/problems/subtree-of-another-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">另一棵樹的子樹</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 兩層遞迴,兩種短路</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 572</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>NESTED RECURSION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給兩棵二元樹 <code>root</code> 和 <code>subRoot</code>,判斷 <code>subRoot</code>
+        是不是 <code>root</code> 的<strong>子樹</strong> ——
+        也就是 <code>root</code> 裡<strong>存在某個節點</strong>,
+        <strong>從它往下的整棵子樹</strong>和 <code>subRoot</code> <strong>完全相同</strong>。
+        <code>root</code> 節點數 <code>1 ~ 2000</code>,<code>subRoot</code> <code>1 ~ 1000</code>。
+      </p>
+    </div>
+
+    <p>
+      這題是 <a href="../p100/index.html">100 相同的樹</a>的<strong>直接應用</strong> ——
+      你的 <code>isSame</code> 和 100 那題<strong>一字不差</strong>。
+      新增的只有<strong>外面那一層</strong>:<strong>在 <code>root</code> 的每個位置都試一次</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>兩層遞迴,各司其職</strong>:
+      <b>外層 <code>isSubtree</code> 負責「<strong>找位置</strong>」</b>,
+      <b>內層 <code>isSame</code> 負責「<strong>在這個位置比到底</strong>」</b>。
+      而且<strong>兩層用的是<em>相反極性</em>的短路</strong> ——
+      外層 <code>||</code>「<strong>找到一個就停</strong>」,內層 <code>&amp;&amp;</code>「<strong>差一個就停</strong>」。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">「子樹」的定義比你想的嚴格<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">只比根的值:「<code>root</code> 裡有沒有這個值」</span>
+            <span class="sc-ko-card__o">錯 16132/18556</span>
+          </div>
+          <div class="sc-ko-card__body">
+            它退化成「<strong>找一個值相同的節點</strong>」。
+            最小反例 <code>root=[1,2]</code>、<code>subRoot=[1]</code>:
+            根值對上了,<strong>但 <code>root</code> 的節點 1 底下還掛著 2</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 完全不夠</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title"><code>subRoot</code> 走完就算成功</span>
+            <span class="sc-ko-card__o">錯 1700/18556</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>這才是真正陰險的那一個。</strong>它接受「<strong>只對到一半</strong>」——
+            <code>root</code> 那邊<strong>多出來的子節點被忽略</strong>。
+            <b>18556 個配對裡只有 1700 個抓得到它。</b>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 部分匹配</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">完整的 <code>isSame</code>:<strong>兩邊必須同時走完</strong></span>
+          <span class="sc-ko-card__o">O(n×m) 最壞</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>isSame</code> 的 base case <code>if (!p || !q) return p == q;</code>
+          會在<strong>「一邊空了、另一邊還有」</strong>時回 <code>false</code> ——
+          <b>所以「頂端對上」不算數,必須<strong>逐位對齊到底</strong>。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 比到底</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>A 和 B 這兩個錯誤有一個共同的特徵:它們<em>只會多報 <code>true</code></em>,從不漏報。</strong>
+      實測正解為 <code>true</code> 的 <strong>1252 個配對,兩者<em>全部答對</em></strong> ——
+      <b>因為真的是子樹時,「只比根」和「走完就算」都自動成立。</b>
+      <strong>這正是它們在小測資上看起來沒問題的原因。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 兩層<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <p><strong>外層 <code>isSubtree</code> · 找位置</strong></p>
+    <ol>
+      <li><strong>兩個 guard</strong>:<code>if (!subRoot) return true;</code> 然後
+        <code>if (!root) return false;</code> —— 順序決定「兩個都空」時的答案。</li>
+      <li><strong>以「這裡」為起點試一次</strong>:<code>isSame(root, subRoot)</code>。</li>
+      <li><strong>或者答案在子樹裡</strong>:
+        <code>|| isSubtree(root-&gt;left, ...) || isSubtree(root-&gt;right, ...)</code> ——
+        <b><code>||</code> 一找到就停。</b></li>
+    </ol>
+
+    <p style="margin-top:14px;"><strong>內層 <code>isSame</code> · 比到底</strong>(和 <a href="../p100/index.html">100</a> 完全相同)</p>
+    <ol>
+      <li><code>if (!p || !q) return p == q;</code> —— <strong>一邊空了另一邊還有,就是 <code>false</code></strong>。</li>
+      <li><code>p-&gt;val == q-&gt;val &amp;&amp; 左配左 &amp;&amp; 右配右</code> —— <b><code>&amp;&amp;</code> 差一個就停。</b></li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>那個 base case 就是「必須比到底」的執行者。</strong>
+      當 <code>subRoot</code> 走到 <code>nullptr</code> 而 <code>root</code> 那邊<strong>還有節點</strong>時,
+      <code>p == q</code> 是 <code>false</code> —— <b>整個匹配當場失敗。</b>
+      <strong>把它改成「<code>q</code> 空了就回 <code>true</code>」,就變成上面的錯誤 B。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// root=[3,4,5,1,2] subRoot=[4,1,2] → true</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1。看兩件事:<strong>節點 <code>3</code> 試過但一比就失敗</strong>(紅),
+      <strong>節點 <code>4</code> 整棵子樹命中</strong>(綠),
+      而<strong>節點 <code>5</code> 灰虛線標「未搜尋」</strong> —— <b><code>||</code> 找到就停,右子樹從未被碰過。</b>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 子樹判斷 · 外層 || 找位置,內層 &amp;&amp; 比到底</div>
+      <div class="sc-viz__cvwrap"><canvas id="v572-canvas" class="sc-viz__canvas" style="height:428px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v572-reset">Reset</button><button class="sc-btn" id="v572-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v572-play">Play</button><button class="sc-btn" id="v572-next">Next</button>
+        <span class="sc-viz__step" id="v572-step">00 / 04</span>
+      </div>
+      <div class="sc-viz__label" id="v572-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 「部分匹配」為什麼是最陰險的 bug</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          把 <code>isSame</code> 的 base case 改成
+          <code>if (!q) return true; if (!p) return false;</code>
+          —— 意思是「<strong><code>subRoot</code> 走完就算成功</strong>」。
+          這會接受「<code>root</code> 的某棵子樹<strong>開頭長得像</strong> <code>subRoot</code>,
+          但底下<strong>還多掛了東西</strong>」的情形。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:18556 個配對<strong>只有 1700 個抓得到它</strong>(9%),
+          而且<strong>失敗全部是 false-positive</strong> ——
+          <b>正解為 <code>true</code> 的 1252 個配對它<em>全部答對</em></b>。<br>
+          最小反例 <code>root=[1,2]</code>、<code>subRoot=[1]</code>:
+          <code>subRoot</code> 走完了,但 <code>root</code> 的節點 1 <strong>底下還掛著 2</strong>。<br>
+          官方範例 2 就是為此設計的:<code>root=[3,4,5,1,2,null,null,null,null,0]</code>
+          比範例 1 <strong>多了一個節點 <code>0</code> 掛在 <code>2</code> 底下</strong>,
+          答案就從 <code>true</code> 變成 <code>false</code>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 為什麼 O(n×m) 在實務上悲觀得離譜</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          理論上要對 <code>root</code> 的 <code>n</code> 個位置各跑一次 <code>O(m)</code> 的比較,
+          <strong>看起來是 <code>O(n×m)</code></strong>。
+          <b>但絕大多數位置在「比第一個值」就出局了。</b>
+        </p>
+        <p style="margin:0;">
+          <strong>實測 20 萬組隨機配對</strong>:
+          <strong><code>isSame</code> 呼叫中有 <b>61%</b> 在第一次值比較就返回</strong>,
+          <strong>平均每次 <code>isSubtree</code> 只觸發 <b>0.62</b> 次 <code>isSame</code></strong>。<br>
+          具體例子:<code>root</code> 是 <code>n=127</code> 的完美樹、<code>subRoot</code> 是一片葉子 ——
+          <strong>短路版只花 <code>isSubtree</code> 7 次 / <code>isSame</code> 15 次</strong>,
+          <b>而拿掉短路要 255 次 / 381 次(省 96~97%)</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 八種改法的實測結果(18556 個 (root, subRoot) 配對,subRoot 皆 deep copy)</span>
+isSame 只比根的值           → 錯 16132/18556,最小反例 root=[1,2] sub=[1] → true
+isSame「subRoot 走完就成功」→ 錯  1700/18556,最小反例同上 ← 最陰險,只有 9% 抓得到
+|| 寫成 &&                   → 錯   780/18556,最小反例 root=[1] sub=[1] → false
+isSame 左右比錯邊           → 錯   859/18556,最小反例 root=[1,2] sub=[1,2] → false
+只遞迴左子樹                → 錯   448/18556,最小反例 root=[1,null,2] sub=[2] → false
+少了 !subRoot 的 guard      → 錯   472/18556,全部是 subRoot 為空的情形
+少了 !root 的 guard         → 17752/18556 SIGSEGV(不是答錯,是崩潰)
+兩個 guard 順序對調         → 錯     2/18556,只有「兩個都空」會分歧
+<span class="sc-trace__out">// 前兩列的失敗「全部是 false-positive」—— 正解為 true 的 1252 個配對它們全對</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n × m)</strong> 最壞　·　實務上遠低於此　·　空間 <strong>O(h<sub>root</sub>)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境</th><th><code>isSubtree</code></th><th><code>isSame</code></th><th>拿掉短路</th></tr></thead>
+      <tbody>
+        <tr><td>完美樹 n=127,<code>subRoot</code> 是葉子</td><td class="mono ok"><strong>7</strong></td><td class="mono ok"><strong>15</strong></td><td class="mono">255 / 381</td></tr>
+        <tr><td>鏈 n=100,根就匹配</td><td class="mono ok"><strong>1</strong></td><td class="mono">201</td><td class="mono">201 / 10200</td></tr>
+        <tr><td>鏈 n=100,<code>subRoot</code> 值不存在</td><td class="mono">201</td><td class="mono">100</td><td class="mono">201 / 300</td></tr>
+        <tr><td>n×m 壓力測試(全同值)</td><td class="mono">201</td><td class="mono"><strong>3875</strong></td><td class="mono">201 / 7750</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意「n×m 壓力測試」那一列:理論上界是 <code>100×50 = 5000</code>,實測 <strong>3875</strong></strong> ——
+      <b>同數量級,但即使刻意構造最壞情況也沒真的碰到上界。</b>
+      而一般情況(值不同)只有 <strong>100~150 次</strong>,<strong>離 5000 差了 30 倍以上</strong>。
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(clean -O2,未插樁)</span>
+題目上限:root 2000 個節點(最壞是一條鏈)⇒ 遞迴深度 2000
+  實測 root=chain 2000、subRoot=chain 1000 匹配最深段
+    → true,正常完成;isSubtree 最大深度 1001、isSame 最大深度 1001
+
+ulimit -s        = 8176 KB
+崩潰臨界(clean) = 174177 存活 / 174330 崩  → 約 48 bytes/frame
+崩潰臨界(插樁)  = 130692 存活            → 64 bytes/frame(探針把 frame 撐大 25%)
+
+2000 層只吃約 2000 × 48 ≈ 96 KB,佔 8 MB 的 1.2%,安全係數約 87 倍
+<span class="sc-trace__out">// 又一次:量測工具本身會改變被量測的對象 —— 本頁引用的是未插樁的 48 bytes</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>兩層遞迴、兩種相反極性的短路</strong>:
+      外層 <code>||</code> 是「<strong>找到一個就夠</strong>」,內層 <code>&amp;&amp;</code> 是「<strong>差一個就毀</strong>」。<br>
+      <b>而這題真正的陷阱不在遞迴,在「子樹」的定義</b> ——
+      <strong>必須<em>從那個節點往下整棵</em>都相同,不是「開頭對得上」就好</strong>。
+      <b>兩個「部分匹配」的錯誤寫法都只會多報 <code>true</code>、從不漏報,
+      所以在正例上完全看不出問題 —— 要用「差一點點就不是」的反例才抓得到。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">外層 || 找位置(找到就停)、內層 && 比到底(差一個就停)—— 兩種相反極性的短路。真正的陷阱是「子樹」的定義:必須從那個節點往下整棵相同。兩個部分匹配的錯誤都只多報 true 從不漏報,正例上完全看不出問題。</div>
+    <div class="sc-summary-bar__detail">SUBTREE OF ANOTHER TREE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p572-subtree.js"></script>
+</body>
+</html>
