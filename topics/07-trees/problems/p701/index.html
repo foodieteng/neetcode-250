@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>701 · Insert into a BST // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P701</span>
+    <span><a href="https://leetcode.com/problems/insert-into-a-binary-search-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">插入節點到 BST</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 回寫這一行不能省</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 701</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>WRITE-BACK PATTERN</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給 BST 的根節點和一個值 <code>val</code>,把它<strong>插入</strong>並回傳新的根。
+        題目說「<strong>可能有多種合法插法,回傳任何一種都可以</strong>」。<br>
+        節點數 <code>0 ~ 10⁴</code>,值域 <code>±10⁸</code>,值<strong>互不相同</strong>,
+        且保證 <code>val</code> <strong>原本不在樹裡</strong>。
+      </p>
+    </div>
+
+    <p>
+      這題的<strong>下降邏輯</strong>和 <a href="../p235/index.html">235 BST LCA</a> 一樣簡單 ——
+      <strong>比大小、二選一、走到底</strong>。
+      <b>真正的重點在「走到底之後」</b>:新節點要<strong>怎麼接回樹上</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>這是本章第一題「遞迴會<em>產生新節點</em>」的題目。</strong>
+      前面的題目遞迴回傳的都是<strong>本來就存在的節點</strong>,
+      <b>這題的 base case 會 <code>new</code> 一個全新的節點出來</b> ——
+      <strong>而那個新節點<em>只存在於回傳值裡</em></strong>。
+      <b>所以 <code>root-&gt;left = insertIntoBST(...)</code> 那個回寫,是它唯一的接線機會。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">回寫這一行為什麼不能省<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">遞迴但<strong>不接住回傳值</strong></span>
+            <span class="sc-ko-card__o">錯 4706/4707</span>
+          </div>
+          <div class="sc-ko-card__body">
+            寫成 <code>insertIntoBST(root-&gt;left, val);</code>(沒有賦值)。
+            <b>新節點被 <code>new</code> 出來、回傳、然後<em>掉在地上</em></b> ——
+            樹原封不動,而且那個節點<strong>洩漏了</strong>。
+            <strong>實測:只要樹非空,<em>必錯</em>。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 接不上去</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">base case 回傳 <code>nullptr</code></span>
+            <span class="sc-ko-card__o">錯 4707/4707</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>連空樹都錯</strong>,<b>零巧合</b>。
+            值被<strong>安靜地吞掉</strong>,樹完全沒變 ——
+            <strong>不會崩、不會報錯,只是什麼都沒發生。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 全盤失效</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title"><code>root-&gt;left = insertIntoBST(root-&gt;left, val);</code></span>
+          <span class="sc-ko-card__o">O(h) 時間 · 1 次配置</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>遞迴拿到的是「<code>root-&gt;left</code> 這個 <code>nullptr</code> 的<em>副本</em>」</strong> ——
+          它 <code>new</code> 出來的節點<strong>沒有任何路徑能回到父節點的 <code>left</code> 欄位</strong>。
+          <b>這個賦值就是唯一的那條路。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 回寫接線</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>⚡ 和 <a href="../p226/index.html">226 翻轉二元樹</a>對照,這件事就完全清楚了。</strong>
+      <b>那一題的<em>同一行</em> <code>root-&gt;left = invertTree(root-&gt;left)</code> 是<em>冗餘</em>的</b> ——
+      因為那個遞迴<strong>只改動既有節點的內容,回傳的永遠是傳進去的同一個指標</strong>,
+      所以那是個<strong>恆等賦值</strong>。
+      <b>判準只有一句:「遞迴會不會產生新節點、或換掉子樹的根?」</b>
+      <strong>會 → 回寫是接線;不會 → 回寫是裝飾。</strong>
+      實測量化:<strong>226 的回寫拿掉錯 0 組;701 的回寫拿掉錯 4706/4707。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 兩個階段<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <p><strong>階段一 · 下降(和 BST 搜尋一模一樣)</strong></p>
+    <ol>
+      <li><code>root-&gt;val &gt; val</code> → 往<strong>左</strong>;<code>root-&gt;val &lt; val</code> → 往<strong>右</strong>。</li>
+      <li>一路走到 <code>nullptr</code> —— <strong>那就是 <code>val</code> 該待的空位</strong>。</li>
+    </ol>
+
+    <p style="margin-top:14px;"><strong>階段二 · 回程接線</strong></p>
+    <ol>
+      <li>base case:<code>return new TreeNode(val);</code> —— <b>新節點誕生,但還沒接上任何人</b>。</li>
+      <li>每一層把回傳值<strong>寫回自己的 <code>left</code> / <code>right</code></strong>。</li>
+      <li><code>return root;</code> —— 把<strong>原本的根</strong>交出去(根<strong>沒有</strong>被換掉)。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>整條回程上有 <code>h</code> 個回寫,但<em>只有最底下那一個</em>真的存了新東西</strong> ——
+      上面每一層都是「<strong>把原本就在那裡的指標再寫一次</strong>」。
+      <b>可是你事先<em>不知道</em>哪一層才是真的那一層,所以每一層都得寫。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [40,20,60,10,30,50,70] 插入 25</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 2。<strong>特別看第 4 步和第 5 步的差別</strong> ——
+      <b>第 4 步新節點<span style="color:#c8801e;">橘色虛線、標「尚未接上」</span>(它只是一個回傳值)</b>,
+      <strong>第 5 步那個回寫執行之後才變成<span style="color:#3f7a3a;">綠色實線「已接上」</span></strong>。
+      <b>BAND 3 的回寫鏈會顯示「哪一個賦值真的存下了東西」。</b>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ BST 插入 · 下降找空位,回程接線</div>
+      <div class="sc-viz__cvwrap"><canvas id="v701-canvas" class="sc-viz__canvas" style="height:446px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v701-reset">Reset</button><button class="sc-btn" id="v701-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v701-play">Play</button><button class="sc-btn" id="v701-next">Next</button>
+        <span class="sc-viz__step" id="v701-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="v701-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 回寫什麼時候是接線、什麼時候是裝飾</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>node-&gt;child = recurse(node-&gt;child, ...)</code> 這個模式在樹題裡到處都是,
+          <b>但它<em>有時必要、有時冗餘</em></b>。分界線只有一條:
+          <strong>「這個遞迴會不會<em>產生新節點</em>、或<em>換掉子樹的根</em>?」</strong>
+        </p>
+        <p style="margin:0;">
+          · <b>701(這題)</b>:base case <code>new</code> 一個節點出來,
+          而<strong>遞迴收到的是 <code>nullptr</code> 的<em>副本</em></strong> ——
+          新節點<strong>沒有任何路徑能自己回到父節點的欄位</strong>。
+          <strong>實測拿掉回寫:錯 <b>4706/4707</b></strong>,
+          而且失敗集合以<strong>集合相等</strong>驗證<strong>恰好等於「原樹非空」</strong>(零分歧)。
+          唯一答對的那 1 組是<strong>空樹</strong> —— 那時新節點<strong>由最外層直接回傳</strong>,根本沒經過賦值。<br>
+          · <b><a href="../p226/index.html">226 翻轉</a></b>:遞迴<strong>只改既有節點的內容</strong>,
+          <strong>回傳的永遠是傳進去的那個指標</strong> ⇒ 賦值是<strong>恆等的</strong>。
+          <strong>實測拿掉回寫:錯 <b>0</b> 組。</strong><br>
+          <b>同一行程式碼,一邊 4706/4707、一邊 0/N。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 新節點永遠是葉子(而且只配置一次)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          這個作法<strong>從不重組既有結構</strong> —— 它只是往下走到一個空位,把新節點<strong>掛上去</strong>。
+          所以<b>新節點必定是葉節點</b>,既有節點<strong>一個都不動</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>(窮舉 <code>n = 0..7</code> 的全部 <strong>626 棵 BST</strong> ×
+          每一個可能的插入位置,共 <strong>4707 組</strong>):<br>
+          · 插入後<strong>仍是合法 BST</strong> → <strong>0 違反</strong><br>
+          · 節點集合<strong>恰好等於原集合 ∪ {val}</strong> → <strong>0 違反</strong><br>
+          · 新節點<strong>永遠是葉子</strong> → <strong>0 違反</strong><br>
+          · <code>new TreeNode</code> <strong>恰好 1 次</strong> → <strong>0 違反</strong><br>
+          · <code>呼叫次數 == 新葉子的深度 + 1</code> → <strong>0 違反</strong><br>
+          <b>題目說「可以回傳任何一種合法插法」,但這個作法其實是<em>唯一決定</em>的</b> ——
+          實測與獨立的迭代版對拍 <strong>20 萬組 + 窮舉 4707 組,樹形逐位元相同</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 八種改法的實測結果(626 棵 BST × 每個插入位置,共 4707 組)</span>
+丟掉回寫(不接住回傳值)  → 錯 4706/4707,唯一對的是空樹 ← 本題主角
+比較方向相反              → 錯 4706/4707,最小反例 tree=[0] val=-1 → [0,null,-1]
+base case 回傳 nullptr    → 錯 4707/4707,零巧合,值被安靜吞掉
+忘記 return root          → 錯 4706/4707,回傳的是子樹的根 ⇒ 上半棵樹全丟
+總是插在第一個空位        → 錯 4081/4707,巧合 626 組(每棵樹恰好 1 個值會蒙對)
+缺 nullptr base case      → SIGSEGV,「任何一組都會炸」,連空樹都是
+新節點的子指標沒初始化    → 插入當下不炸,「下一次走訪」才 SIGSEGV ← 延遲爆炸
+用 >= 而非 >              → 錯 0/4707,「完全等價」(因為 val 保證不存在)
+<span class="sc-trace__out">// 注意倒數第二列:那種「延遲爆炸」比當場崩潰難 debug 得多</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(h)</strong>,精確地說 <strong>= 新葉子的深度 + 1</strong>　·　空間 <strong>O(h)</strong>　·　配置 <strong>恰好 1 次</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境</th><th>實測呼叫次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>平衡 BST <code>n=1023</code>,全部 1024 個插入位置</td><td class="mono ok">min <strong>11</strong> / max <strong>11</strong> / 平均 <strong>11.0</strong></td><td><strong>每個位置都一樣</strong>(樹高 10 + 1)</td></tr>
+        <tr><td>退化鏈 <code>n=1000</code>,插入新的最小值</td><td class="mono ok"><strong>2</strong></td><td>掛在根的左邊,馬上結束</td></tr>
+        <tr><td>退化鏈 <code>n=1000</code>,插入新的最大值</td><td class="mono fail"><strong>1001</strong></td><td><strong>要走到最深處</strong></td></tr>
+        <tr><td>空樹</td><td class="mono ok"><strong>1</strong></td><td>base case 直接回傳新節點</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>⚡ 這題和 <a href="../p235/index.html">235</a> 有一個關鍵差別:<em>這不是尾遞迴</em>。</strong>
+      <b>因為遞迴回來之後<em>還要做事</em></b>(賦值,然後 <code>return root</code>)——
+      <strong>所以 <code>-O2</code> <em>不會</em>把堆疊框消掉</strong>,只是把它<strong>從 64 bytes 縮到 32 bytes</strong>。
+      <strong>組語實證</strong>:<code>bl</code>(真的呼叫)後面跟著 <code>str x0, [x19, #8]</code>(回來之後才寫)。
+      <b>對比 235:那題三個 <code>return</code> 都在 tail position,<code>-O2</code> 直接把遞迴變成迴圈。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>遞迴收到的是指標的<em>副本</em>,所以它 <code>new</code> 出來的節點<em>沒有路回家</em></strong> ——
+      <b><code>node-&gt;child = recurse(...)</code> 那個回寫,就是唯一的那條路。</b><br>
+      <strong>判準記這一句:「遞迴會不會產生新節點、或換掉子樹的根?」</strong>
+      <b>會 → 回寫是接線(這題,拿掉錯 4706/4707);
+      不會 → 回寫是裝飾(<a href="../p226/index.html">226 翻轉</a>,拿掉錯 0)。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">遞迴拿到的是指標的副本,所以新 new 出來的節點沒有路回到父節點的欄位 —— 回寫就是唯一那條路。判準:遞迴會不會產生新節點或換掉子樹根?會就是接線(拿掉錯 4706/4707),不會就是裝飾(226 拿掉錯 0)。而且這題不是尾遞迴,-O2 消不掉堆疊框。</div>
+    <div class="sc-summary-bar__detail">INSERT INTO A BST · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p701-bstinsert.js"></script>
+</body>
+</html>

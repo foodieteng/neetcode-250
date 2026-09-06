@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>701 · Insert into a BST // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P701</span>
+    <span><a href="https://leetcode.com/problems/insert-into-a-binary-search-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">插入節點到 BST</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 701</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>兩個階段</td><td><strong>下降找空位</strong>(同 BST search)+ <strong>回程接線</strong>(回寫)</td></tr>
+        <tr><td><strong>回寫為何必要</strong></td><td>遞迴收到的是<strong>指標的副本</strong> ⇒ 新節點<strong>沒有路回到父節點的欄位</strong></td></tr>
+        <tr><td>實測</td><td>拿掉回寫錯 <strong>4706/4707</strong>;失敗集合<strong>≡「原樹非空」</strong>(集合相等)</td></tr>
+        <tr><td><strong>判準</strong></td><td>「遞迴會不會<strong>產生新節點 / 換掉子樹根</strong>?」會 → 接線;不會 → 裝飾</td></tr>
+        <tr><td>對照組</td><td><a href="../p226/index.html">226 翻轉</a>同一行拿掉錯 <strong>0/626</strong> —— <b>同一行,兩種命運</b></td></tr>
+        <tr><td>回程的真相</td><td><code>h</code> 個回寫裡<strong>只有一個</strong>真的存了新東西,但<strong>事先不知道是哪個</strong></td></tr>
+        <tr><td>四個不變量</td><td>仍是 BST、集合 ∪{val}、<strong>新節點永遠是葉子</strong>、<strong>恰好配置 1 次</strong></td></tr>
+        <tr><td>成本</td><td><strong>呼叫次數 = 新葉子深度 + 1</strong>(4707 組零違反)</td></tr>
+        <tr><td><strong>不是尾遞迴</strong></td><td>回來還要賦值 ⇒ <code>-O2</code> 只把框 <strong>64→32 bytes</strong>,<b>沒消掉</b></td></tr>
+        <tr><td>堆疊</td><td><code>n=10⁴</code> 在 8 MB 上安全(13~26×),<strong>但 512 KB 的 <code>-O0</code> 會崩</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>root-&gt;left = insertIntoBST(root-&gt;left, val);</code> —— 如果<strong>只寫 <code>insertIntoBST(root-&gt;left, val);</code></strong> 不接住回傳值,會怎樣?<strong>為什麼</strong>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 但在 <a href="../p226/index.html">226 翻轉二元樹</a>裡,<strong>一模一樣的回寫是冗餘的</strong>。<strong>差別在哪裡?</strong>請給一個能用來判斷的<strong>準則</strong>。</div>
+
+    <div class="qa"><strong>Q3.</strong> 回程路上有 <code>h</code> 個回寫。<strong>其中幾個真的存下了新東西?</strong>那其他的呢?</div>
+
+    <div class="qa"><strong>Q4.</strong> 這題和 <a href="../p235/index.html">235 BST LCA</a> 都是「往下走一條路」的遞迴。<strong>為什麼 235 是尾遞迴而這題不是?</strong>後果是什麼?</div>
+
+    <div class="qa"><strong>Q5.</strong> 新節點<strong>會不會可能不是葉子</strong>?這個作法有沒有可能<strong>重組既有的結構</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [40,20,60,10,30,50,70] 插入 25</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例 2。<strong>以下是插樁後印出來的實際呼叫樹</strong>,
+      <b>重點是看「哪一個賦值真的存下了新指標」。</b>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 階段一 · 下降(三個賦值一路「掛起」)</span>
+1. insert(root=40, 25)
+     40 > 25  → 往左
+     [ 40.left 的賦值:掛起,等遞迴回傳 ]
+
+2.   insert(40->left = 20, 25)
+       20 < 25  → 往右
+       [ 20.right 的賦值:掛起 ]
+
+3.     insert(20->right = 30, 25)
+         30 > 25  → 往左
+         [ 30.left 的賦值:掛起 ]
+<span class="sc-trace__out">// 走到這裡,有三個賦值同時懸著 —— 這就是「回程要接線」的那條路</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 階段二 · 新節點誕生(但還沒接上任何人)</span>
+4.       insert(30->left = nullptr, 25)
+           root == nullptr  →  return new TreeNode(25)
+
+         ⚠ 此刻的狀態:
+             · 新節點已經存在於記憶體裡
+             · 但「樹上沒有任何節點指向它」
+             · 它自己也不知道該掛在誰底下
+             · 它「只存在於這個回傳值裡」
+
+         原因:遞迴收到的 root 是「30->left 這個 nullptr 的副本」
+               把副本指向新節點,不會影響 30 的 left 欄位
+<span class="sc-trace__out">// 這一格就是整題的核心 —— 新節點此時是「無根的」</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 階段三 · 回程接線(只有第一個是真的)</span>
+5.     ← 回到第 3 層:  30->left = (新節點 25)      ★★★ 真正的接線
+                        這一個賦值是新節點「唯一」被掛上去的機會
+                        return 30
+
+6.   ← 回到第 2 層:  20->right = 30                (原本就是 30 → 恆等賦值)
+                      return 20
+
+7. ← 回到第 1 層:    40->left = 20                 (原本就是 20 → 恆等賦值)
+                      return 40   ← 回傳「原本的根」,根沒被換掉</div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+[40,20,60,10,30,50,70,null,null,25]
+
+呼叫次數 = 4 = 新葉子的深度(3) + 1
+配置次數 = 1
+三個回寫裡「只有 1 個」存下了新指標(第 5 步)
+
+實測:與獨立的迭代 + parent 指標版對拍
+      窮舉 4707 組 + 隨機 200000 組,樹形逐位元相同
+<span class="sc-trace__out">// 「大部分回寫都是恆等賦值」正是丟掉它在小測資上看起來沒事的原因</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>第 4 步和第 5 步之間那個「空檔」,就是這題要教的東西。</strong>
+      <b>新節點在第 4 步誕生,但要到第 5 步才「屬於這棵樹」</b> ——
+      <strong>中間那一瞬間它是一個<em>無主的指標</em></strong>。
+      <b>丟掉回寫,它就永遠停在那個狀態。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成<strong>刪除</strong>一個節點(LeetCode 450)。回寫模式還在嗎?<strong>難在哪裡</strong>?</div>
+
+    <div class="qa"><strong>App 2.</strong> 如果 C++ 可以傳<strong>指標的參考</strong>(<code>TreeNode*&amp;</code>),程式會變成什麼樣?回寫還需要嗎?</div>
+
+    <div class="qa"><strong>App 3.</strong> 連續插入<strong>已排序</strong>的資料(1, 2, 3, …, n)。會發生什麼?怎麼辦?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>新節點會被 <code>new</code> 出來、回傳、然後掉在地上 —— 樹原封不動,而且那個節點洩漏了。</strong><br><br>
+  <strong>原因在 C++ 的參數傳遞:遞迴收到的是「指標的<em>副本</em>」。</strong><br>
+  <code>insertIntoBST(root-&gt;left, val)</code> 傳進去的是 <code>root-&gt;left</code> <strong>那個 <code>nullptr</code> 的一份拷貝</strong>。遞迴內部執行 <code>return new TreeNode(val);</code> 時,<b>那個新節點只存在於<em>回傳值</em>裡</b> —— <strong>樹上沒有任何節點指向它,它自己也不知道該掛在誰底下</strong>。<br><br>
+  <b>把回傳值接住的那個賦值,就是它唯一的一條路。</b><br><br>
+  <strong>實測</strong>:窮舉 626 棵 BST × 每個插入位置 = 4707 組,拿掉回寫<strong>錯 4706 組</strong>。而且失敗集合以<strong>集合相等</strong>驗證,<b>恰好等於「原樹非空」</b>(零分歧)。<br>
+  <strong>唯一答對的那 1 組是空樹</strong> —— 因為那時 <code>root == nullptr</code> 發生在<strong>最外層</strong>,新節點<strong>直接被 <code>return</code> 給呼叫端</strong>,<strong>根本沒有經過任何賦值</strong>。<br><br>
+  <b>順帶一提,這個 bug 還會洩漏記憶體</b> —— 每插入一次就漏一個節點。在 LeetCode 上看不出來,在真實系統裡會累積。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>差別在「遞迴回傳的是不是一個<em>新的</em>指標」。準則:遞迴會不會產生新節點、或換掉子樹的根?</strong><br><br>
+  · <b>701(本題)</b>:base case <code>new</code> 出一個<strong>全新的節點</strong>並回傳它 ⇒ <strong>回傳值是一個「原本不存在於樹上」的指標</strong> ⇒ <b>必須靠賦值接進去</b>。<br>
+  · <b><a href="../p226/index.html">226 翻轉</a></b>:遞迴<strong>只交換既有節點的兩根子指標</strong>,<strong>回傳的永遠是傳進去的那個指標</strong>(實測 2000 棵樹,<code>invertTree(root) == root</code> 命中 2000/2000)⇒ 那個賦值是 <code>root-&gt;left = root-&gt;left</code>,<strong>恆等的</strong>。<br><br>
+  <strong>把兩題放進同一支程式、用同一個窮舉宇宙跑:</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">226 翻轉:比較 626 棵樹,有回寫 vs 無回寫  →  結果不同 = 0
+701 插入:比較 4707 組,有回寫 vs 無回寫  →  結果不同 = 4706</pre>
+  <b>同一行程式碼,一邊 0、一邊 4706。</b><br><br>
+  <strong>這個判準在後面還會用到</strong>:<b>450 刪除節點</b>(子樹的根會換人)、<b>1325 刪除葉節點</b>(子樹可能整棵消失)—— <strong>都是「會換掉子樹根」,所以回寫都是必要的</strong>。<br><br>
+  <b>實務建議:兩邊都寫它。</b>因為它讓「這一層可能換掉子樹的根」這件事<strong>自動被處理掉</strong>,不必在父節點裡寫一堆 <code>if</code>;而在不需要的地方它<strong>只是一個恆等賦值,沒有成本</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>只有<em>一個</em>真的存下新東西 —— 就是最底下那一個;其他全都是恆等賦值。</strong><br><br>
+  以本頁的 trace 為例,回程有三個回寫:<br>
+  · <code>30-&gt;left = 新節點</code> ← <b>★ 真正的接線</b>(把一個原本不在樹上的指標存進去)<br>
+  · <code>20-&gt;right = 30</code> ← 原本就是 30,<strong>寫了等於沒寫</strong><br>
+  · <code>40-&gt;left = 20</code> ← 原本就是 20,<strong>同上</strong><br><br>
+  <b>但你<em>事先不知道</em>哪一層才是真的那一層</b> —— 它取決於 <code>val</code> 會落在哪個空位,而那要走到底才知道。<strong>所以每一層都得寫。</strong><br><br>
+  <b>這也解釋了一件事:為什麼「丟掉回寫」這個 bug 在小測資上<em>看起來</em>好像沒事。</b>因為<strong>絕大多數的回寫本來就是恆等的</strong> —— 只有最深的那一個有作用,而它剛好是最容易被忽略的那一個。<br><br>
+  <strong>一般化的說法:這個模式付出了 <code>O(h)</code> 個「多餘」的賦值,換來「不必在父節點裡判斷子樹根有沒有換人」。</strong><b>這是一個很划算的交換</b> —— 賦值是 <code>O(1)</code> 的,而那些 <code>if</code> 會讓程式碼變得非常難讀。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為這題「遞迴回來之後還要做事」,235 沒有。後果是 <code>-O2</code> 消不掉堆疊框。</strong><br><br>
+  <strong>尾遞迴的定義</strong>:遞迴呼叫的結果<strong>直接就是</strong>本層的回傳值,<b>呼叫回來之後沒有任何事要做</b>。<br><br>
+  · <b>235 BST LCA</b>:<code>return lowestCommonAncestor(root-&gt;left, p, q);</code> —— <strong>直接回傳遞迴結果</strong> ✓ 尾遞迴。<br>
+  · <b>701(本題)</b>:<code>root-&gt;left = insertIntoBST(...);</code> 然後 <code>return root;</code> —— <strong>回來之後要<em>賦值</em>,而且回傳的是「自己」不是遞迴結果</strong> ✗ <strong>不是</strong>尾遞迴。<br><br>
+  <strong>組語實證</strong>(arm64, <code>-O2</code>):<br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">bl   __Z13insertIntoBSTP8TreeNodei    ← 真的 call(不是 b 跳轉)
+str  x0, [x19, #8]                     ← 回來之後才寫 ⇒ 框不能提前丟
+stp  x20, x19, [sp, #-32]!             ← 每層固定配置 32 bytes</pre>
+  <strong>後果</strong>:<code>-O2</code> <b>只是把框從 64 bytes 縮到 32 bytes,並沒有消掉它</b>。實測崩潰深度 <code>-O0</code> = <strong>130718</strong>、<code>-O2</code> = <strong>261436</strong> —— <strong>剛好是兩倍,對應 64 → 32</strong>。<br>
+  對比 235:那題 <code>-O2</code> 發出 <code>b</code>(跳轉),遞迴變成迴圈,<strong>堆疊維持 <code>O(1)</code>,量不到崩潰點</strong>。<br><br>
+  <b>判準記這一句:「不是看它是不是遞迴,是看『呼叫回來之後還有沒有事要做』。」</b><strong>而這題的「那件事」正是回寫</strong> —— <b>所以「必須回寫」和「不是尾遞迴」其實是同一件事的兩面。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>新節點<em>永遠</em>是葉子,而且既有結構<em>一個節點都不會動</em>。</strong><br><br>
+  這個作法<strong>只做一件事</strong>:往下走到一個 <code>nullptr</code> 的空位,把新節點掛上去。<b>它從不旋轉、不重組、不搬動任何既有節點</b>。<br><br>
+  <strong>實測</strong>(窮舉 626 棵 BST × 4707 次插入,四個不變量<strong>皆 0 違反</strong>):<br>
+  · 插入後<strong>仍是合法 BST</strong><br>
+  · 節點集合<strong>恰好 = 原集合 ∪ {val}</strong><br>
+  · <strong>新節點永遠是葉子</strong><br>
+  · <code>new TreeNode</code> <strong>恰好 1 次</strong><br><br>
+  <b>順帶一提:題目說「可能有多種合法插法,回傳任何一種都可以」</b> —— 那是因為<strong>理論上你可以做旋轉、把新值插在中間再重組</strong>。<b>但這個作法其實是<em>唯一決定</em>的</b>:實測與獨立的迭代版對拍<strong>窮舉 4707 組 + 隨機 20 萬組,樹形逐位元完全相同</strong>。<br><br>
+  <strong>代價是:它不會維持平衡。</strong>連續插入排序資料就會退化成一條鏈(見 App 3)—— <b>真正的平衡樹(AVL、紅黑樹)之所以複雜,就是因為它們<em>必須</em>重組結構</b>,而那時「子樹的根會換人」,<strong>回寫模式就更不可或缺了。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>回寫模式還在,而且更關鍵 —— 難在「被刪的節點有兩個小孩」的情況。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">TreeNode* deleteNode(TreeNode* root, int key) {
+    if (root == nullptr) {
+        return nullptr;
+    }
+
+    if (root-&gt;val &gt; key) {
+        root-&gt;left = deleteNode(root-&gt;left, key);      // ← 同樣的回寫
+    } else if (root-&gt;val &lt; key) {
+        root-&gt;right = deleteNode(root-&gt;right, key);
+    } else {
+        // 找到了,三種情況
+        if (root-&gt;left == nullptr)  return root-&gt;right;   // ← 子樹的根「換人」了
+        if (root-&gt;right == nullptr) return root-&gt;left;
+
+        // 兩個小孩:找右子樹的最小值(中序後繼)頂上來
+        TreeNode* succ = root-&gt;right;
+        while (succ-&gt;left != nullptr) {
+            succ = succ-&gt;left;
+        }
+        root-&gt;val = succ-&gt;val;                            // 把值搬上來
+        root-&gt;right = deleteNode(root-&gt;right, succ-&gt;val);  // 再去刪掉那個後繼
+    }
+
+    return root;
+}</pre>
+  <b>回寫在這裡比插入更不可或缺</b>:插入時只有<strong>最深那一層</strong>會換人,<strong>刪除時「被刪節點所在的那一層」的子樹根一定會換人</strong>(<code>return root-&gt;right</code>)。<br><br>
+  <strong>難點是「兩個小孩」那一支</strong>:不能直接刪,因為<strong>兩棵子樹要接到哪裡去?</strong>標準解法是<strong>找中序後繼</strong>(右子樹一路往左到底,也就是右子樹的最小值)<strong>把它的值搬上來</strong>,再<strong>遞迴去刪掉那個後繼</strong> —— <b>而後繼必定「至多只有一個小孩」,所以退化成簡單情況</b>。<br><br>
+  <b>用前繼(左子樹的最大值)也完全對稱可行</b> —— 這也是為什麼刪除的結果<strong>不唯一</strong>。</div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>會變得漂亮很多 —— 回寫真的可以省掉,因為你拿到的是「欄位本身」而不是副本。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">void insert(TreeNode*&amp; node, int val) {       // ← 注意這個 &amp;
+    if (node == nullptr) {
+        node = new TreeNode(val);             // 直接寫進「呼叫端的欄位」
+        return;
+    }
+
+    if (node-&gt;val &gt; val) {
+        insert(node-&gt;left, val);              // 不需要接住回傳值
+    } else if (node-&gt;val &lt; val) {
+        insert(node-&gt;right, val);
+    }
+}
+// 呼叫:insert(root, val);   root 本身若為 null 也會被正確填上</pre>
+  <b>關鍵差別:<code>TreeNode*&amp;</code> 是「指向指標的參考」</b> —— 遞迴拿到的<strong>不是 <code>root-&gt;left</code> 的副本,而是 <code>root-&gt;left</code> 這個欄位本身的別名</strong>。所以 <code>node = new TreeNode(val);</code> <b>直接就改到了父節點的 <code>left</code></b>。<br><br>
+  <strong>這正好反證了 A1 的說法</strong>:<b>回寫之所以必要,純粹是因為「傳的是副本」</b>。<strong>一旦傳的是參考,那條「回家的路」本來就存在,回寫自然就不需要了。</strong><br><br>
+  <b>那為什麼 LeetCode 不用這個寫法?</b>因為<strong>題目的函式簽名是固定的</strong>(<code>TreeNode* insertIntoBST(TreeNode* root, int val)</code>),必須回傳 <code>TreeNode*</code>。<b>但在你自己的資料結構程式碼裡,<code>TreeNode*&amp;</code> 或 <code>TreeNode**</code> 通常更乾淨</b> —— 這也是很多 C 語言教科書寫二元樹插入時用 <code>TreeNode**</code> 的原因。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>會退化成一條鏈 —— 每次插入都變成 <code>O(n)</code>,建整棵樹要 <code>O(n²)</code>。</strong><br><br>
+  依序插入 <code>1, 2, 3, …, n</code>:每個新值都比現有的全部都大,<strong>所以每次都一路往右走到底</strong>。結果是一棵<strong>只有右子樹的鏈</strong>,樹高 <code>n</code>。<br><br>
+  <strong>實測對照</strong>(本頁的複雜度表):<br>
+  · 平衡 BST <code>n=1023</code> → 每次插入都只要 <strong>11 次</strong>呼叫<br>
+  · 退化鏈 <code>n=1000</code> 插入新的最大值 → <strong>1001 次</strong>呼叫<br>
+  <b>差了將近 100 倍,而且那還只是 <code>n=1000</code>。</b><br><br>
+  <strong>而且不只是慢 —— 還會爆堆疊。</strong>遞迴版在 <code>n=10⁴</code> 的鏈上需要約 <strong>640 KB</strong>(<code>-O0</code>),<strong>在 512 KB 的環境下就 SIGSEGV</strong>。<br><br>
+  <strong>三種解法:</strong><br>
+  ① <b>打亂插入順序</b> —— 隨機順序建出的 BST,期望高度是 <code>O(log n)</code>。最簡單,但你不一定能控制輸入。<br>
+  ② <b>用自平衡樹</b>(AVL、紅黑樹)—— 插入時<strong>旋轉重組</strong>,保證 <code>O(log n)</code>。<b>而重組正是「子樹的根會換人」,所以回寫模式在那裡是絕對必要的。</b><br>
+  ③ <b>如果資料本來就有序,直接用「有序陣列 + 二分」</b>,或<strong>由中點遞迴建樹</strong>(LeetCode 108)—— 一次就建出完美平衡的 BST,<code>O(n)</code>。<br><br>
+  <b>這也回答了「為什麼實務上很少直接用裸 BST」</b>:<code>std::map</code> / <code>std::set</code> 底層是<strong>紅黑樹</strong>,正是為了避開這個退化問題。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">回寫必要與否,取決於「遞迴會不會產生新節點或換掉子樹根」——會就是接線(拿掉錯 4706/4707),不會就是裝飾(226 拿掉錯 0)。而「必須回寫」和「不是尾遞迴」其實是同一件事的兩面:回來之後還有事要做。</div>
+    <div class="sc-summary-bar__detail">INSERT INTO A BST · REVIEW</div>
+  </div>
+
+</body>
+</html>
