@@ -60,8 +60,8 @@
         <tr><td>回程的真相</td><td><code>h</code> 個回寫裡<strong>只有一個</strong>真的存了新東西,但<strong>事先不知道是哪個</strong></td></tr>
         <tr><td>四個不變量</td><td>仍是 BST、集合 ∪{val}、<strong>新節點永遠是葉子</strong>、<strong>恰好配置 1 次</strong></td></tr>
         <tr><td>成本</td><td><strong>呼叫次數 = 新葉子深度 + 1</strong>(4707 組零違反)</td></tr>
-        <tr><td><strong>不是尾遞迴</strong></td><td>回來還要賦值 ⇒ <code>-O2</code> 只把框 <strong>64→32 bytes</strong>,<b>沒消掉</b></td></tr>
-        <tr><td>堆疊</td><td><code>n=10⁴</code> 在 8 MB 上安全(13~26×),<strong>但 512 KB 的 <code>-O0</code> 會崩</strong></td></tr>
+        <tr><td><strong>不是尾遞迴</strong></td><td>回來還要賦值 ⇒ <code>-O2</code> 只把框 <strong>80→32 bytes</strong>,<b>沒消掉</b></td></tr>
+        <tr><td>堆疊</td><td><code>n=10⁴</code> 在 8 MB 上安全(10~26×),<strong>但 512 KB 的 <code>-O0</code> 會崩</strong></td></tr>
       </tbody>
     </table>
   </section>
@@ -206,7 +206,8 @@
   <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">bl   __Z13insertIntoBSTP8TreeNodei    ← 真的 call(不是 b 跳轉)
 str  x0, [x19, #8]                     ← 回來之後才寫 ⇒ 框不能提前丟
 stp  x20, x19, [sp, #-32]!             ← 每層固定配置 32 bytes</pre>
-  <strong>後果</strong>:<code>-O2</code> <b>只是把框從 64 bytes 縮到 32 bytes,並沒有消掉它</b>。實測崩潰深度 <code>-O0</code> = <strong>130718</strong>、<code>-O2</code> = <strong>261436</strong> —— <strong>剛好是兩倍,對應 64 → 32</strong>。<br>
+  <strong>後果</strong>:<code>-O2</code> <b>只是把框縮小,並沒有消掉它</b>。實測崩潰深度 <code>-O0</code> = <strong>104256</strong>(80 B/frame)、<code>-O2</code> = <strong>261284</strong>(32 B/frame)。<br>
+  <b>那個 80 值得解釋一下</b>:<strong>成員函式要在框裡存 <code>this</code></strong>,所以比同樣邏輯的<strong>自由函式(實測 64 B、崩潰 ~130362)多一個 16-byte 台階</strong>。<strong>LeetCode 的提交格式正是成員函式,所以引用 80。</strong><br>
   對比 235:那題 <code>-O2</code> 發出 <code>b</code>(跳轉),遞迴變成迴圈,<strong>堆疊維持 <code>O(1)</code>,量不到崩潰點</strong>。<br><br>
   <b>判準記這一句:「不是看它是不是遞迴,是看『呼叫回來之後還有沒有事要做』。」</b><strong>而這題的「那件事」正是回寫</strong> —— <b>所以「必須回寫」和「不是尾遞迴」其實是同一件事的兩面。</b></div>
 

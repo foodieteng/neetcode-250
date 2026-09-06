@@ -255,9 +255,15 @@ new TreeNode 恰好 1 次        → 0 違反
     str  x0, [x19, #8]                     ← 回來之後才寫 ⇒ 不是尾呼叫
   prologue: stp x20, x19, [sp, #-32]!      ← 每層固定配置 32 bytes
 
-所以 -O2「不會」消掉堆疊框,只是把它從 64 縮到 32 bytes:
-  clean 崩潰深度   -O0 = 130718 (64.05 bytes/frame)
-                   -O2 = 261436 (32.02 bytes/frame)   ← 剛好對得上 prologue 的 32
+所以 -O2「不會」消掉堆疊框,只是把它縮小:
+  clean 崩潰深度   -O0 = 104256 (80.3 bytes/frame)
+                   -O2 = 261284 (32.0 bytes/frame)   ← 剛好對得上 prologue 的 32
+
+⚠ 注意 -O0 的 80 bytes 來自「它是 class 的成員函式」:
+  成員函式要在框裡存 this,所以比同樣邏輯的自由函式多一個 16-byte 台階
+    class Solution 的成員函式  → sub sp, sp, #80   崩潰深度 ~104256
+    寫成自由函式(同樣邏輯)   → sub sp, sp, #64   崩潰深度 ~130362
+  LeetCode 的提交格式就是成員函式,所以本頁引用 80 / ~104256
 
 對照 235 BST LCA:那題三個 return 都在 tail position,-O2 直接發出 b(跳轉)
                   遞迴被改寫成迴圈,堆疊維持 O(1) —— 量不到崩潰點
@@ -266,15 +272,15 @@ new TreeNode 恰好 1 次        → 0 違反
     <table class="sc-table" style="margin-top:14px;">
       <thead><tr><th><code>ulimit -s</code></th><th>-O0 崩潰深度</th><th>-O2 崩潰深度</th><th><code>n=10⁴</code> @ -O0</th><th><code>n=10⁴</code> @ -O2</th></tr></thead>
       <tbody>
-        <tr><td class="mono">8176 KB(預設)</td><td class="mono">130718</td><td class="mono">261436</td><td class="mono ok">存活(<strong>13.07×</strong>)</td><td class="mono ok">存活(<strong>26.14×</strong>)</td></tr>
-        <tr><td class="mono">1024 KB</td><td class="mono">16286</td><td class="mono">32573</td><td class="mono ok">存活</td><td class="mono ok">存活</td></tr>
-        <tr><td class="mono">512 KB</td><td class="mono">8094</td><td class="mono">16189</td><td class="mono fail"><strong>SIGSEGV</strong></td><td class="mono ok">存活</td></tr>
+        <tr><td class="mono">8176 KB(預設)</td><td class="mono">104256</td><td class="mono">261284</td><td class="mono ok">存活(<strong>10.4×</strong>)</td><td class="mono ok">存活(<strong>26.1×</strong>)</td></tr>
+        <tr><td class="mono">1024 KB</td><td class="mono">12933</td><td class="mono">32457</td><td class="mono ok">存活</td><td class="mono ok">存活</td></tr>
+        <tr><td class="mono">512 KB</td><td class="mono">6425</td><td class="mono">16071</td><td class="mono fail"><strong>SIGSEGV</strong></td><td class="mono ok">存活</td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong><code>n = 10⁴</code> 的退化鏈需要約 <strong>640 KB</strong>(<code>-O0</code>)/ <strong>320 KB</strong>(<code>-O2</code>)</strong>。
-      <b>在 8 MB 堆疊上有 13~26 倍餘裕,安全</b>;
+      <strong><code>n = 10⁴</code> 的退化鏈需要約 <strong>800 KB</strong>(<code>-O0</code>)/ <strong>320 KB</strong>(<code>-O2</code>)</strong>。
+      <b>在 8 MB 堆疊上有 10~26 倍餘裕,安全</b>;
       <strong>但在 512 KB 的環境下 <code>-O0</code> build 會 SIGSEGV</strong>。
       <b>要一個與環境無關的保證,就用解法 B 的迭代版</b> ——
       <strong>它不只省空間,它<em>根本沒有堆疊深度這個問題</em>。</strong>
@@ -420,8 +426,11 @@ new TreeNode 恰好 1 次        → 0 違反
     str  x0, [x19, #8]                    回來之後才寫 → 框不能提前丟掉
     stp  x20, x19, [sp, #-32]!            每層 32 bytes
 
-實測崩潰深度:-O0 = 130718(64 B/frame)、-O2 = 261436(32 B/frame)
-             -O2 只是把框「縮小一半」,並沒有消掉它
+實測崩潰深度:-O0 = 104256(80 B/frame)、-O2 = 261284(32 B/frame)
+             -O2 把框縮小,但「並沒有消掉」它
+
+註:80 這個數字是因為「成員函式要在框裡存 this」;同樣邏輯寫成自由函式
+    量到的是 64 B/frame、崩潰深度 ~130362。LeetCode 是成員函式,故引用 80。
 <span class="sc-trace__out">// 判斷尾遞迴不是看「它是不是遞迴」,而是看「呼叫回來之後還有沒有事要做」</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 4: >= 和 > 為什麼「這題」等價(但別養成習慣)</span>
