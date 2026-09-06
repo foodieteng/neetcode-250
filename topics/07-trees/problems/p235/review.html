@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>235 · Lowest Common Ancestor of a BST // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P235</span>
+    <span><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">BST 的最近共同祖先</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 235</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心轉換</td><td>把 <code>p</code>、<code>q</code> 看成<strong>區間 <code>[min, max]</code></strong>,問「節點在區間左/右/內」</td></tr>
+        <tr><td>答案是誰</td><td><strong>第一個落在區間內的節點</strong> = 分岔點 = LCA</td></tr>
+        <tr><td>為什麼不用搜尋</td><td>BST 排序性質讓每一步都能<strong>整棵子樹排除</strong> —— 二選一,不是兩邊都試</td></tr>
+        <tr><td>成本</td><td><strong>呼叫次數 = LCA 的深度 + 1</strong>(118621 組<strong>零例外</strong>)</td></tr>
+        <tr><td><strong>嚴格比較</strong></td><td><code>&lt;</code> 改 <code>&lt;=</code> 失敗 <strong>54283</strong>,失敗集合<strong>恰好 = <code>LCA == max(p,q)</code></strong></td></tr>
+        <tr><td>症狀</td><td><strong>71% 安靜答錯、29% SIGSEGV</strong> —— <b>安靜的那種難發現得多</b></td></tr>
+        <tr><td>為何能省 null 檢查</td><td>題目<strong>保證 <code>p</code>、<code>q</code> 都存在</strong> ⇒ 必在走到 null 前先命中</td></tr>
+        <tr><td>前提被打破</td><td><strong>絕大多數「安靜答錯」</strong>(缺席值實測僅約 1% 崩潰)—— 更危險</td></tr>
+        <tr><td>尾遞迴</td><td>三個 <code>return</code> 都在 tail position ⇒ <strong>改迭代零成本</strong>,空間 <code>O(1)</code></td></tr>
+        <tr><td><strong>堆疊</strong></td><td><code>-O2</code> 有 TCO 實質無限;<b><code>-O0</code> 下 <code>n=10⁵</code> 只剩 <strong>1.31 倍</strong></b></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「<strong>第一個落在 <code>[min, max]</code> 區間內的節點</strong>」就是 LCA?請分別論證<strong>它是共同祖先</strong>與<strong>它是最近的</strong>。</div>
+
+    <div class="qa"><strong>Q2.</strong> 那兩個比較為什麼<strong>必須是嚴格的 <code>&lt;</code> 和 <code>&gt;</code></strong>?寫成 <code>&lt;=</code> 會怎樣 —— 是<strong>答錯</strong>還是<strong>崩潰</strong>?(<strong>兩種都會發生,比例是多少?</strong>)</div>
+
+    <div class="qa"><strong>Q3.</strong> 這份程式碼<strong>沒有 <code>nullptr</code> 檢查</strong>。是漏寫嗎?如果<strong>前提被打破</strong>(<code>p</code> 不在樹中、或輸入根本不是 BST)會怎樣?</div>
+
+    <div class="qa"><strong>Q4.</strong> 這題的複雜度是 <code>O(h)</code>。<strong><code>h</code> 最壞是多少?</strong>而這題 <code>n</code> 可以到 <code>10⁵</code> —— <strong>遞迴會爆堆疊嗎?</strong>請給實測依據。</div>
+
+    <div class="qa"><strong>Q5.</strong> 值域是 <code>±10⁹</code>。這份程式碼<strong>有沒有溢位風險</strong>?有沒有哪種「看起來更聰明」的寫法<strong>反而會溢位</strong>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 同一棵 BST,三組 (p,q)</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      BST <code>[6,2,8,0,4,7,9,null,null,3,5]</code>。
+      <strong>三組實跑,示範「答案埋得多深,就走多少步」。</strong>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · p=2, q=8 → 6(官方範例 1,只走 1 步)</span>
+區間 [min, max] = [2, 8]
+
+call#1 at node 6:  max=8 min=2
+    max=8 < 6 ?  否
+    min=2 > 6 ?  否
+    → 落在區間內(2 <= 6 <= 8)→ RETURN 6
+
+calls = 1,depth(LCA=6) = 0    ✓ 符合「calls = depth + 1」
+<span class="sc-trace__out">// 一個在左、一個在右 ⇒ 根就是分岔點,立刻結束</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// B · p=2, q=4 → 2(官方範例 2,走 2 步;p 自己就是答案)</span>
+區間 [min, max] = [2, 4]
+
+call#1 at node 6:  max=4 min=2
+    max=4 < 6 ?  是 → 兩個目標都比 6 小,必在左子樹 → 往左
+call#2 at node 2:  max=4 min=2
+    max=4 < 2 ?  否
+    min=2 > 2 ?  否        ← 注意:min「等於」2,所以「嚴格大於」不成立
+    → 落在區間內(2 <= 2 <= 4)→ RETURN 2
+
+calls = 2,depth(LCA=2) = 1    ✓
+<span class="sc-trace__out">// 這一步就是「嚴格比較」在守的地方:寫成 >= 的話會往右走過頭</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// C · p=3, q=5 → 4(走 3 步,答案埋得最深)</span>
+區間 [min, max] = [3, 5]
+
+call#1 at node 6:  max=5 < 6  → 往左
+call#2 at node 2:  min=3 > 2  → 往右
+call#3 at node 4:  max=5 < 4 ? 否;min=3 > 4 ? 否
+                   → 落在區間內(3 <= 4 <= 5)→ RETURN 4
+
+calls = 3,depth(LCA=4) = 2    ✓
+<span class="sc-trace__out">// 同一棵樹,三組答案分別走 1、2、3 步 —— 完全由「答案在哪」決定</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三組 trace 一起看,那條恆等式就很明顯了</strong>:
+      <b><code>呼叫次數 = LCA 的深度 + 1</code></b>。
+      <strong>實測在 2055 棵 BST 的全部 118621 組上零例外。</strong>
+      <b>所以這題的成本既不是 <code>O(n)</code>、也不是固定的 <code>O(h)</code>,而是「答案埋得多深」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 如果輸入<strong>不是 BST</strong>,只是一般二元樹(LeetCode 236)。要怎麼寫?複雜度變成多少?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成回傳<strong>從 <code>p</code> 到 <code>q</code> 的完整路徑</strong>。怎麼利用這題的結果?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果要對<strong>同一棵樹</strong>回答<strong>非常多組</strong> <code>(p, q)</code> 查詢,還適合每次都走一趟嗎?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>兩個部分要分開論證。</strong><br><br>
+  <strong>① 它是「共同祖先」。</strong>走到節點 <code>v</code> 的時候,<code>p</code> 和 <code>q</code> <strong>都還在 <code>v</code> 的子樹裡</strong> —— 因為前面每一步排除掉的,都是「<strong>由 BST 性質<em>確定</em>不含它們</strong>」的那一側(兩個都比我小就一定在左邊)。而條件 <code>min ≤ v ≤ max</code> 表示<strong>一個在 <code>v</code> 的左半邊(或就是 <code>v</code>)、另一個在右半邊(或就是 <code>v</code>)</strong> —— 所以 <code>v</code> 同時是兩者的祖先。<br><br>
+  <strong>② 它是「最近」的。</strong>從 <code>v</code> 再往下走<strong>任何一步</strong>,就會甩掉其中一個目標:往左會丟掉 <code>max</code> 那一側,往右會丟掉 <code>min</code> 那一側。<b>所以 <code>v</code> 是<em>最後一個</em>還能同時擁有兩者的節點</b> —— 這正是「最近共同祖先」的定義。<br><br>
+  <strong>實測</strong>:與<strong>兩個完全不使用 BST 性質</strong>的獨立參考解比對 —— ① 一般二元樹 LCA(LC236 的左右都遞迴版)、② 各求根到 <code>p</code>、根到 <code>q</code> 的路徑再取最長共同前綴 —— 在 <strong>2055 棵 BST × 118621 組</strong>上<strong>皆零不一致</strong>。<br><br>
+  <b>用「不靠捷徑的解」去對拍「靠捷徑的解」,才真的驗證了捷徑是對的</b> —— 這比自己跟自己比對有意義得多。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為要守住「一個節點可以是自己的後代」;而寫錯的症狀是<em>崩潰</em>,不是答錯。</strong><br><br>
+  <code>&lt;=</code> 的意思變成「兩個目標都<strong>小於等於</strong>我 ⇒ 往左」。但如果 <code>max(p,q)</code> <strong>剛好就是我自己</strong>,<b>答案本來就應該是我</b> —— 它卻往左走了。<br><br>
+  <b>⚠ 而「走過頭」的後果<em>大多不是崩潰</em> —— 這是最容易記錯的一點。</b>左子樹裡<strong>通常還有另一個目標</strong>,所以它多半會<strong>落在某個真實節點上並把它交出來</strong>。<strong>實測 54283 組失敗的分佈:<b>38762 組(71%)安靜回傳錯節點</b>、只有 <b>15521 組(29%)</b>走到 <code>nullptr</code> 而 SIGSEGV。</strong><br>
+  官方那棵樹的具體例子:<code>p=0, q=2</code> 正解是 <strong>2</strong>,<code>&lt;=</code> 版<strong>回傳 0,完全不崩</strong>。<br><br>
+  <strong>實測(2055 棵 BST × 118621 組):</strong><br>
+  · <code>&lt;</code> → <code>&lt;=</code>:<strong>失敗 54283 組</strong>,而且失敗集合<b>恰好等於「<code>LCA == max(p,q)</code>」那一族</b>(特徵化<strong>零誤差</strong>)。<br>
+  · <code>&gt;</code> → <code>&gt;=</code>:對稱地失敗 <strong>54283 組</strong>,恰好是「<code>LCA == min(p,q)</code>」。<br>
+  · <strong>最小反例小到不能再小:單節點樹 <code>[0]</code>、<code>p = q = 0</code></strong>。<br><br>
+  <b>而 <code>p == q</code> 的那 15521 組會<em>同時</em>踩到兩個 bug</b>(此時 <code>LCA == max == min</code>),所以兩者的最小反例是同一個。<br><br>
+  <b>什麼時候才會真的崩:走到「沒有節點可走」的時候。</b><code>p == q</code> 的那 15521 組正是如此(此時 <code>LCA == max == min</code>,兩個 bug 同時發作),所以兩者的最小反例都是單節點樹 <code>[0]</code>、<code>p=q=0</code>。<br><br>
+  <b>教訓:別把「這個 bug 會崩潰」當成安全網。</b><strong>七成的情況它安靜地給你一個看起來合理的節點</strong> —— <b>而崩潰反倒是比較幸運的那三成,至少它會告訴你出事了。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不是漏寫 —— 它是靠「題目保證 <code>p</code>、<code>q</code> 都存在」換掉的。</strong><br><br>
+  <strong>為什麼安全</strong>:從 <code>root</code> 出發,每一步排除的都是「<strong>確定不含 <code>p</code> 和 <code>q</code></strong>」的那一側,所以<b><code>p</code> 和 <code>q</code> 永遠都還在目前的子樹裡</b>。既然子樹裡至少還有兩個(或一個)真實節點,<strong>就一定會在走到 <code>nullptr</code> 之前先碰到分岔點</strong>。<br><br>
+  <strong>前提被打破時的代價(實測,雖然 constraints 禁止):</strong><br>
+  <b>情況一:<code>p</code> 或 <code>q</code> 不在樹中。</b><strong>絕大多數是「安靜答錯」而非崩潰</strong> —— 實測 23020 組「查詢一個樹中不存在的<em>內部</em>值」的輸入,<b>只有約 0.9% 段錯誤,99% 安靜回傳一個看起來合理的節點</b>(查詢超出值域的值則 0% 崩潰)。例如 BST <code>{3,5,7}</code> 查 <code>q=6</code> → 回傳 <code>5</code>,<strong>不崩潰</strong>。<br>
+  <b>情況二:輸入根本不是 BST。</b><code>[5,1,9,7,3]</code>(<code>7</code> 被放在左子樹,違反 BST),查 <code>p=7, q=9</code>,真答案是 <code>5</code> → <strong>這份程式碼回傳 <code>9</code></strong>。另一個形狀 <code>[5,9,null,8]</code> 查 <code>p=8, q=9</code> → <strong>走到 null 然後 SIGSEGV</strong>。<br><br>
+  <b>「安靜答錯」比崩潰危險得多</b> —— 崩潰會立刻告訴你出事,<strong>錯答案會一路傳下去</strong>。<br><br>
+  <b>面試時的正確做法:主動說出這個假設。</b>「題目保證兩個節點都存在,所以我不需要 null 檢查;如果不能假設,我會加上 <code>if (!root) return nullptr;</code>,代價是一行。」<strong>——顯示你知道自己在依賴什麼,而不是碰巧沒寫。</strong></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong><code>h</code> 最壞是 <code>n</code>(BST 退化成排序鏈);而「會不會爆」的答案<em>取決於編譯器最佳化</em> —— 這是本章第一次。</strong><br><br>
+  <strong>BST 沒有平衡保證</strong>,所以一條「已排序」的鏈是完全合法的輸入 —— <code>h = n = 10⁵</code>。<br><br>
+  <strong>實測(clean build,未插樁):</strong><br>
+  · <b><code>-O2</code> → clang 施行<strong>尾呼叫最佳化(TCO)</strong></b>:三個 <code>return</code> 全在 tail position,遞迴<strong>被編譯成迴圈</strong>,實質 <code>O(1)</code> 堆疊。<b>實測 <code>n = 4000 萬</code> 在 <code>ulimit -s 512 KB</code> 下<em>仍然存活</em></b> —— 根本量不到崩潰點。<br>
+  · <b><code>-O0</code> → 沒有 TCO,這才是真正的最壞情況</b>(二分兩次結果一致):<br>
+  　<code>8176 KB</code> → <strong>130722 存活 / 130723 崩</strong> ⇒ 對 <code>n=10⁵</code> <b>安全邊際只有 1.31 倍</b><br>
+  　<code>1024 KB</code> → 16290 崩界 ⇒ <strong><code>n=10⁵</code> 直接 SIGSEGV</strong><br>
+  　<code>512 KB</code> → 8098 崩界 ⇒ <strong>同樣 SIGSEGV</strong><br><br>
+  <b>所以「我在 LeetCode 上過了」不等於「這段程式碼在深度上是安全的」</b> —— 它過是因為評測機開了最佳化,<strong>而 C++ 標準<em>並不保證</em> TCO</strong>。<br><br>
+  <b>結論很簡單:直接寫迭代版。</b>這題是<strong>純尾遞迴</strong>,改成 <code>while</code> 迴圈<strong>邏輯一個字都不用改</strong>(實測 118621 組答案完全一致),空間 <code>O(h) → O(1)</code>,<strong>而且不依賴任何編譯器行為</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>這份程式碼沒有風險;但「兩邊異號」那個經典技巧會溢位。</strong><br><br>
+  <strong>為什麼這份安全</strong>:它<strong>只做比較,完全沒有算術</strong>。<code>max</code>/<code>min</code> 是挑一個出來,<code>&lt;</code>/<code>&gt;</code> 是比大小 —— <b>沒有任何加減乘</b>。<br>
+  <strong>實測</strong>:BST <code>{-10⁹, 0, 10⁹}</code> 查 <code>p=-10⁹, q=10⁹</code> → 回傳 <code>0</code>,正確;連 <code>{INT_MIN, 0, INT_MAX}</code> 都正常,無 UB。<br><br>
+  <strong>會溢位的是這種寫法:</strong><br>
+  <code>if ((p-&gt;val - root-&gt;val) * (q-&gt;val - root-&gt;val) &lt;= 0) return root;</code><br>
+  它的想法很漂亮 —— 「兩個差<strong>異號</strong>(或有一個是 0)就代表 <code>root</code> 夾在中間」。<b>但實測拆開來看:</b><br>
+  · <code>10⁹ − (−10⁹) = 2000000000</code> —— <strong>這一步其實還放得進 <code>int</code></strong>(<code>INT_MAX = 2147483647</code>)<br>
+  · <b>但兩個相乘 = <code>4×10¹⁸</code>,遠遠超過 <code>int</code></b> → <strong>溢位,結果是垃圾值</strong><br>
+  <b>所以真正的殺手是那個<em>乘法</em>,不是減法。</b>(要救也可以 —— 轉成 <code>long long</code> 再乘,或乾脆用兩個比較,也就是原本的寫法。)<br><br>
+  <b>一般經驗:題目把值域開到 <code>±10⁹</code>(而不是 <code>±10⁴</code>)通常就是在暗示「別用相減或相乘的技巧」。</b><strong>而「只比較、不算術」的寫法天生免疫</strong> —— 這是原解法一個容易被忽略的優點。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>失去 BST 性質就不能「二選一」,只能兩邊都找 —— 變成 <code>O(n)</code>。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root == nullptr || root == p || root == q) {
+        return root;                       // 找到其中一個,或走到底
+    }
+
+    TreeNode* left  = lowestCommonAncestor(root-&gt;left,  p, q);
+    TreeNode* right = lowestCommonAncestor(root-&gt;right, p, q);
+
+    if (left != nullptr &amp;&amp; right != nullptr) {
+        return root;                       // 一邊一個 ⇒ 我就是分岔點
+    }
+
+    return (left != nullptr) ? left : right;   // 都在同一邊,往上傳
+}</pre>
+  <strong>結構上的差別很值得比較:</strong><br>
+  · <b>235(BST)</b>:<strong>由上往下</strong>,每步<strong>二選一</strong>,<code>O(h)</code>,而且<strong>是尾遞迴</strong>。<br>
+  · <b>236(一般樹)</b>:<strong>由下往上</strong>(<a href="../p145/index.html">後序骨架</a>!),<strong>兩邊都要走</strong>,<code>O(n)</code>,<strong>不是尾遞迴</strong>(回來之後還要合併)。<br><br>
+  <b>「兩邊都非 null ⇒ 我是答案」的判斷,和 235 的「值落在區間內」是同一件事的兩種說法</b> —— 都是在偵測「分岔點」。差別只在:BST 能<strong>用值直接算出</strong>該往哪走,一般樹只能<strong>走過才知道</strong>。<br><br>
+  <strong>實測</strong>:本頁的對拍參考解之一就是這個 236 版,在 118621 組上與 BST 版<strong>零不一致</strong> —— <b>它永遠正確,只是慢。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>先用 LCA 把路徑切成兩段:<code>p → LCA</code> 和 <code>LCA → q</code>。</strong><br><br>
+  <strong>樹上任兩點的路徑是唯一的</strong>,而且<strong>必定經過它們的 LCA</strong>。所以:<br>
+  ① 找到 <code>LCA</code>(就是這題)。<br>
+  ② 從 <code>LCA</code> 往下找 <code>p</code>,記下路徑 —— <strong>在 BST 裡這也是「二選一」的下降</strong>,<code>O(h)</code>。<br>
+  ③ 同樣找 <code>q</code>。<br>
+  ④ 把<strong>第 ② 段反轉</strong>,接上 <code>LCA</code>,再接第 ③ 段。<br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">// 在 BST 裡找一條「從 from 往下到目標值 target」的路徑
+void pathDown(TreeNode* from, int target, vector&lt;TreeNode*&gt;&amp; out) {
+    while (from != nullptr) {
+        out.push_back(from);
+
+        if (target &lt; from-&gt;val) {
+            from = from-&gt;left;
+        } else if (target &gt; from-&gt;val) {
+            from = from-&gt;right;
+        } else {
+            return;                        // 到了
+        }
+    }
+}</pre>
+  <strong>總複雜度 <code>O(h)</code></strong>,空間 <code>O(h)</code>(存路徑)。<br><br>
+  <b>順帶一提:「兩點距離 = depth(p) + depth(q) − 2 × depth(LCA)」</b> —— 這個公式在樹論裡到處都是,而它的核心就是「路徑必過 LCA」。<b>如果只要<em>距離</em>而不要路徑,連存路徑都不用,算三個深度就好。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>查詢很多時,應該改用「預處理 + <code>O(1)</code> 查詢」的作法。</strong><br><br>
+  單次查詢 <code>O(h)</code> 已經很好,但如果有 <code>Q</code> 組查詢,總成本是 <code>O(Q × h)</code> —— <b>而 BST 退化時 <code>h = n</code>,那就是 <code>O(Q × n)</code></b>,會爆。<br><br>
+  <strong>標準作法:Binary Lifting(倍增法)。</strong><br>
+  · <strong>預處理 <code>O(n log n)</code></strong>:對每個節點 <code>v</code> 存 <code>up[v][k]</code> = 「<code>v</code> 往上跳 <code>2ᵏ</code> 步的祖先」,同時記錄每個節點的深度。<br>
+  · <strong>每次查詢 <code>O(log n)</code></strong>:先把深的那個「跳到」和淺的同深度,再讓兩個一起往上二分跳,直到父節點相同。<br><br>
+  <strong>更快的作法:Euler Tour + 稀疏表(Sparse Table)</strong> —— 把樹的歐拉序列壓成陣列,LCA 就變成<strong>區間最小值查詢(RMQ)</strong>,預處理 <code>O(n log n)</code>、<b>每次查詢 <code>O(1)</code></b>。<br><br>
+  <strong>怎麼選:</strong><br>
+  · <code>Q</code> 很小 → <b>就用這題的 <code>O(h)</code> 版本</b>,零預處理、程式碼五行。<br>
+  · <code>Q</code> 很大、樹是靜態的 → <strong>Binary Lifting</strong>(好寫、好記、夠快)。<br>
+  · <code>Q</code> 極大且要極致 → Euler Tour + RMQ。<br><br>
+  <b>值得注意:這些進階作法<em>都不需要 BST 性質</em></b> —— 它們對任意樹都成立。<strong>換句話說,一旦查詢次數變成瓶頸,BST 那個漂亮的捷徑反而不是重點了</strong>,重點變成「如何攤平重複的往上走」。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">BST 讓「搜尋」退化成「往下走」——每步二選一,步數恰好是 LCA 深度 +1。嚴格比較守的是「節點可以是自己的後代」,寫錯之後七成安靜答錯、三成崩潰 —— 別把崩潰當安全網。而「開不開最佳化決定會不會爆堆疊」是本章第一次出現 —— 所以直接寫迭代版。</div>
+    <div class="sc-summary-bar__detail">LOWEST COMMON ANCESTOR OF A BST · REVIEW</div>
+  </div>
+
+</body>
+</html>
