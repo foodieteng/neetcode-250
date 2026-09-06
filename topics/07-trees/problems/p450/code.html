@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>450 · Delete Node in a BST // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P450</span>
+    <span><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除 BST 的節點</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作、複雜度與陷阱</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 450</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// SWAP VARIANT</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p450.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TreeNode</span><span class="p">*</span> <span class="f">deleteNode</span><span class="p">(</span><span class="t">TreeNode</span><span class="p">*</span> root<span class="p">,</span> <span class="t">int</span> key<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>root <span class="p">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> root<span class="p">;</span>                  <span class="c">// key 不存在,什麼都不做</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span>root<span class="p">-&gt;</span>val <span class="p">&gt;</span> key<span class="p">)</span> <span class="p">{</span>
+            root<span class="p">-&gt;</span>left <span class="p">=</span> <span class="f">deleteNode</span><span class="p">(</span>root<span class="p">-&gt;</span>left<span class="p">,</span> key<span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span>root<span class="p">-&gt;</span>val <span class="p">&lt;</span> key<span class="p">)</span> <span class="p">{</span>
+            root<span class="p">-&gt;</span>right <span class="p">=</span> <span class="f">deleteNode</span><span class="p">(</span>root<span class="p">-&gt;</span>right<span class="p">,</span> key<span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="c">// 0 或 1 個小孩:把唯一的那個(或 nullptr)交給父節點接住</span>
+            <span class="k">if</span> <span class="p">(</span><span class="p">!</span>root<span class="p">-&gt;</span>left <span class="p">||</span> <span class="p">!</span>root<span class="p">-&gt;</span>right<span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> root<span class="p">-&gt;</span>left <span class="p">?</span> root<span class="p">-&gt;</span>left <span class="p">:</span> root<span class="p">-&gt;</span>right<span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="c">// 兩個小孩:找中序後繼 = 右子樹一路往左到底</span>
+            <span class="t">TreeNode</span><span class="p">*</span> succ <span class="p">=</span> root<span class="p">-&gt;</span>right<span class="p">;</span>
+            <span class="k">while</span> <span class="p">(</span>succ<span class="p">-&gt;</span>left<span class="p">)</span> <span class="p">{</span>
+                succ <span class="p">=</span> succ<span class="p">-&gt;</span>left<span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="f">swap</span><span class="p">(</span>root<span class="p">-&gt;</span>val<span class="p">,</span> succ<span class="p">-&gt;</span>val<span class="p">);</span>   <span class="c">// key 被換到 succ 的位置</span>
+            root<span class="p">-&gt;</span>right <span class="p">=</span> <span class="f">deleteNode</span><span class="p">(</span>root<span class="p">-&gt;</span>right<span class="p">,</span> key<span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> root<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>那個 <code>if (!root-&gt;left || !root-&gt;right) return ...;</code> 一行做了三件事</strong>:
+      處理<strong>葉節點</strong>(回 <code>nullptr</code>)、<strong>只有左子</strong>(回左)、<strong>只有右子</strong>(回右)。
+      <b>而且它必定是遞迴的終點</b> —— 因為後繼<strong>保證沒有左小孩</strong>,
+      <strong>所以第二次刪除一定落在這一行,不會再找第三個替身。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 對拍 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對拍(swap 版 vs 課本的 copy 版)</span>
+課本版:root->val = succ->val;  root->right = deleteNode(root->right, succ->val);
+你的版:swap(root->val, succ->val);  root->right = deleteNode(root->right, key);
+
+窮舉:n = 0..8 的全部 BST 形狀(2055 棵)× 每個 key ∈ {-1,0,...,n}
+      (涵蓋存在與不存在的 key)  → 共 19633 組
+隨機:200000 組(n ≤ 13,含大量不存在的 key)
+
+  形狀差異 : 0        ← 不只是「都合法」,而是「完全一樣的樹」
+
+為什麼會完全一樣:
+  兩版「物理上摘掉的是同一個節點物件」(都是後繼那個節點)
+  差別只在它被丟掉之前身上寫的數字是 key 還是 succ->val —— 而它馬上就消失了
+<span class="sc-trace__out">// 用「不同寫法但同結果」的參考解對拍,比自己跟自己比對有意義得多</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 三個不變量(窮舉 2055 棵樹 × 19633 組)</span>
+結果永遠是合法 BST(中序嚴格遞增)      → 0 違反
+值集合恰為「原集合 − {key}」            → 0 違反
+節點位址集合是原集合的子集,且無重複    → 0 違反(沒有遺失、沒有憑空產生、沒有成環)
+
+官方範例:
+  [5,3,6,2,4,null,7]  key=3  → [5,4,6,2,null,null,7]   ✓ 與官方期望完全相同
+  [5,3,6,2,4,null,7]  key=0  → 原樹不變                 ✓
+  []                  key=0  → []                       ✓
+
+邊界(全部實測):
+  刪葉節點                 → ✓      只有左子   → ✓      只有右子 → ✓
+  刪根(兩個小孩)          → ✓      key 不存在 → 樹不變 ✓
+  單節點樹 key 相符         → []     單節點樹 key 不符 → 原樹 ✓
+<span class="sc-trace__out">// 「位址集合是子集」這個檢查特別重要 —— 它同時排除了遺失節點與重複掛載</span></div>
+  </section>
+
+  <!-- ════════════ 3 · swap 為什麼安全 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">⚡ swap 讓 BST 暫時壞掉 —— 為什麼無害<span class="sc-section__title-en">// THE CENTREPIECE</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 問題:swap 之後右子樹不是合法 BST,遞迴憑什麼還找得到 key?</span>
+設被刪節點 X(X->val == key),右子樹 Rt,後繼 S = Rt 的最左節點(S->val = m)
+
+swap 之後:
+    X->val = m     ← m 是 Rt 的最小值,且大於整棵左子樹 ⇒ 根這裡的 BST 性質「仍然成立」
+    S->val = key   ← key 比 Rt 裡所有其他值都小,卻待在最左下角 ⇒ Rt「暫時違反 BST」
+
+關鍵:違反只發生在「最左端」的那一個節點,而找 key 的路本來就只往最左端走。
+
+對路徑上任一個「非 S」的節點 p:
+    p->val 完全沒被動過,而且 p->val > m > key
+    ⇒ p->val > key  ⇒ 判「往左」
+    ⇒ 這一路的 LEFT 正好就是「X → S」那條最左路徑,一步不多一步不少
+走到 S 時 S->val == key ⇒ 命中
+
+換句話說:壞掉的那個節點是「搜尋的終點」,不是路上任何一個「岔路的決策點」——
+          它那個被改壞的值,在下降過程中「從來沒有被用來做決定」。
+<span class="sc-trace__out">// S 必定沒有左小孩(它是最左),所以命中時直接走「0/1 個小孩」那一支,不會再遞迴</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 實測佐證</span>
+窮舉 n=1..8 全部 BST 的「兩個小孩」情形 → 共 2652 組
+
+  遞迴進入右子樹後,下降路徑「全部往左」 → 2652 / 2652   (not-all-left = 0)
+  遞迴找不到節點的次數                   → 0
+
+節點層級的驗證(19633 組):
+  key 存在的 15521 組:恰好「一個」節點變成不可達,|before| − |after| == 1
+  而且那個被丟掉的節點「在被丟掉的當下,值恰好等於 key」→ 15521 / 15521,零例外
+  key 不存在的 4112 組:零節點被丟棄
+  全程無節點重複、無成環
+<span class="sc-trace__out">// 最後那條最有說服力:被物理摘掉的確實是「持有 key 的節點」,不是持有後繼值的節點</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這個論證有一個隱藏前提:<em>BST 的值必須唯一</em></strong>(本題有保證)。
+      <b>如果允許重複值,<code>key</code> 有可能在右子樹裡另有同值節點,搜尋就可能提前命中錯的那一個</b> ——
+      <strong>但那個問題課本的 copy 版同樣有</strong>,不是 swap 版特有的。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(h)</strong>,常數 <strong>2</strong>(找後繼一趟 + 遞迴刪一趟,<strong>走的是同一條路</strong>)　·　空間 <strong>O(h)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境</th><th>遞迴呼叫</th><th>後繼步數</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td>平衡 <code>n=1023</code>,刪根(兩個小孩)</td><td class="mono">10</td><td class="mono">8</td><td class="mono ok"><strong>18</strong></td></tr>
+        <tr><td>平衡 <code>n=1023</code>,刪最深的葉</td><td class="mono">10</td><td class="mono">0</td><td class="mono ok">10</td></tr>
+        <tr><td>退化右鏈 <code>n=1000</code>,刪最深端</td><td class="mono">1000</td><td class="mono">0</td><td class="mono">1000</td></tr>
+        <tr><td>退化右鏈 <code>n=1000</code>,刪根(只有右子)</td><td class="mono ok"><strong>1</strong></td><td class="mono">0</td><td class="mono ok">1</td></tr>
+        <tr><td><strong>最壞</strong>:根兩子、右子樹是長 1000 的左鏈</td><td class="mono">1001</td><td class="mono">999</td><td class="mono fail"><strong>2000 ≈ 2h</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>那兩趟走的是<em>同一條路徑</em></strong>,所以是 <code>h + h = 2h</code>,<b>不是 <code>h²</code></b>。
+      <strong>仍然是 <code>O(h)</code></strong>,平衡樹 <code>O(log n)</code>、退化樹 <code>O(n)</code>。
+      <b>而且課本的 copy 版工作量完全相同</b> —— 它一樣要走一趟找後繼、再遞迴下降一趟。
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(clean、class member、-O0 —— LeetCode 的格式)</span>
+ulimit -s 8176 KB(預設)
+  崩潰深度:104491 存活 / 104687 崩(bisect 兩次結果完全一致)
+  → 8176×1024 / 104491 ≈ 80 bytes/frame
+
+  (80 而不是 64,是因為「成員函式要在框裡存 this」—— 和 701 同一個原因)
+
+n = 10^4 的退化鏈:
+  ulimit -s 8176 KB → 存活,約用 800 KB(9.8%),餘裕約 10.4 倍
+  ulimit -s 1024 KB → 存活,但崩潰深度只有 12853 ⇒ 餘裕僅 1.29 倍
+  ulimit -s  512 KB → SIGSEGV(崩潰深度 6441 < 10^4)
+<span class="sc-trace__out">// 和 701 一樣不是尾遞迴(回來還要回寫),所以 -O2 也消不掉這些框</span></div>
+  </section>
+
+  <!-- ════════════ 5 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;font-size:13.5px;">
+      窮舉 <strong>2055 棵 BST</strong>(<code>n=0..8</code>)× 每個 <code>key ∈ {-1,0,…,n}</code>
+      = <strong>19633 組</strong>。
+      <b>家族切分</b>:<code>key</code> 不存在 <strong>4112</strong> 組、
+      存在且<strong>兩個小孩</strong> <strong>2652</strong> 組、存在且<strong>葉/單子</strong> <strong>12869</strong> 組。
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>違反數</th><th>最小反例</th><th>壞在哪</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>用「前繼」但仍往<strong>右</strong>遞迴刪</td>
+          <td class="mono fail">2652</td>
+          <td class="mono">tree=<code>[1,0,2]</code> key=<code>1</code></td>
+          <td><strong>不是合法 BST</strong>;失敗集<strong>= 兩子家族全體</strong></td>
+        </tr>
+        <tr>
+          <td><code>swap</code> 之後遞迴刪<strong>錯邊</strong></td>
+          <td class="mono fail">2652</td>
+          <td class="mono">tree=<code>[1,0,2]</code> key=<code>1</code></td>
+          <td>key 被換到右邊卻往左找 ⇒ <strong>什麼都沒刪,節點數多 1</strong></td>
+        </tr>
+        <tr>
+          <td>用 <code>copy</code> 但遞迴目標<strong>沒改</strong></td>
+          <td class="mono fail">2652</td>
+          <td class="mono">tree=<code>[1,0,2]</code> key=<code>1</code></td>
+          <td>copy 後 key 已消失 ⇒ 找不到 ⇒ <strong>留下重複值</strong> <code>[2,0,2]</code></td>
+        </tr>
+        <tr>
+          <td><strong>缺少「0/1 個小孩」的處理</strong></td>
+          <td class="mono fail">崩潰 15521</td>
+          <td class="mono">tree=<code>[0]</code> key=<code>0</code></td>
+          <td><strong>只要 key 存在必崩</strong>,但<b>不會靜默答錯</b>(反而較安全)</td>
+        </tr>
+        <tr>
+          <td>找後繼時<strong>多走一步</strong></td>
+          <td class="mono fail">崩潰 1728</td>
+          <td class="mono">tree=<code>[1,0,2]</code> key=<code>1</code></td>
+          <td>觸發條件<strong>恰為「右子沒有左子」</strong>那一族(1728 組)</td>
+        </tr>
+        <tr>
+          <td>忘記回寫</td>
+          <td class="mono fail">14270</td>
+          <td class="mono">tree=<code>[0,null,1]</code> key=<code>1</code></td>
+          <td><strong>失敗率 72.7%</strong> —— 比 <a href="../p701/code.html">701</a> 的 4706/4707 低,見下方走讀</td>
+        </tr>
+        <tr>
+          <td><strong>兩子分支沒有 <code>return root</code></strong></td>
+          <td class="mono fail">2652</td>
+          <td class="mono">tree=<code>[1,0,2]</code> key=<code>1</code></td>
+          <td><b>結果「仍是合法 BST」</b> ⇒ <strong>結構檢查抓不到</strong>,最陰險</td>
+        </tr>
+        <tr style="opacity:.75;">
+          <td>單子分支的三元運算子寫反</td>
+          <td class="mono ok"><strong>0/19633</strong></td>
+          <td class="mono">—</td>
+          <td><strong>完全等價</strong>(連形狀都一樣)—— <b>這不是陷阱</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三個最值得記的教訓:</strong><br>
+      ① <b>最後一列是「假陷阱」</b> —— <code>return root-&gt;right ? root-&gt;right : root-&gt;left;</code>
+      <strong>和原版完全等價</strong>(進到那行時已保證至多一邊非空),<b>別把它背成錯的</b>。<br>
+      ② <b>「兩子分支沒有 <code>return root</code>」的錯誤<em>通過 BST 合法性檢查</em></b> ——
+      截下來的子樹本身仍然合法,<strong>只有「值集合 / 節點數」才抓得到</strong>。<br>
+      ③ <b>「缺少 0/1 個小孩處理」只會崩、不會靜默錯</b> ——
+      <strong>某種意義上比 ② 安全,因為線上跑一次就會發現。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// LINE BY LINE</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 為什麼替身只能是「中序後繼(或前繼)」</span>
+被刪節點 X 有兩棵子樹 L 和 R,要找一個值 v 頂替 X 的位置,條件是:
+    L 裡所有值  <  v  <  R 裡所有值
+
+滿足這個條件的值只有兩個候選:
+    max(L) = 中序「前繼」   —— 比 X 小的裡面最大的
+    min(R) = 中序「後繼」   —— 比 X 大的裡面最小的
+(因為原本 max(L) < X < min(R),而 X 要被拿掉,剩下的空隙只有這兩個端點填得起來)
+
+而且這兩個節點各有一個好性質:
+    min(R) 必定「沒有左小孩」(它是 R 的最左)
+    max(L) 必定「沒有右小孩」(它是 L 的最右)
+⇒ 刪它們一定落在「0 或 1 個小孩」的簡單情況 ⇒ 遞迴最多再一層就結束
+
+實測:前繼版和後繼版都正確,但「選了前繼就要往左遞迴刪」——
+      方向配錯的話,兩子家族 2652 組『全數』錯光
+<span class="sc-trace__out">// 兩個候選對稱地正確,這也是為什麼題目說「答案可能不只一種」</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 2: 回寫的失敗率為什麼比 701 低?(72.7% vs 99.98%)</span>
+701 插入:丟掉回寫 → 錯 4706/4707(99.98%),只有「空樹」逃得掉
+450 刪除:丟掉回寫 → 錯 14270/19633(72.7%),巧合正確 5363 組
+
+差別在於刪除多了「兩條不需要回寫的逃生路」:
+  ① key 不存在(4112 組):樹本來就沒有任何改動,回不回寫都一樣
+  ② 根節點自己就是目標:回傳值「直接被呼叫端接住」,中間沒有任何一層要回寫
+
+兩者合計恰好就是那 5363 組。
+
+⇒ 所以「回寫」在刪除裡同樣是必要的,只是「測資更容易矇混過關」——
+   插入幾乎一測就爆,刪除卻有 27% 的組合看起來沒事
+<span class="sc-trace__out">// 失敗率低不代表 bug 比較輕微,只代表它更難被隨機測資抓到</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 3: 那個「假陷阱」為什麼真的等價</span>
+原版:  return root->left  ? root->left  : root->right;
+變體:  return root->right ? root->right : root->left;
+
+進到這一行的前提是 if (!root->left || !root->right) —— 也就是「至多一邊非空」
+三種情形逐一檢查:
+    兩邊都空      → 原版回 root->right(nullptr);變體回 root->left(nullptr)   一樣
+    只有左子      → 原版回 left;變體 right 為空 → 回 left                     一樣
+    只有右子      → 原版 left 為空 → 回 right;變體回 right                    一樣
+    兩邊都非空    → 「走不到這一行」
+
+實測:19633 組逐對比較「精確的 level-order 形狀」→ 完全相同,0 差異
+<span class="sc-trace__out">// 這種「看起來像 bug 其實等價」的東西值得明講,否則會被背成錯的</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 4: 如果要 delete 掉節點(避免記憶體洩漏)</span>
+LeetCode 不要求釋放,但真實程式裡要。好消息是這個寫法很好加:
+
+    if (!root->left || !root->right) {
+        TreeNode* survivor = root->left ? root->left : root->right;
+        delete root;                    // ← 就這一行
+        return survivor;
+    }
+
+為什麼安全(實測佐證):
+  · 每次成功刪除「恰好一個」節點變成不可達 → 15521/15521
+  · 而且那個節點「在被丟掉的當下,值恰好等於 key」→ 15521/15521
+  · key 不存在時「零節點」被丟棄 → 4112/4112
+  · 全程無節點重複、無成環 ⇒ 不可能 double free
+
+⚠ 但要注意順序:必須「先」把 survivor 存起來再 delete root,
+   否則 delete 之後再讀 root->left 就是 use-after-free
+<span class="sc-trace__out">// swap 版在這裡沒有額外風險 —— 被摘掉的永遠是持有 key 的那個節點</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">swap 造成的暫時 BST 違反無害,因為壞掉的節點是搜尋終點而非決策點 —— 通往它的路每一步都判往左(實測 2652/2652)。swap 版與課本 copy 版產生完全相同的樹(19633 組零差異),物理摘掉的是同一個節點,而它被丟掉時身上的值恰好是 key。</div>
+    <div class="sc-summary-bar__detail">DELETE NODE IN A BST · CODE</div>
+  </div>
+
+</body>
+</html>

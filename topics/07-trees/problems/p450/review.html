@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>450 · Delete Node in a BST // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P450</span>
+    <span><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除 BST 的節點</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 450</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>三種情況</td><td>沒找到 → 往下;<strong>0/1 個小孩 → 直接接上去</strong>;<strong>兩個小孩 → 找替身</strong></td></tr>
+        <tr><td>替身是誰</td><td><strong>中序後繼</strong>(右子樹一路往左)或<strong>前繼</strong>(左子樹一路往右)</td></tr>
+        <tr><td>為什麼只有這兩個</td><td>要滿足 <code>max(L) &lt; v &lt; min(R)</code>,而空隙的兩個端點就只有它們</td></tr>
+        <tr><td>為什麼不會無限遞迴</td><td>後繼<strong>必定沒有左小孩</strong> ⇒ 第二次刪除<strong>必落在簡單情況</strong></td></tr>
+        <tr><td><strong>swap 的暫時違反</strong></td><td>壞掉的節點是<strong>搜尋終點</strong>而非決策點 —— 實測 <strong>2652/2652</strong> 全程往左</td></tr>
+        <tr><td>swap vs copy</td><td>產生的樹<strong>完全相同</strong>(19633 組 + 20 萬組隨機,<strong>零差異</strong>)</td></tr>
+        <tr><td>被摘掉的是誰</td><td><strong>持有 <code>key</code> 的那個節點</strong> —— 實測 15521/15521,零例外</td></tr>
+        <tr><td>成本</td><td><code>O(h)</code> 但<strong>常數是 2</strong>(找後繼 + 遞迴刪,<strong>走同一條路</strong>)</td></tr>
+        <tr><td>回寫</td><td>同樣必要,但<strong>失敗率只有 72.7%</strong>(701 是 99.98%)—— <b>更難被測到</b></td></tr>
+        <tr><td>假陷阱</td><td>單子分支三元運算子寫反 → <strong>完全等價,0/19633</strong>,<b>別背成錯的</b></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「兩個小孩」的替身<strong>只能</strong>是中序後繼或前繼?<strong>隨便挑一個小孩頂上來</strong>會怎樣?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>swap</code> 之後右子樹<strong>暫時不是合法 BST</strong>。遞迴憑什麼還能正確找到 <code>key</code>?請給出<strong>論證</strong>與<strong>實測</strong>。</div>
+
+    <div class="qa"><strong>Q3.</strong> 你這份 <code>swap</code> 寫法和課本的 <code>copy</code> 寫法,結果是<strong>「都合法但形狀可能不同」</strong>,還是<strong>「完全相同」</strong>?</div>
+
+    <div class="qa"><strong>Q4.</strong> 為什麼<strong>不會無限遞迴</strong>下去(找替身、又要刪替身、替身又有兩個小孩……)?</div>
+
+    <div class="qa"><strong>Q5.</strong> 「忘記回寫」這個 bug,在 <a href="../p701/index.html">701 插入</a>錯 99.98%,在這題只錯 <strong>72.7%</strong>。<strong>為什麼比較低?</strong>這代表它比較不嚴重嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 兩組:後繼在隔壁 vs 後繼很深</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <strong>兩組都是實跑印出來的。</strong>
+      第一組是官方範例(後繼剛好是右小孩);
+      <b>第二組刻意讓後繼「深 2 層」,才看得出「一路往左」那件事。</b>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · 官方範例 [5,3,6,2,4,null,7] 刪 key=3(後繼就是右小孩)</span>
+1. deleteNode(node5, 3)     5 > 3  → 往左
+2.   deleteNode(node3, 3)   3 == 3 → MATCH
+       左 = node2 ✓、右 = node4 ✓  → 兩個小孩,要找替身
+       succ = node3->right = node4;  node4->left == null → while 一步都沒走(0 步)
+       SWAP:  node3.val 3 ↔ node4.val 4
+              → node3 現在是 4、node4 現在是 3(key 被換下去)
+3.     deleteNode(node4, 3)   node4 現在的值就是 3 → MATCH
+         node4->left == null → 回傳 node4->right = nullptr
+       ← 回寫:node3->right = nullptr     ★ node4 在此被摘除
+     ← 回寫:node5->left = node3
+結果 [5,4,6,2,null,null,7]      calls = 3,後繼步數 = 0
+<span class="sc-trace__out">// 注意:被丟掉的是「原本的 node4 物件」,而它被丟掉時身上寫的是 3(= key)</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// B · 後繼較深:[10,5,15,null,null,13,20](13 的左子是 12)刪 key=10</span>
+1. deleteNode(node10, 10)   10 == 10 → MATCH,兩個小孩
+     找後繼:從右子樹根 15 出發一路往左
+             15 → 13 → 12      (走了 2 步)
+     SWAP:  root 10 ↔ succ 12
+            → 根現在是 12、而 key=10 被換到「最左節點」那個位置
+
+     ⚠ 此刻右子樹「暫時」不是合法 BST:10 比右子樹所有值都小,卻待在最深的左下角
+
+2.   deleteNode(node15, 10)   15 > 10 → 往左     ← 判「往左」
+3.     deleteNode(node13, 10) 13 > 10 → 往左     ← 又是「往左」
+4.       deleteNode(node12', 10)  它現在的值是 10 → MATCH
+           它是最左節點 ⇒ 沒有左小孩 ⇒ 回傳它的右小孩(nullptr)
+         ← 回寫:node13->left = nullptr    ★ 在此被摘除
+結果 [12,5,15,13,20]      calls = 4,後繼步數 = 2
+<span class="sc-trace__out">// 下降的每一步都判「往左」—— 而那條全左的路,正好就是通往最左節點的路</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>B 組把整題的關鍵講完了</strong>:
+      <b>「找後繼」走的路(<code>15 → 13 → 12</code>)和「回頭刪它」走的路(<code>15 → 13 → 10</code>)是<em>同一條</em></b> ——
+      <strong>這既解釋了為什麼成本是 <code>2h</code>,也解釋了為什麼那個暫時的 BST 違反傷不到遞迴。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 加上 <code>delete</code> 真正釋放記憶體。要加在哪裡?<strong>順序有什麼講究</strong>?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成<strong>迭代</strong>版(不用遞迴)。要多記什麼?<strong>哪一段特別麻煩</strong>?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果 BST <strong>允許重複值</strong>,這份程式碼會怎樣?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為替身必須「剛好卡在兩棵子樹中間」,而滿足這個條件的值只有兩個。</strong><br><br>
+  被刪節點 <code>X</code> 有左子樹 <code>L</code>、右子樹 <code>R</code>。頂替它的值 <code>v</code> 必須滿足:<br>
+  <code>L 裡所有值 &lt; v &lt; R 裡所有值</code><br><br>
+  原本 <code>max(L) &lt; X &lt; min(R)</code>,<strong><code>X</code> 被拿掉之後,那個空隙的兩個端點就只有</strong>:<br>
+  · <b><code>max(L)</code> = 中序<strong>前繼</strong></b>(比 <code>X</code> 小的裡面最大的)<br>
+  · <b><code>min(R)</code> = 中序<strong>後繼</strong></b>(比 <code>X</code> 大的裡面最小的)<br>
+  <strong>其他任何值都會破壞順序。</strong><br><br>
+  <strong>「隨便挑一個小孩頂上來」為什麼不行</strong>:假設把左小孩頂上來,<b>那右子樹整棵就沒地方掛了</b> —— 它比左小孩大,不能當它的左子樹;當右子樹又會蓋掉左小孩原有的右子樹。<b>兩棵子樹都要保住,就只剩那兩個端點可選。</b><br><br>
+  <strong>實測</strong>:前繼版和後繼版<strong>都正確</strong>(這也是題目說「答案可能不只一種」的原因)。<b>但方向要配對</b> —— <strong>選了前繼卻仍往<em>右</em>遞迴刪,兩子家族的 2652 組<em>全數錯光</em></strong>。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為壞掉的那個節點是搜尋的「終點」,而不是路上任何一個「岔路的決策點」。</strong><br><br>
+  <strong>論證</strong>:設後繼是 <code>S</code>(右子樹 <code>Rt</code> 的最左節點,值 <code>m</code>)。<code>swap</code> 之後:<br>
+  · <code>X-&gt;val = m</code> —— <code>m</code> 是 <code>Rt</code> 的最小值且大於整棵左子樹,<b>所以根這裡的 BST 性質<em>仍然成立</em></b>。<br>
+  · <code>S-&gt;val = key</code> —— <code>key</code> 比 <code>Rt</code> 裡所有其他值都小,<b>所以 <code>Rt</code> 暫時違反 BST,而且違反點<em>只有 <code>S</code> 這一個</em></b>。<br><br>
+  現在看下降過程。對路徑上任何一個<strong>非 <code>S</code></strong> 的節點 <code>p</code>:<br>
+  <b><code>p-&gt;val</code> 完全沒被動過</b>,而且 <code>p-&gt;val &gt; m &gt; key</code> ⇒ <strong>判「往左」</strong>。<br>
+  <b>而這一路的 LEFT,正好就是通往最左節點 <code>S</code> 的那條路</b> —— 一步不多、一步不少。走到 <code>S</code> 時 <code>S-&gt;val == key</code>,命中。<br><br>
+  <b>換句話說:那個被改壞的值,在整個下降過程中<em>從來沒有被用來做決定</em></b>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n=1..8</code> 全部 BST 的「兩個小孩」情形共 <strong>2652 組</strong> —— <b>下降路徑「全部往左」2652/2652,遞迴找不到節點的次數 0</b>。<br><br>
+  <b>隱藏前提:值必須唯一</b>(本題有保證)。允許重複值的話 <code>key</code> 可能在右子樹另有同值節點,<strong>但那個問題課本的 copy 版同樣有</strong>(見 App 3)。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>完全相同 —— 不只是「都合法」,而是連形狀都逐位元一致。</strong><br><br>
+  <strong>實測</strong>:窮舉 <strong>19633 組</strong> <code>(樹, key)</code> + 隨機 <strong>20 萬組</strong>,<b>形狀差異 0</b>。<br><br>
+  <strong>為什麼</strong>:兩版<strong>物理上摘掉的是<em>同一個節點物件</em></strong> —— 都是後繼那個節點。<b>唯一的差別只是「它被丟掉之前,身上寫的數字是 <code>key</code> 還是 <code>succ-&gt;val</code>」</b>,而<strong>它下一步就消失了,外界永遠看不到</strong>。<br><br>
+  <strong>更強的驗證</strong>:實測追蹤「哪個節點變成不可達」——<br>
+  · <code>key</code> 存在的 15521 組:<strong>恰好一個</strong>節點被丟棄,而且<b>它在被丟掉的當下,值恰好等於 <code>key</code></b> —— <strong>15521/15521,零例外</strong>。<br>
+  · <code>key</code> 不存在的 4112 組:<strong>零節點</strong>被丟棄。<br>
+  · 全程<strong>無節點重複、無成環</strong>。<br><br>
+  <b>這個結果也順便證明了 swap 版的語義是對的</b>:<strong><code>key</code> 被一路「換」到樹底,最後被物理丟棄的確實是持有 <code>key</code> 的那個節點</strong> —— 而不是持有後繼值的那個。<b>所以要加 <code>delete</code> 也很安全(見 App 1)。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為後繼「必定沒有左小孩」,所以第二次刪除一定落在簡單情況。</strong><br><br>
+  後繼是<strong>右子樹一路往左走到底</strong>的那個節點 —— <b>既然它是「最左」,它就<em>不可能</em>還有左小孩</b>(有的話就還沒走到底)。<br><br>
+  所以第二次遞迴刪它的時候,<code>root-&gt;left</code> 是 <code>nullptr</code>,<strong>必定進入 <code>if (!root-&gt;left || !root-&gt;right)</code> 那一支直接回傳</strong> —— <b>不會再去找第三個替身。</b><br><br>
+  <strong>對稱地</strong>:前繼是左子樹一路往<em>右</em>到底,<strong>必定沒有右小孩</strong>,同樣落在簡單情況。<br><br>
+  <b>所以整個流程最多只會發生「一次」替換</b>,遞迴深度上限就是樹高 —— 這也是為什麼成本是 <code>2h</code> 而不是更糟。<br><br>
+  <strong>實測佐證</strong>:2652 組「兩個小孩」的情形,<b>第二次遞迴<em>全部</em>在後繼的位置命中並落入簡單分支</b>,沒有任何一組需要第三層。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為刪除多了兩條「不需要回寫」的逃生路;但這<em>不代表</em>它比較不嚴重 —— 只代表它更難被測到。</strong><br><br>
+  <strong>實測對照</strong>:<br>
+  · <a href="../p701/index.html">701 插入</a>丟掉回寫 → 錯 <strong>4706/4707(99.98%)</strong>,只有「空樹」逃得掉。<br>
+  · 450 刪除丟掉回寫 → 錯 <strong>14270/19633(72.7%)</strong>,<b>巧合正確 5363 組</b>。<br><br>
+  <strong>那 5363 組恰好是兩條逃生路的總和:</strong><br>
+  ① <b><code>key</code> 不存在</b>(4112 組)—— <strong>樹本來就沒有任何改動</strong>,回不回寫都一樣。<br>
+  ② <b>根節點自己就是目標</b> —— 回傳值<strong>直接被呼叫端接住</strong>,中間<strong>沒有任何一層需要回寫</strong>。<br><br>
+  <b>但「失敗率比較低」和「bug 比較輕微」是兩件事。</b>回寫在這裡<strong>同樣是必要的</strong>;差別只在<strong>插入幾乎一測就爆,刪除卻有 27% 的組合看起來沒事</strong>。<br><br>
+  <b>這其實讓它<em>更</em>危險</b> —— <strong>一個 100% 會爆的 bug 你第一次跑就發現了;一個 27% 會過的 bug 可能撐到上線</strong>。<b>測資的覆蓋率決定你抓不抓得到,而不是 bug 的嚴重性。</b></div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>加在「0/1 個小孩」那一支,而且必須<em>先存下 survivor 再 delete</em>。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">if (!root-&gt;left || !root-&gt;right) {
+    TreeNode* survivor = root-&gt;left ? root-&gt;left : root-&gt;right;
+    delete root;              // ← 就這一行
+    return survivor;
+}</pre>
+  <b>⚠ 順序不能反</b>:如果先 <code>delete root;</code> 再讀 <code>root-&gt;left</code>,那就是 <strong>use-after-free</strong> —— <b>而且它多半<em>不會</em>當場崩</b>(那塊記憶體通常還沒被覆蓋),會變成隨機出現的詭異 bug。<br><br>
+  <strong>為什麼這樣加是安全的(實測佐證):</strong><br>
+  · 每次成功刪除<strong>恰好一個</strong>節點變成不可達 → <strong>15521/15521</strong><br>
+  · 那個節點<strong>在被丟掉的當下,值恰好等於 <code>key</code></strong> → <strong>15521/15521</strong><br>
+  · <code>key</code> 不存在時<strong>零節點</strong>被丟棄 → <strong>4112/4112</strong><br>
+  · 全程<strong>無節點重複、無成環</strong> ⇒ <b>不可能 double free</b><br><br>
+  <b>LeetCode 不要求釋放</b>(它自己管理測資的樹),<strong>但真實程式裡漏掉就是每刪一次漏一個節點</strong>。<b>面試時主動提一句「正式程式我會在這裡 delete,並且注意先取 survivor」是很好的加分。</b></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>要自己記住 <code>parent</code>,而且「是左小孩還是右小孩」也要記 —— 最麻煩的是兩個小孩那一支。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">TreeNode* deleteNode(TreeNode* root, int key) {
+    TreeNode* parent = nullptr;
+    TreeNode* curr = root;
+
+    while (curr != nullptr &amp;&amp; curr-&gt;val != key) {   // 1) 找到目標,順便記父節點
+        parent = curr;
+        curr = (curr-&gt;val &gt; key) ? curr-&gt;left : curr-&gt;right;
+    }
+
+    if (curr == nullptr) {
+        return root;                                 // key 不存在
+    }
+
+    if (curr-&gt;left &amp;&amp; curr-&gt;right) {                 // 2) 兩個小孩:改成刪後繼
+        TreeNode* succParent = curr;
+        TreeNode* succ = curr-&gt;right;
+
+        while (succ-&gt;left) {
+            succParent = succ;
+            succ = succ-&gt;left;
+        }
+
+        curr-&gt;val = succ-&gt;val;                       // 值搬上來
+        curr = succ;                                 // 改成刪 succ
+        parent = succParent;                         // 它的父節點也要換
+    }
+
+    TreeNode* survivor = curr-&gt;left ? curr-&gt;left : curr-&gt;right;   // 3) 摘除
+
+    if (parent == nullptr) {
+        return survivor;                             // 刪的是根 → 換根
+    }
+
+    if (parent-&gt;left == curr) {
+        parent-&gt;left = survivor;
+    } else {
+        parent-&gt;right = survivor;
+    }
+
+    return root;
+}</pre>
+  <b>麻煩的地方有三個,全都是遞迴版「免費」得到的:</b><br>
+  ① <strong>要記 <code>parent</code></strong> —— 遞迴版靠<strong>還沒返回的堆疊框</strong>記住它(就是那個回寫)。<br>
+  ② <strong>兩個小孩時,<code>parent</code> 也要跟著換</strong>(換成 <code>succParent</code>)—— <b>這是最容易寫錯的一步</b>。<br>
+  ③ <strong>要判斷「<code>curr</code> 是 <code>parent</code> 的左還是右小孩」</strong> —— 遞迴版的 <code>root-&gt;left = ...</code> / <code>root-&gt;right = ...</code> <b>本身就帶著這個資訊</b>。<br><br>
+  <b>好處</b>:空間 <code>O(1)</code>,而且<strong>不會 stack overflow</strong> —— 對照遞迴版在 <code>ulimit -s 512 KB</code> 下 <code>n=10⁴</code> 會 SIGSEGV。<br><br>
+  <b>注意這裡我用了 <code>copy</code> 而非 <code>swap</code></b>:迭代版沒有「回頭再刪一次」的遞迴,所以直接搬值、改目標比較自然。</div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>會「刪掉其中一個」,但刪掉哪一個不保證 —— 而且這個問題 <code>swap</code> 版和 <code>copy</code> 版都有。</strong><br><br>
+  題目保證值唯一,所以這是超出約束的情形。但值得想清楚,因為<strong>真實的 BST 實作常常要處理重複值</strong>。<br><br>
+  <strong>會出什麼問題:</strong><br>
+  ① <b>下降時可能停在「錯的那一個」</b>。<code>root-&gt;val &gt; key</code> / <code>&lt; key</code> 的二分在遇到相等時就停了,<strong>但相等的節點可能有好幾個,分散在不同深度</strong>。<br>
+  ② <b>對 <code>swap</code> 版特別的風險</b>:<code>swap</code> 之後到右子樹找 <code>key</code>,<strong>如果右子樹裡本來就有另一個值等於 <code>key</code> 的節點</strong>,遞迴可能<strong>提前命中那一個</strong>,結果<strong>刪錯節點</strong> —— 而<a href="index.html">本頁 LEMMA 1</a> 的論證正是靠「<code>key</code> 比右子樹所有值都小」,<b>重複值一出現,這個前提就破了</b>。<br>
+  ③ <b>但 <code>copy</code> 版也沒有比較好</b>:它去刪 <code>succ-&gt;val</code>,<strong>如果右子樹裡有兩個節點都等於 <code>succ-&gt;val</code></strong>,同樣可能刪錯那一個。<br><br>
+  <strong>實務上怎麼處理重複值:</strong><br>
+  · <b>最常見:節點加一個 <code>count</code> 欄位</b> —— 重複的值不開新節點,只把計數 +1;刪除就是計數 −1,歸零才真的摘掉。<b><code>std::multiset</code> 的底層概念類似。</b><br>
+  · 或者<strong>規定「相等一律往右(或往左)」</strong>,讓相等的節點形成一條可預測的鏈 —— 但這會讓樹更容易退化。<br><br>
+  <b>面試時值得主動問一句「值保證唯一嗎?」</b> —— <strong>這題的約束剛好給了保證,但那不是理所當然的。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩個小孩不能直接刪,就把中序後繼的值換上來再刪替身 —— 而替身必定沒有左小孩,所以第二次必落在簡單情況。「失敗率低」不等於「bug 比較輕微」:回寫在刪除只錯 72.7%(插入 99.98%),反而更容易撐到上線。</div>
+    <div class="sc-summary-bar__detail">DELETE NODE IN A BST · REVIEW</div>
+  </div>
+
+</body>
+</html>

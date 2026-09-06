@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>450 · Delete Node in a BST // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P450</span>
+    <span><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除 BST 的節點</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 把 key 換下去,再刪一次</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 450</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SUCCESSOR SWAP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給 BST 的根節點和一個 <code>key</code>,<strong>刪掉</strong>值等於 <code>key</code> 的節點,
+        回傳更新後的根。<strong><code>key</code> 可能不存在</strong>(那就什麼都不做)。<br>
+        節點數 <code>0 ~ 10⁴</code>,值<strong>互不相同</strong>,值域 <code>±10⁵</code>。
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p701/index.html">701 插入</a>的<strong>對偶題</strong>,而且明顯更難。
+      插入永遠是「<strong>掛一片新葉子</strong>」;
+      <b>刪除卻可能要<em>把一個有兩棵子樹的節點從中間挖掉</em></b> ——
+      <strong>那兩棵子樹要接到哪裡去?</strong>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>整題只有一個難點:被刪的節點有<em>兩個</em>小孩。</strong>
+      <b>0 個或 1 個小孩都可以「直接接上去」</b>(把唯一的那個小孩頂上來就好);
+      <strong>兩個小孩就沒有明顯的贏家</strong> ——
+      <b>解法是「不真的刪它,而是找一個<em>可以合法頂替它</em>的值換上來,再去刪那個替身」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">替身只能是「中序後繼」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">隨便挑一個小孩頂上來</span>
+            <span class="sc-ko-card__o">結果不是 BST</span>
+          </div>
+          <div class="sc-ko-card__body">
+            把左小孩頂上來,<strong>右子樹整棵就沒地方掛</strong>(它比左小孩大,不能當左小孩的左子樹,
+            當右子樹又會蓋掉原有的)。
+            <b>兩棵子樹都要保住,替身就只能是那個「剛好卡在中間」的值。</b>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 順序壞掉</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">用「前繼」(左子樹的最大值)</span>
+            <span class="sc-ko-card__o">也完全正確</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>前繼和後繼是<em>對稱</em>的,兩個都對</strong> ——
+            前繼是「比它小的裡面最大的」,同樣剛好卡在中間。
+            <b>但要記得:選了前繼就要往<em>左</em>遞迴刪。</b>
+            <strong>方向配錯 → 實測「兩個小孩」的情形<em>全數 2652 組錯光</em>。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">△ 對稱地正確</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">中序後繼 = <strong>右子樹一路往左走到底</strong></span>
+          <span class="sc-ko-card__o">O(h) · 常數 2</span>
+        </div>
+        <div class="sc-ko-card__body">
+          它是「<strong>比被刪的值大的所有值當中,最小的那一個</strong>」——
+          <b>換上來之後,左子樹全部還是比它小、右子樹全部還是比它大</b>,BST 完好。
+          <strong>而且它<em>必定沒有左小孩</em>(它就是最左),所以刪它一定落在簡單情況。</strong>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 換完再刪</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「替身必定沒有左小孩」這件事非常關鍵</strong> ——
+      <b>它保證了「第二次刪除一定落在 0 或 1 個小孩的簡單情況」,不會再遞迴下去找第三個替身。</b>
+      <strong>所以整個流程最多只會發生<em>一次</em>替換。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三種情況<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>還沒找到</strong> —— 比大小往左或往右,<b>並且回寫</b>
+        (<a href="../p701/index.html">701 的那個模式</a>,這裡<strong>更加必要</strong>)。</li>
+      <li><strong>找到了,而且 0 或 1 個小孩</strong> ——
+        <code>return root-&gt;left ? root-&gt;left : root-&gt;right;</code>
+        <b>把唯一的小孩(或 <code>nullptr</code>)直接交給父節點接住。</b></li>
+      <li><strong>找到了,兩個小孩</strong> —— 找中序後繼、<strong>把 <code>key</code> 和後繼的值<em>交換</em></strong>,
+        然後<strong>到右子樹再刪一次 <code>key</code></strong>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>⚡ 你這份寫法用的是<em>交換</em>(<code>swap</code>),而不是課本常見的<em>複製</em>。</strong>
+      <b>課本版:<code>root-&gt;val = succ-&gt;val;</code> 然後去刪「<code>succ-&gt;val</code>」。</b>
+      <strong>你的版本:<code>swap</code> 之後 <code>key</code> 被搬到後繼的位置,然後去刪「<code>key</code>」。</strong>
+      <b>實測兩者產生的樹<em>完全相同</em></b> —— 見下方 LEMMA 2。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 刪 10,後繼是 12(深 2 層)</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>特意選一棵「後繼比較深」的樹</strong>(官方範例的後繼剛好在第一層,看不出重點)。
+      <b>看 <span style="color:#c8801e;">橘色的 <code>key</code> 標記</span>怎麼被<em>換到樹的深處</em></b>,
+      <strong>以及第二次下降如何「一路往左」正好走到它。</strong>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ BST 刪除 · 交換之後再刪一次</div>
+      <div class="sc-viz__cvwrap"><canvas id="v450-canvas" class="sc-viz__canvas" style="height:446px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v450-reset">Reset</button><button class="sc-btn" id="v450-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v450-play">Play</button><button class="sc-btn" id="v450-next">Next</button>
+        <span class="sc-viz__step" id="v450-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="v450-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · swap 讓 BST 暫時壞掉,為什麼遞迴還找得到?</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>swap</code> 之後,<strong>後繼的節點身上寫著 <code>key</code></strong> ——
+          而 <code>key</code> <strong>比右子樹裡所有其他值都小</strong>,
+          <b>所以右子樹「暫時」不是合法 BST</b>。那遞迴憑什麼還能正確下降?
+        </p>
+        <p style="margin:0;">
+          <b>關鍵:壞掉的那個節點是搜尋的「終點」,而不是路上任何一個「岔路的決策點」。</b><br>
+          設後繼是 <code>S</code>(右子樹的最左節點)。路徑 <code>右子樹根 → … → S</code> 上的每個節點 <code>p</code>,
+          <strong>值都<em>沒有被動過</em></strong>,而且 <code>p-&gt;val &gt; key</code>
+          (因為 <code>key</code> 比右子樹原本所有值都小)——
+          <b>所以每一步都判「往左」</b>,而這條全左的路<strong>正好就是通往最左節點 <code>S</code> 的路</strong>。
+          走到 <code>S</code> 時 <code>S-&gt;val == key</code>,命中。<br>
+          <strong>實測</strong>:窮舉 <code>n=1..8</code> 全部 BST 的「兩個小孩」情形共 <strong>2652 組</strong> ——
+          <b>下降路徑「全部往左」2652/2652,遞迴找不到節點的次數 <strong>0</strong>。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · swap 版與課本 copy 版,產生的樹「完全相同」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          課本版寫 <code>root-&gt;val = succ-&gt;val;</code> 再去刪 <code>succ-&gt;val</code>;
+          你的版本 <code>swap</code> 之後去刪 <code>key</code>。
+          <strong>兩者不只是「都合法」,而是<em>逐位元相同</em>。</strong>
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:窮舉 <strong>19633 組</strong> <code>(樹, key)</code> + 隨機 <strong>20 萬組</strong> ——
+          <b>形狀差異 <strong>0</strong></b>。<br>
+          <b>原因</b>:兩版<strong>物理上摘掉的是<em>同一個節點</em></strong>(都是後繼那個節點物件),
+          差別只在「<strong>它被丟掉之前身上寫的數字</strong>」是 <code>key</code> 還是 <code>succ-&gt;val</code> ——
+          <strong>而它馬上就消失了,外界看不到。</strong><br>
+          <b>更強的實測</b>:被丟掉的節點<strong>在被丟掉的當下,值恰好等於 <code>key</code></strong>
+          —— <strong>15521/15521 命中,零例外</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 八種改法的實測結果(2055 棵 BST × 每個 key,共 19633 組)</span>
+用「前繼」但仍往右遞迴刪  → 違反 2652,「兩個小孩」的情形『全數』錯光
+swap 之後遞迴刪錯邊      → 違反 2652,同上;key 被換到右邊卻往左找 ⇒ 什麼都沒刪
+用 copy 但遞迴目標沒改   → 違反 2652,copy 後 key 已消失 ⇒ 找不到 ⇒ 留下重複值
+缺少「0/1 個小孩」的處理 → 崩潰 15521 組(只要 key 存在必崩),但『不會靜默答錯』
+找後繼時多走一步         → 崩潰 1728 組,恰好是「右子沒有左子」那一族
+忘記回寫                 → 違反 14270/19633(72.7%)—— 比 701 的 4706/4707 低,見下
+兩子分支沒有 return root → 違反 2652,而且『結果仍是合法 BST』⇒ 結構檢查抓不到
+單子分支的三元運算子寫反 → 違反 0/19633  ← 這個是「等價的」,不是陷阱
+<span class="sc-trace__out">// 注意最後一列:它「不是 bug」,別把它背成錯的;而倒數第二列的錯最陰險</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(h)</strong>,但<strong>常數是 2</strong>(找後繼走一趟 + 再遞迴刪一趟)　·　空間 <strong>O(h)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境</th><th>遞迴呼叫</th><th>後繼走的步數</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td>平衡 BST <code>n=1023</code>,刪根(兩個小孩)</td><td class="mono">10</td><td class="mono">8</td><td class="mono ok"><strong>18</strong></td></tr>
+        <tr><td>平衡 BST <code>n=1023</code>,刪最深的葉</td><td class="mono">10</td><td class="mono">0</td><td class="mono ok">10</td></tr>
+        <tr><td>退化右鏈 <code>n=1000</code>,刪最深端</td><td class="mono">1000</td><td class="mono">0</td><td class="mono">1000</td></tr>
+        <tr><td><strong>最壞</strong>:根有兩子、右子樹是長 1000 的左鏈</td><td class="mono">1001</td><td class="mono">999</td><td class="mono fail"><strong>2000 ≈ 2h</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>那兩趟走的是<em>同一條路</em></strong> —— 先為了找後繼往左走到底,
+      再為了刪它沿著同一條路遞迴下去。<b>所以是 <code>2h</code> 而不是 <code>h²</code></b>,
+      <strong>仍然是 <code>O(h)</code></strong>。
+      <b>而且課本的 copy 版工作量完全一樣</b> —— <strong>swap 版沒有額外成本。</strong>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(clean、class member、-O0 —— LeetCode 的格式)</span>
+ulimit -s 8176 KB(預設)
+  崩潰深度:104491 存活 / 104687 崩(bisect 兩次結果一致)
+  → 8176×1024 / 104491 ≈ 80 bytes/frame(成員函式要在框裡存 this)
+
+n = 10^4 的退化鏈:
+  ulimit -s 8176 KB → 存活,用掉約 800 KB(9.8%),餘裕約 10.4 倍
+  ulimit -s 1024 KB → 存活,但崩潰深度只有 12853 ⇒ 餘裕僅 1.29 倍,已經很緊
+  ulimit -s  512 KB → SIGSEGV(崩潰深度 6441 < 10^4)
+<span class="sc-trace__out">// 和 701 一樣不是尾遞迴(回來還要回寫),所以 -O2 也消不掉這些框</span></div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「兩個小孩」不能直接刪,所以<em>不刪它</em> —— 把中序後繼的值換上來,再去刪那個後繼。</strong>
+      <b>而後繼必定沒有左小孩,所以第二次刪除一定落在簡單情況,不會無限遞迴下去。</b><br>
+      <strong>至於 <code>swap</code> 造成的暫時 BST 違反為什麼無害</strong>:
+      <b>壞掉的那個節點是搜尋的<em>終點</em>,不是路上的決策點</b> ——
+      <strong>而通往它的路,每一步都判「往左」。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩個小孩不能直接刪,就換一個「剛好卡在中間」的值上來再刪替身;替身必定沒有左小孩,所以第二次必落在簡單情況。swap 造成的暫時違反無害,因為壞掉的節點是搜尋終點而非決策點 —— 實測 2652/2652 下降全程往左。</div>
+    <div class="sc-summary-bar__detail">DELETE NODE IN A BST · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p450-bstdelete.js"></script>
+</body>
+</html>
