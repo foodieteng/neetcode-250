@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>102 · Binary Tree Level Order Traversal // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P102</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹層序走訪</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 凍結 sz,劃出層與層的界線</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 102</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BFS · 本章第一個</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給二元樹的根節點,<strong>逐層</strong>回傳每一層的節點值 ——
+        <strong>由上到下、每層由左到右</strong>,結果是 <code>vector&lt;vector&lt;int&gt;&gt;</code>。<br>
+        節點數 <code>0 ~ 2000</code>,值域 <code>±1000</code>。
+      </p>
+    </div>
+
+    <p>
+      <b>這是本章第一個「不用遞迴」的解法。</b>
+      前面 12 題全部靠<strong>呼叫堆疊</strong>把走訪順序管起來;
+      <strong>這題改用<em>佇列</em></strong>,而且<b>整支程式一個遞迴都沒有</b>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>難點只有一個:怎麼知道「一層走完了」?</strong>
+      佇列裡的節點會<strong>混著兩層</strong>(這一層還沒處理完的、加上剛推進去的下一層小孩)。
+      <b>解法是在內層迴圈開始前,先把「這一層有幾個」<em>凍結</em>下來</b> ——
+      <strong>那一行 <code>auto sz = q.size();</code> 就是層與層之間的界線。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">那個 sz 為什麼不能省<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每圈重新讀 <code>q.size()</code></span>
+            <span class="sc-ko-card__o">錯 6406/6918</span>
+          </div>
+          <div class="sc-ko-card__body">
+            寫成 <code>for (int i = 0; i &lt; q.size(); i++)</code>。
+            <b>佇列會邊跑邊長大</b>,內層迴圈<strong>追不到終點</strong>,
+            於是<strong>把下一層(甚至下下層)的節點一起吃進來</strong>。
+            <b>症狀是「層界糊掉」,不是無窮迴圈。</b>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 層界糊掉</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">用 DFS 帶一個 <code>depth</code> 參數</span>
+            <span class="sc-ko-card__o">也完全正確</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>ans[depth].push_back(val)</code>,不夠長就 <code>resize</code>。
+            <strong>本頁就是拿它當對拍參考解</strong>(20 萬組零不一致)。
+            <b>但它是遞迴,空間變成 <code>O(h)</code> —— 退化鏈會很深。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ 對,但換一種代價</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">BFS + <strong>凍結的 <code>sz</code></strong></span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(w) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>在推進任何小孩<em>之前</em>先把層寬拍照存起來</strong>,
+          內層迴圈就<strong>只跑那麼多次</strong>。
+          <b>零遞迴 ⇒ 完全沒有堆疊深度的問題</b> ——
+          <strong>這是本章第一次可以說「不用擔心爆堆疊」。</strong>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 凍結層寬</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>⚠ 而且錯法 A 在「退化成鏈」的樹上<em>完全看不出來</em></strong> ——
+      <b>因為每層只有一個節點,佇列永遠不會在中途長大</b>。
+      實測 6918 種樹形裡,<strong>它「碰巧對」的 512 種基本上就是鏈</strong>。
+      <b>拿斜鏈當測資,等於沒測。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>把根推進佇列</strong>(空樹要先擋掉)。</li>
+      <li><strong>外層迴圈</strong>:只要佇列不空就繼續 —— <b>每一輪處理「一整層」</b>。</li>
+      <li><strong>凍結層寬</strong>:<code>auto sz = q.size();</code> ——
+        <b>這一行必須在推任何小孩之前</b>。</li>
+      <li><strong>內層迴圈跑 <code>sz</code> 次</strong>:彈出、收錄、把小孩推進去。
+        跑完之後 <code>ans.push_back(level)</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「先拍照再動手」這個模式是<em>所有層序題</em>的共同骨架</strong> ——
+      <a href="../p199/index.html">199 右視圖</a>、107 由下往上、515 每層最大值、103 鋸齒層序,
+      <b>全部都是這四步,只有第 ④ 步「收錄什麼」不一樣。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [3,9,20,null,null,15,7] → [[3],[9,20],[15,7]]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>看 BAND 2 的<span style="color:#c8801e;">橘色虛線框</span></strong> —— 那就是被 <code>sz</code> 凍結的範圍。
+      <b>特別注意第 4 步</b>:節點 <code>20</code> 推入兩個小孩之後,
+      <strong>佇列又剛好是 2 個</strong> —— <b>如果這裡改用「每圈重新讀 <code>q.size()</code>」,它會繼續跑下去。</b>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 層序走訪 · 凍結的 sz 就是層界</div>
+      <div class="sc-viz__cvwrap"><canvas id="v102-canvas" class="sc-viz__canvas" style="height:376px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v102-reset">Reset</button><button class="sc-btn" id="v102-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v102-play">Play</button><button class="sc-btn" id="v102-next">Next</button>
+        <span class="sc-viz__step" id="v102-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="v102-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 不凍結 sz 會怎樣 —— 層會「融在一起」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          改成 <code>for (int i = 0; i &lt; q.size(); i++)</code>:
+          <b>每彈出一個節點就推入最多兩個小孩,所以 <code>q.size()</code> 常常<em>不減反增</em></b> ——
+          <strong><code>i</code> 追不上那個一直長大的終點</strong>,內層迴圈就<strong>越界吃掉下一層</strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:窮舉 <code>n ≤ 9</code> 全部 <strong>6918 種樹形</strong> ——
+          <b>錯 <strong>6406</strong> 種</b>。<strong>最小反例只要 3 個節點</strong>:
+          根有左右兩個小孩時,正解 <code>[[1],[2,3]]</code>,錯版給 <code>[[1,2],[3]]</code>。<br>
+          放大來看更明顯:完美樹 <code>h=4</code> 正解是 <code>[[1],[2,9],[3,6,10,13],[…8 個…]]</code>,
+          <b>錯版的「第一層」竟然吃了 8 個節點、橫跨 4 個真實層級</b>。<br>
+          <b>⚠ 而且它<em>不會當掉</em></b> —— 實測從未卡住,因為每輪仍然「彈 1 推 ≤2」,樹是有限的。
+          <strong>它只是安靜地把答案分錯組。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · BFS 是 O(w),DFS 是 O(h) —— 最壞情況正好相反</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <b>BFS 的空間是「佇列最多裝幾個」= 最大層寬 <code>w</code></b>;
+          <b>DFS 的空間是「遞迴最深幾層」= 樹高 <code>h</code></b>。
+          <strong>這兩個量的最壞情況<em>完全相反</em></strong>。
+        </p>
+        <p style="margin:0;">
+          <strong>實測(同一棵樹,兩種走法):</strong><br>
+          · <b>完美樹 <code>n=1023</code></b> → BFS 佇列峰值 <strong>512</strong>,DFS 遞迴深度 <strong>10</strong>
+          —— <b>DFS 大勝</b><br>
+          · <b>退化鏈 <code>n=1000</code></b> → BFS 佇列峰值 <strong>1</strong>,DFS 遞迴深度 <strong>1000</strong>
+          —— <b>BFS 大勝</b><br>
+          · 掃把形(長柄 + 寬底)→ 佇列 250、深度 509,<strong>兩者都不極端</strong><br>
+          <b>所以「BFS 比較省記憶體」是錯的說法</b> —— <strong>要看樹長什麼樣</strong>。
+          <b>但 BFS 有一個結構性優勢:它<em>完全沒有堆疊深度問題</em></b>,
+          佇列在 heap 上,不會 stack overflow。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 實測數字(同一棵樹,BFS 佇列峰值 vs DFS 遞迴深度)</span>
+形狀              n      佇列峰值   DFS 深度   誰贏
+完美樹          1023        512        10     DFS(50 倍)
+退化左鏈        1000          1      1000     BFS(1000 倍)
+掃把(柄500+底500) 1000        250       509     平手
+完全樹          2000       1000        11     DFS
+退化鏈          2000          1      2000     BFS
+
+enqueued == dequeued == n  在每一種形狀上都成立(每個節點恰好進出佇列各一次)
+<span class="sc-trace__out">// 注意完全樹的佇列峰值 1000 略大於最大層寬 977 —— 峰值出現在「層的中途」</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>(每個節點進出佇列各一次)　·　空間 <strong>O(w)</strong>　·　<strong>遞迴深度 0</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono ok"><strong>O(n)</strong></td><td><code>enqueued == dequeued == n</code>,<strong>每種形狀都成立</strong></td></tr>
+        <tr><td>空間</td><td class="mono"><strong>O(w)</strong></td><td>完美樹 <code>n=1023</code> 峰值 <strong>512</strong>;鏈 <code>n=1000</code> 峰值 <strong>1</strong></td></tr>
+        <tr><td><strong>遞迴深度</strong></td><td class="mono ok"><strong>0</strong></td><td><b>本章第一次不必擔心爆堆疊</b>(對照 DFS 在鏈上要 2000 層)</td></tr>
+        <tr><td>n=2000 最寬</td><td class="mono">佇列 <strong>1000</strong></td><td>約 8 KB 指標,<strong>微不足道</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「遞迴深度 0」值得單獨強調。</strong>
+      <b>前面 12 題每一題都要算「會不會爆堆疊」</b> ——
+      <a href="../p1448/index.html">1448</a> 的餘裕甚至只有 <strong>1.74 倍</strong>。
+      <strong>而 BFS 把這個問題<em>整個拿掉</em></strong>:佇列配置在 heap 上,
+      <b>上限是可用記憶體,不是 8 MB 的呼叫堆疊。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>佇列裡永遠混著兩層,所以你需要一條界線 —— 那條界線就是「動手前先拍照」的 <code>sz</code>。</strong>
+      <b>而這個「先記 <code>q.size()</code> 再跑 <code>sz</code> 次」的模式,是所有層序題的共同骨架</b>
+      (199 右視圖、107 反向層序、515 每層最大、103 鋸齒)——
+      <strong>只有「收錄什麼」不一樣。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">佇列裡永遠混著兩層,所以要在動手前把層寬凍結起來 —— 那一行 sz 就是層界。改成每圈重讀 q.size() 會讓層融在一起(錯 6406/6918),而且退化鏈完全看不出來。BFS 是 O(w)、DFS 是 O(h),最壞情況正好相反。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE LEVEL ORDER TRAVERSAL · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p102-levelorder.js"></script>
+</body>
+</html>
