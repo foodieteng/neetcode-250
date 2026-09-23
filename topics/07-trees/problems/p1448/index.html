@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1448 · Count Good Nodes // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P1448</span>
+    <span><a href="https://leetcode.com/problems/count-good-nodes-in-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">統計好節點</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 沿路帶著「路徑最大值」</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1448</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TOP-DOWN STATE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一個節點 <code>X</code> 叫做「<strong>good</strong>」,如果<strong>從根到 <code>X</code> 的路徑上,
+        沒有任何節點的值<em>大於</em> <code>X</code></strong>。回傳 good 節點的數量。<br>
+        節點數 <code>1 ~ 10⁵</code>,值 <code>−10⁴ ~ 10⁴</code>。
+      </p>
+    </div>
+
+    <p>
+      <strong>本章大部分的樹題是「由下往上」聚合</strong>(<a href="../p104/index.html">104 深度</a>、
+      <a href="../p543/index.html">543 直徑</a>)——
+      <b>這一題相反:它是「<em>由上往下</em>」帶狀態</b>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>核心:沿路帶一個 <code>mx</code>,代表「從根走到我這條路上的最大值」。</strong>
+      <b>每個節點只問一句:「我 <code>&gt;=</code> <code>mx</code> 嗎?」</b>
+      <strong>而 <code>mx</code> <em>只增不減</em></strong> —— 遇到比較小的節點它不會被拉低,
+      <b>所以它記住的永遠是「路上最大的那個」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是 <code>&gt;=</code> 而不是 <code>&gt;</code><span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">用 <code>&gt;</code>(以為要「嚴格最大」)</span>
+            <span class="sc-ko-card__o">全盤歸零</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <b>在「先更新再比」的寫法裡,<code>&gt;</code> <em>永遠為假</em></b> ——
+            因為 <code>mx</code> 已經包含自己,<code>root-&gt;val &gt; max(mx, root-&gt;val)</code> 不可能成立。
+            <strong>答案會變成 0。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 恆為假</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">對每個節點各自往上爬一次查路徑</span>
+            <span class="sc-ko-card__o">O(n·h)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案會對,但<strong>每個節點都要重走一次它的祖先鏈</strong>。
+            <b>退化成鏈時就是 <code>O(n²)</code></b> ——
+            <strong>而 <code>n</code> 上限是 <code>10⁵</code>,那是 100 億次操作。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">△ 對但太慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">把 <code>mx</code> 當參數往下傳,用 <code>&gt;=</code> 比</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(h) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>祖先鏈的資訊「已經在參數裡」了</strong>,不必重走。
+          <b>而 <code>&gt;=</code> 讓「平手」也算 good</b> ——
+          <strong>因為題目說的是「沒有人<em>大於</em>我」,不是「我最大」。</strong>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 一趟走完</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>⚡ 「平手也算」是這題最容易漏的地方。</strong>
+      <b>範例 1 的答案之所以是 4 而不是 3,就是因為有一個節點<em>剛好等於</em>路徑最大值</b>
+      (路徑 <code>3 → 1 → 3</code> 的那個 3)。
+      <strong>題目問的是「有沒有人比我大」,平手的人<em>沒有</em>比我大 —— 所以我仍然看得到。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>更新</strong>:<code>mx = max(mx, root-&gt;val);</code> ——
+        <b><code>mx</code> 只增不減</b>。</li>
+      <li><strong>判斷自己</strong>:<code>(int)(root-&gt;val &gt;= mx)</code> ——
+        <b>更新之後 <code>mx</code> 已含自己,所以這等價於「和<em>舊的</em> <code>mx</code> 比」</b>(見 LEMMA 1)。</li>
+      <li><strong>往下傳</strong>:左右子樹都收到<strong>同一個更新後的 <code>mx</code></strong>,
+        把三個數字加起來回傳。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>注意這題的遞迴<em>回傳的是數字</em>,不是節點</strong> ——
+      <b>所以沒有 <a href="../p701/index.html">701</a>、<a href="../p450/index.html">450</a> 那個「回寫接線」的問題</b>。
+      <strong>它的狀態是「往下傳」的參數,不是「往上傳」的回傳值。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [3,1,4,3,null,1,5] → 4</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1。<strong>每個節點下方標的是「它更新後的 <code>mx</code>」</strong>,
+      <b>數線上的虛線是那道「門檻」</b>。
+      <strong>特別看第 3 步的節點 <code>D(3)</code> —— 它<em>剛好踩在門檻上</em>,而那正是 <code>&gt;=</code> 的意義。</strong>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ good nodes · mx 一路往下,只增不減</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1448-canvas" class="sc-viz__canvas" style="height:420px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1448-reset">Reset</button><button class="sc-btn" id="v1448-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1448-play">Play</button><button class="sc-btn" id="v1448-next">Next</button>
+        <span class="sc-viz__step" id="v1448-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="v1448-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 「先更新再比」和「先比再更新」為什麼等價</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          課本寫法是<strong>先比再更新</strong>:<code>good = (val &gt;= mx); nmx = max(mx, val);</code>。
+          <b>你的寫法是<em>先更新再比</em></b>。為什麼一樣?
+        </p>
+        <p style="margin:0;">
+          <strong>更新後的 <code>mx</code> 只有兩種可能</strong>:<br>
+          · <b>舊 <code>mx</code> 贏</b>(<code>val &lt;= 舊mx</code>)⇒ <code>mx</code> 沒變 ⇒
+          測試就<strong>字面上等於</strong> <code>val &gt;= 舊mx</code> —— 和課本版一模一樣。<br>
+          · <b><code>val</code> 贏</b>(<code>val &gt; 舊mx</code>)⇒ <code>mx == val</code> ⇒
+          測試是 <code>val &gt;= val</code>,<strong>恆為真</strong> —— 而這個分支發生的條件正是
+          <code>val &gt; 舊mx</code>,<b>課本版同樣判它 good</b>。<br>
+          <strong>兩個分支都一致 ⇒ 等價。</strong>
+          <b>實測:窮舉 <strong>1042 萬組</strong>(所有 <code>n≤8</code> 樹形 × <code>{0,1,2}</code> 全部賦值)
+          + 隨機 20 萬組,<strong>零不一致</strong>。</b><br>
+          <b>⚡ 但這個等價<em>依賴 <code>&gt;=</code></em></b> ——
+          <strong>如果寫成 <code>&gt;</code>,「先更新再比」會讓每個節點都判不是 good(答案恆為 0)</strong>,
+          而「先比再更新」只是漏掉平手。<b>所以 <code>&gt;=</code> 在這個寫法裡是<em>結構性</em>的,不是風格選擇。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · ⚠ 預設參數把「內部狀態」暴露成了 public API</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>int goodNodes(TreeNode* root, int mx = INT_MIN)</code> —— 很聰明,
+          <b>省掉了一個 private helper</b>。<strong>但那個 <code>mx</code> 現在是<em>公開參數</em></strong>,
+          呼叫端可以傳。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:對範例 1 的樹,<br>
+          · <code>goodNodes(root)</code> → <b>4</b> ✓(LeetCode 的呼叫方式)<br>
+          · <code>goodNodes(root, 5)</code> → <b>1</b> ✗ —— <strong>安靜地給出錯的答案,不會報錯、編譯全過</strong>。<br>
+          <b>而私有 helper 的設計讓這件事「<em>根本寫不出來</em>」</b> ——
+          <strong><code>goodNodes(root, 5)</code> 會是編譯錯誤,不是執行期的錯答案</strong>。<br>
+          <b>兩者在 1062 萬組正確性測試上完全相同</b>,<strong>差別純粹在「呼叫端能不能弄壞它」</strong>。<br>
+          <b>(同樣的問題 <a href="../p98/index.html">98 驗證 BST</a> 也有 —— 那題的
+          <code>isValidBST(root, 0, 10)</code> 會把一棵合法 BST 判成 false。)</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// INT_MIN 當哨兵安不安全?(實測)</span>
+題目值域是 [-10^4, 10^4],所以 INT_MIN 永遠比任何節點小 ⇒ 安全
+  實測 [-10000,-10000,-9999](root 恰好是值域下界)→ 3,正確
+
+超出約束的壓力測試(root 的值「就是」INT_MIN):
+  [INT_MIN, INT_MIN, 0] → 3,root「仍然」被算成 good
+  原因:mx = max(INT_MIN, INT_MIN) = INT_MIN,而 INT_MIN >= INT_MIN 成立
+
+  ⚡ 如果寫成 >,root 會判自己不是 good,答案就錯了
+  ⇒ 是「>=」讓 INT_MIN 當哨兵是安全的,不是 INT_MIN 這個值本身
+<span class="sc-trace__out">// 又一次:>= 不是風格,它同時撐住了「平手」和「哨兵撞值」兩件事</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>(呼叫次數恆為 <strong>2n+1</strong>)　·　空間 <strong>O(h)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>維度</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td class="mono ok"><strong>O(n)</strong></td><td>呼叫次數 <strong>2n+1</strong>,窮舉 <code>n=0..8</code> 全部 2056 種樹形<strong>零違反</strong></td></tr>
+        <tr><td>空間</td><td class="mono"><strong>O(h)</strong></td><td>遞迴深度 = 樹高 + 1</td></tr>
+        <tr><td><code>n=10⁵</code> 退化鏈</td><td class="mono ok"><strong>存活</strong></td><td>實測最大深度 <strong>100001</strong>,正常回傳</td></tr>
+        <tr><td>每層成本</td><td class="mono"><strong>64 bytes</strong></td><td>三種堆疊大小交叉驗證(見下)</td></tr>
+        <tr><td><strong>崩潰臨界</strong></td><td class="mono fail"><strong>130723</strong></td><td>二次 bisect 結果完全一致(130723 存活 / 130724 崩)</td></tr>
+        <tr><td><strong>安全餘裕</strong></td><td class="mono fail"><strong>只剩 1.31 倍</strong></td><td><b>本章最緊的一題</b></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// ⚠ 堆疊:n 上限 10^5 是本章最大,餘裕也最小</span>
+ulimit -s 8176 KB(預設)
+  崩潰深度:130723 存活 / 130724 崩(bisect 兩次結果完全一致)
+  → 8176×1024 / 130723 ≈ 64 bytes/frame
+
+  n=10^5 → 存活,但只剩約 30723 層的餘裕 ⇒ 安全係數僅 1.31 倍
+
+縮小堆疊(n=10^5 的退化鏈):
+  ulimit -s 1024 KB → SEGFAULT(崩潰深度 16289)
+  ulimit -s  512 KB → SEGFAULT(崩潰深度  8097)
+
+  16289 與 8097 都回推出同一個 ~64 B/frame ⇒ 三個獨立尺寸交叉驗證
+
+⚠ 工具鏈註記:-O2 下 clang 把這個遞迴改寫成迴圈,bisect 跑到 10^8 都不崩。
+   上面的數字全部是 -O0 —— 那才是「真的有遞迴框」的誠實模型。
+<span class="sc-trace__out">// 1.31 倍是本章最緊的餘裕。104 是 17 倍、450 是 10.4 倍、572 是 87 倍</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這題的堆疊餘裕(1.31 倍)是全章最小的</strong> ——
+      <b>因為它的 <code>n</code> 上限 <code>10⁵</code> 也是全章最大</b>。
+      <strong>在預設 8 MB 上安全,但在 1 MB 的環境就會 SIGSEGV</strong>。
+      <b>要一個與環境無關的保證,就改用<a href="../p102/index.html">迭代</a>(顯式 stack 或 BFS)</b> ——
+      <strong>那樣「深度」這個煩惱就整個消失了。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「由上往下帶狀態」和「由下往上聚合」是樹遞迴的兩個方向</strong> ——
+      <b>這題是前者:祖先的資訊<em>放在參數裡</em>往下傳,所以不必重走祖先鏈。</b><br>
+      <strong>而 <code>&gt;=</code> 不是風格選擇,它同時撐住了兩件事</strong>:
+      <b>「平手也算 good」(題目問的是「有沒有人大於我」),
+      以及「<code>INT_MIN</code> 哨兵撞上合法值時不會出錯」。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">由上往下帶狀態:mx 放在參數裡往下傳,只增不減,所以不必重走祖先鏈。>= 不是風格 —— 它同時撐住「平手也算 good」和「INT_MIN 哨兵撞值」;在「先更新再比」的寫法裡改成 > 會讓答案恆為 0。堆疊餘裕 1.31 倍,全章最緊。</div>
+    <div class="sc-summary-bar__detail">COUNT GOOD NODES · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1448-goodnodes.js"></script>
+</body>
+</html>
