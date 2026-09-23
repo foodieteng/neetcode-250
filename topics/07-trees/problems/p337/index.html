@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>337 · House Robber III // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P337</span>
+    <span><a href="https://leetcode.com/problems/house-robber-iii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">樹上打家劫舍</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 搶或不搶,兩條路各自往下</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 337</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TREE DP + MEMO</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        二元樹的每個節點是一間房子,裡面有錢 <code>val</code>。
+        <strong>不能搶「直接相連」的兩間</strong>(父與子不能同時搶)。
+        回傳能搶到的最大總額。<br>
+        節點數 <code>1 ~ 10⁴</code>,值 <code>0 ~ 10⁴</code>。
+        <b>注意值可以是 0</b> —— 這件事等一下會變成整題的重點。
+      </p>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>限制只管「父子」,不管「祖孫」</strong>。
+      <b>所以搶了 root 之後,下一層整個跳過,但<em>孫子那層可以全搶</em></b> ——
+      <strong>這就是為什麼遞迴會跳兩層去找孫子。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用這個 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「每個節點兩種選擇」<span class="sc-section__title-en">// KNOCKOUT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__card sc-ko__card--bad">
+        <div class="sc-ko__verdict">× REJECT · WRONG</div>
+        <div class="sc-ko__title">貪心:隔層搶</div>
+        <p>把偶數層加總、奇數層加總,取大的那個。「父子不能同時搶」聽起來就像「隔層拿」。</p>
+        <p><b>但最佳解不必整層一起動。</b>實測失敗 <strong>279,804 / 1,045,947</strong>(26.8%),
+          最小反例 <code>[0,0,1,1]</code> → 給 <strong>1</strong>,正解 <strong>2</strong>。</p>
+      </div>
+
+      <div class="sc-ko__card sc-ko__card--mid">
+        <div class="sc-ko__verdict">△ REJECT · TLE</div>
+        <div class="sc-ko__title">純遞迴,不記憶化</div>
+        <p>「搶 root + 四個孫子」對比「不搶 root + 兩個子」,直接遞迴下去。<b>答案是對的</b>。</p>
+        <p>但每個孫子會被算兩次(從 root 一次、從 child 一次),退化成費氏遞迴。
+          實測單邊鏈 <code>n=30</code> 要 <strong>7,049,153</strong> 次呼叫,<code>n=40</code> 要
+          <strong>8.67 億</strong>次、<strong>3.27 秒</strong>。</p>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko__card sc-ko__card--good">
+        <div class="sc-ko__verdict">● ADOPT · O(n)</div>
+        <div class="sc-ko__title">遞迴 + 記憶化(每個節點只算一次)</div>
+        <p>同樣是「搶 / 不搶」兩條路,但把每個節點的答案存起來。
+          重複的孫子查表即可,<b>呼叫次數從指數壓回線性</b>。</p>
+        <p>實測(值非 0 時)呼叫次數恰好 <code>4n − 1</code>,<strong>與樹形無關</strong>。</p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>⚠ 但這份程式的記憶化<em>有一個真實的漏洞</em></strong> ——
+      <b>它在「答案是 0」的節點上<em>完全失效</em></b>,
+      <strong>而題目允許 <code>val = 0</code>。詳見第 5 節,那是這題最值得學的地方。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>搶這間</strong>:<code>val + 四個孫子的答案</code>(<code>ll + lr + rl + rr</code>)。
+        兩個小孩必須跳過,但孫子不受限。</li>
+      <li><strong>不搶這間</strong>:<code>rob(left) + rob(right)</code>。
+        小孩搶不搶由它們自己決定。</li>
+      <li><strong>取兩者的 max,存進 memo</strong>,回傳。</li>
+    </ol>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      <strong>rob(X)</strong> = max( <strong>X.val + 四個孫子</strong> , <strong>兩個小孩</strong> )
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZER</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__cvwrap">
+        <canvas id="v337-canvas" class="sc-viz__canvas" style="height:430px;"></canvas>
+      </div>
+      <div class="sc-viz__controls">
+        <button id="v337-reset" class="sc-viz__btn">RESET</button>
+        <button id="v337-prev"  class="sc-viz__btn">‹ PREV</button>
+        <button id="v337-play"  class="sc-viz__btn">PLAY</button>
+        <button id="v337-next"  class="sc-viz__btn">NEXT ›</button>
+        <span id="v337-step" class="sc-viz__step"></span>
+      </div>
+      <div class="sc-viz__label" id="v337-label"></div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>盯著 memo 那一列</strong>:<b>D 和 E 各被走訪<em>兩次</em></b> ——
+      第一次算完存起來,第二次直接命中回傳。
+      <strong>這兩次命中,就是把指數壓成線性的全部原因。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 記憶化的漏洞 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">這份 memo 的漏洞<span class="sc-section__title-en">// THE REAL BUG</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">// LEMMA: 測「值」不等於測「有沒有存過」</div>
+      <p><code>if (memo[root]) return memo[root];</code> 測的是<strong>值是不是非 0</strong>,
+        不是<strong>這個 key 存不存在</strong>。</p>
+      <p>於是一個<strong>真實答案就是 0</strong> 的節點,會把 <code>0</code> 存進 memo ——
+        而 <code>0</code> 讀回來是 <em>falsy</em>,和「沒存過」<strong>完全無法區分</strong>。
+        那個節點就會被<strong>無限重算</strong>。</p>
+      <p>題目寫的是 <code>0 &lt;= Node.val</code>,<strong>全 0 的樹是合法輸入</strong>。</p>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>單邊鏈 <code>n</code></th><th>全部值 = 0</th><th>全部值 = 1</th><th>倍數</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">10</td><td class="mono fail">463</td><td class="mono ok">39</td><td class="mono">12×</td></tr>
+        <tr><td class="mono">20</td><td class="mono fail">57,311</td><td class="mono ok">79</td><td class="mono">725×</td></tr>
+        <tr><td class="mono">30</td><td class="mono fail">7,049,153</td><td class="mono ok">119</td><td class="mono"><strong>59,237×</strong></td></tr>
+        <tr><td class="mono">40</td><td class="mono fail">866,988,871<br><span style="font-size:11px;">(3.27 秒)</span></td><td class="mono ok">159</td><td class="mono">545 萬×</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>成長率實測是每多一個節點 <code>×1.618</code></strong> —— <b>黃金比例 φ</b>,
+      也就是<strong>沒有記憶化的費氏遞迴</strong>。
+      <b>記憶化不是「變慢」,是<em>整個失效</em>。</b>
+      <strong>一條 45 個節點的全 0 鏈就會 TLE,而 <code>n</code> 上限是 10⁴。</strong>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 但「鏈」和「完全樹」的嚴重程度不同 —— 實測</span>
+全 0 單邊鏈       Θ(φⁿ) ≈ 1.618ⁿ    n=40 → 3.27 秒      n=10⁴ 永遠跑不完
+全 0 完美樹       Θ(n^1.694)         n=10⁴ → 35.3 毫秒   仍然會過
+
+完美樹的實測(每深一層 ×3.236,但 n 只翻倍 ⇒ 指數 log₂3.236 = 1.694):
+    n = 1023   →     131,891 次呼叫
+    n = 4095   →   1,381,171
+    n = 16383  →  14,463,795
+
+⚡ 同一個 bug,嚴重程度由「深度」決定:
+   0 讓快取失效,而「深度」把失效放大成 φⁿ。
+   完美樹只有 log n 深,所以放大有限(約 50 倍),還能過。
+<span class="sc-trace__out">// 所以不要以為「只有鏈會爆」—— 每種形狀都中招,只是鏈才致命</span></div>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      修法是<strong>一個字</strong>:<code>if (memo.count(root))</code>
+      <br><span style="font-size:13px;">實測 <strong>1,065,947</strong> 組,答案完全相同 —— 純粹是效能修正</span>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>(memo 有效時)　·　空間 <strong>O(h)</strong> 堆疊 <strong>+ O(n)</strong> memo
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>呼叫次數(值非 0)</td><td class="mono"><code>4n − 1</code></td><td>鏈與完美樹皆同,與樹形無關</td></tr>
+        <tr><td>memo 大小</td><td class="mono"><code>= n</code></td><td><code>n=10⁴</code> 實測剛好 10000 筆</td></tr>
+        <tr><td>每層堆疊框</td><td class="mono">≈ 56 bytes</td><td>-O0,三種 stack 尺寸交叉驗證</td></tr>
+        <tr><td>崩潰深度</td><td class="mono">149,373</td><td><code>n=10⁴</code> 餘裕 <strong>14.94×</strong></td></tr>
+        <tr><td>答案上限</td><td class="mono">66,650,000</td><td>僅 INT_MAX 的 <strong>3.10%</strong>,<code>int</code> 安全</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>和本章其他題比,這題的堆疊很寬鬆</strong>(<code>n</code> 上限只有 10⁴,
+      不像 <a href="../p1448/index.html">1448</a> 的 10⁵ 只剩 1.31 倍餘裕)。
+      <b>這題的風險<em>不在堆疊,在那個 memo</em>。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「搶或不搶」是每個節點各自的決定,所以狀態往上回傳,不往下傳</strong> ——
+      這和 <a href="../p1448/index.html">1448</a>(約束往下傳)、
+      <a href="../p98/index.html">98</a>(區間往下傳)<b>方向相反</b>。
+      <strong>而真正的教訓是:<em>測 truthiness 的快取不是快取</em>。</strong>
+      <b>只要合法值裡包含 0,<code>if (memo[x])</code> 就會在答案為 0 的地方靜靜失效</b> ——
+      <strong>答案仍然全對,只是慢到無法提交。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每個節點兩條路:搶(val + 四個孫子)vs 不搶(兩個小孩),取 max 並記憶化 —— 呼叫次數從 φⁿ 壓成 4n−1。但 if (memo[root]) 測的是值不是存在性,答案為 0 的節點永遠 cache-miss;0 是合法值,全 0 鏈 45 個節點就 TLE。修法一個字:memo.count(root)。</div>
+    <div class="sc-summary-bar__detail">HOUSE ROBBER III · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p337-robtree.js"></script>
+</body>
+</html>

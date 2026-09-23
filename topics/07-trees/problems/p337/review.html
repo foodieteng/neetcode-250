@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>337 · House Robber III // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P337</span>
+    <span><a href="https://leetcode.com/problems/house-robber-iii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">樹上打家劫舍</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 337</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// KEY POINTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>重點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>兩條路</strong></td><td>搶 = <code>val + 四個孫子</code>;不搶 = <code>rob(left) + rob(right)</code>,取 max</td></tr>
+        <tr><td><strong>為什麼是孫子</strong></td><td>限制只管「父子」,祖孫不相連 ⇒ 搶了自己,孫子那層仍自由</td></tr>
+        <tr><td><strong>狀態方向</strong></td><td>答案<strong>由下往上</strong>回傳;和 <a href="../p1448/index.html">1448</a>(約束往下傳)相反</td></tr>
+        <tr><td><strong>為什麼要 memo</strong></td><td>孫子被「兩條路」同時需要 ⇒ 不記憶化是 <code>T(n)=T(n−1)+T(n−2)</code></td></tr>
+        <tr><td><strong>memo 生效時</strong></td><td>呼叫次數恆為 <code>4n − 1</code>,與樹形無關</td></tr>
+        <tr><td><strong>⚠ 這份 memo 的 bug</strong></td><td><code>if (memo[root])</code> 測值不測存在 ⇒ 答案為 0 的節點永遠 miss</td></tr>
+        <tr><td><strong>嚴重程度看深度</strong></td><td>全 0 深鏈 <code>Θ(φⁿ)</code> 會 TLE;全 0 完美樹 <code>Θ(n^1.694)</code> 仍會過</td></tr>
+        <tr><td><strong>修法</strong></td><td><code>memo.count(root)</code> —— 一個字,實測答案完全相同</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼「搶這間」要跳到<em>孫子</em>,而不是曾孫或小孩?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q2</span> 沒有 memo 的話,時間複雜度是多少?重複計算具體從哪一行來?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q3</span> <code>if (memo[root])</code> 這一行有什麼問題?什麼輸入會觸發?答案會錯嗎?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q4</span> 為什麼貪心「偶數層總和 vs 奇數層總和取 max」是錯的?最小反例?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q5</span> memo 生效時呼叫次數是 <code>4n − 1</code>,這個 <code>4</code> 從哪來?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入 [3,2,3,null,3,null,1](官方範例 1)</span>
+            A(3)
+           /    \
+        B(2)     C(3)
+           \        \
+           D(3)     E(1)
+
+以下是對真實程式插樁後印出的呼叫序列(19 次,含 12 次打在 nullptr)
+<span class="sc-trace__out">// 注意 D 和 E 各出現「兩次」—— 第二次是 cache hit</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 1: rob(A) —— MISS,先算「搶 A」需要的四個孫子</span>
+  memo[A] 不存在 → 展開
+  A->left = B 存在:
+      ll = rob(B->left)  = rob(null) = 0
+      lr = rob(B->right) = rob(D)    ↓ 下一步
+<span class="sc-trace__out">// 「搶 A」要跳過 B 和 C,直接問它們的小孩</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 2: rob(D) —— MISS,葉子</span>
+  D 沒有小孩,也沒有孫子 ⇒ ll=lr=rl=rr=0
+      搶 D  = 3 + 0 + 0 + 0 + 0 = 3
+      不搶D = rob(null) + rob(null) = 0
+  memo[D] = max(3, 0) = 3            回傳 3   ⇒ lr = 3
+<span class="sc-trace__out">// 葉子永遠是「搶」贏 —— 不搶它沒有任何補償</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 3-4: 右邊同理 —— rob(E) MISS</span>
+  A->right = C 存在:
+      rl = rob(C->left)  = rob(null) = 0
+      rr = rob(C->right) = rob(E)
+
+  rob(E):搶 E = 1,不搶 E = 0
+  memo[E] = max(1, 0) = 1            回傳 1   ⇒ rr = 1
+<span class="sc-trace__out">// 到這裡 A 的四個孫子齊了:ll=0, lr=3, rl=0, rr=1</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 5: A 的第一分支算完</span>
+  搶 A = 3 + ll 0 + lr 3 + rl 0 + rr 1 = 7
+
+  接著算第二分支:rob(A->left) + rob(A->right) = rob(B) + rob(C)
+<span class="sc-trace__out">// 就是這個第二分支,會再次走到 D 和 E —— 重複計算的來源</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 6-7: rob(B) —— 這裡出現第一次 CACHE HIT</span>
+  rob(B) MISS:
+      B->left 是 null    ⇒ ll = lr = 0
+      B->right = D 存在  ⇒ rl = rob(D->left) = 0, rr = rob(D->right) = 0
+      搶 B  = 2 + 0 + 0 + 0 + 0 = 2
+      不搶B = rob(B->left) + rob(B->right)
+            = rob(null) + rob(D)
+                             ↑
+   ⚡ rob(D):memo[D] = 3,非 0 ⇒ if (memo[root]) 成立 ⇒ 直接回傳 3
+      這是 D 的第二次走訪,但「沒有重新展開」
+
+      不搶B = 0 + 3 = 3
+  memo[B] = max(2, 3) = 3            回傳 3
+<span class="sc-trace__out">// 不搶 B(2)而讓 D(3)去搶,比較划算 —— 所以 SKIP 這條贏</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 8-9: rob(C) —— 第二次 CACHE HIT</span>
+  rob(C) MISS:
+      C->left 是 null ⇒ ll = lr = 0
+      C->right = E    ⇒ rl = rob(E->left) = 0, rr = rob(E->right) = 0
+      搶 C  = 3 + 0 = 3
+      不搶C = rob(null) + rob(E)
+                             ↑
+   ⚡ rob(E):memo[E] = 1 ⇒ 直接回傳 1(E 的第二次走訪)
+
+      不搶C = 0 + 1 = 1
+  memo[C] = max(3, 1) = 3            回傳 3
+<span class="sc-trace__out">// 這次反過來:搶 C(3)比讓 E(1)去搶好</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+  回到 A:
+      搶 A  = 7           (= A3 + D3 + E1)
+      不搶A = rob(B) 3 + rob(C) 3 = 6
+  memo[A] = max(7, 6) = 7
+
+  答案 = 7                              ✓ 與官方一致
+  搶的是 A(3) + D(3) + E(1) —— A 與 D、E 是「祖孫」,不相連,可同時搶
+
+  呼叫統計:19 次
+      5 次 = 五個節點各展開一次
+      2 次 = D、E 的快取命中
+     12 次 = 打在 nullptr 上
+  memo.size() = 5 = 節點數
+<span class="sc-trace__out">// 對拍獨立 pair-DFS 參考解:1072 萬組,不一致 0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>整個 trace 裡最重要的是 STEP 7 和 STEP 9 那兩次命中</strong>。
+      <b>如果 <code>memo[D]</code> 剛好是 <code>0</code>,那兩行就會變成「整棵子樹重新展開」</b> ——
+      <strong>而這棵樹裡它們湊巧是 3 和 1,所以看起來一切正常。</strong>
+      <b>bug 就藏在這種「剛好沒事」裡。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 1</span> 把這份解改寫成「完全不用 hash map」的 <code>O(n)</code> 版本,怎麼做?為什麼那樣就不會有這個 bug?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 2</span> 如果節點值可以是<strong>負數</strong>,這份程式哪裡會壞?要改什麼?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 3</span> 改成「回傳<em>搶了哪些節點</em>」而不只是總額,要怎麼改?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼跳到孫子?</div>
+    <div class="qa__a">
+      <p>限制是「<strong>不能搶直接相連的兩間</strong>」= 父與子不能同時搶。<strong>祖孫之間沒有邊</strong>,所以不受限制。</p>
+      <p>於是「搶這間」這條路上:兩個<strong>小孩</strong>被封鎖,但<strong>孫子完全自由</strong> —— 所以要問的是四個孫子 <code>ll, lr, rl, rr</code>,而不是小孩。</p>
+      <p>不必跳到曾孫,因為<strong>孫子的答案 <code>rob(孫)</code> 本身已經遞迴處理了它底下的一切</strong>。只要跳過「被封鎖的那一層」就夠了。</p>
+      <p>⚡ 反過來說,「不搶這間」時兩個小孩完全自由,所以那條路就是 <code>rob(left) + rob(right)</code> —— 這也是為什麼兩條路問的層數不同。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q2</span> 沒有 memo 的複雜度?</div>
+    <div class="qa__a">
+      <p><strong><code>Θ(φⁿ)</code>,φ ≈ 1.618 —— 就是費氏遞迴。</strong></p>
+      <p>重複計算來自<strong>兩條路在同一批節點上重疊</strong>。第一分支算了 <code>rob(A 的四個孫)</code>;第二分支算 <code>rob(B)</code>,而 <code>rob(B)</code> 進去之後又會算 <code>rob(B 的兩個小孩)</code> —— <strong>那正是 A 的孫子</strong>。同一個節點被兩條路各算一次。</p>
+      <p>在單邊鏈上這就化成 <code>T(n) = T(n−1) + T(n−2)</code>,解是 <code>φⁿ</code>。</p>
+      <p>實測(完全拿掉 memo,單邊鏈):<code>n=20</code> → <strong>57,311</strong>;<code>n=25</code> → <strong>635,619</strong>;<code>n=30</code> → <strong>7,049,153</strong>;<code>n=40</code> → <strong>866,988,871</strong>(3.27 秒)。每多 5 個節點約 ×11.09,即<strong>每個節點 ×1.618</strong>。</p>
+      <p>答案仍然是對的(實測 104 萬組窮舉 0 失敗),純粹是慢。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q3</span> <code>if (memo[root])</code> 的問題?</div>
+    <div class="qa__a">
+      <p>它測的是<strong>值是不是非 0</strong>,不是<strong>這個 key 存不存在</strong>。一個<strong>真實答案就是 0</strong> 的節點,把 <code>0</code> 寫進 memo 之後,下次讀回來仍然是 falsy ——<strong>和「沒算過」完全無法區分</strong>,於是被<strong>無限重算</strong>。</p>
+      <p><strong>觸發條件:值為 0 的節點。</strong>而題目寫的是 <code>0 &lt;= Node.val</code>,<strong>全 0 的樹是合法輸入</strong>,不是刁鑽構造。</p>
+      <p><strong>答案不會錯</strong> —— 實測 10,728,178 組對拍(含 15 萬棵 <code>{0,1}</code> 值的隨機樹)<strong>不一致 0</strong>。這是<strong>純效能 bug</strong>,也正因如此才難發現。</p>
+      <p>嚴重程度取決於<strong>深度</strong>:</p>
+      <ul>
+        <li>全 0 <strong>單邊鏈</strong> → <code>Θ(φⁿ)</code>,<code>n=40</code> 要 3.27 秒,<strong>約 45 個節點就 TLE</strong></li>
+        <li>全 0 <strong>完美樹</strong> → <code>Θ(n^1.694)</code>,<code>n=10⁴</code> 只要 <strong>35.3 ms</strong>,<strong>仍然會過</strong>(但白花約 50 倍時間)</li>
+      </ul>
+      <p>⚡ 還有一個容易忽略的細節:<code>memo[root]</code> 在 miss 時會<strong>預設建構並插入一個 0</strong>(實測 size 0 → 讀一次 miss → size 1、值 0)。但 <code>memo.size()</code> 最後仍然剛好等於 <code>n</code>,<strong>記憶體不會爆</strong> —— 少了一個明顯症狀,bug 更隱蔽。</p>
+      <p><strong>修法一個字</strong>:<code>if (memo.count(root)) return memo[root];</code>。實測 1,065,947 組答案完全相同。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q4</span> 貪心「隔層搶」為什麼錯?</div>
+    <div class="qa__a">
+      <p>因為<strong>最佳解不必「整層同進退」</strong>。「父子互斥」是一個<em>局部</em>限制,它<strong>不蘊含</strong>「同一層要嘛全搶、要嘛全不搶」這種全域結構 —— 左子樹可以搶第 2 層,右子樹同時搶第 3 層,彼此互不干涉。</p>
+      <p><strong>最小反例 <code>[0,0,1,1]</code></strong>:貪心給 <strong>1</strong>,正解 <strong>2</strong>(實測程式輸出)。</p>
+      <p>失敗率 <strong>279,804 / 1,045,947 ≈ 26.8%</strong>。</p>
+      <p>⚡ 這個貪心在官方兩個範例上<em>都會過</em>(<code>[3,2,3,null,3,null,1]</code> 給 7、<code>[3,4,5,1,3,null,1]</code> 給 9,我實測過)——<strong>這正是為什麼它很容易被當成正解交出去</strong>。只用範例測試抓不到它。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q5</span> <code>4n − 1</code> 的 <code>4</code> 從哪來?</div>
+    <div class="qa__a">
+      <p>每個節點會被<strong>兩條不同的路徑</strong>問到:一次來自祖父的「搶」分支(當作孫子),一次來自父親的「不搶」分支(當作小孩)。<strong>第一次展開、第二次命中快取</strong>,兩次都算一次呼叫。</p>
+      <p>再加上打在 <code>nullptr</code> 上的呼叫 —— 每個節點的兩個孫子位置與兩個小孩位置都可能是空的。加總後恰好是 <code>4n − 1</code>。</p>
+      <p>實測(值非 0):</p>
+      <p><code>n=16</code> → 63、<code>n=64</code> → 255、<code>n=256</code> → 1023、<code>n=1024</code> → 4095 —— <strong>鏈與完美樹完全相同,與樹形無關</strong>。</p>
+      <p>對照範例那棵 <code>n=5</code> 的樹:<code>4×5 − 1 = 19</code>,而實測正是 <strong>19 次</strong>(5 次展開 + 2 次命中 + 12 次 nullptr)。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 1</span> 不用 hash map 的 O(n) 版本</div>
+    <div class="qa__a">
+      <p>讓遞迴<strong>一次回傳兩個值</strong>:<code>{搶這個節點的最佳值, 不搶這個節點的最佳值}</code>。</p>
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">pair&lt;int, int&gt; dfs(TreeNode* root) {
+    if (root == nullptr) return {0, 0};
+    auto L = dfs(root-&gt;left);
+    auto R = dfs(root-&gt;right);
+    int rob  = root-&gt;val + L.second + R.second;   // 搶我 ⇒ 小孩都不搶
+    int skip = max(L.first, L.second)             // 不搶我 ⇒ 小孩各自自由
+             + max(R.first, R.second);
+    return {rob, skip};
+}
+int rob(TreeNode* root) {
+    auto p = dfs(root);
+    return max(p.first, p.second);
+}</pre>
+      <p><strong>為什麼沒有那個 bug:它根本不需要快取。</strong>每個節點只被走訪<strong>一次</strong>,因為「小孩的兩種狀態」都被一次帶上來了,不必再回頭問孫子。沒有重複計算 ⇒ 沒有 memo ⇒ 沒有「0 讀起來像 miss」的問題。</p>
+      <p>這正是本頁用來對拍的參考解,<strong>1072 萬組與主解完全一致</strong>。它也更省:<code>O(h)</code> 空間而不是 <code>O(h) + O(n)</code>。</p>
+      <p>⚡ 面試時值得講的一句:<strong>「需要 memo」往往代表狀態定義得不夠好</strong> —— 把狀態從「一個值」擴成「一對值」,重複計算就消失了。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 2</span> 值可以是負數的話?</div>
+    <div class="qa__a">
+      <p><strong>兩個地方會壞。</strong></p>
+      <p><strong>① 那個 memo 測試會更常失效。</strong>現在不只「答案為 0」會被當成 miss —— 負的答案雖然是 truthy(非 0),但只要某個子樹的最佳值恰好算成 <code>0</code>,一樣重算。而值域含負數時,<strong>答案為 0 的子樹會變多</strong>(正負相抵),bug 觸發得更頻繁。</p>
+      <p><strong>② 邏輯本身也要改。</strong>現行的 <code>max(搶, 不搶)</code> 隱含「不搶的下界是 0」,但當所有值都是負的,最佳策略是<strong>一個都不搶</strong>。上面 App 1 的 pair 版其實已經正確處理了(<code>skip</code> 用 <code>max(L.first, L.second)</code>,會自然選到「不搶」);<strong>而本頁這份「跳孫子」寫法也仍然正確</strong>,因為它的第二分支 <code>rob(left)+rob(right)</code> 在全負時會一路回傳 0。</p>
+      <p>真正需要動的是<strong>型別與溢位邊界</strong>:目前 <code>int</code> 之所以安全,是因為實測最大值只有 <strong>66,650,000</strong>(INT_MAX 的 3.10%)。值域放大時要重新量,不能沿用這個結論。</p>
+      <p>⚡ 保險的寫法:<strong>改用 <code>memo.count</code> 並把 pair 版當主解</strong> —— 兩個問題一起消失。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 3</span> 回傳「搶了哪些節點」</div>
+    <div class="qa__a">
+      <p>標準做法是<strong>先算值,再回溯選擇</strong>,分兩趟:</p>
+      <p><strong>第一趟</strong>:用 App 1 的 pair 版,把每個節點的 <code>{rob, skip}</code> 存進一個 <code>unordered_map&lt;TreeNode*, pair&lt;int,int&gt;&gt;</code>。</p>
+      <p><strong>第二趟</strong>:從 root 帶一個「這個節點<em>可不可以</em>被搶」的旗標往下走:</p>
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">void pick(TreeNode* root, bool allowed, vector&lt;TreeNode*&gt;&amp; out) {
+    if (root == nullptr) return;
+    auto [rob, skip] = memo[root];
+    if (allowed &amp;&amp; rob &gt;= skip) {      // 決定搶它
+        out.push_back(root);
+        pick(root-&gt;left,  false, out);  // 小孩就不能搶了
+        pick(root-&gt;right, false, out);
+    } else {                            // 決定不搶
+        pick(root-&gt;left,  true, out);
+        pick(root-&gt;right, true, out);
+    }
+}</pre>
+      <p>⚡ 關鍵是第二趟的 <code>allowed</code>:<strong>「能不能搶」是父親的決定往下傳的</strong>,而「值是多少」是子樹往上回的 —— <strong>兩個方向在同一題裡同時出現</strong>。</p>
+      <p>注意平手 <code>rob == skip</code> 時兩種選法都是最佳解,<strong>輸出不唯一</strong>;上面用 <code>&gt;=</code> 固定偏好「搶」,只是為了讓結果可重現。</p>
+      <p>這裡的 memo <strong>一定要用 <code>count</code> 或直接查 <code>find</code></strong> —— 存的是 <code>pair</code>,而 <code>{0,0}</code> 在這個題型裡很常見(全 0 子樹),踩到的就是本題那個 bug 的同一個坑。</p>
+    </div>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">搶(val + 四個孫子)vs 不搶(兩個小孩)取 max,記憶化把 Θ(φⁿ) 壓成 4n−1。但 if (memo[root]) 測的是值不是存在性 —— 答案為 0 的節點永遠 cache-miss,而 0 是合法值,全 0 深鏈約 45 個節點就 TLE。更好的解法是回傳 {搶, 不搶} 一對值:每個節點只走一次,連 memo 都不需要。</div>
+    <div class="sc-summary-bar__detail">HOUSE ROBBER III · REVIEW</div>
+  </div>
+
+</body>
+</html>
