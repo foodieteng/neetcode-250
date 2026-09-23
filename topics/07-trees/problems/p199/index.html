@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>199 · Binary Tree Right Side View // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P199</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-right-side-view/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的右視圖</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每層最右,不是一路往右</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 199</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BFS · LAST PER LEVEL</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        想像你<strong>站在樹的右邊往左看</strong>,回傳<strong>你看得到的節點值</strong>(由上而下)。<br>
+        節點數 <code>0 ~ 100</code>,節點值 <code>−100 ~ 100</code>。
+      </p>
+    </div>
+
+    <p>
+      這題是 <a href="../p102/index.html">102 層序走訪</a>的<strong>直接延伸</strong> ——
+      <b>同一個 BFS 骨架,只多了一個 <code>i == sz - 1</code> 的條件</b>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>⚡ 但題目的敘述會誤導你。</strong>
+      「站在右邊往左看」聽起來像「<strong>一路沿著右小孩往下走</strong>」——
+      <b>那是錯的</b>。<strong>正確的定義是「<em>每一層</em>最右邊的那個節點」</strong>,
+      <b>而那個節點<em>完全可能是個左小孩</em></b>。
+      <strong>實測「走右脊」的寫法錯 <b>94.75%</b> 的樹形。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">「右視圖」不是「一路往右」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">一路沿著右小孩往下走</span>
+            <span class="sc-ko-card__o">錯 94.75%</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>while (root) { ans.push(root-&gt;val); root = root-&gt;right; }</code><br>
+            <b>右脊一斷就停了</b> —— 但下面幾層明明還有節點看得到。
+            <strong>最小反例只要 2 個節點</strong>:<code>[1,2]</code>(只有左小孩)
+            → 它給 <code>[1]</code>,正解 <code>[1,2]</code>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 停太早</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">DFS 先走右邊,每個新深度記第一個</span>
+            <span class="sc-ko-card__o">也完全正確</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>先遞迴右子樹</strong>,遇到「<code>ans.size() == depth</code>」就記下來 ——
+            <b>每個深度第一次被看到的必定是最右的</b>。
+            <strong>本頁拿它當對拍參考解之一</strong>,20 萬組零不一致。
+          </div>
+          <div class="sc-ko-card__verdict">△ 對,另一條路</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">BFS 逐層,取 <code>i == sz - 1</code> 那一個</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(w) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>BFS 保證同一層是「由左到右」排列的</strong>,
+          <b>所以「這一層的最後一個」就是「最右邊的那個」</b>。
+          <strong>和 <a href="../p102/index.html">102</a> 的骨架一字不差,只多一個條件。</strong>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每層取最後</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>實測「走右脊」的錯誤規模</strong>:窮舉 <code>n ≤ 9</code> 全部 <strong>6918 種樹形</strong>,
+      <b>錯 <strong>6555 種(94.75%)</strong></b>。
+      <strong>而且巧合正確的那 363 種有一個<em>精確</em>的特徵</strong> ——
+      <b>「右脊的長度<em>恰好等於</em>樹高」</b>(雙向驗證<strong>零例外</strong>)。
+      <b>也就是說:只有當右脊本身就是一條最深路徑時,它才碰巧對。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 四步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>凍結層寬</strong>:<code>int sz = q.size();</code> ——
+        和 <a href="../p102/index.html">102</a> 完全一樣,<b>這一行是層界</b>。</li>
+      <li><strong>逐個彈出</strong>,把小孩<strong>先左後右</strong>推進佇列
+        —— <b>這個順序保證了同一層由左到右排列</b>。</li>
+      <li><strong>只在最後一個時記錄</strong>:<code>if (i == sz - 1) ans.push_back(u-&gt;val);</code></li>
+      <li>佇列空了就結束。<b><code>ans.size()</code> 必定等於樹高</b>(實測零違反)。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>注意第 ② 步的推入順序<em>才是</em>關鍵</strong> ——
+      <b>「先左後右」讓佇列裡同一層永遠是左到右</b>,
+      <strong>所以 <code>i == sz - 1</code> 取到的必定是該層最右</strong>。
+      <b>如果反過來先推右,那 <code>i == sz - 1</code> 就會變成<em>左</em>視圖。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,2,3,null,5,null,4] → [1,3,4]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1。<strong>重點看節點 <code>5</code> 和節點 <code>4</code></strong> ——
+      <b><code>5</code> 是個<em>右</em>小孩卻<em>沒</em>入選,<code>4</code> 也是右小孩卻入選了</b>。
+      <strong>決定的不是「自己是左是右」,而是「在佇列裡排第幾個」。</strong>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 右視圖 · 每層取最後一個</div>
+      <div class="sc-viz__cvwrap"><canvas id="v199-canvas" class="sc-viz__canvas" style="height:388px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v199-reset">Reset</button><button class="sc-btn" id="v199-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v199-play">Play</button><button class="sc-btn" id="v199-next">Next</button>
+        <span class="sc-viz__step" id="v199-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="v199-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 「走右脊」什麼時候碰巧對 —— 一個精確的刻畫</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <b>右脊法正確 ⟺ <strong>右脊的長度恰好等於樹高</strong></b>。
+          <strong>實測雙向驗證,零例外</strong>:<br>
+          · 「碰巧對 <b>且</b> 右脊長==高」= <strong>363</strong><br>
+          · 「碰巧對 <b>但</b> 右脊長≠高」= <strong>0</strong><br>
+          · 「右脊長==高 <b>但</b> 答錯」= <strong>0</strong>
+        </p>
+        <p style="margin:0;">
+          <b>直覺</b>:只要右脊<strong>本身就是一條最深的路徑</strong>,
+          那麼每一層的最右節點<strong>剛好都落在右脊上</strong>。
+          <b>只要有任何一層的最右不在右脊上(包含右脊提早斷掉),就錯。</b><br>
+          <strong>而且巧合比例隨 <code>n</code> 快速衰減</strong> ——
+          <code>n=9</code> 時只剩 <strong>215/4862 ≈ 4.4%</strong>。
+          <b>最小反例只要 2 個節點:<code>[1,2]</code>。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · <code>i == sz - 1</code> 改成 <code>i == 0</code> 會得到「左視圖」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <strong>因為 BFS 保證同一層由左到右</strong>,所以:<br>
+          · <code>i == sz - 1</code> → <b>該層<em>最後</em>一個 = 最右</b> = 右視圖<br>
+          · <code>i == 0</code> → <b>該層<em>第一</em>個 = 最左</b> = <strong>左視圖</strong>
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:把條件改成 <code>i == 0</code>,
+          <b>與一個獨立的「左視圖」參考解比對 —— <strong>6918/6918 完全相同</strong></b>。
+          官方範例會從 <code>[1,3,4]</code> 變成 <code>[1,2,5]</code>。<br>
+          <b>(它和正解「碰巧相同」的有 512 種 —— 就是那些每層只有一個節點的樹,左右視圖重合。)</b><br>
+          <strong>另外 <code>i == sz</code> 則永遠不成立</strong>(迴圈條件是 <code>i &lt; sz</code>)⇒
+          <b>永遠回傳 <code>[]</code>,錯 6917/6918</b>(唯一「對」的是空樹)。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 變體實測(窮舉 n ≤ 9,共 6918 種樹形)</span>
+一路走右脊(while root->right)  → 錯 6555/6918(94.75%),最小反例 [1,2]
+                                   巧合正確 363 種 ⟺ 「右脊長度 == 樹高」(零例外)
+i == sz - 1  改成  i == 0        → 錯 6406/6918,而且「恰好等於左視圖」(6918/6918)
+i == sz - 1  改成  i == sz       → 錯 6917/6918,永遠回傳 [](條件永不成立)
+每個節點都記、事後取該層最後     → 錯 0/6918  ← 等價,只是比較浪費
+<span class="sc-trace__out">// 最後一列值得記:它證明了 i == sz-1 確實就是「該層最後一個」</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>　·　空間 <strong>O(w)</strong>(w = 最大層寬)　·
+      <strong><code>ans.size()</code> 恆等於樹高</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>樹形</th><th>n</th><th>入隊/出隊</th><th>佇列峰值</th><th><code>ans.size()</code></th><th>DFS 遞迴深度(對照)</th></tr></thead>
+      <tbody>
+        <tr><td>完美樹 <code>h=10</code></td><td class="mono">1023</td><td class="mono">1023</td><td class="mono fail"><strong>512</strong></td><td class="mono">10</td><td class="mono ok"><strong>10</strong></td></tr>
+        <tr><td>左斜鏈</td><td class="mono">1000</td><td class="mono">1000</td><td class="mono ok"><strong>1</strong></td><td class="mono">1000</td><td class="mono fail"><strong>1000</strong></td></tr>
+        <tr><td>右斜鏈</td><td class="mono">1000</td><td class="mono">1000</td><td class="mono ok"><strong>1</strong></td><td class="mono">1000</td><td class="mono fail"><strong>1000</strong></td></tr>
+        <tr><td>完全樹(寬底)</td><td class="mono">1000</td><td class="mono">1000</td><td class="mono fail">500</td><td class="mono">10</td><td class="mono ok">10</td></tr>
+        <tr><td>約束上限</td><td class="mono">100</td><td class="mono">100</td><td class="mono">50</td><td class="mono">7</td><td class="mono ok">7</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個實測恆等式</strong>:<br>
+      <b>① <code>入隊 == 出隊 == n</code></b> —— 每個節點恰好進出佇列一次。<br>
+      <b>② <code>ans.size() == 樹高</code></b> —— <strong>窮舉 6918 種樹形零違反</strong>,
+      因為<strong>每一層剛好貢獻一個答案</strong>。<br>
+      <b>而 <code>n ≤ 100</code> 讓這題完全沒有堆疊壓力</b> ——
+      <strong>BFS 本來就不用遞迴,連 DFS 參考解也最多只到深度 100。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「右視圖」是<em>每一層</em>的最右,不是<em>一路往右</em>走</strong> ——
+      <b>而那個節點完全可能是個左小孩</b>。
+      <strong>決定入選的不是「自己是左是右」,而是「在佇列裡排第幾個」</strong>,
+      <b>而佇列的順序是由「先左後右的推入順序」保證的。</b><br>
+      <strong>走右脊的寫法錯 94.75%,而它碰巧對的那 363 種有精確的刻畫:右脊長度恰好等於樹高。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">右視圖是「每層最右」不是「一路往右」——走右脊的寫法錯 94.75%,最小反例只要 [1,2]。入選與否取決於「在佇列裡排第幾個」,而那是由「先左後右的推入順序」保證的;把 i == sz-1 改成 i == 0 就恰好變成左視圖。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE RIGHT SIDE VIEW · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p199-rightview.js"></script>
+</body>
+</html>
