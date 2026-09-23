@@ -177,7 +177,7 @@ PROBLEMS = {
         ('p235', 'Lowest Common Ancestor of a Binary Search Tree',           'lowest-common-ancestor-of-a-binary-search-tree',           'med', 'done'),
         ('p701', 'Insert into a Binary Search Tree',                         'insert-into-a-binary-search-tree',                         'med', 'done'),
         ('p450', 'Delete Node in a BST',                                     'delete-node-in-a-bst',                                     'med', 'done'),
-        ('p102', 'Binary Tree Level Order Traversal',                        'binary-tree-level-order-traversal',                        'med', 'todo'),
+        ('p102', 'Binary Tree Level Order Traversal',                        'binary-tree-level-order-traversal',                        'med', 'done'),
         ('p199', 'Binary Tree Right Side View',                              'binary-tree-right-side-view',                              'med', 'todo'),
         ('p427', 'Construct Quad Tree',                                      'construct-quad-tree',                                      'med', 'todo'),
         ('p1448','Count Good Nodes in Binary Tree',                          'count-good-nodes-in-binary-tree',                          'med', 'todo'),

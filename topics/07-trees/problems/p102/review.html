@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>102 · Binary Tree Level Order Traversal // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P102</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹層序走訪</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與範例走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 102</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>5 + 3 QUESTIONS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td><strong>本章第一個「沒有呼叫堆疊」的解</strong> —— 用<strong>佇列</strong>逐層走</td></tr>
+        <tr><td><strong>那個 <code>sz</code></strong></td><td><b>在推任何小孩之前把層寬「拍照凍結」</b> —— 它<strong>就是層與層的界線</strong></td></tr>
+        <tr><td>改成每圈重讀</td><td>實測 <strong>6406/6918 種樹形錯</strong> —— 而且<strong>層會「合併」不是無窮迴圈</strong></td></tr>
+        <tr><td>最小反例</td><td><code>n=3</code> 的 <code>[1,2,3]</code> → 錯成 <code>[[1,2],[3]]</code>(正解 <code>[[1],[2,3]]</code>)</td></tr>
+        <tr><td>⚠ 測資陷阱</td><td><strong>斜鏈完全掩蓋這個 bug</strong>(512 個巧合全是鏈)—— 拿鏈當測資等於沒測</td></tr>
+        <tr><td>時間</td><td><code>O(n)</code> —— <strong>入隊 == 出隊 == n</strong>,每個節點恰好一次</td></tr>
+        <tr><td><strong>空間</strong></td><td><code>O(w)</code>,<b>w = 最大層寬</b> —— <strong>和 DFS 的 <code>O(h)</code> 是「相反的最壞情況」</strong></td></tr>
+        <tr><td>兩者對照</td><td>完美樹:佇列 <strong>512</strong> vs 遞迴深 <strong>10</strong>;鏈:佇列 <strong>1</strong> vs 遞迴深 <strong>1000</strong></td></tr>
+        <tr><td>有號無號</td><td><code>auto sz</code> 會觸發 <code>-Wsign-compare</code>;<b>約束內不可能出錯</b>(需單層 &gt; 21 億)</td></tr>
+        <tr><td><code>level</code> 重用</td><td><code>clear()</code> 保留容量 —— <strong>鏈上省 999 次配置</strong>,正確性不受影響</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>auto sz = q.size();</code> 如果改成在迴圈條件裡<strong>每圈重讀</strong> <code>for (int i = 0; i &lt; q.size(); i++)</code>,會發生什麼?是<strong>無窮迴圈</strong>還是<strong>別的</strong>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 你用<strong>一條斜鏈</strong>當測資測上面那個 bug,結果<strong>通過了</strong>。為什麼?這告訴你關於<strong>測資設計</strong>的什麼事?</div>
+
+    <div class="qa"><strong>Q3.</strong> BFS 的空間是 <code>O(w)</code>、DFS 是 <code>O(h)</code>。<strong>哪一個比較省?</strong>請給<strong>實測數字</strong>。</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>auto sz = q.size()</code> 會讓 <code>-Wall -Wextra</code> 吐出警告。<strong>那是什麼警告?</strong>在這題的約束下<strong>會不會真的出錯</strong>?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>level</code> 宣告在迴圈<strong>外面</strong>再 <code>clear()</code>,和宣告在<strong>裡面</strong>,有什麼差別?<strong>正確性</strong>會變嗎?<strong>效能</strong>呢?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [3,9,20,null,null,15,7]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      官方範例 1。<strong>以下是實跑印出來的</strong>。
+      <b>重點看每一輪的 <code>sz</code> 是在「什麼時候」被讀取的。</b>
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 外層第 1 輪</span>
+  初始     queue=[3]              ans=[]
+
+  sz = q.size() = 1        ← 凍結(此刻佇列只有 3)
+  level.clear()            level=[]
+
+  i=0/1   deq 3   level=[3]    enq {9,20}    queue=[9,20]
+  ── 內層結束:i 跑滿 sz=1 次,「即使佇列現在有 2 個」
+
+  ans.push_back(level)     ans=[[3]]         queue=[9,20]
+<span class="sc-trace__out">// 第一次看到重點:佇列長大了,但這一層只跑 1 次就收手</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 外層第 2 輪 —— 這一輪最關鍵</span>
+  sz = q.size() = 2        ← 凍結(此刻佇列是 [9,20])
+  level.clear()            level=[]
+
+  i=0/2   deq 9   level=[9]      enq {}       queue=[20]
+  i=1/2   deq 20  level=[9,20]   enq {15,7}   queue=[15,7]
+  ── 內層結束:i 跑滿 sz=2 次
+
+  ⚡ 注意此刻:推完 15、7 之後,佇列「又剛好是 2 個」
+     如果條件寫成每圈重讀 q.size(),它會看到 i=1 < 2 而「繼續跑」
+     → 把 15 拖進這一層,變成 [9,20,15]
+
+  ans.push_back(level)     ans=[[3],[9,20]]   queue=[15,7]
+<span class="sc-trace__out">// 凍結的 sz 是「唯一」隔開這一層和下一層的東西</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 外層第 3 輪 + OUTPUT</span>
+  sz = q.size() = 2        ← 凍結([15,7])
+  i=0/2   deq 15  level=[15]     enq {}   queue=[7]
+  i=1/2   deq 7   level=[15,7]   enq {}   queue=[]
+
+  ans.push_back(level)     ans=[[3],[9,20],[15,7]]
+
+  while (!q.empty()) 不成立 → 結束
+  return [[3],[9,20],[15,7]]
+
+統計:入隊 5、出隊 5、level.push_back 5 次 —— 都等於 n
+      最大佇列長度 2
+<span class="sc-trace__out">// 入隊 == 出隊 == n 是 BFS 的招牌恆等式:每個節點恰好進出一次</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>把第 2 輪單獨看,整題就講完了</strong>:
+      <b>節點 <code>20</code> 推入小孩之後,佇列長度「碰巧又回到 2」</b> ——
+      <strong>這正是「每圈重讀 <code>q.size()</code>」會被騙的瞬間</strong>。
+      <b>凍結的 <code>sz</code> 記住的是「推小孩<em>之前</em>」的狀態,而那才是這一層真正的寬度。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATION</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成<strong>由下往上</strong>的層序(LeetCode 107),最後一層排最前面。最省事的改法是什麼?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成<strong>鋸齒狀</strong>層序(LeetCode 103):第 0 層左→右、第 1 層右→左、交替。有哪幾種改法?哪一種最好?</div>
+
+    <div class="qa"><strong>App 3.</strong> 不用佇列,<strong>改用 DFS</strong> 做層序。怎麼做?和 BFS 版<strong>各自的優劣</strong>是什麼?</div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不是無窮迴圈 —— 是「層會合併」,而且錯得很安靜。</strong><br><br>
+  <b>為什麼不會無窮迴圈</b>:每一圈仍然是「<strong>彈出 1 個、最多推入 2 個</strong>」,而樹是有限的,所以總會結束。<strong>實測加了 500 萬步的保護計數器,一次都沒觸發。</strong><br><br>
+  <b>真正的症狀是<em>分層錯亂</em></b>:<code>q.size()</code> 會隨著小孩被推進去而變大,<strong>內層迴圈於是跑過了這一層的結尾,把下一層(甚至下下層)的節點吞進來</strong>。<br><br>
+  <strong>實測</strong>:窮舉 <code>n ≤ 9</code> 全部 <strong>6918 種樹形</strong>,<b>錯 6406 種</b>。<br>
+  · <b>最小反例 <code>n=3</code></b>:<code>[1,2,3]</code> → 錯成 <code>[[1,2],[3]]</code>(正解 <code>[[1],[2,3]]</code>)。<br>
+  · 官方範例:正解 <code>[[3],[9,20],[15,7]]</code> → 錯成 <code>[[3,9],[20,15],[7]]</code> —— <strong>每一層都被推移了</strong>。<br>
+  · 完美樹 <code>h=4</code> 更誇張:第一「層」吞了 <strong>8 個節點、橫跨 4 個真實層級</strong>。<br><br>
+  <b>「不會崩、不會卡、只是答案悄悄錯掉」——這是最難發現的那種 bug。</b></div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為斜鏈上「每一層只有一個節點」,那個 bug 根本沒有機會發作。</strong><br><br>
+  在一條鏈上,每一層彈出 1 個、<strong>最多只推入 1 個</strong>。所以 <code>q.size()</code> 在內層迴圈裡<strong>從 1 變成 1</strong> —— <b>重讀和凍結<em>讀到同一個數字</em></b>,兩種寫法行為完全相同。<br><br>
+  <strong>實測</strong>:6918 種樹形裡,錯誤版本「巧合正確」的 <strong>512 種</strong>,<b>基本上就是各種鏈狀樹</b>。<code>n=5</code> 的左斜鏈兩版都給 <code>[[1],[2],[3],[4],[5]]</code>。<br><br>
+  <b>對測資設計的教訓,和前面幾題是同一個</b>:<br>
+  ① <strong>斜鏈是「退化」測資,不是「極端」測資</strong> —— 它讓所有和「分岔」有關的 bug 隱形。<br>
+  ② <b>這題需要的最小測資是「某一層有 2 個節點」</b>,也就是 <code>[1,2,3]</code>。<br>
+  ③ <strong>這和 <a href="../p144/review.html">144 前序</a>的情況一模一樣</strong>:那題也是斜鏈讓前序/中序看起來相同。<b>「我測過了」和「我測到對的形狀了」是兩回事。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>沒有誰一定比較省 —— 它們的最壞情況是「相反」的。</strong><br><br>
+  <strong>實測(同樣的樹,同時量 BFS 佇列峰值和 DFS 遞迴深度):</strong><br><br>
+  <table class="sc-table" style="margin:10px 0;">
+    <thead><tr><th>樹形</th><th>n</th><th>BFS 佇列峰值</th><th>DFS 遞迴深度</th><th>誰贏</th></tr></thead>
+    <tbody>
+      <tr><td>完美樹</td><td class="mono">1023</td><td class="mono fail"><strong>512</strong></td><td class="mono ok"><strong>10</strong></td><td>DFS</td></tr>
+      <tr><td>左斜鏈</td><td class="mono">1000</td><td class="mono ok"><strong>1</strong></td><td class="mono fail"><strong>1000</strong></td><td>BFS</td></tr>
+      <tr><td>掃把形(長柄 + 寬底)</td><td class="mono">1000</td><td class="mono">250</td><td class="mono">509</td><td>相當</td></tr>
+      <tr><td>完全樹</td><td class="mono">2000</td><td class="mono fail"><strong>1000</strong></td><td class="mono ok"><strong>11</strong></td><td>DFS</td></tr>
+    </tbody>
+  </table>
+  <b>完美樹上 BFS 差了 51 倍,鏈上 DFS 差了 1000 倍</b> —— <strong>完全對稱的兩個災難。</strong><br><br>
+  <b>但 BFS 有一個結構性優勢:它的空間在<em>堆積</em>上,不是呼叫堆疊。</b><strong>所以它永遠不會 stack overflow</strong> —— 而本章前面每一題都得認真計算「<code>n=10⁴</code> 的鏈會不會爆」。<b>BFS 直接把那個問題消掉了,代價是完美樹上多用記憶體。</b><br><br>
+  <b>小細節</b>:實測完全樹 <code>n=2000</code> 的佇列峰值是 <strong>1000</strong>,但最大層寬只有 <strong>977</strong> —— <strong>因為峰值出現在「層的中間」</strong>(還沒彈完的這層尾巴 + 已經推進去的下層小孩)。<b>所以嚴格說是 <code>O(w)</code> 而不是「恰好 <code>w</code>」。</b></div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>是 <code>-Wsign-compare</code>(有號/無號比較);在這題的約束下<em>不可能</em>出錯。</strong><br><br>
+  <strong>實測的完整警告文字:</strong><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;">warning: comparison of integers of different signs:
+         'int' and 'size_type' (aka 'unsigned long') [-Wsign-compare]
+   for (int _ = 0; _ &lt; sz; _++) {
+                   ~ ^ ~~</pre>
+  <code>q.size()</code> 回傳 <code>size_t</code>(無號),和 <code>int _</code> 比較時 <b><code>_</code> 會被提升成無號</b>。<strong>只有在 <code>_</code> 是負數時才會出事</strong> —— 而那需要 <code>_</code> 先溢位過 <code>INT_MAX</code>。<br><br>
+  <strong>實測約束上限</strong>:<code>n=2000</code> 的最寬合法樹,<b>佇列峰值 1000、單層最寬 977</b> —— <strong>離 <code>INT_MAX</code>(21.4 億)還差約 <strong>210 萬倍</strong></strong>。<br>
+  <b>要真的壞掉,需要「單一層超過 21 億個節點」</b> —— 光那些指標就要約 17 GB,<strong>比題目上限大 10⁶ 倍</strong>。<br><br>
+  <b>所以:風格上該修,正確性上無害。</b>兩種修法都行:<code>size_t sz</code> 配 <code>size_t _</code>,或 <code>int sz = (int)q.size()</code>。<b>後者正是 <a href="../p199/index.html">199 那題</a>的寫法 —— 它在 <code>-Wall -Wextra</code> 下完全乾淨。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>正確性完全不變;效能上「重用」比較省,而且在<em>高瘦的樹</em>上省很多。</strong><br><br>
+  <b>正確性</b>:<code>level.clear()</code> 在每次使用<strong>之前</strong >執行,<strong>不可能有上一層的殘留</strong>。實測兩種寫法在<strong>整個 206918 組對拍語料</strong>上<strong>輸出逐位元相同</strong>。<br><br>
+  <b>效能 —— 實測堆積配置次數</b>(用全域 <code>operator new</code> 計數器):<br>
+  <table class="sc-table" style="margin:10px 0;">
+    <thead><tr><th>樹</th><th>重用 + <code>clear()</code></th><th>每圈新宣告</th><th>省下</th></tr></thead>
+    <tbody>
+      <tr><td>完美樹 <code>n=1023</code></td><td class="mono ok"><strong>29</strong></td><td class="mono">74</td><td class="mono">45</td></tr>
+      <tr><td>鏈 <code>n=1000</code></td><td class="mono ok"><strong>1016</strong></td><td class="mono">2015</td><td class="mono fail"><strong>999</strong></td></tr>
+    </tbody>
+  </table>
+  <b>原因:<code>clear()</code> 保留容量。</b>重用的 <code>level</code> 容量成長 <code>1→2→4→…→512</code> 之後<strong>就再也不重新配置了</strong>(實測完美樹上只有 10 次成長事件);<strong>每圈新宣告則是「每一層都從容量 0 重新長一次」</strong>。<br><br>
+  <b>鏈上省最多(1000 層省 999 次,幾乎每層一次)</b> —— <strong>層數越多,這個稅越重</strong>。<br><br>
+  <b>⚠ 但要說清楚:<code>ans.push_back(level)</code> 是「複製」</b>,所以 <code>ans</code> 自己那 n 個元素的儲存<strong>兩種寫法都要付</strong>。<strong>重用只省掉「那個暫存 vector」的配置</strong>。<b>真正最快的是 <code>ans.push_back(std::move(level))</code></b> —— 但那就<strong>必須</strong>把 <code>level</code> 宣告在迴圈裡,因為 move 之後的 vector 不該再 <code>clear()</code> 重用。</div>
+
+  <div class="qa qa--answer"><strong>App 1.</strong> <strong>最省事的是:照常做,最後把 <code>ans</code> 整個反轉。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">// ... 完全相同的 BFS ...
+reverse(ans.begin(), ans.end());
+return ans;</pre>
+  <strong>成本 <code>O(levels)</code></strong> —— 只是把 <code>vector&lt;vector&lt;int&gt;&gt;</code> 的外層反轉,<b>內層的 vector 只是移動指標,不會複製內容</b>。<br><br>
+  <b>另一種寫法是 <code>ans.insert(ans.begin(), level)</code></b> —— <strong>但那是 <code>O(levels)</code> 的搬移<em>每一層都做一次</em></strong>,總共 <code>O(levels²)</code>。<b>在鏈上(1000 層)就是 100 萬次搬移 vs 一次反轉的 1000 次。</b><br><br>
+  <b>或者用 <code>deque</code> 當 <code>ans</code> 並 <code>push_front</code></b> —— <strong><code>O(1)</code> 每層</strong>,但回傳型別要轉回 <code>vector</code>,多一次複製。<br><br>
+  <b>結論:最後 <code>reverse</code> 一次最單純也最快。</b><strong>「先照常算再調整」通常比「邊算邊維護特殊順序」好。</strong></div>
+
+  <div class="qa qa--answer"><strong>App 2.</strong> <strong>最好的改法是:照常 BFS,只在<em>偶數/奇數層</em>把 <code>level</code> 反轉。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">bool leftToRight = true;
+
+while (!q.empty()) {
+    int sz = q.size();
+    level.clear();
+
+    for (int i = 0; i &lt; sz; i++) {
+        // ... 和原本完全一樣 ...
+    }
+
+    if (!leftToRight) {
+        reverse(level.begin(), level.end());
+    }
+    leftToRight = !leftToRight;
+
+    ans.push_back(level);
+}</pre>
+  <strong>成本:每層一次 <code>O(該層寬度)</code> 的反轉,總共仍是 <code>O(n)</code>。</strong><br><br>
+  <b>其他兩種改法比較差:</b><br>
+  ① <b>反著推入小孩</b>(奇數層先推右再推左)—— <strong>會搞亂佇列的層次結構</strong>,很容易寫錯,而且<b>下一層的順序又要再反一次</b>。<br>
+  ② <b>改用兩個 stack</b> —— 這是經典解法,但 <strong>stack 的語義讓「怎麼推小孩」變成每層不同</strong>,<b>程式碼比「BFS + 條件反轉」長而且更容易錯</b>。<br><br>
+  <b>⚡ 一般原則(和 App 1 同一句)</b>:<strong>「先用最單純的方式算出來,再在最後調整」</strong>,比「在演算法內部維護一個會變的規則」好懂也好驗證。<b>而且它讓那個凍結的 <code>sz</code> 保持原封不動 —— 那是整題最不該去動的東西。</b></div>
+
+  <div class="qa qa--answer"><strong>App 3.</strong> <strong>DFS 帶一個 <code>depth</code> 參數,用 <code>ans[depth]</code> 當該層的桶。</strong><br><br>
+  <pre style="margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">void dfs(TreeNode* root, int depth, vector&lt;vector&lt;int&gt;&gt;&amp; ans) {
+    if (root == nullptr) {
+        return;
+    }
+
+    if ((int)ans.size() == depth) {     // 第一次到達這個深度
+        ans.push_back({});
+    }
+
+    ans[depth].push_back(root-&gt;val);
+
+    dfs(root-&gt;left,  depth + 1, ans);
+    dfs(root-&gt;right, depth + 1, ans);
+}</pre>
+  <b>關鍵是 <code>if (ans.size() == depth) ans.push_back({})</code></b> —— <strong>「第一次走到這個深度就開一個新桶」</strong>。<br><br>
+  <b>而且它<em>一定</em>先左後右</b>,所以<strong>同一層的節點會按「左到右」被推進桶裡</strong> —— <b>和 BFS 的順序完全一致</b>。<strong>本頁的對拍參考解用的就是這個版本,20 萬組 + 窮舉 6918 種樹形,零不一致。</strong><br><br>
+  <b>優劣對照:</b><br>
+  · <strong>空間</strong>:DFS <code>O(h)</code> vs BFS <code>O(w)</code> —— <b>見 A3,是相反的最壞情況</b>。<br>
+  · <b>stack overflow 風險</b>:DFS 有,BFS <strong>完全沒有</strong>。<br>
+  · <b>「提早停」的能力</b>:BFS 天然適合「只要前 k 層」或「最短路徑」;<strong>DFS 要走完才知道有幾層</strong>。<br>
+  · <b>程式碼長度</b>:DFS 版其實更短,<strong>而且不需要那個凍結 <code>sz</code> 的技巧</strong>。<br><br>
+  <b>所以「層序一定要用 BFS」是個迷思</b> —— <strong>DFS 完全可以,只是你得自己記住深度。</strong><b>真正非 BFS 不可的是「逐層處理、而且要在中途停下來」那種題目。</b></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">凍結的 sz 是層與層之間唯一的界線 —— 改成每圈重讀會讓層「合併」而不是當掉,6406/6918 種樹形錯,而斜鏈完全測不出來。BFS 的 O(w) 和 DFS 的 O(h) 是相反的最壞情況,但 BFS 換到了「永遠不會 stack overflow」。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE LEVEL ORDER TRAVERSAL · REVIEW</div>
+  </div>
+
+</body>
+</html>
