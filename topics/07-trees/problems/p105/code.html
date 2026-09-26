@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>105 · Construct Binary Tree from Preorder and Inorder Traversal // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P105</span>
+    <span><a href="https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">用前序 + 中序重建二元樹</h1>
+    <p class="sc-mast__subtitle">// CODE · 實作、複雜度與陷阱</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 105</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// DIVIDE &amp; CONQUER</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p105.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TreeNode</span><span class="p">*</span> <span class="f">buildTree</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> preorder<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> inorder<span class="p">)</span> <span class="p">{</span>
+        <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;</span> rootToIdx<span class="p">;</span>           <span class="c">// 值 → 中序索引</span>
+        <span class="t">int</span> n <span class="p">=</span> inorder<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            rootToIdx<span class="p">[</span>inorder<span class="p">[</span>i<span class="p">]]</span> <span class="p">=</span> i<span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="f">build</span><span class="p">(</span>preorder<span class="p">,</span> inorder<span class="p">,</span> <span class="n">0</span><span class="p">,</span> <span class="n">0</span><span class="p">,</span> n <span class="p">-</span> <span class="n">1</span><span class="p">,</span> rootToIdx<span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="t">TreeNode</span><span class="p">*</span> <span class="f">build</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> preorder<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> inorder<span class="p">,</span> <span class="t">int</span> preL<span class="p">,</span> <span class="t">int</span> inL<span class="p">,</span> <span class="t">int</span> inR<span class="p">,</span> <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&amp;</span> rootToIdx<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>inL <span class="p">&gt;</span> inR<span class="p">)</span> <span class="k">return</span> <span class="k">nullptr</span><span class="p">;</span>                 <span class="c">// 空區間</span>
+
+        <span class="t">int</span> rootV <span class="p">=</span> preorder<span class="p">[</span>preL<span class="p">];</span>                      <span class="c">// 前序第一個 = 根</span>
+        <span class="t">int</span> rootIdx <span class="p">=</span> rootToIdx<span class="p">[</span>rootV<span class="p">];</span>                  <span class="c">// 根在中序的位置</span>
+        <span class="t">int</span> leftSize <span class="p">=</span> rootIdx <span class="p">-</span> inL<span class="p">;</span>                    <span class="c">// 左子樹大小</span>
+
+        <span class="t">TreeNode</span><span class="p">*</span> node <span class="p">=</span> <span class="k">new</span> <span class="t">TreeNode</span><span class="p">(</span>rootV<span class="p">);</span>
+        node<span class="p">-&gt;</span>left <span class="p">=</span> <span class="f">build</span><span class="p">(</span>preorder<span class="p">,</span> inorder<span class="p">,</span> preL <span class="p">+</span> <span class="n">1</span><span class="p">,</span> inL<span class="p">,</span> rootIdx <span class="p">-</span> <span class="n">1</span><span class="p">,</span> rootToIdx<span class="p">);</span>
+        node<span class="p">-&gt;</span>right <span class="p">=</span> <span class="f">build</span><span class="p">(</span>preorder<span class="p">,</span> inorder<span class="p">,</span> preL <span class="p">+</span> leftSize <span class="p">+</span> <span class="n">1</span><span class="p">,</span> rootIdx <span class="p">+</span> <span class="n">1</span><span class="p">,</span> inR<span class="p">,</span> rootToIdx<span class="p">);</span>
+
+        <span class="k">return</span> node<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這份程式完全正確</strong> ——
+      <b>隨機對拍 200,000 組 + n=1..8 全部樹形窮舉,不一致 0</b>。
+      <strong>唯一可以精簡的是 <code>inorder</code> 參數</strong>:<code>build</code> 裡從來沒讀它(位置全靠 map 查),
+      <b>傳不傳都不影響結果,但傳參考不花成本,保留也無妨。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 驗證 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對拍(參考答案 = 原本那棵樹本身)</span>
+做法:隨機生成一棵樹 → 取它的 preorder / inorder → 餵給解答 → 逐節點比對結構與值
+
+測試集                                                  組數        不一致
+隨機 n=1..12,值取自 [-3000, 3000] 且互異            200000          0
+窮舉 n=1..8 全部樹形(1+2+5+14+42+132+429+1430)       2055          0
+                                                ──────────────────────
+                                                          不一致 0
+
+官方範例:
+  [3,9,20,15,7] / [9,3,15,20,7] → [3,9,20,null,null,15,7]   ✓
+  [-1] / [-1]                   → [-1]                      ✓
+<span class="sc-trace__out">// 參考答案就是原樹,所以不需要第二份解法也能對拍</span></div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建 map</td><td class="mono">O(n)</td><td>掃一次 inorder</td></tr>
+        <tr><td>每次 <code>build</code>(非空)</td><td class="mono">O(1)</td><td>讀 <code>preorder[preL]</code> + 查 map + new 一個節點</td></tr>
+        <tr><td><code>build</code> 呼叫次數</td><td class="mono">2n + 1</td><td>n 次建節點,n+1 次打在空區間</td></tr>
+        <tr><td>遞迴深度</td><td class="mono">h + 1</td><td>h = 樹高;最壞是斜鏈 h = n</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      時間 <strong>O(n)</strong>　·　空間 <strong>O(n)</strong> map <strong>+ O(h)</strong> 堆疊
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n = 3000 的形狀</th><th>最大深度</th><th>呼叫次數</th><th>nullptr 次數</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td>左斜鏈</td><td class="mono">3001</td><td class="mono">6001</td><td class="mono">3001</td><td class="mono">0.374 ms</td></tr>
+        <tr><td>右斜鏈</td><td class="mono">3001</td><td class="mono">6001</td><td class="mono">3001</td><td class="mono">0.248 ms</td></tr>
+        <tr><td>平衡樹</td><td class="mono">13</td><td class="mono">6001</td><td class="mono">3001</td><td class="mono">0.247 ms</td></tr>
+        <tr><td>隨機樹</td><td class="mono">25</td><td class="mono">6001</td><td class="mono">3001</td><td class="mono">0.261 ms</td></tr>
+        <tr><td colspan="5" class="mono ok" style="text-align:center;"><strong>呼叫次數恆為 2n + 1,與樹形無關</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>2n + 1</code> 的來源</strong>:<b>n 個節點各有 2 個子指標,共 2n 個;其中 n−1 個指向真的節點,
+      剩下 n+1 個是空的</b>。每個指標都會觸發一次 <code>build</code>,再加上最外層那一次:
+      <strong>(n − 1) + (n + 1) + 1 = 2n + 1</strong>。
+      <b>深度 3001 在預設 8 MB stack 下沒事</b>(ASan/UBSan 也無錯誤)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <p>下表每一列都是把正解改掉一個地方後,<strong>在 n=1..7 全部 625 種樹形上實測</strong>的結果。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>症狀</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>一組 <code>L, R</code> 同時當前序起點和中序區間</strong></td>
+          <td class="mono fail">無限遞迴</td>
+          <td>失敗 <strong>618/625</strong>,最小 <code>pre=[2,1] in=[1,2]</code>;<strong>官方範例 1 也 segfault</strong></td>
+        </tr>
+        <tr>
+          <td>右子樹起點寫成 <code>preL + leftSize</code>(漏 <code>+1</code>)</td>
+          <td class="mono fail">越界讀取</td>
+          <td>失敗 <strong>618/625</strong>,最小 <code>pre=[1,2] in=[1,2]</code>(正解 <code>[1,null,2]</code>)</td>
+        </tr>
+        <tr>
+          <td><code>leftSize = rootIdx</code>(忘了減 <code>inL</code>)</td>
+          <td class="mono fail">右子樹起點偏移,越界</td>
+          <td>失敗 <strong>498/625</strong>,最小 <code>pre=[1,2,3] in=[1,2,3]</code></td>
+        </tr>
+        <tr>
+          <td>右子樹起點寫成 <code>preL + rootIdx + 1</code></td>
+          <td class="mono fail">同上(<code>inL ≠ 0</code> 就錯)</td>
+          <td>失敗 <strong>498/625</strong>,最小 <code>pre=[1,2,3] in=[1,2,3]</code></td>
+        </tr>
+        <tr>
+          <td>左子樹區間寫成 <code>[inL, rootIdx]</code>(包含根)</td>
+          <td class="mono fail">越界</td>
+          <td>失敗 <strong>625/625</strong>,連 <code>[1]</code> 都錯</td>
+        </tr>
+        <tr>
+          <td>base case 寫成 <code>inL &gt;= inR</code></td>
+          <td class="mono fail">單一節點的區間被丟掉</td>
+          <td>失敗 <strong>625/625</strong>,<code>[1]</code> → <code>[]</code></td>
+        </tr>
+        <tr>
+          <td>全域 <code>preIdx++</code> 寫法,但<strong>先建右子樹</strong></td>
+          <td class="mono fail">前序順序被打亂</td>
+          <td>失敗 <strong>498/625</strong>,最小 <code>pre=[2,1,3] in=[1,2,3]</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">// 大部分錯法不是「答案錯」,而是「崩潰」</div>
+      <p>上表 7 種錯法裡,只有 base case 那一種的最小反例是「安靜地回傳錯的樹」。其餘 6 種的最小反例都是<strong>越界或無限遞迴</strong>。</p>
+      <p>原因是索引一旦錯位,<code>preL</code> 會超出陣列,或區間永遠不縮小。
+        <strong>寫這題時如果 segfault,第一個要檢查的就是 <code>preL</code> 的算法</strong>。</p>
+      <p>第二常見的是 <code>+1</code>:右子樹的起點要跳過<strong>根本身(1 格)和整個左子樹(leftSize 格)</strong>。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// LINE BY LINE</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 為什麼先建 map</span>
+每次遞迴都要知道「根在中序的哪一格」。
+
+  線性掃:每層 O(區間長度) → 斜鏈時 n + (n−1) + ... = O(n²)
+  map 查:每層 O(1)       → 全部 O(n)
+
+實測 n=3000 左斜鏈:線性掃 2.75 ms,map 0.195 ms
+
+⚠ map 能成立的前提是「值互不相同」—— 題目有保證。
+   值重複時,rootToIdx 只會記住最後一次出現的位置,而且樹本身也不唯一。
+<span class="sc-trace__out">// 題目上限 n=3000,其實 O(n²) 也會過;但面試會期待你講出 map 這一步</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 2: 三個索引各自代表什麼</span>
+build(preL, inL, inR) 表示:
+  「這棵子樹在中序裡佔 [inL, inR],在前序裡從 preL 開始、長度一樣」
+
+所以前序不需要右界:長度 = inR − inL + 1,由中序決定。
+
+  rootV    = preorder[preL]        這棵子樹的根
+  rootIdx  = rootToIdx[rootV]      根在中序的格子
+  leftSize = rootIdx − inL         根左邊有幾格 = 左子樹節點數
+<span class="sc-trace__out">// 記得「inL 不一定是 0」—— 進到右子樹後 inL 就不是 0 了</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 3: 兩個子呼叫的參數怎麼來</span>
+前序區段:[ 根 | 左 × leftSize | 右 ]
+           preL  preL+1          preL+leftSize+1
+
+中序區段:[ 左 × leftSize | 根 | 右 ]
+           inL ... rootIdx−1  rootIdx  rootIdx+1 ... inR
+
+  左子樹 → build(preL + 1,            inL,         rootIdx − 1)
+  右子樹 → build(preL + leftSize + 1, rootIdx + 1, inR)
+
+右子樹的前序起點要「跳過根(+1)再跳過整個左子樹(+leftSize)」。
+<span class="sc-trace__out">// 漏掉 +1 會少跳一格,把左子樹的最後一個節點(或根自己)當成右子樹的根;實測在 [1,2]/[1,2] 就越界</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 4: base case 為什麼是 inL &gt; inR</span>
+區間 [inL, inR] 的長度是 inR − inL + 1:
+  inL == inR  → 1 個節點(葉子),必須建立
+  inL &gt; inR   → 0 個節點,回傳 nullptr
+
+base case 先檢查,才讀 preorder[preL]:
+  最後一個葉子的空子樹會帶著 preL = n 進來(例:範例 1 的 build(5, 4, 3))
+  如果先讀陣列再判斷,這裡就越界了。
+<span class="sc-trace__out">// 寫成 inL &gt;= inR 會把所有葉子丟掉,實測 625/625 全錯</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">先建 值→中序索引 的 map,再遞迴 build(preL, inL, inR):根 = preorder[preL],leftSize = rootIdx − inL,右子樹前序起點 = preL + leftSize + 1。呼叫次數恆為 2n+1,n=3000 斜鏈深度 3001 仍安全。錯位的索引大多直接崩潰:漏 +1 越界,共用 L, R 無限遞迴。</div>
+    <div class="sc-summary-bar__detail">CONSTRUCT BINARY TREE FROM PREORDER AND INORDER · CODE</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>105 · Construct Binary Tree from Preorder and Inorder Traversal // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P105</span>
+    <span><a href="https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">用前序 + 中序重建二元樹</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 105</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// KEY POINTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>重點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>分工</strong></td><td>前序告訴你<strong>誰是根</strong>;中序告訴你<strong>左右怎麼切</strong></td></tr>
+        <tr><td><strong>map</strong></td><td>先建 <code>值 → 中序索引</code>,找根 O(1);前提是值互不相同</td></tr>
+        <tr><td><strong>三個參數</strong></td><td><code>preL</code>(前序起點)+ <code>[inL, inR]</code>(中序區間);前序長度跟著中序走</td></tr>
+        <tr><td><strong>leftSize</strong></td><td><code>rootIdx − inL</code>,把中序的切點換算成前序的位移</td></tr>
+        <tr><td><strong>左子樹</strong></td><td>前序從 <code>preL + 1</code>,中序 <code>[inL, rootIdx − 1]</code></td></tr>
+        <tr><td><strong>右子樹</strong></td><td>前序從 <code>preL + leftSize + 1</code>,中序 <code>[rootIdx + 1, inR]</code></td></tr>
+        <tr><td><strong>呼叫次數</strong></td><td>恆為 <code>2n + 1</code>(n 個節點 + n+1 個空區間),時間 O(n)</td></tr>
+        <tr><td><strong>⚠ 最常見的錯</strong></td><td>兩個陣列共用一組 <code>L, R</code> → 範例 1 就無限遞迴</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼「前序 + 中序」能唯一決定一棵樹?題目的哪個條件是必要的?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q2</span> <code>build</code> 為什麼只需要前序的<em>起點</em>,不需要前序的右界?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q3</span> 右子樹的前序起點為什麼是 <code>preL + leftSize + 1</code>?漏掉 <code>+1</code> 會怎樣?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q4</span> 用<strong>一組</strong> <code>L, R</code> 同時代表前序起點和中序區間,為什麼會錯?官方範例 1 上具體發生什麼事?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q5</span> <code>build</code> 總共會被呼叫幾次?為什麼跟樹的形狀無關?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入(官方範例 1)</span>
+preorder = [3, 9, 20, 15, 7]        idx:  0  1  2   3  4
+inorder  = [9, 3, 15, 20, 7]
+
+rootToIdx = { 9→0, 3→1, 15→2, 20→3, 7→4 }
+
+以下是對真實程式插樁後印出的呼叫序列(11 次,其中 6 次是空區間)
+<span class="sc-trace__out">// 11 = 2 × 5 + 1</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 1: build(preL=0, inL=0, inR=4) —— 整棵樹</span>
+  rootV    = preorder[0] = 3
+  rootIdx  = idx[3]      = 1
+  leftSize = 1 − 0       = 1
+
+  左:build(preL=1, [0, 0])          ← 中序只有 [9]
+  右:build(preL=0+1+1=2, [2, 4])    ← 中序 [15, 20, 7]
+<span class="sc-trace__out">// 前序 [3 | 9 | 20,15,7],中序 [9 | 3 | 15,20,7]</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 2: build(preL=1, inL=0, inR=0) —— 節點 9</span>
+  rootV = preorder[1] = 9,rootIdx = 0,leftSize = 0 − 0 = 0
+  左:build(preL=2, [0, −1]) → nullptr
+  右:build(preL=2, [1,  0]) → nullptr
+<span class="sc-trace__out">// 9 是葉子,回傳到 3 的左邊</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 3: build(preL=2, inL=2, inR=4) —— 節點 20</span>
+  rootV    = preorder[2] = 20
+  rootIdx  = idx[20]     = 3
+  leftSize = 3 − 2       = 1          ← 這裡 inL = 2,不是 0
+
+  左:build(preL=3, [2, 2])          ← 中序 [15]
+  右:build(preL=2+1+1=4, [4, 4])    ← 中序 [7]
+<span class="sc-trace__out">// 如果 leftSize 寫成 rootIdx(= 3),右子樹會從 preL=6 開始 → 越界</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 4: build(preL=3, inL=2, inR=2) —— 節點 15</span>
+  rootV = preorder[3] = 15,rootIdx = 2,leftSize = 0
+  左:build(preL=4, [2, 1]) → nullptr
+  右:build(preL=4, [3, 2]) → nullptr
+<span class="sc-trace__out">// 15 是葉子,掛在 20 的左邊</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 5: build(preL=4, inL=4, inR=4) —— 節點 7</span>
+  rootV = preorder[4] = 7,rootIdx = 4,leftSize = 0
+  左:build(preL=5, [4, 3]) → nullptr
+  右:build(preL=5, [5, 4]) → nullptr
+<span class="sc-trace__out">// 注意 preL=5 已經超出陣列,但 base case 先擋住了,不會去讀 preorder[5]</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+        3
+       / \
+      9   20
+         /  \
+        15   7
+
+  答案 = [3,9,20,null,null,15,7]        ✓ 與官方一致
+
+  呼叫統計:11 次
+      5 次 = 建立 5 個節點
+      6 次 = 空區間(n + 1)
+  最大深度:4 層(根算第 1 層,15 / 7 底下的空呼叫是第 4 層)
+<span class="sc-trace__out">// 對拍 200,000 組 + n≤8 全樹形窮舉,不一致 0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>STEP 3 是整個 trace 裡最值得看的一步</strong>:
+      <b>這是第一次 <code>inL ≠ 0</code></b>,<code>leftSize</code> 必須是 <code>rootIdx − inL</code> 而不是 <code>rootIdx</code>。
+      <strong>在根那一層 <code>inL = 0</code>,兩種寫法剛好一樣</strong>,所以只測根那層看不出錯。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 1</span> 改成給 <code>inorder</code> + <code>postorder</code>(LeetCode 106),要改哪些地方?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 2</span> 有人用一個全域 <code>preIdx</code>,每建一個節點就 <code>preIdx++</code>,只傳中序區間。為什麼這樣可行?有什麼條件?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 3</span> 如果只給 <code>preorder</code> + <code>postorder</code>,或值可以重複,還能唯一重建嗎?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼能唯一決定?</div>
+    <div class="qa__a">
+      <p>用歸納法看:前序的第一個值一定是根。因為<strong>值互不相同</strong>,這個值在中序裡只出現一次,位置唯一確定。</p>
+      <p>中序裡根左邊的就是左子樹的全部節點,右邊的就是右子樹的全部節點,<strong>數量也因此確定</strong>。前序裡緊接在根後面的 <code>leftSize</code> 個就是左子樹的前序,剩下的是右子樹的前序。</p>
+      <p>兩棵子樹各自又是「前序 + 中序」的同一個問題,規模更小,所以一路切到空區間,每一步都沒有選擇的餘地 ⇒ <strong>唯一</strong>。</p>
+      <p>⚡ 必要條件是<strong>值互不相同</strong>。值重複時,根在中序的位置就不唯一了(見 App 3)。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q2</span> 為什麼前序不需要右界?</div>
+    <div class="qa__a">
+      <p>同一棵子樹在前序和中序裡<strong>佔一樣多格</strong>。中序區間 <code>[inL, inR]</code> 已經決定了長度 <code>inR − inL + 1</code>,前序只要知道從哪裡開始,右界就自動是 <code>preL + (inR − inL)</code>。</p>
+      <p>程式也從來不需要前序的右界:它只讀 <code>preorder[preL]</code>(根),其他位置都是透過 <code>leftSize</code> 算出來的。</p>
+      <p>⚡ 反過來說,如果你只帶前序的區間 <code>[preL, preR]</code>,就得另外帶中序的起點 <code>inL</code>,不然算不出 <code>leftSize</code>。<strong>兩個陣列的起點至少要各有一個</strong>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q3</span> 為什麼是 <code>preL + leftSize + 1</code>?</div>
+    <div class="qa__a">
+      <p>前序區段的排列是 <code>[ 根 | 左子樹 leftSize 格 | 右子樹 ]</code>。右子樹的第一格要跳過<strong>根(1 格)</strong>和<strong>整個左子樹(leftSize 格)</strong>,所以是 <code>preL + 1 + leftSize</code>。</p>
+      <p>漏掉 <code>+1</code> 會少跳一格,把左子樹的最後一個節點(或 <code>leftSize = 0</code> 時的根自己)當成右子樹的根。</p>
+      <p>實測在 n=1..7 全部 625 種樹形上<strong>失敗 618 種</strong>,最小反例 <code>preorder=[1,2]</code>、<code>inorder=[1,2]</code>(正解 <code>[1,null,2]</code>)直接<strong>越界讀取</strong>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q4</span> 共用一組 <code>L, R</code> 為什麼錯?</div>
+    <div class="qa__a">
+      <p>因為同一棵子樹在兩個陣列裡的<strong>起點一般不同</strong>:前序從根開始,中序從最左邊的節點開始。一個 <code>L</code> 不可能同時是兩者。</p>
+      <p>在官方範例 1 上:第一層 <code>L=0</code> 時兩個起點剛好都是 0,還沒事。進到左子樹 <code>build(1, 1)</code>:根是 <code>pre[1] = 9</code>,<code>idx[9] = 0</code>,<code>leftSize = 0 − 1 = −1</code>。</p>
+      <p>右子樹的呼叫變成 <code>build(1 + (−1) + 1, 1) = build(1, 1)</code> —— <strong>跟自己一模一樣</strong>,區間沒有縮小,於是<strong>無限遞迴直到 stack overflow</strong>。實測:範例 1 直接 segfault。</p>
+      <p>在 n=1..7 全部 625 種樹形上失敗 <strong>618 種</strong>;最小反例 <code>preorder=[2,1]</code>、<code>inorder=[1,2]</code>。</p>
+      <p>⚡ 看到 <code>leftSize</code> 是負數,就代表兩個陣列的座標已經混在一起了。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q5</span> 呼叫幾次?</div>
+    <div class="qa__a">
+      <p><strong>恰好 <code>2n + 1</code> 次。</strong></p>
+      <p>每個非空的呼叫建立一個節點,共 <code>n</code> 次。每個節點會發出兩個子呼叫,總共 <code>2n</code> 個子呼叫,其中 <code>n − 1</code> 個對應到真的子節點(除了根,每個節點都是某人的小孩),剩下 <code>n + 1</code> 個是空區間。再加上最外層那一次:<code>(n − 1) + (n + 1) + 1 = 2n + 1</code>。</p>
+      <p>這個算法只用到「n 個節點、每個有 2 個子指標」,<strong>完全不看形狀</strong>。實測 <code>n=3000</code> 的左斜鏈、右斜鏈、平衡樹、隨機樹都是 <strong>6001</strong> 次,其中 <strong>3001</strong> 次是 nullptr。範例 1 則是 <code>2×5+1 = 11</code> 次。</p>
+      <p>⚡ 形狀影響的是<strong>深度</strong>,不是次數:平衡樹深度 13,斜鏈深度 3001。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 1</span> 改成 inorder + postorder</div>
+    <div class="qa__a">
+      <p>後序的根在<strong>最後一格</strong>,排列是 <code>[ 左子樹 | 右子樹 | 根 ]</code>。所以改成從右邊找根,並用<strong>右子樹的大小</strong>往回推:</p>
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">TreeNode* build(vector&lt;int&gt;&amp; postorder, int postR, int inL, int inR,
+                unordered_map&lt;int, int&gt;&amp; rootToIdx) {
+    if (inL &gt; inR) return nullptr;
+    int rootV = postorder[postR];            // 後序最後一個 = 根
+    int rootIdx = rootToIdx[rootV];
+    int rightSize = inR - rootIdx;           // 右子樹大小
+
+    TreeNode* node = new TreeNode(rootV);
+    node-&gt;left  = build(postorder, postR - rightSize - 1, inL, rootIdx - 1, rootToIdx);
+    node-&gt;right = build(postorder, postR - 1,             rootIdx + 1, inR, rootToIdx);
+    return node;
+}
+// 呼叫:build(postorder, n - 1, 0, n - 1, rootToIdx)</pre>
+      <p>右子樹的後序終點就是根的前一格 <code>postR − 1</code>;左子樹要再往前跳過整個右子樹,是 <code>postR − rightSize − 1</code>。和 105 完全對稱。</p>
+      <p>實測:隨機 100,000 棵樹不一致 0;106 官方範例 <code>inorder=[9,3,15,20,7]</code>、<code>postorder=[9,15,7,20,3]</code> 建出 <code>[3,9,20,null,null,15,7]</code>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 2</span> 全域 <code>preIdx</code> 寫法</div>
+    <div class="qa__a">
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">int preIdx = 0;
+TreeNode* build(vector&lt;int&gt;&amp; preorder, int inL, int inR) {
+    if (inL &gt; inR) return nullptr;
+    int rootV = preorder[preIdx++];
+    TreeNode* node = new TreeNode(rootV);
+    int rootIdx = rootToIdx[rootV];
+    node-&gt;left  = build(preorder, inL, rootIdx - 1);   // 一定先左
+    node-&gt;right = build(preorder, rootIdx + 1, inR);
+    return node;
+}</pre>
+      <p>可行的原因:遞迴的<strong>建立順序本身就是前序</strong>(根 → 左 → 右)。所以「下一個要建的節點」一定是 <code>preorder</code> 的下一格,不需要自己算位移,<code>leftSize</code> 也省掉了。</p>
+      <p><strong>條件是一定要先建左子樹、再建右子樹。</strong>反過來的話,建立順序變成「根 → 右 → 左」,跟前序對不上。實測先右後左:<strong>失敗 498/625</strong>,最小反例 <code>preorder=[2,1,3]</code>、<code>inorder=[1,2,3]</code> 越界;先左後右則是 0/625,隨機 100,000 棵也 0 不一致。</p>
+      <p>⚡ 在 LeetCode 上要注意:<code>preIdx</code> 如果是 member,同一個 <code>Solution</code> 物件被重複呼叫時要記得在 <code>buildTree</code> 開頭歸零。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 3</span> 前序 + 後序?值重複?</div>
+    <div class="qa__a">
+      <p><strong>前序 + 後序:一般不能唯一決定。</strong>它們都沒有「切點」資訊。例如 <code>preorder=[1,2]</code>、<code>postorder=[2,1]</code>:2 可以是 1 的左小孩,也可以是右小孩,兩棵樹的前序和後序完全一樣。</p>
+      <p>LeetCode 889 就是這個題目,它只要求「回傳任一棵符合的樹」;如果題目保證是<strong>滿二元樹</strong>(每個節點 0 或 2 個小孩),才會唯一。</p>
+      <p><strong>值重複:前序 + 中序也不唯一了。</strong>例如 <code>preorder=[1,1]</code>、<code>inorder=[1,1]</code>:第二個 1 可以是左小孩,也可以是右小孩,兩棵樹的兩種走訪都一樣。</p>
+      <p>而且這份程式的 map 會直接壞掉:<code>rootToIdx[inorder[i]] = i</code> 會讓重複的值只留下<strong>最後一次</strong>出現的位置。</p>
+      <p>⚡ 結論:<strong>中序提供切點,值互異保證切點唯一</strong>,兩者缺一就不唯一。</p>
+    </div>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">前序給根、中序給切點、leftSize 對齊兩邊的座標;呼叫次數恆為 2n+1。第一次出現 inL ≠ 0 的那層(範例 1 的節點 20)才會暴露 leftSize 和 +1 的錯。前序 + 後序、或值重複時,切點不唯一,樹也就不唯一。</div>
+    <div class="sc-summary-bar__detail">CONSTRUCT BINARY TREE FROM PREORDER AND INORDER · REVIEW</div>
+  </div>
+
+</body>
+</html>

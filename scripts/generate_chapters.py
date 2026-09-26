@@ -183,7 +183,7 @@ PROBLEMS = {
         ('p1448','Count Good Nodes in Binary Tree',                          'count-good-nodes-in-binary-tree',                          'med', 'done'),
         ('p98',  'Validate Binary Search Tree',                              'validate-binary-search-tree',                              'med', 'todo'),
         ('p230', 'Kth Smallest Element in a BST',                            'kth-smallest-element-in-a-bst',                            'med', 'todo'),
-        ('p105', 'Construct Binary Tree from Preorder and Inorder Traversal','construct-binary-tree-from-preorder-and-inorder-traversal','med', 'todo'),
+        ('p105', 'Construct Binary Tree from Preorder and Inorder Traversal','construct-binary-tree-from-preorder-and-inorder-traversal','med', 'done'),
         ('p337', 'House Robber III',                                         'house-robber-iii',                                         'med', 'done'),
         ('p1325','Delete Leaves With a Given Value',                         'delete-leaves-with-a-given-value',                         'med', 'todo'),
         ('p124', 'Binary Tree Maximum Path Sum',                             'binary-tree-maximum-path-sum',                             'hard','todo'),
