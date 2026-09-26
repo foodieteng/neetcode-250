@@ -66,7 +66,7 @@
     </p>
 
     <div class="sc-insight" style="margin-top:12px;">
-      <strong>解法:讓每個節點繼承一個「合法區間」<code>(mi, mx)</code>,並在往下走的時候<em>收窄</em>它。</strong>
+      <strong>解法:讓每個節點繼承一個「合法區間」<code>(L, R)</code>,並在往下走的時候<em>收窄</em>它。</strong>
       <b>往左走 ⇒ 上界收成自己的值;往右走 ⇒ 下界收成自己的值。</b>
       <strong>這樣「遠房祖先」的約束就會一路傳到任意深的地方</strong> ——
       而這正是「只比父節點」抓不到的東西。
@@ -105,7 +105,7 @@
           </div>
           <div class="sc-ko-card__body">
             <strong>BST 的中序<em>必定</em>嚴格遞增</strong>(<a href="../p94/index.html">94 那題</a>的性質)。
-            <b>本頁就是拿它當對拍參考解</b> —— 7000 萬組零不一致。
+            <b>本頁就是拿它當對拍參考解</b> —— 70,557,820 組零不一致。
             <strong>缺點:要嘛存整個陣列 <code>O(n)</code> 空間,要嘛得小心維護「前一個值」。</strong>
           </div>
           <div class="sc-ko-card__verdict">△ 對,另一種思路</div>
@@ -117,7 +117,7 @@
       <div class="sc-ko-card sc-ko-card--good">
         <div class="sc-ko-card__head">
           <span class="sc-ko-card__badge">C</span>
-          <span class="sc-ko-card__title">往下傳一個<strong>會收窄的區間</strong> <code>(mi, mx)</code></span>
+          <span class="sc-ko-card__title">往下傳一個<strong>會收窄的區間</strong> <code>(L, R)</code></span>
           <span class="sc-ko-card__o">O(n) 時間 · O(h) 空間</span>
         </div>
         <div class="sc-ko-card__body">
@@ -147,10 +147,10 @@
 
     <ol>
       <li><strong>根節點</strong>的窗是 <code>(−∞, +∞)</code> —— 任何值都合法。</li>
-      <li><strong>檢查自己</strong>:<code>mi &lt; root-&gt;val &amp;&amp; root-&gt;val &lt; mx</code>,
+      <li><strong>檢查自己</strong>:<code>L &lt; root-&gt;val &amp;&amp; root-&gt;val &lt; R</code>,
         <b>兩邊都要<em>嚴格</em></b>(BST 不允許重複值)。</li>
-      <li><strong>往左走</strong>:<code>(mi, root-&gt;val)</code> —— <b>上界收成自己</b>。</li>
-      <li><strong>往右走</strong>:<code>(root-&gt;val, mx)</code> —— <b>下界收成自己</b>。</li>
+      <li><strong>往左走</strong>:<code>(L, root-&gt;val)</code> —— <b>上界收成自己</b>。</li>
+      <li><strong>往右走</strong>:<code>(root-&gt;val, R)</code> —— <b>下界收成自己</b>。</li>
     </ol>
 
     <div class="sc-insight" style="margin-top:12px;">
@@ -177,7 +177,7 @@
 
     <div class="sc-viz">
       <div class="sc-viz__title">▶ 驗證 BST · 窗一路往下收窄</div>
-      <div class="sc-viz__cvwrap"><canvas id="v98-canvas" class="sc-viz__canvas" style="height:424px;"></canvas></div>
+      <div class="sc-viz__cvwrap"><canvas id="v98-canvas" class="sc-viz__canvas" style="height:452px;"></canvas></div>
       <div class="sc-viz__controls">
         <button class="sc-btn" id="v98-reset">Reset</button><button class="sc-btn" id="v98-prev">Prev</button>
         <button class="sc-btn sc-btn--primary" id="v98-play">Play</button><button class="sc-btn" id="v98-next">Next</button>
@@ -199,18 +199,18 @@
       <div class="sc-dark-box__body">
         <p style="margin:0 0 10px;">
           <b>題目的值域是<em>完整的 int 範圍</em></b> —— <code>INT_MIN</code> 和 <code>INT_MAX</code> <strong>都是合法的節點值</strong>。
-          如果哨兵寫成 <code>int mi = INT_MIN</code>,那麼碰到一個值就是 <code>INT_MIN</code> 的節點時:<br>
-          <code>mi &lt; root-&gt;val</code> ⇒ <code>INT_MIN &lt; INT_MIN</code> ⇒ <b><code>false</code></b>
+          如果哨兵寫成 <code>int L = INT_MIN</code>,那麼碰到一個值就是 <code>INT_MIN</code> 的節點時:<br>
+          <code>L &lt; root-&gt;val</code> ⇒ <code>INT_MIN &lt; INT_MIN</code> ⇒ <b><code>false</code></b>
           —— <strong>一棵完全合法的單節點樹被判成 <code>false</code></strong>。
         </p>
         <p style="margin:0;">
           <strong>實測</strong>:<code>int</code> + 嚴格比較的版本,<br>
           · <b>最小反例就是單節點 <code>[-2147483648]</code></b><br>
           · 含極值的窮舉 <strong>9431 組錯 131 組</strong><br>
-          · 隨機 20 萬組(刻意大量使用 <code>INT_MIN</code>/<code>INT_MAX</code>)<strong>錯 104104 組</strong><br>
+          · 隨機 20 萬組(刻意大量使用 <code>INT_MIN</code>/<code>INT_MAX</code>)<strong>錯 103,600 組</strong><br>
           <b>⚠ 那「改成 <code>&lt;=</code> / <code>&gt;=</code> 不就好了?」—— 不行,那會壞掉另一半</b>:
           寬鬆比較讓哨兵過關,<strong>但同時把<em>重複值</em>也放行了</strong>(BST 要求嚴格遞增)。
-          實測最小反例 <code>[1,null,1]</code>,在 1042 萬組窮舉中<strong>錯 84633 組</strong>。<br>
+          實測最小反例 <code>[1,1]</code>,在 1042 萬組窮舉中<strong>錯 84,633 組</strong>。<br>
           <b>兩個 <code>int</code> 方案各壞一半 —— 只有「把區間的型別抬高到 int 之外」才能兩者兼顧。</b>
         </p>
       </div>
@@ -220,19 +220,19 @@
       <div class="sc-dark-box__title">LEMMA 2 · ⚠ <code>LONG_MIN</code> 不是 <code>long long</code> 的極限 —— 一個潛伏的可攜性 bug</div>
       <div class="sc-dark-box__body">
         <p style="margin:0 0 10px;">
-          你的參數宣告成 <code>long long</code>,<b>但初始值寫的是 <code>LONG_MIN</code> / <code>LONG_MAX</code></b> ——
+          <code>valid</code> 的參數宣告成 <code>long long</code>,<b>但傳進去的初始值是 <code>LONG_MIN</code> / <code>LONG_MAX</code></b> ——
           <strong>那是 <code>long</code> 的極限,不是 <code>long long</code> 的</strong>。
           <b>這兩者是否相同,<em>取決於平台</em>。</b>
         </p>
         <p style="margin:0;">
-          <strong>本平台實測</strong>(macOS arm64,LP64):<br>
+          <strong>本平台實測</strong>(x86_64 Linux,LP64):<br>
           <code>sizeof(long) = 8</code>,<code>LONG_MIN == LLONG_MIN</code> ⇒ <b><strong>程式碼正確</strong></b>
-          (主解在全部三個測試集共 <strong>7000 萬組</strong>上零錯誤)。<br>
+          (主解在全部四個測試集共 <strong>70,557,820 組</strong>上零錯誤)。<br>
           <b>但在 Windows / MSVC(LLP64)<code>long</code> 是 <em>32-bit</em></b> ⇒
           <strong><code>LONG_MIN</code> 會退化成 <code>INT_MIN</code></strong> ⇒ <b>就變成 LEMMA 1 那個 bug</b>。<br>
           <strong>模擬實測</strong>(把哨兵換成 <code>(long long)INT_MIN</code>,也就是 MSVC 上展開的樣子):
           <b>最小反例同樣是 <code>[-2147483648]</code></b>,含極值窮舉<strong>錯 131 組</strong>、
-          隨機 20 萬組<strong>錯 104104 組</strong> —— <strong>與 <code>int</code> 版逐筆相同,就是同一個 bug</strong>。<br>
+          隨機 20 萬組<strong>錯 103,600 組</strong> —— <strong>與 <code>int</code> 版逐筆相同,就是同一個 bug</strong>。<br>
           <b>一個字的修法:改用 <code>LLONG_MIN</code> / <code>LLONG_MAX</code>。</b>
         </p>
       </div>
@@ -251,14 +251,14 @@ LONG_MIN == LLONG_MIN ?  yes    ← 本平台:安全
 LONG_MIN == INT_MIN   ?  no     ← Windows(LLP64)會是 yes:壞掉
 
 若 LONG_MIN 退化成 INT_MIN,單節點 [INT_MIN] 會發生什麼:
-    mi < root->val  =>  -2147483648 < -2147483648  =>  FALSE
+    L < root->val  =>  -2147483648 < -2147483648  =>  FALSE
     ⇒ 一棵合法的樹被判 false
-<span class="sc-trace__out">// 結論:這份程式碼在 LeetCode(Linux/macOS)上完全正確,但把常數換成 LLONG_ 更穩</span></div>
+<span class="sc-trace__out">// 結論:這份程式碼在 LeetCode 這類 64-bit Linux/macOS 環境上完全正確,但把常數換成 LLONG_ 更穩</span></div>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>另一個常見替代方案:改傳「指標」而不是「值」</strong> ——
       <code>bool valid(TreeNode* root, TreeNode* lo, TreeNode* hi)</code>,
-      <b>用 <code>nullptr</code> 表示「沒有界線」</b>。
+      <b>用 <code>nullptr</code> 表示「沒有界線」</b>(實測四個測試集全部 0 失敗)。
       <strong>這樣就完全不需要哨兵值,自然免疫整個型別問題</strong> ——
       <b>而且它連「值域比 <code>long long</code> 還大」的假想情況都不怕。</b>
     </div>
@@ -292,21 +292,21 @@ LONG_MIN == INT_MIN   ?  no     ← Windows(LLP64)會是 yes:壞掉
       <strong>「證明成立要全查、證明不成立只要一個反例」</strong> —— 這是 <code>&amp;&amp;</code> 短路的自然結果。
     </div>
 
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(clean、class member —— LeetCode 的格式)</span>
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(實測,x86_64 Linux)</span>
 n = 10^4 的退化鏈(左鏈與右鏈皆測):存活,深度 10001、呼叫 20001
 
-崩潰深度(二次 bisect 結果一致):
-  ulimit -s 8176 KB → 174218 存活 / 174413 崩   ⇒ 48 bytes/frame
-  ulimit -s 1024 KB → 21000 存活 / 22000 崩     ⇒ 48.8 bytes/frame
-  ulimit -s  512 KB → 10500 存活 / 11000 崩     ⇒ 48.8 bytes/frame
+崩潰深度(-O0,合法右鏈,bisect):
+  ulimit -s 8192 KB → 174281 存活 / 174282 崩   ⇒ 約 48.1 bytes/frame
+  ulimit -s 1024 KB →  21365 存活 /  21366 崩   ⇒ 約 49.1 bytes/frame
+  ulimit -s  512 KB →  10452 存活 /  10453 崩   ⇒ 約 50.2 bytes/frame
 
-三種堆疊大小推出「同一個」48 B/frame —— 交叉驗證成立
+三種堆疊大小推出同樣約 48~50 B/frame —— 交叉驗證成立
 
 n=10^4 的餘裕:
-  8176 KB → 約 17 倍(只用掉約 480 KB,5.9%)
+  8192 KB → 約 17.4 倍
   1024 KB → 約 2.1 倍
-   512 KB → 約 1.07 倍 ← 幾乎貼著上限
-<span class="sc-trace__out">// 48 B/frame 比 701/450 的 80 小,因為這題不需要在框裡存回傳的指標</span></div>
+   512 KB → 約 1.04 倍 ← 幾乎貼著上限
+<span class="sc-trace__out">// 預設 8 MB 堆疊下,題目上限 n=10^4 綽綽有餘</span></div>
   </section>
 
   <!-- ════════════ 7 · 一句洞察 ════════════ -->
@@ -318,7 +318,7 @@ n=10^4 的餘裕:
 
     <div class="sc-insight">
       <strong>BST 的定義是「整棵子樹」,所以檢查也必須帶著「整棵子樹的約束」往下走。</strong>
-      <b>那個會收窄的窗 <code>(mi, mx)</code>,就是把祖先的界線帶到任意深處的載具</b> ——
+      <b>那個會收窄的窗 <code>(L, R)</code>,就是把祖先的界線帶到任意深處的載具</b> ——
       <strong>往左換上界、往右換下界,另一邊<em>原封不動繼承</em>。</strong><br>
       <b>而 <code>long long</code> 不是為了「怕溢位」,是因為<em>哨兵必須待在值域之外</em></b> ——
       <strong>值域已經吃滿整個 <code>int</code>,哨兵就沒有 <code>int</code> 可以站了。</strong>

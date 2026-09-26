@@ -59,16 +59,16 @@
       </div>
 <pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
 <span class="k">public</span><span class="p">:</span>
-    <span class="t">bool</span> <span class="f">isValidBST</span><span class="p">(</span><span class="t">TreeNode</span><span class="p">*</span> root<span class="p">,</span>
-                    <span class="t">long</span> <span class="t">long</span> mi <span class="p">=</span> <span class="n">LONG_MIN</span><span class="p">,</span>
-                    <span class="t">long</span> <span class="t">long</span> mx <span class="p">=</span> <span class="n">LONG_MAX</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span>root <span class="p">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
-        <span class="p">}</span>
+    <span class="t">bool</span> <span class="f">isValidBST</span><span class="p">(</span><span class="t">TreeNode</span><span class="p">*</span> root<span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="f">valid</span><span class="p">(</span>root<span class="p">,</span> <span class="n">LONG_MIN</span><span class="p">,</span> <span class="n">LONG_MAX</span><span class="p">);</span>     <span class="c">// 根的窗 = (−∞, +∞)</span>
+    <span class="p">}</span>
 
-        <span class="k">return</span> <span class="p">(</span>mi <span class="p">&lt;</span> root<span class="p">-&gt;</span>val <span class="p">&amp;&amp;</span> root<span class="p">-&gt;</span>val <span class="p">&lt;</span> mx<span class="p">)</span>
-            <span class="p">&amp;&amp;</span> <span class="f">isValidBST</span><span class="p">(</span>root<span class="p">-&gt;</span>left<span class="p">,</span>  mi<span class="p">,</span> root<span class="p">-&gt;</span>val<span class="p">)</span>   <span class="c">// 往左:上界收成自己</span>
-            <span class="p">&amp;&amp;</span> <span class="f">isValidBST</span><span class="p">(</span>root<span class="p">-&gt;</span>right<span class="p">,</span> root<span class="p">-&gt;</span>val<span class="p">,</span> mx<span class="p">);</span>  <span class="c">// 往右:下界收成自己</span>
+    <span class="t">bool</span> <span class="f">valid</span><span class="p">(</span><span class="t">TreeNode</span><span class="p">*</span> root<span class="p">,</span> <span class="t">long</span> <span class="t">long</span> L<span class="p">,</span> <span class="t">long</span> <span class="t">long</span> R<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span>root<span class="p">)</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+
+        <span class="k">return</span> <span class="p">(</span>L <span class="p">&lt;</span> root<span class="p">-&gt;</span>val <span class="p">&amp;&amp;</span> root<span class="p">-&gt;</span>val <span class="p">&lt;</span> R<span class="p">)</span>
+            <span class="p">&amp;&amp;</span> <span class="f">valid</span><span class="p">(</span>root<span class="p">-&gt;</span>left<span class="p">,</span> L<span class="p">,</span> root<span class="p">-&gt;</span>val<span class="p">)</span>      <span class="c">// 往左:上界收成自己</span>
+            <span class="p">&amp;&amp;</span> <span class="f">valid</span><span class="p">(</span>root<span class="p">-&gt;</span>right<span class="p">,</span> root<span class="p">-&gt;</span>val<span class="p">,</span> R<span class="p">);</span>    <span class="c">// 往右:下界收成自己</span>
     <span class="p">}</span>
 <span class="p">};</span></pre>
     </div>
@@ -79,9 +79,9 @@
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>整個演算法就在那兩行遞迴的參數裡</strong> ——
-      <b>往左傳 <code>(mi, root-&gt;val)</code>、往右傳 <code>(root-&gt;val, mx)</code></b>,
+      <b>往左傳 <code>(L, root-&gt;val)</code>、往右傳 <code>(root-&gt;val, R)</code></b>,
       <strong>另一邊<em>原封不動繼承</em></strong>。
-      <b>「原封不動」那半邊,就是祖先的界線能穿過好幾層壓住深處節點的原因。</b>
+      <b>「原封不動」那半邊,就是祖先的界線能穿過好幾層壓住深處節點的原因。</b><br>（排版上把最後一行 <code>return</code> 拆成三行,token 與你的原始碼完全相同。)
     </div>
   </section>
 
@@ -99,30 +99,30 @@
     </p>
 
     <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 用 int 當哨兵會怎樣(實測)</span>
-int mi = INT_MIN, mx = INT_MAX;  搭配嚴格比較 mi < val && val < mx
+int L = INT_MIN, R = INT_MAX;  搭配嚴格比較 L < val && val < R
 
 題目值域:-2^31 ~ 2^31-1 —— INT_MIN 和 INT_MAX「都是合法的節點值」
 
 碰到值為 INT_MIN 的節點:
-    mi < root->val  =>  INT_MIN < INT_MIN  =>  false
+    L < root->val  =>  INT_MIN < INT_MIN  =>  false
     ⇒ 一棵完全合法的單節點樹被判 false
 
 實測:
   最小反例        [-2147483648]        單一節點
   含極值窮舉      9431 組錯 131 組
-  隨機 20 萬組    錯 104104 組(刻意大量使用 INT_MIN/INT_MAX)
+  隨機 20 萬組    錯 103600 組(刻意大量使用 INT_MIN/INT_MAX)
 <span class="sc-trace__out">// 直接探針:[INT_MIN] → int 版回 0(錯)、long long 版回 1(對)</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 「那改成 <= / >= 不就好了?」—— 不行,會壞掉另一半</span>
-int mi = INT_MIN, mx = INT_MAX;  搭配寬鬆比較 mi <= val && val <= mx
+int L = INT_MIN, R = INT_MAX;  搭配寬鬆比較 L <= val && val <= R
 
 哨兵問題解決了,但「重複值」被放行了 —— 而 BST 要求「嚴格」遞增
 
 實測:
-  最小反例        [1,null,1]           兩個節點同值,應為 false 卻回 true
-  極值窮舉        9431 組錯 1045 組    最小 [-2147483648,null,-2147483648]
+  最小反例        [1,1] / [1,null,1]   兩個節點同值,應為 false 卻回 true
+  極值窮舉        9431 組錯 1045 組
   {1,2,3} 窮舉    1042 萬組錯 84633 組
-  隨機 20 萬組    錯 2570 組
+  隨機 20 萬組    錯 2196 組
 
 ⇒ 兩個 int 方案「各壞一半」:
     嚴格版 擋不住「哨兵撞上合法值」
@@ -148,12 +148,12 @@ int mi = INT_MIN, mx = INT_MAX;  搭配寬鬆比較 mi <= val && val <= mx
     </div>
 
     <p>
-      參數宣告成 <code>long long</code>,<b>但初始值寫的是 <code>LONG_MIN</code> / <code>LONG_MAX</code></b> ——
+      <code>valid</code> 的參數宣告成 <code>long long</code>,<b>但 <code>isValidBST</code> 傳進去的是 <code>LONG_MIN</code> / <code>LONG_MAX</code></b> ——
       <strong>那是 <code>long</code> 的極限,不是 <code>long long</code> 的。</strong>
       <b>這兩者相不相等,<em>完全取決於平台</em>。</b>
     </p>
 
-    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 本平台實測(macOS arm64,LP64)</span>
+    <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 本平台實測(x86_64 Linux,g++ 13.3,LP64)</span>
 sizeof(int)       = 4
 sizeof(long)      = 8       ← 關鍵:LP64 的 long 是 64-bit
 sizeof(long long) = 8
@@ -164,16 +164,16 @@ LLONG_MIN = -9223372036854775808
 
 LONG_MIN == LLONG_MIN ?  yes     ← 本平台:兩者相同,程式碼「正確」
 LONG_MIN == INT_MIN   ?  no      ← Windows/MSVC(LLP64)會是 yes
-<span class="sc-trace__out">// 在 LeetCode(Linux/macOS)上這份程式碼完全正確 —— 主解 7000 萬組零錯誤</span></div>
+<span class="sc-trace__out">// 在這個平台上這份程式碼完全正確 —— 主解 7055 萬組零錯誤</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 模擬 Windows(LLP64,long 是 32-bit)會發生什麼</span>
 在 MSVC 上,LONG_MIN 會展開成 -2147483648(也就是 INT_MIN)
-所以參數變成:  long long mi = (long long)INT_MIN, mx = (long long)INT_MAX
+所以呼叫變成:  valid(root, (long long)INT_MIN, (long long)INT_MAX)
 
 實測這個變體:
   最小反例        [-2147483648]        ← 和「用 int」那個 bug「完全一樣」
   含極值窮舉      9431 組錯 131 組     ← 逐筆與 int 版相同
-  隨機 20 萬組    錯 104104 組         ← 逐筆與 int 版相同
+  隨機 20 萬組    錯 103600 組         ← 逐筆與 int 版相同
 
   {1,2,3} 窮舉    1042 萬組錯 0 組     ← ⚠ 這個測試集「不含極值」,完全掩蓋了 bug
 
@@ -183,7 +183,7 @@ LONG_MIN == INT_MIN   ?  no      ← Windows/MSVC(LLP64)會是 yes
     <div class="sc-insight" style="margin-top:14px;">
       <strong>結論分兩半,兩半都要說清楚</strong>:<br>
       <b>① 在這個平台(以及 LeetCode)上,你的程式碼<em>是正確的</em></b> ——
-      實測全部三個測試集共 <strong>7000 萬組零錯誤</strong>。<br>
+      實測全部四個測試集共 <strong>70,557,820 組零錯誤</strong>。<br>
       <b>② 但 <code>LONG_MIN</code> 是「<em>碰巧</em>對」的常數</b> ——
       <strong>它對不對取決於 <code>sizeof(long)</code>,而那是平台決定的</strong>。
       <b>改成 <code>LLONG_MIN</code> 只要一個字,而且從「碰巧對」變成「一定對」。</b>
@@ -209,7 +209,7 @@ LONG_MIN == INT_MIN   ?  no      ← Windows/MSVC(LLP64)會是 yes
                                     ────────────────────────
                                     合計 70557820 組,不一致 0
 
-隨機集的 true/false 分佈:113182 / 86818(56.6% / 43.4%)—— 兩種答案都充分出現
+隨機集的 true/false 分佈:104833 / 95167(52.4% / 47.6%)—— 兩種答案都充分出現
 <span class="sc-trace__out">// 用「中序遞增」這個完全不同的角度對拍,才真的驗證了區間傳遞的正確性</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 官方範例與邊界(全部實測)</span>
@@ -220,6 +220,7 @@ LONG_MIN == INT_MIN   ?  no      ← Windows/MSVC(LLP64)會是 yes
   [2147483647]         (INT_MAX)         → true   ✓
   [-2147483648,null,2147483647]          → true   ✓
   [5,4,6,null,null,3,7]                  → false  ✓  ← 深層節點違反遠房祖先
+  [2,null,3,1]                           → false  ✓  ← 「只比父節點」會誤判 true
   [2,2]                                  → false  ✓  ← 重複值不合法
   [2,null,2]                             → false  ✓
 <span class="sc-trace__out">// 第 4 列和最後兩列,正好就是「兩個 int 方案各壞一半」的那兩半</span></div>
@@ -243,27 +244,45 @@ LONG_MIN == INT_MIN   ?  no      ← Windows/MSVC(LLP64)會是 yes
         </tr>
         <tr>
           <td><code>int</code> 哨兵 + 嚴格比較</td>
-          <td class="mono fail">104104 / 20 萬</td>
+          <td class="mono fail">103600 / 20 萬</td>
           <td class="mono"><code>[-2147483648]</code></td>
           <td>哨兵<strong>撞上合法值</strong>,合法樹被判 false</td>
         </tr>
         <tr>
           <td><code>int</code> 哨兵 + 寬鬆比較</td>
           <td class="mono fail">84633 / 1042 萬</td>
-          <td class="mono"><code>[1,null,1]</code></td>
+          <td class="mono"><code>[1,1]</code></td>
           <td><strong>重複值被放行</strong> —— BST 要求嚴格遞增</td>
         </tr>
         <tr>
           <td><strong><code>LONG_MIN</code> 在 LLP64 平台</strong></td>
-          <td class="mono fail">104104 / 20 萬</td>
+          <td class="mono fail">103600 / 20 萬</td>
           <td class="mono"><code>[-2147483648]</code></td>
           <td><b>Windows 上 <code>long</code> 是 32-bit</b> ⇒ 退化成 <code>int</code> 版</td>
         </tr>
         <tr>
-          <td>預設參數被外部覆寫</td>
-          <td class="mono fail">—</td>
+          <td>左右兩邊的界線<strong>收反了</strong></td>
+          <td class="mono fail">4108 / 5992 萬</td>
+          <td class="mono"><code>[1,2]</code></td>
+          <td>往左傳成 <code>(val, R)</code>,整個窗方向顛倒</td>
+        </tr>
+        <tr>
+          <td>往右時<strong>忘了把下界抬成自己</strong></td>
+          <td class="mono fail">2171569 / 5992 萬</td>
+          <td class="mono"><code>[2,null,1]</code></td>
+          <td>右子樹只受祖先約束,連「比父節點大」都沒檢查</td>
+        </tr>
+        <tr>
+          <td>下界用 <code>L &lt;= val</code>(只有一邊寬鬆)</td>
+          <td class="mono fail">1158 / 1042 萬</td>
+          <td class="mono"><code>[1,null,1]</code></td>
+          <td>右子樹裡的<strong>重複值</strong>被放行</td>
+        </tr>
+        <tr>
+          <td>把邊界做成 <code>isValidBST</code> 的預設參數</td>
+          <td class="mono ok">你這版已避開</td>
           <td class="mono"><code>isValidBST(root, 0, 10)</code></td>
-          <td><strong>合法 BST 被判 false</strong> —— 見下方走讀</td>
+          <td>預設參數版會把合法的 <code>[20,10,30]</code> 判成 false —— 見下方走讀</td>
         </tr>
       </tbody>
     </table>
@@ -305,21 +324,22 @@ LONG_MIN == INT_MIN   ?  no      ← Windows/MSVC(LLP64)會是 yes
       <strong>這是 <code>&amp;&amp;</code> 短路最漂亮的一次展示。</strong>
     </div>
 
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(clean、class member)—— 三種堆疊大小交叉驗證</span>
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 堆疊(-O0、無 sanitizer)—— 三種堆疊大小交叉驗證</span>
 n = 10^4 退化鏈(左鏈與右鏈皆測):存活,深度 10001、呼叫 20001
 
 崩潰深度(二次 bisect 結果一致):
-  ulimit -s 8176 KB → 174218 存活 / 174413 崩   ⇒ 8372224/174218 ≈ 48.0 B/frame
-  ulimit -s 1024 KB →  21000 存活 /  22000 崩   ⇒ 1048576/21500  ≈ 48.8 B/frame
-  ulimit -s  512 KB →  10500 存活 /  11000 崩   ⇒  524288/10750  ≈ 48.8 B/frame
+  ulimit -s 8192 KB → 174281 存活 / 174282 崩   ⇒ 8388608/174282 ≈ 48.1 B/frame
+  ulimit -s 1024 KB →  21365 存活 /  21366 崩   ⇒ 1048576/21366  ≈ 49.1 B/frame
+  ulimit -s  512 KB →  10452 存活 /  10453 崩   ⇒  524288/10453  ≈ 50.2 B/frame
 
-三種堆疊大小推出「同一個」48 B/frame —— 這比單點量測可信得多
+三種堆疊大小推出「同一個」約 48~50 B/frame —— 這比單點量測可信得多
+(崩潰點會因 ASLR 前後飄動約 ±1 層)
 
 n = 10^4 的餘裕:
-  8176 KB → 約 17 倍(用掉約 480 KB,5.9%)
+  8192 KB → 約 17.4 倍
   1024 KB → 約 2.1 倍
-   512 KB → 約 1.07 倍   ← 幾乎貼著上限,但仍存活
-<span class="sc-trace__out">// 48 B/frame 比 701/450 的 80 小 —— 這題回傳 bool 不必在框裡存節點指標</span></div>
+   512 KB → 約 1.04 倍   ← 幾乎貼著上限,但仍存活
+<span class="sc-trace__out">// ASan/UBSan 在 n=10^4 的左、右鏈上都沒有回報錯誤</span></div>
   </section>
 
   <!-- ════════════ 7 · 細節走讀 ════════════ -->
@@ -370,29 +390,25 @@ tree = [5,1,4,null,null,3,6]     答案 false
 真正需要「遠房祖先」才抓得到的例子是 [5,4,6,null,null,3,7](見動畫)
 <span class="sc-trace__out">// 官方範例 2 其實不需要區間傳遞就能抓到 —— 所以動畫用了另一棵樹</span></div>
 
-    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 3: 預設參數的風險(和 1448 同一個 pattern)</span>
-public 簽名是 isValidBST(TreeNode*, long long, long long)
-⇒ 呼叫端「可以」傳第二、三個參數,覆寫掉哨兵
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 3: 為什麼邊界放在 helper 而不是預設參數</span>
+另一種常見寫法是把邊界做成 isValidBST 的預設參數:
+  bool isValidBST(TreeNode* root, long long mi = LONG_MIN, long long mx = LONG_MAX)
 
-實測:
-  tree = [20,10,30]
-    isValidBST(root)          → true    ✓ 正確
-    isValidBST(root, 0, 10)   → false   ✗ 一棵完全合法的 BST 被判非法
-                                          (10 和 30 都被關在 (0,10) 這個外加的窗外)
+這樣 public 函式就「可以」被傳入第二、三個參數,覆寫掉哨兵。
+實測 tree = [20,10,30]:
+    預設參數版 isValidBST(root)          → true    ✓
+    預設參數版 isValidBST(root, 0, 10)   → false   ✗  合法 BST 被判非法
 
-  tree = [-2147483648]
-    isValidBST(root, 0, 10)   → false   ✗ 正解 true
+你這版:isValidBST(TreeNode*) 只有一個參數,邊界全在 valid 裡
+    ⇒ 從 isValidBST 進來的呼叫,不可能帶錯邊界
 
-  ⚠ 更危險的是:tree = [2,1,3] 配 (0,10) 「碰巧」仍回 true
-     ⇒ 錯誤的呼叫「不一定會立刻暴露」
-
-正確做法:public 只留 isValidBST(TreeNode*),把帶邊界的遞迴放進 private helper
-        ⇒ 錯誤從「執行期靜默錯答」降級成「編譯期錯誤」
-<span class="sc-trace__out">// 和 1448 的 goodNodes(root, 5) 完全同一個問題 —— 內部不變量不該暴露在 public 簽名上</span></div>
+⚠ 小建議:valid 目前也在 public 底下,直接呼叫 valid(root, 0, 10) 一樣回 false(實測)。
+   把 valid 移到 private,就連這條路也關掉了。
+<span class="sc-trace__out">// 和 1448 同一個 pattern:內部用的參數不該出現在 public 簽名上</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 4: 三種寫法的取捨</span>
 ① 區間往下傳(本題)
-   時間 O(n)、空間 O(h);不合法時可以極早短路(實測最少 2 次呼叫)
+   時間 O(n)、空間 O(h);不合法時可以極早短路(實測最少 2 次呼叫,與 n 無關)
    要小心:哨兵型別、嚴格比較、LONG vs LLONG
 
 ② 中序走訪 + 檢查嚴格遞增
@@ -420,7 +436,7 @@ public 簽名是 isValidBST(TreeNode*, long long, long long)
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">long long 不是怕溢位(這裡沒有算術),是因為值域吃滿整個 int,哨兵沒有 int 可以站 —— 用 int 嚴格比較擋不住哨兵撞值、寬鬆比較擋不住重複值,各壞一半。而 LONG_MIN 是「碰巧對」的常數:在 Windows 上它會退化成 INT_MIN。</div>
+    <div class="sc-summary-bar__body">對拍 70,557,820 組零錯。long long 不是怕溢位(這裡沒有算術),是因為值域吃滿整個 int,哨兵沒有 int 可以站 —— 用 int 嚴格比較擋不住哨兵撞值、寬鬆比較擋不住重複值,各壞一半。而 LONG_MIN 是「碰巧對」的常數:在 Windows 上它會退化成 INT_MIN。</div>
     <div class="sc-summary-bar__detail">VALIDATE BINARY SEARCH TREE · CODE</div>
   </div>
 

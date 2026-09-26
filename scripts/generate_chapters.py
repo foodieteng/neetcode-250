@@ -181,7 +181,7 @@ PROBLEMS = {
         ('p199', 'Binary Tree Right Side View',                              'binary-tree-right-side-view',                              'med', 'done'),
         ('p427', 'Construct Quad Tree',                                      'construct-quad-tree',                                      'med', 'todo'),
         ('p1448','Count Good Nodes in Binary Tree',                          'count-good-nodes-in-binary-tree',                          'med', 'done'),
-        ('p98',  'Validate Binary Search Tree',                              'validate-binary-search-tree',                              'med', 'todo'),
+        ('p98',  'Validate Binary Search Tree',                              'validate-binary-search-tree',                              'med', 'done'),
         ('p230', 'Kth Smallest Element in a BST',                            'kth-smallest-element-in-a-bst',                            'med', 'done'),
         ('p105', 'Construct Binary Tree from Preorder and Inorder Traversal','construct-binary-tree-from-preorder-and-inorder-traversal','med', 'done'),
         ('p337', 'House Robber III',                                         'house-robber-iii',                                         'med', 'done'),

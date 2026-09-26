@@ -144,10 +144,10 @@
     ctx.fillText(s.eq, w/2, B2 + 29);
 
     // BAND 3 · 數線
-    const B3 = B2 + 62;
+    const B3 = B2 + 78;
     ctx.fillStyle=C.dim; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 3 · 這個窗在數線上的樣子', PAD, B3);
-    const lineY = B3 + 34, x0 = PAD + 46, x1 = w - PAD - 46;
+    const lineY = B3 + 42, x0 = PAD + 46, x1 = w - PAD - 46;
     ctx.strokeStyle = C.grid; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x0, lineY); ctx.lineTo(x1, lineY); ctx.stroke();
     const vx = v => x0 + ((v - 2) / 6) * (x1 - x0);   // 顯示 2..8
@@ -179,7 +179,7 @@
     }
 
     // BAND 4
-    const B4 = B3 + 76;
+    const B4 = B3 + 84;
     ctx.fillStyle=C.coral; ctx.font='600 12px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText('BAND 4 · 為什麼', PAD, B4);
     rr(PAD, B4 + 10, w - 2*PAD, 38, 6);

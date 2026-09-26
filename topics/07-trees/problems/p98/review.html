@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>98 · Validate Binary Search Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P98</span>
+    <span><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">驗證二元搜尋樹</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 98</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// KEY POINTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>重點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>定義</strong></td><td>「<strong>整棵</strong>左子樹 &lt; 我 &lt; <strong>整棵</strong>右子樹」,不是只比小孩</td></tr>
+        <tr><td><strong>做法</strong></td><td>往下傳開區間 <code>(L, R)</code>:往左 <code>(L, val)</code>、往右 <code>(val, R)</code></td></tr>
+        <tr><td><strong>另一邊不動</strong></td><td>只換一邊 ⇒ 祖先的界線能穿過好幾層壓住深處節點</td></tr>
+        <tr><td><strong>嚴格比較</strong></td><td>兩邊都用 <code>&lt;</code>,重複值不合法</td></tr>
+        <tr><td><strong>long long</strong></td><td>不是怕溢位,是哨兵要站在 int 值域之外</td></tr>
+        <tr><td><strong>LONG vs LLONG</strong></td><td>64-bit Linux 上 <code>LONG_MIN == LLONG_MIN</code>;Windows 的 <code>long</code> 是 32-bit</td></tr>
+        <tr><td><strong>呼叫次數</strong></td><td>合法樹恆為 <code>2n+1</code>;不合法時 <code>&amp;&amp;</code> 短路,最少 2 次</td></tr>
+        <tr><td><strong>對拍</strong></td><td>70,557,820 組,不一致 0</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼「每個節點都檢查 左小孩 &lt; 我 &lt; 右小孩」不夠?給一個最小反例。</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q2</span> 往左走時為什麼只改上界、下界原封不動?如果往右走時忘了把下界抬成自己,會怎樣?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q3</span> 為什麼參數要用 <code>long long</code>?改用 <code>int</code> 並把 <code>&lt;</code> 改成 <code>&lt;=</code> 可以嗎?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q4</span> <code>LONG_MIN</code> 和 <code>LLONG_MIN</code> 有什麼差別?你的程式在什麼情況下會出錯?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q5</span> 合法的樹會呼叫 <code>valid</code> 幾次?不合法的樹呢?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入 [5,4,6,null,null,3,7](和動畫同一棵)</span>
+          5
+         / \
+        4   6
+           / \
+          3   7
+
+每個節點的小孩都「局部合法」:4 &lt; 5 &lt; 6、3 &lt; 6 &lt; 7
+但 3 在 5 的右子樹裡,必須 &gt; 5          ⇒ 答案 false
+以下是對真實程式插樁後印出的呼叫序列(6 次)
+<span class="sc-trace__out">// 窗寫成 (L, R),−∞ / +∞ 代表 LONG_MIN / LONG_MAX</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 1: valid(5, −∞, +∞)</span>
+  −∞ &lt; 5 &lt; +∞   ✓ PASS
+  往左 → valid(4, −∞, 5)        上界收成 5
+<span class="sc-trace__out">// 根沒有任何限制</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 2: valid(4, −∞, 5) 和它的兩個空小孩</span>
+  −∞ &lt; 4 &lt; 5    ✓ PASS
+  valid(null, −∞, 4) → true
+  valid(null,  4, 5) → true
+  ⇒ 左子樹整棵合法,&amp;&amp; 繼續往右
+<span class="sc-trace__out">// 4 是葉子,兩個空呼叫各回 true</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 3: valid(6, 5, +∞)</span>
+  5 &lt; 6 &lt; +∞    ✓ PASS             下界收成 5(從根傳來)
+  往左 → valid(3, 5, 6)          上界收成 6,「下界 5 原封不動」
+<span class="sc-trace__out">// 關鍵就在這一步:5 這個下界會跟著一起傳到 3</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 4: valid(3, 5, 6) —— 撞破</span>
+  5 &lt; 3 ?  ✗ FAIL
+  對父節點 6 來說 3 完全合法(3 &lt; 6),但下界 5 是兩層之上的根傳下來的
+  ⇒ 回傳 false,&amp;&amp; 短路:valid(6-&gt;right = 7) 從未被呼叫
+<span class="sc-trace__out">// 「只比父節點」的寫法在這裡會回 true</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+  false 一路往上傳:6 的回傳 false ⇒ 5 的回傳 false
+
+  答案 = false                          ✓ 正確
+
+  呼叫統計:6 次 = 5, 4, null, null, 6, 3
+  從未走訪:7
+<span class="sc-trace__out">// 對拍 70,557,820 組,不一致 0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>STEP 3 是整個 trace 的重點</strong>:<b>往左走到 3 時,只有上界換成 6,下界 5 原封不動</b>。
+      <strong>如果兩邊都換成「跟父節點比」,這個 5 就丟掉了</strong> —— 那就是 Q1 的錯法。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 1</span> 不用任何哨兵值,改成傳<strong>節點指標</strong>當邊界,要怎麼寫?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 2</span> 用「中序走訪必須嚴格遞增」改寫,只用 O(h) 空間,不存整個陣列。</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 3</span> 如果題目改成「允許重複值,重複的一律放右子樹」(左 &lt; 我 ≤ 右),要改哪裡?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q1</span> 只比小孩為什麼不夠?</div>
+    <div class="qa__a">
+      <p>BST 的定義是「<strong>整棵</strong>左子樹都比我小、<strong>整棵</strong>右子樹都比我大」。只比小孩,檢查的是「父子」關係,<strong>抓不到「祖孫」之間的違規</strong>。</p>
+      <p>最小反例只要 3 個節點:<code>[2,null,3,1]</code>。節點 1 是 3 的左小孩(1 &lt; 3,局部合法),但它在根 2 的<strong>右</strong>子樹裡,必須 &gt; 2。只比小孩的寫法回 true,正解 false。</p>
+      <p>實測:n ≤ 8 全部樹形 × 相異值全排列共 59,920,211 組,錯 <strong>282,713</strong> 組。</p>
+      <p>⚡ 比例不高(約 0.5%),而且官方兩個範例它都會過 —— 所以這個錯法很容易被交出去。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q2</span> 為什麼只改一邊?忘了抬下界會怎樣?</div>
+    <div class="qa__a">
+      <p>往左走,代表「接下來的節點都要比我小」,<strong>新增的只有一條上界</strong>;而祖先給的下界仍然有效(它們也在那些祖先的某一邊),所以原封不動傳下去。往右同理,只新增下界。</p>
+      <p>正是「另一邊原封不動」,讓根的界線能穿過好幾層,壓住很深的節點(Trace 裡的 5 → 3)。</p>
+      <p>忘了抬下界(往右仍傳 <code>(L, R)</code>):右子樹連「比父節點大」都沒被檢查。實測錯 <strong>2,171,569 / 59,920,211</strong>,最小反例 <code>[2,null,1]</code> 被判 true。</p>
+      <p>⚡ 把兩邊收反(往左傳 <code>(val, R)</code>)也會錯:4,108 組,最小 <code>[1,2]</code>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q3</span> 為什麼要 long long?</div>
+    <div class="qa__a">
+      <p>這段程式<strong>沒有任何加減</strong>,不是怕溢位。原因是<strong>哨兵必須站在值域之外</strong>:題目值域是完整的 <code>int</code>,<code>INT_MIN</code> 和 <code>INT_MAX</code> 都是合法的節點值,<code>int</code> 裡已經沒有位置放「無限大」了。</p>
+      <p><strong>用 <code>int</code> + <code>&lt;</code></strong>:單節點 <code>[-2147483648]</code> 會變成 <code>INT_MIN &lt; INT_MIN</code> ⇒ false。實測含極值窮舉錯 131/9,431,隨機 20 萬組錯 103,600。</p>
+      <p><strong>改成 <code>&lt;=</code></strong>:哨兵過關了,但<strong>重複值也被放行</strong>。實測 <code>[1,1]</code> 回 true,{1,2,3} 窮舉錯 84,633/10,428,178。</p>
+      <p>⚡ 兩個 <code>int</code> 方案各壞一半,只有把邊界的型別抬到 <code>int</code> 之外(或完全不用哨兵,見 App 1)才能兩者兼顧。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q4</span> LONG_MIN vs LLONG_MIN</div>
+    <div class="qa__a">
+      <p><code>LONG_MIN</code> 是 <code>long</code> 的最小值,<code>LLONG_MIN</code> 才是 <code>long long</code> 的。兩者相不相等,<strong>取決於平台上 <code>long</code> 有多大</strong>。</p>
+      <p>本機實測(x86_64 Linux,LP64):<code>sizeof(long) = 8</code>,<code>LONG_MIN == LLONG_MIN</code>,所以你的程式<strong>正確</strong>(70,557,820 組零錯誤)。</p>
+      <p>但在 Windows / MSVC(LLP64)上 <code>long</code> 只有 32 bit,<code>LONG_MIN</code> 就等於 <code>INT_MIN</code>,等於又回到 Q3 的 <code>int</code> 哨兵版。模擬這個情況實測:和 <code>int</code> 版<strong>完全相同</strong>,極值窮舉錯 131、隨機錯 103,600。</p>
+      <p>⚡ 修法一個字:<code>LLONG_MIN</code> / <code>LLONG_MAX</code>(實測 0 失敗)。而且注意:不含 <code>INT_MIN</code>/<code>INT_MAX</code> 的測資(例如 {1,2,3} 窮舉)<strong>完全測不出</strong>這個 bug。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q5</span> 呼叫幾次?</div>
+    <div class="qa__a">
+      <p><strong>合法的樹:恰好 <code>2n + 1</code> 次。</strong>要證明「沒有任何節點違規」,每個節點都得檢查;n 個節點各發出 2 個子呼叫,加上最外層 1 次。實測完美 BST n=7 → 15、n=63 → 127、n=1023 → 2047。</p>
+      <p><strong>不合法的樹:看違規出現在哪。</strong><code>&amp;&amp;</code> 會在第一個 false 就停下:</p>
+      <ul>
+        <li>根的左小孩就違規 → 只要 <strong>2 次</strong>(根 + 左小孩),n=7、63、1023 都一樣</li>
+        <li>最右邊的葉子才違規(n=1023)→ <strong>2045 次</strong>,幾乎走完</li>
+      </ul>
+      <p>⚡ 「證明成立要全查,證明不成立只要找到一個反例」。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 1</span> 用節點指標當邊界</div>
+    <div class="qa__a">
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">bool valid(TreeNode* root, TreeNode* lo, TreeNode* hi) {
+    if (!root) return true;
+    if (lo &amp;&amp; root-&gt;val &lt;= lo-&gt;val) return false;   // lo == nullptr 代表沒有下界
+    if (hi &amp;&amp; root-&gt;val &gt;= hi-&gt;val) return false;   // hi == nullptr 代表沒有上界
+    return valid(root-&gt;left, lo, root) &amp;&amp; valid(root-&gt;right, root, hi);
+}
+bool isValidBST(TreeNode* root) { return valid(root, nullptr, nullptr); }</pre>
+      <p>「沒有界線」用 <code>nullptr</code> 表示,<strong>完全不需要哨兵值</strong>,自然不會有 <code>int</code> / <code>long</code> / <code>long long</code> 的問題。</p>
+      <p>實測:四個測試集(共 70,557,820 組)全部 <strong>0 失敗</strong>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 2</span> 中序 + O(h) 空間</div>
+    <div class="qa__a">
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">bool isValidBST(TreeNode* root) {
+    stack&lt;TreeNode*&gt; st;
+    TreeNode* cur = root;
+    bool hasPrev = false;
+    int prev = 0;
+    while (cur || !st.empty()) {
+        while (cur) { st.push(cur); cur = cur-&gt;left; }
+        cur = st.top(); st.pop();
+        if (hasPrev &amp;&amp; cur-&gt;val &lt;= prev) return false;   // 必須嚴格遞增
+        prev = cur-&gt;val;
+        hasPrev = true;
+        cur = cur-&gt;right;
+    }
+    return true;
+}</pre>
+      <p>BST 的中序必定嚴格遞增(<a href="../p94/index.html">94</a> 的走訪順序),所以只要記住「上一個值」就能檢查。stack 最多放 h 個節點,空間 O(h)。</p>
+      <p>注意用 <code>hasPrev</code> 旗標而不是哨兵:第一個值可能就是 <code>INT_MIN</code>,用 <code>prev = INT_MIN</code> 當起點會把它誤判成重複。</p>
+      <p>這正是本頁用來對拍的參考解 (b),和主解在 70,557,820 組上<strong>完全一致</strong>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 3</span> 允許重複值放右邊</div>
+    <div class="qa__a">
+      <p>新的定義是「左子樹 &lt; 我 ≤ 右子樹」。往右走時,右子樹的值可以<strong>等於</strong>下界;往左走時仍然要嚴格小於上界。</p>
+      <p>所以只需要把<strong>下界那一邊</strong>改成寬鬆:<code>L &lt;= root-&gt;val &amp;&amp; root-&gt;val &lt; R</code>。</p>
+      <p>這正好就是陷阱表裡的「只有一邊寬鬆」:在原題(不允許重複)它是錯的(實測 {1,2,3} 窮舉錯 1,158 組,<code>[1,null,1]</code> 被判 true),但在這個新定義下,<code>[1,null,1]</code> 本來就該是 true。</p>
+      <p>⚡ 同一行程式對不對,取決於「重複值怎麼定義」。面試時看到 BST 題,第一個要問的就是這個。</p>
+    </div>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">BST 看的是整棵子樹:往下傳開區間 (L, R),往左換上界、往右換下界,另一邊原封不動 —— 根的下界 5 就是這樣一路壓到 3。long long 是為了讓哨兵站在 int 值域之外;LONG_MIN 在 64-bit Linux 上沒事,但在 Windows 會退化成 INT_MIN,用 LLONG_MIN 或指標邊界最穩。</div>
+    <div class="sc-summary-bar__detail">VALIDATE BINARY SEARCH TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>
