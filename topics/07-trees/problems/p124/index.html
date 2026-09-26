@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>124 · Binary Tree Maximum Path Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P124</span>
+    <span><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的最大路徑和</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 答案用兩條臂,往上只帶一條</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★★</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 124</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>POSTORDER · TREE DP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        樹上的一條<strong>路徑</strong>是一串沿著邊相連的節點,每個節點最多出現一次,<b>不一定要經過根</b>。
+        路徑和 = 路徑上所有節點值的總和。回傳<strong>任意非空路徑</strong>的最大路徑和。<br>
+        節點數 <code>1 ~ 3·10⁴</code>,值 <code>−1000 ~ 1000</code>(<b>可以是負的</b>)。<br>
+        範例:<code>[-10,9,20,null,null,15,7]</code> → <code>42</code>(15 → 20 → 7)。
+      </p>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>任何一條路徑都有唯一的「最高點」</strong>(離根最近的那個節點)。
+      <b>路徑從最高點往左下延伸一段、往右下延伸一段</b>,兩段都可以是空的。
+      <strong>所以只要在每個節點問:「如果最高點是我,最好的路徑是多少?」</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用這個 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「後序 + 每個節點當轉折點」<span class="sc-section__title-en">// KNOCKOUT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉所有節點對 (u, v),加總兩點間的路徑</span>
+            <span class="sc-ko-card__o">O(n²) 以上</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案一定對(本頁就拿它當對拍參考解),但 <code>n = 3·10⁴</code> 時有約 4.5 億對節點,
+            <strong>每對還要再走一次路徑</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">遞迴回傳「子樹裡的最大路徑和」</span>
+            <span class="sc-ko-card__o">接不起來</span>
+          </div>
+          <div class="sc-ko-card__body">
+            父節點只能接在<strong>從小孩往下的一條直線</strong>上,
+            <b>子樹裡的最佳路徑可能已經在小孩那裡轉彎了</b>,父節點接不上去。
+            回傳值和答案需要的是<strong>兩種不同的東西</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">△ 定義錯了</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">回傳「一條臂」,在每個節點用「兩條臂」更新答案</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(h) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>path(x)</code> 回傳<strong>從 x 往下走的最大直線和</strong>(可以往上接);
+          <b>答案則在 x 用 <code>x.val + 左臂 + 右臂</code> 更新</b>(在 x 轉彎,不能再往上)。
+          實測:n ≤ 7 全部樹形 × 值 {−2..2} 共 35,718,805 組,加上隨機 300,000 組,<strong>不一致 0</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 兩種量分開算</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>先算兩條臂</strong>(後序):<code>l = max(0, path(left))</code>、<code>r = max(0, path(right))</code>。
+        <b>臂是負的就不要</b>,當成 0。</li>
+      <li><strong>以自己為轉折點更新答案</strong>:<code>ans = max(ans, val + l + r)</code>。</li>
+      <li><strong>往上只回傳一條臂</strong>:<code>val + max(l, r)</code> —— 路徑不能分岔,父節點只能接其中一邊。</li>
+    </ol>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      答案候選 = <strong>val + l + r</strong>(兩條臂)　·　回傳值 = <strong>val + max(l, r)</strong>(一條臂)
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZER</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 後序走訪 · ans 用兩條臂,return 只帶一條</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:476px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 12</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label"></div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>看節點 20 的第 4、5 步</strong>:<b>更新答案時用了兩條臂(15 + 20 + 7 = 42),
+      但往上回傳的只有 20 + 15 = 35</b>。
+      <strong>根 −10 收到 35,以自己為轉折只有 34,比不過 42。</strong>
+      例 B 則示範負的臂被 <code>max(0, ·)</code> 截成 0。
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼答案和回傳值不一樣<span class="sc-section__title-en">// TWO QUANTITIES</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">// LEMMA: 轉折點只能有一個</div>
+      <p>一條路徑往上走到最高點,再往下走。<strong>最高點以外的每個節點,在路徑上都只有「一進一出」</strong>,
+        其中一個方向一定是它的父節點。</p>
+      <p>所以要讓父節點接上來,<code>path(x)</code> 回傳的只能是<strong>從 x 往下的一條直線</strong>:
+        <code>x.val + max(l, r)</code>。</p>
+      <p>而「以 x 為最高點」的路徑可以兩邊都往下:<code>x.val + l + r</code>。這個值<strong>不能往上傳</strong>(會分岔),
+        只能拿去更新全域的 <code>ans</code>。</p>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>寫錯的地方</th><th>實測失敗(n ≤ 6 × 值 {−2..2},共 2,203,180 組)</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr><td>回傳 <code>val + l + r</code>(把分岔帶上去)</td><td class="mono fail">105,556</td><td><code>[1,-1,null,1,1]</code> → 2(正解 1)</td></tr>
+        <tr><td>答案只用 <code>val + max(l, r)</code>(從不轉彎)</td><td class="mono fail">237,383</td><td><code>[-1,2,2]</code> → 2(正解 3)</td></tr>
+        <tr><td>不做 <code>max(0, ·)</code>(硬接負的臂)</td><td class="mono fail">445,195</td><td><code>[-1,-2]</code> → −2(正解 −1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>每個節點只被後序走訪一次,做常數次比較與加法;遞迴深度等於樹高。</p>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>　·　空間 <strong>O(h)</strong> 堆疊
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono"><code>O(n)</code></td><td><code>path()</code> 恆被呼叫 <code>2n+1</code> 次;n = 3·10⁴ 最慢 587 µs</td></tr>
+        <tr><td>Space</td><td class="mono"><code>O(h)</code>,最壞 <code>n</code></td><td>斜鏈深度 30,000,平衡樹 15</td></tr>
+        <tr><td>溢位</td><td class="mono"><code>int</code> 安全</td><td>實測最大絕對值 30,000,000,只有 INT_MAX 的 1/71.6</td></tr>
+        <tr><td>Stack 餘裕</td><td class="mono">≈ 2.9 倍</td><td>-O0 約 96 B/層,崩潰深度 87,142</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「往上傳的東西」和「要的答案」不是同一個量</strong> ——
+      <b>往上只能帶一條臂,答案卻可以在每個節點用兩條臂轉彎</b>。
+      這和 <a href="../p543/index.html">543 直徑</a>是同一個模型,只是把「邊數」換成「節點值的和」,
+      <strong>多了一件事:值可以是負的,所以臂可以選擇不要(<code>max(0, ·)</code>)。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每條路徑有唯一的最高點。後序走訪:l、r 取 max(0, 子樹回傳),以自己為轉折更新 ans = max(ans, val + l + r),往上只回傳一條臂 val + max(l, r)。ans 從 INT_MIN 起算,全負的樹才會回傳最大的單一節點。O(n) 時間、O(h) 空間。</div>
+    <div class="sc-summary-bar__detail">BINARY TREE MAXIMUM PATH SUM · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p124-maxpath.js"></script>
+</body>
+</html>

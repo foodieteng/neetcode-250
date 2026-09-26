@@ -186,7 +186,7 @@ PROBLEMS = {
         ('p105', 'Construct Binary Tree from Preorder and Inorder Traversal','construct-binary-tree-from-preorder-and-inorder-traversal','med', 'done'),
         ('p337', 'House Robber III',                                         'house-robber-iii',                                         'med', 'done'),
         ('p1325','Delete Leaves With a Given Value',                         'delete-leaves-with-a-given-value',                         'med', 'todo'),
-        ('p124', 'Binary Tree Maximum Path Sum',                             'binary-tree-maximum-path-sum',                             'hard','todo'),
+        ('p124', 'Binary Tree Maximum Path Sum',                             'binary-tree-maximum-path-sum',                             'hard','done'),
         ('p297', 'Serialize and Deserialize Binary Tree',                    'serialize-and-deserialize-binary-tree',                    'hard','todo'),
     ],
     '08': [  # Heap / Priority Queue
