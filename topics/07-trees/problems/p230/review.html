@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>230 · Kth Smallest Element in a BST // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P230</span>
+    <span><a href="https://leetcode.com/problems/kth-smallest-element-in-a-bst/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">BST 中第 k 小的元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 230</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// KEY POINTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>重點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>核心性質</strong></td><td>BST 的中序走訪由小到大 ⇒ 第 k 個被處理的節點就是答案</td></tr>
+        <tr><td><strong>計數器</strong></td><td><code>rank = k</code>,放 member(或 <code>int&amp;</code>),所有遞迴層共用</td></tr>
+        <tr><td><strong>判斷</strong></td><td><code>--rank == 0</code>(前置遞減);後置 <code>rank--</code> 全錯</td></tr>
+        <tr><td><strong>位置</strong></td><td>計數夾在左、右兩個遞迴<strong>中間</strong>;放前面或後面就不是由小到大</td></tr>
+        <tr><td><strong>提早結束</strong></td><td>入口 <code>rank &lt;= 0</code> 擋住新呼叫,但擋不住已在路上的祖先</td></tr>
+        <tr><td><strong>多餘處理</strong></td><td>處理數 = <code>k + L</code>,呼叫數 = <code>2(k+L)+1</code>;左子樹回來再檢查一次就恰好是 k</td></tr>
+        <tr><td><strong>複雜度</strong></td><td>時間 <code>O(h + k)</code>,最壞 <code>O(n)</code>;空間 <code>O(h)</code></td></tr>
+        <tr><td><strong>Follow-up</strong></td><td>每個節點記子樹大小,一路往下走,每次查詢 <code>O(h)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼 BST 的中序走訪一定是由小到大?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q2</span> <code>rank</code> 為什麼要放在 member?改成 <code>void inorder(TreeNode* root, int rank)</code> 會怎樣?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q3</span> <code>if (--rank == 0)</code> 改成 <code>if (rank-- == 0)</code>,會發生什麼事?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q4</span> 範例 2(<code>k = 3</code>)總共處理了幾個節點?為什麼不是 3 個?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q5</span> <code>ans</code> 從沒初始化、也沒在 <code>kthSmallest</code> 裡重設,為什麼還是安全的?值可以是 0 會不會有問題?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入 [5,3,6,2,4,null,null,1],k = 3(官方範例 2)</span>
+            5
+           / \
+          3   6
+         / \
+        2   4
+       /
+      1
+
+中序順序 = 1, 2, 3, 4, 5, 6       ⇒ 第 3 個 = 3
+以下是對真實程式插樁後的事件順序(9 次呼叫,4 次處理)
+<span class="sc-trace__out">// rank 一開始 = 3,代表「還要處理 3 個」</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 1: 一路往左走到底</span>
+  inorder(5)   rank = 3,通過入口
+  inorder(3)   rank = 3,通過入口
+  inorder(2)   rank = 3,通過入口
+  inorder(1)   rank = 3,通過入口
+  inorder(null)             → return
+<span class="sc-trace__out">// 還沒處理任何節點,只是在找最小值</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 2: 處理 1、2</span>
+  處理 1:--rank → 2           (1 是第 1 小)
+    inorder(1-&gt;right = null)   → return
+  回到 2,處理 2:--rank → 1    (2 是第 2 小)
+    inorder(2-&gt;right = null)   → return
+<span class="sc-trace__out">// 每處理一個,rank 少 1</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 3: 處理 3 —— 找到答案</span>
+  回到 3,處理 3:--rank → 0    ⇒ ans = 3
+    inorder(3-&gt;right = 4):入口 rank = 0 → return
+<span class="sc-trace__out">// 入口檢查在這裡發揮作用:4 整棵子樹都沒走</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 4: 回到 5 —— 多餘的一次處理</span>
+  5 早就進入函式了,正停在 inorder(5-&gt;left) 這一行
+  回來後沒有任何檢查,直接執行:
+  處理 5:--rank → −1          −1 ≠ 0,ans 不變
+    inorder(5-&gt;right = 6):入口 rank = −1 → return
+<span class="sc-trace__out">// 這一次處理和 6 那一次呼叫都是白做的</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+  回傳 ans = 3                          ✓ 與官方一致
+
+  呼叫統計:9 次 = 5, 3, 2, 1, null, null, null, 4, 6
+  處理統計:4 次 = 1, 2, 3, 5
+      k = 3,L = 1(只有 5 是往左走到 3 的祖先)
+      處理 = k + L = 4   呼叫 = 2 × 4 + 1 = 9    ✓
+
+  修正版(左子樹回來再檢查一次):5 的處理和 6 的呼叫都會省掉
+      → 7 次呼叫,3 次處理
+<span class="sc-trace__out">// 對拍 215,521 組,不一致 0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>STEP 3 和 STEP 4 的對比就是這題的重點</strong>:
+      <b>4 是「新的呼叫」,被入口擋下;5 是「舊的呼叫」,正在半路上,擋不到</b>。
+      <strong>提早結束的檢查放在哪一行,決定了它能擋住誰。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 1</span> Follow-up:樹會被頻繁插入、刪除,又要頻繁查第 k 小,怎麼讓每次查詢比 <code>O(h + k)</code> 更快?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 2</span> 改寫成不用遞迴的迭代版(用 stack),並說明它為什麼天生沒有「多餘處理」的問題。</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 3</span> 改成求第 k <strong>大</strong>,最少要改幾個地方?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼中序由小到大?</div>
+    <div class="qa__a">
+      <p>BST 的定義:<strong>左子樹所有值 &lt; 根 &lt; 右子樹所有值</strong>。</p>
+      <p>中序的順序是「整個左子樹 → 根 → 整個右子樹」。用歸納法:假設左、右子樹的中序各自由小到大,那麼先輸出的左子樹全都比根小,根再輸出,最後輸出的右子樹全都比根大 ⇒ 整體也由小到大。</p>
+      <p>⚡ 所以「第 k 小」完全不需要比大小,<strong>只需要數數</strong>。這也是為什麼計數一定要夾在兩個遞迴<strong>中間</strong>:放在前面(前序)實測錯 3151/4081。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q2</span> rank 為什麼要放 member?</div>
+    <div class="qa__a">
+      <p><code>rank</code> 記的是「<strong>整趟走訪</strong>已經處理了幾個」,而大部分的處理發生在<strong>別的遞迴層</strong>(左子樹裡)。所有層必須改到同一個變數,左子樹處理的數量回來才看得到。</p>
+      <p>改成傳值:每層拿到複本,左子樹減的是自己的複本,<strong>回來後父層的 rank 沒變</strong>。實測失敗 <strong>3600/4081</strong>。</p>
+      <p>最小反例 <code>[2,1], k=1</code>:1 把它的複本減成 0、設 <code>ans = 1</code>;回到 2,2 的 rank 還是 1,減成 0,<code>ans</code> 被改成 <strong>2</strong>(正解 1)。</p>
+      <p>⚡ 不想用 member 的話,改成 <code>int&amp; rank</code> 傳參考也可以,實測 0 失敗。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q3</span> 改成 rank-- 會怎樣?</div>
+    <div class="qa__a">
+      <p><code>rank--</code> 是<strong>先比再減</strong>,要 rank 進來時已經是 0 才成立 —— 那時已經處理過 k 個節點了,輪到的是第 k+1 個,或是找到答案後回頭的祖先。</p>
+      <p>而 rank 一旦是 0,新的呼叫會被入口擋掉,所以<strong>常常根本沒有人設定 <code>ans</code></strong>。</p>
+      <p>實測 <strong>4081/4081 全錯</strong>:1429 組 <code>ans</code> 從沒被設定(回傳未初始化的值,例如 <code>[1], k=1</code>),其餘 2652 組設成了錯的值。</p>
+      <p>⚡ 記法:<code>rank</code> 代表「還剩幾個」,處理自己就是「剩的少一個」,<strong>先扣再看剩多少</strong>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q4</span> 範例 2 處理了幾個節點?</div>
+    <div class="qa__a">
+      <p><strong>4 個:1、2、3、5</strong>;呼叫 9 次。</p>
+      <p>找到 3 之後,4 那次呼叫被入口擋下。但 <strong>5 早在一開始就進入函式了</strong>,當時正停在 <code>inorder(5-&gt;left)</code>。等左子樹回來,它不再檢查 rank,直接執行 <code>--rank</code>(0 → −1),再呼叫一次右子樹 6(這次被擋下)。</p>
+      <p>一般化:第 k 個節點的祖先中,<strong>往左走下來的那些(設 L 個)</strong>,回來後都會各做一次多餘的處理和一次多餘的呼叫。實測公式 處理 = <code>k + L</code>、呼叫 = <code>2(k+L)+1</code>,230,000 組全部吻合。這裡 <code>L = 1</code>:4 = 3 + 1、9 = 2×4 + 1。</p>
+      <p>⚡ 答案不會錯:rank 變成負數後,<code>== 0</code> 不會再成立,<code>ans</code> 只被設定一次。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q5</span> ans 沒初始化為什麼安全?</div>
+    <div class="qa__a">
+      <p>題目保證 <code>1 ≤ k ≤ n</code>,中序會走到第 k 個節點,<code>--rank == 0</code> <strong>一定剛好成立一次</strong>,<code>ans</code> 一定被寫入。實測用哨兵值(預設 −777)檢查,從沒被原封不動地回傳過。</p>
+      <p><strong>重複呼叫也安全</strong>:<code>rank</code> 每次在 <code>kthSmallest</code> 開頭重設;<code>ans</code> 雖然留著上一次的值,但這一次一定會被覆寫。實測同一個物件連續呼叫 215,521 次,0 不一致。</p>
+      <p><strong>值是 0 也沒問題</strong>:程式用 <code>rank</code> 判斷「找到沒」,不是用 <code>ans</code>。實測平衡樹 <code>k = 1</code> 回傳真實的 0。</p>
+      <p>⚡ 對照 <a href="../p337/index.html">337</a>:那題用 <code>if (memo[x])</code> 判斷「存過沒」,值是 0 就出事。<strong>用什麼當「找到沒」的旗標,決定了 0 安不安全。</strong></p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 1</span> 頻繁增刪 + 頻繁查詢</div>
+    <div class="qa__a">
+      <p>讓每個節點多存一個欄位:<strong>以它為根的子樹有幾個節點</strong>(<code>size</code>)。查詢時從根往下走,每一步只看左子樹的大小 <code>ls</code>:</p>
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">int kthSmallest(TreeNode* root, int k) {
+    while (root) {
+        int ls = size(root-&gt;left);
+        if (k &lt;= ls) root = root-&gt;left;             // 在左子樹裡
+        else if (k == ls + 1) return root-&gt;val;     // 就是我
+        else { k -= ls + 1; root = root-&gt;right; }   // 扣掉左邊和自己,去右邊找
+    }
+    return -1;
+}</pre>
+      <p>每一步往下一層,<strong>查詢 O(h)</strong>,和 k 無關。插入、刪除時沿路把經過節點的 <code>size</code> 加一或減一,成本也是 O(h)。</p>
+      <p>實測(先算好每個節點的 size 再查):隨機 100,000 組,不一致 0。</p>
+      <p>⚡ 要保證 O(log n),樹本身還要保持平衡(例如紅黑樹、AVL),這種結構叫 <strong>order-statistic tree</strong>。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 2</span> 迭代版</div>
+    <div class="qa__a">
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">int kthSmallest(TreeNode* root, int k) {
+    stack&lt;TreeNode*&gt; st;
+    TreeNode* cur = root;
+    while (cur || !st.empty()) {
+        while (cur) { st.push(cur); cur = cur-&gt;left; }   // 一路往左
+        cur = st.top(); st.pop();
+        if (--k == 0) return cur-&gt;val;                   // 第 k 個,直接結束
+        cur = cur-&gt;right;
+    }
+    return -1;
+}</pre>
+      <p>stack 裡放的就是遞迴版「正停在 <code>inorder(root-&gt;left)</code> 的祖先們」。差別在於找到答案時<strong>直接 <code>return</code> 整個函式</strong>,stack 裡剩下的祖先就被丟掉了,不會再被處理。</p>
+      <p>遞迴版做不到這件事,是因為「結束」只能一層一層 return 回去,每一層都要自己決定要不要繼續 —— 所以才需要在左子樹回來後再檢查一次。</p>
+      <p>實測:n ≤ 7 全部 4,081 組 0 失敗,隨機 100,000 組 0 不一致。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 3</span> 第 k 大</div>
+    <div class="qa__a">
+      <p><strong>只要改一個地方:把左右兩個遞迴對調</strong>(先右、再自己、再左),就是「由大到小」的反向中序,數到第 k 個就是第 k 大。</p>
+      <p>實測:反向中序版當作「第 k 大」隨機 100,000 組 0 不一致;反過來,如果拿它回答「第 k 小」,n ≤ 7 全部組合錯 3604/4081 —— 這就是陷阱表裡那一列。</p>
+      <p>⚡ 另一個做法是不改程式,改參數:第 k 大 = 第 <code>n − k + 1</code> 小。但那要先知道 n,得多走一次整棵樹。</p>
+    </div>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">BST 中序 = 由小到大,第 k 個被處理的節點就是答案。rank 要共用、要前置遞減、要夾在左右遞迴中間。入口的提早結束擋得住新呼叫、擋不住半路上的祖先(範例 2 多處理了 5)。頻繁增刪時,每個節點記子樹大小,查詢降到 O(h)。</div>
+    <div class="sc-summary-bar__detail">KTH SMALLEST ELEMENT IN A BST · REVIEW</div>
+  </div>
+
+</body>
+</html>

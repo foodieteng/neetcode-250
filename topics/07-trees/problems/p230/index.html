@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>230 · Kth Smallest Element in a BST // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P230</span>
+    <span><a href="https://leetcode.com/problems/kth-smallest-element-in-a-bst/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">BST 中第 k 小的元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 中序就是排序,數到第 k 個就停</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 230</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>INORDER + COUNTER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一棵二元搜尋樹(BST)的 <code>root</code> 和整數 <code>k</code>,
+        <strong>回傳樹中第 k 小的值</strong>(k 從 1 開始)。<br>
+        節點數 <code>n</code>:<code>1 ≤ k ≤ n ≤ 10⁴</code>,值 <code>0 ~ 10⁴</code>。<br>
+        範例:<code>[5,3,6,2,4,null,null,1]</code>、<code>k = 3</code> → <code>3</code>。<br>
+        Follow-up:如果樹會被頻繁插入、刪除,又要頻繁查第 k 小,怎麼優化?
+      </p>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>BST 的中序走訪會由小到大輸出所有值</strong>。
+      <b>所以「第 k 小」= 「中序走訪時第 k 個被處理的節點」</b>,
+      <strong>不需要排序,也不需要把整棵樹存下來。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用這個 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「中序 + 倒數計數器」<span class="sc-section__title-en">// KNOCKOUT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">走訪全部節點,收集後排序</span>
+            <span class="sc-ko-card__o">O(n log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案對,但<b>完全沒用到 BST 的性質</b>:
+            BST 的中序本來就是排好的,再排一次是多餘的。
+            <strong>還要 O(n) 額外空間存所有值。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 浪費</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">中序走完整棵樹,存成陣列取 <code>[k−1]</code></span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            正確,本頁對拍就是用它當參考答案。
+            <b>但 k 很小時還是會走完全部 n 個節點</b>,並用 O(n) 空間存下整個序列。
+          </div>
+          <div class="sc-ko-card__verdict">△ 對但不必要</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">中序走訪 + <code>rank</code> 倒數,數到 0 就是答案</span>
+          <span class="sc-ko-card__o">O(h + k) 時間 · O(h) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          每處理一個節點就 <code>--rank</code>,<strong>減到 0 的那個節點就是第 k 小</strong>。
+          <b>不存陣列,找到之後就不再往下走</b>。
+          實測:n ≤ 8 全部 BST 形狀 × 全部 k 共 15,521 組,加上隨機 200,000 組,不一致 0。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 用到 BST 性質</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>設計數器</strong>:<code>rank = k</code>,放在 member,讓所有遞迴層共用同一個。</li>
+      <li><strong>中序走訪</strong>:左子樹 → 自己 → 右子樹。處理自己時 <code>--rank</code>,
+        <strong>減到 0 就記下 <code>ans</code></strong>。</li>
+      <li><strong>提早結束</strong>:<code>rank &lt;= 0</code> 代表答案已經找到,新的呼叫一進來就直接 return。</li>
+    </ol>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      中序順序 = <strong>1, 2, 3</strong>, 4, 5, 6　⇒　第 <strong>k = 3</strong> 個被處理的節點 = <strong>3</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZER</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 中序走訪 · rank 倒數到 0</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:510px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 11</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label"></div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>注意第 8 步</strong>:<b>答案 3 已經找到了,程式還是回到 5 做了一次 <code>--rank</code></b>(rank 變成 −1)。
+      <strong>答案沒錯,但這是一次多餘的處理</strong> —— 原因見下一節。
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">提早結束只擋住「新進來的呼叫」<span class="sc-section__title-en">// THE HIDDEN COST</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">// LEMMA: 檢查只在函式入口</div>
+      <p><code>if (!root || rank &lt;= 0) return;</code> 只在<strong>進入函式時</strong>檢查一次。</p>
+      <p>找到答案時,第 k 個節點上面的祖先們<strong>早就進入函式了</strong>,正停在 <code>inorder(root-&gt;left)</code> 這一行等它回來。
+        回來之後它們<strong>不會再檢查 rank</strong>,而是照樣執行 <code>--rank</code>,再呼叫一次右子樹(那次呼叫才會被入口擋下)。</p>
+      <p>會這樣做的,是「<strong>往左走才到達第 k 個節點</strong>」的那些祖先。設它們有 <code>L</code> 個。</p>
+    </div>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      處理的節點數 = <strong>k + L</strong>　·　呼叫次數 = <strong>2(k + L) + 1</strong>
+      <br><span style="font-size:13px;">實測 230,000 組(各種樹形、全部 k),公式全部吻合</span>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>n = 10⁴,k = 1</th><th>L</th><th>原版 呼叫 / 處理</th><th>修正版 呼叫 / 處理</th></tr></thead>
+      <tbody>
+        <tr><td>左斜鏈(最小值在最底)</td><td class="mono">9999</td><td class="mono fail">20001 / 10000</td><td class="mono">10001 / 1</td></tr>
+        <tr><td>平衡樹</td><td class="mono">12</td><td class="mono fail">27 / 13</td><td class="mono">14 / 1</td></tr>
+        <tr><td>右斜鏈(最小值在根)</td><td class="mono">0</td><td class="mono">3 / 1</td><td class="mono">2 / 1</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>左斜鏈、k = 1 最誇張</strong>:<b>答案是最底下那個節點,找到後 9999 個祖先會一路把 rank 減到 −9999</b>,
+      等於把整棵樹走完。<strong>答案仍然正確</strong>(<code>== 0</code> 只成立一次),只是做了白工。
+      修法是在左子樹回來後<strong>再檢查一次</strong> —— 見程式碼頁第 4 節。
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>要先從根往下走到最小值(h 層),再依序處理 k 個節點,所以理想是 O(h + k)。
+      這份程式多了上一節的 <code>L</code> 次多餘處理,最壞會走完整棵樹。</p>
+
+    <div class="sc-formula">
+      時間 <strong>O(h + k + L)</strong>,最壞 <strong>O(n)</strong>　·　空間 <strong>O(h)</strong> 堆疊
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th><th>實測依據</th></tr></thead>
+      <tbody>
+        <tr><td>Time(原版)</td><td class="mono"><code>O(h + k + L)</code></td><td>呼叫 = <code>2(k+L)+1</code>,230,000 組吻合</td></tr>
+        <tr><td>Time(修正版)</td><td class="mono"><code>O(h + k)</code></td><td>100,000 組隨機樹,處理的節點數恰好 = k</td></tr>
+        <tr><td>Space</td><td class="mono"><code>O(h)</code>,最壞 <code>n</code></td><td>左斜鏈 n = 10⁴ 深度 10001</td></tr>
+        <tr><td>Stack 餘裕</td><td class="mono">≈ 26 倍</td><td>-O0 約 32 B/層,崩潰深度 261,408</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>BST 的中序就是一條已排序的串流</strong>,<b>第 k 小就是串流的第 k 個</b>
+      (中序走訪本身見 <a href="../p94/index.html">94</a>)。
+      <strong>計數器一定要全部遞迴層共用</strong>,所以放 member 或傳參考。
+      <b>「一進門就檢查」擋不住已經在路上的祖先</b> —— 想真的停下來,左子樹回來後要再檢查一次。
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">BST 中序由小到大,每處理一個節點 --rank,減到 0 的就是第 k 小。答案永遠正確,但 rank &lt;= 0 只在入口檢查:找到後,往左走過來的 L 個祖先仍會各做一次 --rank,處理數 = k + L(左斜鏈 k=1 等於走完整棵樹)。左子樹回來後再檢查一次,處理數就恰好是 k。</div>
+    <div class="sc-summary-bar__detail">KTH SMALLEST ELEMENT IN A BST · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p230-kth.js"></script>
+</body>
+</html>
