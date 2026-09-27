@@ -120,6 +120,7 @@
       <b>往返 294,873 棵樹(n = 0..10 全部樹形 + 隨機 + n = 10⁴),不一致 0</b>,
       ser / deser 用不同的 <code>Codec</code> 物件也一樣(<code>Codec</code> 沒有 member 狀態)。
       <strong>右小孩那次 <code>ss &gt;&gt; word</code> 沒有檢查成功與否</strong>,在這個格式下是安全的,原因見第 4 節。
+      <b><code>stringstream</code> 的用法與常見陷阱整理在第 6 節。</b>
     </div>
   </section>
 
@@ -318,6 +319,137 @@ deserialize("")      → nullptr   (data.empty() 先擋掉)
   deserialize 會跳過 empty 檢查,把 "n" 當成根的值 → stoi("n") 丟例外
   實測:只有空樹會壞,n ≥ 1 全部正常
 <span class="sc-trace__out">// 空樹是兩邊都要特別處理的唯一情況,兩邊的約定必須一致</span></div>
+  </section>
+
+  <!-- ════════════ 6 · stringstream 教學 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">stringstream 用法教學<span class="sc-section__title-en">// &lt;sstream&gt; TUTORIAL</span></h2>
+    </div>
+
+    <p>這題的反序列化靠 <code>stringstream</code> 把字串切成 token。下面每個範例都實際編譯執行過,
+      <code>// 輸出</code> 是程式真正印出來的結果。需要 <code>#include &lt;sstream&gt;</code>(或 <code>&lt;bits/stdc++.h&gt;</code>)。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>類別</th><th>用途</th><th>這題用在哪</th></tr></thead>
+      <tbody>
+        <tr><td class="mono"><code>istringstream</code></td><td>只讀:把字串當輸入,用 <code>&gt;&gt;</code> 拆開</td><td>deserialize</td></tr>
+        <tr><td class="mono"><code>ostringstream</code></td><td>只寫:像 <code>cout</code> 一樣輸出到字串</td><td>serialize 的另一種寫法(範例 3)</td></tr>
+        <tr><td class="mono"><code>stringstream</code></td><td>可讀可寫,兩種用法都行</td><td>你的程式用的就是它</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 範例 1:用 &gt;&gt; 一次讀一個 token</span>
+stringstream ss("1 2 3 n n 4 5 n n n n ");
+string w;
+while (ss &gt;&gt; w) cout &lt;&lt; "[" &lt;&lt; w &lt;&lt; "]";
+
+// 輸出:[1][2][3][n][n][4][5][n][n][n][n]   共 11 個
+<span class="sc-trace__out">// &gt;&gt; 會跳過空白,讀到下一個空白為止;讀完最後一個 token 後,下一次 &gt;&gt; 失敗,迴圈結束</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 2:多餘的空白、換行都會被跳過</span>
+stringstream ss("  -1000   n\n n  ");
+string w;
+while (ss &gt;&gt; w) cout &lt;&lt; "[" &lt;&lt; w &lt;&lt; "]";
+
+// 輸出:[-1000][n][n]
+<span class="sc-trace__out">// 所以 serialize 結尾多一個空白完全沒關係,也不會讀出空字串</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 3:用 ostringstream 寫 serialize</span>
+string serialize(TreeNode* root) {
+    if (root == nullptr) return "";
+    ostringstream out;
+    queue&lt;TreeNode*&gt; q;
+    q.emplace(root);
+    while (!q.empty()) {
+        TreeNode* node = q.front(); q.pop();
+        if (node) { out &lt;&lt; node-&gt;val &lt;&lt; ' '; q.emplace(node-&gt;left); q.emplace(node-&gt;right); }
+        else out &lt;&lt; "n ";
+    }
+    return out.str();                      // 取出組好的字串
+}
+
+// 實測:和你的 to_string 版本比對 100,000 棵隨機樹,輸出 0 差異
+<span class="sc-trace__out">// out &lt;&lt; 整數 會自動轉成文字,不用 to_string;最後用 .str() 取出</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 4:直接讀成 int —— 但這題不能這樣做</span>
+stringstream ss("-1000 n");
+int x;
+ss &gt;&gt; x;                               // x = -1000
+int y = 7;
+bool ok = (bool)(ss &gt;&gt; y);             // 下一個 token 是 "n",不是數字
+
+// 輸出:x=-1000
+//       ok=0 y=0                      ← 讀失敗,y 被設成 0,而且 ss 進入失敗狀態
+<span class="sc-trace__out">// 這題的 token 混了數字和 "n",所以要先讀成 string,判斷不是 "n" 再 stoi</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 5:讀 string 失敗時,變數保留舊值</span>
+stringstream ss("2");
+string w;
+ss &gt;&gt; w;                               // w = "2"
+bool ok = (bool)(ss &gt;&gt; w);             // 已經沒有 token 了
+
+// 輸出:w=2
+//       ok=0 w=2                      ← 讀失敗,但 w 沒有被清空,還是 "2"
+<span class="sc-trace__out">// 這就是第 4 節「省略結尾 n」會多長出一個節點的原因:右小孩那次讀失敗,沿用了左小孩的值</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 6:用逗號分隔 —— getline(ss, t, ',')</span>
+stringstream ss("1,2,3,n,n,4,5,n,n,n,n");
+string t;
+while (getline(ss, t, ',')) cout &lt;&lt; "[" &lt;&lt; t &lt;&lt; "]";
+
+// 輸出:[1][2][3][n][n][4][5][n][n][n][n]   共 11 個
+
+stringstream ss2("1,n,n,");            // 結尾多一個逗號
+while (getline(ss2, t, ',')) cout &lt;&lt; "[" &lt;&lt; t &lt;&lt; "]";
+
+// 輸出:[1][n][n]   共 3 個,結尾的逗號不會多出空字串
+<span class="sc-trace__out">// 想用逗號當分隔符的話,把 &gt;&gt; 換成 getline(ss, t, ','),其餘邏輯不變</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 7:不要寫 while (!ss.eof())</span>
+stringstream ss("1 2 3 ");            // 注意結尾有空白,就像 serialize 的輸出
+string w;
+int cnt = 0;
+while (!ss.eof()) { ss &gt;&gt; w; cnt++; }
+
+// 輸出:cnt=4,最後一次的 w 還是 "3"    ← 多跑了一圈
+// (結尾沒有空白的 "1 2 3" 則剛好是 3 圈 —— 所以這個錯只在某些字串出現)
+<span class="sc-trace__out">// 讀到最後一個 token 時還沒碰到結尾,eof 要等「下一次讀失敗」才成立;正確寫法是 while (ss &gt;&gt; w)</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 8:重複使用同一個 stringstream 要先 clear()</span>
+stringstream ss("1 2");
+string w;
+while (ss &gt;&gt; w) {}                     // 讀到底,ss 進入失敗狀態
+ss.str("3 4");                         // 只換內容
+bool ok = (bool)(ss &gt;&gt; w);             // 輸出:ok=0  ← 還是讀不到
+
+ss.clear();                            // 先清掉失敗狀態
+ss.str("3 4");
+while (ss &gt;&gt; w) cout &lt;&lt; "[" &lt;&lt; w &lt;&lt; "]";   // 輸出:[3][4]
+<span class="sc-trace__out">// 最簡單的做法:每次都宣告一個新的 stringstream(你的 deserialize 就是這樣)</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 範例 9:把第二次讀取寫得更保險</span>
+while (ss &gt;&gt; word) {                   // 左小孩
+    TreeNode* node = q.front(); q.pop();
+    if (word != "n") { /* 建左小孩 */ }
+    if (!(ss &gt;&gt; word)) break;          // 右小孩:讀失敗就結束,不沿用舊值
+    if (word != "n") { /* 建右小孩 */ }
+}
+<span class="sc-trace__out">// 你的格式保證 token 數是 2n+1,不改也對;改了之後連「省略結尾 n」的字串也能正確讀(複習頁 App 2 實測 0 錯誤)</span></div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>情況</th><th>寫法</th><th>重點</th></tr></thead>
+      <tbody>
+        <tr><td>用空白切 token</td><td class="mono"><code>while (ss &gt;&gt; w)</code></td><td>自動跳過多餘空白,不會讀出空字串</td></tr>
+        <tr><td>用某個字元切</td><td class="mono"><code>while (getline(ss, t, ','))</code></td><td>連續兩個逗號會讀出空字串</td></tr>
+        <tr><td>組字串</td><td class="mono"><code>ostringstream out; out &lt;&lt; …; out.str()</code></td><td>數字自動轉文字</td></tr>
+        <tr><td>token 可能不是數字</td><td class="mono">先讀 <code>string</code>,再 <code>stoi</code></td><td><code>stoi("n")</code> 會丟 <code>invalid_argument</code></td></tr>
+        <tr><td>讀失敗</td><td class="mono"><code>if (!(ss &gt;&gt; w))</code></td><td>string 保留舊值;int 被設成 0</td></tr>
+        <tr><td>迴圈條件</td><td class="mono">讀取寫在 <code>while</code> 條件裡</td><td>不要用 <code>while (!ss.eof())</code></td></tr>
+        <tr><td>重複使用</td><td class="mono"><code>ss.clear(); ss.str(新字串);</code></td><td>或乾脆宣告新的</td></tr>
+      </tbody>
+    </table>
   </section>
 
   <!-- ── pager ── -->
