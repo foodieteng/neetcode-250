@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>297 · Serialize and Deserialize Binary Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P297</span>
+    <span><a href="https://leetcode.com/problems/serialize-and-deserialize-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的序列化與反序列化</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 297</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>C++17</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// KEY POINTS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>重點</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>null 記號</strong></td><td>把 null 寫成 <code>n</code>,形狀才不會丟</td></tr>
+        <tr><td><strong>分隔符</strong></td><td>每個 token 後加空白;值可能是負數或多位數</td></tr>
+        <tr><td><strong>序列化</strong></td><td>BFS,null 也進 queue,pop 到 null 就寫 <code>n</code></td></tr>
+        <tr><td><strong>反序列化</strong></td><td>同一個 queue 順序,每 pop 一個節點讀兩個 token</td></tr>
+        <tr><td><strong>2n + 1</strong></td><td>n 個值 + n+1 個 <code>n</code>;根之後剩 2n 個,剛好配對</td></tr>
+        <tr><td><strong>結尾的 n</strong></td><td>不能省;省了會讓沒檢查的第二次讀取沿用舊值</td></tr>
+        <tr><td><strong>空樹</strong></td><td>寫成 <code>""</code>,讀的一方先檢查 <code>empty()</code></td></tr>
+        <tr><td><strong>複雜度</strong></td><td>時間、空間都 <code>O(n)</code>;不遞迴</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼一定要把 null 寫出來?只寫值的最小反例是什麼?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q2</span> 為什麼 token 之間要有分隔符?如果測資的值都是個位數,會發生什麼事?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q3</span> 反序列化時「每 pop 一個節點就讀兩個 token」,為什麼一定讀得到兩個?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q4</span> 如果序列化時把結尾的 <code>n</code> 都省略(像 LeetCode 顯示樹的格式),你的反序列化會怎樣?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">Q5</span> BFS 版和前序 DFS 版都正確,各有什麼優缺點?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 輸入 [1,2,3,null,null,4,5](官方範例 1)</span>
+        1
+       / \
+      2   3
+         / \
+        4   5
+
+先序列化,再把字串反序列化回來。
+以下是對真實程式插樁後印出的過程。
+<span class="sc-trace__out">// 5 個節點、6 個 null 位置</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 1: serialize —— BFS 出隊順序</span>
+  pop 1 → "1 "   queue [2, 3]
+  pop 2 → "2 "   queue [3, ∅, ∅]
+  pop 3 → "3 "   queue [∅, ∅, 4, 5]
+  pop ∅ → "n "
+  pop ∅ → "n "   queue [4, 5]
+  pop 4 → "4 "   queue [5, ∅, ∅]
+  pop 5 → "5 "   queue [∅, ∅, ∅, ∅]
+  pop ∅ ×4 → "n " ×4
+<span class="sc-trace__out">// 結果 "1 2 3 n n 4 5 n n n n ",11 個 token = 2 × 5 + 1</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 2: deserialize —— 建根</span>
+  ss &gt;&gt; word 讀到 "1" → root = 1,queue [1]
+  剩下的 token:2 3 n n 4 5 n n n n(10 個 = 2 × 5)
+<span class="sc-trace__out">// 接下來每一圈 pop 一個節點、讀兩個 token</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// STEP 3: deserialize —— 五圈</span>
+  第 1 圈  pop 1   讀 "2" "3"  → 建 2、3        queue [2, 3]
+  第 2 圈  pop 2   讀 "n" "n"  → 不建            queue [3]
+  第 3 圈  pop 3   讀 "4" "5"  → 建 4、5        queue [4, 5]
+  第 4 圈  pop 4   讀 "n" "n"  → 不建            queue [5]
+  第 5 圈  pop 5   讀 "n" "n"  → 不建            queue []
+<span class="sc-trace__out">// 節點出隊順序 1、2、3、4、5,和序列化時完全一樣</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// OUTPUT</span>
+  第 6 次 ss &gt;&gt; word 讀到結尾 → 離開迴圈
+
+  還原結果 = [1,2,3,null,null,4,5]      ✓ 與原樹相同
+  迴圈跑了 5 次 = n
+<span class="sc-trace__out">// 往返對拍 294,873 棵樹,不一致 0</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>把 STEP 1 和 STEP 3 並排看</strong>:<b>序列化時 pop 1 放進 2、3,反序列化時 pop 1 讀出 2、3</b>。
+      <strong>兩邊用的是同一個 queue 順序,只是一個在「寫」、一個在「讀」。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLICATIONS</span></h2>
+    </div>
+
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 1</span> 改用前序 DFS(遞迴)實作同樣的 Codec。</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 2</span> 如果序列化一定要省略結尾的 <code>n</code>(字串比較短),反序列化要怎麼改才正確?</div>
+    </div>
+    <div class="qa">
+      <div class="qa__q"><span class="qa__tag">App 3</span> 如果保證是 BST(LeetCode 449),可以完全不寫 null 嗎?要怎麼還原?</div>
+    </div>
+  </section>
+
+  <!-- ════════════ ANSWERS ════════════ -->
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q1</span> 為什麼要寫 null?</div>
+    <div class="qa__a">
+      <p>只寫值的話,很多形狀不同的樹會得到同一個字串。最小反例:<code>[1,2]</code>(2 在左)和 <code>[1,null,2]</code>(2 在右)都會寫成 <code>"1 2 "</code>,讀的一方沒辦法分辨。</p>
+      <p>實測只寫值的版本在 n ≤ 8 的 24,672 棵樹中錯 <strong>24,612</strong> 棵,只有 n ≤ 1 會對。<code>[1,2]</code> 會被還原成 <code>[1,2,2]</code>。</p>
+      <p>⚡ 寫出 null 等於把每個「位置」都記下來,有節點寫值、沒節點寫 <code>n</code>,形狀就唯一了。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q2</span> 為什麼要分隔符?</div>
+    <div class="qa__a">
+      <p>值的範圍是 −1000 ~ 1000,一個值可能佔 1 到 5 個字元。沒有分隔符就不知道一個值在哪裡結束:<code>[1,2]</code> 會寫成 <code>"12nnn"</code>,讀回來變成 <code>[12]</code>(實測錯 24,648 棵)。</p>
+      <p>如果改成一個字元一個字元讀(<code>c − '0'</code>),值只能是 0 ~ 9:<code>[-1000]</code> 會被讀成 <code>[-3,1,0,0,0]</code>。</p>
+      <p>⚡ 陷阱在於:<strong>如果測資的值都是 1 ~ 8,這個錯法全部會過</strong>(實測 2,056 棵只用 1..8 的樹 0 失敗)。所以測試一定要放負數和多位數。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q3</span> 為什麼一定讀得到兩個?</div>
+    <div class="qa__a">
+      <p>n 個節點有 2n 個子指標,其中 n − 1 個指向真的節點,<strong>n + 1 個是 null</strong>。序列化寫出 n 個值和 n + 1 個 <code>n</code>,共 <code>2n + 1</code> 個 token。</p>
+      <p>扣掉根之後剩 <code>2n</code> 個,而迴圈會 pop 出 n 個節點,每個讀兩個,<strong>剛好用完</strong>。實測所有序列化結果「根之後的 token 數」都是偶數,迴圈都恰好跑 n 次。</p>
+      <p>⚡ 所以右小孩那次 <code>ss &gt;&gt; word</code> 沒檢查成功與否,在這個格式下也不會出事。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q4</span> 省略結尾的 n 會怎樣?</div>
+    <div class="qa__a">
+      <p>token 數就不再是 2n + 1。當某個節點只剩左邊的 token 可讀時,右邊那次 <code>ss &gt;&gt; word</code> 會失敗,但 <code>word</code> <strong>不會被清空</strong>,還是剛剛讀到的左小孩的值,於是右邊也建出一個同值的節點。</p>
+      <p><code>[1,2]</code> → <code>"1 2 "</code> → <code>[1,2,2]</code>。實測錯 <strong>10,704 / 24,672</strong>,錯的剛好是「最後一個非 null 節點是左小孩」的那些樹;<code>[1,null,2]</code> 這種最後一個是右小孩的就沒事。</p>
+      <p>⚡ 不會崩潰,是安靜地多長出節點,所以更難發現。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">Q5</span> BFS vs 前序 DFS</div>
+    <div class="qa__a">
+      <p><strong>BFS(你的寫法)</strong>:不遞迴,10⁶ 個節點的斜鏈在 -O0 也能往返。缺點是 queue 的大小看樹的寬度,平衡樹 n = 10⁴ 時序列化會放進 10,001 個元素。</p>
+      <p><strong>前序 DFS</strong>:程式比較短,兩個函式是對稱的遞迴(見 App 1)。缺點是遞迴深度等於樹高,n = 10⁴ 斜鏈深度 10,001;10⁶ 的斜鏈在 -O0 會崩潰。</p>
+      <p>兩者序列化出來的 token 數一樣,都是 <code>2n + 1</code>。</p>
+      <p>⚡ 兩邊必須用同一種順序:用前序寫、用 BFS 讀,實測錯 24,480 棵;n ≤ 2 時兩種順序剛好一樣,所以小測資抓不到。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 1</span> 前序 DFS 版</div>
+    <div class="qa__a">
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">void ser(TreeNode* root, string&amp; s) {
+    if (!root) { s += "n "; return; }
+    s += to_string(root-&gt;val) + " ";
+    ser(root-&gt;left, s);
+    ser(root-&gt;right, s);
+}
+string serialize(TreeNode* root) { string s; ser(root, s); return s; }
+
+TreeNode* des(stringstream&amp; ss) {
+    string w; ss &gt;&gt; w;
+    if (w == "n") return nullptr;
+    TreeNode* node = new TreeNode(stoi(w));
+    node-&gt;left = des(ss);          // 前序:先建左子樹
+    node-&gt;right = des(ss);
+    return node;
+}
+TreeNode* deserialize(string data) { stringstream ss(data); return des(ss); }</pre>
+      <p>空樹會寫成 <code>"n "</code>,讀的時候第一個 token 就是 <code>n</code>,直接回傳 <code>nullptr</code>,所以這個版本不需要特別處理空字串。</p>
+      <p>實測:往返 200,000 棵隨機樹(值含 −1000、1000),不一致 0。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 2</span> 省略結尾的 n</div>
+    <div class="qa__a">
+      <p>只要改一行:右小孩那次讀取失敗時就結束迴圈,而不是沿用舊的 <code>word</code>:</p>
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">while (ss &gt;&gt; word) {
+    TreeNode* node = q.front(); q.pop();
+    if (word != "n") { /* 建左小孩 */ }
+    if (!(ss &gt;&gt; word)) break;      // 右邊沒有 token 了 → 右小孩是 null
+    if (word != "n") { /* 建右小孩 */ }
+}</pre>
+      <p>字串讀完的時候,還沒讀到的位置本來就是被省略的 null,不用處理。</p>
+      <p>實測:序列化時把結尾的 <code>n</code> 全部刪掉,再用這個版本讀回來,往返 200,000 棵隨機樹,不一致 0。</p>
+    </div>
+  </div>
+
+  <div class="qa qa--answer">
+    <div class="qa__q"><span class="qa__tag">App 3</span> BST 不寫 null</div>
+    <div class="qa__a">
+      <p>可以。BST 的前序加上「值的上下界」就能唯一還原:第一個值是根,接下來比根小的屬於左子樹、比根大的屬於右子樹。遞迴時帶著區間 <code>[lo, hi]</code>(和 <a href="../p98/index.html">98</a> 同一個思路),下一個值不在區間內就代表這個位置是 null。</p>
+      <pre style="margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;">TreeNode* build(vector&lt;int&gt;&amp; v, int&amp; i, int lo, int hi) {
+    if (i == (int)v.size() || v[i] &lt; lo || v[i] &gt; hi) return nullptr;
+    TreeNode* node = new TreeNode(v[i++]);
+    node-&gt;left  = build(v, i, lo, node-&gt;val - 1);
+    node-&gt;right = build(v, i, node-&gt;val + 1, hi);
+    return node;
+}
+// 序列化:前序只寫值;反序列化:讀成 vector,build(v, i = 0, INT_MIN, INT_MAX)</pre>
+      <p>實測:往返 200,000 棵隨機 BST,不一致 0;字串長度平均只有你的 BFS 格式的 <strong>68.3%</strong>(省掉了所有 <code>n</code>)。</p>
+      <p>⚡ 一般二元樹不行,因為值和位置之間沒有關係,只能靠 null 記號記下形狀。</p>
+    </div>
+  </div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">null 記號記下形狀,空白分隔讓負數和多位數讀得回來;BFS 序列化和反序列化走同一個 queue 順序,token 數恆為 2n+1,每個節點剛好讀兩個。結尾的 n 不能省,要省就讓右邊讀取失敗時 break。BST 則可以完全不寫 null,用前序加上下界還原。</div>
+    <div class="sc-summary-bar__detail">SERIALIZE AND DESERIALIZE BINARY TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>

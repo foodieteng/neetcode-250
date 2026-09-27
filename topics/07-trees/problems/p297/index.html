@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>297 · Serialize and Deserialize Binary Tree // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P297</span>
+    <span><a href="https://leetcode.com/problems/serialize-and-deserialize-binary-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">二元樹的序列化與反序列化</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 連 null 一起寫下來,形狀就不會丟</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 297</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BFS + NULL MARKERS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計兩個函式:<code>serialize</code> 把一棵二元樹轉成字串,<code>deserialize</code> 把字串還原成<strong>完全相同</strong>的樹。
+        <b>字串格式自己決定</b>,只要兩邊對得上。<br>
+        節點數 <code>0 ~ 10⁴</code>,值 <code>−1000 ~ 1000</code>(<b>可以是負數、多位數</b>)。<br>
+        範例:<code>[1,2,3,null,null,4,5]</code> → 序列化 → 反序列化 → 同一棵樹。
+      </p>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>只寫下節點的值,形狀就丟了</strong>:<code>[1,2]</code>(2 在左)和 <code>[1,null,2]</code>(2 在右)的值都是 1、2。
+      <b>要把「這裡沒有節點」也寫下來</b>,用一個記號(這裡是 <code>n</code>)代表 null,
+      <strong>字串才能唯一對應一棵樹。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用這個 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用「BFS + null 記號 + 空白分隔」<span class="sc-section__title-en">// KNOCKOUT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">只寫值,不寫 null</span>
+            <span class="sc-ko-card__o">形狀遺失</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>[1,2]</code> 序列化成 <code>"1 2 "</code>,還原成 <code>[1,2,2]</code>。
+            實測 n ≤ 8 的 24,672 組裡<strong>錯 24,612 組</strong>,只有 n ≤ 1 會對。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 不唯一</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">前序 DFS + null 記號(遞迴)</span>
+            <span class="sc-ko-card__o">正確,但會遞迴</span>
+          </div>
+          <div class="sc-ko-card__body">
+            格式同樣唯一,實測 0 失敗。但序列化、反序列化都要遞迴,
+            <b>深度等於樹高</b>:n = 10⁴ 斜鏈深度 10,001;10⁶ 個節點的斜鏈在 -O0 直接崩潰。
+          </div>
+          <div class="sc-ko-card__verdict">△ 對,但吃堆疊</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">BFS 逐層寫出,null 寫成 <code>n</code>,每個 token 後面加空白</span>
+          <span class="sc-ko-card__o">O(n) 時間 · O(n) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          兩邊都用 queue,<strong>完全不遞迴</strong>(10⁶ 個節點的斜鏈也正常)。
+          空白分隔讓 <code>-1000</code> 這種多字元的值能被 <code>stringstream</code> 整個讀出來。
+          實測往返 294,873 棵樹,<strong>不一致 0</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 唯一且不遞迴</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略<span class="sc-section__title-en">// STRATEGY</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>序列化</strong>:BFS。pop 出來是節點就寫它的值、把<strong>兩個小孩(包含 null)</strong>都放進 queue;
+        pop 出來是 null 就寫 <code>n</code>。空樹寫空字串。</li>
+      <li><strong>反序列化</strong>:第一個 token 是根,放進 queue。之後每 pop 一個節點,
+        <strong>就讀兩個 token</strong>,分別是它的左、右小孩;不是 <code>n</code> 就建節點並放進 queue。</li>
+      <li><strong>兩邊用同一個順序</strong>:序列化時「節點出隊、放入兩個小孩」的順序,就是反序列化時「節點出隊、讀兩個 token」的順序。</li>
+    </ol>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      <code>[1,2,3,null,null,4,5]</code> → <strong>"1 2 3 n n 4 5 n n n n "</strong><br>
+      <span style="font-size:13px;">5 個值 + 6 個 n = <strong>2n + 1</strong> 個 token</span>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// VISUALIZER</span></h2>
+    </div>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ Serialize · BFS 連 null 一起寫出,n 個節點 → 2n+1 個 token</div>
+      <div class="sc-viz__cvwrap"><canvas id="vs-canvas" class="sc-viz__canvas" style="height:456px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vs-reset">Reset</button><button class="sc-btn" id="vs-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vs-play">Play</button><button class="sc-btn" id="vs-next">Next</button>
+        <span class="sc-viz__step" id="vs-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="vs-label"></div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ Deserialize · 每 pop 一個節點吃兩個 token(左、右)</div>
+      <div class="sc-viz__cvwrap"><canvas id="vd-canvas" class="sc-viz__canvas" style="height:484px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vd-reset">Reset</button><button class="sc-btn" id="vd-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vd-play">Play</button><button class="sc-btn" id="vd-next">Next</button>
+        <span class="sc-viz__step" id="vd-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="vd-label"></div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>把兩個動畫的 queue 對照著看</strong>:<b>序列化時節點出隊的順序是 1、2、3、4、5,反序列化時也是 1、2、3、4、5</b>。
+      序列化時每個節點放進兩個小孩,反序列化時每個節點就讀兩個 token —— <strong>兩邊一步一步對得上。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 關鍵 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼 token 一定剛好配對<span class="sc-section__title-en">// 2n + 1</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">// LEMMA: n 個值 + (n + 1) 個 n</div>
+      <p>n 個節點共有 2n 個子指標,其中 n − 1 個指向真的節點(除了根,每個節點都是某人的小孩),
+        剩下 <strong>n + 1 個是 null</strong>。序列化把每個 null 都寫成 <code>n</code>,所以總共 <strong>2n + 1 個 token</strong>。</p>
+      <p>扣掉開頭的根,剩下 <strong>2n 個</strong>,正好給 n 個節點各讀兩個。
+        所以反序列化迴圈裡<strong>第二次 <code>ss &gt;&gt; word</code> 沒有檢查也不會出事</strong>(實測 294,873 棵樹都成立)。</p>
+      <p>⚠ 前提是結尾的 <code>n</code> 一個都不能省。LeetCode 顯示樹時會把結尾的 null 去掉,
+        如果照那個格式輸出,<code>[1,2]</code> 會變成 <code>"1 2 "</code>,還原成 <code>[1,2,2]</code>(實測錯 10,704 / 24,672)。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>兩個方向都是每個節點進出 queue 一次、每個 token 寫或讀一次。額外空間是字串本身和 queue。</p>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>(兩個方向)　·　空間 <strong>O(n)</strong>(字串 + queue)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th><th>實測依據(n = 10⁴)</th></tr></thead>
+      <tbody>
+        <tr><td>Time</td><td class="mono"><code>O(n)</code></td><td>serialize 391 ~ 519 µs,deserialize 1,049 ~ 1,373 µs</td></tr>
+        <tr><td>字串長度</td><td class="mono">≤ 80,002 字元</td><td>全部 −1000 時最長,約 8 bytes / 節點</td></tr>
+        <tr><td>queue 最大長度</td><td class="mono">看樹寬</td><td>平衡樹序列化時 10,001;斜鏈只有 3</td></tr>
+        <tr><td>堆疊</td><td class="mono">不遞迴</td><td>10⁶ 個節點的斜鏈在 -O0 也正常往返</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>序列化的重點不是把值存下來,而是把「形狀」存下來</strong> —— null 記號就是形狀。
+      <b>BFS 版是 <a href="../p102/index.html">102 層序走訪</a>多寫了 null</b>,
+      反序列化則是同一個 queue 反著跑一次。
+      <strong>寫出來的 token 數恆為 2n + 1,這個性質讓讀的一方可以放心地「一次讀兩個」。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與複雜度</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">BFS 逐層寫出每個節點的值,null 寫成 n,每個 token 後加空白;反序列化用同一個 queue,每 pop 一個節點讀兩個 token 當左右小孩。n 個節點恆產生 2n+1 個 token,所以一次讀兩個剛好配對 —— 前提是結尾的 n 不能省。全程不遞迴,O(n) 時間與空間。</div>
+    <div class="sc-summary-bar__detail">SERIALIZE AND DESERIALIZE BINARY TREE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p297-codec.js"></script>
+</body>
+</html>

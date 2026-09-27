@@ -187,7 +187,7 @@ PROBLEMS = {
         ('p337', 'House Robber III',                                         'house-robber-iii',                                         'med', 'done'),
         ('p1325','Delete Leaves With a Given Value',                         'delete-leaves-with-a-given-value',                         'med', 'todo'),
         ('p124', 'Binary Tree Maximum Path Sum',                             'binary-tree-maximum-path-sum',                             'hard','done'),
-        ('p297', 'Serialize and Deserialize Binary Tree',                    'serialize-and-deserialize-binary-tree',                    'hard','todo'),
+        ('p297', 'Serialize and Deserialize Binary Tree',                    'serialize-and-deserialize-binary-tree',                    'hard','done'),
     ],
     '08': [  # Heap / Priority Queue
         ('p703', 'Kth Largest Element in a Stream','kth-largest-element-in-a-stream','easy','todo'),
