@@ -190,7 +190,7 @@ PROBLEMS = {
         ('p297', 'Serialize and Deserialize Binary Tree',                    'serialize-and-deserialize-binary-tree',                    'hard','done'),
     ],
     '08': [  # Heap / Priority Queue
-        ('p703', 'Kth Largest Element in a Stream','kth-largest-element-in-a-stream','easy','todo'),
+        ('p703', 'Kth Largest Element in a Stream','kth-largest-element-in-a-stream','easy','done'),
         ('p1046','Last Stone Weight',              'last-stone-weight',              'easy','todo'),
         ('p973', 'K Closest Points to Origin',     'k-closest-points-to-origin',     'med', 'todo'),
         ('p215', 'Kth Largest Element in an Array','kth-largest-element-in-an-array','med', 'todo'),

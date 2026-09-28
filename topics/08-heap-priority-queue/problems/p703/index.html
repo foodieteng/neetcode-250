@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>703 · Kth Largest Element in a Stream // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P703</span>
+    <span><a href="https://leetcode.com/problems/kth-largest-element-in-a-stream/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">資料流中第 K 大的元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 只留前 k 名,守門員站在堆頂</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 703</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MIN-HEAP OF SIZE K</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計一個類別:建構時給 <code>k</code> 和初始陣列 <code>nums</code>;之後每次 <code>add(val)</code> 把 <code>val</code> 加進資料流,
+        <strong>回傳目前所有數字中第 <code>k</code> 大的那個</strong>(排序後的第 k 大,<strong>重複的值也算</strong>)。<br>
+        <code>0 ≤ nums.length ≤ 10⁴</code>,<code>1 ≤ k ≤ nums.length + 1</code>,值域 <code>±10⁴</code>,最多 <code>10⁴</code> 次 <code>add</code>。
+      </p>
+    </div>
+
+    <p>
+      這是本章的第一題,也是「<strong>Top-K</strong>」問題的原型。
+      關鍵觀察:<b>要回答「第 k 大」,只需要記住<em>最大的 k 個</em>數字,其他的永遠用不到</b> ——
+      一個數字一旦被擠出前 k 名,之後只會有更多數字加進來,它<strong>不可能再回到前 k 名</strong>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>第 k 大 = 「前 k 名裡面最小的那個」。</strong>
+      <b>所以要一個能快速拿到「最小值」的容器,裝著前 k 名 —— 就是大小為 k 的<em>最小堆</em>。</b>
+      <strong>堆頂就是守門員:新來的數字要比它大,才擠得進前 k 名。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「大小為 k 的最小堆」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">全部存起來,每次 add 都排序</span>
+            <span class="sc-ko-card__o">O(N log N) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案對(驗證時就拿它當對拍的參考解),但<strong>每次都重排所有數字</strong>。
+            <b>實測 10⁴ 個初始值 + 10⁴ 次 add:約 1.1 秒</b>,而堆的版本不到 1 毫秒。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 慢約 1000 倍</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">用最大堆(<code>priority_queue&lt;int&gt;</code> 預設)</span>
+            <span class="sc-ko-card__o">方向反了</span>
+          </div>
+          <div class="sc-ko-card__body">
+            同樣「超過 k 就 pop」,但最大堆 pop 掉的是<strong>最大值</strong> ——
+            <b>留下來的是最小的 k 個,堆頂變成「第 k 小」</b>。
+            實測窮舉錯 <strong>11560/13962</strong>,最小反例 <code>k=1</code>、依序 add 1, 2 → 回 <code>[1,1]</code>(正解 <code>[1,2]</code>)。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 留錯了那一半</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">最小堆,<strong>永遠只留 k 個</strong></span>
+          <span class="sc-ko-card__o">O(log k) / 次 · O(k) 空間</span>
+        </div>
+        <div class="sc-ko-card__body">
+          每來一個數字就 push;<strong>一超過 k 個,就把最小的那個 pop 掉</strong>(它已經不在前 k 名了)。
+          <b>剩下的 k 個永遠是「目前最大的 k 個」,堆頂就是第 k 大。</b>
+          堆的大小和總數量無關,只跟 <code>k</code> 有關。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 堆頂即答案</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>最小堆</strong>:<code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code> —— <b>第三個參數 <code>greater</code> 才讓它變成最小堆</b>。</li>
+      <li><strong>建構時</strong>:把 <code>nums</code> 逐個 push,<strong>每次超過 k 就 pop</strong>,結束時堆裡最多 k 個。</li>
+      <li><strong><code>add</code></strong>:<strong>先 push,再檢查</strong>大小,超過 k 就 pop,最後回傳 <code>top()</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「先 push 再 pop」讓新數字和守門員公平比一次</strong>:
+      新數字比較小,它自己就會被 pop 掉;比較大,被 pop 的就是舊守門員。
+      <b>反過來「先 pop 再 push」會在還沒比較之前就把守門員趕走</b>(實測錯 9907/13962)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 · k = 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>nums = [4,5,8,2]</code>,接著 add 3, 5, 10, 9, 4。
+      <strong>看堆的大小:只有在 push 之後、pop 之前會短暫變成 4</strong>,其他時候永遠是 3。
+      <b>5 次 add 裡只有 2 次改變了答案</b>(add 5:4→5、add 9:5→8)—— 其他三次,新數字要嘛自己被丟掉,要嘛只是擠掉一個比守門員還小的舊值。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 大小為 k 的最小堆 · 堆頂就是第 k 大</div>
+      <div class="sc-viz__cvwrap"><canvas id="v703-canvas" class="sc-viz__canvas" style="height:404px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v703-reset">Reset</button><button class="sc-btn" id="v703-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v703-play">Play</button><button class="sc-btn" id="v703-next">Next</button>
+        <span class="sc-viz__step" id="v703-step">00 / 16</span>
+      </div>
+      <div class="sc-viz__label" id="v703-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 被 pop 掉的數字,永遠不會再被需要</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          被 pop 的時候,堆裡有 k+1 個數字,<strong>它是其中最小的</strong> —— 也就是說至少有 k 個數字比它大(或一樣大)。
+          <b>之後資料流只會變多,這 k 個數字不會消失</b>,所以它的名次只會往後掉,<strong>不可能再成為第 k 大</strong>。<br>
+          <strong>實測</strong>:和「全部存起來、每次排序取第 k 個」的暴力解對拍,隨機 <strong>20000</strong> 個 session、
+          共 <strong>511,122</strong> 次 add,外加一個滿規模 session(10⁴ + 10⁴,k=2170)—— <b>不一致 0</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · <code>top()</code> 永遠不會碰到空堆</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          建構完堆裡有 <code>min(nums.length, k)</code> 個。題目保證 <strong><code>k ≤ nums.length + 1</code></strong>,
+          所以最壞情況只差 1 個 —— <b>第一次 add 先 push,大小就到 k 了</b>,之後每次都是「push 到 k+1、pop 回 k」。
+          <strong>因為每次 add 都先 push,<code>top()</code> 執行時堆至少有 1 個元素。</strong><br>
+          <strong>實測</strong>:<code>k=1, nums=[]</code> 也正常(建構後 0 個,第一次 add 後 1 個)。
+          <b>這個保證是題目給的</b> —— 若違反(例如 <code>k=3, nums=[1]</code>),第一次 add 不會崩潰,但回傳的值沒有意義。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 六種改法的實測結果(窮舉 k≤3、nums 長度≤4、≤3 次 add、值 ∈ {1,2,3},共 13962 個 session)</span>
+最大堆(預設 priority_queue)     → 錯 11560,k=1, add 1,2 → [1,1]
+pop 條件寫成 size() &gt;= k         → 錯 9746,其中 4719 次對空堆 top() 崩潰
+先 pop 再 push                  → 錯 9907,k=1, add 2,1 → [2,1](正解 [2,2])
+建構時不修剪到 k                 → 錯 9694,k=1, nums=[1,1], add 2 → [1]
+「val &gt; top 才換」但少了 size&lt;k 分支 → 錯 411(39 次崩潰)
+「val &gt; top 才換」+ size&lt;k 時直接 push → 錯 0  ← 正確的優化寫法
+<span class="sc-trace__out">// 最後兩列只差一個分支:nums 比 k 少的時候,堆還沒滿,不能拿 top 當門檻</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O((n + q) log k)</strong>(n = 初始數量、q = add 次數)　·　空間 <strong>O(k)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>10⁴ 個初始值 + 10⁴ 次 add</th><th>總時間(-O2)</th><th>堆最大大小</th><th>pop 次數</th></tr></thead>
+      <tbody>
+        <tr><td><code>k = 1</code></td><td class="mono ok">0.085 ms</td><td class="mono">2</td><td class="mono">19999</td></tr>
+        <tr><td><code>k = 100</code></td><td class="mono">0.272 ms</td><td class="mono">101</td><td class="mono">19900</td></tr>
+        <tr><td><code>k = 5000</code></td><td class="mono">0.911 ms</td><td class="mono">5001</td><td class="mono">15000</td></tr>
+        <tr><td><code>k = 10⁴</code></td><td class="mono">0.854 ms</td><td class="mono">10001</td><td class="mono">10000</td></tr>
+        <tr><td>對照:每次 add 都排序</td><td class="mono fail"><strong>≈ 1100 ms</strong></td><td class="mono">全部</td><td class="mono">—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>pop 次數永遠是 20000 − k</strong>:總共 push 了 2×10⁴ 個,最後留 k 個。
+      <b>堆最大只到 k+1,而且只維持在 push 和 pop 之間那一瞬間。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>第 k 大 = 前 k 名裡最小的 —— 所以用最小堆裝前 k 名,堆頂就是答案。</strong>
+      <b>被擠出前 k 名的數字永遠回不來,可以放心丟掉</b>;
+      <strong>先 push 再 pop,讓新來的和守門員公平比一次。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">第 k 大就是前 k 名裡最小的,所以用大小為 k 的最小堆:先 push、超過 k 就 pop,堆頂即答案。被 pop 的數字永遠回不到前 k 名;每次 O(log k),比每次排序快約 1000 倍。</div>
+    <div class="sc-summary-bar__detail">KTH LARGEST ELEMENT IN A STREAM · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p703-minheap.js"></script>
+</body>
+</html>

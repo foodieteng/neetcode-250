@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>703 · Kth Largest Element in a Stream // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P703</span>
+    <span><a href="https://leetcode.com/problems/kth-largest-element-in-a-stream/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">資料流中第 K 大的元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 703</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MIN-HEAP OF SIZE K</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>核心等式</td><td><strong>第 k 大 = 前 k 名裡最小的</strong></td></tr>
+        <tr><td>容器</td><td><strong>最小堆</strong>,<code>greater&lt;int&gt;</code>;大小維持 k</td></tr>
+        <tr><td>為什麼可以丟</td><td>被 pop 的那個已經有 k 個比它大,<strong>永遠回不到前 k 名</strong></td></tr>
+        <tr><td>順序</td><td><strong>先 push 再 pop</strong>(反過來錯 9907/13962)</td></tr>
+        <tr><td>建構</td><td>也要邊 push 邊修剪到 k(不修剪錯 9694)</td></tr>
+        <tr><td>空堆</td><td><code>k ≤ len+1</code> + 先 push ⇒ <code>top()</code> 永遠有東西</td></tr>
+        <tr><td>成本</td><td><code>O(log k)</code> / 次;10⁴+10⁴ 不到 1 ms,每次排序約 1.1 秒</td></tr>
+        <tr><td>重複值</td><td>照算,不去重(範例 2 的四個 7 各佔一個名次)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 找「第 k <strong>大</strong>」為什麼要用<strong>最小</strong>堆?用最大堆會怎樣?</div>
+
+    <div class="qa"><strong>Q2.</strong> 被 pop 掉的數字直接丟了。<strong>憑什麼</strong>確定之後不會再需要它?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>add</code> 裡為什麼是「先 push 再 pop」?反過來寫會錯在哪?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>nums</code> 可以是空的(<code>k=1, nums=[]</code>)。<code>pq.top()</code> 會不會碰到空堆?</div>
+
+    <div class="qa"><strong>Q5.</strong> 編譯時 <code>-Wall -Wextra</code> 對 <code>pq.size() &gt; k</code> 報警告。這是 bug 嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 範例 2 · 大量重複值</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>k = 4</code>,<code>nums = [7,7,7,7,8,3]</code>,接著 add 2, 10, 9, 9。
+      <strong>四個 7 各自佔一個名次</strong> —— 重複值不去重。方括號是實跑印出的底層陣列。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 建構(push 6 個,pop 2 個)</span>
+push 7,7,7,7 → [7,7,7,7]
+push 8       → [7,7,7,7,8]    size 5 &gt; 4 → pop 丟掉 7 → [7,7,8,7]
+push 3       → [3,7,8,7,7]    size 5 &gt; 4 → pop 丟掉 3 → [7,7,8,7]</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: add</span>
+add(2):  push → [2,7,8,7,7]    pop 2 → [7,7,8,7]    return 7
+add(10): push → [7,7,8,7,10]   pop 7 → [7,7,8,10]   return 7
+add(9):  push → [7,7,8,10,9]   pop 7 → [7,9,8,10]   return 7
+add(9):  push → [7,9,8,10,9]   pop 7 → [8,9,9,10]   return 8   ★ 最後一個 7 被擠出
+<span class="sc-trace__out">// OUTPUT: [null,7,7,7,8]</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>答案卡在 7 三次,是因為前 4 名裡本來有三個 7</strong> —— 每來一個更大的數,只擠掉<em>一個</em> 7。
+      <b>要等三個 7 都被擠出去(加上 10、9、9),守門員才換成 8。</b>
+      4 次 add 裡只有最後一次改變答案。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成「資料流中第 k <strong>小</strong>」,程式碼要改哪裡?</div>
+
+    <div class="qa"><strong>App 2.</strong> <strong>Kth Largest Element in an Array</strong>(LeetCode 215):陣列一次給完,只問一次。這題的寫法能直接用嗎?有沒有不同的選擇?</div>
+
+    <div class="qa"><strong>App 3.</strong> <strong>K Closest Points to Origin</strong>(LeetCode 973):從一堆點裡找離原點最近的 k 個。該用最大堆還是最小堆?堆裡要比較什麼?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為第 k 大 = 前 k 名裡「最小」的那個,需要隨時拿到前 k 名的最小值。</strong><br><br>
+  最小堆裝前 k 名,堆頂就是答案,超過 k 個時 pop 掉的也正好是「最該被淘汰的」那個。<br>
+  <b>改用最大堆</b>:超過 k 時 pop 掉的是<strong>最大值</strong>,留下的是最小的 k 個,堆頂變成第 k <em>小</em>。
+  實測窮舉錯 <strong>11560 / 13962</strong>;最小反例 <code>k=1</code>,add 1、2 → 回 <code>[1,1]</code>(正解 <code>[1,2]</code>)。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>被 pop 的那一刻,堆裡有 k+1 個數,它是最小的 —— 已經有 k 個數 ≥ 它。</strong><br><br>
+  資料流只增不減,那 k 個數不會消失,所以它<b>至少排在第 k+1 名,而且名次只會往後掉</b>,不可能再成為第 k 大。
+  這也是「只需 <code>O(k)</code> 空間」的根據。<br>
+  實測:和「全部存起來每次排序」對拍 511,122 次 add + 滿規模 10⁴ 次,<strong>不一致 0</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>先 push,新數字才會和守門員(堆頂)比一次:比較小就是它自己被 pop,比較大就是舊守門員被 pop。</strong><br><br>
+  <b>先 pop 再 push</b>:還沒比就把守門員丟了。如果新數字比守門員小,等於用一個更小的數換掉第 k 大。<br>
+  最小反例:<code>k=1</code>,add 2、1 → 回 <code>[2,1]</code>(正解 <code>[2,2]</code>);窮舉錯 <strong>9907 / 13962</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會,但這是題目的限制 <code>k ≤ nums.length + 1</code> 保證的。</strong><br><br>
+  建構完堆裡有 <code>min(len, k)</code> 個,最多比 k 少 1 個。第一次 <code>add</code> 先 push,大小就到 k(≥ 1),<code>top()</code> 一定有值。
+  實測 <code>k=1, nums=[]</code> → 建構後 0 個、第一次 add 後 1 個,答案正確。<br>
+  <b>反例的寫法:pop 條件寫成 <code>&gt;= k</code></b>,堆只留 k−1 個,<code>k=1</code> 時變空,<code>top()</code> 就是未定義行為 —— 窮舉 13962 個 session 裡 <strong>4719 次</strong>崩潰。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不是 bug,是 <code>-Wsign-compare</code>:<code>size()</code> 回傳無號的 <code>size_t</code>,和有號的 <code>int</code> 比較。</strong><br><br>
+  危險的情況是 <code>int</code> 為負數 —— 轉成無號會變成超大的數。這裡 <code>k ≥ 1</code>,轉換後數值不變,結果正確。
+  想讓編譯器安靜:成員 <code>size</code> 改用 <code>size_t</code>,或寫 <code>(int)pq.size() &gt; size</code>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>把最小堆換成最大堆:<code>priority_queue&lt;int&gt;</code>(預設)。其他完全不變。</strong><br><br>
+  第 k 小 = 「最小的 k 個裡最大的」,所以要能隨時拿到最大值;超過 k 時 pop 掉最大的那個。
+  <b>這正好是 Q1 那個「用錯方向」的寫法</b> —— 同一份程式碼,堆的方向決定它回答第 k 大還是第 k 小。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>可以:把陣列全部丟進大小為 k 的最小堆,最後的 top 就是答案,<code>O(n log k)</code>。</strong><br><br>
+  但因為只問一次、資料一次給完,還有別的選擇:<b>quickselect</b>(像快速排序但只遞迴一邊)平均 <code>O(n)</code>;
+  C++ 可以直接用 <code>nth_element</code>。<strong>703 的堆解勝在「資料一直來、一直問」</strong> —— quickselect 每次都要重來一遍。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>「最近的 k 個」= 距離最小的 k 個 → 用<em>最大</em>堆,堆頂是這 k 個裡最遠的。</strong><br><br>
+  和 App 1 同一個道理:要留下「最小的 k 個」,就用最大堆把最大的踢掉。堆裡比較的是<b>距離平方 <code>x² + y²</code></b>(不用開根號,大小順序不變)。
+  超過 k 個就 pop 掉最遠的,最後堆裡剩的就是答案,<code>O(n log k)</code>。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">找第 k 大用最小堆、找第 k 小用最大堆 —— 堆的方向永遠和「要留下的那一半」相反,這樣被踢掉的才是該踢的。重複值照算,範例 2 的三個 7 要被一個個擠出去,答案才會變。</div>
+    <div class="sc-summary-bar__detail">KTH LARGEST ELEMENT IN A STREAM · REVIEW</div>
+  </div>
+
+</body>
+</html>
