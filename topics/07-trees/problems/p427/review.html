@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>427 · Construct Quad Tree // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P427</span>
+    <span><a href="https://leetcode.com/problems/construct-quad-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">建構四元樹</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 427</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DIVIDE &amp; CONQUER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td><strong>整塊同值 → 葉子;否則切四塊各自遞迴</strong></td></tr>
+        <tr><td>區域表示</td><td><code>(length, r, c)</code>:左上角 + 邊長,不複製子矩陣</td></tr>
+        <tr><td>座標</td><td>右 = <code>c + h</code>、下 = <code>r + h</code>;右上 / 左下寫反錯 64,520 / 65,554</td></tr>
+        <tr><td>最精簡</td><td>「檢查過才切」⇒ 內部節點只出現在真的混色的區域</td></tr>
+        <tr><td>節點數</td><td>節點 = 4·內部 + 1,葉子 = 3·內部 + 1,<code>build</code> 呼叫次數 = 節點數</td></tr>
+        <tr><td>時間</td><td><strong>O(n² log n)</strong>,天花板 n²(log₂n+1);<strong>2.375n² 只是 n=4 的最大值</strong></td></tr>
+        <tr><td>內部 val</td><td>你填 <code>grid[r][c]</code>,原始輸出和官方不同但被接受</td></tr>
+        <tr><td>和 1325 對比</td><td>1325 必須後序;這題判斷自己不需要小孩,所以可以<strong>先判再遞迴</strong></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼遞迴一定會停?<code>length = 1</code> 時會發生什麼事?</div>
+
+    <div class="qa"><strong>Q2.</strong> 「先檢查、不同才切」為什麼能保證蓋出來的樹是最精簡的?</div>
+
+    <div class="qa"><strong>Q3.</strong> 時間複雜度是多少?有人說最壞是 <code>2.375n²</code>,對嗎?</div>
+
+    <div class="qa"><strong>Q4.</strong> 你的程式對內部節點填 <code>val = grid[r][c]</code>,範例 1 的原始輸出是 <code>[[0,0],...]</code>,官方寫 <code>[[0,1],...]</code>。為什麼還是會通過?</div>
+
+    <div class="qa"><strong>Q5.</strong> 節點最多的西洋棋盤(n=64,5,461 個節點),讀格數反而只有 6,826;只有一格是 1 的矩陣卻讀了 9,556 格。為什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 範例 1 · [[0,1],[1,0]]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">最小的「必須切」的矩陣:2×2 的棋盤格。以下是實跑的呼叫順序與讀格數。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 整張 2×2</span>
+build(2,0,0)   基準 grid[0][0] = 0
+               讀 (0,0)=0、(0,1)=1 → 第 2 格就不同 → isSame = false
+               → 內部節點,val = grid[0][0] = 0</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 四個 1×1(一格一定同值)</span>
+  build(1,0,0) 左上   讀 1 格 → 葉 0
+  build(1,0,1) 右上   讀 1 格 → 葉 1
+  build(1,1,0) 左下   讀 1 格 → 葉 1
+  build(1,1,1) 右下   讀 1 格 → 葉 0</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 統計</span>
+讀格 2 + 1×4 = 6    節點 5 = 4 葉 + 1 內部    深度 2
+<span class="sc-trace__out">// OUTPUT: [[0,0],[1,0],[1,1],[1,1],[1,0]](根的 val 是 0,官方寫 1 —— 內部節點不比對)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>根只讀了 2 格就知道要切</strong>,不用把 4 格讀完 —— 這就是提早結束。
+      <b>四個 1×1 各讀 1 格一定同值,所以 <code>length = 1</code> 永遠是葉子,遞迴到這裡必停。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用<strong>二維前綴和</strong>讓 <code>isSame</code> 變成 O(1)。整體複雜度會變成多少?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改寫成<strong>由下往上合併</strong>(後序)的版本:先蓋四個小孩,四個都是同值葉子就合併。和你的版本比,各有什麼優缺點?</div>
+
+    <div class="qa"><strong>App 3.</strong> <strong>Logical OR of Two Binary Grids Represented as Quad-Trees</strong>(LeetCode 558):給兩棵四元樹,回傳它們對應矩陣做 OR 之後的四元樹。能不能不還原成矩陣,直接在樹上做?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>邊長每層減半,最後一定到 <code>length = 1</code>;一格的區域 <code>isSame</code> 一定回 <code>true</code>,直接成為葉子。</strong><br><br>
+  因為 <code>n = 2ˣ</code>,每次 <code>/ 2</code> 都整除,不會出現奇數邊長;最多 <code>log₂n + 1</code> 層(n = 64 實測深度 7)。
+  所以 <code>length / 2 = 0</code> 那一行永遠不會執行到。<br>
+  反例:小孩邊長忘了 <code>/ 2</code>,<code>build(length, r, c)</code> 呼叫自己 → 無限遞迴,窮舉 65,554 張裡崩潰 65,548 張,只有 6 張全同值的倖存。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>內部節點只會出現在 <code>isSame</code> 回 <code>false</code> 的區域 —— 那裡真的有兩種值,不可能用一片葉子表示。</strong><br><br>
+  反過來,只要一塊同值,在第一次碰到它的那一層就會收成葉子,不會被多切。所以沒有多餘的切割,也沒有該切沒切。<br>
+  實測:和「由下往上合併」的參考解對拍,n = 2、4 全部矩陣 + n = 8~64 各 20,000 張,結構不一致 0。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>O(n² log n);天花板是 n²(log₂n + 1) 次讀格。「2.375n²」不是最壞情況。</strong><br><br>
+  同一層的區域互不重疊,加起來最多 n² 格;最多 log₂n + 1 層,所以每層最多重讀一次整張。<br>
+  <b>2.375n² 的來源</b>:n = 4 窮舉全部 65,536 張,最多讀 38 格 = 2.375 × 16。但它只是 n = 4 的最大值 ——
+  <strong>n = 8 就找得到讀 178 格(2.781n²)的矩陣</strong>,比例會隨 n 往上漂,所以不能當上界。能證明的說法是 O(n² log n)。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>題目規定內部節點的 <code>val</code> 填什麼都可以,判題只比對 <code>isLeaf</code> 和葉子的 <code>val</code>。</strong><br><br>
+  你的程式對內部節點填 <code>grid[r][c]</code>(區域左上角的值):範例 1 左上是 0,所以根印成 <code>[0,0]</code>;
+  範例 2 右上那塊 4×4 的左上是 0,也印成 <code>[0,0]</code>。官方範例習慣寫 <code>[0,1]</code>,但那只是其中一種合法答案。
+  實測忽略內部 <code>val</code> 後,兩個範例都完全相同。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>成本看的是「每塊要讀多久才發現不同」,不是節點數。</strong><br><br>
+  <b>棋盤</b>:每一塊邊長 ≥ 2 的區域,第 2 格就和第 1 格不同,<code>isSame</code> 讀 2 格就結束;
+  1,365 個內部節點各讀 2 格 + 4,096 個 1×1 各讀 1 格 = 6,826。<br>
+  <b>只有右下角是 1</b>:差異藏在最後一格,每一層包含右下角的那塊都要掃到底才發現;其他同值的塊又要完整讀一遍才能確認是葉子。
+  所以節點只有 25 個,卻讀了 9,556 格(2.333n²)。<br>
+  <strong>提早結束幫得上忙的,是「很快就出現差異」的矩陣。</strong></div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>先建 <code>(n+1)×(n+1)</code> 的前綴和 <code>P</code>,區域總和 = 右下 − 上 − 左 + 左上;總和是 0 或 <code>length²</code> 就是同值。</strong><br><br>
+  每次 <code>isSame</code> 變 O(1),總時間 = 建前綴和 O(n²) + 節點數 × O(1)。
+  節點數最多 <code>(4n² − 1) / 3</code>(n = 64 時 5,461,就是切到 1×1 的棋盤),所以整體 <strong>O(n²)</strong>。
+  代價是多一張 O(n²) 的前綴和表。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>後序版:<code>length == 1</code> 直接回葉子;否則先建四個小孩,若四個都是葉子且 <code>val</code> 相同,就刪掉小孩、回傳一片葉子。</strong><br><br>
+  <b>優點</b>:每格只讀一次,O(n²)(本題驗證時就拿它當參考解)。
+  <b>缺點</b>:要先建出小孩再丟掉 —— 全 0 的 64×64 也會先建一路到 1×1 再合併;還要記得釋放被合併掉的節點。
+  你的由上往下版<strong>全 0 只讀 4,096 格、只建 1 個節點</strong>,同色大區域時反而省。
+  這就是 <a href="../p1325/index.html">1325</a> 那種「先處理小孩,再決定自己」的後序模式。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>可以,同時遞迴走兩棵樹。</strong><br><br>
+  · 其中一棵是<strong>葉子 1</strong> → 結果整塊都是 1,直接回葉子 1。<br>
+  · 其中一棵是<strong>葉子 0</strong> → OR 0 不改變任何東西,直接回另一棵。<br>
+  · 兩棵都是內部節點 → 四個方向分別遞迴;<b>回來後若四個結果都是同值葉子,要合併成一片葉子</b>(否則樹不是最精簡的)。<br>
+  和本題一樣的兩個重點:「同值就收成葉子」,以及四個方向的對應不能寫反。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">length = 1 一定是葉子,所以遞迴必停;檢查過才切,所以樹最精簡。成本看「多快發現差異」而不是節點數:棋盤 5,461 個節點只讀 6,826 格。前綴和可把整體降到 O(n²)。</div>
+    <div class="sc-summary-bar__detail">CONSTRUCT QUAD TREE · REVIEW</div>
+  </div>
+
+</body>
+</html>

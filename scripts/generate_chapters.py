@@ -179,7 +179,7 @@ PROBLEMS = {
         ('p450', 'Delete Node in a BST',                                     'delete-node-in-a-bst',                                     'med', 'done'),
         ('p102', 'Binary Tree Level Order Traversal',                        'binary-tree-level-order-traversal',                        'med', 'done'),
         ('p199', 'Binary Tree Right Side View',                              'binary-tree-right-side-view',                              'med', 'done'),
-        ('p427', 'Construct Quad Tree',                                      'construct-quad-tree',                                      'med', 'todo'),
+        ('p427', 'Construct Quad Tree',                                      'construct-quad-tree',                                      'med', 'done'),
         ('p1448','Count Good Nodes in Binary Tree',                          'count-good-nodes-in-binary-tree',                          'med', 'done'),
         ('p98',  'Validate Binary Search Tree',                              'validate-binary-search-tree',                              'med', 'done'),
         ('p230', 'Kth Smallest Element in a BST',                            'kth-smallest-element-in-a-bst',                            'med', 'done'),
