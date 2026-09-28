@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>355 · Design Twitter // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P355</span>
+    <span><a href="https://leetcode.com/problems/design-twitter/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">設計推特</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 355</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DESIGN · TOP-K BY TIME</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>時間</td><td>全域 <code>++ts</code>;<strong>不能用 tweetId</strong>(不保證照時間)</td></tr>
+        <tr><td>儲存</td><td><code>tweets[user]</code> = (時間, id) 的 vector;<code>followG[user]</code> = <code>unordered_set</code></td></tr>
+        <tr><td>取最新 10 則</td><td>依時間的<strong>最小堆</strong>,超過 10 踢最舊 —— 703 的模式</td></tr>
+        <tr><td>輸出順序</td><td>倒出來是舊→新,<strong>要 reverse</strong></td></tr>
+        <tr><td>自己</td><td>自己的推文先加一次;<code>follow</code> 要擋自己,否則重複</td></tr>
+        <tr><td>推進順序</td><td>不重要:大小 k 的最小堆不管輸入順序,都留最大的 k 個</td></tr>
+        <tr><td>效能</td><td>O(T log 10);最壞 2.5 s → 每人只看最後 10 則降到 60 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 要「最新」的 10 則,為什麼用<strong>最小</strong>堆?最後為什麼要 <code>reverse</code>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼要自己維護 <code>++ts</code>,不直接用 <code>tweetId</code> 比較新舊?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>follow</code> 裡的 <code>if (followerId == followeeId) return;</code> 是必要的嗎?<code>unfollow</code> 裡那一行呢?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>unordered_set</code> 的走訪順序是不固定的,推文是一個人一個人推進堆,不是照時間。結果為什麼還是對的?</div>
+
+    <div class="qa"><strong>Q5.</strong> 你的版本在什麼情況下會很慢?慢在哪裡?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 動畫那組 · 3 人 12 則</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      user 1 追蹤 2、3;三人輪流發文,時間 1~12(tweetId:user 1 是 11~14、user 2 是 21~24、user 3 是 31~34)。
+      以下是 <code>feed(1)</code> 實跑印出的過程,<code>tN:id</code> 表示時間 N 的那則推文,堆依時間列出。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 自己的 4 則,再 user 3 的 4 則(unordered_set 實際先走 3)</span>
+push t2:11, t5:12, t8:13, t11:14          size 4
+push t3:31, t6:32, t9:33, t12:34          size 8</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: user 2 的 4 則,兩次淘汰</span>
+push t1:21, t4:22                         size 10(剛好滿)
+push t7:23  → size 11 &gt; 10 → pop t1:21   ← 全場最舊
+push t10:24 → size 11 &gt; 10 → pop t2:11   ← user 1 自己最舊的一則
+堆:t3 … t12(10 則)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 倒出 + reverse</span>
+倒出(舊 → 新):[31,22,12,32,23,13,33,24,14,34]
+reverse       :[34,14,24,33,13,23,32,12,22,31]
+<span class="sc-trace__out">// OUTPUT: [34,14,24,33,13,23,32,12,22,31] —— 時間 12 到 3</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>推進的順序是 user 1 → 3 → 2,完全不是時間順序</strong>,而且被淘汰的 t=1 是最後一批才進來的。
+      <b>但堆只在乎「目前手上最舊的是誰」</b>,所以最後剩下的一定是時間最大的 10 則。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改寫 <code>getNewsFeed</code>,讓每個人<strong>最多只看最後 10 則</strong>,並且在確定更舊的推文不可能進前 10 時提早停。</div>
+
+    <div class="qa"><strong>App 2.</strong> 另一種做法是<strong>多路合併</strong>:堆裡每個人只放一則(他最新的),每 pop 一則就把那個人的下一則放進去。複雜度是多少?和 App 1 比如何?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果題目保證 <code>tweetId</code> 一定照發文時間遞增,程式可以怎麼簡化?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>要留下時間<em>最大</em>的 10 則,就得能隨時踢掉手上<em>最舊</em>的 —— 最小堆的 top 就是它。</strong><br><br>
+  和 <a href="../p703/index.html">703</a> 同一個道理:留大的用最小堆。
+  <b>倒出來的時候,最小堆先吐最舊的</b>,所以 <code>ans</code> 是舊→新,題目要新→舊,就得 <code>reverse</code>。<br>
+  少了 <code>reverse</code>:窮舉錯 3,506 條,<code>post(1,1)</code>、<code>post(1,2)</code>、<code>feed(1)</code> → <code>[1,2]</code>(正解 <code>[2,1]</code>)。
+  改用最大堆又會變成留下最舊的 10 則:12 則時回 <code>[1..10]</code>。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>題目只保證 tweetId 不重複,沒保證照時間遞增。</strong><br><br>
+  反例:<code>post(1, 2)</code>、<code>post(1, 1)</code>、<code>feed(1)</code> —— 後發的是 1,正解 <code>[1, 2]</code>;用 tweetId 比新舊會回 <code>[2, 1]</code>。
+  隨機 20,000 個 session 裡錯 18,169 個。<b>全域 <code>++ts</code> 每發一則加 1,才是真正的先後。</b></div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong><code>follow</code> 那一行必要;<code>unfollow</code> 那一行可有可無。</strong><br><br>
+  <code>getNewsFeed</code> 先加自己的推文,再加每個追蹤對象的。如果 <code>follow(1,1)</code> 讓 1 出現在 <code>followG[1]</code>,
+  自己的推文會被加兩次 → <code>[1,1]</code>。窮舉錯 5,024 條。<br>
+  <code>unfollow</code> 的那一行:因為 <code>follow</code> 已經擋掉,自己從來不會在集合裡,<code>erase</code> 一個不存在的元素什麼事都不會發生 —— 實測拿掉它 0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>大小 k 的最小堆,不管輸入順序,最後留下的一定是最大的 k 個。</strong><br><br>
+  被 pop 的那則,當下堆裡已經有 10 則比它新 —— 之後不管再來什麼,它都不可能擠回前 10。
+  所以推進的順序只影響「中間過程」,不影響結果。這和 <a href="../p215/index.html">215</a> 對已排序輸入的觀察一樣。<br>
+  實測和暴力解逐字比對 789,724 次 feed,0 不一致。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>追蹤很多人、而且歷史很長的時候 —— 每次 feed 都要把所有相關推文重新推一遍堆。</strong><br><br>
+  刻意構造:user 1 追蹤 499 人、全站 10,001 則推文,接著 19,500 次 <code>feed(1)</code>:
+  每次推 10,001 則,共 <strong>195,019,500</strong> 次 push,約 2.4 ~ 2.6 秒。<br>
+  <b>浪費在哪:每個人的推文本來就照時間排好</b>,一個人最多只可能貢獻 10 則,更舊的根本不用看。
+  只看最後 10 則的版本同一組測資約 59 ~ 69 ms(App 1)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>從每個人的 vector 尾巴往前拿,最多 10 則;堆滿了而且這則比堆頂還舊,就提早停。</strong><br><br>
+<div class="sc-codewindow" style="margin:6px 0 10px;">
+<pre class="sc-code"><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">getNewsFeed</span><span class="p">(</span><span class="t">int</span> userId<span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> cmp <span class="p">=</span> <span class="p">[](</span><span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> p1<span class="p">,</span> <span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> p2<span class="p">)</span> <span class="p">{</span> <span class="k">return</span> p1<span class="p">.</span>first <span class="p">&gt;</span> p2<span class="p">.</span>first<span class="p">;</span> <span class="p">};</span>
+    <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;,</span> <span class="k">decltype</span><span class="p">(</span>cmp<span class="p">)&gt;</span> pq<span class="p">(</span>cmp<span class="p">);</span>
+
+    <span class="k">auto</span> addUser <span class="p">=</span> <span class="p">[&amp;](</span><span class="t">int</span> user<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> it <span class="p">=</span> tweets<span class="p">.</span><span class="f">find</span><span class="p">(</span>user<span class="p">);</span>                 <span class="c">// find:不會建出空的 entry</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">==</span> tweets<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="k">return</span><span class="p">;</span>
+        <span class="k">auto</span><span class="p">&amp;</span> list <span class="p">=</span> it<span class="p">-&gt;</span>second<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>list<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">-</span> <span class="n">1</span><span class="p">,</span> taken <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&gt;=</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> taken <span class="p">&lt;</span> <span class="n">10</span><span class="p">;</span> i<span class="p">--,</span> taken<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> <span class="n">10</span> <span class="p">&amp;&amp;</span> list<span class="p">[</span>i<span class="p">].</span>first <span class="p">&lt;</span> pq<span class="p">.</span><span class="f">top</span><span class="p">().</span>first<span class="p">)</span> <span class="k">break</span><span class="p">;</span>  <span class="c">// 更舊的都進不了</span>
+            pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>list<span class="p">[</span>i<span class="p">]);</span>
+            <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;</span> <span class="n">10</span><span class="p">)</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="f">addUser</span><span class="p">(</span>userId<span class="p">);</span>
+    <span class="k">auto</span> it <span class="p">=</span> followG<span class="p">.</span><span class="f">find</span><span class="p">(</span>userId<span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span>it <span class="p">!=</span> followG<span class="p">.</span><span class="f">end</span><span class="p">())</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> followeeId <span class="p">:</span> it<span class="p">-&gt;</span>second<span class="p">)</span> <span class="f">addUser</span><span class="p">(</span>followeeId<span class="p">);</span>
+
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> ans<span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="p">!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span> ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>pq<span class="p">.</span><span class="f">top</span><span class="p">().</span>second<span class="p">);</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span> <span class="p">}</span>
+    <span class="f">reverse</span><span class="p">(</span>ans<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> ans<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+    <span class="k">return</span> ans<span class="p">;</span>
+<span class="p">}</span></pre>
+</div>
+  和暴力解對拍 20,000 個隨機 session、749,831 次 feed,0 不一致;<code>-Wall -Wextra -Wshadow</code> 零警告。
+  <b>提早停的理由</b>:同一個人的推文由新往舊走,這則比堆頂(手上最舊的)還舊,它之前的只會更舊,全部都進不了前 10。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>複雜度 O(F + 10 log F)(F = 追蹤人數 + 1,先用 <code>make_heap</code> 一次建好;逐一 push 則是 O(F log F)):每人先放最新的一則,之後只 pop 10 次、每次補一則。</strong><br><br>
+  這次要用<b>最大堆</b>(每次拿全場最新的),堆裡存「(時間, tweetId, 哪個人, 在他 vector 的位置)」。
+  pop 出一則就把同一個人的前一則(更舊的)補進去,pop 滿 10 次就停,<strong>而且 pop 出來就已經是新→舊,不用 reverse</strong>。<br>
+  和 App 1 比:App 1 每人最多推 10 則,O(F · 10 · log 10);多路合併只推 F + 10 次,追蹤人數多時更省。
+  這就是「合併 k 個已排序串列」(LeetCode 23)的做法。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>可以省掉 <code>ts</code>,直接用 tweetId 當時間。</strong><br><br>
+  <code>tweets[user]</code> 只存 <code>tweetId</code>,比較子改成比 tweetId,其他完全不變。
+  <b>但這題沒有這個保證</b> —— A2 的反例 <code>post(1,2)</code>、<code>post(1,1)</code> 就會出錯。
+  設計題裡「編號」和「時間」是兩件事,除非題目明說,不要混在一起。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">推進順序不重要,大小 10 的最小堆一定留最新 10 則;倒出來 reverse。follow 要擋自己,unfollow 擋不擋都行。每人的推文本來就照時間排好 —— 只看最後 10 則或多路合併,就不用每次重看整段歷史。</div>
+    <div class="sc-summary-bar__detail">DESIGN TWITTER · REVIEW</div>
+  </div>
+
+</body>
+</html>

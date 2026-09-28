@@ -195,7 +195,7 @@ PROBLEMS = {
         ('p973', 'K Closest Points to Origin',     'k-closest-points-to-origin',     'med', 'done'),
         ('p215', 'Kth Largest Element in an Array','kth-largest-element-in-an-array','med', 'done'),
         ('p621', 'Task Scheduler',                 'task-scheduler',                 'med', 'done'),
-        ('p355', 'Design Twitter',                 'design-twitter',                 'med', 'todo'),
+        ('p355', 'Design Twitter',                 'design-twitter',                 'med', 'done'),
         ('p1834','Single Threaded CPU',            'single-threaded-cpu',            'med', 'todo'),
         ('p767', 'Reorganize String',              'reorganize-string',              'med', 'todo'),
         ('p1405','Longest Happy String',           'longest-happy-string',           'med', 'todo'),

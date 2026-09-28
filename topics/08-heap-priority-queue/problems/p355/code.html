@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>355 · Design Twitter // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P355</span>
+    <span><a href="https://leetcode.com/problems/design-twitter/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">設計推特</h1>
+    <p class="sc-mast__subtitle">// CODE · 三個守門的細節</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 355</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>feed O(T log 10)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// MIN-HEAP OF SIZE 10 BY TIME</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p355.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Twitter</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> followG<span class="p">;</span>          <span class="c">// 誰追蹤誰</span>
+    <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;&gt;</span> tweets<span class="p">;</span>    <span class="c">// user → (時間, tweetId)</span>
+    <span class="t">int</span> ts <span class="p">=</span> <span class="n">0</span><span class="p">;</span>                                            <span class="c">// 全域時間戳</span>
+
+    <span class="f">Twitter</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">postTweet</span><span class="p">(</span><span class="t">int</span> userId<span class="p">,</span> <span class="t">int</span> tweetId<span class="p">)</span> <span class="p">{</span>
+        tweets<span class="p">[</span>userId<span class="p">].</span><span class="f">push_back</span><span class="p">({++</span>ts<span class="p">,</span> tweetId<span class="p">});</span>
+    <span class="p">}</span>
+
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">getNewsFeed</span><span class="p">(</span><span class="t">int</span> userId<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> cmp <span class="p">=</span> <span class="p">[&amp;](</span><span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> p1<span class="p">,</span> <span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> p2<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> p1<span class="p">.</span>first <span class="p">&gt;</span> p2<span class="p">.</span>first<span class="p">;</span>                    <span class="c">// 最小堆:top = 最舊</span>
+        <span class="p">};</span>
+
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;,</span> <span class="k">decltype</span><span class="p">(</span>cmp<span class="p">)&gt;</span> pq<span class="p">(</span>cmp<span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> <span class="p">[</span>ts<span class="p">,</span> tweetId<span class="p">]</span> <span class="p">:</span> tweets<span class="p">[</span>userId<span class="p">])</span> <span class="p">{</span>
+            pq<span class="p">.</span><span class="f">push</span><span class="p">({</span>ts<span class="p">,</span> tweetId<span class="p">});</span>
+            <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;</span> <span class="n">10</span><span class="p">)</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>               <span class="c">// 踢最舊的</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> followeeId <span class="p">:</span> followG<span class="p">[</span>userId<span class="p">])</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> <span class="p">[</span>ts<span class="p">,</span> tweetId<span class="p">]</span> <span class="p">:</span> tweets<span class="p">[</span>followeeId<span class="p">])</span> <span class="p">{</span>
+                pq<span class="p">.</span><span class="f">push</span><span class="p">({</span>ts<span class="p">,</span> tweetId<span class="p">});</span>
+                <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&gt;</span> <span class="n">10</span><span class="p">)</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> ans<span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="p">!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>pq<span class="p">.</span><span class="f">top</span><span class="p">().</span>second<span class="p">);</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>   <span class="c">// 舊 → 新</span>
+        <span class="p">}</span>
+        <span class="f">reverse</span><span class="p">(</span>ans<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> ans<span class="p">.</span><span class="f">end</span><span class="p">());</span>                   <span class="c">// 新 → 舊</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">follow</span><span class="p">(</span><span class="t">int</span> followerId<span class="p">,</span> <span class="t">int</span> followeeId<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>followerId <span class="p">==</span> followeeId<span class="p">)</span> <span class="k">return</span><span class="p">;</span>              <span class="c">// 自己的推文已經加過</span>
+        followG<span class="p">[</span>followerId<span class="p">].</span><span class="f">insert</span><span class="p">(</span>followeeId<span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">unfollow</span><span class="p">(</span><span class="t">int</span> followerId<span class="p">,</span> <span class="t">int</span> followeeId<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>followerId <span class="p">==</span> followeeId<span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        followG<span class="p">[</span>followerId<span class="p">].</span><span class="f">erase</span><span class="p">(</span>followeeId<span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這是修正後的最終版</strong>:第一版有三個問題 —— <code>decltype(cmp)&gt;&gt;</code> 多一個 <code>&gt;</code>(編譯不過)、少了 <code>reverse</code>、<code>follow</code> 沒擋自己。
+      <b><code>-Wall -Wextra</code> 零警告</b>(<code>pq.size() &gt; 10</code> 和常數比,不會有號/無號警告);
+      加 <code>-Wshadow</code> 會提醒結構化綁定的 <code>ts</code> 蓋住了成員 <code>ts</code> —— 迴圈裡只讀不寫,不影響結果,改名成 <code>time</code> 更清楚。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 驗證 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 官方範例(g++ -O2 -std=c++17 實跑)</span>
+post(1,5)  feed(1) → [5]
+follow(1,2)  post(2,6)  feed(1) → [6,5]
+unfollow(1,2)  feed(1) → [5]
+<span class="sc-trace__out">// [null,null,[5],null,null,[6,5],null,[5]]   ✓</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 對拍(參考解:全部推文收集起來,篩出自己+追蹤對象,依時間排序取前 10;順序也要一致)</span>
+隨機:20,000 個 session(每個 1~300 次操作、使用者 1~6,
+      含追蹤自己、取消自己、取消沒追蹤的人)        → 752,080 次 feed   不一致 0
+大測:5 個 session × 3×10⁴ 次操作、使用者 1~500   →  37,644 次 feed   不一致 0
+窮舉:使用者 {1,2}、長度 ≤ 5 的全部操作序列        → 271,452 條       不一致 0</div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>操作</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>postTweet</code></td><td class="mono">O(1) 均攤</td><td><code>push_back</code></td></tr>
+        <tr><td><code>follow</code> / <code>unfollow</code></td><td class="mono">O(1) 平均</td><td><code>unordered_set</code> 插入 / 刪除</td></tr>
+        <tr><td><code>getNewsFeed</code></td><td class="mono">O(T log 10)</td><td>T = 自己 + 追蹤對象的推文總數;堆最多 11 個</td></tr>
+        <tr><td>空間</td><td class="mono">O(推文數 + 追蹤關係數)</td><td>堆本身 O(10)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      feed 的成本跟著<strong>歷史長度 T</strong> 走,而不是跟著 10 —— 最壞情況 <strong>195,019,500</strong> 次 push,約 <strong>2.4 ~ 2.6 s</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td>最壞構造</td><td>user 1 追蹤 499 人、10,001 則推文輪流分給 500 人、接著 19,500 次 <code>feed(1)</code></td></tr>
+        <tr><td>你的版本</td><td>每次 feed 推 10,001 則 → 共 195,019,500 次 push,約 2.4 ~ 2.6 s</td></tr>
+        <tr><td>每人只看最後 10 則</td><td>約 59 ~ 69 ms,輸出完全相同(寫法見<a href="review.html">複習頁</a> App 1)</td></tr>
+        <tr><td>副作用</td><td><code>tweets[x]</code>、<code>followG[x]</code> 用 <code>[]</code> 讀取時,不存在的 key 會被建立成空的 —— 不影響結果,只多占一點記憶體</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>實測</th><th>修正</th></tr></thead>
+      <tbody>
+        <tr><td><strong><code>decltype(cmp)&gt;&gt;</code></strong></td><td class="mono fail">編譯錯誤:<code>expected unqualified-id before '&gt;' token</code></td><td>只要一個 <code>&gt;</code></td></tr>
+        <tr><td><strong>少了 <code>reverse</code></strong></td><td class="mono fail">窮舉錯 3,506 · post 1、post 2、feed → <code>[1,2]</code></td><td>最小堆倒出來是舊→新,要翻過來</td></tr>
+        <tr><td><strong>自己追蹤自己</strong></td><td class="mono fail">窮舉錯 5,024 · follow(1,1) → <code>[1,1]</code></td><td><code>follow</code> 擋掉 <code>followerId == followeeId</code></td></tr>
+        <tr><td>改用最大堆</td><td class="mono fail">留下最<em>舊</em>的 10 則:12 則時回 <code>[1..10]</code></td><td>留最新的要用最小堆</td></tr>
+        <tr><td><code>&gt;= 10</code> 才 pop</td><td class="mono fail">只留 9 則;隨機 session 錯 14,947 / 20,000</td><td>超過 10(<code>&gt; 10</code>)才 pop</td></tr>
+        <tr><td>用 <code>tweetId</code> 當時間</td><td class="mono fail">隨機 session 錯 18,169 / 20,000</td><td>用全域 <code>++ts</code></td></tr>
+        <tr><td><code>unfollow</code> 不擋自己</td><td class="mono ok">錯 0</td><td>自己從來沒被加進去,擋不擋都一樣</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>&gt;= 10</code> 和「用 tweetId 當時間」在長度 ≤ 5 的窮舉裡完全抓不到</strong>:
+      前者要至少 10 則推文才會少一則,後者要 tweetId 不照時間遞增。<b>設計題的測試要故意做「很多則」和「亂序編號」的測資。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">user 1 連發 12 則(tweetId 101~112,時間 1~12),然後 <code>feed(1)</code>。<code>(時間, tweetId)</code>,堆的內容依時間列出。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 前 10 則直接進堆</span>
+push (1,101) … (10,110)  → 堆 {(1,101) … (10,110)}   size 10,top = (1,101) 最舊</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: 超過 10 就踢最舊的</span>
+push (11,111) → size 11 &gt; 10 → pop (1,101)
+push (12,112) → size 11 &gt; 10 → pop (2,102)
+堆 {(3,103) … (12,112)}</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 3: 倒出 + reverse</span>
+倒出(舊 → 新):[103,104,105,106,107,108,109,110,111,112]
+reverse(新 → 舊):[112,111,110,109,108,107,106,105,104,103]
+<span class="sc-trace__out">// OUTPUT: [112,111,110,109,108,107,106,105,104,103]</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">第一版的三個問題:&gt;&gt; 編譯錯、少 reverse(舊→新)、自己追蹤自己(重複)。修好後對拍 0 錯。feed 成本跟著歷史長度走,最壞 1.95 億次 push、約 2.5 秒;&gt;= 10 和用 tweetId 當時間只有大測資抓得到。</div>
+    <div class="sc-summary-bar__detail">DESIGN TWITTER · CODE</div>
+  </div>
+
+</body>
+</html>

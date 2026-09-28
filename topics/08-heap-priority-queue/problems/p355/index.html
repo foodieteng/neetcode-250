@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>355 · Design Twitter // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P355</span>
+    <span><a href="https://leetcode.com/problems/design-twitter/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">設計推特</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 全域時間戳 + 大小 10 的最小堆</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 355</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>DESIGN · TOP-K BY TIME</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計一個簡化版推特:<code>postTweet</code> 發文、<code>follow</code> / <code>unfollow</code> 追蹤與取消,
+        <code>getNewsFeed(userId)</code> 回傳<strong>自己和追蹤對象的推文中,最新的 10 則</strong>,<strong>由新到舊</strong>。<br>
+        使用者編號 1~500,<code>tweetId</code> 不重複(0~10⁴),總共最多 3×10⁴ 次呼叫。
+      </p>
+    </div>
+
+    <p>
+      這題有兩個要設計的東西:<strong>怎麼存</strong>(誰追蹤誰、誰發了什麼),和<strong>怎麼取最新 10 則</strong>。
+      <b>第二件事就是 <a href="../p703/index.html">703</a> / <a href="../p973/index.html">973</a> 的 Top-K</b> —— 只是比較的鍵變成「發文時間」。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「最新」要靠一個全域遞增的時間戳 <code>++ts</code>,不能用 <code>tweetId</code></strong> —— 推文編號不保證照時間遞增。
+      <b>要留最新(時間最大)的 10 則 → 用<em>最小</em>堆,把最舊的踢掉</b>;最後倒出來是由舊到新,<strong>所以要 <code>reverse</code></strong>。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">三種取法<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">全部收集起來,依時間排序取前 10</span>
+            <span class="sc-ko-card__o">O(T log T)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            最直覺,驗證時就拿它當對拍的參考解。
+            <strong>但 T(相關推文總數)可能很大,卻只要其中 10 則</strong>,把全部排好是多做的事。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 只要 10 則卻排全部</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">每人只看<strong>最後 10 則</strong>(或多路合併)</span>
+            <span class="sc-ko-card__o">O(F · 10 · log 10)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每個人的推文本來就照時間排好(push_back 的順序),<strong>從尾巴往前最多看 10 則就夠</strong>,更舊的不可能進前 10。
+            <b>實測最壞情況:約 59~69 ms,你的版本約 2.4~2.6 秒</b>(見下方複雜度)。
+          </div>
+          <div class="sc-ko-card__verdict">△ 最快 · 多幾行</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">所有相關推文丟進<strong>大小 10 的最小堆</strong>(你的解法)</span>
+          <span class="sc-ko-card__o">O(T log 10)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          和 703 同一個模式:超過 10 就 pop 最舊的。<strong>堆永遠只有 10 個,每次 push/pop 幾乎是常數</strong>。
+          <b>對拍 789,724 次 feed + 271,452 條窮舉操作序列,0 錯</b>。缺點是每則推文都要看過一次。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 正確、好寫、面試夠用</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>B 比 C 快的原因只有一個:每個人的推文<em>已經</em>照時間排好。</strong>
+      <b>C 沒用到這個資訊,把每個人的整段歷史都推一遍堆</b>;B 只從尾巴拿最新的幾則。面試時寫 C,再補一句 B 的優化,是最完整的回答。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>存</strong>:<code>tweets[user]</code> 存 <code>(++ts, tweetId)</code>(全域時間戳);<code>followG[user]</code> 是 <code>unordered_set</code>,O(1) 追蹤 / 取消。</li>
+      <li><strong>取</strong>:自己的 + 每個追蹤對象的推文,逐一推進<strong>依時間的最小堆</strong>,超過 10 就 pop 最舊的。</li>
+      <li><strong>吐</strong>:把堆倒進 <code>ans</code>(由舊到新),再 <code>reverse</code> 成由新到舊。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>三個守門的細節</strong>:
+      ① <code>follow</code> 擋掉自己追蹤自己(否則自己的推文會出現兩次);
+      ② 最後一定要 <code>reverse</code>;
+      ③ 超過 10(<code>&gt; 10</code>)才 pop,寫成 <code>&gt;= 10</code> 只會留 9 則。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 3 個使用者 · 12 則推文</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例只有 2 則推文,看不到淘汰,所以這裡讓 user 1 追蹤 2、3,三人輪流共發 12 則。
+      <strong>推進堆的順序</strong>:先自己的,再依 <code>unordered_set</code> 實際走訪的順序(這次實跑是 3 再 2)。
+      <b>第 05、07 步各淘汰一則最舊的</b>(t=1 和 t=2),第 09 步 <code>reverse</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ getNewsFeed · 大小 10 的最小堆(依時間)</div>
+      <div class="sc-viz__cvwrap"><canvas id="v355-canvas" class="sc-viz__canvas" style="height:562px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v355-reset">Reset</button><button class="sc-btn" id="v355-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v355-play">Play</button><button class="sc-btn" id="v355-next">Next</button>
+        <span class="sc-viz__step" id="v355-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="v355-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 推進堆的順序無所謂,結果一定是最新的 10 則</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>unordered_set</code> 的走訪順序不固定,各人的推文是一段一段推進去的,<strong>不是照時間順序</strong>。
+          但「大小 k 的最小堆」和 <a href="../p215/index.html">215</a> 一樣,不管輸入順序,最後留下的永遠是最大的 k 個 ——
+          被 pop 的那則,當下已經有 10 則比它新,它不可能是前 10。<br>
+          <strong>實測</strong>:和「全部收集、依時間排序取前 10」的暴力解逐字比對(包括順序),
+          隨機 20,000 個 session 共 752,080 次 feed、5 個 3×10⁴ 次操作的大 session 共 37,644 次 feed、
+          以及使用者 {1,2} 上長度 ≤ 5 的全部 271,452 條操作序列 —— <b>0 不一致</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 為什麼時間戳不能用 tweetId</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          題目只保證 <code>tweetId</code> 不重複,<strong>沒說會照時間遞增</strong>。
+          用 <code>tweetId</code> 當時間:<code>post(1, 2)</code>、<code>post(1, 1)</code>、<code>feed(1)</code> → 回 <code>[2, 1]</code>,
+          但後發的是 1,正解 <code>[1, 2]</code>。隨機 20,000 個 session 裡 18,169 個出錯。
+          <b>全域的 <code>++ts</code> 才是真正的發文先後。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 七種寫法的實測結果(窮舉 271,452 條序列 + 隨機 20,000 個 session)</span>
+decltype(cmp)&gt;&gt; 多一個 &gt;       → 編譯錯誤 expected unqualified-id before '&gt;' token
+少了 reverse                    → 錯 3,506 條;post 1, post 2, feed → [1,2](正解 [2,1])
+follow 允許自己追蹤自己          → 錯 5,024 條;follow(1,1) post feed → [1,1] 重複
+最大堆(同樣 &gt;10 才 pop)        → 留下最「舊」的 10 則;12 則時回 [1..10]
+pop 條件寫成 &gt;= 10              → 只留 9 則;隨機 session 錯 14,947 / 20,000
+用 tweetId 當時間               → 隨機 session 錯 18,169 / 20,000
+unfollow 沒擋自己               → 錯 0  ← 自己本來就不會被加進去,無害
+<span class="sc-trace__out">// 前三列是你第一版的三個問題;&gt;= 10 和 tweetId 在長度 ≤ 5 的窮舉裡抓不到,只有隨機大測資才露餡</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <code>getNewsFeed</code> <strong>O(T log 10)</strong>(T = 自己與追蹤對象的推文總數)　·　其他操作平均 <strong>O(1)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>刻意構造的最壞情況(共 3×10⁴ 次呼叫)</th><th>你的版本</th><th>每人只看最後 10 則</th></tr></thead>
+      <tbody>
+        <tr><td>user 1 追蹤 499 人、全站 10,001 則推文、19,500 次 <code>feed(1)</code></td><td class="mono fail"><strong>≈ 2.4 ~ 2.6 s</strong></td><td class="mono ok"><strong>≈ 59 ~ 69 ms</strong></td></tr>
+        <tr><td>堆 push 次數</td><td class="mono">195,019,500(= 19,500 × 10,001)</td><td class="mono">每次最多 10 × 追蹤人數</td></tr>
+        <tr><td>輸出</td><td class="mono" colspan="2">兩者完全相同;優化版也和暴力解對拍 0 不一致</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>你的版本在 LeetCode 的一般測資上會過</strong>,但每次 feed 都要把所有相關推文重看一遍 ——
+      <b>一個人追蹤很多人、歷史又很長時,成本跟著歷史長度長,而不是跟著「10」</b>。
+      <a href="review.html">複習頁</a>的應用題有優化版的寫法。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「最新 10 則」就是依時間的 Top-K:全域 <code>++ts</code> 當時間,大小 10 的最小堆踢最舊的,倒出來再 <code>reverse</code>。</strong>
+      <b>守好三件事:不能自己追蹤自己、要 reverse、超過 10 才 pop。</b>
+      <strong>每人的推文本來就照時間排好 —— 只看最後 10 則,就能從秒級降到毫秒級。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">全域 ++ts 當時間,大小 10 的最小堆留最新 10 則,倒出來 reverse。不能自己追蹤自己、要 reverse、超過 10 才 pop。對拍 0 錯;最壞情況 2.5 秒,每人只看最後 10 則可降到 60 毫秒。</div>
+    <div class="sc-summary-bar__detail">DESIGN TWITTER · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p355-feed.js"></script>
+</body>
+</html>
