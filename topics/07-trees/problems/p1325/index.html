@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1325 · Delete Leaves With a Given Value // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P1325</span>
+    <span><a href="https://leetcode.com/problems/delete-leaves-with-a-given-value/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除值為 target 的葉子</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 先清小孩,再判自己</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1325</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>POST-ORDER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給二元樹的根 <code>root</code> 和整數 <code>target</code>,<strong>刪掉所有值等於 <code>target</code> 的葉節點</strong>。<br>
+        <strong>刪完之後,如果父節點因此<em>變成</em>葉子、而且值也是 <code>target</code>,它也要刪</strong> —— 一直做到不能再刪為止。<br>
+        節點數 <code>1 ~ 3000</code>,<code>1 ≤ val, target ≤ 1000</code>。<strong>整棵樹可能被刪光</strong>(回傳 <code>nullptr</code>)。
+      </p>
+    </div>
+
+    <p>
+      題目那句「<strong>一直做到不能再刪為止</strong>」聽起來像要跑很多輪。
+      <b>其實只要<em>走訪的順序</em>選對,一趟就做完</b> ——
+      <strong>難點不在刪除本身,而在「什麼時候才有資格判斷一個節點是不是葉子」。</strong>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>一個節點是不是葉子,要等它的小孩都處理完才知道。</strong>
+      <b>所以判斷必須放在兩個遞迴<em>之後</em> —— 也就是後序。</b>
+      <strong>放在之前(前序),就會看到「還沒清理的舊小孩」而判錯。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是後序<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">照字面模擬:反覆掃整棵樹</span>
+            <span class="sc-ko-card__o">多輪 · 每輪 O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每輪刪掉現有的 target 葉子,<strong>直到某一輪什麼都沒刪</strong>。
+            <b>答案是對的</b>(驗證時我就拿它當對拍的參考解),
+            <strong>但一條長度 k 的 target 鏈要跑 k 輪</strong> —— 每一輪只能剝掉最底下那一層。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 輪數跟鏈長成正比</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">前序:先判自己,再遞迴小孩</span>
+            <span class="sc-ko-card__o">一趟,但會漏</span>
+          </div>
+          <div class="sc-ko-card__body">
+            判斷的時候小孩<strong>還沒被清掉</strong>,所以「之後才會變成葉子」的節點<strong>被放過了</strong>。
+            <b>實測窮舉 129956 組,錯 37770 組</b>;最小反例
+            <code>[1,null,1], target=1</code> → 回 <code>[1]</code>(正解 <code>[]</code>)。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 連鎖刪不掉</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">後序:<strong>先清左右子樹,接回來,再判自己</strong></span>
+          <span class="sc-ko-card__o">一趟 · O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          走到自己的判斷那一行時,<code>root-&gt;left</code> / <code>root-&gt;right</code> <strong>已經是清理完的最終版本</strong>。
+          <b>所以「因為小孩被刪才變成葉子」的節點,在同一趟裡就會被抓到</b> —— 連鎖刪除是順序自動帶出來的,不用額外處理。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 一趟清完</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>空節點</strong>直接回 <code>nullptr</code>。</li>
+      <li><strong>遞迴左、右子樹,並把回傳值<em>接回</em></strong> <code>root-&gt;left</code> / <code>root-&gt;right</code> ——
+        <b>小孩被刪時,回傳的 <code>nullptr</code> 就是切斷那條邊的方式。</b></li>
+      <li><strong>三個條件同時成立才刪自己</strong>:左空、右空、<code>val == target</code>。
+        刪就回 <code>nullptr</code>,否則回 <code>root</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「回傳新的子樹根,讓父節點接住」</strong> 就是 <a href="../p450/index.html">450 刪除 BST 節點</a>的同一套寫法。
+      <b>刪除不用去找父節點,也不用記 parent 指標</b> —— <strong>回傳 <code>nullptr</code>,父節點那一行賦值就把邊切掉了。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 · target = 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>看節點 B</strong>:它一開始有小孩 D,<b>不是葉子</b>。
+      <strong>D 被刪掉、回傳 <code>nullptr</code> 接回 <code>B-&gt;left</code> 之後</strong>,輪到 B 判斷時它<b>已經是葉子</b> —— 於是在同一趟裡也被刪了(第 03 → 04 步)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 後序遍歷 · 先處理小孩,再決定自己</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1325-canvas" class="sc-viz__canvas" style="height:440px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1325-reset">Reset</button><button class="sc-btn" id="v1325-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1325-play">Play</button><button class="sc-btn" id="v1325-next">Next</button>
+        <span class="sc-viz__step" id="v1325-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="v1325-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼一趟就夠<span class="sc-section__title-en">// ONE PASS LEMMA</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA · 後序判斷時看到的小孩,就是最終的小孩</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          一個節點會不會被刪,<strong>只取決於它自己的值和它「最終」有沒有小孩</strong>。
+          而它的小孩最終是否存在,<b>只取決於各自的子樹</b> —— 跟祖先、跟兄弟都無關。
+        </p>
+        <p style="margin:0 0 10px;">
+          後序保證:處理 <code>root</code> 的判斷之前,<strong>左右子樹都已經遞迴處理完、結果也接回來了</strong>。
+          <b>刪掉 <code>root</code> 只會影響它的父節點</b>,而父節點的判斷本來就排在 <code>root</code> 之後。
+          <strong>所以沒有任何節點需要「回頭再看一次」</strong> —— 題目說的「重複到不能再刪」,在後序裡一趟就收斂了。
+        </p>
+        <p style="margin:0;">
+          <strong>實測</strong>:和「反覆掃到沒有變化」的模擬解對拍,
+          窮舉 <strong>129956 組</strong>(1~7 個節點的所有樹形,值 ∈ {1,2})+ 隨機 <strong>200000 組</strong>,<b>不一致 0</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 六種改法的實測結果(窮舉 129956 組)</span>
+前序判斷(先判自己再遞迴)  → 錯 37770,最小反例 [1,null,1], t=1 → [1]
+遞迴但沒接回 left/right    → 錯 96420,最小反例 [1,null,1], t=1 → [1,null,1]
+只接回左邊                 → 錯 67296,最小反例 [1,null,1], t=1 → [1,null,1]
+|| 取代 &&(只缺一邊就當葉子)→ 錯 107544,最小反例 [1,null,2], t=1 → []
+忘了檢查 val == target     → 錯 128706,最小反例 [1], t=2 → []
+呼叫端忽略回傳值           → 錯 1250,最小反例 [1], t=1 → [1]
+<span class="sc-trace__out">// 最後一列錯得最少:只有「整棵樹被刪光」時才會露餡</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>每個節點被呼叫一次,每個空指標也被呼叫一次:<strong>n 個節點有 n+1 個空指標</strong>,所以總呼叫次數<strong>恰好 2n+1</strong>。</p>
+
+    <div class="sc-formula">
+      時間 <strong>O(n)</strong>(呼叫 <strong>2n+1</strong> 次)　·　空間 <strong>O(h)</strong>(遞迴堆疊)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境(n = 3000)</th><th>呼叫次數</th><th>最大深度</th><th>結果</th></tr></thead>
+      <tbody>
+        <tr><td>左斜鏈,全部 = target</td><td class="mono">6001</td><td class="mono fail"><strong>3001</strong></td><td class="mono">[]</td></tr>
+        <tr><td>左斜鏈,只有根 ≠ target</td><td class="mono">6001</td><td class="mono">3001</td><td class="mono">只剩根</td></tr>
+        <tr><td>完全二元樹,全部 = target</td><td class="mono">6001</td><td class="mono ok">13</td><td class="mono">[]</td></tr>
+        <tr><td>完全二元樹,沒有 target</td><td class="mono">6001</td><td class="mono ok">13</td><td class="mono">原樹不變</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>不管刪多少,呼叫次數都一樣是 2n+1</strong> —— 刪除不會省掉任何走訪,因為要刪一個節點,<b>得先把它整棵子樹看完</b>。
+      <strong>深度 3001 的斜鏈實跑沒有問題</strong>(含 ASan/UBSan 也乾淨)。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「是不是葉子」是由小孩決定的,所以要先處理小孩 —— 這就是後序。</strong>
+      <b>後序的判斷看到的是清理完的最終小孩,連鎖刪除在同一趟裡自動完成</b>;
+      <strong>回傳 <code>nullptr</code> 讓父節點接住,就是切斷那條邊。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">是不是葉子要等小孩處理完才知道,所以判斷放在兩個遞迴之後(後序);看到的就是最終的小孩,連鎖刪除一趟完成。回傳 nullptr 讓父節點接住就是刪除 —— 前序判斷實測錯 37770/129956。</div>
+    <div class="sc-summary-bar__detail">DELETE LEAVES WITH A GIVEN VALUE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1325-postorder.js"></script>
+</body>
+</html>

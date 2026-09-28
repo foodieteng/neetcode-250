@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1325 · Delete Leaves With a Given Value // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">07 · Trees</a> / P1325</span>
+    <span><a href="https://leetcode.com/problems/delete-leaves-with-a-given-value/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">刪除值為 target 的葉子</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1325</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>POST-ORDER</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>走訪順序</td><td><strong>後序</strong>:先清左右子樹,再判自己</td></tr>
+        <tr><td>為什麼後序</td><td>是不是葉子<strong>由最終的小孩決定</strong>,要等小孩處理完才知道</td></tr>
+        <tr><td>連鎖刪除</td><td>不用多跑幾輪 —— <strong>後序一趟自動完成</strong>(對拍 129956 + 200000 組,0 不一致)</td></tr>
+        <tr><td>怎麼「刪」</td><td>回傳 <code>nullptr</code>,<strong>父節點的 <code>root-&gt;left = ...</code> 把邊切掉</strong></td></tr>
+        <tr><td>刪除條件</td><td><code>!left &amp;&amp; !right &amp;&amp; val == target</code>,<strong>三個缺一不可</strong></td></tr>
+        <tr><td>最常見的錯</td><td>前序判斷(錯 37770)、沒接回(錯 96420)—— <strong>最小反例都是 <code>[1,null,1]</code>, t=1</strong></td></tr>
+        <tr><td>根也可能被刪</td><td>回傳值才是新的根;忽略它只在「整棵刪光」時露餡(錯 1250)</td></tr>
+        <tr><td>成本</td><td>呼叫恰好 <strong>2n+1</strong> 次 → <code>O(n)</code>;堆疊 <code>O(h)</code>,斜鏈 3000 層實跑正常</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 題目說「刪完之後父節點若變成 target 葉子也要刪,<strong>一直做到不能再刪</strong>」。為什麼這份程式碼<strong>只走一趟</strong>就夠了?</div>
+
+    <div class="qa"><strong>Q2.</strong> 把判斷那一行搬到兩個遞迴<strong>前面</strong>(前序),會錯在哪裡?請給出<strong>最小反例</strong>。</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼一定要寫 <code>root-&gt;left = removeLeafNodes(...)</code>,而不是單純呼叫 <code>removeLeafNodes(root-&gt;left, target);</code>?</div>
+
+    <div class="qa"><strong>Q4.</strong> 刪除條件寫成 <code>(!root-&gt;left || !root-&gt;right) &amp;&amp; root-&gt;val == target</code> 會怎樣?</div>
+
+    <div class="qa"><strong>Q5.</strong> 刪掉的節點越多,程式會跑得越快嗎?總共會呼叫幾次?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 範例 3 · 一路往上連鎖</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>[1,2,null,2,null,2]</code>,<code>target = 2</code>:一條往左的鏈 A=1 → B=2 → C=2 → D=2。
+      <strong>B、C 一開始都不是葉子</strong>,<b>全靠下一層被刪才變成葉子</b> —— 連鎖三層。以下是實跑的回傳順序。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 一路往左下降到最底</span>
+f(A) → f(B) → f(C) → f(D) → f(D->left)=nullptr、f(D->right)=nullptr</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 從最底往上回傳</span>
+D(2)  左空 ✓ 右空 ✓ val==2 ✓  → return nullptr    ← C->left = nullptr
+C(2)  左空 ✓ 右空 ✓ val==2 ✓  → return nullptr    ← B->left = nullptr   ★ 剛變成葉子
+B(2)  左空 ✓ 右空 ✓ val==2 ✓  → return nullptr    ← A->left = nullptr   ★ 剛變成葉子
+A(1)  左空 ✓ 右空 ✓ val==2 ✗  → return A          (是葉子,但值不對 → 保留)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 計數</span>
+4 個真節點 + 5 個空指標 = 9 次呼叫 = 2·4 + 1
+<span class="sc-trace__out">// OUTPUT: [1]</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>「照字面模擬」要跑 3 輪才能剝完 D、C、B;後序在<em>回程</em>上一層一層剝,一趟就完成。</strong>
+      <b>最後的 A 也值得注意:它確實變成了葉子,但 <code>1 ≠ 2</code>,所以三個條件缺一個,保留。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <strong>Binary Tree Pruning</strong>(LeetCode 814):節點值只有 0 或 1,刪掉所有「<strong>不含任何 1</strong>」的子樹。能直接用這題的程式碼嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> 在自己的專案裡(不是 LeetCode),被刪的節點要真的<strong>釋放記憶體</strong>。<code>delete</code> 要加在哪裡?為什麼在這裡刪<strong>不會漏掉整棵子樹</strong>?</div>
+
+    <div class="qa"><strong>App 3.</strong> <strong>Find Leaves of Binary Tree</strong>(LeetCode 366):每一輪收集<strong>所有</strong>葉子並刪掉,重複到樹空為止,回傳每一輪的葉子。怎麼用「後序」一趟算出每個節點屬於第幾輪?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為後序判斷一個節點時,它的小孩已經是「最終版本」。</strong><br><br>
+  一個節點該不該刪,只取決於「自己的值」和「最終有沒有小孩」;而小孩最終存不存在,只取決於各自的子樹。
+  後序保證兩個子樹都已經處理完、結果也接回來了,<b>所以此刻看到的就是最終答案,不會再變</b>。
+  刪掉自己只會影響父節點,而父節點的判斷本來就排在後面。<br><br>
+  <strong>實測</strong>:和「反覆掃到沒有變化」的模擬解對拍,窮舉 129956 組 + 隨機 200000 組,<strong>不一致 0</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>前序判斷時,小孩還沒被清掉,所以「之後才會變成葉子」的節點會被放過。</strong><br><br>
+  最小反例:<code>[1,null,1]</code>,<code>target = 1</code>。<br>
+  · 前序:看根時它還有右小孩 → 不是葉子,保留;接著右小孩被刪 → 根變成葉子,<b>但沒有人回頭再看它</b> → 回 <code>[1]</code>。<br>
+  · 正解:右小孩先被刪,根變成值為 1 的葉子 → 也刪 → <code>[]</code>。<br><br>
+  窮舉 129956 組中錯 <strong>37770</strong> 組。<b>官方範例 2 照樣會過,只有範例 1、3 抓得到</b> —— 所以要自己準備連鎖的測資。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為「刪除」就是靠回傳值完成的。</strong><br><br>
+  子節點被刪時,遞迴只是<em>回傳</em> <code>nullptr</code>,並不會自己去改父節點的指標。
+  <b>沒有 <code>root-&gt;left = ...</code> 這個賦值,父節點仍然指著舊的子節點,那條邊根本沒被切掉。</b><br><br>
+  實測錯 <strong>96420 / 129956</strong>;最小反例同樣是 <code>[1,null,1]</code>, t=1 → 回 <code>[1,null,1]</code>(什麼都沒刪)。
+  <a href="../p450/index.html">450 刪除 BST 節點</a>也是同一個模式:回傳新的子樹根,讓父節點接住。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>「只缺一邊小孩」的節點會被當成葉子刪掉,連帶丟掉它保留下來的那一邊子樹。</strong><br><br>
+  最小反例:<code>[1,null,2]</code>,<code>target = 1</code>。根只有右小孩 2(不是 target,保留),
+  用 <code>||</code> 時根被判成「葉子」而刪除 → 回 <code>[]</code>,<b>連 2 一起不見了</b>;正解是 <code>[1,null,2]</code>。<br><br>
+  實測錯 <strong>107544 / 129956</strong>。葉子的定義是<strong>兩邊都沒有</strong>小孩,必須用 <code>&amp;&amp;</code>。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不會。不論刪多少,都恰好呼叫 2n+1 次。</strong><br><br>
+  要知道一個節點能不能刪,<b>得先把它整棵子樹處理完</b>,所以每個節點都一定會被拜訪;
+  再加上 n 個節點一共有 n+1 個空指標,每個也各被呼叫一次。<br><br>
+  實測 n = 3000:全部是 target(整棵刪光)和完全沒有 target(原樹不變),<strong>都是 6001 次</strong>。
+  差別只在堆疊深度:完全二元樹 13 層,斜鏈 3001 層。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>可以,等於 <code>removeLeafNodes(root, 0)</code>。</strong><br><br>
+  「反覆刪掉值為 0 的葉子」會把全是 0 的子樹從底部一層層剝光;
+  而只要子樹裡有一個 1,那個 1 永遠不會被刪,<b>它的所有祖先也就永遠有小孩、永遠不會變成葉子</b>,於是保留。
+  兩個定義刪掉的恰好是同一批節點 —— 一樣是後序、一樣是回傳 <code>nullptr</code> 讓父節點接住。<br><br>
+  <strong>實測</strong>:和 814 的直接寫法(「值是 1 或還有小孩就保留」)對拍隨機 <strong>100000</strong> 組(1~14 個節點),<strong>不一致 0</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>在決定刪除、回傳 <code>nullptr</code> 之前 <code>delete root;</code>。</strong><br><br>
+  <code>if (!root-&gt;left &amp;&amp; !root-&gt;right &amp;&amp; root-&gt;val == target) { delete root; return nullptr; }</code><br><br>
+  <b>為什麼不會漏:</b>會走到這一行的節點,<strong>左右都已經是空的</strong>(條件本身就要求),它原本的小孩要嘛已經在更早的遞迴裡被 <code>delete</code>,要嘛根本不存在。
+  <strong>所以刪的一定是一個光桿節點,不會留下懸空的子樹。</strong>
+  原版不 <code>delete</code> 的後果:全 target 的 3000 節點斜鏈,<strong>3000 個節點脫離樹但沒被釋放</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>後序算「高度」:葉子是第 0 輪,其他節點 = <code>max(左高度, 右高度) + 1</code>。</strong><br><br>
+  一個節點會在第幾輪變成葉子,取決於它最慢被剝光的那一邊小孩,所以正好是它到最深葉子的距離。
+  <b>和本題一樣,必須先知道小孩的答案才能算自己</b> —— 後序;把節點值 push 進 <code>result[height]</code> 就是答案,一趟 <code>O(n)</code>。
+  本題可以看成它的「只剝 target、剝到剝不動」版本。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 07 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">是不是葉子由最終的小孩決定,所以後序:先清小孩、接回,再判自己,連鎖刪除一趟完成。範例 3 的鏈照字面要剝 3 輪,後序在回程一層層剝完;呼叫次數永遠是 2n+1,不因刪得多而變少。</div>
+    <div class="sc-summary-bar__detail">DELETE LEAVES WITH A GIVEN VALUE · REVIEW</div>
+  </div>
+
+</body>
+</html>
