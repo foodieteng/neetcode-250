@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>973 · K Closest Points to Origin // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P973</span>
+    <span><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最接近原點的 K 個點</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 973</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MAX-HEAP OF SIZE K</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>方向</td><td>留最<strong>近</strong>(小)的 k 個 → <strong>最大</strong>堆,踢最遠的</td></tr>
+        <tr><td>和 703</td><td>703 留最大的 → 最小堆;<strong>堆的方向永遠和要留的那一半相反</strong></td></tr>
+        <tr><td>距離</td><td>比 <code>x²+y²</code>,不開根號;最大 <strong>2×10⁸</strong>,<code>int</code> 安全</td></tr>
+        <tr><td>比較子</td><td><code>cmp(a,b)</code> 真 = a 優先權低;用 <code>&lt;</code> → 最大的在 top</td></tr>
+        <tr><td>C++ 細節</td><td><code>decltype(cmp)</code> 要配 <code>pq(cmp)</code>;<code>[&amp;]</code> 可改 <code>[]</code></td></tr>
+        <tr><td>直覺圖像</td><td>堆頂距離 = 以原點為圓心、<strong>只會縮小</strong>的入選圓</td></tr>
+        <tr><td>效能真相</td><td>k 小時堆最快;k 大時排序、<code>nth_element</code> 都比它快</td></tr>
+        <tr><td>輸出順序</td><td>最遠的先出;題目接受任意順序</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 要找「最近」的點,為什麼用<strong>最大</strong>堆?比較子裡的 <code>&lt;</code> 為什麼會造出最大堆?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼可以不開根號?<code>int</code> 會不會溢位?</div>
+
+    <div class="qa"><strong>Q3.</strong> 把 <code>pq(cmp)</code> 改成 <code>pq;</code> 會怎樣?在 C++20 呢?</div>
+
+    <div class="qa"><strong>Q4.</strong> 面試官問:「O(n log k) 的堆是這題最快的做法嗎?」怎麼回答?</div>
+
+    <div class="qa"><strong>Q5.</strong> 動畫裡的「入選圓」為什麼只會縮小、不會變大?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 動畫那組 · 6 個點 · k = 3</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>[[1,3],[-2,2],[3,-2],[0,1],[-3,-3],[2,0]]</code>,<code>k = 3</code>,平方距離依序 10、8、13、1、18、4。
+      以下是你的程式實跑印出的底層陣列(<code>d</code> 是平方距離,<code>[0]</code> 是 top)。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 堆還沒滿(前 3 個直接進)</span>
+push [1,3]   → [[1,3]10]
+push [-2,2]  → [[1,3]10, [-2,2]8]
+push [3,-2]  → [[3,-2]13, [-2,2]8, [1,3]10]                 滿了,門檻 = 13</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 每來一個,push 後立刻 pop 最遠的</span>
+push [0,1]   → [[3,-2]13, [-2,2]8, [1,3]10, [0,1]1]
+pop  [3,-2]  → [[1,3]10, [-2,2]8, [0,1]1]                   門檻 13 → 10
+push [-3,-3] → [[-3,-3]18, [1,3]10, [0,1]1, [-2,2]8]
+pop  [-3,-3] → [[1,3]10, [-2,2]8, [0,1]1]                   ← 新點自己出局,門檻不變
+push [2,0]   → [[1,3]10, [-2,2]8, [0,1]1, [2,0]4]
+pop  [1,3]   → [[-2,2]8, [2,0]4, [0,1]1]                    門檻 10 → 8</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 倒出</span>
+[-2,2] → [2,0] → [0,1]
+<span class="sc-trace__out">// OUTPUT: [[-2,2],[2,0],[0,1]](平方距離 8、4、1 —— 最遠的先出)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>門檻 13 → 10 → 10 → 8,只降不升。</strong>
+      <b>[-3,-3] 的 18 比當時的門檻 10 大,push 進去立刻浮到 top、又立刻被 pop</b> —— 等於從沒進來過。
+      總共 pop 了 3 次 = n − k = 6 − 3。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成「離<strong>任意點 <code>(cx, cy)</code></strong> 最近的 k 個點」,程式要改哪裡?溢位還安全嗎(假設 <code>cx, cy</code> 也在 ±10⁴)?</div>
+
+    <div class="qa"><strong>App 2.</strong> 用 <code>nth_element</code> 寫出這題,並說明它為什麼平均是 O(n)。</div>
+
+    <div class="qa"><strong>App 3.</strong> 點是從感測器<strong>源源不絕</strong>傳來的,隨時要能回答「目前最近的 k 個」。哪一種做法還能用?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為要「留下」最近的 k 個,就必須能快速找到並踢掉其中<em>最遠</em>的 —— 最大堆的 top 正是它。</strong><br><br>
+  <code>priority_queue</code> 的規則:<code>cmp(a, b)</code> 為真表示 <strong>a 的優先權比 b 低</strong>,a 排在後面、b 比較靠近 top。
+  用 <code>&lt;</code>(距離小的優先權低),<b>距離最大的就站在 top</b> —— 和預設的 <code>less</code> 一樣是最大堆。<br>
+  寫成 <code>&gt;</code> 變最小堆,每次踢掉的是<strong>最近</strong>的:窮舉錯 <strong>1,186,720 / 1,610,650</strong>,
+  <code>[[-1,-2],[-2,-2]]</code>, k=1 回傳較遠的 <code>[-2,-2]</code>。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>平方根是遞增函數,比平方距離和比真實距離的大小順序一樣;而且全程整數,沒有浮點誤差。</strong><br><br>
+  最大值出現在 <code>(±10⁴, ±10⁴)</code>:實測 <code>10⁸ + 10⁸ = 200,000,000</code>,<strong>小於 <code>INT_MAX = 2,147,483,647</code> 約 10 倍</strong>,不會溢位。<br>
+  用 <code>sqrt</code> 的 <code>double</code> 版本實測也是 0 錯(在 0 ~ 2×10⁸ 的整數上 <code>sqrt</code> 嚴格遞增、沒有碰撞),只是多做了沒必要的運算。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>C++17 編譯失敗;C++20 也失敗 —— 因為 lambda 寫的是 <code>[&amp;]</code>。</strong><br><br>
+  <code>priority_queue</code> 預設會用 <code>Compare()</code> 建構比較子,但 C++17 的 lambda 型別<strong>沒有預設建構子</strong>,所以必須把 <code>cmp</code> 傳進去。
+  C++20 允許<strong>無捕獲</strong>的 lambda 預設建構 —— 實測只有 <code>[]</code> 會過,<b><code>[&amp;]</code> 就算什麼都沒捕獲,仍然被當成有捕獲而失敗</b>。<br>
+  這個 lambda 沒用到任何外部變數,<strong>寫 <code>[]</code> 語意更準確</strong>;另一個常見寫法是自訂一個 <code>struct</code> 比較子。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不是。資料一次給完時,<code>nth_element</code>(quickselect)平均 O(n) 更快;堆的優勢在 k 小或資料串流。</strong><br><br>
+  實測 n = 10⁴:<br>
+  · <code>k = 1</code>:堆 0.243 ms(最快)、排序 1.054、<code>nth_element</code> 0.322<br>
+  · <code>k = 5000</code>:堆 <strong>1.538 ms</strong>、排序 0.948、<code>nth_element</code> <strong>0.322</strong><br>
+  堆的成本跟著 log k 長,每次 push 還要複製一個 <code>vector&lt;int&gt;</code>;k 接近 n 時連排序都贏它。
+  <b>好的回答:先說堆 O(n log k) / O(k) 記憶體,再主動補上 quickselect 與取捨。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>因為堆頂只有在「被更近的點擠掉」時才會換,而換上來的一定比原來的近。</strong><br><br>
+  堆滿之後,每來一個點:如果它比門檻遠,它自己被 pop,門檻不變;如果比門檻近,舊的堆頂被 pop,新的堆頂是剩下 k 個裡最遠的 ——
+  <b>一定不比舊門檻遠</b>(舊門檻是這 k+1 個裡最遠的)。所以圓只會縮小或不變。
+  動畫那組:<code>13 → 10 → 10 → 8</code>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>只改比較子:用 <code>(x−cx)² + (y−cy)²</code>。溢位的餘裕會變小,要重新算一次上界。</strong><br><br>
+  座標差最大可到 <code>2×10⁴</code>,平方和最大 <code>2 × (2×10⁴)² = 8×10⁸</code> —— 仍小於 <code>INT_MAX</code>,<code>int</code> 其實還撐得住;
+  <b>但只要範圍再放大一點就會爆</b>,穩妥的寫法是先轉 <code>long long</code> 再相乘。
+  <strong>養成習慣:平方距離一律用 <code>long long</code> 算,不用每次重新估上界。</strong></div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>把平方距離當比較依據,呼叫 <code>nth_element(points.begin(), points.begin() + k, points.end(), cmp)</code>,再回傳前 k 個。</strong><br><br>
+  它像快速排序:選一個 pivot 分成「比它近」和「比它遠」兩邊,<b>但只遞迴進第 k 個位置所在的那一邊</b>。
+  每一層期望處理的量大約減半:<code>n + n/2 + n/4 + … ≈ 2n</code>,所以平均 O(n)(最壞 O(n²),實作通常有保護)。
+  實測 n = 10⁴ 每種 k 都在 0.22 ~ 0.32 ms。代價是會重排 <code>points</code>,而且要全部資料都在手上。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>只有堆還能用 —— 這就變回 <a href="../p703/index.html">703</a>。</strong><br><br>
+  排序和 quickselect 都要「全部資料在手上」,新點一來就得重做。
+  大小為 k 的最大堆每來一個點只要 O(log k),<b>記憶體永遠只有 k 個點</b>,而且堆裡隨時就是「目前最近的 k 個」。
+  <strong>這才是堆在 Top-K 問題裡真正不可取代的地方。</strong></div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">堆頂距離是只會縮小的入選門檻(13 → 10 → 10 → 8);比門檻遠的點進來就被自己踢掉。資料一次給完時 quickselect 更快,資料串流時只有堆能用 —— 那就是 703。</div>
+    <div class="sc-summary-bar__detail">K CLOSEST POINTS TO ORIGIN · REVIEW</div>
+  </div>
+
+</body>
+</html>

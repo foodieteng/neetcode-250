@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>973 · K Closest Points to Origin // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P973</span>
+    <span><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最接近原點的 K 個點</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 留最近的 k 個,就用最大堆踢最遠的</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 973</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MAX-HEAP OF SIZE K</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給平面上的點 <code>points[i] = [x, y]</code> 和整數 <code>k</code>,回傳<strong>離原點最近的 k 個點</strong>(歐氏距離),<strong>順序不限</strong>。
+        題目保證答案唯一(不考慮順序)。<br>
+        <code>1 ≤ k ≤ n ≤ 10⁴</code>,座標 <code>−10⁴ ~ 10⁴</code>。
+      </p>
+    </div>
+
+    <p>
+      這題就是 <a href="../p703/index.html">703</a> 的鏡像:703 要留<strong>最大的</strong> k 個,這題要留<strong>最近(最小)的</strong> k 個。
+      <b>要留下哪一半,堆就用相反的方向</b> —— 這樣每次被踢掉的才是「最不該留的」那個。
+      <a href="../p703/review.html">703 的 App 3</a> 預告的正是這一題。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>留最近的 k 個 → 用<em>最大</em>堆,堆頂是「目前入選者裡最遠的」。</strong>
+      <b>新來的點比堆頂近,就擠掉堆頂;比堆頂遠,它自己就會被 pop 掉。</b>
+      <strong>堆頂的距離就是一個「入選門檻」:原點為圓心、以它為半徑的圓,圓內的點才留得住。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">三種做法,各有贏的地方<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">全部依距離排序,取前 k 個</span>
+            <span class="sc-ko-card__o">O(n log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            最直覺,也完全正確。<strong>但它把 n 個點全部排好,而題目連前 k 個的順序都不要。</strong>
+            <b>實測 n = 10⁴:約 0.84 ~ 1.05 ms,不太受 k 影響</b> —— k 很大時反而比堆快。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 小 k 時排了多餘的順序</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title"><code>nth_element</code>(quickselect)</span>
+            <span class="sc-ko-card__o">平均 O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            只把第 k 近的點放到正確位置,前面都比它近、後面都比它遠,<strong>其他順序一概不管</strong>。
+            <b>實測 n = 10⁴ 每一種 k 都只要 0.22 ~ 0.32 ms,最快。</b>
+            代價:要<strong>一次拿到全部資料</strong>,而且會重排輸入陣列。
+          </div>
+          <div class="sc-ko-card__verdict">△ 整批資料時最快</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">大小為 k 的<strong>最大堆</strong>(你的解法)</span>
+          <span class="sc-ko-card__o">O(n log k) · O(k) 記憶體</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <strong>一次只看一個點,手上永遠只留 k 個</strong> —— 點可以是一個一個<em>串流</em>進來的,也不用改動輸入。
+          <b>實測 k = 1 只要 0.243 ms(三者最快);但 k = 5000 要 1.538 ms,比排序還慢</b>,因為 log k 已經接近 log n,
+          而每次 push 還要複製一個 <code>vector&lt;int&gt;</code>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · k 小或資料串流時的標準答案</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>面試時被問「堆是最快的嗎?」,正確答案是「不一定」</strong>:
+      <b>資料一次給完、只問一次 → quickselect 平均 O(n) 最快;k 遠小於 n、或資料是串流 → 堆。</b>
+      能講出這個取捨,比只寫出堆更加分。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>比較平方距離 <code>x² + y²</code></strong>,不開根號 —— 平方根是遞增函數,大小順序不變,而且全程是整數。</li>
+      <li><strong>最大堆</strong>:<code>cmp(p1, p2)</code> 回傳「p1 比 p2 近」(用 <code>&lt;</code>),<code>priority_queue</code> 就會把<strong>最遠的</strong>放在 top。</li>
+      <li><strong>逐點 push,超過 k 就 pop</strong>(踢掉最遠的);最後把堆裡的 k 個倒出來。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong><code>priority_queue</code> 的比較子規則:<code>cmp(a, b)</code> 為真代表「a 的優先權比 b 低」,排在後面。</strong>
+      <b>所以用 <code>&lt;</code> 會讓「最大」的在 top</b>(預設的 <code>less</code> 也是這樣)。
+      把 <code>&lt;</code> 改成 <code>&gt;</code> 就變最小堆,踢掉的會是最近的 —— 實測錯 1,186,720 / 1,610,650。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 6 個點 · k = 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例太小,堆幾乎不動,所以這裡用 6 個點(平方距離 10, 8, 13, 1, 18, 4)。
+      <strong>看左邊的虛線圓</strong>:半徑是堆頂的距離,也就是「入選門檻」。
+      <b>每踢掉一個點,圓就縮一圈</b>(√13 → √10 → √8);<strong>第 07 步的 [-3,-3] 落在圓外,一進來就被自己 pop 掉。</strong>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 大小為 k 的最大堆 · 堆頂是「目前入選裡最遠的」</div>
+      <div class="sc-viz__cvwrap"><canvas id="v973-canvas" class="sc-viz__canvas" style="height:494px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v973-reset">Reset</button><button class="sc-btn" id="v973-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v973-play">Play</button><button class="sc-btn" id="v973-next">Next</button>
+        <span class="sc-viz__step" id="v973-step">00 / 13</span>
+      </div>
+      <div class="sc-viz__label" id="v973-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 不開根號,int 也不會溢位</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>√d</code> 是遞增函數:<code>d₁ &lt; d₂ ⇔ √d₁ &lt; √d₂</code>,所以比平方距離和比真實距離<strong>排序完全一樣</strong>,
+          還避開了浮點數。<b>最大的平方距離出現在 <code>(±10⁴, ±10⁴)</code>:實測 <code>200,000,000</code></b>,
+          <strong>遠小於 <code>INT_MAX = 2,147,483,647</code></strong>,<code>int</code> 夠用。<br>
+          (開根號的 <code>double</code> 版本實測也 0 錯:<code>sqrt</code> 在 0 ~ 2×10⁸ 的每個整數上嚴格遞增、沒有碰撞。只是沒必要。)
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 被 pop 掉的點,不可能屬於答案</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          被 pop 的那一刻,堆裡有 k+1 個點,<strong>它是其中最遠的</strong> —— 已經有 k 個點比它近(或一樣近)。
+          之後再來的點只會讓「比它近的點」更多,<b>所以它永遠進不了前 k 近</b>,丟掉是安全的。和 703 的 LEMMA 1 是同一個論證。<br>
+          <strong>實測</strong>:用「長度 k、是輸入的子集、回傳的最遠距離 ≤ 沒選的最近距離」三條件檢查,
+          隨機 <strong>200,000</strong> 組(含大量等距的小座標)+ 窮舉 <strong>28,602</strong> 組,<b>0 失敗</b>;
+          答案唯一的 153,928 組和「排序取前 k」逐一比對,<b>0 不一致</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 五種改法的實測結果(窮舉長度 1~4、座標 −2~2、所有 k,共 1,610,650 組)</span>
+cmp 用 &gt;(變成最小堆)     → 錯 1,186,720,[[-1,-2],[-2,-2]], k=1 → 回最遠的 [[-2,-2]]
+曼哈頓距離 |x|+|y|        → 錯 60,960,[[-1,-1],[0,-2]], k=1 → [[0,-2]](平方距離 4 vs 2)
+pop 條件寫成 size() &gt;= k   → 錯 1,610,650(全部!)只留 k−1 個,[[-2,-2]], k=1 → []
+先 pop 再 push            → 錯 477,648
+sqrt 的 double 距離        → 錯 0  ← 正確,只是多此一舉
+<span class="sc-trace__out">// &gt;= 那一列錯得「最乾淨」:每一組都少一個點,看輸出長度就抓得到</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n log k)</strong>　·　空間 <strong>O(k)</strong>(堆)　·　pop 次數恰好 <strong>n − k</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n = 10⁴(-O2,5 次中位數)</th><th>最大堆(你的)</th><th>全部排序</th><th><code>nth_element</code></th></tr></thead>
+      <tbody>
+        <tr><td><code>k = 1</code></td><td class="mono ok"><strong>0.243 ms</strong></td><td class="mono">1.054 ms</td><td class="mono">0.322 ms</td></tr>
+        <tr><td><code>k = 100</code></td><td class="mono">0.719 ms</td><td class="mono">0.843 ms</td><td class="mono ok"><strong>0.275 ms</strong></td></tr>
+        <tr><td><code>k = 5000</code></td><td class="mono fail">1.538 ms</td><td class="mono">0.948 ms</td><td class="mono ok"><strong>0.322 ms</strong></td></tr>
+        <tr><td><code>k = 10⁴</code></td><td class="mono fail">1.924 ms</td><td class="mono">0.927 ms</td><td class="mono ok"><strong>0.225 ms</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>堆的時間跟著 k 長,排序和 quickselect 幾乎不受 k 影響。</strong>
+      <b>O(n log k) 的優勢只在 k ≪ n 時才成立</b>;k 接近 n 時,log k ≈ log n,再加上每次 push 都複製一個 <code>vector&lt;int&gt;</code>,就輸給一次排好。
+      <strong>堆真正不可取代的是 O(k) 記憶體和「可以串流」。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>要留最近的 k 個,就用最大堆踢掉最遠的 —— 堆頂的距離是入選門檻,一個以原點為圓心、只會縮小的圓。</strong>
+      <b>比平方距離,int 裝得下 2×10⁸。</b>
+      <strong>堆適合 k 小或串流;資料一次給完時,quickselect 更快。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">留最近的 k 個就用最大堆踢最遠的,堆頂距離是只會縮小的入選門檻;比平方距離(最大 2×10⁸,int 安全)。O(n log k) 只在 k 小時占優 —— 實測 k=5000 時比排序慢,nth_element 每種 k 都最快。</div>
+    <div class="sc-summary-bar__detail">K CLOSEST POINTS TO ORIGIN · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p973-maxheap.js"></script>
+</body>
+</html>
