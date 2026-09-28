@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>621 · Task Scheduler // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P621</span>
+    <span><a href="https://leetcode.com/problems/task-scheduler/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">任務排程器</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 621</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MAX-HEAP · ROUND SIMULATION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>只看次數</td><td>任務名字不重要,<code>freq[c − 'A']</code>,只推非 0 進最大堆</td></tr>
+        <tr><td>一輪</td><td><strong>n + 1 格</strong>,每種任務一輪最多一次 ⇒ 冷卻自動成立</td></tr>
+        <tr><td>貪心</td><td>每格拿<strong>剩最多</strong>的;最小堆錯 54/620 但官方範例全過</td></tr>
+        <tr><td>buff</td><td>這輪做過的先冷卻,輪結束才推回</td></tr>
+        <tr><td>idle</td><td><code>time++</code> 在 pop 外面:堆空但 buff 有 → 自動算一格 idle</td></tr>
+        <tr><td>break</td><td><strong>pq 空且 buff 空</strong>才停;少一個條件錯 360,不 break 錯 451</td></tr>
+        <tr><td>公式</td><td><code>max(len, (maxF−1)(n+1) + countMax)</code>,對拍 200,000 組 0 不一致</td></tr>
+        <tr><td>成本</td><td>O(len + 答案);最壞 1,009,900 格,<code>int</code> 安全</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼一輪是 <code>n + 1</code> 格,不是 <code>n</code> 格?寫成 <code>n</code> 會怎樣?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>if (pq.empty() &amp;&amp; buff.empty()) break;</code> 為什麼兩個條件都要?各舉一個少了會錯的例子。</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼每格要拿「剩最多」的?改成最小堆,三個官方範例都會過,那它錯在哪?</div>
+
+    <div class="qa"><strong>Q4.</strong> 不模擬,直接算答案的公式是什麼?用範例 1 說明它從哪裡來。</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>freq</code> 有 26 格,大部分是 0。為什麼一定要跳過 0?能不能用 <code>priority_queue</code> 的比較子把 0 濾掉?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 範例 2 · ACABDB · n = 1</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      次數 A2、B2、C1、D1,<code>cycle = 2</code>。這組<strong>完全沒有 idle</strong>,而且堆裡的任務比一輪的格數多 —— 看沒輪到的任務留在堆裡等下一輪。實跑印出。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 第 1 輪</span>
+pq=[2,2,1,1]   格 1:B 2→1 進 buff   格 2:A 2→1 進 buff
+               (C、D 還在 pq 裡,這輪沒輪到)
+buff=[1,1] 推回 → pq=[1,1,1,1]    time = 2</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 第 2、3 輪</span>
+pq=[1,1,1,1]   格 3:D 1→0   格 4:C 1→0    buff=[]   time = 4
+pq=[1,1]       格 5:B 1→0   格 6:A 1→0    buff=[]   time = 6
+pq 空 → while 結束</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 結果</span>
+排程:B A | D C | B A        外層 3 輪(maxF = 2)
+公式:(2−1)·2 + 2 = 4,max(len = 6, 4) = 6
+<span class="sc-trace__out">// OUTPUT: 6</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>任務夠多、能把每輪塞滿時,答案就是 <code>len</code>,一格 idle 都不用。</strong>
+      <b>這時外層輪數(3)會比 maxF(2)多</b> —— 有 idle 時兩者才相等。公式裡 <code>max(len, …)</code> 的 <code>len</code> 就是在處理這種情況。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 題目改成「回傳<strong>實際的排程</strong>(例如 <code>"A B idle A B idle A B"</code>)」,程式要怎麼改?</div>
+
+    <div class="qa"><strong>App 2.</strong> <strong>Reorganize String</strong>(LeetCode 767):重排字串讓相鄰字元都不同,做不到就回傳 <code>""</code>。這和 621 是什麼關係?</div>
+
+    <div class="qa"><strong>App 3.</strong> 用公式寫一個 O(len) 的版本。什麼時候 <code>len</code> 會比 <code>(maxF−1)(n+1) + countMax</code> 大?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>一輪要容納「一個任務 + 它後面的 n 格冷卻」,所以是 n + 1 格。</strong><br><br>
+  一種任務在一輪裡只出現一次,下一次最早在下一輪。一輪 n+1 格,兩次之間才會隔滿 n 格。<br>
+  寫成 <code>cycle = n</code>:窮舉錯 <strong>484 / 620</strong>;而且 <code>n = 0</code> 時 <code>cycle = 0</code>,內層一次都不跑、堆永遠不會空 → <strong>無限迴圈</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>「堆空」只代表這輪沒有可做的任務;還有任務在 <code>buff</code> 冷卻時,這格是 idle,時間要算。只有兩者都空,才是真的做完了。</strong><br><br>
+  · <b>只寫 <code>if (pq.empty()) break;</code></b>:<code>CC</code>, n=1 —— 第一輪做完一個 C,堆空了就 break,那格 idle 沒算 → 回 2(正解 <code>C idle C</code> = 3)。窮舉錯 360。<br>
+  · <b>完全不 break</b>:<code>C</code>, n=1 —— 做完 C 還把這輪剩下的格子補成 idle → 回 2(正解 1)。窮舉錯 451。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>剩最多的任務最難安排:它需要最多輪,拖到後面就只能和 idle 交替。</strong><br><br>
+  最小堆的反例 <code>ABCC</code>, n=1(<code>cycle = 2</code>):先做次數少的 A、B,C 的兩個被留到最後,只能 <code>C idle C</code> → 共 5 格。
+  正解先排 C:<code>C A C B</code> = 4 格。窮舉錯 <strong>54 / 620</strong>。<br>
+  <b>三個官方範例剛好都是「各種任務次數相同」或「沒有 idle」的情況</b>,先排誰都一樣,所以抓不到這個錯。
+  和精確搜尋比對 620 組 0 不一致,說明「先排剩最多的」在這些輸入上都是最佳的。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong><code>max(len, (maxF − 1)(n + 1) + countMax)</code></strong><br><br>
+  範例 1 <code>AAABBB</code>, n=2:次數最多的是 A、B,<code>maxF = 3</code>,<code>countMax = 2</code>。
+  把次數最多的任務當骨架,先畫 <code>maxF − 1 = 2</code> 個寬 <code>n + 1 = 3</code> 的框:
+  <code>[A B _] [A B _]</code>,最後一行只放次數等於 maxF 的那 2 種:<code>[A B]</code>。
+  <code>2·3 + 2 = 8</code>。其他任務塞進框裡的空格;<b>塞不下(任務太多)時就完全不需要 idle,答案是 <code>len</code></b>。<br>
+  實測和你的模擬對拍 200,000 組,0 不一致。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>每 pop 出一個數,程式就認為「這格做了一個任務」;0 代表根本沒有這種任務,pop 到它就會多算一格。</strong><br><br>
+  實測把 0 也推進堆:620 組<strong>全部錯</strong>,範例 1 回 30(正解 8)。<br>
+  比較子不能用來過濾:<code>priority_queue</code> 的比較子只決定「誰排前面」,不能決定「誰要進來」。
+  要在進堆前濾掉:迴圈加 <code>if (f)</code>(你的寫法);或先 <code>freq.erase(remove(freq.begin(), freq.end(), 0), freq.end());</code> 再用區間建構;
+  或 C++20 的 <code>freq | views::filter(...)</code>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>堆裡改存 <code>pair&lt;int, char&gt;</code>(次數, 字母),每格把字母(或 <code>"idle"</code>)接到結果字串。</strong><br><br>
+  <code>pair</code> 先比次數,次數相同時比字母,所以範例 1 會先做 B:<code>B A idle | B A idle | B A</code> —— 格數一樣是 8。
+  本頁的字母排程就是用這個版本印出來的,和只存次數的版本 <code>time</code> 完全相同。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>767 就是 621 在 <code>n = 1</code>、而且「不准有 idle」的版本。</strong><br><br>
+  相鄰不同 = 同一字元之間至少隔 1 格。用同一個最大堆,每輪拿兩個不同的字元;
+  <b>如果某一輪堆裡只剩一種字元、但它還沒用完,就需要 idle —— 在 767 裡這代表做不到,回傳 <code>""</code></b>。
+  用公式看:<code>maxF − 1 ≤ len − maxF</code>(其他字元夠把最多的那種隔開)才有解,也就是 <code>maxF ≤ (len + 1) / 2</code>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>數次數、找 maxF 和 countMax,回傳 <code>max(len, (maxF − 1)(n + 1) + countMax)</code>。</strong><br><br>
+  <b><code>len</code> 比較大,代表任務多到能把所有框的空格塞滿還有剩</b> —— 完全不需要 idle,每格都在做事。
+  例如範例 2:<code>(2−1)·2 + 2 = 4 &lt; len = 6</code>,答案 6。
+  反之 <code>'A'</code>×10⁴、n=100:<code>9999·101 + 1 = 1,009,900</code> 遠大於 10⁴,幾乎全是 idle。
+  公式永遠 O(len);模擬的成本則跟著答案走,這個例子要跑 1,009,900 次內層。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">一輪 n+1 格讓冷卻自動成立;先排剩最多的(最小堆在 ABCC, n=1 會多一格 idle)。任務夠多時沒有 idle,答案就是 len —— 公式 max(len, (maxF−1)(n+1)+countMax) 一次算完。</div>
+    <div class="sc-summary-bar__detail">TASK SCHEDULER · REVIEW</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>621 · Task Scheduler // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P621</span>
+    <span><a href="https://leetcode.com/problems/task-scheduler/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">任務排程器</h1>
+    <p class="sc-mast__subtitle">// CODE · 一行 break,兩個條件</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 621</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(len + 答案) · O(26)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// ROUND SIMULATION</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p621.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">leastInterval</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">char</span><span class="p">&gt;&amp;</span> tasks<span class="p">,</span> <span class="t">int</span> n<span class="p">)</span> <span class="p">{</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> freq<span class="p">(</span><span class="n">26</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">char</span> c <span class="p">:</span> tasks<span class="p">)</span> <span class="p">{</span>
+            freq<span class="p">[</span>c <span class="p">-</span> <span class="s">'A'</span><span class="p">]++;</span>                 <span class="c">// 大寫!'a' 會算出 −32</span>
+        <span class="p">}</span>
+
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> pq<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> f <span class="p">:</span> freq<span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>f<span class="p">)</span> pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>f<span class="p">);</span>              <span class="c">// 跳過沒出現的任務</span>
+        <span class="p">}</span>
+
+        <span class="t">int</span> cycle <span class="p">=</span> n <span class="p">+</span> <span class="n">1</span><span class="p">;</span>                     <span class="c">// 一輪 n+1 格</span>
+        <span class="t">int</span> time <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> buff<span class="p">;</span>                    <span class="c">// 這輪做過、正在冷卻的</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="p">!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            buff<span class="p">.</span><span class="f">clear</span><span class="p">();</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> cycle<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">&amp;&amp;</span> buff<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="k">break</span><span class="p">;</span>   <span class="c">// 全部做完:不補 idle</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="p">!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+                    <span class="t">int</span> cnt <span class="p">=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">();</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>   <span class="c">// 剩最多的先做</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="p">--</span>cnt <span class="p">&gt;</span> <span class="n">0</span><span class="p">)</span> buff<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>cnt<span class="p">);</span>
+                <span class="p">}</span>
+                time<span class="p">++;</span>                            <span class="c">// pq 空但 buff 有 → 這格是 idle</span>
+            <span class="p">}</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> f <span class="p">:</span> buff<span class="p">)</span> <span class="p">{</span>                 <span class="c">// 輪結束,冷卻完畢</span>
+                pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>f<span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> time<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>time++</code> 放在 <code>if (!pq.empty())</code> 外面,是這份程式最精巧的地方</strong>:
+      堆有東西 → 這格做任務;堆空了但 <code>buff</code> 有 → 這格是 idle,時間照樣要算。
+      <b>idle 不用特別寫,它就是「這格沒 pop 到東西、但時間還是過了一格」。</b>
+      <code>-Wall -Wextra</code> 編譯零警告。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 驗證 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 官方範例與額外測資(g++ -O2 -std=c++17 實跑)</span>
+AAABBB, n=2   → 8     ✓
+ACABDB, n=1   → 6     ✓
+AAABBB, n=3   → 10    ✓
+
+AAABBB, n=0 → 6       A, n=100 → 1       26 種各一個, n=100 → 26
+'A'×10⁴, n=100 → 1,009,900              26 種平均共 10⁴, n=100 → 38,800</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 對拍</span>
+公式 max(len, (maxF−1)(n+1) + countMax)     隨機 200,000 組   不一致 0
+冷卻時間戳記的逐格貪心模擬                    隨機 200,000 組   不一致 0
+精確 BFS 最短排程搜尋(3 種任務、各 0~4、n 0~4)   620 組   不一致 0
+<span class="sc-trace__out">// 和精確搜尋一致 ⇒ 「先排剩最多的」這個貪心在這些輸入上是最佳的</span></div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>每次成本</th><th>次數</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td>數次數</td><td class="mono">O(1)</td><td class="mono">len</td><td class="mono">O(len)</td></tr>
+        <tr><td>內層一格(<code>time++</code>)</td><td class="mono">O(log 26)</td><td class="mono">= 答案</td><td class="mono">O(答案)</td></tr>
+        <tr><td>push / pop</td><td class="mono">O(log 26)</td><td class="mono">各 = len</td><td class="mono">O(len)</td></tr>
+        <tr><td>堆 + buff</td><td class="mono">—</td><td class="mono">≤ 26 個</td><td class="mono">O(1) 空間</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      時間 <strong>O(len + 答案)</strong>,答案最大約 <strong>maxF · (n + 1)</strong>　·　空間 <strong>O(26)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td>最壞答案</td><td><code>'A'</code>×10⁴、n = 100 → <strong>1,009,900</strong> 格,內層跑 1,009,900 次,約 0.6~2.4 ms</td></tr>
+        <tr><td>溢位</td><td>最大 1,009,900 ≪ <code>INT_MAX</code>,<code>int</code> 安全</td></tr>
+        <tr><td>push / pop 次數</td><td>各恰好 len 次(每個任務進出堆一次)</td></tr>
+        <tr><td>對照:公式</td><td><code>O(len)</code>,不受 n 影響</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>陷阱</th><th>實測(窮舉 620 組)</th><th>修正</th></tr></thead>
+      <tbody>
+        <tr><td><strong><code>c - 'a'</code></strong>(小寫)</td><td class="mono fail">索引 −32,寫到陣列外;-O2 範例 1 回 0,ASan 直接抓到</td><td>任務是大寫:<code>c - 'A'</code></td></tr>
+        <tr><td><strong>0 也推進堆</strong>(少了 <code>if (f)</code>)</td><td class="mono fail">錯 620(全部)· 範例 1 → 30</td><td>每 pop 一個 0 都會多算一格;只推非 0</td></tr>
+        <tr><td>只寫 <code>if (pq.empty()) break;</code></td><td class="mono fail">錯 360 · <code>CC</code>, n=1 → 2(正解 3)</td><td>還在冷卻的 idle 要算:加上 <code>&amp;&amp; buff.empty()</code></td></tr>
+        <tr><td>完全不 break</td><td class="mono fail">錯 451 · <code>C</code>, n=1 → 2(正解 1)</td><td>最後一輪不能補 idle</td></tr>
+        <tr><td>做完立刻 push 回堆</td><td class="mono fail">錯 360 · <code>CC</code>, n=1 → 2</td><td>同一任務會連做;要先放 <code>buff</code></td></tr>
+        <tr><td><code>cycle = n</code></td><td class="mono fail">錯 484 · n=0 時無限迴圈</td><td>一輪是 <code>n + 1</code> 格</td></tr>
+        <tr><td>最小堆</td><td class="mono fail">錯 54 · <code>ABCC</code>, n=1 → 5(正解 4)</td><td>先排剩最多的;<strong>官方範例全過,抓不到</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>跳過 0 的三種寫法</strong>:迴圈加 <code>if (f)</code>(你的寫法,最直接);
+      先 <code>erase(remove(...), end)</code> 再用區間建構;C++20 的 <code>views::filter</code>。
+      <b><code>priority_queue</code> 的比較子只決定「誰排前面」,不能決定「誰要進來」</b>,所以沒辦法靠比較子濾掉 0。
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">範例 1:<code>AAABBB</code>,<code>n = 2</code>,<code>cycle = 3</code>。堆裡只有次數;字母是另一個追蹤字母的版本印出的(兩者 <code>time</code> 相同)。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 第 1 輪</span>
+pq=[3,3]   格 1:B 3→2 進 buff   格 2:A 3→2 進 buff   格 3:pq 空、buff 有 → idle
+buff=[2,2] 推回 pq    time = 3</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: 第 2 輪</span>
+pq=[2,2]   格 4:B 2→1   格 5:A 2→1   格 6:idle
+buff=[1,1] 推回 pq    time = 6</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 3: 第 3 輪</span>
+pq=[1,1]   格 7:B 1→0(做完,不進 buff)   格 8:A 1→0
+i = 2:pq 空且 buff 空 → break,不補第 9 格    time = 8
+排程:B A idle | B A idle | B A
+<span class="sc-trace__out">// OUTPUT: 8   ·   公式驗算 (3−1)·3 + 2 = 8,max(6, 8) = 8</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">time++ 放在 pop 外面,idle 就自動算進去;break 要同時看 pq 和 buff。c − 'A'(大寫)、只推非 0、cycle = n+1 —— 三個小地方錯任何一個都會出事;最小堆最危險,官方範例全過。</div>
+    <div class="sc-summary-bar__detail">TASK SCHEDULER · CODE</div>
+  </div>
+
+</body>
+</html>
