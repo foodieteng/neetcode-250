@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>215 · Kth Largest Element in an Array // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P215</span>
+    <span><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">陣列中第 K 大的元素</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 重複值各佔一名,堆不去重</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 215</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MIN-HEAP OF SIZE K</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>nums</code> 和 <code>k</code>,回傳<strong>第 k 大的元素</strong>。
+        <strong>是排序後的第 k 大,不是第 k 個「不同」的值</strong>。題目還問:<strong>能不能不排序?</strong><br>
+        <code>1 ≤ k ≤ n ≤ 10⁵</code>,<code>−10⁴ ≤ nums[i] ≤ 10⁴</code>。
+      </p>
+    </div>
+
+    <p>
+      這是 <a href="../p703/index.html">703</a> 的「一次性」版本:資料一次全部給完,只問一次。
+      <b>程式碼幾乎一樣</b> —— 大小為 k 的最小堆,最後的 top 就是答案。
+      <strong>但這題真正會卡人的地方是「重複值」</strong>:官方範例 2 的答案是 4 還是 3?
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>範例 2 <code>[3,2,3,1,2,4,5,5,6]</code>,k = 4 的答案是 4。</strong>
+      <b>由大到小排:<code>6 5 5 4 3 3 2 2 1</code> —— 兩個 5 各佔一個名次(第 2、第 3),所以第 4 名是 4。</b>
+      <strong>只有「去重」(<code>6 5 4 3</code>)才會得到 3,而題目明講不去重。</strong>
+      <code>priority_queue</code> 本來就不去重,所以你的寫法直接就對。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">「不排序」有哪些路<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">整個排序,取 <code>[k−1]</code></span>
+            <span class="sc-ko-card__o">O(n log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            正確、最好寫,但<strong>題目明問「能不能不排序」</strong>,而且它把 n 個數全部排好,只用到其中一個位置。
+            <b>實測 n = 10⁵:約 5.0 ~ 5.2 ms,不管 k 是多少。</b>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 題目不要這個</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">計數(值域只有 ±10⁴)</span>
+            <span class="sc-ko-card__o">O(n + 值域)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            開 20001 格計數,從最大值往下扣,扣到 k 用完就是答案。
+            <b>實測每一種 k 都約 0.07 ms,最快</b> —— 但它<strong>依賴題目給的值域上限</strong>,值域一大就不能用。
+          </div>
+          <div class="sc-ko-card__verdict">△ 最快 · 只因為值域小</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">大小為 k 的<strong>最小堆</strong>(你的解法)</span>
+          <span class="sc-ko-card__o">O(n log k) · O(k)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          跟 <a href="../p703/index.html">703</a> 一模一樣:只留最大的 k 個,堆頂 = 其中最小 = 第 k 大。
+          <b>不依賴值域,記憶體只要 k 個。</b>
+          實測 n = 10⁵:<code>k=1</code> 0.463 ms,<code>k=50000</code> 約 4.4 ~ 5.1 ms(k 在中間時最慢,和排序差不多)。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 通用、面試標準答案</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>還有第四條路:quickselect(C++ 的 <code>nth_element</code>),平均 O(n)。</strong>
+      <b>實測 n = 10⁵ 每一種 k 都在 0.27 ~ 0.57 ms</b>,不依賴值域,是一般情況下最快的。
+      面試時寫堆,再主動補一句 quickselect 和計數的取捨,就完整了(和 <a href="../p973/index.html">973</a> 同一套說法)。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>最小堆</strong>:<code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt;</code>。</li>
+      <li><strong>每個數 push,超過 k 個就 pop</strong> —— 被 pop 的是 k+1 個裡最小的,它不可能是前 k 名。</li>
+      <li><strong>回傳 <code>top()</code></strong>:堆裡剩最大的 k 個(<strong>含重複</strong>),top 是其中最小的。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 703 的差別只有一個:這裡不用存成成員變數,也沒有「之後還會 add」。</strong>
+      <b>同一個「大小 k 的最小堆」,在 703 是資料結構,在這裡是一次性的篩子。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 2 · k = 4</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每個數都標了原本的位置 <code>i</code>,所以兩個 3、兩個 2、兩個 5 看得出是不同的元素。
+      <strong>看最下面的排名條</strong>:被 pop 的 5 個數全部落在第 5 ~ 9 名;
+      <b>兩個 5(i=6、i=7)分別佔第 2、第 3 名,都留在堆裡</b>,所以第 4 名 —— 堆頂 —— 是 4。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 大小為 k 的最小堆 · 重複值各佔一個名次</div>
+      <div class="sc-viz__cvwrap"><canvas id="v215-canvas" class="sc-viz__canvas" style="height:500px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v215-reset">Reset</button><button class="sc-btn" id="v215-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v215-play">Play</button><button class="sc-btn" id="v215-next">Next</button>
+        <span class="sc-viz__step" id="v215-step">00 / 15</span>
+      </div>
+      <div class="sc-viz__label" id="v215-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · priority_queue 不去重,而這正是題目要的</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <code>priority_queue</code> 是 <strong>multiset 語意</strong>:push 9 個數就有 9 個,重複的照樣各佔一格。
+          實測把範例 2 全部 push 進去:<code>size = 9</code>,依序倒出 <code>6 5 5 4 3 3 2 2 1</code>。
+          <b>「排序後的第 k 大」正好就是這個含重複的順序。</b>
+        </p>
+        <p style="margin:0;">
+          <strong>如果去重會怎樣</strong>:用 <code>set&lt;int&gt;</code> 代替堆,窮舉 30,948 組錯 <strong>12,640</strong> 組,
+          最小反例 <code>[1,2,2]</code>, k=2 → 回 1(正解 2)。
+          隨機 200,000 組裡,「第 k 個不同值」和正解<strong>不同的比例是 43.5%</strong> ——
+          其中 64,596 組根本不存在第 k 個不同值(例如 <code>[1,1]</code>, k=2)。
+          <b>要真的去重,<code>priority_queue</code> 不會幫你做,得改用 <code>set</code> 或先檢查是否已加入過。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 被 pop 的數不可能是答案</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          被 pop 時堆裡有 k+1 個數,它是最小的 —— 已經有 k 個數 ≥ 它,<strong>它最多排第 k+1 名</strong>。
+          之後再來的數只會讓它的名次更後面。和 703、973 是同一個論證。<br>
+          <strong>實測</strong>:和「排序取 <code>[k−1]</code>」對拍,隨機 <strong>200,000</strong> 組(一半值域 −3~3、大量重複)+
+          窮舉長度 1~6、值 1~4、所有 k 共 <strong>30,948</strong> 組 —— <b>不一致 0</b>。
+          動畫裡被 pop 的 5 個數,排名正好是第 9、7、8、6、5 名,全部在前 4 名之外。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 五種寫法的實測結果(窮舉 30,948 組)</span>
+最大堆(忘了 greater),同樣邏輯     → 錯 24,824,[1,2], k=1 → 1
+pop 條件寫成 size() &gt;= k            → 錯 17,472,[1], k=1 → 空堆 top() 未定義行為
+set&lt;int&gt;(去重陷阱)                 → 錯 12,640,[1,2,2], k=2 → 1
+最大堆裝全部,pop k−1 次再取 top     → 錯 0  ← 正確,但記憶體 O(n)
+nth_element(..., greater&lt;int&gt;())    → 錯 0  ← 正確,平均 O(n)
+<span class="sc-trace__out">// 前兩種和 703 的陷阱一模一樣;第三種是這題獨有的</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n log k)</strong>　·　空間 <strong>O(k)</strong>　·　pop 次數恰好 <strong>n − k</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n = 10⁵(-O2,5 次中位數)</th><th>最小堆(你的)</th><th>排序</th><th><code>nth_element</code></th><th>計數</th></tr></thead>
+      <tbody>
+        <tr><td><code>k = 1</code></td><td class="mono">0.463 ms</td><td class="mono">5.203</td><td class="mono">0.277</td><td class="mono ok"><strong>0.078</strong></td></tr>
+        <tr><td><code>k = 100</code></td><td class="mono">1.252 ms</td><td class="mono">5.203</td><td class="mono">0.270</td><td class="mono ok"><strong>0.066</strong></td></tr>
+        <tr><td><code>k = 50000</code></td><td class="mono fail">≈ 4.4 ~ 5.1 ms</td><td class="mono">5.028</td><td class="mono">0.471</td><td class="mono ok"><strong>0.063</strong></td></tr>
+        <tr><td><code>k = 10⁵</code></td><td class="mono">1.566 ms</td><td class="mono">5.072</td><td class="mono">0.571</td><td class="mono ok"><strong>0.066</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>堆最慢的地方是 k 在中間,不是 k = n。</strong>
+      <b>k = 10⁵ 時堆永遠不滿、一次都不 pop(n − k = 0),所以反而快</b>;k = 50000 時堆最大、還要 pop 5 萬次。
+      另外,輸入順序也有影響:k = 50000 時,已排序的輸入(遞增 2.465 ms、遞減 2.221 ms)比隨機輸入快約一倍。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>第 k 大 = 最大的 k 個(含重複)裡最小的 —— 大小 k 的最小堆,top 就是答案。</strong>
+      <b><code>priority_queue</code> 不去重,而題目要的正是含重複的排名:6 5 5 4 → 第 4 名是 4。</b>
+      <strong>「不排序」的更快解是 quickselect(平均 O(n))和計數(因為值域只有 ±10⁴)。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">大小 k 的最小堆,top 就是第 k 大;priority_queue 不去重,這正是題目要的(範例 2:6 5 5 4 → 4,去重才會錯成 3)。更快的「不排序」解:nth_element 平均 O(n)、計數 O(n + 值域)。</div>
+    <div class="sc-summary-bar__detail">KTH LARGEST ELEMENT IN AN ARRAY · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p215-minheap.js"></script>
+</body>
+</html>

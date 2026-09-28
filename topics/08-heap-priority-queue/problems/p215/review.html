@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>215 · Kth Largest Element in an Array // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P215</span>
+    <span><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">陣列中第 K 大的元素</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 215</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MIN-HEAP OF SIZE K</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>題意</td><td>排序後的第 k 大,<strong>重複值各佔一名</strong>,不是第 k 個不同值</td></tr>
+        <tr><td><code>priority_queue</code></td><td><strong>不去重</strong>(push 9 個就有 9 個)—— 正好符合題意</td></tr>
+        <tr><td>範例 2</td><td><code>6 5 5 4 3 3 2 2 1</code> → 第 4 名是 <strong>4</strong>;去重才會錯成 3</td></tr>
+        <tr><td>做法</td><td>大小 k 的最小堆,top = 答案;和 703 同一個迴圈</td></tr>
+        <tr><td>去重陷阱</td><td><code>set&lt;int&gt;</code> 錯 12,640 / 30,948,<code>[1,2,2]</code>, k=2</td></tr>
+        <tr><td>堆最慢</td><td>k ≈ n/2;k = n 時一次都不 pop,反而快</td></tr>
+        <tr><td>「不排序」更快解</td><td><code>nth_element</code> 平均 O(n);計數 O(n + 值域),實測 ≈ 0.07 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> <code>priority_queue</code> 會去重嗎?範例 2 由大到小是 <code>6 5 5 4 3 3 2 2 1</code>,用堆跑,k = 4 的答案為什麼是 4 而不是 3?</div>
+
+    <div class="qa"><strong>Q2.</strong> 找「第 k <strong>大</strong>」為什麼用<strong>最小</strong>堆?</div>
+
+    <div class="qa"><strong>Q3.</strong> 迴圈結束時,堆裡一定剛好 k 個嗎?<code>top()</code> 會不會碰到空堆?</div>
+
+    <div class="qa"><strong>Q4.</strong> 實測 n = 10⁵ 時,k = 50000 比 k = 10⁵ 慢。k 越大不是應該越慢嗎?</div>
+
+    <div class="qa"><strong>Q5.</strong> 題目問「能不能不排序」。除了堆,還有哪些做法?各自的前提是什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 範例 1 · k = 2</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>[3,2,1,5,6,4]</code>,<code>k = 2</code>,沒有重複值 —— 看純粹的「篩子」動作。<code>arr</code> 是實跑印出的底層陣列。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 前 2 個直接進</span>
+push 3 → arr=[3]
+push 2 → arr=[2,3]</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 之後每個都 push + pop</span>
+push 1 → arr=[1,3,2]   pop 1 → arr=[2,3]     (1 自己出局)
+push 5 → arr=[2,3,5]   pop 2 → arr=[3,5]
+push 6 → arr=[3,5,6]   pop 3 → arr=[5,6]
+push 4 → arr=[4,6,5]   pop 4 → arr=[5,6]     (4 自己出局)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 回傳</span>
+堆裡 {5,6} = 最大的 2 個 → top = 5
+<span class="sc-trace__out">// OUTPUT: 5(pop 了 4 次 = n − k = 6 − 2)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>1 和 4 都是「一進來就被自己踢出去」</strong> —— 它們比當時的堆頂還小,連前 2 名的邊都摸不到。
+      <b>堆頂就是入場門檻:2 → 3 → 5,只升不降。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 如果題目改成「第 k 大的<strong>不同</strong>值」(<code>[3,2,3,1,2,4,5,5,6]</code>, k=4 → 3),要怎麼改?</div>
+
+    <div class="qa"><strong>App 2.</strong> 利用 <code>−10⁴ ≤ nums[i] ≤ 10⁴</code>,寫出 O(n + 值域) 的計數解。</div>
+
+    <div class="qa"><strong>App 3.</strong> 用 <code>nth_element</code> 一行解這題,參數要怎麼給?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不會去重,所以答案是 4。</strong><br><br>
+  <code>priority_queue</code> 是「可以有重複」的容器:實測把範例 2 的 9 個數全部 push 進去,<code>size()</code> 是 9,倒出來是 <code>6 5 5 4 3 3 2 2 1</code>。<br>
+  你的迴圈最後留下 <code>{4,5,5,6}</code> —— <b>兩個 5 各佔一格</b>。由大到小:6 是第 1 名、5 第 2 名、<strong>另一個 5 第 3 名</strong>、4 第 4 名。
+  堆頂是這 4 個裡最小的,就是 4。兩個 3 是第 5、6 名,在最後兩次 pop 被踢掉了。<br><br>
+  <strong>什麼時候才會是 3?</strong>只有把兩個 5 算成一名(去重:<code>6 5 4 3</code>),或者 k = 5 的時候。
+  題目明講「不是第 k 個不同值」,所以 4 才對。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>第 k 大 = 最大的 k 個裡最小的那一個;最小堆能隨時拿到並踢掉這 k 個裡最小的。</strong><br><br>
+  每次 push 後超過 k 個,被 pop 的是 k+1 個裡最小的 —— 至少有 k 個數比它大或一樣大,它不可能是前 k 名。
+  <b>用最大堆(忘了 <code>greater</code>)同樣邏輯會留下最小的 k 個</b>:窮舉錯 24,824 / 30,948,<code>[1,2]</code>, k=1 回 1。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>一定剛好 k 個,不會空。</strong><br><br>
+  題目保證 <code>1 ≤ k ≤ n</code>。前 k 次 push 堆長到 k;之後每次都是 push 到 k+1、pop 回 k。所以結束時恰好 k 個(k ≥ 1),<code>top()</code> 有值。<br>
+  反例寫法:pop 條件寫成 <code>&gt;= k</code>,堆只剩 k−1 個 —— <code>[1]</code>, k=1 時堆空了還呼叫 <code>top()</code>,是未定義行為(窮舉錯 17,472 組)。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>因為成本是「堆的大小」和「pop 的次數」兩者一起決定的。</strong><br><br>
+  pop 次數是 <code>n − k</code>,每次操作是 <code>O(log k)</code>:<br>
+  · k = 1:堆很小、pop 99,999 次 → 0.463 ms<br>
+  · k = 50000:堆最大到 5 萬、還要 pop 5 萬次 → 約 4.4 ~ 5.1 ms(最慢)<br>
+  · k = 10⁵:堆從來沒超過 k,<strong>一次都不 pop</strong> → 1.566 ms<br>
+  <b><code>(n − k) · log k</code> 在 k 約為 n/2 時最大</b>,所以「O(n log k)」只是上界,實際成本在中間最高。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>四條路,前提各不同:</strong><br><br>
+  · <b>大小 k 的最小堆</b>(你的):O(n log k)、O(k) 記憶體,不需要任何前提,也能處理串流(703)。<br>
+  · <b>quickselect / <code>nth_element</code></b>:平均 O(n),實測 0.27 ~ 0.57 ms;前提是能一次拿到全部資料、可以重排陣列。<br>
+  · <b>計數</b>:O(n + 值域),實測約 0.07 ms,最快;<strong>前提是值域小</strong>(這題 ±10⁴ 只要 20,001 格)。<br>
+  · <b>最大堆裝全部 + pop k−1 次</b>:O(n + k log n)、O(n) 記憶體,k 小時不錯(0.9 ms),k = n 時最慢(9.1 ms)。<br>
+  面試時寫堆,再主動講另外兩個更快的選項和前提,是最完整的回答。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>把「重複的值只算一次」做出來:最簡單是先丟進 <code>set</code> 去重,再對不同值做同樣的事。</strong><br><br>
+  例如 <code>set&lt;int&gt; s(nums.begin(), nums.end());</code>,然後從 <code>s.rbegin()</code> 往前走 k−1 步;
+  或者維護一個大小為 k 的 <code>set</code>,超過 k 就 <code>erase(s.begin())</code>(<code>set</code> 自動去重)。
+  <b>還要處理「不同值不到 k 個」的情況</b> —— 實測隨機資料裡這種情形很常見(200,000 組中有 64,596 組)。<br>
+  <strong>這正是本題程式碼頁「去重陷阱」那一列:同一段 <code>set</code> 程式碼,在 215 是錯的,在這個變體才是對的。</strong></div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>開 20001 格的計數陣列,從最大值往下扣。</strong><br><br>
+  <code>int cnt[20001] = {};</code><br>
+  <code>for (int x : nums) cnt[x + 10000]++;</code><br>
+  <code>for (int v = 20000; v &gt;= 0; v--) { k -= cnt[v]; if (k &lt;= 0) return v - 10000; }</code><br><br>
+  <b>重複值自然各佔一名</b>:<code>cnt</code> 記的是次數,一次扣掉整批。範例 2 從 6 往下扣:6(k 4→3)、5 兩個(3→1)、4(1→0)→ 回傳 4。
+  實測 n = 10⁵ 約 0.07 ms,和排序對拍 200,000 組 0 不一致。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong><code>nth_element(nums.begin(), nums.begin() + k - 1, nums.end(), greater&lt;int&gt;()); return nums[k - 1];</code></strong><br><br>
+  <code>greater</code> 讓它以「由大到小」為準,第 k−1 個位置放的就是第 k 大;前面的都 ≥ 它、後面的都 ≤ 它,其他順序不保證。
+  窮舉 30,948 組 0 錯。它會改動 <code>nums</code> 的順序 —— 這題參數是 <code>vector&lt;int&gt;&amp;</code>,可以接受。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">priority_queue 不去重,範例 2 的堆最後是 {4,5,5,6},兩個 5 各佔一名,所以第 4 大是 4。堆最慢在 k ≈ n/2;「不排序」的更快解是 nth_element(平均 O(n))和計數(值域只有 ±10⁴)。</div>
+    <div class="sc-summary-bar__detail">KTH LARGEST ELEMENT IN AN ARRAY · REVIEW</div>
+  </div>
+
+</body>
+</html>
