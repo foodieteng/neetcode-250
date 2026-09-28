@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1046 · Last Stone Weight // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1046</span>
+    <span><a href="https://leetcode.com/problems/last-stone-weight/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最後一塊石頭的重量</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1046</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MAX-HEAP SIMULATION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>模式</td><td><strong>反覆取最大 + 放回新值 → 最大堆</strong></td></tr>
+        <tr><td>和 703 的對比</td><td>703 <strong>留住</strong>最大的 k 個 → 最小堆;這題每次<strong>拿出</strong>最大的 → 最大堆</td></tr>
+        <tr><td>迴圈條件</td><td><code>size() &gt; 1</code>,不是 <code>!empty()</code>(<code>[1]</code> 會崩潰)</td></tr>
+        <tr><td>收尾</td><td>可能全部撞光 → <code>size() ? top() : 0</code>(<code>[1,1]</code>)</td></tr>
+        <tr><td>命名</td><td>程式的 <code>x</code> 是較重的,差值 <code>x − y</code>;題目的字母剛好相反</td></tr>
+        <tr><td>輪數</td><td>每輪至少少一顆 ⇒ <strong>最多 n − 1 輪</strong>(實測 n=30 最多 29)</td></tr>
+        <tr><td>不變量</td><td>答案和總重<strong>同奇偶</strong>、答案 ≤ 最重的石頭(20 萬組 0 違反)</td></tr>
+        <tr><td>成本</td><td><code>O(n log n)</code> 時間、<code>O(n)</code> 空間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「一開始排序一次,之後每次拿前兩顆、差值放到最後」不行?給出最小反例。</div>
+
+    <div class="qa"><strong>Q2.</strong> 迴圈條件為什麼是 <code>pq.size() &gt; 1</code>,而不是 <code>!pq.empty()</code>?</div>
+
+    <div class="qa"><strong>Q3.</strong> 最後為什麼要寫 <code>pq.size() ? pq.top() : 0</code>?什麼輸入會讓堆變空?</div>
+
+    <div class="qa"><strong>Q4.</strong> 迴圈最多會跑幾輪?堆會不會越來越大?</div>
+
+    <div class="qa"><strong>Q5.</strong> 不跑程式,光看 <code>[2,7,4,1,8,1]</code>,能不能先判斷答案是奇數還是偶數?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,1,3] · 「排序一次」的最小反例</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      這組是「只排序一次」會出錯的<strong>最小</strong>輸入。先看最大堆怎麼做對(實跑印出的底層陣列),再看另一種寫法在哪一步走歪。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 最大堆(你的程式)</span>
+建堆            → [3,1,1]
+第 1 輪:x=3, y=1 → push 2 → [2,1]     ← 2 比剩下的 1 重,站到堆頂
+第 2 輪:x=2, y=1 → push 1 → [1]
+size 1 → return 1</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 對照 —— 排序一次、差值接尾端</span>
+排序一次        → [3,1,1]
+拿 3、1,差 2 接到尾端 → [1,2]          ← 順序錯了:較重的 2 排在後面
+拿 1、2,差 1−2 = −1                   ← 拿到的「最重」其實是較輕的
+<span class="sc-trace__out">// OUTPUT: 最大堆 1 ✓ · 排序一次 −1 ✗</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>差別就在第 1 輪產生的 2</strong>:它比剩下的石頭重,應該排到最前面。
+      <b>最大堆 push 進去會自動浮上去;排序一次的寫法把它放在最後,就再也拿不到正確的「最重兩顆」。</b>
+      總和 5 是奇數,答案 1 也是奇數 —— 而 −1 雖然也是奇數,卻是負的,一看就知道錯了。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> <strong>Last Stone Weight II</strong>(LeetCode 1049):規則改成「<strong>每輪可以任選兩顆</strong>」互撞,求最後可能的<strong>最小</strong>重量。還能用最大堆模擬嗎?</div>
+
+    <div class="qa"><strong>App 2.</strong> 題目允許修改 <code>stones</code>。怎麼省掉複製一份進 <code>priority_queue</code> 的 <code>O(n)</code> 額外空間?</div>
+
+    <div class="qa"><strong>App 3.</strong> <strong>Minimum Cost to Connect Sticks</strong>(LeetCode 1167):每次把兩根木棍接起來,成本是兩根長度的和,求把所有木棍接成一根的最小總成本。這題的結構和 1046 有什麼相同和不同?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為撞出來的新石頭可能比剩下的都重,它的排名無法事先知道。</strong><br><br>
+  最小反例 <code>[1,1,3]</code>:排序後 <code>[3,1,1]</code>,3 撞 1 得 2,放到尾端變 <code>[1,2]</code>;
+  下一輪拿到的「前兩顆」是 1 和 2,算出 <code>1 − 2 = −1</code>。正解是 1。<br><br>
+  實測窮舉 5460 個陣列錯 <strong>636</strong> 個。<b>堆的好處是 push 進去就自動回到正確位置</b>,不用手動維護順序。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>因為每輪要 pop 兩次;只剩一顆時,第二次 <code>top()</code> / <code>pop()</code> 是對空堆操作 —— 未定義行為。</strong><br><br>
+  最小反例 <code>[1]</code>:用 <code>!empty()</code> 會進迴圈,拿走唯一的一顆後再拿第二顆。
+  實測窮舉 5460 個陣列中 <strong>2989</strong> 個崩潰。<code>size() &gt; 1</code> 同時也是題目的結束條件:「最多剩一顆」。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為最後一輪兩顆一樣重時會同時消失,堆變成空的。</strong><br><br>
+  最小反例 <code>[1,1]</code>:一輪後堆空,直接 <code>top()</code> 就是對空堆取值。實測 <strong>2471</strong> 個陣列會崩潰。
+  其他例子:<code>[1,2,3]</code> → 0、30 顆 1000 → 0。題目規定這時回傳 0。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>最多 n − 1 輪,而且堆只會變小,不會變大。</strong><br><br>
+  每輪 pop 兩顆、最多 push 一顆,石頭數<strong>至少減 1</strong>;從 n 減到 ≤ 1,最多 n − 1 輪。<br>
+  實測:n = 30 的隨機陣列最多 <strong>29</strong> 輪;30 顆 1000 每輪減 2,只要 <strong>15</strong> 輪。堆的最大大小始終等於初始的 n。
+  <b>所以總成本 = 建堆 O(n) + 最多 n−1 輪 × O(log n) = O(n log n)。</b></div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>可以:總和 2+7+4+1+8+1 = 23 是奇數,所以答案一定是奇數。</strong><br><br>
+  每輪把 <code>x</code>、<code>y</code> 換成 <code>x − y</code>(或 0)。<code>x − y</code> 和 <code>x + y</code> 差了 <code>2y</code>,<b>奇偶性相同</b>,
+  所以總重的奇偶性永遠不變,最後剩下的那一顆也一樣。答案確實是 1。<br>
+  實測 200000 組隨機陣列,這條性質<strong>違反 0 次</strong>。<b>寫完程式後可以拿它當快速的正確性檢查。</b></div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>不行 —— 「任選兩顆」讓貪心拿最大的不再是最好的策略,這題會變成動態規劃。</strong><br><br>
+  關鍵觀察:不管怎麼撞,最後的重量都可以寫成「把石頭分成兩組,兩組總和的差」。
+  所以問題變成:<b>選一個子集,讓它的總和盡量接近總重的一半</b> —— 這是 0/1 背包。
+  <strong>A5 的奇偶性質在這裡依然成立</strong>(同樣是 <code>x − y</code> 的規則),可以拿來檢查答案。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>直接在 <code>stones</code> 上用 <code>make_heap</code> / <code>pop_heap</code> / <code>push_heap</code>。</strong><br><br>
+  <code>make_heap(stones.begin(), stones.end())</code> 把原陣列就地變成最大堆;
+  <code>pop_heap</code> 把最大值換到最後,再 <code>pop_back()</code>;<code>push_back</code> 之後 <code>push_heap</code>。
+  <b>和 <code>priority_queue</code> 的底層操作完全相同</b>(本頁的走讀就是用這組函式重現、結果一致),只是省掉那份複製,額外空間 O(1)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>結構一樣:反覆拿出兩個、合成一個放回去。方向相反:1167 每次拿<em>最短</em>的兩根,用最小堆。</strong><br><br>
+  接一次的成本是兩根的和,而接出來的新木棍之後還會被再算進成本 —— <b>越早接的木棍被重複計算越多次</b>,
+  所以要讓最短的先接。這和霍夫曼編碼是同一個貪心。
+  <strong>1046 是「差」、每輪變輕;1167 是「和」、每輪變重</strong> —— 但「pop 兩個、push 一個」的骨架完全一樣,一樣最多 n − 1 輪。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">撞出來的新石頭排名無法事先知道,所以要用最大堆讓它自動歸位 —— [1,1,3] 排序一次就錯。pop 兩個、push 一個,最多 n−1 輪;答案和總重同奇偶,寫完可以拿來自我檢查。</div>
+    <div class="sc-summary-bar__detail">LAST STONE WEIGHT · REVIEW</div>
+  </div>
+
+</body>
+</html>

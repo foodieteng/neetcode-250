@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1046 · Last Stone Weight // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1046</span>
+    <span><a href="https://leetcode.com/problems/last-stone-weight/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">最後一塊石頭的重量</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每輪拿最重的兩顆,差值丟回去</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1046</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MAX-HEAP SIMULATION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一堆石頭,每輪挑<strong>最重的兩顆</strong>互撞:<strong>一樣重就兩顆都消失</strong>;
+        不一樣重,輕的消失、重的變成<strong>兩者的差</strong>。
+        最後<strong>最多剩一顆</strong>,回傳它的重量;一顆都不剩就回傳 <code>0</code>。<br>
+        <code>1 ≤ stones.length ≤ 30</code>,<code>1 ≤ stones[i] ≤ 1000</code>。
+      </p>
+    </div>
+
+    <p>
+      這題沒有什麼巧妙的數學捷徑要找 —— <strong>就是照規則模擬</strong>。
+      唯一的問題是:<b>每一輪都要找「目前最重的兩顆」,而撞完產生的新石頭會改變排名</b>。
+      <strong>什麼容器能一直快速給出最大值,又能隨時丟新東西進去?</strong>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「反覆取最大、再放回新值」就是最大堆的標準用途。</strong>
+      <b>和 <a href="../p703/index.html">703</a> 剛好相反</b>:703 要留住最大的 k 個,所以用<em>最小</em>堆把小的踢掉;
+      <strong>這題每次要<em>拿出</em>最大的,所以直接用<em>最大</em>堆。</strong>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用最大堆<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">只排序一次,差值接到尾端</span>
+            <span class="sc-ko-card__o">排名會亂掉</span>
+          </div>
+          <div class="sc-ko-card__body">
+            一開始排好,之後每次拿前兩顆、差值放最後。<strong>但差值可能比後面的石頭重</strong>,
+            下一輪拿到的就不是最重的兩顆了。
+            <b>實測窮舉錯 636/5460</b>;最小反例 <code>[1,1,3]</code> → 回 <code>-1</code>(正解 1)。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 沒有重新排序</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">每一輪都重新排序</span>
+            <span class="sc-ko-card__o">O(n² log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>答案正確</strong>(驗證時就拿它當對拍的參考解),n ≤ 30 也完全跑得動。
+            <b>但每輪只變了兩三顆石頭,卻把整堆重排一次</b> —— n 一大就浪費。
+          </div>
+          <div class="sc-ko-card__verdict">△ 正確 · 做了多餘的事</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">最大堆:<strong>pop 兩次、必要時 push 一次</strong></span>
+          <span class="sc-ko-card__o">O(n log n) · O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          堆<strong>只保證 top 是最大值</strong>,不維護完整排序 —— 而這題也只需要這個。
+          <b>每輪三個 O(log n) 操作,新石頭 push 進去自動站到正確的位置。</b>
+          建堆用範圍建構子,O(n)。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 只維護需要的</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建最大堆</strong>:<code>priority_queue&lt;int&gt; pq(stones.begin(), stones.end());</code>(預設就是最大堆)。</li>
+      <li><strong>還有兩顆以上就繼續</strong>:<code>x</code> = 最重、<code>y</code> = 第二重;<strong>不相等才</strong> push <code>x − y</code>。</li>
+      <li><strong>收尾</strong>:剩一顆回傳它,剩零顆回傳 <code>0</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>⚠ 命名和題目相反</strong>:題目說「<code>x ≤ y</code>,新重量 <code>y − x</code>」;
+      <b>你的程式碼裡 <code>x</code> 是<em>先</em> pop 出來的,所以是比較<em>重</em>的那顆,差值是 <code>x − y</code></b>。
+      兩者算的是同一件事,<strong>但照著題目的字母抄 <code>y − x</code> 就會得到負數</strong>(實測錯 3384/5460)。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 · [2,7,4,1,8,1]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <strong>看第 2 輪</strong>:4 − 2 = 2 被 push 回去後<b>浮到堆頂</b> —— 它比剩下的 1 都重,下一輪馬上又被拿出來。
+      這就是「只排序一次」會錯的原因:<strong>新石頭的排名無法事先知道</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 最大堆 · 每輪拿最重的兩顆互撞</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1046-canvas" class="sc-viz__canvas" style="height:408px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1046-reset">Reset</button><button class="sc-btn" id="v1046-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1046-play">Play</button><button class="sc-btn" id="v1046-next">Next</button>
+        <span class="sc-viz__step" id="v1046-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="v1046-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 迴圈最多跑 n − 1 輪,堆永遠不會變大</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          每一輪 pop 兩顆、最多 push 回一顆 —— <strong>石頭數至少少 1</strong>(相等時少 2)。
+          從 n 顆減到 ≤ 1 顆,<b>最多 n − 1 輪</b>,而且堆的大小<strong>從頭到尾不會超過 n</strong>。<br>
+          <strong>實測</strong>:200000 組隨機陣列裡,n = 30 觀察到的最大輪數正好是 <strong>29</strong>;
+          30 顆 1000 則是每輪兩顆一起消失,只要 <strong>15</strong> 輪。堆的最大大小始終是初始的 n。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 答案和總重量同奇偶</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          每一輪把 <code>x</code> 和 <code>y</code> 換成 <code>x − y</code>(或兩顆都消失,等於換成 0)。
+          <strong><code>x − y</code> 和 <code>x + y</code> 奇偶性相同</strong>(差了 <code>2y</code>),
+          <b>所以總重量的奇偶性每一輪都不變</b>,最後剩下的那顆(或 0)也就和一開始的總和同奇偶。
+          另外,每顆石頭只會變輕,<strong>答案不會超過最重的那顆</strong>。<br>
+          <strong>實測</strong>:200000 組隨機陣列,兩條性質都是<strong>違反 0 次</strong>。
+          範例 1:總和 23 是奇數,答案 1 也是奇數。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 六種改法的實測結果(窮舉長度 1~6、值 1~4 的全部 5460 個陣列)</span>
+用最小堆(greater)             → 錯 4860,[1,2] → -1
+差值寫成 y - x(照題目字母抄)  → 錯 3384,[1,2] → -1
+回傳前不檢查 size 直接 top()   → 崩潰 2471,[1,1](兩顆消失後堆是空的)
+while (!pq.empty()) 每輪 pop 兩顆 → 崩潰 2989,[1](只剩一顆還要 pop 第二顆)
+排序一次、差值接到尾端         → 錯 636,[1,1,3] → -1
+相等時也 push 0               → 錯 0  ← 只是多跑幾輪,不是 bug
+<span class="sc-trace__out">// 前兩種和第五種都會回傳負數 —— 石頭重量不可能是負的,看到負數就知道哪裡寫反了</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      建堆 <strong>O(n)</strong> + 最多 <strong>n − 1</strong> 輪 × <strong>O(log n)</strong> ⇒ 時間 <strong>O(n log n)</strong>　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>操作</th><th>成本</th><th>次數</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td>範圍建構子(make_heap)</td><td class="mono">O(n)</td><td class="mono">1</td><td class="mono">O(n)</td></tr>
+        <tr><td>每輪 pop × 2</td><td class="mono">O(log n)</td><td class="mono">≤ n − 1 輪</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>每輪 push × 0 或 1</td><td class="mono">O(log n)</td><td class="mono">≤ n − 1 輪</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>堆本身</td><td class="mono">—</td><td class="mono">最多 n 個</td><td class="mono ok">O(n) 空間</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>n ≤ 30,三種寫法在 LeetCode 上都跑得完</strong> —— 這題的重點不是效能,而是
+      <b>認出「反覆取最大 + 放回」這個模式,並且把最大堆的邊界寫對</b>(<code>size() &gt; 1</code> 和最後的 <code>size()</code> 檢查)。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「反覆拿出最大的、再放回新值」—— 最大堆的教科書用途。</strong>
+      <b>堆只保證 top 最大、不維護完整排序,而這題也只需要這個;新石頭 push 進去自己會找到位置。</b>
+      <strong>每輪至少少一顆,最多 n − 1 輪。</strong>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">反覆拿最重的兩顆、差值放回 —— 最大堆 pop 兩次、不相等才 push,O(n log n)。每輪至少少一顆,最多 n−1 輪;答案和總重同奇偶。程式裡 x 是較重的,照題目字母寫 y−x 會變負數。</div>
+    <div class="sc-summary-bar__detail">LAST STONE WEIGHT · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1046-smash.js"></script>
+</body>
+</html>
