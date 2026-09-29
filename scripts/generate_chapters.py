@@ -197,7 +197,7 @@ PROBLEMS = {
         ('p621', 'Task Scheduler',                 'task-scheduler',                 'med', 'done'),
         ('p355', 'Design Twitter',                 'design-twitter',                 'med', 'done'),
         ('p1834','Single Threaded CPU',            'single-threaded-cpu',            'med', 'done'),
-        ('p767', 'Reorganize String',              'reorganize-string',              'med', 'todo'),
+        ('p767', 'Reorganize String',              'reorganize-string',              'med', 'done'),
         ('p1405','Longest Happy String',           'longest-happy-string',           'med', 'todo'),
         ('p1094','Car Pooling',                    'car-pooling',                    'med', 'todo'),
         ('p295', 'Find Median from Data Stream',   'find-median-from-data-stream',   'hard','todo'),

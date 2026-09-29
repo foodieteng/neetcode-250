@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>767 · Reorganize String // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P767</span>
+    <span><a href="https://leetcode.com/problems/reorganize-string/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">重構字串</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每輪拿最多的兩個不同字元</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 767</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MAX-HEAP · GREEDY PAIRING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        重新排列字串 <code>s</code>,讓<strong>任兩個相鄰字元都不同</strong>;回傳任何一種合法排法,<strong>做不到就回傳 <code>""</code></strong>。<br>
+        <code>1 ≤ s.length ≤ 500</code>,只有小寫字母。
+      </p>
+    </div>
+
+    <p>
+      這就是 <a href="../p621/index.html">621</a> 在 <code>n = 1</code>、而且<strong>不准有 idle</strong> 的版本(621 複習頁 App 2 預告過)。
+      <b>最難安排的是出現最多的字元</b> —— 它需要最多「別的字元」夾在中間。所以一樣是最大堆、先排剩最多的。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>可行的條件:<code>maxFreq ≤ (n + 1) / 2</code>。</strong>
+      <b>最多的字元放在 0、2、4… 這些偶數位,最多放 <code>⌈n/2⌉ = (n+1)/2</code> 個</b>;再多就一定有兩個相鄰。
+      範例 2 <code>"aaab"</code>:3 &gt; (4+1)/2 = 2,不可行。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼「一輪拿兩個」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">最小堆(先排剩最少的)</span>
+            <span class="sc-ko-card__o">可行的也回 ""</span>
+          </div>
+          <div class="sc-ko-card__body">
+            少的字元先用完,最後只剩最多的那種,只能連著放。
+            <b>實測窮舉 15,300 組錯 10,644 組</b>,全部是「明明可行卻回 <code>""</code>」;最小反例 <code>"aab"</code>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 方向反了</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">一輪拿一個,和前一個一樣就改拿第二多的</span>
+            <span class="sc-ko-card__o">也正確</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每次 pop 最多的;如果和 <code>ans.back()</code> 相同,就先放著、改 pop 下一個。
+            <b>實測窮舉與隨機都 0 錯</b>,只是要多一段「暫存再放回」的處理。
+          </div>
+          <div class="sc-ko-card__verdict">△ 正確 · 多一層判斷</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">最大堆,<strong>一輪 pop 兩個</strong>(你的解法)</span>
+          <span class="sc-ko-card__o">O(n log 26)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          兩個都 pop 出來才 push 回去,<strong>同一輪的兩個一定是不同字元</strong>(堆裡每個字元只有一筆)。
+          <b>所以只需要檢查「輪與輪的接縫」</b>:這一輪的 ch1 和上一輪的最後一個。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 只檢查接縫</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>數次數</strong>,把 <code>(次數, 字元)</code> 推進最大堆(只推非 0)。</li>
+      <li><strong>每輪 pop 兩個</strong>:ch1 接上,<strong>檢查它和前一個字元是否相同</strong>(<code>ans.size() &gt;= 2</code>);再 pop ch2 接上。</li>
+      <li><strong>兩個都接完才 push 回去</strong>(次數減 1 後還有剩的);接縫撞到就回 <code>""</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「先 pop 完兩個,再 push 回去」這個順序不能換。</strong>
+      <b>如果 ch1 在 pop ch2 之前就 push 回去,ch2 可能又拿到 ch1 自己</b> —— 實測錯 5,308 / 15,300,例如 <code>"aaab"</code> → <code>"aaba"</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 可行 · 不可行 · 我漏掉的 "aa"</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      三個情境依序播:<strong>A · <code>"aaabbc"</code></strong> 剛好卡在可行邊界(3 = (6+1)/2),排成 <code>"abacba"</code>;
+      <strong>B · <code>"aaab"</code></strong> 不可行,第 3 輪接縫撞到 <code>a == a</code> 回 <code>""</code>;
+      <strong>C · <code>"aa"</code></strong> 是我原本 <code>ans.size() &gt; 2</code> 漏掉的情況 —— 第 2 輪長度剛好是 2,檢查被跳過。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 最大堆 · 每輪拿次數最多的兩個不同字元</div>
+      <div class="sc-viz__cvwrap"><canvas id="v767-canvas" class="sc-viz__canvas" style="height:476px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v767-reset">Reset</button><button class="sc-btn" id="v767-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v767-play">Play</button><button class="sc-btn" id="v767-next">Next</button>
+        <span class="sc-viz__step" id="v767-step">00 / 12</span>
+      </div>
+      <div class="sc-viz__label" id="v767-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 為什麼只要檢查接縫</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          同一輪的 ch1、ch2 是堆裡兩筆不同的資料,<strong>而每個字元在堆裡只有一筆</strong>(用完兩個才推回),所以 <code>ch1 ≠ ch2</code>。
+          唯一可能相鄰相同的地方,是<strong>這一輪的 ch1 和上一輪的 ch2</strong>(或上一輪只有 ch1 時的它)。<br>
+          ch1 接上之後,它就在 <code>ans</code> 的最後一格;前一格就是上一輪的最後一個字元 —— <b>所以比 <code>ans[size−1]</code> 和 <code>ans[size−2]</code> 正好就是比接縫</b>。
+          只要 <code>ans</code> 至少有 2 個字元,這個比較就有意義:<strong>條件是 <code>size() &gt;= 2</code></strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 接縫檢查會抓到所有不可行的情況</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          不可行時,最多的字元到最後一定會「落單」:其他字元先用完,它只能在連續幾輪裡當 ch1、沒有 ch2 陪它 —— 下一輪的 ch1 就撞上自己。
+          修正版(<code>&gt;= 2</code>)和「一開始先檢查 <code>maxFreq &gt; (n+1)/2</code> 就回 <code>""</code>」的寫法,
+          <strong>窮舉 15,300 組({a,b,c} 長度 1~8、{a,b,c,d} 長度 1~6)+ 隨機 200,000 組,都是 0 錯</strong>。<br>
+          反過來,<b>完全不檢查</b>會把不可行的也排出一個不合法字串:錯 3,053 組,<code>"aaab"</code> → <code>"abaa"</code>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 各種寫法的實測結果(窮舉 15,300 組)</span>
+我原本的 ans.size() &gt; 2            → 錯 7(全部是 "aa"、"bb" 這種:單一字母剛好 2 個)
+修正 ans.size() &gt;= 2               → 錯 0
+先檢查 maxFreq &gt; (n+1)/2,迴圈不檢查 → 錯 0
+先檢查寫成 maxFreq &gt; n/2            → 錯 1,381,連 "a" 都回 ""
+完全不檢查                         → 錯 3,053,"aaab" → "abaa"
+ch1 在 pop ch2 之前就推回            → 錯 5,308,"aaab" → "aaba"
+改用最小堆                         → 錯 10,644,"aab" → ""
+一輪一個、和前一個相同就改拿第二多的  → 錯 0
+<span class="sc-trace__out">// 我的錯只有 7 / 15,300,兩個官方範例都過 —— 最小的不可行輸入 "aa" 才抓得到</span></div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(n log 26) = O(n)</strong>　·　空間 <strong>O(26)</strong>(不算輸出)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td>堆操作</td><td>每個字元 push 一次、pop 一次;n = 500 時最多 <strong>1,000</strong> 次</td></tr>
+        <tr><td>堆大小</td><td>最多 26(不同字母數)</td></tr>
+        <tr><td>實測</td><td>200,000 組隨機(長度到 500)平均每組約 16 µs</td></tr>
+        <tr><td>編譯</td><td><code>-Wall -Wextra -Wconversion -pedantic</code> 零警告</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>堆最多 26 個,所以 log 那一項是常數</strong> —— 這題的效能不是重點,<b>重點是可行條件和接縫檢查的邊界</b>。
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>每輪從最大堆拿最多的兩個不同字元,兩個都接完才推回 —— 同一輪不可能相同,只要檢查輪與輪的接縫。</strong>
+      <b>接縫檢查從長度 2 就要開始(<code>&gt;= 2</code>);可行條件是 <code>maxFreq ≤ (n+1)/2</code>。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與錯誤紀錄</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每輪拿最多的兩個不同字元,兩個都接完才推回,只需檢查輪與輪的接縫。可行 ⇔ maxFreq ≤ (n+1)/2。我原本寫 ans.size() &gt; 2,只漏掉 "aa" 這一族(7 / 15,300),改成 &gt;= 2 就 0 錯。</div>
+    <div class="sc-summary-bar__detail">REORGANIZE STRING · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p767-pairs.js"></script>
+</body>
+</html>
