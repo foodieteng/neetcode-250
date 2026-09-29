@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1834 · Single-Threaded CPU // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1834</span>
+    <span><a href="https://leetcode.com/problems/single-threaded-cpu/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">單執行緒 CPU</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 時間只往前走,到了的任務進最小堆</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1834</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + MIN-HEAP SIMULATION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>tasks[i] = [enqueueTime, processingTime]</code>:任務 i 在 <code>enqueueTime</code> 才能開始處理,要花 <code>processingTime</code>。
+        CPU 一次只做一個、<strong>開始了就做完</strong>;閒下來時,從<strong>已經到達</strong>的任務中挑<strong>處理時間最短</strong>的,<strong>一樣短就挑 index 小的</strong>;沒有任務可做就閒著等。
+        回傳處理的順序。<br>
+        <code>1 ≤ n ≤ 10⁵</code>,<code>1 ≤ enqueueTime, processingTime ≤ 10⁹</code>。
+      </p>
+    </div>
+
+    <p>
+      這是一個<strong>模擬題</strong>:要追蹤「現在幾點」,把到了的任務收進候選,每次挑最短的做。
+      <b>兩件事要做好:時間怎麼前進,以及候選怎麼快速挑出最短的。</b>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>時間 <code>t</code> 只能往前走</strong>:做完一個任務 <code>t += processingTime</code>;沒有任務可做時,<strong>跳</strong>到下一個任務的到達時間 —— 但<strong>只能往前跳,不能往回拉</strong>。
+      <b>候選任務放進以 <code>(processingTime, index)</code> 排序的最小堆</b>,堆頂就是下一個要做的。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「排序 + 最小堆」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每次掃過所有任務挑最短的</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            最直接,驗證時就拿它當對拍的參考解。
+            <strong>但 n = 10⁵ 時要掃 10¹⁰ 次</strong>,一定超時。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">閒著時 <code>t++</code> 一格一格走</span>
+            <span class="sc-ko-card__o">跟著時間值走</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案是對的(窮舉 0 錯),但時間值可以到 10⁹:
+            <b><code>[[1,1],[1e9,1]]</code> 只有 2 個任務,卻要跑 1,000,000,001 圈、約 552 ms</b>;直接跳只要 2 圈。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 大間隔會 TLE</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">依到達時間排序 + <strong>最小堆 (處理時間, index)</strong></span>
+          <span class="sc-ko-card__o">O(n log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          排好序的到達順序用一個指標 <code>i</code> 走一遍;<strong>到了的就推進堆,堆頂就是該做的</strong>;堆空時直接跳到下一個到達時間。
+          <b>實測 n = 10⁵ 隨機約 60 ms</b>,和 O(n²) 暴力解對拍 0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每個任務進出堆一次</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這題的骨架和 <a href="../p621/index.html">621</a> 很像</strong>:都是「模擬時間 + 用堆挑下一個」。
+      差別是 621 的任務一開始就全部可用,這題的任務<b>要等到達時間才能進堆</b> —— 所以多了排序和指標 <code>i</code>。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>排序 index</strong>:<code>arr</code> 依到達時間排好(排 index,不動原陣列,index 才保得住)。</li>
+      <li><strong>收進堆</strong>:堆空時 <code>t = max(t, 下一個到達時間)</code>;然後把所有 <code>到達時間 ≤ t</code> 的推進堆。</li>
+      <li><strong>做一個</strong>:pop 堆頂(處理時間最短、同長 index 最小),<code>t += 處理時間</code>,記進答案。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>三個細節,正好是這題最容易寫錯的三個地方</strong>:
+      ① <code>max</code>,時間不能倒退;② 比較子要比 index,同長時才能選對;③ <code>t</code> 要用 <code>long long</code>,總時間最多約 10¹⁴。
+      <b>程式碼頁有這三個錯的完整紀錄。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 · 正確版 vs 時間倒退版</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      範例 1 <code>[[1,2],[2,4],[3,2],[4,1]]</code>,答案 <code>[0,2,3,1]</code>。
+      <strong>第一個動畫是正確版</strong>:#0 在 t=3 做完時,#1、#2 都已經到了,一起進堆比,短的 #2 先做。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 正確版 · 時間只往前跳,可用的任務進最小堆(處理時間, index)</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1834-canvas" class="sc-viz__canvas" style="height:472px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1834-reset">Reset</button><button class="sc-btn" id="v1834-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1834-play">Play</button><button class="sc-btn" id="v1834-next">Next</button>
+        <span class="sc-viz__step" id="v1834-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="v1834-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>第二個動畫是原本「堆空就把 <code>t</code> 設成下一個到達時間」的寫法。</strong>
+      #0 在 t=3 做完、堆空了,<b><code>t</code> 被拉回 #1 的到達時間 2</b> —— 在 t=2 只看得到 #1,#2 根本沒進堆,於是長的 #1 先做。
+      畫出來的執行區間會和 #0 <strong>重疊</strong>(CPU 在 2~3 同時跑兩個),這就是時間倒退的證據。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 你原本的寫法 · 堆空時 t 被重設 → 時間倒退</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1834b-canvas" class="sc-viz__canvas" style="height:580px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1834b-reset">Reset</button><button class="sc-btn" id="v1834b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1834b-play">Play</button><button class="sc-btn" id="v1834b-next">Next</button>
+        <span class="sc-viz__step" id="v1834b-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="v1834b-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 堆空不代表 CPU 閒著 —— 所以跳時間要取 max</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          迴圈每一圈結尾都 pop 一個、<code>t</code> 加上它的處理時間。下一圈開頭如果堆是空的,有兩種可能:
+        </p>
+        <p style="margin:0;">
+          · <strong>下一個任務還沒到</strong>(到達時間 &gt; t):CPU 真的閒著,要跳到它的到達時間。<br>
+          · <strong>下一個任務早就到了</strong>(到達時間 ≤ t):只是剛才的任務做完、堆剛好被清空。這時 <code>t</code> 應該<em>不動</em>。<br>
+          <b><code>t = max(t, 下一個到達時間)</code> 同時處理兩種情況</b>;直接 <code>t = 到達時間</code> 在第二種情況會把時間拉回過去。<br>
+          <strong>實測</strong>:只拿掉 <code>max</code>,窮舉 66,429 組錯 6,372 組,<strong>官方範例 1 就會錯</strong>(回 <code>[0,1,2,3]</code>)。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · int 的 t 會溢位,但答案不會錯 —— 仍然要用 long long</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>t</code> 最大約 10⁹ + 10⁵ × 10⁹ ≈ 10¹⁴,<code>int</code> 一定溢位;<code>-fsanitize=undefined</code> 直接報
+          <code>signed integer overflow: 2000000001 + 1000000000</code>。<br>
+          <strong>但實測輸出從來沒被影響</strong>(窮舉、隨機大資料、刻意構造的 10⁵ × [1, 10⁹] 都一樣):
+          要溢位,<code>t</code> 得先超過 <code>INT_MAX − 10⁹ ≈ 1.147×10⁹</code>,這已經大於任何到達時間(≤ 10⁹),
+          <b>所以溢位那一刻所有任務都已經在堆裡</b>(300 組隨機測資 300/300 如此),之後 <code>t</code> 不再被拿來比較。<br>
+          <strong>這是「剛好沒事」,不是「沒有 bug」</strong>:有號整數溢位是未定義行為,題目的上限稍微一改就會出事。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      排序 <strong>O(n log n)</strong> + 每個任務 push / pop 各一次 <strong>O(n log n)</strong>　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境(-O2)</th><th>時間</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>n = 10⁵ 隨機,值 ≤ 10⁹</td><td class="mono ok">≈ 60 ms</td><td>一般情況</td></tr>
+        <tr><td>n = 10⁵,全部在 t=1 到達</td><td class="mono">≈ 43 ms</td><td>堆一次長到 10⁵</td></tr>
+        <tr><td><code>[[1,1],[1e9,1]]</code> 用 <code>t++</code></td><td class="mono fail">≈ 552 ms</td><td>1,000,000,001 圈,只有 2 個任務</td></tr>
+        <tr><td>同一組直接跳</td><td class="mono ok">2 圈</td><td>跳躍次數 ≤ n</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>外層迴圈每一圈恰好 pop 一個任務,所以正好跑 n 圈</strong> —— 和時間值有多大無關。
+      <b>這就是「直接跳」比「一格一格走」好的原因。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>依到達時間排序,時間只往前走;到了的任務進 (處理時間, index) 最小堆,堆頂就是下一個。</strong>
+      <b>堆空時用 max 跳 —— 堆空不代表 CPU 閒著;比較子要比 index;t 用 long long。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與錯誤紀錄</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">依到達時間排序 + (處理時間, index) 最小堆,每圈做一個,共 n 圈。堆空時 t = max(t, 下一個到達時間) —— 少了 max 時間會倒退,官方範例 1 就錯;比較子要比 index;t 用 long long(int 溢位剛好不影響答案,但仍是 UB)。</div>
+    <div class="sc-summary-bar__detail">SINGLE-THREADED CPU · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1834-cpu.js"></script>
+  <script src="../../../../assets/js/viz/p1834-bug.js"></script>
+</body>
+</html>

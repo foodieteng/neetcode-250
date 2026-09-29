@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1834 · Single-Threaded CPU // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1834</span>
+    <span><a href="https://leetcode.com/problems/single-threaded-cpu/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">單執行緒 CPU</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1834</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + MIN-HEAP SIMULATION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td>依到達時間排 index + <strong>(處理時間, index) 最小堆</strong>,每圈做一個</td></tr>
+        <tr><td>時間</td><td><strong>只往前走</strong>:堆空時 <code>t = max(t, 下一個到達)</code></td></tr>
+        <tr><td>堆空的兩種意思</td><td>CPU 真的閒著 <strong>或</strong> 剛做完、候選剛好用完 —— max 同時處理</td></tr>
+        <tr><td>tie-break</td><td>一樣長選 index 小的;<code>priority_queue</code> 不穩定,<strong>一定要寫進比較子</strong></td></tr>
+        <tr><td>型別</td><td><code>t</code> 用 <code>long long</code>(最大約 10¹⁴)</td></tr>
+        <tr><td>比較子參數</td><td>堆裡放 <code>int</code>,參數就是 <code>int</code>,不是指標</td></tr>
+        <tr><td>我的錯</td><td>①編譯錯 ②時間倒退(範例 1 錯)③沒比 index ④int 溢位</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 迴圈開頭「堆是空的」時,CPU 一定是閒著的嗎?為什麼要寫 <code>t = max(t, …)</code> 而不是直接 <code>t = tasks[arr[i]][0]</code>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 比較子已經比了處理時間,為什麼還要比 index?官方範例 2 為什麼抓不到這個錯?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>int t</code> 會溢位,但實測答案從來沒錯。為什麼?那為什麼還要改成 <code>long long</code>?</div>
+
+    <div class="qa"><strong>Q4.</strong> 比較子寫成 <code>[&amp;](const auto* v1, const auto&amp; v2)</code> 為什麼編譯不過?</div>
+
+    <div class="qa"><strong>Q5.</strong> 把 push 的條件寫成 <code>t &gt; 到達時間</code>(嚴格大於)會怎樣?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 範例 2 · 同時到達</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>[[7,10],[7,12],[7,5],[7,4],[7,2]]</code>:五個任務<strong>全部在 t=7 到達</strong>,之後就是單純照處理時間由短到長。以修正版實跑。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// STEP 1: 閒置 → 跳到第一個到達時間</span>
+t = 0,堆空 → t = max(0, 7) = 7
+push #0..#4 → 堆 (2,4)(4,3)(5,2)(10,0)(12,1)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 2: 依序做</span>
+做 #4(2)  t = 9
+做 #3(4)  t = 13
+做 #2(5)  t = 18
+做 #0(10) t = 28
+做 #1(12) t = 40</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// STEP 3: 結果</span>
+<span class="sc-trace__out">// OUTPUT: [4,3,2,0,1]</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這組為什麼連我的原始寫法都會過</strong>:只有一次閒置(t 從 0 跳到 7,本來就該跳),之後堆從來沒空過 → ② 不會觸發;
+      五個處理時間全都不同 → ③ 不會觸發。<b>範例 2 對 ② 和 ③ 都是「盲點」,範例 1 才抓得到 ②。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 改成有 <strong>k 顆 CPU</strong>(LeetCode 1882 Process Tasks Using Servers 類似),每顆閒下來就拿最短的任務。要多加什麼資料結構?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成「CPU 可以被搶占」:有更短的任務到達時,可以暫停目前的任務先做短的(最短剩餘時間優先,SRTF)。模擬要怎麼改?</div>
+
+    <div class="qa"><strong>App 3.</strong> 題目的 <code>enqueueTime</code> 改成可以到 <code>2×10⁹</code>(超過 <code>int</code>),哪些地方要改?「int 溢位剛好不影響」還成立嗎?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不一定。堆空有兩種情況:CPU 真的閒著(下一個還沒到),或剛做完一個任務、候選剛好用完(下一個早就到了)。</strong><br><br>
+  第二種情況下 <code>t</code> 已經比下一個到達時間大,直接 <code>t = 到達時間</code> 會把時間拉回過去。<code>max</code> 讓第一種情況往前跳、第二種情況不動。<br>
+  範例 1:#0 在 t=3 做完、堆空,原寫法把 t 拉回 2,#2(t=3 到)沒機會進堆比,先做了長的 #1 → <code>[0,1,2,3]</code>,正解 <code>[0,2,3,1]</code>。
+  窮舉錯 6,372 / 66,429。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>題目規定「一樣短選 index 小的」,而 <code>priority_queue</code> 不保證相等元素的出場順序。</strong><br><br>
+  最小反例 <code>[[1,1],[2,1],[1,1]]</code>:t=2 時 #1、#2 都在堆裡、處理時間都是 1,要選 #1,沒比 index 會選到 #2 → <code>[0,2,1]</code>。窮舉錯 32,005 / 66,429。<br>
+  範例 2 的五個處理時間 10、12、5、4、2 全都不同,<b>根本沒有「一樣長」的情況</b>,所以抓不到。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>溢位那一刻,所有任務都已經在堆裡,<code>t</code> 之後只會被加、不會再被拿去和到達時間比。</strong><br><br>
+  要溢位,<code>t + 處理時間 &gt; INT_MAX</code>,而處理時間 ≤ 10⁹,所以 <code>t</code> 至少 ≈ 1.147×10⁹,已經大於任何到達時間(≤ 10⁹)——
+  前面的 push 迴圈早就把所有任務推進去了。實測 300 組隨機大資料,第一次溢位時全部 <code>i == n</code>。<br>
+  <b>但這是「剛好」</b>:有號整數溢位是未定義行為(UBSan 會報),編譯器可以假設它不發生;而且題目上限一改(見 App 3)就會真的錯。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong><code>const auto* v1</code> 要求參數是「指標」,但堆裡放的是 <code>int</code>(任務的 index)。</strong><br><br>
+  <code>priority_queue</code> 會用兩個 <code>int</code>(堆裡的元素)呼叫比較子,<code>auto*</code> 沒辦法從 <code>int</code> 推導出來:
+  <code>mismatched types 'const auto:28*' and 'int'</code>。
+  另外 <code>tasks[v1]</code> 用指標當索引本來也不合法。改成 <code>[&amp;](int a, int b)</code>。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>所有測資都會壞 —— 而且是崩潰。</strong><br><br>
+  堆空時 <code>t</code> 跳到下一個任務的到達時間,但 <code>t &gt; 到達時間</code> 不成立,那個任務推不進去,堆還是空的,接著 <code>pq.top()</code> 對空堆取值。
+  實測窮舉 66,429 組全錯,<code>-O2</code> 下 segfault。題目說「到達就能做」,所以是 <code>&gt;=</code>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>再加一個「CPU 什麼時候有空」的最小堆。</strong><br><br>
+  除了任務的最小堆(處理時間, index),再用一個最小堆存每顆 CPU 的 <code>(空閒時刻, CPU 編號)</code>。
+  每次取最早空閒的 CPU,把 <code>t</code> 推進到 <code>max(它的空閒時刻, 下一個到達時間)</code>(一樣只往前),把到了的任務推進任務堆,指派堆頂任務給它,更新它的空閒時刻再放回去。
+  <b>「時間只往前、用 max 跳」這一條原則完全一樣。</b></div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>把「做完一個任務」拆成「做到下一個事件為止」。</strong><br><br>
+  堆裡存 <code>(剩餘時間, index)</code>。每次取堆頂,但只做到 <code>min(t + 剩餘時間, 下一個到達時間)</code>:
+  如果中途有新任務到達,先把目前任務的剩餘時間扣掉、放回堆,再把新任務推進去重新比。
+  這時事件數最多是「完成 n 次 + 到達 n 次」,仍然 O(n log n)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong><code>tasks</code> 本身要改成 <code>long long</code>(或至少讀進來的到達時間),而且 A3 的「剛好沒事」就不成立了。</strong><br><br>
+  到達時間可以大於 <code>INT_MAX − 10⁹</code>,<code>int t</code> 可能在還有任務沒進堆時就溢位成負數 ——
+  <code>t &gt;= 到達時間</code> 變成假,該推的任務推不進來,答案就錯了。
+  <b>這就是為什麼一開始就該用 <code>long long</code></b>:不要依賴「目前的上限剛好讓溢位無害」。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與錯誤紀錄</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">堆空不代表 CPU 閒著 —— 用 max 跳,時間才不會倒退;priority_queue 不穩定,tie-break 要寫進比較子;int 溢位剛好無害是因為上限的巧合,改用 long long。範例 2 對這些錯全是盲點,範例 1 才抓得到時間倒退。</div>
+    <div class="sc-summary-bar__detail">SINGLE-THREADED CPU · REVIEW</div>
+  </div>
+
+</body>
+</html>

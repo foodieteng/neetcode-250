@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1834 · Single-Threaded CPU // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1834</span>
+    <span><a href="https://leetcode.com/problems/single-threaded-cpu/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">單執行緒 CPU</h1>
+    <p class="sc-mast__subtitle">// CODE · 修正版 + 我寫錯的地方</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1834</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(n log n) · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作(修正版)<span class="sc-section__title-en">// SORT + MIN-HEAP</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1834.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">getOrder</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> tasks<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> tasks<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> arr<span class="p">(</span>n<span class="p">);</span>
+        <span class="f">iota</span><span class="p">(</span>arr<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> arr<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>
+        <span class="f">sort</span><span class="p">(</span>arr<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> arr<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="p">[&amp;](</span><span class="t">int</span> a<span class="p">,</span> <span class="t">int</span> b<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> tasks<span class="p">[</span>a<span class="p">][</span><span class="n">0</span><span class="p">]</span> <span class="p">&lt;</span> tasks<span class="p">[</span>b<span class="p">][</span><span class="n">0</span><span class="p">];</span>          <span class="c">// 依到達時間排 index</span>
+        <span class="p">});</span>
+
+        <span class="k">auto</span> cmp <span class="p">=</span> <span class="p">[&amp;](</span><span class="t">int</span> a<span class="p">,</span> <span class="t">int</span> b<span class="p">)</span> <span class="p">{</span>                           <span class="c">// ① 參數是 int,不是指標</span>
+            <span class="k">if</span> <span class="p">(</span>tasks<span class="p">[</span>a<span class="p">][</span><span class="n">1</span><span class="p">]</span> <span class="p">!=</span> tasks<span class="p">[</span>b<span class="p">][</span><span class="n">1</span><span class="p">])</span> <span class="k">return</span> tasks<span class="p">[</span>a<span class="p">][</span><span class="n">1</span><span class="p">]</span> <span class="p">&gt;</span> tasks<span class="p">[</span>b<span class="p">][</span><span class="n">1</span><span class="p">];</span>
+            <span class="k">return</span> a <span class="p">&gt;</span> b<span class="p">;</span>                                       <span class="c">// ③ 一樣長:index 小的先</span>
+        <span class="p">};</span>
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;,</span> <span class="k">decltype</span><span class="p">(</span>cmp<span class="p">)&gt;</span> pq<span class="p">(</span>cmp<span class="p">);</span>
+
+        <span class="t">long long</span> t <span class="p">=</span> <span class="n">0</span><span class="p">;</span>                                          <span class="c">// ④ 總時間可到 ~10¹⁴</span>
+        <span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> ans<span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(</span>i <span class="p">&lt;</span> n <span class="p">||</span> <span class="p">!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+                t <span class="p">=</span> <span class="f">max</span><span class="p">(</span>t<span class="p">,</span> <span class="p">(</span><span class="t">long long</span><span class="p">)</span>tasks<span class="p">[</span>arr<span class="p">[</span>i<span class="p">]][</span><span class="n">0</span><span class="p">]);</span>          <span class="c">// ② 只往前跳</span>
+            <span class="p">}</span>
+            <span class="k">while</span> <span class="p">(</span>i <span class="p">&lt;</span> n <span class="p">&amp;&amp;</span> t <span class="p">&gt;=</span> tasks<span class="p">[</span>arr<span class="p">[</span>i<span class="p">]][</span><span class="n">0</span><span class="p">])</span> <span class="p">{</span>
+                pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>arr<span class="p">[</span>i<span class="p">]);</span> i<span class="p">++;</span>                           <span class="c">// 到了的都進堆</span>
+            <span class="p">}</span>
+            <span class="t">int</span> idx <span class="p">=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">();</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>                         <span class="c">// 這裡堆一定非空</span>
+            t <span class="p">+=</span> tasks<span class="p">[</span>idx<span class="p">][</span><span class="n">1</span><span class="p">];</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>idx<span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>註解 ①~④ 就是下一節那四個錯的修正位置。</strong>
+      <b>最後的 pop 不需要再包 <code>if (!pq.empty())</code></b>:迴圈能進來代表還有任務;堆空時 <code>t</code> 會跳到下一個到達時間,那個任務一定會被推進來。
+      <code>-Wall -Wextra</code> 零警告。
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 錯誤紀錄 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">我寫錯的地方<span class="sc-section__title-en">// MY MISTAKES</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">這是我第一次交出去的版本。標了 <code>✗</code> 的四個地方,後面逐一說明。</p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1834_first_draft.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code">        <span class="k">auto</span> cmp <span class="p">=</span> <span class="p">[&amp;](</span><span class="k">const</span> <span class="k">auto</span><span class="p">*</span> v1<span class="p">,</span> <span class="k">const</span> <span class="k">auto</span><span class="p">&amp;</span> v2<span class="p">)</span> <span class="p">{</span>     <span class="c">// ✗① auto* —— 編譯錯誤</span>
+          <span class="k">return</span> tasks<span class="p">[</span>v1<span class="p">][</span><span class="n">1</span><span class="p">]</span> <span class="p">&gt;</span> tasks<span class="p">[</span>v2<span class="p">][</span><span class="n">1</span><span class="p">];</span>                 <span class="c">// ✗③ 沒比 index</span>
+        <span class="p">};</span>
+
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;,</span> <span class="k">decltype</span><span class="p">(</span>cmp<span class="p">)&gt;</span> pq<span class="p">(</span>cmp<span class="p">);</span>
+        <span class="t">int</span> t <span class="p">=</span> <span class="n">0</span><span class="p">,</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span>                                          <span class="c">// ✗④ int 會溢位</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> ans<span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(</span>i <span class="p">&lt;</span> n <span class="p">||</span> <span class="p">!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+                t <span class="p">=</span> tasks<span class="p">[</span>arr<span class="p">[</span>i<span class="p">]][</span><span class="n">0</span><span class="p">];</span>                             <span class="c">// ✗② 時間會倒退</span>
+            <span class="p">}</span>
+            <span class="c">...</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>#</th><th>錯在哪</th><th>後果(實測)</th><th>修正</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">①</td><td>比較子參數寫成 <code>const auto*</code></td><td class="mono fail">編譯失敗:<code>mismatched types 'const auto:28*' and 'int'</code></td><td>堆裡放的是 <code>int</code>:<code>[&amp;](int a, int b)</code></td></tr>
+        <tr><td class="mono">②</td><td><strong>堆空時 <code>t = 到達時間</code></strong></td><td class="mono fail">錯 6,372 / 66,429;<strong>官方範例 1 回 <code>[0,1,2,3]</code></strong></td><td><code>t = max(t, 到達時間)</code></td></tr>
+        <tr><td class="mono">③</td><td>處理時間一樣時沒比 index</td><td class="mono fail">錯 32,005 / 66,429</td><td>相等時 <code>return a &gt; b;</code></td></tr>
+        <tr><td class="mono">④</td><td><code>int t</code></td><td class="mono">UBSan 報溢位;輸出實測從未改變</td><td><code>long long t</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">② 時間倒退 —— 最嚴重的一個</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 10px;">
+          <b>我以為「堆空 = CPU 閒著,要等下一個任務」。</b>但堆也可能是「剛做完一個任務、候選剛好用完」,這時下一個任務<strong>早就到了</strong>,
+          把 <code>t</code> 設成它的到達時間,就等於把時間撥回過去。
+        </p>
+        <p style="margin:0;">
+          <strong>官方範例 1</strong>:#0 在 t=3 做完 → 堆空 → <code>t</code> 被設成 #1 的到達時間 <strong>2</strong> →
+          在 t=2 只有 #1 進堆(#2 在 t=3 才到)→ 先做了長的 #1 → 回 <code>[0,1,2,3]</code>,正解 <code>[0,2,3,1]</code>。<br>
+          最小反例:<code>[[1,2],[2,2],[3,1]]</code> → 回 <code>[0,1,2]</code>,正解 <code>[0,2,1]</code>。
+          (我先前看到的 <code>[[4,1],[2,2],[1,3]]</code> → <code>2 1 0</code> vs <code>2 0 1</code> 也是同一個錯。)
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">③ 沒有 index tie-break —— 範例 2 抓不到</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          題目明講「處理時間一樣,選 index 小的」,但我只比了處理時間。<code>priority_queue</code> 不是穩定的,相等元素誰先出來沒有保證。<br>
+          最小反例:<code>[[1,1],[2,1],[1,1]]</code> → 回 <code>[0,2,1]</code>,正解 <code>[0,1,2]</code>(t=2 時 #1、#2 處理時間都是 1,要選 #1)。<br>
+          <b>官方範例 2 五個任務處理時間都不同,所以抓不到</b>;全部相同的輸入有時也會「剛好對」,因為堆碰巧照順序吐出來 —— 那不是保證。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">④ int t —— 剛好沒事,但仍是 bug</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>-fsanitize=undefined</code>:<code>runtime error: signed integer overflow: 2000000001 + 1000000000 cannot be represented in type 'int'</code>。<br>
+          輸出沒被影響,是因為溢位時所有任務都已在堆裡(概念頁 LEMMA 2)。<b>但「測不出來」不等於「對」</b>:有號溢位是未定義行為,編譯器可以假設它不會發生而做任何最佳化。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三個會影響答案的錯同時存在時(只修掉編譯錯誤):窮舉錯 33,853 / 66,429,範例 1 錯、範例 2 剛好對。</strong>
+      <b>教訓:範例 2 過了不代表對 —— ② 要看「剛做完就堆空」,③ 要看「一樣長」,兩種情況都要自己造測資。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 驗證 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 修正版(g++ -O2 -std=c++17 實跑)</span>
+[[1,2],[2,4],[3,2],[4,1]]            → [0,2,3,1]     ✓
+[[7,10],[7,12],[7,5],[7,4],[7,2]]    → [4,3,2,0,1]   ✓
+
+[[5,3]] → [0]        [[1,1],[100,1]] → [0,1](中間閒置)
+處理時間全相同 [[5,2],[1,2],[3,2],[1,2],[2,2]] → [1,2,0,3,4]
+  (不是單純照到達時間排:t=3 時 #2、#3、#4 都在堆裡,照 index 選 #2)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 對拍(參考解:O(n²) 逐步模擬,時間用 long long)</span>
+窮舉:長度 1~5、到達 1~3、處理 1~3 → 66,429 組      不一致 0
+隨機:200,000 組小資料 + 200 組大資料(n ≤ 2000、值 ≤ 10⁹)   不一致 0</div>
+  </section>
+
+  <!-- ════════════ 4 · 複雜度與其他陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">複雜度與其他陷阱<span class="sc-section__title-en">// COST &amp; PITFALLS</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>次數</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td>排序 index</td><td class="mono">—</td><td class="mono">1</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>push / pop</td><td class="mono">O(log n)</td><td class="mono">各 n</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>外層迴圈</td><td class="mono">—</td><td class="mono">恰好 n 圈</td><td class="mono">每圈做一個任務</td></tr>
+        <tr><td>空間</td><td class="mono">—</td><td class="mono">—</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <strong>O(n log n)</strong>;實測 n = 10⁵ 隨機 ≈ <strong>60 ms</strong>,堆長到 10⁵ 時 ≈ <strong>43 ms</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>其他可能的寫法</th><th>實測(窮舉 66,429 組)</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>arr</code> 依處理時間排序</td><td class="mono fail">錯 45,302 · <code>[[1,2],[2,1]]</code> → <code>[1,0]</code></td><td>還沒到的任務被提前做了</td></tr>
+        <tr><td>push 條件用 <code>t &gt; 到達時間</code></td><td class="mono fail">66,429 全錯(對空堆 pop,segfault)</td><td>剛好到達的那一刻就該能做:<code>&gt;=</code></td></tr>
+        <tr><td>閒置時 <code>t++</code></td><td class="mono">錯 0,但 <code>[[1,1],[1e9,1]]</code> 跑 10 億圈</td><td>要直接跳到下一個到達時間</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">範例 1 <code>[[1,2],[2,4],[3,2],[4,1]]</code>,<code>arr = [0,1,2,3]</code>。堆的內容寫成 <code>(處理時間, index)</code>。上下兩段對照修正版和原本的 ②。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 修正版</span>
+圈 1:t 0 → max 跳到 1   push #0   堆 (2,0)          做 #0   t = 3
+圈 2:t 3(堆空,但 #1、#2 都已到,max 不動)
+      push #1、#2      堆 (2,2)(4,1)     做 #2   t = 5
+圈 3:t 5   push #3      堆 (1,3)(4,1)     做 #3   t = 6
+圈 4:t 6               堆 (4,1)          做 #1   t = 10
+<span class="sc-trace__out">// OUTPUT: [0,2,3,1]</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: 原本的 ②(沒有 max)</span>
+圈 1:t 0 → 1       push #0   做 #0   t = 3
+圈 2:t 3 → 2 倒退!  只 push #1(#2 在 t=3 才到)  做 #1   t = 6
+圈 3:t 6 → 3 倒退    push #2   做 #2   t = 5
+圈 4:t 5 → 4 倒退    push #3   做 #3   t = 5
+<span class="sc-trace__out">// OUTPUT: [0,1,2,3] ✗   —— 第 2 圈就分岔了</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">我的四個錯:① 比較子參數寫成 auto*(編譯錯);② 堆空就把 t 設成到達時間,時間倒退,官方範例 1 就錯;③ 沒比 index;④ int t 溢位(剛好不影響答案,但是 UB)。修法:int 參數、max、a &gt; b、long long。</div>
+    <div class="sc-summary-bar__detail">SINGLE-THREADED CPU · CODE</div>
+  </div>
+
+</body>
+</html>
