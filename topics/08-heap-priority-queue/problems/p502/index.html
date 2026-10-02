@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>502 · IPO // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P502</span>
+    <span><a href="https://leetcode.com/problems/ipo/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">IPO</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 資金只增不減,做得起的進最大堆</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 502</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + MAX-HEAP GREEDY</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        起始資金 <code>w</code>,最多做 <code>k</code> 個不同的專案。專案 i 要<strong>目前資金 ≥ <code>capital[i]</code></strong> 才能做,做完資金<strong>增加 <code>profits[i]</code></strong>。
+        回傳最後最多有多少資金。<br>
+        <code>1 ≤ k, n ≤ 10⁵</code>,<code>0 ≤ w ≤ 10⁹</code>,<code>0 ≤ profits[i] ≤ 10⁴</code>,<code>0 ≤ capital[i] ≤ 10⁹</code>。
+      </p>
+    </div>
+
+    <p>
+      最容易讀錯的一點:<strong><code>capital[i]</code> 是門檻,不是成本</strong> —— 做專案不會扣錢,<code>profits[i]</code> 已經是淨利。
+      <b>所以 <code>w</code> 只會變大,做得起的專案只會越來越多。</b>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>capital 是「入場資格」,profit 是「淨賺多少」。</strong>
+      <b>我第一次寫就把 <code>w += capital</code> 寫進去了 —— 程式碼頁有完整紀錄。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「排序 + 最大堆」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每輪掃過全部專案,挑做得起的最大利潤</span>
+            <span class="sc-ko-card__o">O(k·n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            貪心本身是對的,只是每輪重掃一次。
+            <strong>n = k = 10⁵ 實測超過 20 秒還沒跑完。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">依利潤排序,從大的開始試</span>
+            <span class="sc-ko-card__o">O(n log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            利潤大的可能門檻太高、現在做不了;做不了的要「等一下再回來看」,
+            <b>光靠排序沒辦法記住這些等候中的專案。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 會漏掉之後解鎖的</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">依門檻排序 + <strong>利潤最大堆</strong></span>
+          <span class="sc-ko-card__o">O(n log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          指標 <code>i</code> 沿著門檻由小到大走:<strong>門檻 ≤ w 的就推進堆,堆頂就是現在最賺的</strong>。
+          因為 w 只增不減,進了堆的專案永遠做得起,指標也不用回頭。
+          <b>實測 n = k = 10⁵ 約 15~20 ms</b>,和暴力解對拍 8,000 萬組 0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每個專案最多進出堆一次</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>骨架和 <a href="../p1834/index.html">1834 單執行緒 CPU</a> 一模一樣</strong>:依「什麼時候能用」排序、指標把能用的推進堆、堆頂挑下一個。
+      <b>1834 的「時間」只往前走,這題的「資金」只往上走</b> —— 都是單調的,所以指標不用回頭。
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>排序 index</strong>:<code>idx</code> 依 <code>capital</code> 由小到大(排 index,profit 和 capital 才對得上)。</li>
+      <li><strong>每輪先補堆</strong>:把所有 <code>capital ≤ w</code> 的專案利潤推進最大堆(<code>while</code>,不是 <code>if</code>)。</li>
+      <li><strong>再挑一個</strong>:堆空就 <code>break</code>(沒得做);否則 <code>w += 堆頂</code>、pop。跑 k 輪,回傳 <code>w</code>。</li>
+    </ol>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「補堆」和「挑一個」要分開、而且每輪都要補</strong>:挑完之後 w 變大,可能解鎖新的專案,下一輪開頭就會補進來。
+      <b>我的第一版把兩件事混在同一個迴圈裡,結果挑完一次就提早 return 了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">一輪一輪看<span class="sc-section__title-en">// 正確版 vs 我的第一版</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>k=3, w=1, profits=[5,1,3,2], capital=[0,7,2,4]</code>,依門檻排好的順序是 <code>#0(0) #2(2) #3(4) #1(7)</code>。
+      每一輪 w 變大,門檻線就往右推,解鎖更多專案。以修正版實跑:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 正確版 · 每輪先補堆,再拿最大的</span>
+第 1 輪  w = 1   解鎖 #0(門檻 0)            堆 [5]     拿 5 → w = 6
+第 2 輪  w = 6   解鎖 #2(門檻 2)、#3(門檻 4)  堆 [3,2]   拿 3 → w = 9
+第 3 輪  w = 9   解鎖 #1(門檻 7)            堆 [2,1]   拿 2 → w = 11
+k 用完,#1(利潤 1)留在堆裡沒做
+<span class="sc-trace__out">// OUTPUT: 11</span></div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>我的第一版在官方範例 1</strong> <code>k=2, w=0, profits=[1,2,3], capital=[0,1,1]</code>(答案 4)上實跑:
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 第一版 · w 沒長大,又提早 return</span>
+#0 門檻 0 ≤ w 0   → push 利潤 1
+#1 門檻 1 &gt; w 0   → pop 利潤 1:maxProfit = 1
+                    w += capital[0] → w = 0 + 0 = 0   ✗ 加成門檻了
+                    堆空了 → return maxProfit
+<span class="sc-trace__out">// OUTPUT: 1 ✗(正解 4:w 應該變 1,解鎖 #1、#2,再拿 3)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個官方範例,我的第一版都回 1</strong>(正解 4 和 6)。
+      <b>就算把 w 改成加 profit,堆空就 return 還是會在這裡停下來 —— 那時 w = 1,#1、#2 其實剛好做得起。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 每輪拿「現在做得起的最大利潤」一定不會錯</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          假設最佳解這一輪拿的是利潤較小的 <code>p</code>,而我們拿最大的 <code>P ≥ p</code>。
+          拿 <code>P</code> 之後資金不會比拿 <code>p</code> 少,<strong>最佳解之後能做的每個專案,我們也都做得起</strong>(門檻只看資金夠不夠);
+          而 <code>p</code> 還在堆裡,之後要做也可以。把最佳解裡的 <code>p</code> 和 <code>P</code> 對調,總和不變、每一步仍然合法。
+          <b>所以「每輪拿最大的」不會比最佳解差。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 這題 int 不會溢位</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          最壞情況:<code>w = 10⁹</code>,10⁵ 個專案、每個利潤 10⁴、門檻都是 0 → 最後 <code>w = 2,000,000,000</code>,
+          離 <code>INT_MAX = 2,147,483,647</code> 還有 147,483,647。UBSan 實跑零報錯,題目也保證答案在 32 位元內。
+          <b>和 <a href="../p1834/index.html">1834</a> 不一樣,這題不用 long long。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      排序 <strong>O(n log n)</strong> + 每個專案最多 push 一次、最多 pop k 次 <strong>O((n + k) log n)</strong>　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>情境(-O2,n = k = 10⁵)</th><th>時間</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>門檻全是 0</td><td class="mono ok">≈ 15 ms</td><td>堆一次長到 10⁵</td></tr>
+        <tr><td>門檻 c[i] = i,利潤 1(樓梯)</td><td class="mono ok">≈ 2 ms</td><td>每輪剛好解鎖一個</td></tr>
+        <tr><td>門檻全是 10⁹,w = 0</td><td class="mono ok">≈ 2 ms</td><td>第一輪就 break</td></tr>
+        <tr><td>每輪重掃(做法 A)</td><td class="mono fail">&gt; 20 s</td><td>O(k·n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>capital 是門檻不是成本,所以 w 只增不減;依門檻排序,做得起的推進最大堆,每輪拿堆頂。</strong>
+      <b>每輪先補堆再挑,堆空才停 —— 回傳的是 w,不是利潤總和。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與錯誤紀錄</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">capital 是門檻、profit 是淨利,w 只會變大。依門檻排序 index,每輪把 capital ≤ w 的利潤推進最大堆,堆空就停,否則 w += 堆頂;跑 k 輪回傳 w。和 1834 同一個骨架:單調的量 + 指標 + 堆。</div>
+    <div class="sc-summary-bar__detail">IPO · CONCEPT</div>
+  </div>
+
+</body>
+</html>

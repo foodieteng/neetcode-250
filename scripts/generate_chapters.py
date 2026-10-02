@@ -201,7 +201,7 @@ PROBLEMS = {
         ('p1405','Longest Happy String',           'longest-happy-string',           'med', 'todo'),
         ('p1094','Car Pooling',                    'car-pooling',                    'med', 'todo'),
         ('p295', 'Find Median from Data Stream',   'find-median-from-data-stream',   'hard','todo'),
-        ('p502', 'IPO',                            'ipo',                            'hard','todo'),
+        ('p502', 'IPO',                            'ipo',                            'hard','done'),
     ],
     '09': [  # Backtracking
         ('p1863','Sum of All Subset XOR Totals',         'sum-of-all-subset-xor-totals',         'easy','todo'),
