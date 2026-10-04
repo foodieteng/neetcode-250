@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>295 · Find Median from Data Stream // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P295</span>
+    <span><a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Find Median from Data Stream</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 小的一半放最大堆、大的一半放最小堆,兩個 top 夾住中位數</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 295</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TWO HEAPS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        設計 <code>MedianFinder</code>:<code>addNum(num)</code> 把一個整數加進資料流,<code>findMedian()</code> 回傳<strong>目前所有數字的中位數</strong>(個數是偶數時取中間兩個的平均)。<br>
+        <code>-10⁵ ≤ num ≤ 10⁵</code>,呼叫 <code>findMedian</code> 時至少有一個數,兩種操作合計最多 <code>5 × 10⁴</code> 次。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>addNum(1), addNum(2)</code> → <code>findMedian() = 1.5</code>;再 <code>addNum(3)</code> → <code>findMedian() = 2.0</code>。
+      <b>難的不是算中位數,而是「每加一個數都要能馬上回答」</b>,不能每次重新排序。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>中位數只和「中間那一兩個數」有關。</strong>
+      <b>把資料切成「較小的一半」和「較大的一半」,只要隨時拿得到小半的最大值、大半的最小值就夠了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「兩個堆」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每次 findMedian 都複製一份再排序</span>
+            <span class="sc-ko-card__o">O(n log n) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">
+            最直覺,但每問一次就重排一次。
+            <strong>5 萬次 add + find 實測約 65.6 秒。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">維持一個排好序的 vector,二分插入</span>
+            <span class="sc-ko-card__o">O(n) / add</span>
+          </div>
+          <div class="sc-ko-card__body">
+            找位置 O(log n),但插入要把後面整段往後搬。記憶體搬移很快,<b>5 萬次實測 43 ms 其實會過</b>;
+            只是本質是 O(n²),n = 2 × 10⁵ 就變 763 ms。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 能過但面試要說得出更好的</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">較小的一半放<strong>最大堆</strong>、較大的一半放<strong>最小堆</strong></span>
+          <span class="sc-ko-card__o">O(log n) · O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          兩個堆的 top 剛好是「小半的最大」和「大半的最小」—— <strong>中位數就是其中一個,或兩個的平均</strong>。
+          add 只動幾次 push / pop,find 只看兩個 top。<b>5 萬次實測 0.2~6 ms</b>,和排序答案對拍 410 萬次查詢 0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每個堆內部不用排序,只要 top 對</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>和 <a href="../p703/index.html">703 資料流第 k 大</a> 是同一種想法</strong>:堆不用整個排好,只要堆頂剛好是答案需要的那個數。
+      <b>703 用一個堆夾住「第 k 大」,這題用兩個堆從兩邊夾住「中間」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 兩條不變量<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>順序</strong>:左堆(最大堆)的每個數 ≤ 右堆(最小堆)的每個數 —— 只要檢查 <code>左.top ≤ 右.top</code>。</li>
+      <li><strong>數量</strong>:<code>左.size() == 右.size()</code> 或多 1 —— 奇數個時中位數就是 <code>左.top</code>。</li>
+      <li><strong>findMedian</strong>:左邊多一個就回 <code>左.top</code>,一樣多就回 <code>(左.top + 右.top) / 2</code>。</li>
+    </ol>
+
+    <p style="margin-top:10px;">兩種 add 寫法維護的是同一組不變量,差別只在「先顧哪一條」:</p>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>先做什麼</th><th>再做什麼</th></tr></thead>
+      <tbody>
+        <tr><td><strong>我的版本</strong></td><td>依 size 決定放哪邊(先顧數量)</td><td>兩個 top 亂序就<strong>交換一次</strong>(修順序)</td></tr>
+        <tr><td><strong>精簡版</strong></td><td>一律進左邊,再把左邊最大的送到右邊(先顧順序)</td><td>右邊比較多就送回一個(修數量)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 我的版本 vs 精簡版</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      資料流 <code>5 2 8 9 1 4</code>,每加一個就問一次中位數:<code>5, 3.5, 5, 6.5, 5, 4.5</code>。
+      兩個堆<b>依值排開</b>畫在一條線上(不是底層陣列),左堆的 top 在最右、右堆的 top 在最左 —— <strong>順序對的時候,整排從左讀到右就是排好的</strong>。第一個動畫是我的版本:
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 我的版本 · 依 size 放,兩個 top 亂序就交換</div>
+      <div class="sc-viz__cvwrap"><canvas id="v295a-canvas" class="sc-viz__canvas" style="height:350px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v295a-reset">Reset</button><button class="sc-btn" id="v295a-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v295a-play">Play</button><button class="sc-btn" id="v295a-next">Next</button>
+        <span class="sc-viz__step" id="v295a-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="v295a-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>第二個動畫是精簡版</strong>,同一條資料流。每次 add 固定「進左邊 → 左邊最大的送右邊 → 右邊多就送回」,<b>不比較 top</b>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 精簡版 · ① 進 lo ② lo 最大的送 hi ③ hi 多就送回</div>
+      <div class="sc-viz__cvwrap"><canvas id="v295b-canvas" class="sc-viz__canvas" style="height:350px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v295b-reset">Reset</button><button class="sc-btn" id="v295b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v295b-play">Play</button><button class="sc-btn" id="v295b-next">Next</button>
+        <span class="sc-viz__step" id="v295b-step">00 / 16</span>
+      </div>
+      <div class="sc-viz__label" id="v295b-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>我的版本 6 次 add 只有 3 次要交換,其他時候放下去就結束</strong>;精簡版每次都固定搬一次,有一半還要再搬回來。
+      <b>兩個都對,只是精簡版「不用想」—— 沒有 if 要比較 top,不會漏掉 <code>!miH.empty()</code> 這種邊界。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 我的版本:交換一次就夠</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          加之前兩條不變量都成立。新數 <code>x</code> 放進某一邊後,<strong>只有 x 可能站錯邊</strong>,其他數彼此之間還是左 ≤ 右。
+          如果 x 進了左邊又比右 top 大,它一定是左邊新的 top(左邊其他數都 ≤ 右 top &lt; x)。對調之後:
+          右 top 是右邊最小的,搬到左邊仍然 ≤ 右邊剩下的每個數;x 比左邊每個數都大,搬到右邊也不會破壞「左 ≤ 右」。
+          x 進右邊、比左 top 小的情況完全對稱。<b>交換是各 pop 一個、push 一個,size 不變,所以數量那條也沒被破壞。</b>
+          窮舉長度 1~8、值 -2~2 的所有資料流(488,280 條)0 錯。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 先轉 double 再相加</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          我寫的 <code>double(mxH.top() + miH.top())</code> 是<strong>先用 int 相加、再轉 double</strong>。
+          這題 <code>|num| ≤ 10⁵</code>,和最多 200,000,完全安全;但如果值可以到 <code>INT_MAX</code>,實跑會得到 <code>-1.0</code>(UBSan 報 signed overflow)。
+          <b>寫成 <code>(a + (double)b) / 2.0</code> 就是 2147483647.0,好習慣。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      addNum <strong>O(log n)</strong>　·　findMedian <strong>O(1)</strong>　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>5 萬次 add(-O2)</th><th>我的版本 push / pop</th><th>精簡版 push / pop</th></tr></thead>
+      <tbody>
+        <tr><td>隨機</td><td class="mono ok">99,632 / 49,632</td><td class="mono">125,000 / 75,000</td></tr>
+        <tr><td>遞增 / 遞減</td><td class="mono ok">≈ 100,000 / 50,000</td><td class="mono">125,000 / 75,000</td></tr>
+        <tr><td>大小交錯、全部相同</td><td class="mono ok">50,000 / 0</td><td class="mono">125,000 / 75,000</td></tr>
+        <tr><td>時間(含每次 find)</td><td class="mono ok">0.2 ~ 4.2 ms</td><td class="mono ok">1.2 ~ 5.9 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>中位數被兩個 top 夾住:小半用最大堆、大半用最小堆,維持「左 ≤ 右」和「左比右多 0 或 1 個」。</strong>
+      <b>先顧數量再交換(我的版本),或先顧順序再補平衡(精簡版),都是 O(log n)。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種寫法與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">較小的一半放最大堆、較大的一半放最小堆,兩個 top 夾住中位數。不變量:左 ≤ 右、左比右多 0 或 1 個。我的版本依 size 放再交換一次;精簡版進左 → 左最大送右 → 右多送回。add O(log n)、find O(1),平均時先轉 double。</div>
+    <div class="sc-summary-bar__detail">FIND MEDIAN FROM DATA STREAM · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p295-twoheap.js"></script>
+</body>
+</html>

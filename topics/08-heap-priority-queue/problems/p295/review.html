@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>295 · Find Median from Data Stream // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P295</span>
+    <span><a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Find Median from Data Stream</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 295</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TWO HEAPS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>結構</td><td>較小的一半 → <strong>最大堆</strong>,較大的一半 → <strong>最小堆</strong></td></tr>
+        <tr><td>不變量</td><td><strong>左.top ≤ 右.top</strong>;<strong>左比右多 0 或 1 個</strong></td></tr>
+        <tr><td>findMedian</td><td>左多一個 → 左.top;一樣多 → 兩個 top 平均</td></tr>
+        <tr><td>我的版本</td><td>依 size 放 → 亂序就 swap 一次(size 不變)</td></tr>
+        <tr><td>精簡版</td><td>進 lo → lo 最大的送 hi → hi 多就送回</td></tr>
+        <tr><td>型別</td><td>平均時<strong>先轉 double 再加</strong>;除以 <code>2.0</code> 不是 <code>2</code></td></tr>
+        <tr><td>測資</td><td>順序錯了,兩個數時可能<strong>剛好對</strong>(<code>[2,1]</code>),至少測三個數</td></tr>
+        <tr><td>同一招</td><td><a href="../p703/index.html">703</a>:堆不用全排好,堆頂是答案就夠</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼 findMedian 只要看兩個 top,不用知道堆裡其他數的順序?</div>
+
+    <div class="qa"><strong>Q2.</strong> 我的版本:新數放下去之後最多只要交換一次,為什麼不會需要換第二次?</div>
+
+    <div class="qa"><strong>Q3.</strong> 把我的版本的 <code>!miH.empty() &amp;&amp;</code> 拿掉會怎樣?</div>
+
+    <div class="qa"><strong>Q4.</strong> 精簡版的 ② 「lo 最大的送 hi」,如果新數很小(例如 add 1),可以跳過嗎?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>double(a + b) / 2.0</code> 和 <code>(a + (double)b) / 2.0</code> 差在哪?這題會出事嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [2,1,1] · 先大後小</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      資料流 <code>2 1 1</code>,以我的版本實跑。這組是「沒有 swap」那個錯的最小反例。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ADD 2</span>
+size 0 ≤ 0 → mxH.push(2)    mxH [2*]   miH []      miH 空,不檢查
+median = mxH.top = 2</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// ADD 1</span>
+size 1 > 0 → miH.push(1)    mxH [2*]   miH [*1]    2 &gt; 1 → swap
+                            mxH [1*]   miH [*2]
+median = (1 + 2) / 2 = 1.5</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// ADD 1</span>
+size 1 ≤ 1 → mxH.push(1)    mxH [1,1*] miH [*2]    1 ≤ 2,不用換
+median = mxH.top = 1
+<span class="sc-trace__out">// OUTPUT: 2, 1.5, 1</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>如果沒有 swap</strong>:第二步 <code>mxH [2] miH [1]</code> 平均還是 1.5(剛好對),第三步 <code>mxH [1,2*]</code> 回 <strong>2.0</strong>,正解 1。
+      <b>錯的順序在第二步就埋下了,第三步才露出來 —— 只看前兩個答案抓不到。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> (原題 follow-up)如果所有數字都在 <code>[0, 100]</code>,怎麼做得更快?</div>
+
+    <div class="qa"><strong>App 2.</strong> (原題 follow-up)如果 99% 的數字在 <code>[0, 100]</code>,剩下 1% 可能很大或很小呢?</div>
+
+    <div class="qa"><strong>App 3.</strong> 改成「滑動視窗」的中位數(視窗移動時要<strong>刪掉</strong>最舊的數),兩個 <code>priority_queue</code> 還夠用嗎?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>中位數只和中間那一兩個數有關,而兩個 top 正好就是「小半的最大」和「大半的最小」。</strong><br><br>
+  只要「左 ≤ 右」成立,左堆的 top 就是整體排序後第 <code>左.size()</code> 個數,右堆的 top 是下一個。奇數個時左邊多一個,第 <code>⌈n/2⌉</code> 個就是中位數;偶數個時兩個 top 剛好是中間兩個。堆內部怎麼排都不影響。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>放之前兩邊已經「左 ≤ 右」,能站錯邊的只有剛放的那一個數 x。</strong><br><br>
+  x 進左邊又比右 top 大時,x 一定是左 top;和右 top 對調後,右 top 是右邊最小的,到左邊沒問題,x 比左邊每個都大,到右邊也沒問題。進右邊的情況對稱。
+  交換是各 pop 一次、push 一次,<b>size 不變</b>,數量那條也還成立。窮舉 488,280 條資料流 0 錯;swap 條件寫成 <code>&gt;=</code> 也 0 錯(相等時多換一次,無害)。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>第一次 add 時 miH 是空的,<code>miH.top()</code> 是對空堆取值 —— 未定義行為。</strong><br><br>
+  實測(用會檢查空堆的包裝):長度 1~7 的 21,844 條資料流<strong>全部</strong>在第一個 <code>addNum</code> 就踩到。真的跑 LeetCode 不一定會當掉,可能讀到垃圾值,更難查。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不能跳過。② 是精簡版唯一保證「左 ≤ 右」的地方。</strong><br><br>
+  新數很小時,送過去的其實是 lo 原本的最大值(例如 add 1 時送的是 5),然後 ③ 又把它送回來 —— 看起來白搬,但程式碼不用比較就能保證正確。
+  把 ② 拿掉、只依 size 搬:21,844 條錯 11,862 條,最小反例 <code>[1,1,2]</code> → 2.0(正解 1.0)。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>前者先用 int 相加再轉 double,和超過 INT_MAX 就溢位;後者先把一邊轉成 double,加法在 double 裡做。</strong><br><br>
+  兩個 <code>INT_MAX</code>:前者實跑得到 <code>-1.0</code>(UBSan 報 signed overflow),後者 <code>2147483647.0</code>。
+  這題 <code>|num| ≤ 10⁵</code>,和最多 200,000,<b>不會出事</b>;但寫後者不用多想。另外 <code>/ 2</code> 寫成整數除法會錯:<code>[2,1]</code> 回 1.0。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>開 <code>cnt[101]</code> 計數陣列:add 是 <code>cnt[num]++</code>,find 從 0 掃到 100 找第 k 個。</strong><br><br>
+  add O(1)、find O(101) = O(1)。和排序答案對拍 1,547,912 次查詢 0 不一致。偶數個時要找第 <code>n/2 - 1</code> 和第 <code>n/2</code> 個(從 0 數)再平均。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>[0,100] 照樣用計數陣列,範圍外的另外記:小於 0 的個數、大於 100 的個數(必要時各放一個有序結構)。</strong><br><br>
+  中位數幾乎一定落在 [0,100] 裡(因為 99% 在那裡),只要把「小於 0 的個數」當作掃描的起點偏移就好;極少數情況中位數落在外面時,才去外面的結構找。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>不夠直接用:<code>priority_queue</code> 只能刪堆頂,刪不掉視窗裡任意一個數。</strong><br><br>
+  常見兩種改法:① 兩個堆 + <b>延遲刪除</b>(用 hash map 記「這個值待刪幾次」,等它浮到堆頂時才真的 pop,size 要另外記有效個數);
+  ② 直接用兩個 <code>multiset</code>,可以 <code>erase(find(x))</code>。這就是 LeetCode 480 Sliding Window Median。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">兩種寫法與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">兩個 top 夾住中位數,堆內部不用排序。我的版本交換一次就夠(只有新數可能站錯邊、size 不變);精簡版的 ② 管順序、③ 管數量,哪一步都不能省。平均先轉 double;順序錯的寫法 [2,1] 會剛好對,[2,1,1] 才露出來。</div>
+    <div class="sc-summary-bar__detail">FIND MEDIAN FROM DATA STREAM · REVIEW</div>
+  </div>
+
+</body>
+</html>
