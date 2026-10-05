@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1863 · Sum of All Subset XOR Totals // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P1863</span>
+    <span><a href="https://leetcode.com/problems/sum-of-all-subset-xor-totals/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Sum of All Subset XOR Totals</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 回溯的兩種寫法:for 迴圈「下一個放誰」vs 二元「這個要不要」</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1863</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · SUBSETS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        對 <code>nums</code> 的<strong>每一個子集</strong>(包含空集合),算出子集裡所有數的 XOR,再把這些 XOR <strong>全部加起來</strong>。<br>
+        <code>1 ≤ n ≤ 12</code>,<code>1 ≤ nums[i] ≤ 20</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,3]</code> 的子集 <code>{} {1} {3} {1,3}</code>,XOR 是 <code>0, 1, 3, 2</code>,總和 <strong>6</strong>。
+      <code>[5,1,6]</code> → 28,<code>[3,4,5,6,7,8]</code> → 480。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>n ≤ 12,子集最多 2¹² = 4,096 個 —— 全部列出來就好。</strong>
+      <b>這題真正要學的是「怎麼不重複、不遺漏地列出所有子集」,也就是回溯的骨架。09 分類後面的題目都長在這上面。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 兩種寫法 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">回溯的兩種寫法<span class="sc-section__title-en">// TWO WAYS TO ASK</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      兩種寫法列出的子集一模一樣,差別在<strong>每一層遞迴問的問題不一樣</strong>,所以畫出來的樹形狀不一樣、答案記錄的位置也不一樣。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">template_for.cpp</span>
+        <span class="sc-codewindow__lang">寫法 A · FOR 迴圈</span>
+      </div>
+<pre class="sc-code"><span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">int</span> s<span class="p">,</span> <span class="t">State</span><span class="p">&amp;</span> cur<span class="p">)</span> <span class="p">{</span>
+    <span class="f">record</span><span class="p">(</span>cur<span class="p">);</span>                          <span class="c">// 每個節點都是一個答案</span>
+    <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> s<span class="p">;</span> i <span class="p">&lt;</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>         <span class="c">// 問:下一個放誰?</span>
+        <span class="f">choose</span><span class="p">(</span>i<span class="p">);</span>
+        <span class="f">dfs</span><span class="p">(</span>i <span class="p">+</span> <span class="n">1</span><span class="p">,</span> cur<span class="p">);</span>                  <span class="c">// i + 1:不回頭,避免重複</span>
+        <span class="f">unchoose</span><span class="p">(</span>i<span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre>
+    </div>
+
+    <div class="sc-codewindow" style="margin-top:14px;">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">template_binary.cpp</span>
+        <span class="sc-codewindow__lang">寫法 B · 選 / 不選</span>
+      </div>
+<pre class="sc-code"><span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">int</span> i<span class="p">,</span> <span class="t">State</span><span class="p">&amp;</span> cur<span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span>i <span class="p">==</span> n<span class="p">)</span> <span class="p">{</span> <span class="f">record</span><span class="p">(</span>cur<span class="p">);</span> <span class="k">return</span><span class="p">;</span> <span class="p">}</span>  <span class="c">// 只有葉子是答案</span>
+    <span class="f">choose</span><span class="p">(</span>i<span class="p">);</span>   <span class="f">dfs</span><span class="p">(</span>i <span class="p">+</span> <span class="n">1</span><span class="p">,</span> cur<span class="p">);</span>         <span class="c">// 問:第 i 個要不要?要</span>
+    <span class="f">unchoose</span><span class="p">(</span>i<span class="p">);</span> <span class="f">dfs</span><span class="p">(</span>i <span class="p">+</span> <span class="n">1</span><span class="p">,</span> cur<span class="p">);</span>         <span class="c">//                  不要</span>
+<span class="p">}</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th></th><th>A · for 迴圈</th><th>B · 二元(選 / 不選)</th></tr></thead>
+      <tbody>
+        <tr><td>每層問的問題</td><td>「<strong>下一個</strong>要放哪一個?」</td><td>「<strong>第 i 個</strong>要不要?」</td></tr>
+        <tr><td>參數意思</td><td><code>s</code>:只能從 <code>s</code> 之後挑</td><td><code>i</code>:現在決定第幾個</td></tr>
+        <tr><td>一個節點幾個小孩</td><td>0 ~ n 個(看 <code>s</code> 後面剩幾個)</td><td>永遠 2 個</td></tr>
+        <tr><td>哪裡是答案</td><td><strong>每個節點</strong>都是一個子集</td><td><strong>只有葉子</strong>是子集</td></tr>
+        <tr><td>記錄答案</td><td>函式<strong>一進來</strong>就記</td><td><code>i == n</code> 才記</td></tr>
+        <tr><td>呼叫次數</td><td class="mono">2ⁿ(n=3 → 8)</td><td class="mono">2ⁿ⁺¹ − 1(n=3 → 15)</td></tr>
+        <tr><td>樹的深度</td><td>子集大小(最深 n)</td><td>固定 n</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>寫法 A 的 <code>i + 1</code> 是「不回頭」</strong>:挑了 <code>nums[i]</code> 之後只能往後挑,所以 <code>{5,1}</code> 和 <code>{1,5}</code> 只會出現一次。
+      <b>寫法 B 天生不會重複:每個數只被問一次「要不要」,葉子的路徑就是一串 0/1,剛好對到 bitmask。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 同一組 [5,1,6],兩棵樹</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>nums = [5,1,6]</code>,答案 28。<strong>寫法 A</strong>:8 個節點,每走到一個就加一次。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 寫法 A · for 迴圈 · 每個節點都是子集,一進來就加</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1863a-canvas" class="sc-viz__canvas" style="height:448px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1863a-reset">Reset</button><button class="sc-btn" id="v1863a-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1863a-play">Play</button><button class="sc-btn" id="v1863a-next">Next</button>
+        <span class="sc-viz__step" id="v1863a-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="v1863a-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>寫法 B</strong>:每一層對一個數做「選 / 不選」,15 個節點裡只有 8 個葉子會加。葉子下面的 <code>111 … 000</code> 就是這條路徑的選擇。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 寫法 B · 選 / 不選 · 只有葉子是子集</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1863b-canvas" class="sc-viz__canvas" style="height:436px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1863b-reset">Reset</button><button class="sc-btn" id="v1863b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1863b-play">Play</button><button class="sc-btn" id="v1863b-next">Next</button>
+        <span class="sc-viz__step" id="v1863b-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="v1863b-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>A 的 8 個節點 = B 的 8 個葉子</strong>,是同一批子集,只是被走到的順序不同(A:<code>{} {5} {5,1} {5,1,6} …</code>;B:<code>{5,1,6} {5,1} {5,6} …</code>)。
+      <b>B 多出來的 7 個內部節點只是「做了一半決定」的狀態,不是答案。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 什麼時候用哪個 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">什麼時候用哪一種<span class="sc-section__title-en">// WHEN TO PICK WHICH</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>題型</th><th>比較順手的寫法</th><th>為什麼</th></tr></thead>
+      <tbody>
+        <tr><td>子集、組合(78、77、39)</td><td>兩種都行</td><td>A 少一半呼叫;B 比較好想</td></tr>
+        <tr><td>有重複元素要去重(90、40)</td><td><strong>A</strong></td><td>排序後一行 <code>if (i &gt; s &amp;&amp; nums[i] == nums[i-1]) continue;</code></td></tr>
+        <tr><td>排列(46、47)</td><td><strong>A</strong>(迴圈從 0 + <code>used[]</code>)</td><td>每一格要問「放誰」,不是「要不要」</td></tr>
+        <tr><td>每個東西二選一、或分到 k 組(473、698)</td><td><strong>B</strong> 的延伸</td><td>每層決定一個東西放哪</td></tr>
+        <tr><td>答案只在「全部決定完」時才成立</td><td><strong>B</strong></td><td>base case 剛好就是記錄點</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>寫之前先問自己:「這一層在決定什麼?」</strong>
+      <b>決定「下一個放誰」→ for 迴圈;決定「這一個要不要 / 放哪」→ 二元(或 k 元)分支。答案記錄的位置跟著決定:A 在每個節點,B 在葉子。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 寫法 A 為什麼剛好 2ⁿ 個節點、不重複</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          每個節點的路徑是一串<strong>嚴格遞增的 index</strong>(因為下一層從 <code>i + 1</code> 開始)。
+          每個子集排好 index 之後只有一種遞增寫法,所以<strong>每個子集恰好對應一個節點</strong>;子集共 2ⁿ 個,節點也就是 2ⁿ 個。
+          <b>這也是為什麼 A 要「一進來就加」—— 不加的話,大部分子集根本不會被算到。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 參數要傳新值,不要改自己</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>cur</code> 代表「目前這個節點的 XOR」。寫成 <code>dfs(..., cur ^= nums[i])</code> 會把<strong>這一層的 cur 也改掉</strong>,
+          下一圈 for 迴圈的兄弟就是從錯的值出發。我的第一版就是這樣:<code>[1,3]</code> 回 5(<code>{3}</code> 被算成 <code>1^3 = 2</code>)。
+          <b>傳 <code>cur ^ nums[i]</code>,或用 path 時「push → 遞迴 → pop」成對出現 —— 這就是「回溯」的「回」。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 <strong>O(2ⁿ)</strong>(每個節點 O(1),cur 隨著傳下去)　·　空間 <strong>O(n)</strong> 遞迴深度
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>項目</th><th>寫法 A</th><th>寫法 B</th></tr></thead>
+      <tbody>
+        <tr><td>dfs 呼叫次數(n = 12)</td><td class="mono ok">4,096</td><td class="mono">8,191</td></tr>
+        <tr><td>遞迴深度</td><td class="mono">≤ n</td><td class="mono">n</td></tr>
+        <tr><td>最大答案(n = 12、全部 20)</td><td class="mono" colspan="2">40,960,int 足夠</td></tr>
+        <tr><td>更快的公式(應用題)</td><td class="mono" colspan="2">O(n):(所有數 OR 起來) &lt;&lt; (n − 1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>for 迴圈問「下一個放誰」,每個節點都是答案;二元問「這個要不要」,只有葉子是答案。</strong>
+      <b>兩種都列出全部 2ⁿ 個子集;參數傳新值,不要改自己。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種實作與我寫錯的地方</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">回溯兩種寫法:A for 迴圈從 s 挑下一個(dfs(i+1)),每個節點都是子集、一進來就記,2ⁿ 次呼叫;B 對第 i 個選 / 不選,只有 i == n 的葉子是子集,2ⁿ⁺¹ − 1 次呼叫。去重、排列用 A;分組、二選一用 B。參數傳 cur ^ nums[i],不要寫 ^=。</div>
+    <div class="sc-summary-bar__detail">SUM OF ALL SUBSET XOR TOTALS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1863-trees.js"></script>
+</body>
+</html>
