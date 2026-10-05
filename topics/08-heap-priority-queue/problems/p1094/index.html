@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1094 · Car Pooling // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1094</span>
+    <span><a href="https://leetcode.com/problems/car-pooling/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Car Pooling</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 依上車點排序,最小堆照下車點先讓人下車</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1094</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + MIN-HEAP SWEEP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一台車只往東開,座位 <code>capacity</code> 個。<code>trips[i] = [num, from, to]</code>:有 <code>num</code> 個人在 <code>from</code> 上車、在 <code>to</code> 下車。
+        問<strong>全程任何時刻車上人數都不超過 capacity</strong> 嗎?<br>
+        <code>1 ≤ trips.length ≤ 1000</code>,<code>1 ≤ num ≤ 100</code>,<code>0 ≤ from &lt; to ≤ 1000</code>,<code>1 ≤ capacity ≤ 10⁵</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[[2,1,5],[3,3,7]]</code>,capacity 4 → <code>false</code>(3~5 這段車上 5 人);capacity 5 → <code>true</code>。
+      <b>一個人在 <code>to</code> 下車,座位在 <code>to</code> 就空出來了 —— 同一點有人上車也坐得下。</b>
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>只要在每個「上車點」檢查人數就夠</strong>:人數只會在有人上車時變多。
+      <b>每到一個上車點,先讓該下車的人下車,再上車,再檢查。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼是「排序 + 最小堆」<span class="sc-section__title-en">// WHY THIS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每個行程把經過的每一格都 +num</span>
+            <span class="sc-ko-card__o">O(n · L)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            L 是路段長度。這題 L ≤ 1000,<strong>最壞 1000 個全程行程實測約 0.39 ms</strong>,其實會過;
+            但路段一長(例如座標到 10⁹)就完全不行。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 跟著路長變慢</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">差分陣列:<code>d[from] += num</code>、<code>d[to] -= num</code>,再做前綴和</span>
+            <span class="sc-ko-card__o">O(n + L)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <strong>這題最快(同一組約 0.003 ms)</strong>,我也拿它當對拍參考解。
+            <b>但要開一個長度 L 的陣列 —— 座標範圍大就要先離散化。</b>
+          </div>
+          <div class="sc-ko-card__verdict">△ 這題最好,但靠座標 ≤ 1000</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">HEAP CHAPTER · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">依 <code>from</code> 排序 + <strong>以 to 為鍵的最小堆</strong></span>
+          <span class="sc-ko-card__o">O(n log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          照上車順序處理,堆裡是「還在車上的人」,堆頂是<strong>最早下車</strong>的。每到一個上車點,把 <code>to ≤ from</code> 的都 pop 掉。
+          <b>和座標範圍無關;最壞約 0.05 ms</b>,和差分陣列對拍 20 萬組 0 不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每個行程進出堆各一次</div>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這是區間題的「掃描線 + 最小堆」</strong>:依開始時間排序,堆裡放結束時間,看同時進行的有多少。
+      <b>和 <a href="../p1834/index.html">1834 單執行緒 CPU</a> 一樣是「依開始排序、指標往前、堆頂挑最早」—— 1834 挑最短的任務,這題挑最早下車的人。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>依 from 排序</strong> trips,照上車順序處理。</li>
+      <li><strong>先下車</strong>:最小堆 <code>{to, num}</code>,把所有 <code>to ≤ from</code> 的 pop 掉、人數減掉(<code>while</code>,而且是 <code>&lt;=</code>)。</li>
+      <li><strong>再上車</strong>:人數 <code>+= num</code>,超過 capacity 就回 <code>false</code>;否則把 <code>{to, num}</code> 推進堆。全部處理完回 <code>true</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 先下車、再上車、再檢查</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>trips = [[2,1,5],[3,3,7],[1,5,8],[2,7,9]]</code>,<code>capacity = 5</code>(已依 from 排好)。
+      <strong>在 5 和 7 這兩點,剛好有人下車、有人上車</strong> —— 先下後上,人數才不會超過。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 排序 + 最小堆 · 紅線是目前的上車點</div>
+      <div class="sc-viz__cvwrap"><canvas id="v1094-canvas" class="sc-viz__canvas" style="height:448px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v1094-reset">Reset</button><button class="sc-btn" id="v1094-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v1094-play">Play</button><button class="sc-btn" id="v1094-next">Next</button>
+        <span class="sc-viz__step" id="v1094-step">00 / 10</span>
+      </div>
+      <div class="sc-viz__label" id="v1094-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>人數一路是 2 → 5 → 4 → 3,最多剛好等於 5,回 true。</strong>
+      <b>如果 pop 條件寫成 <code>&lt;</code>:在 5 號點 to=5 的 2 人沒下車,人數變成 5 + 1 = 6 &gt; 5,回 false。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 只在上車點檢查就夠</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          車上人數只有在「有人上車」時才會增加。兩個上車點之間只會有人下車,人數只減不增。
+          <strong>所以最大值一定出現在某個上車點、而且是那一點的人上車之後</strong> —— 每個上車點檢查一次就涵蓋了全程。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 為什麼是 &lt;= 和 while</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          行程是半開區間 <code>[from, to)</code>:到 <code>to</code> 就下車,不佔那一點的座位。所以 <code>to == from</code> 的人要在新乘客上車前先下車 → <code>&lt;=</code>。
+          同一個上車點前可能有好幾組人要下車 → <code>while</code>,不是 <code>if</code>。
+          <b>實測:<code>&lt;</code> 錯 3,862 / 33,680 組,<code>if</code> 錯 339 組。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      排序 <strong>O(n log n)</strong> + 每個行程 push / pop 各一次 <strong>O(n log n)</strong>　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>做法(1000 個全程行程,-O2)</th><th>時間</th><th>複雜度</th></tr></thead>
+      <tbody>
+        <tr><td>逐格加(A)</td><td class="mono">≈ 0.39 ms</td><td>O(n · L)</td></tr>
+        <tr><td>差分陣列(B)</td><td class="mono ok">≈ 0.003 ms</td><td>O(n + L)</td></tr>
+        <tr><td>排序 + 最小堆(C,我的)</td><td class="mono ok">≈ 0.05 ms</td><td>O(n log n),和 L 無關</td></tr>
+        <tr><td>最多同時在車上</td><td class="mono">100,000 人</td><td>1000 × 100,int 沒問題</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>依上車點排序,堆裡放還在車上的人(以下車點排);每到一個上車點,先把 to ≤ from 的全部下車,再上車、再檢查。</strong>
+      <b>座標小時差分陣列更快;堆的寫法不管座標多大都能用。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">依 from 排序,最小堆 {to, num} 存還在車上的人。每個上車點:while 堆頂 to ≤ from 就下車(&lt;= 因為 to 那一點已經空出座位),再上車,超過 capacity 就 false。O(n log n);座標 ≤ 1000 時差分陣列 O(n + L) 更快。</div>
+    <div class="sc-summary-bar__detail">CAR POOLING · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1094-carpool.js"></script>
+</body>
+</html>

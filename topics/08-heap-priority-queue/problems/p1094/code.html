@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1094 · Car Pooling // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1094</span>
+    <span><a href="https://leetcode.com/problems/car-pooling/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Car Pooling</h1>
+    <p class="sc-mast__subtitle">// CODE · 排序 + 最小堆 + 陷阱</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1094</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(n log n) · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// SORT + MIN-HEAP</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p1094.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">bool</span> <span class="f">carPooling</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> trips<span class="p">,</span> <span class="t">int</span> capacity<span class="p">)</span> <span class="p">{</span>
+        <span class="c">// [numPassengersi, fromi, toi]</span>
+        <span class="f">sort</span><span class="p">(</span>trips<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> trips<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="p">[](</span><span class="k">auto</span><span class="p">&amp;</span> t1<span class="p">,</span> <span class="k">auto</span><span class="p">&amp;</span> t2<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> t1<span class="p">[</span><span class="n">1</span><span class="p">]</span> <span class="p">&lt;</span> t2<span class="p">[</span><span class="n">1</span><span class="p">];</span>                           <span class="c">// 依上車點排序</span>
+        <span class="p">});</span>
+
+        <span class="c">// {to, num}</span>
+        <span class="k">using</span> <span class="t">P</span> <span class="p">=</span> <span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;;</span>
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">P</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">P</span><span class="p">&gt;,</span> <span class="t">greater</span><span class="p">&lt;</span><span class="t">P</span><span class="p">&gt;&gt;</span> pq<span class="p">;</span>        <span class="c">// 最早下車的在堆頂</span>
+        <span class="t">int</span> passenger <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> t <span class="p">:</span> trips<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> num <span class="p">=</span> t<span class="p">[</span><span class="n">0</span><span class="p">],</span> from <span class="p">=</span> t<span class="p">[</span><span class="n">1</span><span class="p">],</span> to <span class="p">=</span> t<span class="p">[</span><span class="n">2</span><span class="p">];</span>
+
+            <span class="k">while</span> <span class="p">(!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">&amp;&amp;</span> pq<span class="p">.</span><span class="f">top</span><span class="p">().</span>first <span class="p">&lt;=</span> from<span class="p">)</span> <span class="p">{</span> <span class="c">// 先下車(&lt;=)</span>
+                passenger <span class="p">-=</span> pq<span class="p">.</span><span class="f">top</span><span class="p">().</span>second<span class="p">;</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+            <span class="p">}</span>
+
+            passenger <span class="p">+=</span> num<span class="p">;</span>                               <span class="c">// 再上車</span>
+            <span class="k">if</span> <span class="p">(</span>passenger <span class="p">&gt;</span> capacity<span class="p">)</span> <span class="k">return</span> false<span class="p">;</span>
+            pq<span class="p">.</span><span class="f">emplace</span><span class="p">(</span>to<span class="p">,</span> num<span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> true<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這版是對的</strong>:兩個官方範例過,窮舉 33,680 組 + 隨機 20 萬組 0 錯,<code>-Wall -Wextra</code> 零警告。
+      <b>堆只需要知道「誰最早下車、下車幾人」,所以存 <code>{to, num}</code>,from 用完就不用了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>步驟</th><th>成本</th><th>次數</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td>排序</td><td class="mono">—</td><td class="mono">1</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>push</td><td class="mono">O(log n)</td><td class="mono">≤ n</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>pop</td><td class="mono">O(log n)</td><td class="mono">≤ n</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>空間</td><td class="mono">—</td><td class="mono">—</td><td class="mono">O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula">
+      <strong>O(n log n)</strong>;1000 個全程行程實測 ≈ <strong>0.05 ms</strong>;人數最多 100,000,int 足夠
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 驗證 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">驗證<span class="sc-section__title-en">// CROSS CHECK</span></h2>
+    </div>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 官方範例(g++ -O2 -std=c++17 實跑)</span>
+[[2,1,5],[3,3,7]], 4 → false   ✓
+[[2,1,5],[3,3,7]], 5 → true    ✓</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 對拍(參考解:差分陣列 + 前綴和)</span>
+窮舉:1~3 個行程、num 1~2、0 ≤ from &lt; to ≤ 4、capacity 1~4    33,680 組   不一致 0
+隨機:≤ 12 個行程、num ≤ 100、座標 ≤ 20、capacity ≤ 400         200,000 組  不一致 0
+最大:1000 個 [100,0,1000]、capacity 10⁵ → true(人數剛好 100,000)</div>
+  </section>
+
+  <!-- ════════════ 4 · 陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// PITFALLS</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">把正確版改一個地方,跑同一組 33,680 個窮舉輸入:</p>
+
+    <table class="sc-table">
+      <thead><tr><th>改法</th><th>實測</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr><td>pop 條件寫 <code>&lt;</code></td><td class="mono fail">3,862</td><td><code>[[1,0,1],[1,1,2]], 1</code> → false(正解 true)</td></tr>
+        <tr><td><code>while</code> 改成 <code>if</code></td><td class="mono fail">339</td><td><code>[[1,0,1],[1,0,1],[2,1,2]], 2</code> → false(正解 true)</td></tr>
+        <tr><td>沒排序</td><td class="mono fail">2,932</td><td><code>[[1,1,2],[1,0,1]], 1</code> → false(正解 true)</td></tr>
+        <tr><td>依 <code>to</code> 排序</td><td class="mono fail">258</td><td><code>[[1,0,3],[1,1,2],[2,0,1]], 2</code> → true(正解 false)</td></tr>
+        <tr><td>用最大堆</td><td class="mono fail">2,322</td><td><code>[[1,0,1],[1,0,2],[1,1,2]], 2</code> → false(正解 true)</td></tr>
+        <tr><td>堆裡存 <code>from</code> 不是 <code>to</code></td><td class="mono fail">14,350</td><td><code>[[1,0,1],[1,0,1]], 1</code> → true(正解 false)</td></tr>
+        <tr><td>檢查寫 <code>&gt;= capacity</code></td><td class="mono fail">6,652</td><td><code>[[1,0,1]], 1</code> → false(正解 true)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這七種錯的寫法,有五種兩個官方範例都會過</strong>(只有「存 from」和「&gt;=」會被抓到)—— 範例裡沒有「下車點 = 上車點」、也沒有同一點好幾組人下車。
+      <b>自己測的時候一定要放一組 <code>to</code> 剛好等於下一組 <code>from</code> 的行程。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;"><code>[[2,1,5],[3,3,7],[1,5,8],[2,7,9]]</code>,capacity 5(和概念頁動畫同一組)。堆寫成 <code>{to, num}</code>,最早下車的在前。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: &lt;= 版本(我的)</span>
+from 1  沒人下車                        上車 2 → 2   ✓   堆 {5,2}
+from 3  堆頂 to 5 &gt; 3,沒人下車        上車 3 → 5   ✓   堆 {5,2} {7,3}
+from 5  {5,2} 下車(5 ≤ 5)→ 3          上車 1 → 4   ✓   堆 {7,3} {8,1}
+from 7  {7,3} 下車(7 ≤ 7)→ 1          上車 2 → 3   ✓   堆 {8,1} {9,2}
+<span class="sc-trace__out">// OUTPUT: true</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: 改成 &lt; 的版本</span>
+from 1  上車 2 → 2
+from 3  上車 3 → 5
+from 5  堆頂 to 5,5 &lt; 5 不成立 → 沒人下車    上車 1 → 6 &gt; 5
+<span class="sc-trace__out">// OUTPUT: false ✗   —— 在 5 號點分岔</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">依 from 排序;最小堆存 {to, num};每個上車點 while 堆頂 to ≤ from 就下車,再上車,&gt; capacity 回 false。&lt;、if、沒排序、依 to 排、最大堆五種錯法官方範例都會過 —— 要自己測 to 剛好等於下一個 from。</div>
+    <div class="sc-summary-bar__detail">CAR POOLING · CODE</div>
+  </div>
+
+</body>
+</html>

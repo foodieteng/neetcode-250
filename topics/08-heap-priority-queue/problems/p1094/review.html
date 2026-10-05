@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1094 · Car Pooling // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">08 · Heap / Priority Queue</a> / P1094</span>
+    <span><a href="https://leetcode.com/problems/car-pooling/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Car Pooling</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1094</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + MIN-HEAP SWEEP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>排序</td><td>依 <strong>from</strong>(上車點)</td></tr>
+        <tr><td>堆</td><td>最小堆 <code>{to, num}</code>:還在車上的人,最早下車的在頂</td></tr>
+        <tr><td>每個上車點</td><td><strong>先下車</strong>(<code>while</code> 堆頂 <code>to ≤ from</code>)→ 上車 → 檢查</td></tr>
+        <tr><td>邊界</td><td><code>[from, to)</code> 半開:<code>to</code> 那一點已經空出座位 → <code>&lt;=</code></td></tr>
+        <tr><td>超載</td><td><code>&gt; capacity</code> 才算超,剛好等於可以</td></tr>
+        <tr><td>另解</td><td>差分陣列 O(n + L),座標 ≤ 1000 時最快</td></tr>
+        <tr><td>同骨架</td><td><a href="../p1834/index.html">1834</a>:依開始排序 + 指標 + 堆</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼只在「上車點」檢查人數,就能保證全程都不超載?</div>
+
+    <div class="qa"><strong>Q2.</strong> pop 條件為什麼是 <code>to &lt;= from</code>,不是 <code>&lt;</code>?</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼一定要依 from 排序?依 to 排序不行嗎?</div>
+
+    <div class="qa"><strong>Q4.</strong> 堆為什麼是以 <code>to</code> 為鍵的最小堆?存 <code>from</code> 或用最大堆會怎樣?</div>
+
+    <div class="qa"><strong>Q5.</strong> 同一個上車點有兩個行程,排序後誰先處理有差嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 官方範例 · capacity 4</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <code>trips = [[2,1,5],[3,3,7]]</code>,<code>capacity = 4</code>,以實跑程式逐步記錄。
+    </p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// TRIP 1 · [2,1,5]</span>
+from 1  堆空,沒人下車     上車 2 → passenger = 2 ≤ 4     push {5,2}</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// TRIP 2 · [3,3,7]</span>
+from 3  堆頂 to 5 &gt; 3,沒人下車
+        上車 3 → passenger = 5 &gt; 4 → return false
+<span class="sc-trace__out">// OUTPUT: false</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>3 到 5 這段兩組人同時在車上,共 5 人。</strong>
+      <b>capacity 改成 5 就剛好坐得下 → true(第二個官方範例)。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 題目保證座標 ≤ 1000,有沒有比 O(n log n) 更快的做法?</div>
+
+    <div class="qa"><strong>App 2.</strong> 如果座標可以到 10⁹,差分陣列還能用嗎?</div>
+
+    <div class="qa"><strong>App 3.</strong> 改成問「最少要幾個座位才夠」(會議室 II 的問法),程式要怎麼改?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>人數只在上車時增加,兩個上車點之間只會有人下車。</strong><br><br>
+  所以全程的最大人數一定出現在某個上車點、而且是那批人上車之後。每個上車點都「先下、再上、再檢查」,就檢查到了每一個可能的最大值。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>行程是 <code>[from, to)</code>,到 <code>to</code> 就下車,座位在 <code>to</code> 那一點已經空出來。</strong><br><br>
+  寫成 <code>&lt;</code> 會讓 <code>to == from</code> 的人多坐一站:窮舉錯 3,862 / 33,680,最小反例 <code>[[1,0,1],[1,1,2]], 1</code> 回 false(正解 true)。
+  概念頁動畫在 5 號點就是這個情況:<code>&lt;</code> 會算出 6 人。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>必須依上車順序處理,「到這一點時誰還在車上」才算得對。</strong><br><br>
+  依 to 排序時,晚上車但早下車的行程會先處理,早上車的人還沒算進來:錯 258 組,最小反例
+  <code>[[1,0,3],[1,1,2],[2,0,1]], 2</code> 回 true(正解 false —— 在 0 號點就已經 3 人)。完全不排序錯 2,932 組。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>每次要問的是「誰最早下車」,所以鍵是 to、取最小的。</strong><br><br>
+  存 from:剛上車的人在下一個上車點就被當成「已下車」,錯 14,350 組(<code>[[1,0,1],[1,0,1]], 1</code> 回 true,正解 false)。
+  用最大堆:堆頂是最晚下車的,它沒到站時 <code>while</code> 就停了,早該下車的人卡在下面,錯 2,322 組。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>沒差。</strong><br><br>
+  同一個 from 的兩組人都是在那一點上車,先處理哪一組,第二組處理完時人數都一樣;中間那次檢查的人數只會比較小,不會誤判。
+  第二組處理前的 <code>while</code> 也不會讓第一組下車,因為第一組的 <code>to &gt; from</code>。所以 comparator 只比 <code>t[1]</code> 就夠,不用 tie-break。實測把同 from 的行程隨機打亂順序,30 萬組 0 不一致。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>差分陣列:<code>d[from] += num</code>、<code>d[to] -= num</code>,從 0 掃到 1000 做前綴和,任何時候 &gt; capacity 就 false。</strong><br><br>
+  O(n + L),L = 1001。1000 個全程行程實測約 0.003 ms(堆的版本約 0.05 ms)。我的對拍就是用這個當參考解。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>不能直接開 10⁹ 的陣列;要先離散化,或改用 <code>map&lt;int,int&gt;</code> 存差分。</strong><br><br>
+  用 <code>map</code> 時 <code>diff[from] += num</code>、<code>diff[to] -= num</code>,照 key 順序累加,O(n log n)。
+  也可以直接用這頁的堆寫法 —— 它本來就和座標範圍無關。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>不檢查 capacity,改成記錄 passenger 的最大值。</strong><br><br>
+  把 <code>if (passenger &gt; capacity) return false;</code> 換成 <code>ans = max(ans, passenger);</code>,最後回傳 <code>ans</code>。
+  會議室 II 每個會議 num = 1,堆的大小就是同時在開的會議數,也可以直接回傳堆的最大 size。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 08 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">人數只在上車點增加,所以依 from 排序、每個上車點先下(to ≤ from)再上再檢查就夠。堆鍵是 to、最小堆;同一個 from 誰先處理沒差。座標小用差分陣列,座標大用堆或 map。</div>
+    <div class="sc-summary-bar__detail">CAR POOLING · REVIEW</div>
+  </div>
+
+</body>
+</html>
