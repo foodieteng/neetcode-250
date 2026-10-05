@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>78 · Subsets // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P78</span>
+    <span><a href="https://leetcode.com/problems/subsets/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Subsets</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · path 怎麼跟著遞迴長大、縮回來:push → dfs → pop</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 78</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · PATH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>nums</code> 裡的數字<strong>都不相同</strong>,回傳<strong>所有子集</strong>(包含空集合),不能重複,順序不限。<br>
+        <code>1 ≤ n ≤ 10</code>,<code>-10 ≤ nums[i] ≤ 10</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,2,3]</code> → 8 個子集 <code>[] [1] [2] [1,2] [3] [1,3] [2,3] [1,2,3]</code>;<code>[0]</code> → <code>[] [0]</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 <a href="../p1863/index.html">1863</a> 是同一棵樹</strong>,差別只在每個節點要存的東西:1863 只要一個數字 <code>cur</code>,這題要存<strong>整個子集</strong>。
+      <b>所以要帶著一個 <code>path</code> 往下走,走下去時 push、回來時 pop —— 這就是「回溯」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 從 1863 到 78 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">從 cur 到 path<span class="sc-section__title-en">// FROM A NUMBER TO A LIST</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>1863(帶 cur)</th><th>78(帶 path)</th></tr></thead>
+      <tbody>
+        <tr><td>節點的狀態</td><td>一個 int:目前的 XOR</td><td>一個 vector:目前選了哪些</td></tr>
+        <tr><td>往下走</td><td>傳 <code>cur ^ nums[i]</code>(新值)</td><td><code>path.push_back(nums[i])</code></td></tr>
+        <tr><td>回來之後</td><td>什麼都不用做(cur 沒被改)</td><td><code>path.pop_back()</code>(撤銷)</td></tr>
+        <tr><td>記錄答案</td><td><code>total += cur</code></td><td><code>ans.push_back(path)</code>(複製一份)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>int 很便宜,直接傳新值;vector 很貴,所以大家共用一份,改完再改回來。</strong>
+      <b>我的寫法是折衷:path 傳值(每層一份複本),但迴圈裡還是 push / pop。兩種都對,差在複製了多少東西 —— 下面兩個動畫就是在看這件事。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>一進來就記</strong>:<code>ans.push_back(path)</code> —— for 迴圈寫法每個節點都是一個子集。</li>
+      <li><strong>從 s 開始挑下一個</strong>:<code>path.push_back(nums[i])</code>,遞迴 <code>dfs(i + 1)</code>(只往後挑,不會重複)。</li>
+      <li><strong>回來就撤銷</strong>:<code>path.pop_back()</code>,讓下一圈的兄弟從同一個 path 出發。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 傳值(我的)vs 傳參考</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>nums = [1,2,3]</code>,8 次呼叫、7 次 push、7 次 pop。<strong>第一個動畫是我的寫法</strong>:<code>vector&lt;int&gt; path</code> 沒有 <code>&amp;</code>,
+      每次呼叫都拿到一份<b>自己的複本</b>,疊在 call stack 上。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 傳值 · 每一層 call 有自己的 path 複本</div>
+      <div class="sc-viz__cvwrap"><canvas id="v78a-canvas" class="sc-viz__canvas" style="height:402px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v78a-reset">Reset</button><button class="sc-btn" id="v78a-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v78a-play">Play</button><button class="sc-btn" id="v78a-next">Next</button>
+        <span class="sc-viz__step" id="v78a-step">00 / 23</span>
+      </div>
+      <div class="sc-viz__label" id="v78a-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>第二個動畫是傳參考</strong>:<code>vector&lt;int&gt;&amp; path</code>,全部的 call <b>共用同一個 path</b>。
+      每次 push 都一定要有一次 pop 把它撤銷,不然下一個兄弟會從錯的 path 出發。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 傳參考 · 只有一個 path,push 和 pop 成對</div>
+      <div class="sc-viz__cvwrap"><canvas id="v78b-canvas" class="sc-viz__canvas" style="height:402px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v78b-reset">Reset</button><button class="sc-btn" id="v78b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v78b-play">Play</button><button class="sc-btn" id="v78b-next">Next</button>
+        <span class="sc-viz__step" id="v78b-step">00 / 23</span>
+      </div>
+      <div class="sc-viz__label" id="v78b-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個動畫的 ans 一模一樣</strong>:<code>[] [1] [1,2] [1,2,3] [1,3] [2] [2,3] [3]</code>。
+      <b>傳值時 pop 只改「這一層自己的複本」;傳參考時 pop 改的是大家共用的那一份。不管哪種,迴圈裡的 pop 都不能省。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 傳值了,為什麼還要 pop?</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          傳值只保證「<strong>被呼叫的那層</strong>改不到我的 path」。可是 <b>for 迴圈是在同一層裡跑的</b>:
+          第一圈 push 了 <code>nums[s]</code>,不 pop 的話,第二圈的 push 會疊在上面。
+          實測:傳值但拿掉 pop,<code>[1,2]</code> → <code>[[],[1],[1,2],[1,2]]</code>,應該是 <code>[2]</code> 的地方變成 <code>[1,2]</code>;窮舉錯 3,612 / 3,619。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 傳參考時,ans.push_back(path) 會不會跟著被改掉?</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          不會。<code>ans.push_back(path)</code> 把 path <strong>複製一份</strong>放進 ans,之後 path 怎麼 push / pop 都影響不到已經存進去的那份。
+          <b>所以傳參考只少了「參數那一次複製」,存答案那次複製兩種寫法都有。</b>
+          n = 20 實測:傳值多複製 10,485,760 個元素,121.71 ms vs 104.14 ms。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      2ⁿ 個子集、每個平均 n/2 個元素要複製 → 時間 <strong>O(n · 2ⁿ)</strong>　·　額外空間 <strong>O(n)</strong>(path + 遞迴深度,不算輸出)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n</th><th>輸出元素</th><th>傳值</th><th>傳參考</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">10</td><td class="mono">5,120</td><td class="mono">0.10 ms</td><td class="mono ok">0.07 ms</td></tr>
+        <tr><td class="mono">20</td><td class="mono">10,485,760</td><td class="mono">121.7 ms</td><td class="mono ok">104.1 ms</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px;font-size:13.5px;">
+      子集數是 2ⁿ(n = 10 是 1,024,n = 20 是 1,048,576);題目上限 n = 10。傳值的額外空間其實是 O(n²):最深 n 層、每層一份最長 n 的複本。題目 n ≤ 10,完全沒差。
+    </p>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>path 跟著遞迴走:往下 push、回來 pop,兄弟節點才會從同一個 path 出發。</strong>
+      <b>傳值或傳參考都對;pop 在兩種寫法裡都不能省,存答案時 push_back 會自動複製。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種實作與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">和 1863 同一棵 for 迴圈樹,只是狀態從 int 變成 path:一進來 ans.push_back(path),迴圈 push → dfs(i + 1) → pop。path 傳值(我的)或傳參考都對,傳參考少一次複製;pop 兩種都不能省。O(n · 2ⁿ)。</div>
+    <div class="sc-summary-bar__detail">SUBSETS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p78-path.js"></script>
+</body>
+</html>

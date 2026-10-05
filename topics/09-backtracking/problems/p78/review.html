@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>78 · Subsets // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P78</span>
+    <span><a href="https://leetcode.com/problems/subsets/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Subsets</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 78</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · PATH</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td>和 <a href="../p1863/index.html">1863</a> 同一棵 for 迴圈樹,每個節點都是子集</td></tr>
+        <tr><td>三行</td><td><code>push_back(nums[i])</code> → <code>dfs(i + 1)</code> → <code>pop_back()</code></td></tr>
+        <tr><td>記錄</td><td>一進來 <code>ans.push_back(path)</code>,會自動複製</td></tr>
+        <tr><td>傳值 vs 參考</td><td>都對;參考少一次複製,傳值每層一份</td></tr>
+        <tr><td>pop</td><td>兩種寫法都不能省 —— 迴圈的兄弟要從同一個 path 出發</td></tr>
+        <tr><td>複雜度</td><td>O(n · 2ⁿ),額外 O(n)(傳值是 O(n²))</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 我的 path 是傳值,被呼叫的那層改不到我的 path。那迴圈裡的 <code>pop_back()</code> 還有必要嗎?</div>
+
+    <div class="qa"><strong>Q2.</strong> 傳參考時,<code>ans.push_back(path)</code> 存進去的子集,之後會不會被 push / pop 改掉?</div>
+
+    <div class="qa"><strong>Q3.</strong> 把 <code>ans.push_back(path)</code> 從函式開頭移到 for 迴圈後面,答案會錯嗎?</div>
+
+    <div class="qa"><strong>Q4.</strong> 為什麼時間是 O(n · 2ⁿ),不是 1863 的 O(2ⁿ)?</div>
+
+    <div class="qa"><strong>Q5.</strong> 傳參考忘了 pop,和傳值忘了 pop,錯的樣子為什麼不一樣?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2] · 有 pop vs 沒 pop</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;"><code>[1,2]</code>,正解 4 個子集 <code>[] [1] [1,2] [2]</code>。三種寫法並排(都實跑過)。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對的(傳值或傳參考都一樣)</span>
+dfs(s=0) path []      收 []
+  push 1 → dfs(s=1) path [1]      收 [1]
+             push 2 → dfs(s=2) path [1,2]   收 [1,2]
+             pop → [1]
+  pop → []
+  push 2 → dfs(s=2) path [2]      收 [2]
+<span class="sc-trace__out">// OUTPUT: [[],[1],[1,2],[2]]</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 傳值、沒 pop</span>
+dfs(s=0) path []      收 []
+  push 1 → [1],dfs 拿到複本 [1]  收 [1] → 它自己 push 2 → 收 [1,2]
+  (回到 s=0,這層的 path 還是 [1])
+  push 2 → [1,2],dfs 拿到複本     收 [1,2]   ← 該是 [2]
+<span class="sc-trace__out">// OUTPUT: [[],[1],[1,2],[1,2]] ✗</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 傳參考、沒 pop</span>
+dfs(s=0) path []      收 []
+  push 1 → [1]     dfs 收 [1] → push 2 → [1,2] 收 [1,2](共用的 path 停在 [1,2])
+  (回到 s=0,共用的 path 是 [1,2])
+  push 2 → [1,2,2]  dfs 收 [1,2,2]   ← 該是 [2]
+<span class="sc-trace__out">// OUTPUT: [[],[1],[1,2],[1,2,2]] ✗</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩種錯都錯在第 4 個(<code>[2]</code> 那個兄弟)。</strong>
+      <b>傳值時只有「這一層的 1」沒拿掉;傳參考時連下一層 push 的 2 也沒拿掉,所以多出一個 2。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用 <a href="../p1863/index.html">1863</a> 的二元寫法(選 / 不選)寫這題,path 要怎麼 push / pop?</div>
+
+    <div class="qa"><strong>App 2.</strong> 下一題 90 Subsets II:<code>nums</code> 可能有重複,答案不能有重複的子集。要改哪裡?</div>
+
+    <div class="qa"><strong>App 3.</strong> 只要大小剛好為 k 的子集(77 Combinations),要改哪裡?能不能提早剪枝?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>有必要。傳值只擋住「下一層改我」,擋不住「我自己的迴圈」。</strong><br><br>
+  第一圈 push 了 <code>nums[s]</code>,沒 pop 的話,第二圈會在它上面再 push。實測拿掉 pop:<code>[1,2]</code> → <code>[[],[1],[1,2],[1,2]]</code>,窮舉錯 3,612 / 3,619。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>不會。<code>push_back(path)</code> 存的是一份複本。</strong><br><br>
+  <code>vector&lt;vector&lt;int&gt;&gt;::push_back</code> 會呼叫 vector 的複製建構子,ans 裡的那份和 path 之後就沒有關係了。
+  (如果 ans 存的是指標或參考,才會跟著被改。)</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不會錯,只是順序變了。</strong><br><br>
+  每個節點還是剛好收一次,只是從「先收自己再看小孩」變成「先看完小孩再收自己」(前序 → 後序)。實測 3,619 組 0 錯。
+  但不能放到迴圈<b>裡面</b>(實測 <code>[1,2]</code> → <code>[[],[1],[]]</code>,空集合收兩次、少了 <code>[1,2]</code> 和 <code>[2]</code>),也不能只在 <code>s == n</code> 收(那樣只剩含最後一個數的子集,<code>[1]</code> 會少了空集合)。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>1863 每個節點只做 O(1)(一個 XOR);這題每個節點要把 path 複製進 ans,平均 n/2 個元素。</strong><br><br>
+  輸出本身就有 n · 2ⁿ⁻¹ 個元素(n = 10 是 5,120 個,n = 20 是 10,485,760 個),所以不可能比 O(n · 2ⁿ) 更快。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>傳參考時錯誤會「往上帶」:下一層 push 的東西也沒被拿掉,回到上一層時共用的 path 比該有的還長。</strong><br><br>
+  傳值時下一層改的是複本,回來時這層的 path 只多了「自己迴圈 push 的那一個」。
+  所以 <code>[1,2]</code>:傳參考錯成 <code>[1,2,2]</code>,傳值錯成 <code>[1,2]</code>。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong><code>i == n</code> 時 <code>ans.push_back(path)</code>;否則 <code>path.push_back(nums[i]); dfs(i + 1); path.pop_back(); dfs(i + 1);</code>。</strong><br><br>
+  選的那支要 push / pop 成對,不選的那支直接往下。實測 3,619 組 0 錯。和 1863 一樣,只有葉子收,呼叫次數 2ⁿ⁺¹ − 1。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>先排序,迴圈裡加一行 <code>if (i &gt; s &amp;&amp; nums[i] == nums[i-1]) continue;</code>。</strong><br><br>
+  同一層(同一個 s)的兄弟裡,相同的數只讓第一個往下長;<code>i &gt; s</code> 確保「同一層」才跳,往下一層時第一個還是可以選。
+  這就是 1863 說的「去重用 for 迴圈寫法比較順手」。實測隨機 2 萬組(值只有 0~2,大量重複)0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>改成 <code>path.size() == k</code> 才收、而且收完就 return。</strong><br><br>
+  剪枝:剩下的數不夠湊滿 k 個就不用往下(<code>n - i &lt; k - path.size()</code> 時 break)。迴圈上界可以寫成 <code>i &lt;= n - (k - path.size())</code>。實測 n = 1~10、所有 k 共 55 組,個數都等於 C(n, k)、沒有重複。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">兩種實作與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">push → dfs(i + 1) → pop,傳值或傳參考都要 pop;push_back(path) 會複製,不怕之後被改。沒 pop 時:傳值 [1,2] → 多一個 [1,2],傳參考 → [1,2,2]。下一步:90 排序 + 同層跳重複,77 收滿 k 個就停。</div>
+    <div class="sc-summary-bar__detail">SUBSETS · REVIEW</div>
+  </div>
+
+</body>
+</html>
