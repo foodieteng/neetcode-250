@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>39 · Combination Sum // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P39</span>
+    <span><a href="https://leetcode.com/problems/combination-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Combination Sum</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 39</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td><a href="../p78/index.html">78</a> 的 for 迴圈樹 + push / pop</td></tr>
+        <tr><td>重複選</td><td>遞迴傳 <strong><code>i</code></strong>(78 是 <code>i + 1</code>)</td></tr>
+        <tr><td>不重複組合</td><td>迴圈從 <strong><code>s</code></strong> 開始,index 不遞減</td></tr>
+        <tr><td>收</td><td><code>sum == target</code> 才收,收完 return</td></tr>
+        <tr><td>剪枝</td><td>先<strong>排序</strong>,<code>sum + c[i] &gt; target</code> 就 <strong>break</strong></td></tr>
+        <tr><td>參數</td><td>path 傳值也對,傳參考更快</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 遞迴傳 <code>i</code> 和傳 <code>i + 1</code>,差在哪?為什麼這題要傳 <code>i</code>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 既然可以重複選,為什麼迴圈不從 0 開始?</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼一定要先排序?不排序能不能用 break?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>if (res == target)</code> 收完之後為什麼要 <code>return</code>?</div>
+
+    <div class="qa"><strong>Q5.</strong> 會不會有無窮遞迴?<code>dfs(..., i)</code> 一直選自己,什麼時候停?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [2,3,5], target 8</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">官方範例 2,答案 <code>[[2,2,2,2],[2,3,3],[3,5]]</code>,實跑 13 次呼叫。照「第一個選的數」分三段。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 2 開頭</span>
+[2] → [2,2] → [2,2,2] → [2,2,2,2] sum 8   收
+                [2,2,2] 下一個 +3 = 9 &gt; 8 → break
+         [2,2] → [2,2,3] sum 7,再 +3 = 10 → break
+         [2,2] 下一個 +5 = 9 &gt; 8 → break
+[2] → [2,3] → [2,3,3] sum 8   收
+         [2,3] 下一個 +5 = 10 &gt; 8 → break
+[2] → [2,5] sum 7,再 +5 = 12 → break</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 3、5 開頭</span>
+[3] → [3,3] sum 6,再 +3 = 9 → break
+[3] → [3,5] sum 8   收
+[5] sum 5,再 +5 = 10 → break
+<span class="sc-trace__out">// OUTPUT: [[2,2,2,2],[2,3,3],[3,5]]</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>[3] 開頭之後不會再看到 2</strong>:迴圈從 s = 1 開始,2 已經在「2 開頭」那段用過所有可能了。
+      <b>這就是 <code>[2,3,3]</code> 不會再以 <code>[3,2,3]</code>、<code>[3,3,2]</code> 出現的原因。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 40 Combination Sum II:每個數只能用一次,而且 candidates 可能有重複。要改哪兩個地方?</div>
+
+    <div class="qa"><strong>App 2.</strong> 只要「組合的個數」,不用列出來,有沒有比回溯更快的做法?</div>
+
+    <div class="qa"><strong>App 3.</strong> 改成 <a href="https://leetcode.com/problems/combination-sum-iii/" target="_blank" rel="noopener">216 Combination Sum III</a>:從 1~9 選剛好 k 個不同的數加起來等於 n。要怎麼改?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>傳 <code>i</code>:下一層還能從 <code>c[i]</code> 開始挑,也就是可以再選自己;傳 <code>i + 1</code>:下一層只能挑後面的。</strong><br><br>
+  題目說同一個數可以用無限次,所以要傳 <code>i</code>。傳 <code>i + 1</code>(照抄 78)實測錯 1,551 / 3,024,<code>[2], 4</code> 回 <code>[]</code>(正解 <code>[[2,2]]</code>)。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>從 0 開始會「回頭」挑比較小的數,同一個組合會用不同順序出現。</strong><br><br>
+  「可以重複」是指往<b>下</b>一層可以再選自己(傳 <code>i</code>),不是同一層可以回頭。實測迴圈從 0:<code>[2,3], 5</code> → <code>[[2,3],[3,2]]</code>,錯 1,338 組。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>break 的前提是「後面的數只會更大」,不排序就不成立。</strong><br><br>
+  <code>[3,2], 2</code>:不排序時第一個看到 3,<code>0 + 3 &gt; 2</code> 就 break,沒看到後面的 2 → 回 <code>[]</code>,錯 822 組。
+  不排序也可以,但要用 <code>continue</code>(只跳過這一個)。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>收完再往下只會讓 sum 變大(每個數 ≥ 2),不可能再湊到 target。</strong><br><br>
+  不 return 的話,迴圈裡第一個 <code>res + c[s] &gt; target</code> 就會 break,結果其實一樣,只是多跑一次迴圈判斷(隨機 2 萬組實測,輸出完全相同)。return 讓意思更清楚。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不會。每選一次 sum 至少加 2(最小的 candidate ≥ 2),深度最多 target / 2 = 20 層。</strong><br><br>
+  超過 target 的那一步會被 <code>break</code> 擋下來,不會真的遞迴進去。如果 candidates 裡有 0,傳 <code>i</code> 就會無窮遞迴 —— 題目限制 <code>candidates[i] ≥ 2</code> 剛好排除了這種情況。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>① 遞迴改回 <code>i + 1</code>(每個數一次);② 排序後同層跳重複:<code>if (i &gt; s &amp;&amp; c[i] == c[i-1]) continue;</code>。</strong><br><br>
+  ② 就是 <a href="../p78/review.html">78 複習頁</a> App 2(90 Subsets II)那一行。break 剪枝照樣保留。實測隨機 2 萬組(有大量重複值)和暴力比對 0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>有:完全背包 DP。<code>dp[0] = 1</code>,對每個 c(外層)、每個 t 從 c 到 target(內層)做 <code>dp[t] += dp[t - c]</code>。</strong><br><br>
+  外層是數、內層是和,才會是「組合」(不分順序);兩層對調就變成「排列」的個數(377 Combination Sum IV)。時間 O(n · target)。和回溯的答案數比對 2 萬組 0 不一致。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>candidates 固定是 1~9、遞迴傳 <code>i + 1</code>(不重複),收的條件改成 <code>path.size() == k &amp;&amp; sum == n</code>。</strong><br><br>
+  剪枝兩個:<code>sum + i &gt; n</code> 就 break(1~9 本來就排好);<code>path.size() == k</code> 時不管有沒有湊到都 return。實測 k = 1~9、n = 1~60 共 540 組,和暴力列舉一致。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">傳 i 往下可重複、迴圈從 s 不回頭、排序後 break。收完 return;最小值 ≥ 2 保證會停。40 改回 i + 1 再加同層去重;只要個數就用完全背包 DP。</div>
+    <div class="sc-summary-bar__detail">COMBINATION SUM · REVIEW</div>
+  </div>
+
+</body>
+</html>

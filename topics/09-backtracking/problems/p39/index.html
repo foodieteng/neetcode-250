@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>39 · Combination Sum // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P39</span>
+    <span><a href="https://leetcode.com/problems/combination-sum/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Combination Sum</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · dfs(i) 可以重複選自己;排序後超過就 break</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 39</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>candidates</code> 裡的數<strong>都不相同</strong>,找出所有加起來等於 <code>target</code> 的組合。<strong>同一個數可以用無限次</strong>;
+        組合只看「每個數用了幾次」,<code>[2,2,3]</code> 和 <code>[3,2,2]</code> 算同一個。<br>
+        <code>1 ≤ n ≤ 30</code>,<code>2 ≤ candidates[i] ≤ 40</code>,<code>1 ≤ target ≤ 40</code>,保證答案少於 150 組。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[2,3,6,7], 7</code> → <code>[[2,2,3],[7]]</code>;<code>[2,3,5], 8</code> → <code>[[2,2,2,2],[2,3,3],[3,5]]</code>;<code>[2], 1</code> → <code>[]</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>骨架和 <a href="../p78/index.html">78 Subsets</a> 一樣</strong>:for 迴圈從 <code>s</code> 挑下一個、path push / pop。
+      <b>只改兩個地方:遞迴傳 <code>i</code>(不是 <code>i + 1</code>)讓同一個數能再選;湊到 target 才收、超過就停。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 和 78 比 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">和 78 差在哪<span class="sc-section__title-en">// WHAT CHANGED FROM 78</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>78 Subsets</th><th>39 Combination Sum</th></tr></thead>
+      <tbody>
+        <tr><td>同一個數能選幾次</td><td>最多 1 次</td><td><strong>無限次</strong></td></tr>
+        <tr><td>遞迴傳</td><td><code>dfs(i + 1)</code>:下一層從後面開始</td><td><code>dfs(i)</code>:下一層<strong>還可以選自己</strong></td></tr>
+        <tr><td>什麼時候收</td><td>每個節點都收</td><td><code>sum == target</code> 才收,收完 return</td></tr>
+        <tr><td>什麼時候停</td><td>迴圈跑完</td><td><code>sum + c[i] &gt; target</code> 就 <strong>break</strong>(要先排序)</td></tr>
+        <tr><td>為什麼不會重複</td><td>index 遞增</td><td>index <strong>不遞減</strong>(從 <code>s</code> 開始,不回頭)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong><code>i + 1</code> → <code>i</code>,就是「每個數最多一次」→「每個數可以很多次」。</strong>
+      <b>迴圈起點還是 <code>s</code>:已經決定不再用的小數字不會回頭,所以 <code>[2,3]</code> 和 <code>[3,2]</code> 只會出現一個。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>排序</strong>:讓迴圈裡的數由小到大,超過 target 之後的都不用試。</li>
+      <li><strong>湊到就收</strong>:<code>res == target</code> → <code>ans.push_back(path)</code>,return。</li>
+      <li><strong>從 s 挑下一個</strong>:<code>res + c[i] &gt; target</code> 就 break;否則 push → <code>dfs(..., i)</code> → pop。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,3,6,7], target 7</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      只用了 <strong>10 次呼叫</strong>,中間 7 次 break。看兩件事:<b>小孩可以再選和自己同一條邊的數</b>(<code>[2] → [2,2] → [2,2,2]</code>);
+      <b>一碰到超過就整個迴圈收工</b>,後面更大的數一個都不試。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 排序 + dfs(i) + break · 綠 = 湊到 target</div>
+      <div class="sc-viz__cvwrap"><canvas id="v39-canvas" class="sc-viz__canvas" style="height:600px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v39-reset">Reset</button><button class="sc-btn" id="v39-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v39-play">Play</button><button class="sc-btn" id="v39-next">Next</button>
+        <span class="sc-viz__step" id="v39-step">00 / 18</span>
+      </div>
+      <div class="sc-viz__label" id="v39-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>樹的每一層,邊上的數只會越來越大或一樣(2 → 2 → 3),不會變小</strong> —— 這就是「從 s 開始」保證的。
+      <b>break 的地方,右邊的兄弟(更大的數)全部不用長出來,這棵樹才這麼小。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 為什麼可以 break,不只是 continue</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          排序後 <code>c[i] ≤ c[i+1] ≤ …</code>。如果 <code>res + c[i] &gt; target</code>,後面每一個 <code>res + c[j]</code> 都更大,<strong>不可能湊到</strong>。
+          所以 <code>continue</code> 雖然也對,只是白白檢查完整個迴圈:壓力測試(2~31 共 30 個數、target 40)呼叫次數一樣,迴圈卻跑了 635,407 圈,break 只跑 68,380 圈。
+          <b>沒排序就 break 會錯:<code>[3,2], 2</code> 在 3 就停了,看不到後面的 2 → 回 <code>[]</code>。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 為什麼不會有 [2,3] 和 [3,2] 兩個</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          每條路徑上的 index 都是<strong>不遞減</strong>的:小孩從 <code>i</code> 開始挑,不會回頭挑比 <code>i</code> 小的。
+          每個組合排好序之後只有一種不遞減的寫法,所以只會出現一次。
+          <b>改成 <code>dfs(..., s)</code> 或迴圈從 0 開始,就會回頭:<code>[2,3], 5</code> → <code>[[2,3],[3,2]]</code>,窮舉都錯 1,338 / 3,024。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      時間 ≈ 樹的節點數 × 複製 path,粗略上界 <strong>O(n^(T/m))</strong>(T = target,m = 最小的數)　·　額外空間 <strong>O(T/m)</strong> 遞迴深度
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>壓力測試:30 個數 2~31、target 40(6,131 組答案)</th><th>呼叫</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td>我的(傳值 + break)</td><td class="mono">37,271</td><td class="mono">1.29 ms</td></tr>
+        <tr><td>傳參考 + break</td><td class="mono ok">37,271</td><td class="mono ok">0.41 ms</td></tr>
+        <tr><td>傳值 + continue</td><td class="mono">37,271</td><td class="mono">2.29 ms</td></tr>
+        <tr><td>不剪枝(進來才檢查超過)</td><td class="mono fail">635,408</td><td class="mono">2.76 ms</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px;font-size:13.5px;">這組測資遠超過題目保證的「答案少於 150 組」,只是拿來看剪枝和複製的差別。題目範圍內每一種寫法都很快。</p>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>78 的 for 迴圈樹,把 <code>i + 1</code> 改成 <code>i</code> 就能重複選;湊到才收,排序後超過就 break。</strong>
+      <b>迴圈從 s 開始(不回頭)保證不重複,排序保證 break 不會漏。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">和 78 同骨架:排序;sum == target 就收;for i 從 s,sum + c[i] &gt; target 就 break,否則 push → dfs(..., i) → pop。傳 i 才能重複選、從 s 開始才不重複、排序 break 才不會漏。</div>
+    <div class="sc-summary-bar__detail">COMBINATION SUM · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p39-combsum.js"></script>
+</body>
+</html>

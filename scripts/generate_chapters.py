@@ -206,7 +206,7 @@ PROBLEMS = {
     '09': [  # Backtracking
         ('p1863','Sum of All Subset XOR Totals',         'sum-of-all-subset-xor-totals',         'easy','done'),
         ('p78',  'Subsets',                              'subsets',                              'med', 'done'),
-        ('p39',  'Combination Sum',                      'combination-sum',                      'med', 'todo'),
+        ('p39',  'Combination Sum',                      'combination-sum',                      'med', 'done'),
         ('p40',  'Combination Sum II',                   'combination-sum-ii',                   'med', 'todo'),
         ('p77',  'Combinations',                         'combinations',                         'med', 'todo'),
         ('p46',  'Permutations',                         'permutations',                         'med', 'todo'),
