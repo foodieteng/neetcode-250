@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>46 · Permutations // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P46</span>
+    <span><a href="https://leetcode.com/problems/permutations/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Permutations</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 46</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · USED[]</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>和組合的差別</td><td>迴圈從 <strong>0</strong>(不是 s),每一格誰都能放</td></tr>
+        <tr><td>避免重複用</td><td><code>used[i]</code> 就 continue</td></tr>
+        <tr><td>還原</td><td><strong>兩件</strong>:<code>pop_back()</code> 和 <code>used[i] = false</code></td></tr>
+        <tr><td>收</td><td><code>path.size() == n</code></td></tr>
+        <tr><td>數量</td><td>n! 個答案;呼叫 1 + n + … + n! 次</td></tr>
+        <tr><td>複雜度</td><td>O(n · n!),額外 O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 77 Combinations 的迴圈從 <code>s</code> 開始,這題為什麼要從 0 開始?</div>
+
+    <div class="qa"><strong>Q2.</strong> 從 0 開始,為什麼不會把同一個數放兩次?</div>
+
+    <div class="qa"><strong>Q3.</strong> 忘了 <code>used[i] = false</code> 和忘了 <code>pop_back()</code>,<code>[1,2]</code> 都只得到 <code>[[1,2]]</code>。兩個錯的原因一樣嗎?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>[1,2,3]</code> 為什麼是 16 次呼叫?</div>
+
+    <div class="qa"><strong>Q5.</strong> 這題 path 和 used 都傳參考。如果兩個都改成傳值,還需要還原嗎?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [0,1] · 對的 vs 忘了 used = false</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">官方範例 2 <code>[0,1]</code>,正解 <code>[[0,1],[1,0]]</code>,5 次呼叫。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對的</span>
+[]      FF
+  [0]     TF   →  [0,1]  TT  收        回來:pop、used[1] = F;回來:pop、used[0] = F
+  [1]     FT   →  [1,0]  TT  收
+<span class="sc-trace__out">// OUTPUT: [[0,1],[1,0]]</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 忘了 used[i] = false</span>
+[]      FF
+  [0]     TF   →  [0,1]  TT  收        回來:pop,但 used 還是 TT
+  i = 1:used[1] 是 T → 跳過         ← [1] 開頭的整棵樹都沒了
+<span class="sc-trace__out">// OUTPUT: [[0,1]] ✗</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>第一個排列做完之後,所有數都被標成「用過」,後面每一格都挑不到東西。</strong>
+      <b>used 記的是「現在這條路上有誰」,離開這條路就要擦掉。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 47 Permutations II:nums 可能有重複,答案不能有重複的排列。要加哪一行?</div>
+
+    <div class="qa"><strong>App 2.</strong> 不用 used[] 和 path,能不能直接在 nums 上交換做出所有排列?</div>
+
+    <div class="qa"><strong>App 3.</strong> 只要長度為 k 的排列(從 n 個裡排 k 個),要改哪裡?共有幾個?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>組合不在乎順序,所以只往後挑來避免重複;排列在乎順序,<code>[2,1]</code> 也是答案。</strong><br><br>
+  從 s 開始的話,第 1 格放了 2 之後就挑不到 1。實測 <code>[1,2]</code> 只剩 <code>[[1,2]]</code>,246 組錯 238。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong><code>used[i]</code> 記著「這條路上已經放了 nums[i]」,迴圈遇到就 continue。</strong><br><br>
+  拿掉這行,每一格都能挑任何數:<code>[1,2]</code> → <code>[[1,1],[1,2],[2,1],[2,2]]</code>(2² 個,不是 2! 個)。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>不一樣,只是剛好輸出相同。</strong><br><br>
+  忘了 <code>used = false</code>:回來後 used 一直是滿的,後面每一格都挑不到東西(上面的 Trace)。
+  忘了 <code>pop_back</code>:path 回來時還帶著舊的數,長度一直超過 n,再也不會等於 n,所以不會再收。兩種都錯 238 / 246。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>樹每一層的節點數:根 1 個,第 1 格 3 個,第 2 格 3 × 2 = 6 個,第 3 格 6 個 → 1 + 3 + 6 + 6 = 16。</strong><br><br>
+  一般是 1 + n + n(n−1) + … + n!。n = 6 時是 1,957 次,答案 720 個。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>還是要。傳值只擋住「下一層改到我」,擋不住「我自己的迴圈下一圈看到上一圈的修改」。</strong><br><br>
+  實測兩個都傳值、迴圈裡不還原:<code>[1,2]</code> → <code>[[1,2],[1,2]]</code>(第二圈的 path 還留著 1、used[0] 還是 T)。
+  和 <a href="../p78/index.html">78</a> 的 LEMMA 1 同一件事。所以「在迴圈裡改、在迴圈裡還原」不管傳值傳參考都要寫。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>先排序,迴圈裡加:<code>if (i &gt; 0 &amp;&amp; nums[i] == nums[i-1] &amp;&amp; !used[i-1]) continue;</code>。</strong><br><br>
+  意思是:相同的數要照原本的順序用,前一個相同的數還沒用,就不能先用這一個。這樣同一格不會放兩次「同樣的值」。
+  實測隨機 2 萬組(大量重複值)和 <code>next_permutation</code> 的結果一致。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>可以:<code>dfs(s)</code> 決定第 s 格,讓 i 從 s 到 n − 1,<code>swap(nums[s], nums[i])</code> → <code>dfs(s + 1)</code> → 換回來。</strong><br><br>
+  <code>nums[0..s-1]</code> 是已經排好的部分,<code>nums[s..]</code> 是還沒用的數,所以不需要 used。<code>s == n</code> 時收 <code>nums</code>。
+  實測 246 組 0 錯,呼叫次數一樣(n = 6 是 1,957),時間 0.032 vs 0.050 ms。缺點是輸出不是字典序。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>只要把收的條件改成 <code>path.size() == k</code>。</strong><br><br>
+  共 <code>n! / (n − k)!</code> 個(第 1 格 n 種、第 2 格 n − 1 種……乘 k 次)。迴圈、used、還原都不用動。實測 n = 1~6 所有 k(21 組)個數都對、沒有重複。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">排列每一格從 0 挑、used 擋掉已放過的;used 記的是「這條路上有誰」,離開就擦掉,path 也要 pop。47 排序後加「前一個相同的還沒用就跳過」;swap 寫法不用 used。</div>
+    <div class="sc-summary-bar__detail">PERMUTATIONS · REVIEW</div>
+  </div>
+
+</body>
+</html>
