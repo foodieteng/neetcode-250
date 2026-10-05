@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>77 · Combinations // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P77</span>
+    <span><a href="https://leetcode.com/problems/combinations/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Combinations</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 選滿 k 個才收;剩下的數不夠就不用往下</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 77</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        從 <code>1 ~ n</code> 裡選<strong>剛好 k 個</strong>不同的數,回傳所有組合(不分順序)。<br>
+        <code>1 ≤ n ≤ 20</code>,<code>1 ≤ k ≤ n</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>n = 4, k = 2</code> → <code>[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]</code>(C(4,2) = 6 個);<code>n = 1, k = 1</code> → <code>[[1]]</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>就是 <a href="../p78/index.html">78 Subsets</a> 裡「大小剛好是 k」的那些。</strong>
+      <b>骨架一樣(for 迴圈、<code>i + 1</code>、push / pop),只把「每個節點都收」改成「選滿 k 個才收」。這次 path 是傳參考,沒有多餘的複製。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 三題比較 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">78 / 39 / 77 差在哪<span class="sc-section__title-en">// SAME TREE, DIFFERENT RULES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>78 Subsets</th><th>39 Combination Sum</th><th>77 Combinations</th></tr></thead>
+      <tbody>
+        <tr><td>遞迴傳</td><td><code>i + 1</code></td><td><code>i</code>(可重複)</td><td><code>i + 1</code></td></tr>
+        <tr><td>什麼時候收</td><td>每個節點</td><td><code>sum == target</code></td><td><code>size == k</code></td></tr>
+        <tr><td>剪枝</td><td>不用</td><td>排序後超過就 break</td><td>剩下的數不夠就不往下</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三題都是同一棵「index 只往後走」的樹,差別只在三個問題:能不能重複選、什麼時候收、什麼時候不用再往下。</strong>
+      <b>回溯題先回答這三個,程式就寫完了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>選滿就收</strong>:<code>path.size() == k</code> → <code>ans.push_back(path)</code>,return。</li>
+      <li><strong>從 s 挑下一個</strong>:<code>path.push_back(i)</code> → <code>dfs(i + 1)</code> → <code>pop_back()</code>,數字從 1 開始。</li>
+      <li><strong>(剪枝)</strong>還差 <code>need = k - path.size()</code> 個,<code>i..n</code> 至少要有 need 個 → 迴圈上界 <code>n - need + 1</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// n = 4, k = 3 · 我的 vs 剪枝</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      答案只有 4 個:<code>[1,2,3] [1,2,4] [1,3,4] [2,3,4]</code>。<strong>第一個動畫是我的寫法</strong>:15 次呼叫裡有 5 次走進<b>死路</b>
+      —— 像 <code>[3]</code> 之後只剩 4 一個數,再怎麼選也湊不到 3 個。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 我的 · 不剪枝 · 深紅 = 死路(湊不滿 k 個)</div>
+      <div class="sc-viz__cvwrap"><canvas id="v77a-canvas" class="sc-viz__canvas" style="height:542px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v77a-reset">Reset</button><button class="sc-btn" id="v77a-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v77a-play">Play</button><button class="sc-btn" id="v77a-next">Next</button>
+        <span class="sc-viz__step" id="v77a-step">00 / 16</span>
+      </div>
+      <div class="sc-viz__label" id="v77a-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>第二個動畫加了剪枝</strong>:迴圈上界 <code>n - need + 1</code>,在父節點的迴圈就把死路剪掉,只剩 10 次呼叫。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 剪枝 · i ≤ n − need + 1 · 虛線 = 剪掉的分支</div>
+      <div class="sc-viz__cvwrap"><canvas id="v77b-canvas" class="sc-viz__canvas" style="height:542px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v77b-reset">Reset</button><button class="sc-btn" id="v77b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v77b-play">Play</button><button class="sc-btn" id="v77b-next">Next</button>
+        <span class="sc-viz__step" id="v77b-step">00 / 11</span>
+      </div>
+      <div class="sc-viz__label" id="v77b-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>剪掉的 5 個節點,全部在樹的右側</strong>:越往右,剩下的數越少。
+      <b>這組只省了 5 次,但 k 越接近 n,右側的死路越多 —— n = 20、k = 18 時是 1,048,555 次 vs 1,330 次。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 上界為什麼是 n − need + 1</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          選了 <code>i</code> 之後,還要從 <code>i..n</code> 這段湊出 need 個(<code>i</code> 自己算一個)。這段有 <code>n − i + 1</code> 個數,
+          所以要 <code>n − i + 1 ≥ need</code>,也就是 <strong><code>i ≤ n − need + 1</code></strong>。
+          <b>少了 <code>+1</code> 會把最後一個合法的 i 也剪掉:<code>n = 1, k = 1</code> 迴圈一圈都不跑,回 <code>[]</code>,55 組窮舉全錯。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 剪枝什麼時候有用</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          不剪枝時,樹會長出所有大小 ≤ k 的子集,其中湊不滿 k 的都是死路。<strong>k 小時死路很少</strong>(n = 20、k = 2:211 vs 210 次);
+          <strong>k 接近 n 時幾乎全是死路</strong>(k = 18:答案只有 190 個,卻要呼叫 1,048,555 次)。剪枝之後,呼叫次數只跟答案數成正比。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      輸出 C(n, k) 組、每組 k 個 → 剪枝後 <strong>O(k · C(n, k))</strong>　·　額外空間 <strong>O(k)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n = 20</th><th>答案數</th><th>我的</th><th>剪枝</th></tr></thead>
+      <tbody>
+        <tr><td>k = 2</td><td class="mono">190</td><td class="mono">211 次</td><td class="mono">210 次</td></tr>
+        <tr><td>k = 10</td><td class="mono">184,756</td><td class="mono">17.3 ms</td><td class="mono ok">8.6 ms</td></tr>
+        <tr><td>k = 18</td><td class="mono">190</td><td class="mono fail">6.35 ms</td><td class="mono ok">0.017 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>78 的樹,選滿 k 個才收;剩下的數不夠湊滿就不要往下:<code>i ≤ n − (k − size) + 1</code>。</strong>
+      <b>不剪枝也對,只是 k 接近 n 時會走進大量死路。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">兩種實作與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">78 的 for 迴圈樹:size == k 才收,i 從 s 到 n,遞迴 i + 1。剪枝:need = k − size,上界 n − need + 1(少了 +1 會全錯)。n = 4、k = 3:15 次 → 10 次;n = 20、k = 18:1,048,555 次 → 1,330 次。</div>
+    <div class="sc-summary-bar__detail">COMBINATIONS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p77-comb.js"></script>
+</body>
+</html>

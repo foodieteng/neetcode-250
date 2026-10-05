@@ -208,7 +208,7 @@ PROBLEMS = {
         ('p78',  'Subsets',                              'subsets',                              'med', 'done'),
         ('p39',  'Combination Sum',                      'combination-sum',                      'med', 'done'),
         ('p40',  'Combination Sum II',                   'combination-sum-ii',                   'med', 'todo'),
-        ('p77',  'Combinations',                         'combinations',                         'med', 'todo'),
+        ('p77',  'Combinations',                         'combinations',                         'med', 'done'),
         ('p46',  'Permutations',                         'permutations',                         'med', 'todo'),
         ('p90',  'Subsets II',                           'subsets-ii',                           'med', 'todo'),
         ('p47',  'Permutations II',                      'permutations-ii',                      'med', 'todo'),
