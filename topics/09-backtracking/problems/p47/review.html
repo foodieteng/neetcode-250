@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>47 · Permutations II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P47</span>
+    <span><a href="https://leetcode.com/problems/permutations-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Permutations II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 47</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · USED[] · DEDUPE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td><a href="../p46/index.html">46</a>:每格從 0 挑、<code>used</code>、兩件還原</td></tr>
+        <tr><td>去重</td><td>排序 + <code>nums[i] == nums[i-1] &amp;&amp; !used[i-1]</code> → <strong>continue</strong></td></tr>
+        <tr><td>continue</td><td>只跳這一個 i,迴圈繼續</td></tr>
+        <tr><td>break</td><td>這一圈結束;只有「後面的 i 一定也不行」才能用</td></tr>
+        <tr><td>能 break 的例子</td><td><a href="../p39/index.html">39</a> / <a href="../p40/index.html">40</a>:排序後 sum 超過</td></tr>
+        <tr><td>我的錯</td><td>去重寫成 break → <code>[1,1,2]</code> 少了 <code>[2,1,1]</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 39 的 <code>if (sum + c[i] &gt; target) break;</code> 是對的,這題的去重寫成 break 為什麼錯?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>!used[i-1]</code> 是什麼意思?為什麼它能分辨「同一層」?</div>
+
+    <div class="qa"><strong>Q3.</strong> 拿掉 <code>!used[i-1]</code>,只要同值就 continue,會怎樣?</div>
+
+    <div class="qa"><strong>Q4.</strong> 我的 break 版本在官方範例 2 <code>[1,2,3]</code> 是對的。哪些輸入測不出這個錯?</div>
+
+    <div class="qa"><strong>Q5.</strong> 有人寫 <code>used[i-1]</code>(沒有 <code>!</code>),而且用 break 也對。為什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 根節點的迴圈 · break vs continue</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;"><code>[1,1,2]</code>,只看根節點那一圈(i = 0、1、2),實跑結果。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// break(我的)</span>
+i = 0  1₁:放 → 子樹收 [1,1,2]、[1,2,1] → 還原
+i = 1  1₂:同值、1₁ 沒在路上 → break      ← 迴圈結束
+i = 2  2 :沒被試到
+<span class="sc-trace__out">// OUTPUT: 2 個</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// continue(修正)</span>
+i = 0  1₁:放 → 子樹收 [1,1,2]、[1,2,1] → 還原
+i = 1  1₂:同值、1₁ 沒在路上 → continue
+i = 2  2 :放 → 子樹收 [2,1,1]
+<span class="sc-trace__out">// OUTPUT: 3 個</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>break 和 continue 只在「被跳過的 i 後面還有東西」時才有差。</strong>
+      <b>這裡 1₂ 後面還有一個不同的值 2,所以差了一整棵子樹。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 判斷一個 skip 條件能不能寫成 break,有沒有一句話的檢查法?</div>
+
+    <div class="qa"><strong>App 2.</strong> 不用 used 的 <code>!used[i-1]</code> 技巧,能不能每一層開一個 set 去重?</div>
+
+    <div class="qa"><strong>App 3.</strong> 有重複值時,不同的排列共有幾個?<code>[1,1,2]</code> 為什麼是 3?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>39 的條件對後面的 i 一定也成立;這題的條件不會。</strong><br><br>
+  39 排序後 <code>c[i] ≤ c[i+1]</code>,<code>sum + c[i]</code> 已經超過,後面只會更大 → 後面全部不行,break 安全。
+  這題 <code>nums[i] == nums[i-1]</code> 只描述「這一個」,後面的 <code>nums[i+1]</code> 可能是不同的值 → break 會把能放的數一起丟掉。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong><code>used[i-1]</code> 是 false 代表前一個同值的數不在目前的路徑上 —— 它是這一層剛試完、已經還原的兄弟。</strong><br><br>
+  排列每層迴圈都從 0 開始,沒有 <code>s</code>,只能用 used 分辨。如果 <code>used[i-1]</code> 是 true,代表 1₁ 是上一層放的(例如 <code>[1₁]</code> 底下要放 1₂),那是同一個排列裡的兩個 1,不能跳。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>連「上一層放了 1₁、這一層要放 1₂」也被擋掉,兩個相同的值永遠不能同時出現。</strong><br><br>
+  實測 <code>[1,1]</code> → <code>[]</code>,1,092 組錯 1,077。和 40 / 90 的 <code>i &gt; 0</code> 是同一種錯:擋了兄弟,也擋了小孩。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>沒有重複值的輸入(break 不會執行),和只有一種值的輸入(break 之後也沒有別的值可試)。</strong><br><br>
+  實測 n = 1~6 全部不同 6 / 6 對;<code>[1,1]</code>、<code>[1,1,1]</code> 也對。要「重複值後面還有不同的值」才會錯:<code>[1,1,2]</code>、<code>[2,2,1,1]</code>(3 vs 6)、<code>[1,1,2,2,3]</code>(8 vs 30)。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong><code>used[i-1]</code> 版本規定「相同的值要倒過來用」;走到 1₁ 已用、1₂ 還沒用的節點時,這個節點整個是死路,break 掉不會漏東西。</strong><br><br>
+  在那種節點,1₂ 之後每一層都會被跳過,永遠放不進去,路徑不可能填滿 —— 所以後面的 i 試了也沒用,break 剛好安全(實測 0 錯)。
+  代價是它會先走進死路才發現:<code>[1,1,2]</code> 要 12 次呼叫(其中 3 個死路節點),<code>[1,1,2,2,3,3,4,4]</code> 要 16,201 次,<code>!used[i-1]</code> 版只要 7,365 次。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>問:「這個 i 被跳過的理由,對 i + 1、i + 2 … 是不是一定也成立?」是 → break;不確定 → continue。</strong><br><br>
+  sum 超過(排序後)是;<code>used[i]</code> 不是(後面的數可能沒用);同值去重不是(後面可能是別的值)。拿不準的時候 continue 一定對,只是慢一點。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>可以:每一層開一個 <code>unordered_set&lt;int&gt;</code>,這一層放過的值就跳過。這樣連排序都不用。</strong><br><br>
+  排列每一格是「從所有沒用過的數挑一個」,同一格不放兩次同樣的值,就不會產生重複的排列(和 <a href="../p40/review.html">40 複習頁</a> App 3 不同:組合要靠排序固定順序,排列不用)。
+  實測不排序、隨機 2 萬組 0 錯;缺點是每一層多一個 set。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>n! 除以每個值出現次數的階乘:<code>n! / (c₁! · c₂! · …)</code>。</strong><br><br>
+  <code>[1,1,2]</code>:3! / 2! = 3。<code>[1,1,2,2,3,3,4,4]</code>:8! / (2!)⁴ = 2,520,和實跑的答案數一致;隨機 2 萬組也全部一致。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與錯誤紀錄</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">能不能 break:跳過的理由對後面的 i 是否一定也成立。sum 超過是,同值去重不是 → continue。!used[i-1] = 兄弟剛還原;used[i-1] 版連 break 都對(死路節點)但多走一倍。答案數 n! / ∏cᵥ!。</div>
+    <div class="sc-summary-bar__detail">PERMUTATIONS II · REVIEW</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>47 · Permutations II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P47</span>
+    <span><a href="https://leetcode.com/problems/permutations-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Permutations II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 46 + 去重;去重那一行要 continue,不能 break</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 47</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · USED[] · DEDUPE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>nums</code> <strong>可能有重複的值</strong>,回傳所有<strong>不重複</strong>的排列,順序不限。<br>
+        <code>1 ≤ n ≤ 8</code>,<code>-10 ≤ nums[i] ≤ 10</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,1,2]</code> → <code>[[1,1,2],[1,2,1],[2,1,1]]</code>(3 個,不是 3! = 6 個);<code>[1,2,3]</code> → 6 個。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>就是 <a href="../p46/index.html">46</a> 加一行去重</strong>:排序後,<code>if (i &gt; 0 &amp;&amp; nums[i] == nums[i-1] &amp;&amp; !used[i-1]) continue;</code>。
+      <b>我的第一版這行寫成 <code>break</code>,<code>[1,1,2]</code> 少了 <code>[2,1,1]</code>。這張卡的重點就是 continue 和 break 差在哪。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · continue vs break ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">continue 和 break 差在哪<span class="sc-section__title-en">// SKIP ONE vs STOP ALL</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th><code>continue</code></th><th><code>break</code></th></tr></thead>
+      <tbody>
+        <tr><td>跳掉什麼</td><td>只跳<strong>這一個 i</strong></td><td>這一個 i <strong>和後面所有的 i</strong></td></tr>
+        <tr><td>迴圈接下來</td><td>繼續試 i + 1、i + 2 …</td><td>這一圈直接結束,回到上一層</td></tr>
+        <tr><td>什麼時候可以用</td><td>這個 i 不行,但後面的 i 可能行</td><td>這個 i 不行,<strong>而且後面的 i 一定也不行</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">判斷規則 · 能不能 break,看「這個條件對後面的 i 是不是也成立」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <strong>39 / 40 可以 break</strong>:排序後 <code>sum + c[i] &gt; target</code>,後面的 <code>c[i+1]、c[i+2]…</code> 只會更大,一定也超過 —— 條件對後面全部成立。<br>
+          <strong>這題的去重不能 break</strong>:<code>nums[i] == nums[i-1]</code> 只說「這一個和前一個同值」。後面的 i 可能是<b>另一個值</b>(<code>[1,1,2]</code> 的 2),它完全可以放。
+          break 把它一起丟掉了,所以根節點永遠試不到「2 放第一格」→ 少了 <code>[2,1,1]</code>。
+        </p>
+      </div>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>09 分類裡的跳過條件</th><th>用</th><th>為什麼</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../p39/index.html">39</a> / <a href="../p40/index.html">40</a>:<code>sum + c[i] &gt; target</code></td><td><strong>break</strong></td><td>排序後後面只會更大</td></tr>
+        <tr><td><a href="../p40/index.html">40</a> / <a href="../p90/index.html">90</a>:同層重複值</td><td>continue</td><td>後面可能是不同的值</td></tr>
+        <tr><td><a href="../p46/index.html">46</a> / 47:<code>used[i]</code></td><td>continue</td><td>後面的數可能還沒用</td></tr>
+        <tr><td>47:同層重複值(<code>!used[i-1]</code>)</td><td>continue</td><td>同上,後面可能是不同的值</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>排序</strong>:相同的值排在一起。</li>
+      <li><strong>46 的骨架</strong>:每一格從 0 挑,<code>used[i]</code> 就 continue;填滿就收。</li>
+      <li><strong>同層去重</strong>:<code>nums[i] == nums[i-1]</code> 且 <code>!used[i-1]</code> → <strong>continue</strong>(相同的值要照順序用,前一個還沒用就不能先用這一個)。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,1,2] · break vs continue</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      兩個 1 標成 1₁、1₂。前 6 次呼叫兩版完全一樣;差別發生在<strong>根節點的第二圈</strong>(i = 1,1₂)。
+      <strong>第一個動畫是我的第一版(break)</strong>:
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ break · 根的迴圈在 i = 1 就結束,2 永遠沒被放到第一格</div>
+      <div class="sc-viz__cvwrap"><canvas id="v47a-canvas" class="sc-viz__canvas" style="height:614px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v47a-reset">Reset</button><button class="sc-btn" id="v47a-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v47a-play">Play</button><button class="sc-btn" id="v47a-next">Next</button>
+        <span class="sc-viz__step" id="v47a-step">00 / 08</span>
+      </div>
+      <div class="sc-viz__label" id="v47a-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>第二個動畫改成 continue</strong>:只跳過 1₂,迴圈繼續到 i = 2,長出 <code>[2,1,1]</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ continue · 只跳過 1₂,後面的 2 照樣試</div>
+      <div class="sc-viz__cvwrap"><canvas id="v47b-canvas" class="sc-viz__canvas" style="height:614px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v47b-reset">Reset</button><button class="sc-btn" id="v47b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v47b-play">Play</button><button class="sc-btn" id="v47b-next">Next</button>
+        <span class="sc-viz__step" id="v47b-step">00 / 12</span>
+      </div>
+      <div class="sc-viz__label" id="v47b-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>break 版 6 次呼叫、2 個答案;continue 版 9 次呼叫、3 個答案。</strong>
+      <b>多出來的 3 次就是 <code>[2] → [2,1₁] → [2,1₁,1₂]</code> 這整棵子樹 —— break 把它和 1₂ 一起丟了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · !used[i-1] 為什麼代表「同一層」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          排列的迴圈每層都從 0 開始,沒有 <code>s</code> 可以分辨同一層,只能看 used。
+          <code>nums[i-1]</code> 和 <code>nums[i]</code> 同值,而 <code>used[i-1]</code> 是 false:代表 1₁ <strong>不在目前的路徑上</strong> —— 它是這一層剛試完、已經還原的兄弟。
+          這時再用 1₂ 會長出和 1₁ 一樣的子樹,所以跳過。
+          <b>相同的值等於被強迫「照 index 順序用」:1₁ 沒用之前,1₂ 不能先用。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 我的 break 為什麼在沒有重複值時都對</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          沒有重複值時,去重那一行永遠不會成立,break 根本不會執行,就是 46。實測 n = 1~6 全部不同的陣列 6 / 6 都對,<code>[1,2,3]</code> 也對。
+          <b>要有重複值、而且重複值後面還有別的值,才會出錯</b>:<code>[1,1]</code>、<code>[1,1,1]</code> 也剛好對;<code>[2,2,1,1]</code> 只得到 3 個(正解 6),<code>[1,1,2,2,3]</code> 只有 8 個(正解 30)。
+          窮舉 1,092 組錯 946 組,最小反例 <code>[2,1,1]</code>(排序後就是 <code>[1,1,2]</code>)。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      最壞(全部不同)和 46 一樣 <strong>O(n · n!)</strong>;有重複時只走不同的排列　·　額外空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>[1,1,2,2,3,3,4,4](2,520 個答案)</th><th>呼叫</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td><code>!used[i-1]</code> + continue(修正版)</td><td class="mono ok">7,365</td><td class="mono ok">0.45 ms</td></tr>
+        <tr><td><code>used[i-1]</code> + continue(另一種寫法)</td><td class="mono">16,201</td><td class="mono">0.94 ms</td></tr>
+        <tr><td>沒有去重</td><td class="mono fail">109,601</td><td class="mono fail">8.18 ms(40,320 個含重複)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>continue 跳這一個,break 跳後面全部;只有「後面一定也不行」才能 break。</strong>
+      <b>去重只說「這一個和前一個同值」,後面可能是別的值 → 一定用 continue。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與錯誤紀錄</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">46 + 排序 + if (i &gt; 0 &amp;&amp; nums[i] == nums[i-1] &amp;&amp; !used[i-1]) continue。continue 只跳這個 i,break 連後面都跳;break 只能用在「後面一定也不行」(39 / 40 的 sum 超過)。我寫成 break,[1,1,2] 少了 [2,1,1]。</div>
+    <div class="sc-summary-bar__detail">PERMUTATIONS II · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p47-perm2.js"></script>
+</body>
+</html>
