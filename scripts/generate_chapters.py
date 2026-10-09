@@ -210,7 +210,7 @@ PROBLEMS = {
         ('p40',  'Combination Sum II',                   'combination-sum-ii',                   'med', 'done'),
         ('p77',  'Combinations',                         'combinations',                         'med', 'done'),
         ('p46',  'Permutations',                         'permutations',                         'med', 'done'),
-        ('p90',  'Subsets II',                           'subsets-ii',                           'med', 'todo'),
+        ('p90',  'Subsets II',                           'subsets-ii',                           'med', 'done'),
         ('p47',  'Permutations II',                      'permutations-ii',                      'med', 'todo'),
         ('p79',  'Word Search',                          'word-search',                          'med', 'todo'),
         ('p131', 'Palindrome Partitioning',              'palindrome-partitioning',              'med', 'todo'),

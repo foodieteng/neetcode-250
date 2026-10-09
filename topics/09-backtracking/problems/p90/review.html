@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>90 · Subsets II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P90</span>
+    <span><a href="https://leetcode.com/problems/subsets-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Subsets II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 90</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · DEDUPE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td><a href="../p78/index.html">78</a>:每個節點都收、<code>dfs(i + 1)</code></td></tr>
+        <tr><td>去重</td><td><a href="../p40/index.html">40</a> 那一行:排序 + <code>i &gt; s &amp;&amp; nums[i] == nums[i-1]</code></td></tr>
+        <tr><td>留哪一個</td><td>同層<strong>第一個</strong>,它的子樹包含後面相同值的子樹</td></tr>
+        <tr><td>效果</td><td>呼叫次數 = 不同子集的個數</td></tr>
+        <tr><td>測資</td><td><code>[1,1]</code> 抓三種錯;<code>[1,2,1]</code> 抓沒排序</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 照 78 的寫法跑 <code>[1,2,2]</code>,哪兩個子集會重複?它們是在樹的哪裡產生的?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼要先排序?</div>
+
+    <div class="qa"><strong>Q3.</strong> 同一層相同的值,為什麼要留第一個、跳後面的,不能反過來?</div>
+
+    <div class="qa"><strong>Q4.</strong> 這題和 40 用同一行去重,為什麼這題不需要 break?</div>
+
+    <div class="qa"><strong>Q5.</strong> 輸入是 20 個 5,我的寫法呼叫幾次?為什麼?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,1] · 對的 vs i &gt; 0</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">最小的去重測資 <code>[1,1]</code>(1₁、1₂),正解 <code>[[],[1],[1,1]]</code>。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 對的:i &gt; s</span>
+[]  s=0  收
+  [1₁]  s=1  收
+    i=1, s=1:i == s,不擋 → [1₁,1₂]  收
+  i=1, s=0:i &gt; s 且 1₂ == 1₁ → skip
+<span class="sc-trace__out">// OUTPUT: [[],[1],[1,1]]</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 寫成 i &gt; 0</span>
+[]  s=0  收
+  [1₁]  s=1  收
+    i=1:i &gt; 0 且 1₂ == 1₁ → skip     ← 下一層也被擋了
+  i=1:skip
+<span class="sc-trace__out">// OUTPUT: [[],[1]] ✗</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個版本只差在 <code>[1₁]</code> 底下那一圈:<code>i == s</code> 時是「這一層的第一個」,不是兄弟。</strong>
+      <b>i &gt; s 擋的是兄弟,i &gt; 0 連小孩一起擋。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用 <a href="../p1863/index.html">1863</a> 的二元寫法(選 / 不選)寫這題,要怎麼去重?</div>
+
+    <div class="qa"><strong>App 2.</strong> 不用回溯,能不能一個數一個數「疊加」出所有子集?遇到重複值要怎麼處理?</div>
+
+    <div class="qa"><strong>App 3.</strong> 有重複值時,不同子集共有幾個?<code>[1,2,2]</code> 為什麼是 6?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong><code>[1,2]</code> 和 <code>[2]</code>,各出現兩次。</strong><br><br>
+  <code>[1]</code> 底下選 2₁ 和選 2₂ 是兩個兄弟,都得到 <code>[1,2]</code>;根底下選 2₁ 和選 2₂ 也是兄弟,都得到 <code>[2]</code>。
+  不去重時 8 次呼叫,我的寫法把這兩個兄弟跳掉,剩 6 次。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>去重只比相鄰的 <code>nums[i-1]</code>,相同的值要排在一起才比得到。</strong><br><br>
+  不排序時 <code>[1,2,1]</code> 兩個 1 不相鄰,<code>[1,2]</code> 和 <code>[2,1]</code> 都會出現(同一個子集,不同順序)。實測 3,279 組錯 2,922。
+  <a href="../p40/review.html">40 複習頁</a> App 3 也實測過:不排序的話,就算每層開 set 也去不乾淨。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>第一個之後還能挑到後面相同的值,最後一個之後就沒有了。</strong><br><br>
+  留第一個:<code>[1₁] → [1₁,1₂]</code> 拿得到兩個 1。改成和 <code>nums[i+1]</code> 比(留最後一個):<code>[1,1]</code> → <code>[[],[1]]</code>,少了 <code>[1,1]</code>,3,264 / 3,279 組錯。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>40 有 target,超過就沒希望,所以能 break;這題每個節點都是答案,沒有「不可能」的分支。</strong><br><br>
+  去重那一行只管「重複」,break 管「剪掉不可能的」—— 兩件事是分開的。這題只有前者。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>21 次 —— 剛好是不同子集的個數(0 個 5、1 個 5、…、20 個 5)。</strong><br><br>
+  每個節點的迴圈只有第一個 5 能往下,其他全部同層跳過,所以樹是一條直線。不去重要 1,048,576 次(113.6 ms)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>選 <code>nums[i]</code> 照常走 <code>i + 1</code>;不選的話,要一次跳過「整段和 <code>nums[i]</code> 相同的值」。</strong><br><br>
+  理由:不選 2₁ 卻選 2₂,得到的和「選 2₁」那支重複。所以「不選」就等於「這個值一個都不再選」。
+  實測 3,279 組 0 錯;20 個 5 要 41 次呼叫(for 迴圈版 21 次,因為二元版多了內部節點)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>可以:<code>ans = [[]]</code>,每來一個數,把現有每個子集複製一份加上它。</strong><br><br>
+  遇到和前一個相同的值,只對「上一輪剛新增的那些子集」加,不要對全部加 —— 否則會再產生一次舊的組合。
+  這是迭代版,不用遞迴;本質上和同層去重是同一件事。實測隨機 2 萬組 0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>每個不同的值 v 出現 cᵥ 次,可以選 0~cᵥ 個,所以總數是所有 (cᵥ + 1) 的乘積。</strong><br><br>
+  <code>[1,2,2]</code>:1 出現 1 次、2 出現 2 次 → (1 + 1) × (2 + 1) = 6。20 個 5:20 + 1 = 21。全部不同時每個都是 2,就是 2ⁿ。實測隨機 2 萬組,公式和實際答案數都一致。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">重複來自同一層值相同的兄弟;排序後只留第一個(i &gt; s 擋兄弟、不擋小孩)。沒有 target 所以沒有 break。不同子集數 = ∏(cᵥ + 1),也就是呼叫次數。二元版:不選就整段跳過。</div>
+    <div class="sc-summary-bar__detail">SUBSETS II · REVIEW</div>
+  </div>
+
+</body>
+</html>

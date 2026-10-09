@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>90 · Subsets II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P90</span>
+    <span><a href="https://leetcode.com/problems/subsets-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Subsets II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 78 的樹 + 40 的同層去重</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 90</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · DEDUPE</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>nums</code> <strong>可能有重複的值</strong>,回傳所有子集,<strong>答案裡不能有重複的子集</strong>,順序不限。<br>
+        <code>1 ≤ n ≤ 10</code>,<code>-10 ≤ nums[i] ≤ 10</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,2,2]</code> → <code>[[],[1],[1,2],[1,2,2],[2],[2,2]]</code>(6 個,不是 2³ = 8 個);<code>[0]</code> → <code>[[],[0]]</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>程式就是 <a href="../p78/index.html">78</a> 加上 <a href="../p40/index.html">40</a> 的那一行</strong>:排序,然後 <code>if (i &gt; s &amp;&amp; nums[i] == nums[i-1]) continue;</code>。
+      <b>78 每個節點都收,所以沒有 break;去重規則和 40 一模一樣。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 重複從哪來 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">重複從哪裡來<span class="sc-section__title-en">// WHERE DUPLICATES COME FROM</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      照 78 的寫法跑 <code>[1,2,2]</code>,樹會有 8 個節點,其中 <code>[1,2]</code> 和 <code>[2]</code> 各出現兩次 —— 一次用 2₁、一次用 2₂。
+      <strong>重複的永遠是「同一個父節點底下,選了值一樣的兩個兄弟」</strong>,它們長出來的子樹內容一模一樣。
+    </p>
+
+    <table class="sc-table">
+      <thead><tr><th>寫法</th><th>[1,2,2] 的呼叫</th><th>結果</th></tr></thead>
+      <tbody>
+        <tr><td>78 原樣(沒有去重)</td><td class="mono">8</td><td class="fail">[1,2]、[2] 各兩次</td></tr>
+        <tr><td>78 + 最後丟 set</td><td class="mono">8</td><td>對,但重複的都要先走出來</td></tr>
+        <tr><td><strong>排序 + 同層去重(我的)</strong></td><td class="mono ok">6</td><td>對,重複的子樹整棵不長</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>差距在重複多的時候才看得出來</strong>:20 個 5,答案只有 21 個(0~20 個 5),同層去重 21 次呼叫;
+      <b>不去重要 1,048,576 次(113.6 ms),全部都是重複。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>排序</strong>:相同的值排在一起,才能只比相鄰的。</li>
+      <li><strong>一進來就收</strong>:<code>ans.push_back(path)</code>(和 78 一樣,每個節點都是子集)。</li>
+      <li><strong>同層只試第一個</strong>:<code>i &gt; s</code> 且和前一個相同就跳;否則 push → <code>dfs(i + 1)</code> → pop。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,2,2] · 沒去重 vs 我的</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      兩個 2 標成 2₁、2₂。<strong>第一個動畫是 78 原樣</strong>,8 次呼叫,深紅標出重複的兩個子集:
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 沒有去重 · 深紅 = 重複的子集</div>
+      <div class="sc-viz__cvwrap"><canvas id="v90a-canvas" class="sc-viz__canvas" style="height:566px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v90a-reset">Reset</button><button class="sc-btn" id="v90a-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v90a-play">Play</button><button class="sc-btn" id="v90a-next">Next</button>
+        <span class="sc-viz__step" id="v90a-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="v90a-label">載入中…</div>
+    </div>
+
+    <p style="margin:18px 0 12px;font-size:13.5px;">
+      <strong>第二個動畫是我的寫法</strong>:同一棵樹,但兩個重複的分支在父節點的迴圈裡就被跳過(灰色虛線),只剩 6 次呼叫。
+      <b><code>[1,2₁,2₂]</code> 照樣長得出來 —— 2₂ 在下一層。</b>
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 同層去重 · 灰虛線 = 同層 skip · 不同層可以再選</div>
+      <div class="sc-viz__cvwrap"><canvas id="v90b-canvas" class="sc-viz__canvas" style="height:566px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v90b-reset">Reset</button><button class="sc-btn" id="v90b-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v90b-play">Play</button><button class="sc-btn" id="v90b-next">Next</button>
+        <span class="sc-viz__step" id="v90b-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="v90b-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>被跳過的兩個節點,剛好就是第一個動畫裡標深紅的那兩個。</strong>
+      <b>同層去重不是「事後刪掉重複的答案」,而是「重複的分支根本不長出來」。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 為什麼留「第一個」,不是最後一個</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          同一層選 2₁ 之後,下一層還能挑 2₂(所以 <code>[2,2]</code> 拿得到);選 2₂ 之後就沒有 2 可以挑了。
+          <strong>第一個的子樹包含了後面每一個的子樹</strong>,所以要留第一個。
+          <b>改成和 <code>nums[i+1]</code> 比(留最後一個)會漏掉兩個都選的情況:<code>[1,1]</code> → <code>[[],[1]]</code>,3,279 組錯 3,264 組。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 為什麼是 i &gt; s</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          和 <a href="../p40/index.html">40</a> 同一個理由:<code>i == s</code> 是這一層的第一個選擇,和 <code>nums[i-1]</code> 相同只代表上一層剛選了同樣的值,那是「同一個子集裡有兩個 2」,要留。
+          <b>寫 <code>i &gt; 0</code> 一樣會漏:<code>[1,1]</code> → <code>[[],[1]]</code>。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      最壞(全部不同)和 78 一樣 <strong>O(n · 2ⁿ)</strong>;重複越多越快,呼叫次數 = 不同子集的個數　·　額外空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>輸入</th><th>答案數</th><th>我的</th><th>不去重</th></tr></thead>
+      <tbody>
+        <tr><td>10 個不同的數</td><td class="mono">1,024</td><td class="mono">1,024 次</td><td class="mono">1,024 次</td></tr>
+        <tr><td>10 個 5</td><td class="mono">11</td><td class="mono ok">11 次</td><td class="mono fail">1,024 次</td></tr>
+        <tr><td>20 個 5</td><td class="mono">21</td><td class="mono ok">21 次</td><td class="mono fail">1,048,576 次</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>78 + 排序 + 「同一層相同的值只試第一個」。</strong>
+      <b>每個節點剛好對應一個不同的子集,呼叫次數就是答案數。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">78 的 for 迴圈樹,排序後加 if (i &gt; s &amp;&amp; nums[i] == nums[i-1]) continue。重複的子集永遠來自「同一層值相同的兄弟」,留第一個(它的子樹包含後面的)。[1,2,2]:8 次 → 6 次;20 個 5:1,048,576 次 → 21 次。</div>
+    <div class="sc-summary-bar__detail">SUBSETS II · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p90-subsets2.js"></script>
+</body>
+</html>
