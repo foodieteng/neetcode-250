@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>51 · N-Queens // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P51</span>
+    <span><a href="https://leetcode.com/problems/n-queens/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">N-Queens</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 一層放一列;欄、/、\ 三個旗標陣列,O(1) 判斷衝突</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 51</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · CONSTRAINT FLAGS · DIAGONAL INDEX</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        在 <code>n × n</code> 的棋盤放 n 個皇后,<strong>任兩個不能同列、同欄、同一條斜線</strong>。回傳所有擺法(每個擺法是 n 個字串,<code>'Q'</code> 和 <code>'.'</code>)。<br>
+        <code>1 ≤ n ≤ 9</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:n = 4 → 2 種:<code>.Q.. / ...Q / Q... / ..Q.</code> 和 <code>..Q. / Q... / ...Q / .Q..</code>;n = 1 → <code>["Q"]</code>。
+      n = 1~9 的解數:1、0、0、2、10、4、40、92、352。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 <a href="../p17/index.html">17</a> 同一個形狀:第 r 層 = 第 r 列,選項 = 放在哪一欄。</strong>
+      <b>多出來的是「衝突檢查」:用三個 bool 陣列記住哪些欄、哪些斜線已經被佔,檢查變 O(1);放和拿掉時一起改。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用旗標陣列<span class="sc-section__title-en">// WHY FLAGS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每列任選一欄,全部擺好再檢查</span>
+            <span class="sc-ko-card__o">n<sup>n</sup></span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案對(對拍就是用它),但 n = 8 要檢查 16,777,216 種擺法。
+            回溯只放了 2,056 次 —— 第二列就衝突的擺法,後面 6 列根本不用排。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 不剪枝</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">回溯,但每次掃棋盤檢查衝突</span>
+            <span class="sc-ko-card__o">每格 O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            放之前往上看同一欄、左上、右上三個方向有沒有 Q。也對,但每試一格就要走 O(n) 步;
+            而且每一格都要試(n = 9 有 63,985 次 continue)。
+          </div>
+          <div class="sc-ko-card__verdict">△ OK · 檢查較慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">回溯 + col / diag1 / diag2 三個旗標</span>
+          <span class="sc-ko-card__o">O(1) 檢查</span>
+        </div>
+        <div class="sc-ko-card__body">
+          一條斜線上的格子 <code>r + c</code>(/)或 <code>r - c</code>(\)都一樣,所以一條斜線就是陣列裡的一格。
+          <b>n = 1~8 和暴力法逐盤比對完全一致;n = 9 共 8,394 次 dfs、0.56 ms。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 斜線變成陣列索引</div>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>一層一列</strong>:<code>dfs(r)</code> 在第 r 列放一個皇后;<code>r == n</code> 就把棋盤收進答案。</li>
+      <li><strong>三個旗標 O(1) 檢查</strong>:<code>col[c]</code>、<code>diag1[r + c]</code>(/)、<code>diag2[r - c + n - 1]</code>(\),任一為 true 就 continue。</li>
+      <li><strong>放 → 下一列 → 拿掉</strong>:放 Q、三個旗標設 true,<code>dfs(r + 1)</code>,回來後旗標設回 false、Q 改回 <code>'.'</code>。</li>
+    </ol>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// n = 4 · 17 次 dfs、16 次放置、2 個解</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      左邊是棋盤(藍 = 被已放的皇后攻擊),右邊是三個旗標陣列。被跳過的格子只標<strong>第一個成立的</strong>旗標 —— <code>||</code> 短路,後面的不會讀。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ n = 4 · 一列放一個皇后:欄、/、\ 三種被佔就跳過,放完下一列,回來拿掉</div>
+      <div class="sc-viz__cvwrap"><canvas id="v51-canvas" class="sc-viz__canvas" style="height:552px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v51-reset">Reset</button><button class="sc-btn" id="v51-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v51-play">Play</button><button class="sc-btn" id="v51-next">Next</button>
+        <span class="sc-viz__step" id="v51-step">00 / 39</span>
+      </div>
+      <div class="sc-viz__label" id="v51-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>(0,0) 開頭的兩條路都在第 3、4 列走死;(0,1) 和 (0,2) 各找到一個解;(0,3) 又全死。</strong>
+      <b>兩個解剛好左右對稱:<code>[1,3,0,2]</code> 和 <code>[2,0,3,1]</code>。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 斜線編號:r + c 和 r − c + n − 1,各 2n − 1 條</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          「/」方向往右上走,r 減 1、c 加 1,<strong>r + c 不變</strong>:n = 4 時 diag1[3] = (0,3)(1,2)(2,1)(3,0)。
+          「\」方向往右下走,r、c 一起加 1,<strong>r − c 不變</strong>:diag2[3] = (0,0)(1,1)(2,2)(3,3)。
+          r − c 的範圍是 −(n−1) ~ n−1,加 <code>n - 1</code> 讓它變成 0 ~ 2n−2,所以兩個陣列都開 <code>2n - 1</code>。
+          <b>忘了 + n − 1:一般編譯答案竟然全對(vector&lt;bool&gt; 的負索引剛好讀到前一個 word 的位元),只有 ASan 抓得到。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · row[] 寫了,但從來沒有被讀過</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>row</code> 只出現在設 true 和設 false 那兩行,<code>if</code> 裡只查 col、diag1、diag2。
+          因為第 r 層只在第 r 列放一個皇后,然後就去 r + 1 —— <strong>兩個皇后不可能同列,不用檢查</strong>。
+          實測把 row 整個拿掉:n = 1~12 輸出逐位元組相同,速度沒有差別。
+          <b>小心別把它當成 col 的替身:<code>if</code> 裡誤寫成 <code>row[c]</code>,每個 n 都只剩 1 個(錯的)盤面。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      第 r 列最多只有 n − r 欄沒被佔用(欄的限制),所以放置次數不超過 n!;斜線再剪掉一大半。每找到一個解,要把 n × n 的棋盤複製進答案。
+    </p>
+
+    <div class="sc-formula">
+      時間 <strong>O(n!)</strong>(+ 每個解 O(n²) 複製)　·　額外空間 <strong>O(n)</strong> 遞迴 + 旗標(棋盤本身 O(n²))
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n(實測)</th><th>解</th><th>放置</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">4</td><td class="mono">2</td><td class="mono">16</td><td class="mono">0.0004 ms</td></tr>
+        <tr><td class="mono">8</td><td class="mono">92</td><td class="mono">2,056</td><td class="mono">0.12 ms</td></tr>
+        <tr><td class="mono">9(上限)</td><td class="mono">352</td><td class="mono">8,393</td><td class="mono ok">0.56 ms</td></tr>
+        <tr><td class="mono">12(題目外)</td><td class="mono">14,200</td><td class="mono">856,188</td><td class="mono">約 74 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>一層一列 → 列自動不衝突;欄和兩種斜線各用一個 bool 陣列,斜線靠 r + c / r − c 編號。</strong>
+      <b>放的時候三個一起設、拿掉時三個一起清,棋盤的 Q 也要改回來。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">第 r 層在第 r 列放一個皇后:欄 col[c]、「/」diag1[r+c]、「\」diag2[r−c+n−1] 任一被佔就 continue;放、遞迴下一列、拿掉。一列一層所以列不用檢查 —— row[] 寫了但從來沒讀。n = 9:352 個解、8,393 次放置、0.56 ms。</div>
+    <div class="sc-summary-bar__detail">N-QUEENS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p51-queens.js"></script>
+</body>
+</html>
