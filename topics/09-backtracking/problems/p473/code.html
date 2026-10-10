@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>473 · Matchsticks to Square // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P473</span>
+    <span><a href="https://leetcode.com/problems/matchsticks-to-square/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Matchsticks to Square</h1>
+    <p class="sc-mast__subtitle">// CODE · 4 個桶 + 兩個 continue + 每一行改掉會怎樣</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 473</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(4^n) · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// FOUR BUCKETS</span></h2>
+    </div>
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p473.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">bool</span> <span class="f">makesquare</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> matchsticks<span class="p">)</span> <span class="p">{</span>
+        <span class="f">sort</span><span class="p">(</span>matchsticks<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> matchsticks<span class="p">.</span><span class="f">end</span><span class="p">(),</span> greater<span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;());</span>   <span class="c">// 大的先放</span>
+        <span class="t">int</span> n <span class="p">=</span> matchsticks<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">int</span> total <span class="p">=</span> <span class="f">accumulate</span><span class="p">(</span>matchsticks<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> matchsticks<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="n">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>total <span class="p">%</span> <span class="n">4</span> <span class="p">!=</span> <span class="n">0</span><span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="t">int</span> target <span class="p">=</span> total <span class="p">/</span> <span class="n">4</span><span class="p">;</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> <span class="f">buckets</span><span class="p">(</span><span class="n">4</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="f">exist</span><span class="p">(</span>matchsticks<span class="p">,</span> buckets<span class="p">,</span> target<span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">exist</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> buckets<span class="p">,</span> <span class="t">int</span> target<span class="p">,</span> <span class="t">int</span> idx<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>idx <span class="p">&gt;=</span> nums<span class="p">.</span><span class="f">size</span><span class="p">())</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>                  <span class="c">// ① 每根都放好了</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> <span class="n">4</span><span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>                         <span class="c">// ② 這根試 4 個邊</span>
+            <span class="k">if</span> <span class="p">(</span>buckets<span class="p">[</span>i<span class="p">]</span> <span class="p">+</span> nums<span class="p">[</span>idx<span class="p">]</span> <span class="p">&gt;</span> target<span class="p">)</span> <span class="k">continue</span><span class="p">;</span>    <span class="c">// ③ 放不下</span>
+            <span class="k">if</span> <span class="p">(</span>i <span class="p">&gt;</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> buckets<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> buckets<span class="p">[</span>i <span class="p">-</span> <span class="n">1</span><span class="p">])</span> <span class="k">continue</span><span class="p">;</span>   <span class="c">// ④ 和左邊同長:對稱</span>
+
+            buckets<span class="p">[</span>i<span class="p">]</span> <span class="p">+=</span> nums<span class="p">[</span>idx<span class="p">];</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">exist</span><span class="p">(</span>nums<span class="p">,</span> buckets<span class="p">,</span> target<span class="p">,</span> idx <span class="p">+</span> <span class="n">1</span><span class="p">))</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+            buckets<span class="p">[</span>i<span class="p">]</span> <span class="p">-=</span> nums<span class="p">[</span>idx<span class="p">];</span>                          <span class="c">// ⑤ 拿回來</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個官方範例都過;對拍 203,002 組 0 錯</strong>(窮舉 3,002 組和「每根試 4 個邊」的暴力比;隨機 200,000 組和 bitmask DP 比,含值到 10<sup>8</sup>)。
+      <b><code>int n</code> 宣告了沒用到,不影響結果。-Wall 只有 sign-compare 警告(<code>idx &gt;= nums.size()</code>)。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>排序 + 加總</td><td class="mono">O(n log n)</td><td>n ≤ 15,可以忽略</td></tr>
+        <tr><td>每次 exist</td><td class="mono">≤ 4 個邊</td><td>放不下、同長的直接跳過,不遞迴</td></tr>
+        <tr><td>遞迴深度</td><td class="mono">n + 1</td><td>一根火柴一層</td></tr>
+        <tr><td>最難例子</td><td class="mono">32,142 次</td><td>0.34 ms</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      最壞 <strong>O(4<sup>n</sup>)</strong>(實際被剪到很小)　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>int 夠嗎(實測最大值)</th><th>值</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>total</code>(15 根 10<sup>8</sup>)</td><td class="mono">1,500,000,000</td><td>INT_MAX = 2,147,483,647,夠</td></tr>
+        <tr><td><code>buckets[i] + nums[idx]</code></td><td class="mono">400,000,000</td><td>桶不會超過 target,加一根最多 target + 10<sup>8</sup></td></tr>
+        <tr><td>15 根 10<sup>8</sup> 的答案</td><td class="mono">false</td><td>total % 4 == 0,但 15 根分不成 4 等份;2,035 次呼叫</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">每一種都實際改出來跑:窮舉 3,002 組(1~8 根、長度 1~6)+ 隨機 30,000 組(1~15 根、長度 1~12,約 2/3 是 true)。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>改法</th><th>窮舉 / 隨機錯</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr><td>③ 放不下改 <code>break</code></td><td class="mono fail">191 / 19,764</td><td><code>[1,1,1,1]</code> → false,所有 true 都錯</td></tr>
+        <tr><td>④ 同長改 <code>break</code></td><td class="mono fail">0 / 144</td><td><code>[2,<wbr>2,<wbr>2,<wbr>2,<wbr>2,<wbr>2,<wbr>3,<wbr>3,<wbr>3,<wbr>7]</code> → false</td></tr>
+        <tr><td>④ 拿掉 <code>i &gt; 0</code></td><td class="mono fail">191 / 19,800</td><td><code>[1,1,1,1]</code>;讀 <code>buckets[-1]</code>,ASan 報錯</td></tr>
+        <tr><td>⑤ 忘了拿回</td><td class="mono fail">0 / 2,432</td><td><code>[2,2,2,2,3,3,7,7]</code> → false(7 | 7 | 3+2+2 | 3+2+2)</td></tr>
+        <tr><td>拿掉 ④ 去重</td><td class="mono ok">0 / 0</td><td>對,但呼叫多 26~544 倍</td></tr>
+        <tr><td>④ 改成跟前面每個比</td><td class="mono ok">0 / 0</td><td>對,H1 31,186 vs 32,142</td></tr>
+        <tr><td>不排序</td><td class="mono ok">0 / 0</td><td>對,H1 84,734 次(2.6 倍)</td></tr>
+        <tr><td>升序排序</td><td class="mono ok">0 / 0</td><td>對,H1 9.6 倍、H3 81 倍</td></tr>
+        <tr><td>拿掉 <code>total % 4</code></td><td class="mono ok">0 / 0</td><td>對:target 被截斷,4 · target &lt; total,本來就放不完</td></tr>
+        <tr><td>加 <code>if (nums[0] &gt; target) return false;</code></td><td class="mono ok">0 / 0</td><td>對,呼叫數一樣(③ 第一層就擋了)</td></tr>
+        <tr><td>拿回後 <code>if (buckets[i] == 0) break;</code></td><td class="mono ok">0 / 0</td><td>對,呼叫數一樣(④ 已經剪掉後面的空桶)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>同長 break、忘了拿回在「1~8 根、長度 ≤ 6」的窮舉裡一組都測不出來,要到 8~10 根、長度到 7 以上才現形。</strong>
+      <b>小測資全過不代表對 —— 這兩個都是靠隨機大測資抓到的。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · [3,3,3,3,4]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">和概念頁動畫同一組,插樁實跑。排序後 <code>[4,3,3,3,3]</code>,total 16、target 4。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 一路放下去,第 5 根放不進任何邊</span>
+#1 idx0 (4)  b0 放入 → [4,0,0,0]
+#2 idx1 (3)  b0 4+3=7 放不下 · b1 放入 → [4,3,0,0]
+#3 idx2 (3)  b0 7、b1 6 放不下 · b2 放入 → [4,3,3,0]
+#4 idx3 (3)  b0、b1、b2 放不下 · b3 放入 → [4,3,3,3]
+#5 idx4 (3)  四個邊都放不下(7 / 6 / 6 / 6)→ false</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: 一層層拿回;空的邊和左邊一樣長,全部跳過</span>
+#4  拿回 b3 → [4,3,3,0];迴圈結束 → false
+#3  拿回 b2 → [4,3,0,0];b3 = b2 = 0 同長跳過 → false
+#2  拿回 b1 → [4,0,0,0];b2、b3 同長跳過 → false
+#1  拿回 b0 → [0,0,0,0];b1、b2、b3 同長跳過 → false
+<span class="sc-trace__out">// OUTPUT: false(5 次 exist)</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">降序;total % 4 先篩;每根試 4 個邊:③ 超過 continue ④ 和左邊同長 continue;放、遞迴、拿回。break 會錯([1,1,1,1]、[2,2,2,2,2,2,3,3,3,7]);忘了拿回會錯([2,2,2,2,3,3,7,7]);不去重慢 26~544 倍;int 不會溢位(最大 1.5×10⁹)。</div>
+    <div class="sc-summary-bar__detail">MATCHSTICKS TO SQUARE · CODE</div>
+  </div>
+
+</body>
+</html>

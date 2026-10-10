@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>473 · Matchsticks to Square // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P473</span>
+    <span><a href="https://leetcode.com/problems/matchsticks-to-square/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Matchsticks to Square</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 473</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · BUCKETS · SYMMETRY PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td>第 idx 層 = 第 idx 根火柴;選項 = 4 個邊</td></tr>
+        <tr><td>剪枝 1</td><td>放進去超過 target → continue</td></tr>
+        <tr><td>剪枝 2</td><td>和左邊的邊一樣長 → continue(對稱)</td></tr>
+        <tr><td>break?</td><td>都不行:邊的長度沒有排序(和 <a href="../p47/index.html">47</a>、<a href="../p131/index.html">131</a> 同一個判斷)</td></tr>
+        <tr><td>撤銷</td><td><code>buckets[i] -= nums[idx]</code></td></tr>
+        <tr><td>排序</td><td>降序:大的先放,失敗得早</td></tr>
+        <tr><td>推廣</td><td>4 → k 就是 <a href="../p698/index.html">698</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼要由大到小排序?不排或升序會錯嗎?</div>
+
+    <div class="qa"><strong>Q2.</strong> <code>buckets[i] + nums[idx] &gt; target</code> 時能不能 break?</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼「和左邊的邊一樣長」就可以跳過?只跟 <code>i - 1</code> 比夠嗎?</div>
+
+    <div class="qa"><strong>Q4.</strong> 拿掉 <code>if (total % 4 != 0) return false;</code> 會算錯嗎?</div>
+
+    <div class="qa"><strong>Q5.</strong> 長度到 10<sup>8</sup>、15 根,<code>int</code> 會不會溢位?</div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,1,2,2,2] · 6 次 exist,一次都沒回頭</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">範例 1,插樁實跑。排序後 <code>[2,2,2,1,1]</code>,total 8、target 2。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 每根都在第一個放得下的邊停住</span>
+#1 idx0 (2)  b0 放入 → [2,0,0,0]
+#2 idx1 (2)  b0 4 &gt; 2 放不下 · b1 放入 → [2,2,0,0]
+#3 idx2 (2)  b0、b1 放不下 · b2 放入 → [2,2,2,0]
+#4 idx3 (1)  b0、b1、b2 3 &gt; 2 放不下 · b3 放入 → [2,2,2,1]
+#5 idx4 (1)  b0、b1、b2 放不下 · b3 放入 → [2,2,2,2]
+#6 idx5 = n → true,一路往上傳
+<span class="sc-trace__out">// OUTPUT: true(6 次 exist,沒有拿回、沒有同長跳過)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>這裡同長檢查一次都沒派上用場:每次兩個邊一樣長時,「放不下」已經先把它擋掉了。</strong>
+      <b>去重是在「回溯到有空邊的地方」才發揮作用 —— 看概念頁的 [3,3,3,3,4]。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 用 bitmask DP 寫這題:狀態是什麼?怎麼轉移?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成 k 個邊(k 個和相等的子集),程式要改哪幾個地方?</div>
+
+    <div class="qa"><strong>App 3.</strong> 如果要回傳「每根火柴放在哪一邊」,要加什麼?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>不會錯,只會慢:大的先放,放不下的分支在很淺的地方就斷了。</strong><br><br>
+  實測三種都 0 錯。最難的 H1:降序 32,142 次、不排序 84,734 次(2.6 倍)、升序 307,667 次(9.6 倍);H3 升序要 164,360 次,是降序的 81 倍。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>不行。四個邊的長度沒有排序,這個邊放不下,後面的邊可能是空的。</strong><br><br>
+  <code>[1,1,1,1]</code>:第一根放 b0,第二根放 b0 會超過 → break,b1~b3 都沒試 → false。窮舉時所有 191 個 true 的例子全部判錯。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>兩個邊一樣長時,放進哪一個之後的局面是對稱的;左邊那個試過了,這個結果一定一樣。只比 <code>i - 1</code> 也對,但會漏掉隔開的同長邊。</strong><br><br>
+  例如 <code>[9,6,8,6]</code> 的第 4 個邊會被多試一次;對拍時這種多走發生 9,442 次。改成跟前面每個比:H1 31,186 次 vs 32,142 次,只差 3%。
+  但不能寫成 break:同長跳過寫 break,<code>[2,<wbr>2,<wbr>2,<wbr>2,<wbr>2,<wbr>2,<wbr>3,<wbr>3,<wbr>3,<wbr>7]</code> 會變 false。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>不會。那行只是捷徑。</strong><br><br>
+  total 不是 4 的倍數時,<code>target = total / 4</code> 被無條件捨去,4 個邊加起來最多 4 · target &lt; total,火柴一定放不完 → 本來就回 false。實測 0 錯,只是多搜一陣子。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>不會。</strong><br><br>
+  最大的 total 是 15 × 10<sup>8</sup> = 1,500,000,000,小於 INT_MAX 2,147,483,647。<code>buckets[i] + nums[idx]</code> 實測最大 400,000,000。
+  順帶一提,15 根 10<sup>8</sup> 的 total 剛好是 4 的倍數,但 15 根等長火柴分不成 4 邊 → false,2,035 次呼叫。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>狀態 <code>dp[mask]</code> = 用掉 mask 這些火柴後,「正在拼的那一邊」已經有多長(不可行就是 −1)。</strong><br><br>
+  <code>dp[0] = 0</code>;對每個可行的 mask、每根沒用過的 j:若 <code>dp[mask] + len[j] ≤ target</code>,則 <code>dp[mask | 1&lt;&lt;j] = (dp[mask] + len[j]) % target</code>。
+  答案 <code>dp[(1&lt;&lt;n) - 1] == 0</code>。O(n · 2<sup>n</sup>),對拍用的就是它。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>只改三個地方:<code>total % k</code>、<code>target = total / k</code>、<code>buckets(k, 0)</code> 和迴圈 <code>i &lt; k</code>。</strong><br><br>
+  這就是 <a href="../p698/index.html">698</a>,你的 698 解法就是這樣寫的;拿它跑 k = 4 的這題兩個範例,答案和呼叫數(6、5)都一樣。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>加一個 <code>side[idx]</code> 陣列:放入時 <code>side[idx] = i</code>,回傳 true 時它就是一組答案。</strong><br><br>
+  失敗拿回時不用清,下一次放入會覆蓋。因為成功時直接一路 return true,<code>side</code> 停在成功的那一組。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每根火柴選一個邊。大的先放;超過 continue、同長 continue(邊沒排序,不能 break);失敗拿回。去重和降序是兩個速度槓桿;total % 4 只是捷徑;int 夠。k 個邊 = 698。</div>
+    <div class="sc-summary-bar__detail">MATCHSTICKS TO SQUARE · REVIEW</div>
+  </div>
+
+</body>
+</html>

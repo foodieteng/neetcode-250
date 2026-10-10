@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>473 · Matchsticks to Square // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P473</span>
+    <span><a href="https://leetcode.com/problems/matchsticks-to-square/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Matchsticks to Square</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每根火柴選一個邊:放不下跳過、和左邊同長跳過、失敗拿回來</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 473</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · BUCKETS · SYMMETRY PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        一堆火柴,長度 <code>matchsticks[i]</code>。<strong>全部用上、不能折斷</strong>,能不能拼成一個正方形?<br>
+        <code>1 ≤ n ≤ 15</code>,<code>1 ≤ matchsticks[i] ≤ 10<sup>8</sup></code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,1,2,2,2]</code> → true(邊長 2:2、2、2、1+1);<code>[3,3,3,3,4]</code> → false(總長 16、邊長 4,但 4 自己佔一邊後,3 怎麼放都超過)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>09 分類第一題「每個數要選進哪一個桶」:層 = 第幾根火柴,選項 = 4 個邊。</strong>
+      <b>和 <a href="../p78/index.html">78</a> / <a href="../p39/index.html">39</a> 的「選或不選」不同 —— 每根都一定要放,只是放哪裡。<a href="../p698/index.html">698</a> 把 4 換成 k,程式一模一樣。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼這樣回溯<span class="sc-section__title-en">// WHY BUCKETS + PRUNING</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每根火柴試 4 個邊,不去重</span>
+            <span class="sc-ko-card__o">4<sup>n</sup> 個分配</span>
+          </div>
+          <div class="sc-ko-card__body">
+            答案對,但「把火柴放進空的第 1 邊」和「放進空的第 2 邊」是同一件事,卻各算一次。
+            實測 <code>[5,5,5,5,4×11]</code>:3,066,409 次呼叫,加上去重只要 24,137 次。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 對稱重複走</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">bitmask DP(哪些火柴用過)</span>
+            <span class="sc-ko-card__o">O(n · 2<sup>n</sup>)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            <code>dp[mask]</code> = 用掉 mask 這些火柴後,目前這邊填了多長。複雜度有保證,對拍就是用它。
+            但要開 2<sup>15</sup> 的表,而且比回溯難講清楚 —— 留給 follow-up。
+          </div>
+          <div class="sc-ko-card__verdict">△ FOLLOW-UP · 有保證但較難</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">降序 + 4 個桶 + 兩個 continue</span>
+          <span class="sc-ko-card__o">大的先放、對稱只走一次</span>
+        </div>
+        <div class="sc-ko-card__body">
+          大火柴先放,放不下的分支很早就斷;和左邊同長的邊跳過,空邊只試第一個。
+          <b>對拍 203,002 組 0 錯;隨機找到最難的 15 根也只要 32,142 次呼叫、0.34 ms。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 剪掉超長和對稱</div>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>先篩、再排序</strong>:總長不是 4 的倍數就 false;邊長 <code>target = total / 4</code>;火柴<strong>由大到小</strong>排。</li>
+      <li><strong>第 idx 根試 4 個邊</strong>:放進去會超過 target → continue;和左邊那個邊一樣長 → continue(放哪個結果都一樣)。</li>
+      <li><strong>放 → 遞迴 → 拿回</strong>:<code>buckets[i] += nums[idx]</code>,下一根成功就一路 true;失敗就 <code>-=</code> 拿回來,試下一個邊。全部火柴放完就是 true。</li>
+    </ol>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [3,3,3,3,4] · 5 次 exist,三種跳過都出現</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      範例 2(答案 false)。排序後 <code>[4,3,3,3,3]</code>,邊長 4。三件事都看得到:<strong>放不下</strong>(紅虛線冒出邊長線)、<strong>拿回</strong>、<strong>同長跳過</strong>(回溯時空的邊全部被剪)。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ [3,3,3,3,4] · 每根火柴試 4 個桶:放不下跳過、和左邊同高跳過、失敗就拿回來</div>
+      <div class="sc-viz__cvwrap"><canvas id="v473-canvas" class="sc-viz__canvas" style="height:542px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v473-reset">Reset</button><button class="sc-btn" id="v473-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v473-play">Play</button><button class="sc-btn" id="v473-next">Next</button>
+        <span class="sc-viz__step" id="v473-step">00 / 17</span>
+      </div>
+      <div class="sc-viz__label" id="v473-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>回到 #1 時,4 拿回來後 b1、b2、b3 都是 0,和左邊一樣 → 全部跳過,直接 false。</strong>
+      <b>沒有去重的話,4 會再放進 b1、b2、b3 各重走一次一模一樣的子樹。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 兩個 skip 都只能 continue(和 47、131 同一個判斷)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          規則:<strong>跳過的理由對後面的 i 也一定成立,才能 break</strong>。這題的 4 個邊<strong>沒有照長度排</strong>(實測 612 萬個決策點不是由大到小),所以:
+          放不下寫成 break → <code>[1,1,1,1]</code>:第一根佔了 b0,第二根放 b0 超過就 break,b1~b3 根本沒試 → false,窮舉所有 true 的例子全錯。
+          同長跳過寫成 break → <code>b[i] == b[i-1]</code> 不代表 <code>b[i+1]</code> 也一樣(例如 <code>[7,3,3,0]</code>),最小反例 <code>[2,<wbr>2,<wbr>2,<wbr>2,<wbr>2,<wbr>2,<wbr>3,<wbr>3,<wbr>3,<wbr>7]</code> → false;<b>9 根以下(值 ≤ 12)一組都測不出來,10 根才開始錯</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 同長的邊可以跳過;只比左邊一個也對,只是沒剪乾淨</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          兩個邊目前一樣長,把這根放進哪一個,剩下的局面完全對稱 → 左邊那個已經試過,這個不用再試。
+          你的寫法只比 <code>i - 1</code>:像 <code>[9,6,8,6]</code> 這種隔一格才同長的,第 4 個邊還是會被試(對拍時發生 9,442 次多走)。
+          <b>改成跟前面每一個比也對:最難的例子 31,186 次 vs 你的 32,142 次,差 3%。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      每根火柴最多 4 個選擇,最壞 4<sup>n</sup>;排序 + 兩種剪枝讓實際呼叫遠低於這個數。下表是隨機搜尋 / 手工找到的最難 false 例子。
+    </p>
+
+    <p style="margin:0 0 12px;">升序排序也對,但 H1 要 307,667 次、H3 要 164,360 次(9.6 倍、81 倍)。</p>
+
+    <div class="sc-formula">
+      時間 最壞 <strong>O(4<sup>n</sup>)</strong>　·　額外空間 <strong>O(n)</strong>(遞迴深度 + 4 個桶)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>最難的例子(false)</th><th>你的</th><th>拿掉去重</th></tr></thead>
+      <tbody>
+        <tr><td>H1 隨機 15 根(值 ≤ 30)</td><td class="mono ok">32,142</td><td class="mono fail">832,965</td></tr>
+        <tr><td>H2 <code>[5,5,5,5,4×11]</code></td><td class="mono ok">24,137</td><td class="mono fail">3,066,409</td></tr>
+        <tr><td>H3 12 根 10<sup>8</sup> + <code>[2,1,1]</code></td><td class="mono ok">2,035</td><td class="mono fail">1,107,697</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>「每個東西放進哪個桶」:大的先放,放不下跳過,同長的桶只試一個。</strong>
+      <b>桶沒有排序 → 兩個 skip 都只能 continue。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">降序排序,每根火柴試 4 個邊:超過邊長 continue、和左邊那個邊一樣長 continue(對稱),放進去遞迴,失敗拿回來。兩個 skip 都不能 break —— 邊的長度沒有排序。去重是速度關鍵:拿掉多 26~544 倍呼叫。</div>
+    <div class="sc-summary-bar__detail">MATCHSTICKS TO SQUARE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p473-buckets.js"></script>
+</body>
+</html>
