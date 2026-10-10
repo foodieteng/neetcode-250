@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>22 · Generate Parentheses // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P22</span>
+    <span><a href="https://leetcode.com/problems/generate-parentheses/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Generate Parentheses</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 兩個條件就是全部的剪枝:open &lt; n 才放 '(',close &lt; open 才放 ')'</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 22</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給 <code>n</code> 對括號,回傳<strong>所有合法的括號字串</strong>(每個 <code>(</code> 都有對應的 <code>)</code>,而且不會先關後開)。<br>
+        <code>1 ≤ n ≤ 8</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>n = 3</code> → <code>((())) (()()) (())() ()(()) ()()()</code>;<code>n = 1</code> → <code>()</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 <a href="../p78/index.html">78</a> 一樣是「一格一格往下長」的樹,但每格只有兩種選擇:放 <code>(</code> 或放 <code>)</code>。</strong>
+      <b>難的不是怎麼長,是哪些分支不能長 —— 這題的全部重點就是那兩個 if。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用剪枝回溯 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼邊長邊剪<span class="sc-section__title-en">// WHY PRUNE WHILE BUILDING</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">全部生出來再檢查</span>
+            <span class="sc-ko-card__o">2<sup>2n</sup> · n</span>
+          </div>
+          <div class="sc-ko-card__body">2<sup>2n</sup> 個字串每個用 <a href="../../../04-stack/problems/p20/index.html">20</a> 的方法驗一次。n = 8 要生 65,536 個,只有 1,430 個是對的。</div>
+          <div class="sc-ko-card__verdict">× REJECT · 大量白做</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">邊長邊數,長到底才判斷</span>
+            <span class="sc-ko-card__o">樹沒變小</span>
+          </div>
+          <div class="sc-ko-card__body">一路記 open / close,但只在長度 2n 時判斷合不合法。<code>)(</code> 這種第一格就錯的,還是會一路長到底。</div>
+          <div class="sc-ko-card__verdict">△ REJECT · 剪得太晚</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">每放一格之前就擋:open &lt; n 才放 '(',close &lt; open 才放 ')'</span>
+          <span class="sc-ko-card__o">O(4ⁿ / √n)</span>
+        </div>
+        <div class="sc-ko-card__body">長出來的每一個前綴都還有救,<strong>沒有死路</strong>。n = 8 只呼叫 6,917 次,不剪枝的樹有 131,071 個節點。</div>
+        <div class="sc-ko-card__verdict">● ADOPT · 只走會成功的路</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>長度到 2n 就收</strong>:<code>res.size() == 2 * n</code> → <code>ans.push_back(res)</code>,return。</li>
+      <li><strong>左括號還沒用完就放</strong>:<code>open &lt; n</code> → <code>dfs(res + '(', open + 1, close)</code>。</li>
+      <li><strong>右括號比左括號少才放</strong>:<code>close &lt; open</code> → <code>dfs(res + ')', open, close + 1)</code>。兩個 if 是並列的,能走就都走。</li>
+    </ol>
+
+    <p style="font-size:13.5px;">
+      <code>res</code> 是<strong>傳值</strong>,而且 <code>res + '('</code> 本來就是做一個新字串,所以這層的 <code>res</code> 從來沒被改過 —— <b>不需要 pop</b>。
+      這和 <a href="../p78/index.html">78</a> 的 path 傳值不同:78 在迴圈裡 <code>push_back</code> 改了自己,所以還是要 pop。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// THE PRUNED TREE · n = 3</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      <code>n = 3</code>,實跑 <strong>22 次呼叫、收 5 個答案</strong>。灰色虛線是還沒走到的節點,整棵樹從一開始就看得到 —— 注意<b>每一條路最後都走到綠色的答案</b>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ n = 3 · 每一次 dfs 呼叫就是樹上的一個節點</div>
+      <div class="sc-viz__cvwrap"><canvas id="v22-canvas" class="sc-viz__canvas" style="height:590px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v22-reset">Reset</button><button class="sc-btn" id="v22-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v22-play">Play</button><button class="sc-btn" id="v22-next">Next</button>
+        <span class="sc-viz__step" id="v22-step">00 / 22</span>
+      </div>
+      <div class="sc-viz__label" id="v22-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>ans 的順序:<code>((())) (()()) (())() ()(()) ()()()</code>,剛好是字典序</strong>(<code>(</code> 比 <code>)</code> 小,而且永遠先走 <code>(</code> 支)。
+      <b>每個節點最多兩個小孩:第 4 層以後很多節點只剩一條路 —— 不是被剪掉的路不見,是那條路根本不合法。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個條件為什麼剛好夠<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 長出來的一定合法(不會多)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          合法 = 任何前綴裡 <code>)</code> 都不比 <code>(</code> 多,最後兩個都剛好 n 個。
+          <code>close &lt; open</code> 才放 <code>)</code> → 前綴永遠 <code>close ≤ open</code>;<code>open &lt; n</code> 才放 <code>(</code> → <code>open ≤ n</code>。
+          長度 2n 時 <code>open + close = 2n</code>,兩個都 ≤ n,<strong>只能都是 n</strong>。所以 base case 不用再檢查。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 合法的都長得出來(不會少),而且沒有死路</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          任何合法字串的每個前綴都滿足那兩個條件,所以沿著它一格一格走,每一步的 if 都會放行 —— 每個答案都會被走到。
+          反過來,任何 <code>close ≤ open ≤ n</code> 的前綴,只要先補滿 <code>(</code> 再補滿 <code>)</code> 就是合法的,<strong>所以每個節點都至少通往一個答案</strong>。
+          實測 n = 1~8 和暴力窮舉完全相同(1, 2, 5, 14, 42, 132, 429, 1430 個),沒有重複。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      答案數是 <strong>Catalan 數</strong> C<sub>n</sub> = C(2n, n) / (n + 1) ≈ 4ⁿ / (n<sup>1.5</sup>√π)。
+      因為沒有死路,節點數只是答案數的常數倍左右;每個節點做一次 <code>res + '('</code>(複製 O(n) 個字元)。
+    </p>
+
+    <div class="sc-formula">
+      約 C<sub>n</sub> 個節點 × 每個 O(n) → 時間 <strong>O(4ⁿ / √n)</strong>　·　遞迴深度 2n → 額外空間 <strong>O(n)</strong>(不算輸出)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n</th><th>答案數 C<sub>n</sub></th><th>dfs 呼叫</th><th>呼叫 ÷ 答案</th><th>不剪枝的樹 2<sup>2n+1</sup> − 1</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">3</td><td class="mono">5</td><td class="mono">22</td><td class="mono">4.4</td><td class="mono">127</td></tr>
+        <tr><td class="mono">5</td><td class="mono">42</td><td class="mono">196</td><td class="mono">4.7</td><td class="mono">2,047</td></tr>
+        <tr><td class="mono">8</td><td class="mono">1,430</td><td class="mono ok">6,917</td><td class="mono">4.8</td><td class="mono fail">131,071</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px;font-size:13.5px;">
+      光是輸出就有 C<sub>n</sub> 個長度 2n 的字串,所以不可能比 O(4ⁿ / √n) 更快。
+      空間的細節:<code>res</code> 傳值,最深 2n 層、每層一份最長 2n 的字串,真正同時存在的字元是 O(n²);改成 <code>string&amp;</code> + push / pop 就是 O(n)。n = 8 實測 0.36 ms vs 0.15 ms。
+    </p>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>open &lt; n 才放 '(',close &lt; open 才放 ')' —— 兩個條件保證長出來的都合法、合法的都長得出來、而且沒有死路。</strong>
+      <b>res 傳值、用 res + c 往下傳,所以不用 pop。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">實作與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每格放 '(' 或 ')':open &lt; n 才放 '(',close &lt; open 才放 ')',長度 2n 就收。兩個條件 = 不多、不少、沒死路。res 傳值 + res + c,不用 pop。答案數是 Catalan,O(4ⁿ / √n)。</div>
+    <div class="sc-summary-bar__detail">GENERATE PARENTHESES · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p22-tree.js"></script>
+</body>
+</html>

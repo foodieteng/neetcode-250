@@ -215,7 +215,7 @@ PROBLEMS = {
         ('p79',  'Word Search',                          'word-search',                          'med', 'todo'),
         ('p131', 'Palindrome Partitioning',              'palindrome-partitioning',              'med', 'todo'),
         ('p17',  'Letter Combinations of a Phone Number','letter-combinations-of-a-phone-number','med', 'todo'),
-        ('p22',  'Generate Parentheses',                 'generate-parentheses',                 'med', 'todo'),
+        ('p22',  'Generate Parentheses',                 'generate-parentheses',                 'med', 'done'),
         ('p473', 'Matchsticks to Square',                'matchsticks-to-square',                'med', 'todo'),
         ('p698', 'Partition to K Equal Sum Subsets',     'partition-to-k-equal-sum-subsets',     'med', 'todo'),
         ('p51',  'N-Queens',                             'n-queens',                             'hard','todo'),
