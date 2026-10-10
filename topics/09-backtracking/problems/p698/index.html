@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>698 · Partition to K Equal Sum Subsets // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P698</span>
+    <span><a href="https://leetcode.com/problems/partition-to-k-equal-sum-subsets/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Partition to K Equal Sum Subsets</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 473 的 4 換成 k:每個數選一個桶,兩個 continue,失敗拿回</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 698</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · K BUCKETS · SYMMETRY PRUNING</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        能不能把 <code>nums</code> 分成 <strong>k 個非空子集,每個子集的和都一樣</strong>?<br>
+        <code>1 ≤ k ≤ n ≤ 16</code>,<code>1 ≤ nums[i] ≤ 10<sup>4</sup></code>,每個值最多出現 4 次。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[4,3,2,3,5,2,1]</code>, k = 4 → true(5、1+4、2+3、2+3);<code>[1,2,3,4]</code>, k = 3 → false(總和 10 不能被 3 整除)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>這就是 <a href="../p473/index.html">473 火柴拼正方形</a>把「4 個邊」換成「k 個桶」。你的兩份程式只差 4 ↔ k。</strong>
+      <b>拿這支跑 k = 4 的 473 兩個範例:答案一樣,呼叫數也一樣(6、5)。這張卡只講 473 沒講到的:k 變大之後會怎樣、另一種寫法、什麼時候哪個快。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用桶回溯<span class="sc-section__title-en">// WHY K BUCKETS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每個數試 k 個桶,不去重</span>
+            <span class="sc-ko-card__o">k<sup>n</sup></span>
+          </div>
+          <div class="sc-ko-card__body">
+            空桶有 k 個,第一個數放哪個空桶都一樣,卻要各走一次。k 越大越慘:
+            實測 k = 8 的難例 41,578,721 次呼叫、605 ms;你的版本 845 次。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 對稱 k! 倍</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">一次填滿一個桶(used[] + start)</span>
+            <span class="sc-ko-card__o">另一種回溯</span>
+          </div>
+          <div class="sc-ko-card__body">
+            從沒用過的數挑一組湊滿 target,再填下一個桶。也對(0 錯),
+            k = 3~5 的難例比你的少 17~270 倍呼叫;但 k = 8、數字小的例子反過來多 150 倍。<strong>兩種各有剋星。</strong>
+          </div>
+          <div class="sc-ko-card__verdict">△ ALSO OK · 看輸入</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">降序 + k 個桶 + 兩個 continue(473 原封不動)</span>
+          <span class="sc-ko-card__o">一套程式兩題</span>
+        </div>
+        <div class="sc-ko-card__body">
+          所有合法輸入對拍 56,776 組 0 錯;隨機搜尋到最難的 n = 16 輸入約 20 萬次呼叫、2 ms。
+          <b>bitmask DP(O(n · 2<sup>n</sup>))是有保證的 follow-up,見複習頁。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 和 473 共用</div>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>先篩、再排序</strong>:<code>total % k != 0</code> → false;<code>target = total / k</code>;由大到小排。</li>
+      <li><strong>第 idx 個數試 k 個桶</strong>:超過 target → continue;和左邊的桶一樣高 → continue。</li>
+      <li><strong>放 → 遞迴 → 拿回</strong>;全部數字放完就是 true(桶總和 = total、每桶 ≤ target ⇒ 每桶剛好 = target)。</li>
+    </ol>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [2,2,2,2,3,4,5], k = 4 · 12 次 exist</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      常被拿來測的陷阱例:總和 20、每桶 5,看起來可以,其實不行。和 473 的動畫同一套畫法;這組會<strong>回溯好幾層</strong>,最後在根部被同高去重收掉。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ [2,2,2,2,3,4,5], k = 4 · 和 473 同一套:放不下跳過、同高跳過、失敗拿回來</div>
+      <div class="sc-viz__cvwrap"><canvas id="v698-canvas" class="sc-viz__canvas" style="height:630px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v698-reset">Reset</button><button class="sc-btn" id="v698-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v698-play">Play</button><button class="sc-btn" id="v698-next">Next</button>
+        <span class="sc-viz__step" id="v698-step">00 / 38</span>
+      </div>
+      <div class="sc-viz__label" id="v698-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>5 自己一桶,4 那一桶差 1,但剩下只有 3 和 2 —— 4 + 2 = 6、4 + 3 = 7 都超過。</strong>
+      <b>#7、#10、#12 三個葉子都停在 <code>[5,4,5,4]</code>、手上一個 2 放不進去:同樣的幾個 2 換了順序放,走到同一個死局三次。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">473 沒講到的兩件事<span class="sc-section__title-en">// WHAT CHANGES WITH K</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · k 越大,同高去重越關鍵</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          一開始 k 個桶都是 0,不去重的話第一個數要試 k 次,第二個數又是好幾次 …… 光是「空桶互換」就是 k! 種排列。
+          實測(都是 false 的難例):k = 3 去重前後 666,421 → 111,073 次;k = 4 4,960,005 → 206,649;k = 5 23,123,251 → 192,721;
+          <b>k = 8:41,578,721 → 845 次</b>。降序排序是第二個槓桿:升序在 k = 8 要 353,613 次。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 兩個 continue 一樣不能 break;break 版甚至更難測出來</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          桶沒有照高度排(理由和 473 一樣)。放不下寫 break:<code>[1,1]</code>, k = 2 就錯 —— b0 滿了就 break,空的 b1 沒試。
+          同高寫 break:窮舉 16,776 組(n ≤ 8)<strong>一組都沒錯</strong>,隨機 40,000 組錯 23 組,最小反例要 9 個數:<code>[10,<wbr>12,<wbr>9,<wbr>2,<wbr>6,<wbr>2,<wbr>5,<wbr>13,<wbr>13]</code>, k = 3 → false(正解 true)。
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      每個數最多 k 個選擇,最壞 k<sup>n</sup>;實際被兩種剪枝剪到很小。下表是每個 k 隨機搜尋 5,000 組 n = 16 false 輸入、你的程式最慢的那組。
+    </p>
+
+    <div class="sc-formula">
+      時間 最壞 <strong>O(k<sup>n</sup>)</strong>　·　額外空間 <strong>O(n + k)</strong>(遞迴深度 + 桶)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>最難的例子(n = 16)</th><th>你的</th><th>一次填一桶</th></tr></thead>
+      <tbody>
+        <tr><td>k = 3</td><td class="mono">111,073 · 0.93 ms</td><td class="mono ok">6,440 · 0.045 ms</td></tr>
+        <tr><td>k = 4</td><td class="mono">206,649 · 2.11 ms</td><td class="mono ok">1,690 · 0.014 ms</td></tr>
+        <tr><td>k = 5</td><td class="mono">192,721 · 1.88 ms</td><td class="mono ok">703 · 0.010 ms</td></tr>
+        <tr><td>k = 8(值 ≤ 15)</td><td class="mono ok">845 · 0.017 ms</td><td class="mono fail">126,593 · 2.43 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>473 和 698 是同一題:每個數放進哪個桶;k 越大,「同高只試一個」越值錢。</strong>
+      <b>按數字放(你的)和按桶填(used[])各有剋星;要有保證就用 bitmask DP。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">和 473 同一支程式,4 → k:降序、total % k 先篩、每個數試 k 個桶,超過 continue、和左邊同高 continue、放進去遞迴、失敗拿回。k 越大,同高去重越重要:k = 8 的例子拿掉去重從 845 次變 41,578,721 次。</div>
+    <div class="sc-summary-bar__detail">PARTITION TO K EQUAL SUM SUBSETS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p698-kbuckets.js"></script>
+</body>
+</html>
