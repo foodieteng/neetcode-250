@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>131 · Palindrome Partitioning // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P131</span>
+    <span><a href="https://leetcode.com/problems/palindrome-partitioning/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Palindrome Partitioning</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 第一段 s[start..end] 是回文才切,剩下的交給下一層</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 131</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · START INDEX · PALINDROME</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        把字串 <code>s</code> 切成好幾段,<strong>每一段都要是回文</strong>。回傳所有切法,順序不限。<br>
+        <code>1 ≤ s.length ≤ 16</code>,只有小寫英文字母。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>"aab"</code> → <code>[["a","a","b"],["aa","b"]]</code>;<code>"a"</code> → <code>[["a"]]</code>;
+      <code>"racecar"</code> → 4 種(<code>r a c e c a r</code>、<code>r a cec a r</code>、<code>r aceca r</code>、<code>racecar</code>)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 <a href="../p78/index.html">78</a> / <a href="../p39/index.html">39</a> 一樣是「從 start 往後挑」</strong>,只是這題挑的不是一個數,而是<strong>一段</strong> <code>s[start..end]</code>。
+      <b>這段是回文就切下來,下一層從 end + 1 繼續;切到 start 走到底,就收一個答案。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用回溯<span class="sc-section__title-en">// WHY BACKTRACKING</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">列出全部 2<sup>n−1</sup> 種切法,再逐一檢查</span>
+            <span class="sc-ko-card__o">白做</span>
+          </div>
+          <div class="sc-ko-card__body">
+            n − 1 個空隙,每個切或不切。答案是對的(對拍就是用它),但第一段不是回文的切法也照樣整條檢查。
+            <code>"abcdefghijklmnop"</code> 有 32,768 種切法要看,答案只有 1 個。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 不剪枝</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">先建 <code>pal[i][j]</code> 回文表,再回溯</span>
+            <span class="sc-ko-card__o">n = 16 量不出差</span>
+          </div>
+          <div class="sc-ko-card__body">
+            標準的 follow-up,判斷變 O(1)。但實測 <code>"a"×16</code>:DP 版 4.63 ms,只把 isPalindrome 改成傳參考就 4.27 ms ——
+            時間花在<strong>產生 524,288 個字元的答案</strong>,不在判斷回文。
+          </div>
+          <div class="sc-ko-card__verdict">△ OPTIONAL · 先修傳值</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">回溯:第一段是回文才往下切</span>
+          <span class="sc-ko-card__o">只走得通的路</span>
+        </div>
+        <div class="sc-ko-card__body">
+          每一層只決定「第一段到哪裡結束」。<code>s[start..end]</code> 不是回文 → 這個 end 整棵子樹都不用走。
+          <b><code>"abcdefghijklmnop"</code> 只要 17 次 dfs、136 次回文檢查;對拍 38,030 組 0 錯。</b>
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 不是回文就不長子樹</div>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>start 走到底就收</strong>:<code>start &gt;= s.size()</code> → 整條都切完了,<code>ans.push_back(path)</code>。</li>
+      <li><strong>end 從 start 往右</strong>:第一段 = <code>s[start..end]</code>,長度 <code>end - start + 1</code>;不是回文就<strong>換下一個 end</strong>(continue,不是 break)。</li>
+      <li><strong>切 → 遞迴 → 撤銷</strong>:push 這段,<code>dfs(end + 1)</code>,回來後 pop。</li>
+    </ol>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// "aab" · 6 次 dfs、7 次回文檢查</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      範例 1。上排是字串和目前試的那一段,中間是遞迴樹(邊上寫切下來的那段),下面是 path 和 ans。注意 <code>"ab"</code> 和 <code>"aab"</code> 被擋下時,只是那個 end 不切,迴圈照樣往下跑。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ "aab" · 從 start 往右延伸 end,是回文才切、遞迴、撤銷</div>
+      <div class="sc-viz__cvwrap"><canvas id="v131-canvas" class="sc-viz__canvas" style="height:590px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v131-reset">Reset</button><button class="sc-btn" id="v131-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v131-play">Play</button><button class="sc-btn" id="v131-next">Next</button>
+        <span class="sc-viz__step" id="v131-step">00 / 15</span>
+      </div>
+      <div class="sc-viz__label" id="v131-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>輸出順序是「第一段短的先」:<code>[a,a,b]</code> 在 <code>[aa,b]</code> 前面;整個字串一段永遠最後。</strong>
+      <b>因為 end 從 start 開始往右試,短的先切。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個一定會被問到的「為什麼」<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 不是回文要 continue,不能 break(和 47 同一個判斷)</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <a href="../p47/index.html">47</a> 的規則:<strong>只有「這個 i 不行,後面的 i 一定也不行」才能 break</strong>。
+          回文不是這樣:<code>"aba"</code> 裡 <code>"ab"</code> 不是回文,再長一格的 <code>"aba"</code> 是。
+          寫成 break → <code>"aba"</code> 只剩 <code>[[a,b,a]]</code>,少了 <code>[aba]</code>。
+          窮舉 3,138 組錯 2,668 組;<b>全部同一個字母的輸入(<code>"aaa"</code> 這種)每段都是回文,break 永遠不會執行 —— 470 組剛好過。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 下一層從 end + 1 開始,不是 start + 1、也不是 end</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          切下的是 <code>s[start..end]</code>,剩下的從 <code>end + 1</code> 開始。
+          寫成 <code>start + 1</code>:切了 <code>"aa"</code> 之後第二個 a 又被切一次,<code>"aa"</code> → <code>[[a,a],[aa,a]]</code>(段重疊,窮舉錯 3,101 組)。
+          寫成 <code>end</code>:end == start 時用同一個 start 遞迴自己,<code>"a"</code> 就無限遞迴,實跑 Segmentation fault。
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      最壞是全部同一個字母:每個空隙都可以切或不切,<strong>2<sup>n−1</sup> 種切法全都是答案</strong>,每個答案總長 n。光是把答案寫出來就要 n · 2<sup>n−1</sup> 個字元。
+    </p>
+
+    <div class="sc-formula">
+      時間 <strong>O(n · 2<sup>n</sup>)</strong>　·　額外空間 <strong>O(n)</strong>(遞迴深度 + path,不算答案本身)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>n = 16(實測)</th><th>答案</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td><code>"a"×16</code>(最壞)</td><td class="mono fail">32,768</td><td class="mono">14.78 ms</td></tr>
+        <tr><td><code>"ab"×8</code></td><td class="mono">987</td><td class="mono">0.236 ms</td></tr>
+        <tr><td><code>"abcd…p"</code>(16 個不同字母)</td><td class="mono ok">1</td><td class="mono">0.004 ms</td></tr>
+        <tr><td><code>"a"×16</code>,isPalindrome 改傳參考</td><td class="mono">32,768</td><td class="mono ok">4.27 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>每一層只決定「第一段切到哪」,是回文才往下走,下一層從 end + 1 開始。</strong>
+      <b>回文不會因為變長就一定不是 → 不是回文只能 continue。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每層決定「第一段切多長」:end 從 start 往右,s[start..end] 是回文才 push、遞迴 end + 1、pop;不是回文要 continue 不能 break(「ab」不是回文,「aba」是)。最壞全同字母 2^(n-1) 種切法,O(n·2^n)。</div>
+    <div class="sc-summary-bar__detail">PALINDROME PARTITIONING · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p131-palpart.js"></script>
+</body>
+</html>

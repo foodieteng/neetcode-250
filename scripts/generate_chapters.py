@@ -213,7 +213,7 @@ PROBLEMS = {
         ('p90',  'Subsets II',                           'subsets-ii',                           'med', 'done'),
         ('p47',  'Permutations II',                      'permutations-ii',                      'med', 'done'),
         ('p79',  'Word Search',                          'word-search',                          'med', 'done'),
-        ('p131', 'Palindrome Partitioning',              'palindrome-partitioning',              'med', 'todo'),
+        ('p131', 'Palindrome Partitioning',              'palindrome-partitioning',              'med', 'done'),
         ('p17',  'Letter Combinations of a Phone Number','letter-combinations-of-a-phone-number','med', 'todo'),
         ('p22',  'Generate Parentheses',                 'generate-parentheses',                 'med', 'done'),
         ('p473', 'Matchsticks to Square',                'matchsticks-to-square',                'med', 'todo'),
