@@ -219,7 +219,7 @@ PROBLEMS = {
         ('p473', 'Matchsticks to Square',                'matchsticks-to-square',                'med', 'done'),
         ('p698', 'Partition to K Equal Sum Subsets',     'partition-to-k-equal-sum-subsets',     'med', 'done'),
         ('p51',  'N-Queens',                             'n-queens',                             'hard','done'),
-        ('p52',  'N-Queens II',                          'n-queens-ii',                          'hard','todo'),
+        ('p52',  'N-Queens II',                          'n-queens-ii',                          'hard','done'),
         ('p140', 'Word Break II',                        'word-break-ii',                        'hard','todo'),
     ],
     '10': [  # Tries
