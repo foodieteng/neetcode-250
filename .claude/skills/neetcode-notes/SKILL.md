@@ -159,9 +159,14 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
    </p>
    ```
-   If the problem has **two implementations**, the mock must cover **both** (show both code blocks in the Implement phase). The mock's `pre.code` follows the mock skill's Google-style spacing rule.
+   If the problem has **two implementations**, the mock must cover **both** (show both code blocks in the Implement phase). The mock's code box uses the **same LeetCode layout** as the site (4-space indent, `public:` flush left — see *C++ code layout* below); paste the code exactly as it appears in `code.html`, never re-indent it by hand.
 
-8. **Flip status to `'done'`** in `PROBLEMS`, then `python3 scripts/generate_chapters.py`.
+8. **🧹 MANDATORY: auto-fix code layout (LeetCode style), then flip status.**
+   ```bash
+   python3 scripts/format_code.py            # fixes indentation of every <pre class="sc-code"> / <pre class="tcode">
+   python3 scripts/format_code.py --check    # must end with "0 block(s) need fixing, 0 skipped"
+   ```
+   Then flip status to `'done'` in `PROBLEMS` and run `python3 scripts/generate_chapters.py`. If it reports `SKIPPED`, fix that block by hand (usually a stray tag inside `<pre>`), don't ignore it.
 
 9. **Commit:**
    ```
@@ -230,6 +235,27 @@ Animation pages add at the bottom of `<body>`:
 <script src="../../../../assets/js/viz/<pid>-<algo>.js"></script>
 ```
 
+## C++ code layout — LeetCode editor style, automatic (user's preference)
+
+All code windows on the site (`<pre class="sc-code">` on problem pages, `<pre class="tcode">` on cheatsheets) use **the layout of LeetCode's own C++ template**, enforced by `scripts/format_code.py` (`.sc-trace` traces and inline `<pre>` snippets in review pages are not touched — write those in the same layout by hand):
+```cpp
+class Solution {
+public:                                  // access specifier flush with `class`
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> seen;    // 4 spaces per level
+        ...
+    }
+};
+```
+- **4-space indent** per brace level; `public:` / `private:` / `protected:` and `}` line up with the line that opened the `{`.
+- Body of a braceless `if (...)` / `for (...)` / `while (...)` / `else` = 4 spaces past its header.
+- Lambda bodies (`sort(..., [&](int a, int b) {`) = 4 spaces past the line that opens them.
+- No tabs, no trailing whitespace. Pointer style as LeetCode writes it (`ListNode* head` in signatures; `ListNode *slow = head, *fast = head;` for multi-declarations is fine).
+- **The fixer only touches indentation.** It never joins or splits lines (compact `l++; r--;` and `{ st.push(x); continue; }` stay), never moves trailing comments (hand-aligned comment columns stay), keeps hand-aligned continuation lines (`return a\n     || b;`, wrapped signatures) at their relative offset, keeps a snippet's starting indent, never renames anything. It refuses (reports `SKIPPED`) if any line's content would change, and leaves blocks that need no fix byte-for-byte untouched.
+- Highlight spans (`k/t/f/s/n/c/p`, cheatsheet `kw/ty/cm/hl`) are carried over character by character — colours never need redoing. Idempotent.
+- **Not clang-format / not Google style** — that was tried and rejected: it re-flowed comments, merged hand-wrapped expressions and split the user's compact lines.
+- When asked to "整理排版 / 自動修正排版 / format the code": run the script on the whole repo, confirm `--check` prints `0 block(s) need fixing, 0 skipped`, look at the diff (should be indentation-only), render-check a changed page, commit as `style: …`.
+
 ## C++ code conventions (from user's preferences)
 
 - **Plain C arrays over STL sugar where it clarifies the layout.** Prefer parallel `int` arrays and explicit indices over opaque `struct`/`std::array` wrappers when showing grid/pointer mechanics. (LeetCode signatures using `vector<int>` are fine — this is about the internal working arrays.)
@@ -267,7 +293,7 @@ Restrained industrial-mono look. **The palette is exactly three layers:**
 2. **No "Variants / 延伸題" section** — use the `.qa` App questions instead.
 3. **Animations are white-bg solid-fill**, not dark outlined cells.
 4. **Re-run the generator** after any change to `PROBLEMS` / `CHAPTERS` — sidebars desync silently otherwise.
-5. **Never ship unverified C++** (Integration step 4). No dead placeholder lines. The `// OUTPUT` trace must match the verified binary.
+5. **Never ship unverified C++** (Integration step 4). **Never ship mis-indented C++** — run `scripts/format_code.py` before every commit (step 8). No dead placeholder lines. The `// OUTPUT` trace must match the verified binary.
 6. **SVG `<text>` cannot contain `<strong>`/HTML tags** — use `<tspan font-weight="700">`. Screenshot-check figures.
 7. **Animation layout MUST be screenshot-verified** at ~940px and ~720px widths, on a **mid-step** (not just step 0). The CJK-unaware `string.length` bbox stub lies about overflow.
 8. **Bare `<canvas>` (no `.sc-viz__cvwrap`) breaks mobile** — the fixed-pixel diagram overflows the viewport. Always ship the wrapper; never delete `min-width:620px` / body `overflow-x:hidden`.
@@ -276,6 +302,7 @@ Restrained industrial-mono look. **The palette is exactly three layers:**
 ## Git workflow
 
 ```bash
+python3 scripts/format_code.py
 python3 scripts/generate_chapters.py
 git add -A
 git commit -m "feat(<NN>/P<num>): <Title> — <one-line summary>"
