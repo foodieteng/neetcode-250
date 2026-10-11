@@ -96,6 +96,86 @@
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">Bitmask 優化版<span class="sc-section__title-en">// BITMASK · ABOUT 5–6× FASTER</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      把三個 <code>vector&lt;bool&gt;</code> 換成三個 <code>int</code>:第 c 個 bit = 第 c 欄被佔。這一列<strong>所有能放的欄一次算出來</strong>,不用一格一格試再 continue。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p51_bitmask.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&gt;</span> <span class="f">solveNQueens</span><span class="p">(</span><span class="t">int</span> n<span class="p">)</span> <span class="p">{</span>
+        size <span class="p">=</span> n<span class="p">;</span>
+        fullMask <span class="p">=</span> <span class="p">(</span><span class="n">1</span> <span class="p">&lt;&lt;</span> n<span class="p">)</span> <span class="p">-</span> <span class="n">1</span><span class="p">;</span>
+        queenCol<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n<span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        result<span class="p">.</span><span class="f">clear</span><span class="p">();</span>
+        <span class="f">dfs</span><span class="p">(</span><span class="n">0</span><span class="p">,</span> <span class="n">0</span><span class="p">,</span> <span class="n">0</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+        <span class="k">return</span> result<span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">int</span> size <span class="p">=</span> <span class="n">0</span><span class="p">,</span> fullMask <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> queenCol<span class="p">;</span>                 <span class="c">// queenCol[r] = 第 r 列皇后的欄</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&gt;</span> result<span class="p">;</span>
+
+    <span class="c">// usedCols:被佔的欄;mainDiag:"\" 斜線(下一列往右移 → &lt;&lt;1);antiDiag:"/" 斜線(下一列往左移 → &gt;&gt;1)</span>
+    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">int</span> row<span class="p">,</span> <span class="t">int</span> usedCols<span class="p">,</span> <span class="t">int</span> mainDiag<span class="p">,</span> <span class="t">int</span> antiDiag<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>row <span class="p">==</span> size<span class="p">)</span> <span class="p">{</span>                                   <span class="c">// 每一列都放好 → 這時才建棋盤</span>
+            <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">board</span><span class="p">(</span>size<span class="p">,</span> <span class="t">string</span><span class="p">(</span>size<span class="p">,</span> <span class="s">'.'</span><span class="p">));</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> r <span class="p">=</span> <span class="n">0</span><span class="p">;</span> r <span class="p">&lt;</span> size<span class="p">;</span> r<span class="p">++)</span> board<span class="p">[</span>r<span class="p">][</span>queenCol<span class="p">[</span>r<span class="p">]]</span> <span class="p">=</span> <span class="s">'Q'</span><span class="p">;</span>
+            result<span class="p">.</span><span class="f">push_back</span><span class="p">(</span><span class="f">move</span><span class="p">(</span>board<span class="p">));</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="t">int</span> available <span class="p">=</span> <span class="p">~(</span>usedCols <span class="p">|</span> mainDiag <span class="p">|</span> antiDiag<span class="p">)</span> <span class="p">&amp;</span> fullMask<span class="p">;</span>   <span class="c">// 可放的欄</span>
+        <span class="k">while</span> <span class="p">(</span>available<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> bit <span class="p">=</span> available <span class="p">&amp;</span> <span class="p">-</span>available<span class="p">;</span>                <span class="c">// 取最低位(欄由小到大)</span>
+            available <span class="p">^=</span> bit<span class="p">;</span>
+            queenCol<span class="p">[</span>row<span class="p">]</span> <span class="p">=</span> <span class="f">__builtin_ctz</span><span class="p">(</span>bit<span class="p">);</span>
+            <span class="f">dfs</span><span class="p">(</span>row <span class="p">+</span> <span class="n">1</span><span class="p">,</span> usedCols <span class="p">|</span> bit<span class="p">,</span> <span class="p">((</span>mainDiag <span class="p">|</span> bit<span class="p">)</span> <span class="p">&lt;&lt;</span> <span class="n">1</span><span class="p">)</span> <span class="p">&amp;</span> fullMask<span class="p">,</span> <span class="p">(</span>antiDiag <span class="p">|</span> bit<span class="p">)</span> <span class="p">&gt;&gt;</span> <span class="n">1</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>實測(-O2,7 次中位數)</th><th>你的 → bitmask</th><th>倍數</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">n = 8</td><td class="mono">0.10~0.15 → 0.023~0.045 ms</td><td class="mono ok">3.3~4.3×</td></tr>
+        <tr><td class="mono">n = 9(上限)</td><td class="mono">0.59 → 0.097 ms</td><td class="mono ok">6.0~6.2×</td></tr>
+        <tr><td class="mono">n = 12(題目外)</td><td class="mono">75~77 → 16~17 ms</td><td class="mono ok">4.5~4.9×</td></tr>
+        <tr><td>只算個數(<a href="https://leetcode.com/problems/n-queens-ii/" target="_blank" rel="noopener">52</a>),n = 9</td><td class="mono">0.44~0.59 → 0.019~0.030 ms</td><td class="mono ok">約 20×</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:8px 0 0;font-size:13px;">另一次獨立重測(7 次取最快)n = 9 是 0.58 → 0.12 ms,4.9×。機器有雜訊,記「約 5~6 倍」就好。</p>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">為什麼快:遞迴次數一樣(n = 9 都是 8,394 次),省的是每一次裡面的工作</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <strong>① 不用試被擋的格子</strong>:<code>~(usedCols | mainDiag | antiDiag) &amp; fullMask</code> 一個運算得到這列所有可放的欄;你的版本在 n = 9 要做 63,985 次「查三個陣列 → continue」。
+          <strong>② 斜線不用算索引</strong>:「\」往下一列會往右一欄,所以整個 mask <code>&lt;&lt; 1</code>;「/」往左一欄,<code>&gt;&gt; 1</code>。不用 <code>r + c</code>、<code>r - c + n - 1</code>,也不用撤銷 —— 三個 mask 是<strong>傳值</strong>,和 <a href="../p17/index.html">17</a> 的 res 一樣。
+          <strong>③ 棋盤最後才建</strong>:路上只記 <code>queenCol[r]</code>,到葉子才畫出 n 個字串。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>正確性:n = 1~12 和你的版本輸出完全相同,連順序都一樣(<code>available &amp; -available</code> 取最低位 = 欄由小到大);ASan 乾淨。</strong>
+      <b>要記的三行:<code>available = ~(cols | d1 | d2) &amp; full</code>、<code>bit = available &amp; -available</code>、遞迴傳 <code>(cols | bit, (d1 | bit) &lt;&lt; 1, (d2 | bit) &gt;&gt; 1)</code>。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
       <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
     </div>
 
@@ -120,7 +200,7 @@
   </section>
   <section class="sc-section">
     <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
+      <span class="sc-section__num">4</span>
       <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
     </div>
 
@@ -151,7 +231,7 @@
   </section>
   <section class="sc-section">
     <div class="sc-section__head">
-      <span class="sc-section__num">4</span>
+      <span class="sc-section__num">5</span>
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · n = 4</span></h2>
     </div>
 
