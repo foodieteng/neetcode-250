@@ -98,10 +98,73 @@
     </div>
   </section>
 
-  <!-- ════════════ 2 · 錯誤紀錄 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">優化 · path 改傳參考<span class="sc-section__title-en">// ONE CHARACTER · ~2× FASTER</span></h2>
+    </div>
+    <p style="margin:0 0 12px;">
+      和修正版只差<strong>一個字元</strong>:<code>dfs</code> 的 <code>vector&lt;int&gt; path</code> 改成 <code>vector&lt;int&gt;&amp; path</code>。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p47_byref.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> <span class="f">permuteUnique</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">)</span> <span class="p">{</span>
+        <span class="f">sort</span><span class="p">(</span>nums<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> nums<span class="p">.</span><span class="f">end</span><span class="p">());</span>                     <span class="c">// 相同的值排在一起</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;</span> ans<span class="p">;</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> path<span class="p">;</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> <span class="f">used</span><span class="p">(</span>nums<span class="p">.</span><span class="f">size</span><span class="p">(),</span> <span class="k">false</span><span class="p">);</span>
+        <span class="f">dfs</span><span class="p">(</span>nums<span class="p">,</span> ans<span class="p">,</span> path<span class="p">,</span> used<span class="p">);</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> ans<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> path<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;&amp;</span> used<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>path<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">==</span> nums<span class="p">.</span><span class="f">size</span><span class="p">())</span> <span class="p">{</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>path<span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> nums<span class="p">.</span><span class="f">size</span><span class="p">();</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span>used<span class="p">[</span>i<span class="p">])</span> <span class="k">continue</span><span class="p">;</span>                          <span class="c">// 已經在 path 裡</span>
+            <span class="k">if</span> <span class="p">(</span>i <span class="p">&gt;</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> nums<span class="p">[</span>i<span class="p">]</span> <span class="p">==</span> nums<span class="p">[</span>i <span class="p">-</span> <span class="n">1</span><span class="p">]</span> <span class="p">&amp;&amp;</span> <span class="p">!</span>used<span class="p">[</span>i <span class="p">-</span> <span class="n">1</span><span class="p">])</span> <span class="k">continue</span><span class="p">;</span>   <span class="c">// 同層重複:只跳這一個</span>
+
+            used<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+            path<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>nums<span class="p">[</span>i<span class="p">]);</span>
+            <span class="f">dfs</span><span class="p">(</span>nums<span class="p">,</span> ans<span class="p">,</span> path<span class="p">,</span> used<span class="p">);</span>
+            path<span class="p">.</span><span class="f">pop_back</span><span class="p">();</span>
+            used<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>實測(-O2,每次呼叫)</th><th>path 傳值(修正版)</th><th>path 傳參考</th></tr></thead>
+      <tbody>
+        <tr><td><code>[1..8]</code>(40,320 個答案)</td><td class="mono">7.1 ms</td><td class="mono ok">3.7 ms</td></tr>
+        <tr><td><code>[1,1,2,2,3,3,4,4]</code>(2,520 個答案)</td><td class="mono">384 µs</td><td class="mono ok">157 µs</td></tr>
+        <tr><td>正確性</td><td colspan="2">隨機 20,000 組(n ≤ 8)輸出完全相同,連順序都一樣</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>傳值時每一次遞迴都會把整個 path 複製一份;反正已經有 push / pop 在還原,傳參考就夠了。</strong>
+      <b>傳值版也是對的(它 push / pop 的是自己那份複本),只是白白多複製。順帶一提:把 <code>used</code> 換成 bitmask 只快 1.0~1.3 倍,真正的成本在這裡。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 錯誤紀錄 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
       <h2 class="sc-section__title">我寫錯的地方<span class="sc-section__title-en">// MY MISTAKE</span></h2>
     </div>
 
@@ -149,7 +212,7 @@
   <!-- ════════════ 3 · 驗證與陷阱 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
+      <span class="sc-section__num">4</span>
       <h2 class="sc-section__title">驗證與其他陷阱<span class="sc-section__title-en">// CROSS CHECK &amp; PITFALLS</span></h2>
     </div>
 
@@ -176,7 +239,7 @@ break(我的) 錯 946    continue 錯 0    used[i-1] + continue 錯 0    used[i-
   <!-- ════════════ 4 · 細節走讀 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
-      <span class="sc-section__num">4</span>
+      <span class="sc-section__num">5</span>
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
     </div>
 
