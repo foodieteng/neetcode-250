@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>140 · Word Break II // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P140</span>
+    <span><a href="https://leetcode.com/problems/word-break-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Word Break II</h1>
+    <p class="sc-mast__subtitle">// CODE · 剪枝回溯(最佳)· 純回溯 · 記憶化,三種都實跑對拍</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 140</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(n·L²) + O(K·L) · O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作 · 最佳解<span class="sc-section__title-en">// BACKTRACKING + SUFFIX PRUNING</span></h2>
+    </div>
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p140.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">wordBreak</span><span class="p">(</span><span class="t">string</span> s<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> wordDict<span class="p">)</span> <span class="p">{</span>
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">dict</span><span class="p">(</span>wordDict<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> wordDict<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        maxLen <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> word <span class="p">:</span> wordDict<span class="p">)</span> maxLen <span class="p">=</span> <span class="f">max</span><span class="p">(</span>maxLen<span class="p">,</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>word<span class="p">.</span><span class="f">size</span><span class="p">());</span>
+
+        <span class="c">// canBreak[i]:s[i..n) 能不能完整切成字典裡的字</span>
+        canBreak<span class="p">.</span><span class="f">assign</span><span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+        canBreak<span class="p">[</span>n<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> n <span class="p">-</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&gt;=</span> <span class="n">0</span><span class="p">;</span> i<span class="p">--)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> end <span class="p">=</span> i <span class="p">+</span> <span class="n">1</span><span class="p">;</span> end <span class="p">&lt;=</span> <span class="f">min</span><span class="p">(</span>n<span class="p">,</span> i <span class="p">+</span> maxLen<span class="p">);</span> end<span class="p">++)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span>canBreak<span class="p">[</span>end<span class="p">]</span> <span class="p">&amp;&amp;</span> dict<span class="p">.</span><span class="f">count</span><span class="p">(</span>s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>i<span class="p">,</span> end <span class="p">-</span> i<span class="p">)))</span> <span class="p">{</span>
+                    canBreak<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+                    break<span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> ans<span class="p">;</span>
+        <span class="k">if</span> <span class="p">(!</span>canBreak<span class="p">[</span><span class="n">0</span><span class="p">])</span> <span class="k">return</span> ans<span class="p">;</span>                               <span class="c">// 整串切不完</span>
+        <span class="t">string</span> path<span class="p">;</span>
+        <span class="f">dfs</span><span class="p">(</span>s<span class="p">,</span> <span class="n">0</span><span class="p">,</span> dict<span class="p">,</span> path<span class="p">,</span> ans<span class="p">);</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="p">:</span>
+    <span class="t">int</span> maxLen <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">bool</span><span class="p">&gt;</span> canBreak<span class="p">;</span>
+
+    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> s<span class="p">,</span> <span class="t">int</span> start<span class="p">,</span> <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> dict<span class="p">,</span> <span class="t">string</span><span class="p">&amp;</span> path<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> ans<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span>start <span class="p">==</span> n<span class="p">)</span> <span class="p">{</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>path<span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> end <span class="p">=</span> start <span class="p">+</span> <span class="n">1</span><span class="p">;</span> end <span class="p">&lt;=</span> <span class="f">min</span><span class="p">(</span>n<span class="p">,</span> start <span class="p">+</span> maxLen<span class="p">);</span> end<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(!</span>canBreak<span class="p">[</span>end<span class="p">])</span> <span class="k">continue</span><span class="p">;</span>                           <span class="c">// 切到這裡之後走不到底</span>
+            <span class="t">string</span> word <span class="p">=</span> s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>start<span class="p">,</span> end <span class="p">-</span> start<span class="p">);</span>
+            <span class="k">if</span> <span class="p">(!</span>dict<span class="p">.</span><span class="f">count</span><span class="p">(</span>word<span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+
+            <span class="t">int</span> oldLen <span class="p">=</span> path<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(!</span>path<span class="p">.</span><span class="f">empty</span><span class="p">())</span> path <span class="p">+=</span> <span class="s">' '</span><span class="p">;</span>
+            path <span class="p">+=</span> word<span class="p">;</span>
+            <span class="f">dfs</span><span class="p">(</span>s<span class="p">,</span> end<span class="p">,</span> dict<span class="p">,</span> path<span class="p">,</span> ans<span class="p">);</span>
+            path<span class="p">.</span><span class="f">resize</span><span class="p">(</span>oldLen<span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三個官方範例都過;<code>s = "a"</code>、字典 {a} → ["a"]。這頁三種寫法和「列舉全部 2<sup>n−1</sup> 種切點」的暴力法對拍 20,000 組隨機測資,0 不一致。</strong>
+      <b>-Wall -Wextra 沒有警告;ASan + UBSan 跑完整套乾淨。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">另外兩種寫法<span class="sc-section__title-en">// PLAIN BACKTRACKING · MEMOIZATION</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;"><strong>① 純回溯</strong>:最佳解拿掉 canBreak 和 maxLen 就是它。面試時先寫這個最快,再補剪枝。</p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p140_backtrack.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">wordBreak</span><span class="p">(</span><span class="t">string</span> s<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> wordDict<span class="p">)</span> <span class="p">{</span>
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">dict</span><span class="p">(</span>wordDict<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> wordDict<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> ans<span class="p">;</span>
+        <span class="t">string</span> path<span class="p">;</span>
+        <span class="f">dfs</span><span class="p">(</span>s<span class="p">,</span> <span class="n">0</span><span class="p">,</span> dict<span class="p">,</span> path<span class="p">,</span> ans<span class="p">);</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> s<span class="p">,</span> <span class="t">int</span> start<span class="p">,</span> <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> dict<span class="p">,</span> <span class="t">string</span><span class="p">&amp;</span> path<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> ans<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>start <span class="p">==</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>s<span class="p">.</span><span class="f">size</span><span class="p">())</span> <span class="p">{</span>                               <span class="c">// ① 整串切完</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>path<span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> end <span class="p">=</span> start <span class="p">+</span> <span class="n">1</span><span class="p">;</span> end <span class="p">&lt;=</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>s<span class="p">.</span><span class="f">size</span><span class="p">();</span> end<span class="p">++)</span> <span class="p">{</span>    <span class="c">// ② 這個字切到哪</span>
+            <span class="t">string</span> word <span class="p">=</span> s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>start<span class="p">,</span> end <span class="p">-</span> start<span class="p">);</span>
+            <span class="k">if</span> <span class="p">(!</span>dict<span class="p">.</span><span class="f">count</span><span class="p">(</span>word<span class="p">))</span> <span class="k">continue</span><span class="p">;</span>                        <span class="c">// ③ 不是字</span>
+
+            <span class="t">int</span> oldLen <span class="p">=</span> path<span class="p">.</span><span class="f">size</span><span class="p">();</span>                               <span class="c">// ④ 接上</span>
+            <span class="k">if</span> <span class="p">(!</span>path<span class="p">.</span><span class="f">empty</span><span class="p">())</span> path <span class="p">+=</span> <span class="s">' '</span><span class="p">;</span>
+            path <span class="p">+=</span> word<span class="p">;</span>
+            <span class="f">dfs</span><span class="p">(</span>s<span class="p">,</span> end<span class="p">,</span> dict<span class="p">,</span> path<span class="p">,</span> ans<span class="p">);</span>
+            path<span class="p">.</span><span class="f">resize</span><span class="p">(</span>oldLen<span class="p">);</span>                                    <span class="c">// ⑤ 拿掉(連空格)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin:14px 0 12px;"><strong>② 記憶化 DFS</strong>:<code>dfs(start)</code> 不再往下傳 path,而是<strong>回傳</strong> s[start..n) 的所有句子;父層把自己切下的字接在每一句前面。同一個 start 只算一次。</p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p140_memo.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">wordBreak</span><span class="p">(</span><span class="t">string</span> s<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> wordDict<span class="p">)</span> <span class="p">{</span>
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">dict</span><span class="p">(</span>wordDict<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> wordDict<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+        <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&gt;</span> memo<span class="p">;</span>
+        <span class="k">return</span> <span class="f">dfs</span><span class="p">(</span>s<span class="p">,</span> <span class="n">0</span><span class="p">,</span> dict<span class="p">,</span> memo<span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c">// 回傳 s[start..n) 的所有句子</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">dfs</span><span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> s<span class="p">,</span> <span class="t">int</span> start<span class="p">,</span> <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> dict<span class="p">,</span> <span class="t">unordered_map</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&gt;&amp;</span> memo<span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> it <span class="p">=</span> memo<span class="p">.</span><span class="f">find</span><span class="p">(</span>start<span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span>it <span class="p">!=</span> memo<span class="p">.</span><span class="f">end</span><span class="p">())</span> <span class="k">return</span> it<span class="p">-&gt;</span>second<span class="p">;</span>                    <span class="c">// ① 算過了</span>
+        <span class="k">if</span> <span class="p">(</span>start <span class="p">==</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>s<span class="p">.</span><span class="f">size</span><span class="p">())</span> <span class="k">return</span> <span class="p">{</span><span class="s">""</span><span class="p">};</span>                    <span class="c">// ② 空後綴 = 一句空句子</span>
+
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> sentences<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> end <span class="p">=</span> start <span class="p">+</span> <span class="n">1</span><span class="p">;</span> end <span class="p">&lt;=</span> <span class="p">(</span><span class="t">int</span><span class="p">)</span>s<span class="p">.</span><span class="f">size</span><span class="p">();</span> end<span class="p">++)</span> <span class="p">{</span>
+            <span class="t">string</span> word <span class="p">=</span> s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>start<span class="p">,</span> end <span class="p">-</span> start<span class="p">);</span>
+            <span class="k">if</span> <span class="p">(!</span>dict<span class="p">.</span><span class="f">count</span><span class="p">(</span>word<span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> rest <span class="p">:</span> <span class="f">dfs</span><span class="p">(</span>s<span class="p">,</span> end<span class="p">,</span> dict<span class="p">,</span> memo<span class="p">))</span> <span class="p">{</span>    <span class="c">// ③ 接在每個後綴句子前面</span>
+                sentences<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>rest<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">?</span> word <span class="p">:</span> word <span class="p">+</span> <span class="s">" "</span> <span class="p">+</span> rest<span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        memo<span class="p">[</span>start<span class="p">]</span> <span class="p">=</span> sentences<span class="p">;</span>                                    <span class="c">// ④ 存起來(可能是空的)</span>
+        <span class="k">return</span> sentences<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">base case 為什麼是 {""} 而不是 { }</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>{""}</code> 是「一句空句子」:空後綴有一種切法(什麼都不切)。父層拿到它,接上自己的字就變成 <code>"dog"</code>。
+          <code>{ }</code> 是「零種切法」—— 寫錯成它,每一層都拿到空清單,<b>所有輸入都回傳 []</b>(實測 4,307 / 20,000 組錯)。
+          同理 <code>rest.empty() ? word : word + " " + rest</code> 是在擋最後一個字後面多一個空格。
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// MEASURED COST</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>輸入</th><th>① 純回溯<br>dfs / 查字典</th><th>② 記憶化<br>dfs / 查字典</th><th>③ 剪枝<br>dfs / 查字典(+ 預處理)</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">catsanddog</td><td class="mono">7 / 29</td><td class="mono">6 / 26</td><td class="mono ok">7 / 7(+14)</td></tr>
+        <tr><td class="mono">pineapplepenapple</td><td class="mono">10 / 61</td><td class="mono">7 / 43</td><td class="mono ok">10 / 11(+28)</td></tr>
+        <tr><td class="mono">catsandog(無解)</td><td class="mono">5 / 24</td><td class="mono">5 / 22</td><td class="mono ok">0 / 0(+8)</td></tr>
+        <tr><td class="mono">"a"×19+"b",字典 a~aaaa</td><td class="mono fail">306,128 / 636,156</td><td class="mono">71 / 210</td><td class="mono ok">0 / 0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      剪枝:預處理 <strong>O(n · L²)</strong>(每個 i 試 ≤ L 個 end,每次 substr + hash O(L))+ 搜尋 <strong>O(K · L)</strong>,K = 答案總字元數
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>實測(-O2,5 次中位數)</th><th>① 純回溯</th><th>② 記憶化</th><th>③ 剪枝</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">"a"×19+"b",字典 a~aaaa(0 句)</td><td class="mono fail">9.7 ms</td><td class="mono">0.004 ms</td><td class="mono ok">&lt; 0.001 ms</td></tr>
+        <tr><td class="mono">"a"×19+"b",字典 a~a<sup>10</sup>(0 句)</td><td class="mono fail">17.5 ms</td><td class="mono">0.005 ms</td><td class="mono ok">0.001 ms</td></tr>
+        <tr><td class="mono">"a"×20,字典 {a, aa}(10,946 句)</td><td class="mono">1.39 ms</td><td class="mono">3.17 ms</td><td class="mono ok">0.83 ms</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:8px 0 0;font-size:13px;">第三列幾乎每條路都是活路,剪枝沒東西可剪;記憶化反而最慢,因為每個位置都要建一整份句子清單、每往上一層就複製一次字串。</p>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">每一種都實際改出來,在 20,000 組隨機測資上和暴力法比對,列出最小的錯誤輸入。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例 / 實際輸出</th></tr></thead>
+      <tbody>
+        <tr><td>迴圈寫 <code>end &lt; n</code></td><td class="mono fail">4,307</td><td><code>"a"</code> → []:最後一個字永遠切不到</td></tr>
+        <tr><td>不判斷 <code>path.empty()</code>,一律先加空格</td><td class="mono fail">4,307</td><td><code>"a"</code> → <code>[" a"]</code>:開頭多一個空格</td></tr>
+        <tr><td>撤銷寫 <code>resize(path.size() - word.size())</code></td><td class="mono fail">1,514</td><td><code>"aa"</code>、{a, aa} → <code>["a a", "a aa"]</code>(應為 "aa"):空格沒拿掉;catsanddog 輸出 "ca cats and dog"</td></tr>
+        <tr><td>忘了 <code>canBreak[n] = true</code></td><td class="mono fail">4,307</td><td>所有輸入都回 []:沒有任何位置能被標成 T</td></tr>
+        <tr><td>窗口寫 <code>end &lt;= start + maxLen - 1</code></td><td class="mono fail">2,155</td><td><code>"a"</code>、{a} → []:最長的字切不到</td></tr>
+        <tr><td>記憶化 base 回傳 <code>{ }</code></td><td class="mono fail">4,307</td><td>所有輸入都回 []</td></tr>
+        <tr><td>記憶化不判斷 <code>rest.empty()</code></td><td class="mono fail">4,307</td><td><code>"a"</code> → <code>["a "]</code>:結尾多一個空格</td></tr>
+        <tr><td>拿 139 方向的前綴 dp 剪枝</td><td class="mono">0</td><td><strong>答案全對,但一刀都沒剪</strong>:"a"×19+"b" 仍是 306,128 次 dfs</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>表裡大部分的錯都出在「空格」和「最後一個字」:<code>"a"</code> 這個一字元測資就能抓到大半。</strong>
+      <b>剪枝方向寫反最危險 —— 所有測資都過,只是沒有變快。要用無解的長輸入(像 "a"×19+"b")測才看得出來。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · catsanddog</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">最佳解插樁實跑,和概念頁第 3 支動畫同一組。maxLen = 4。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 由右往左填 canBreak(預處理查字典 14 次)</span>
+索引      0  1  2  3  4  5  6  7  8  9  10
+字元      c  a  t  s  a  n  d  d  o  g
+canBreak  T  F  F  T  T  F  F  T  F  F  T
+
+i=7  "dog" 是字、canBreak[10]=T → T
+i=4  "and" 是字、canBreak[7]=T  → T
+i=3  "sand" 是字、canBreak[7]=T → T
+i=0  "cat" 是字、canBreak[3]=T  → T(break,不再試 "cats")
+其他位置在窗口內找不到「是字 + 後面是 T」→ F</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: 回溯,只看 canBreak[end] = T 的 end</span>
+dfs(0)  窗口 end 1..4,T 的是 3、4
+  end=3  "cat" ✓       path = "cat"
+  dfs(3)  窗口 4..7,T 的是 4、7
+    end=4  "s" ✗
+    end=7  "sand" ✓    path = "cat sand"
+    dfs(7)  窗口 8..10,T 的只有 10
+      end=10 "dog" ✓   path = "cat sand dog" → dfs(10) 收下
+  撤銷到 path = ""
+  end=4  "cats" ✓      path = "cats"
+  dfs(4)  窗口 5..8,T 的只有 7
+    end=7  "and" ✓     path = "cats and"
+    dfs(7)  end=10 "dog" ✓ → 收下 "cats and dog"
+<span class="sc-trace__out">// OUTPUT: ["cat sand dog", "cats and dog"](7 次 dfs、回溯查字典 7 次)</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">canBreak[n] = T,i 由右往左:窗口內有「s[i,end) 是字 && canBreak[end]」就 T。dfs(start) 只試 canBreak[end] = T 的 end,是字就接上、遞迴、resize(oldLen)。陷阱都在邊界:end ≤ n、第一個字不加空格、撤銷連空格、記憶化 base 是 {""}。</div>
+    <div class="sc-summary-bar__detail">WORD BREAK II · CODE</div>
+  </div>
+
+</body>
+</html>

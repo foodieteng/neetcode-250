@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>140 · Word Break II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">09 · Backtracking</a> / P140</span>
+    <span><a href="https://leetcode.com/problems/word-break-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Word Break II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 140</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BACKTRACKING · SUFFIX DP PRUNING · MEMOIZATION</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>骨架</td><td>切割回溯:dfs(start) 試每個 end,和 <a href="../p131/index.html">131</a> 同形</td></tr>
+        <tr><td>剪枝</td><td><code>canBreak[i]</code> = s[i..n) 切得完,<strong>從右往左</strong>算;只走 T 的 end</td></tr>
+        <tr><td>窗口</td><td><code>end ≤ min(n, start + maxLen)</code>,end 要能等於 n</td></tr>
+        <tr><td>空格</td><td>第一個字前不加;撤銷 <code>resize(oldLen)</code> 連空格一起拿</td></tr>
+        <tr><td>記憶化</td><td>dfs 回傳後綴句子;base 是 <code>{""}</code>,存 <code>[]</code> 也算算過</td></tr>
+        <tr><td>規模</td><td>無解的 "a"×19+"b":純回溯 306,128 次 dfs,剪枝 0 次</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 139 用 DP 就解完了,這題為什麼一定要搜尋?</div>
+
+    <div class="qa"><strong>Q2.</strong> canBreak 為什麼要從右往左算?直接拿 139 的 dp(前綴切不切得出來)來剪枝會怎樣?</div>
+
+    <div class="qa"><strong>Q3.</strong> 撤銷時為什麼要先記 <code>oldLen</code> 再 <code>resize(oldLen)</code>?只把 word 的長度砍掉不行嗎?</div>
+
+    <div class="qa"><strong>Q4.</strong> 記憶化版本存進 memo 的 <code>[]</code>(空清單)和「還沒算」有什麼不同?</div>
+
+    <div class="qa"><strong>Q5.</strong> 剪枝之後為什麼說「每一步都通往答案」?什麼情況下剪枝幾乎沒幫助?</div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// catsandog · 三種寫法怎麼發現「無解」</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">字典 cats / dog / sand / and / cat。三種寫法都插樁實跑。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// ① 純回溯:走進兩條死路才知道(5 次 dfs、查字典 24 次)</span>
+dfs(0)  c ✗、ca ✗、cat ✓ → path = "cat"
+  dfs(3)  s ✗、sa ✗、san ✗、sand ✓ → "cat sand"
+    dfs(7)  o ✗、og ✗ → 死路
+  dfs(3)  sando ✗、sandog ✗ → return
+dfs(0)  cats ✓ → "cats"
+  dfs(4)  a ✗、an ✗、and ✓ → "cats and"
+    dfs(7)  o ✗、og ✗ → 死路(第二次算同一件事)
+dfs(0)  catsa … catsandog 全 ✗ → []</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// ② 記憶化:dfs(7) 只算一次,第二次命中空清單</span>
+dfs(0) → cat → dfs(3) → sand → dfs(7):o、og 都不是字 → memo[7] = []
+dfs(3) 收到 [] → memo[3] = []
+dfs(0) → cats → dfs(4) → and → dfs(7) memo 命中 → 0 句 → memo[4] = []
+memo[0] = []</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// ③ 剪枝:預處理就判死,0 次 dfs</span>
+索引      0  1  2  3  4  5  6  7  8  9
+canBreak  F  F  F  F  F  F  T  F  F  T
+i=6  "dog" 是字、canBreak[9]=T → T
+i=3  "sand" 是字,但 canBreak[7]=F → F
+i=0  "cat" 接 canBreak[3]=F、"cats" 接 canBreak[4]=F → F
+<span class="sc-trace__out">// OUTPUT: canBreak[0] = F → return [](預處理查字典 8 次)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三種寫法卡住的都是同一件事:位置 7 之後的 "og" 切不完。</strong>
+      <b>純回溯每次走到 7 都重新發現一次;記憶化第二次查表;剪枝在搜尋開始前就把 7 標成 F,所有通往 7 的路都不走。</b>
+    </div>
+  </section>
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 字典有 1000 個字、每個字最長 10。<code>substr</code> + hash 查表是每一步的主要成本,怎麼換成 Trie?</div>
+
+    <div class="qa"><strong>App 2.</strong> 題目改成「回傳有幾種切法」。還需要回溯嗎?</div>
+
+    <div class="qa"><strong>App 3.</strong> 這個「切割回溯 + 合法性剪枝」的形狀,還出現在哪些題目?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>因為要輸出的是所有句子,而句子的數量本身可能是指數級。</strong><br><br>
+  DP 能在多項式時間回答「能不能」或「有幾種」,但要把每一種都寫出來,工作量至少是答案的大小。例如 20 個 a、字典 {a, aa} 有 10,946 句。所以這題的重點不是避開指數,而是<strong>不要在沒有答案的地方花指數時間</strong>。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>回溯從左往右切,站在 start 時左邊已經切好了;要知道的是「end 之後還切不切得完」,只有後綴 DP 能回答。</strong><br><br>
+  前綴 dp 在回溯走得到的位置上永遠是 true,所以一刀都剪不到。實測答案全對,但 "a"×19+"b" 仍然 306,128 次 dfs,和純回溯一樣。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>因為接上的不只是字,還有前面的空格(第一個字除外)。</strong><br><br>
+  只砍 <code>word.size()</code> 個字元會把空格留下來,下一個字再加一個空格。實測 <code>"aa"</code>、字典 {a, aa} 會輸出 <code>"a aa"</code>(應為 <code>"aa"</code>),catsanddog 會出現 <code>"ca cats and dog"</code>。記住接上前的長度,一次 resize 回去最不容易錯。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong><code>[]</code> 是一個已經算好的答案:「這個後綴切不完」;還沒算是 memo 裡根本沒有這個 key。</strong><br><br>
+  所以判斷要用 <code>memo.find(start) != memo.end()</code>,不能用「清單是不是空的」—— 那樣切不完的後綴每次都會重算,記憶化就失效了。catsandog 的 <code>dfs(7)</code> 第二次就是命中一個空清單。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>只有 canBreak[end] = T 才會進 dfs(end),而 T 的意思是從 end 一定有一種切法到底,所以任何節點往下都至少有一條路走到 start == n。</strong><br><br>
+  沒有死路,搜尋的工作量就被答案大小綁住。反過來,當幾乎每個位置都是 T、每條路都成功(20 個 a、字典 {a, aa}),剪枝就沒有東西可剪,三種寫法都由輸出主導(1.39 / 3.17 / 0.83 ms)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>把字典建成 Trie;從 start 開始沿著 Trie 一個字元一個字元往下走,經過「字的結尾」節點時就是一個可以切的 end。</strong><br><br>
+  走到 Trie 沒有路就停,所以每個 start 最多走 maxLen 步,不用每個 end 都建 substr 再 hash 一次(每次 O(L))。預處理和回溯都能這樣改。這是 <a href="../../../10-tries/index.html">10 · Tries</a> 那一章的工具。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>不需要。把 139 的 bool 換成計數:<code>ways[i] = Σ ways[end]</code>,對所有 s[i,end) 是字的 end。</strong><br><br>
+  每個位置只算一次,時間 O(n · L²),不用列出句子。這和 <a href="../p52/index.html">52 · N-Queens II</a> 正好相反:N-Queens 的狀態是整個旗標組合,幾乎不重複,只能回溯一個一個數;這題的狀態只有「從哪個位置開始」,重複非常多,所以可以 DP。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong><a href="../p131/index.html">131 · Palindrome Partitioning</a>:一模一樣的切割回溯,合法性從「是字」換成「是回文」。</strong><br><br>
+  它也能用同一招加速:先 DP 算出 <code>isPal[i][j]</code>,回溯時 O(1) 判斷。共同的形狀是「一層切一段 + 檢查這段 + 切到底就收」;能預先算出「哪些段合法」、「從哪裡切得到底」時,就先算好再搜尋。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 09 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">答案可能是指數級 → 一定要搜尋;重點是不在無解的地方花時間。後綴 canBreak 讓每一步都通往答案,前綴 dp 剪不到東西。撤銷連空格、記憶化 base 是 {""}、空清單也是答案。只要個數就換回 DP 計數。</div>
+    <div class="sc-summary-bar__detail">WORD BREAK II · REVIEW</div>
+  </div>
+
+</body>
+</html>
