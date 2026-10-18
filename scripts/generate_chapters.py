@@ -223,7 +223,7 @@ PROBLEMS = {
         ('p140', 'Word Break II',                        'word-break-ii',                        'hard','done'),
     ],
     '10': [  # Tries
-        ('p208', 'Implement Trie (Prefix Tree)',              'implement-trie-prefix-tree',                'med', 'todo'),
+        ('p208', 'Implement Trie (Prefix Tree)',              'implement-trie-prefix-tree',                'med', 'done'),
         ('p211', 'Design Add and Search Words Data Structure','design-add-and-search-words-data-structure','med', 'todo'),
         ('p2707','Extra Characters in a String',              'extra-characters-in-a-string',              'med', 'todo'),
         ('p212', 'Word Search II',                            'word-search-ii',                            'hard','todo'),

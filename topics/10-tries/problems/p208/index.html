@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>208 · Implement Trie (Prefix Tree) // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P208</span>
+    <span><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Implement Trie (Prefix Tree)</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 一個字元一層:沿路走、缺就建、走完看 isWord</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 208</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TRIE · DESIGN · PREFIX</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        實作 <code>Trie</code> 類別:<code>insert(word)</code> 加入一個字;<code>search(word)</code> → 這個字<strong>完整</strong>插入過嗎?<code>startsWith(prefix)</code> → 有沒有任何插入過的字<strong>以它開頭</strong>?<br>
+        <code>1 ≤ word.length, prefix.length ≤ 2000</code>,只有小寫字母,三種操作合計最多 <code>3 · 10<sup>4</sup></code> 次。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>insert("apple")</code> 之後 <code>search("apple")</code> → true、<code>search("app")</code> → <strong>false</strong>、<code>startsWith("app")</code> → true;再 <code>insert("app")</code>,<code>search("app")</code> 才變 true。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>search 和 startsWith 走的是同一條路,差別只在走完之後:</strong>
+      <b>startsWith 走得完就 true;search 還要問終點「有人在這裡結束嗎」—— 這個問題就是 <code>isWord</code>。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 Trie ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Trie<span class="sc-section__title-en">// WHY A PREFIX TREE</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">vector&lt;string&gt; 存起來,查詢時全部掃</span>
+            <span class="sc-ko-card__o">O(N · L) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每次 search / startsWith 都要和已存的 N 個字逐一比。字越多越慢,而且共同前綴(apple、app)被重複比了一次又一次。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">unordered_set&lt;string&gt;</span>
+            <span class="sc-ko-card__o">前綴沒辦法查</span>
+          </div>
+          <div class="sc-ko-card__body">
+            search 是 <code>O(L)</code> 雜湊,很好。但 startsWith 問的是「<strong>有沒有某個字以它開頭</strong>」,雜湊只能比整串。要嘛全掃,要嘛 insert 時把 L 個前綴全塞進另一個 set(<code>O(L²)</code> 字元)。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 前綴要另外處理</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Trie:每個節點是「一段前綴」,往下一層多一個字元</span>
+          <span class="sc-ko-card__o">O(L) / 次,與 N 無關</span>
+        </div>
+        <div class="sc-ko-card__body">
+          共同前綴只存一次(<code>app</code> 和 <code>apple</code> 共用 a → p → p)。三個操作都是從 root 沿著字元往下走 L 步,<strong>跟已經存了幾個字無關</strong>。
+          走得到 = 前綴存在;走到的節點 <code>isWord</code> = 整個字存在。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 前綴天生共用</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>節點</strong>:<code>child[26]</code> 一格對一個字母(全部初始化成 <code>nullptr</code>)+ 一個 <code>isWord</code>。</li>
+      <li><strong>insert</strong>:從 root 一個字元一層往下;<strong>那格是 nullptr 才 new</strong>,已經有就沿用;走完把終點 <code>isWord = true</code>。</li>
+      <li><strong>search / startsWith</strong>:一樣往下走,半路遇到 nullptr → false;走完了,startsWith 直接 true,search 回傳終點的 <code>isWord</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 + search("apx")</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      範例 1 的六個操作裡,false 都是「路走得完,但終點 isWord = false」。最後多加一個 <code>search("apx")</code>,看另一種 false:<strong>路走到一半就斷了</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 範例 1 + search("apx") · 沿路走、缺就建、最後看 isWord</div>
+      <div class="sc-viz__cvwrap"><canvas id="v208-canvas" class="sc-viz__canvas" style="height:456px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v208-reset">Reset</button><button class="sc-btn" id="v208-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v208-play">Play</button><button class="sc-btn" id="v208-next">Next</button>
+        <span class="sc-viz__step" id="v208-step">00 / 20</span>
+      </div>
+      <div class="sc-viz__label" id="v208-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>insert("apple") 建了 5 個節點;insert("app") 一個都沒建,只是把第 3 個節點的 isWord 打開。</strong>
+      <b>節點數從頭到尾:1 → 6 → 6。插入已經是前綴的字,成本只有走一遍。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩種 false、一個 new 的條件<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 節點存在 ≠ 這個字存在</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          只插入 <code>"apple"</code> 時,節點 <code>"app"</code> 已經在樹上(它是 apple 的必經之路),但沒有人在這裡結束。
+          所以 search 不能只看「走不走得到」,要看 <code>isWord</code>;startsWith 問的正好就是「走不走得到」,所以不看。
+          <b>search("app") = false、startsWith("app") = true,差別就只有最後那一行。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · insert 一定要「nullptr 才 new」</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          如果每個字元都無條件 <code>child[i] = new TrieNode()</code>,插入 <code>"app"</code> 時會把 a、ap、app 換成全新的空節點,
+          原本掛在下面的 <code>appl → apple</code> 整串被切斷(舊節點也洩漏)。之後 <code>search("apple")</code> 就變 false。
+          <strong>Trie 的重點就是共用前綴;每次重建等於把共用拆掉。</strong><br>實測隨機 20,000 組錯 147 組,最小反例只要三步:<code>insert("a") → insert("aa") → search("a")</code> 回傳 false(第二次 insert 把有 isWord 的 "a" 節點換掉了)。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      每個操作從 root 往下最多走 L 步,每步是一次陣列索引。空間是節點數 × 每個節點的大小:每次 insert 最多新增 L 個節點。
+    </p>
+
+    <div class="sc-formula">
+      每次操作 <strong>O(L)</strong>　·　空間 <strong>O(總插入字元數 · 26)</strong>(每個節點 26 個指標)
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>實測(64-bit, -O2)</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td><code>sizeof(TrieNode)</code></td><td class="mono">216 B(26 × 8 + bool,補齊到 8)</td></tr>
+        <tr><td>3 · 10<sup>4</sup> 次 insert 同一個 <code>"a"×2000</code></td><td class="mono ok">2,001 個節點</td></tr>
+        <tr><td>10,000 個隨機長度 2000 的字</td><td class="mono">19,978,192 個節點、峰值約 4.2 GiB、3.3 s</td></tr>
+        <tr><td>理論上界 3 · 10<sup>4</sup> × 2000 = 6 · 10<sup>7</sup> 節點</td><td class="mono fail">× 216 B ≈ 12 GiB(實際測資不會這麼兇)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>節點代表前綴,isWord 代表「有字在這裡結束」。</strong>
+      <b>insert 缺才建;search 要走得完而且 isWord;startsWith 只要走得完。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">節點 = 前綴,child[26] + isWord。insert:nullptr 才 new,終點標 isWord;search:走得完且 isWord;startsWith:走得完就好。每次 O(L),跟存了幾個字無關。</div>
+    <div class="sc-summary-bar__detail">IMPLEMENT TRIE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p208-trie.js"></script>
+</body>
+</html>

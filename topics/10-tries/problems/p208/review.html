@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>208 · Implement Trie (Prefix Tree) // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P208</span>
+    <span><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Implement Trie (Prefix Tree)</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 208</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TRIE · DESIGN · PREFIX</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>節點</td><td><code>child[26] = { nullptr }</code> + <code>isWord = false</code>;節點代表一段前綴</td></tr>
+        <tr><td>insert</td><td>一個字元一層;<strong>nullptr 才 new</strong>;走完標 <code>isWord</code></td></tr>
+        <tr><td>search</td><td>走得完 <strong>而且</strong> 終點 <code>isWord</code></td></tr>
+        <tr><td>startsWith</td><td>走得完就 true,不看 <code>isWord</code></td></tr>
+        <tr><td>每次都 new</td><td>覆蓋子樹(<code>insert a, aa → search a</code> = false)</td></tr>
+        <tr><td>isWord 看錯</td><td>多看 → 前綴查不到;少看 → 前綴被當成字</td></tr>
+        <tr><td>複雜度</td><td>O(L) / 次,跟存了幾個字無關;每個節點 216 B</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 只插入 <code>"apple"</code> 之後,節點 <code>"app"</code> 存在嗎?為什麼 <code>search("app")</code> 是 false、<code>startsWith("app")</code> 是 true?</div>
+
+    <div class="qa"><strong>Q2.</strong> insert 裡的 <code>if (cur->child[i] == nullptr)</code> 拿掉,每次都 new,會怎樣?找最小反例。</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>TrieNode* child[26] = { nullptr };</code> 只寫了一個 nullptr,另外 25 格是什麼?如果完全不寫初始值呢?</div>
+
+    <div class="qa"><strong>Q4.</strong> 為什麼每次操作是 O(L),而不是 O(N · L)?用 <code>unordered_map&lt;char, TrieNode*&gt;</code> 取代陣列會省記憶體嗎?</div>
+
+    <div class="qa"><strong>Q5.</strong> <code>search(word, bool prefix = false)</code> 用一個 bool 參數同時當 search 和 startsWith,有什麼好處和壞處?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 共用前綴 + 開新分支</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">概念頁是一條直線;這組多一個 <code>"bat"</code>,root 底下長出第二個分支。實跑插樁輸出,節點數含 root。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 三次 insert</span>
+Trie()           root                                  節點數 = 1
+insert("app")    新建 a  ap  app;app.isWord = true     節點數 = 4
+insert("apple")  沿用 a  ap  app(共用前綴)
+                 新建 appl  apple;apple.isWord = true   節點數 = 6
+insert("bat")    root.child['b'] 是 nullptr → 開新分支
+                 新建 b  ba  bat;bat.isWord = true       節點數 = 9</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 三次查詢</span>
+search("ba")       走 b → ba,走完;ba.isWord = false   → false
+startsWith("ba")   走 b → ba,走完;prefix 模式        → true
+search("bat")      走 b → ba → bat;bat.isWord = true  → true
+<span class="sc-trace__out">// OUTPUT: [null, null, null, null, false, true, true]</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>先插短的 "app" 再插 "apple",只多建 2 個節點;這就是共用前綴。</strong>
+      <b>這組的 false 也是「走得完、但 isWord = false」;「半路斷掉」的 false 見概念頁動畫最後的 <code>search("apx")</code>。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> search 的字裡可以有 <code>'.'</code>,代表任意一個字母(<a href="https://leetcode.com/problems/design-add-and-search-words-data-structure/" target="_blank" rel="noopener">211 ↗</a>)。search 要怎麼改?</div>
+
+    <div class="qa"><strong>App 2.</strong> 在一張字母格上一次找出很多個 word(<a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">212 ↗</a>)。Trie 怎麼和 <a href="../../../09-backtracking/problems/p79/index.html">79 · Word Search</a> 的回溯結合?</div>
+
+    <div class="qa"><strong>App 3.</strong> 要多一個 <code>countWordsStartingWith(prefix)</code>:回傳有幾個插入過的字以 prefix 開頭,而且要 O(L)。節點要多存什麼?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>存在。它是 apple 的必經之路,但沒有字在這裡結束,所以 isWord = false。</strong><br><br>
+  兩個函式走的路一模一樣(a → ap → app 都走得到),差別只在最後一行:search 回傳 <code>cur->isWord</code>(false),startsWith 在 <code>if (prefix) return true;</code> 就回傳了。「節點存在」回答的是前綴問題,「isWord」回答的是整字問題。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>已經存在的節點被換成空的新節點,下面整串子樹和原本的 isWord 都斷掉(舊節點也洩漏)。</strong><br><br>
+  最小反例 <code>insert("a")</code> → <code>insert("aa")</code> → <code>search("a")</code>:第二次 insert 把 root 底下那個 isWord = true 的 "a" 換掉,回傳 false(正解 true)。隨機 20,000 組錯 147 組 —— 只有「先插入的字是後插入的字的前綴」(或共用前綴)才會觸發,所以範例常常測不到。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>聚合初始化沒寫到的元素會補 0,所以 26 格全是 nullptr。完全不寫就是垃圾值,屬於未定義行為。</strong><br><br>
+  實測拿掉初始值(<code>new TrieNode</code> 不加括號):新程序單跑剛好全對,因為 OS 給的新記憶體剛好是 0;同一程序連跑就 segfault,堆疊被弄髒時 20,000 組錯 19,234 組。保留 <code>= { nullptr }</code> / <code>= false</code> 的話,有沒有括號都 0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>每一步是 <code>child[c - 'a']</code> 一次索引,走 L 步就結束,完全不需要和其他字比 —— 已存的字都「藏」在別的分支裡。</strong><br><br>
+  map 版 <code>sizeof(TrieNode)</code> 從 216 B 降到 64 B,但每個 map 項目和 bucket 另外配置。實測同一組資料(9,990,040 個節點),峰值記憶體幾乎一樣(2,198,116 KB vs 2,198,628 KB),還慢了約 1.6 倍。字母集只有 26 個時,陣列比較好。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>好處:走路的迴圈只寫一次。壞處:<code>search(s, true)</code> 在呼叫端看不出 true 是什麼意思,而且 prefix 被暴露成公開介面。</strong><br><br>
+  另一種拆法是一個私有的 <code>TrieNode* find(const string&amp; s)</code> 回傳走到的節點(斷掉就 nullptr),然後 <code>search</code> 回傳 <code>node &amp;&amp; node-&gt;isWord</code>,<code>startsWith</code> 回傳 <code>node != nullptr</code>。兩種寫法做的事完全一樣。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>遇到 <code>'.'</code> 時,這一層要試 26 個非 nullptr 的子節點,任一個往下成功就 true —— 迴圈改成遞迴 DFS。</strong><br><br>
+  一般字母照舊走一步;<code>'.'</code> 才分叉。走到字尾一樣回傳 <code>isWord</code>。insert 完全不用改。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>把所有 word 建成一棵 Trie,每個格子當起點做一次 79 的回溯,但每走一格同時在 Trie 上往下走一層。</strong><br><br>
+  Trie 上沒有這個字母的子節點 → 立刻剪掉這條路(79 只能剪一個 word,這裡一次剪掉所有 word);走到 isWord 的節點就收答案。標 # / 還原的骨架和 79 一樣。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>每個節點多存 <code>int pass</code>:有幾個插入的字經過這個節點。</strong><br><br>
+  insert 時沿路每個節點 <code>pass++</code>(新建的也要);查詢時走完 prefix,回傳終點的 <code>pass</code>,斷掉回傳 0。一樣 O(L)。同一個字插兩次要不要算兩次,看題目定義。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 10 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">節點存在 = 前綴存在;isWord = 整字存在。nullptr 才 new,否則覆蓋子樹。'.' 萬用字元 → 211 分叉 DFS;多個 word 上格子 → 212 = Trie + 79 回溯。</div>
+    <div class="sc-summary-bar__detail">IMPLEMENT TRIE · REVIEW</div>
+  </div>
+
+</body>
+</html>
