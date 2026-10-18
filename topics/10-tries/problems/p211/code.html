@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>211 · Design Add and Search Words Data Structure // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P211</span>
+    <span><a href="https://leetcode.com/problems/design-add-and-search-words-data-structure/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Design Add and Search Words Data Structure</h1>
+    <p class="sc-mast__subtitle">// CODE · dfs(idx, node) + 節點池加速 + 每一行改掉會怎樣</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 211</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(26^k · L) · k ≤ 2</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// NULL GUARD · LETTER · WILDCARD</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p211.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">TrieNode</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span><span class="p">*</span> child<span class="p">[</span><span class="n">26</span><span class="p">]</span> <span class="p">=</span> <span class="p">{</span> <span class="k">nullptr</span> <span class="p">};</span>
+    <span class="t">bool</span> isWord <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span> WordDictionary <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span><span class="p">*</span> root<span class="p">;</span>
+
+    <span class="f">WordDictionary</span><span class="p">()</span> <span class="p">{</span>
+        root <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">addWord</span><span class="p">(</span><span class="t">string</span> word<span class="p">)</span> <span class="p">{</span>                          <span class="c">// 和 208 的 insert 一樣</span>
+        <span class="t">TrieNode</span> <span class="p">*</span>cur <span class="p">=</span> root<span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">char</span> <span class="p">&amp;</span>c <span class="p">:</span> word<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> i <span class="p">=</span> c <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(!</span>cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">])</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+            cur <span class="p">=</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">];</span>
+        <span class="p">}</span>
+        cur<span class="p">-&gt;</span>isWord <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">search</span><span class="p">(</span><span class="t">string</span> word<span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="f">dfs</span><span class="p">(</span>word<span class="p">,</span> <span class="n">0</span><span class="p">,</span> root<span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">dfs</span><span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> word<span class="p">,</span> <span class="t">int</span> idx<span class="p">,</span> <span class="t">TrieNode</span><span class="p">*</span> node<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span>node<span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>                         <span class="c">// ① 兩種 null 都在這裡擋</span>
+        <span class="k">if</span> <span class="p">(</span>idx <span class="p">==</span> word<span class="p">.</span><span class="f">size</span><span class="p">())</span> <span class="k">return</span> node<span class="p">-&gt;</span>isWord<span class="p">;</span>     <span class="c">// ② 配完:看 isWord</span>
+
+        <span class="t">char</span> c <span class="p">=</span> word<span class="p">[</span>idx<span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span>c <span class="p">!=</span> <span class="s">'.'</span><span class="p">)</span> <span class="k">return</span> <span class="f">dfs</span><span class="p">(</span>word<span class="p">,</span> idx <span class="p">+</span> <span class="n">1</span><span class="p">,</span> node<span class="p">-&gt;</span>child<span class="p">[</span>c <span class="p">-</span> <span class="s">'a'</span><span class="p">]);</span>   <span class="c">// ③ 字母:走一條</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">TrieNode</span><span class="p">*</span> child <span class="p">:</span> node<span class="p">-&gt;</span>child<span class="p">)</span>              <span class="c">// ④ '.':26 條都試</span>
+            <span class="k">if</span> <span class="p">(</span><span class="f">dfs</span><span class="p">(</span>word<span class="p">,</span> idx <span class="p">+</span> <span class="n">1</span><span class="p">,</span> child<span class="p">))</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>  <span class="c">// ⑤ 任一 true 就停</span>
+        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>官方範例輸出 <code>[null,null,null,null,false,true,true,true]</code> 正確;對拍 24,000 組(350,798 次查詢,每次 0–2 個 '.')0 錯。</strong>
+      <b>對照組是 <code>vector&lt;string&gt;</code> 逐字比對。超過 2 個 '.' 的壓力查詢 15,910 次也 0 錯;ASan / UBSan 乾淨。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 節點池 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">Follow-up 加速 · 節點池<span class="sc-section__title-en">// ALLOCATION IS THE BOTTLENECK</span></h2>
+    </div>
+    <p style="margin:0 0 12px;">
+      瓶頸不在 search,在每建一個節點就 <code>new</code> 一次 216 B。改成一開始開好整塊陣列、用編號當指標;順便把字母改成迴圈走、'.' 迴圈跳過空格。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p211_pool.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> WordDictionary <span class="p">{</span>
+<span class="k">private</span><span class="p">:</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="t">int</span> MAXN <span class="p">=</span> <span class="n">250001</span><span class="p">;</span>   <span class="c">// 10^4 次 × 長度 25 + root</span>
+    <span class="t">int</span> nxt<span class="p">[</span>MAXN<span class="p">][</span><span class="n">26</span><span class="p">];</span>                <span class="c">// nxt[node][c] = 子節點編號,0 = 不存在</span>
+    <span class="t">bool</span> isWord<span class="p">[</span>MAXN<span class="p">];</span>
+    <span class="t">int</span> cnt <span class="p">=</span> <span class="n">1</span><span class="p">;</span>                      <span class="c">// 0 號是 root</span>
+
+    <span class="t">bool</span> <span class="f">dfs</span><span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> word<span class="p">,</span> <span class="t">int</span> idx<span class="p">,</span> <span class="t">int</span> node<span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(;</span> idx <span class="p">&lt;</span> word<span class="p">.</span><span class="f">size</span><span class="p">()</span> <span class="p">&amp;&amp;</span> word<span class="p">[</span>idx<span class="p">]</span> <span class="p">!=</span> <span class="s">'.'</span><span class="p">;</span> idx<span class="p">++)</span> <span class="p">{</span>
+            node <span class="p">=</span> nxt<span class="p">[</span>node<span class="p">][</span>word<span class="p">[</span>idx<span class="p">]</span> <span class="p">-</span> <span class="s">'a'</span><span class="p">];</span>
+            <span class="k">if</span> <span class="p">(!</span>node<span class="p">)</span> <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span>idx <span class="p">==</span> word<span class="p">.</span><span class="f">size</span><span class="p">())</span> <span class="k">return</span> isWord<span class="p">[</span>node<span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> c <span class="p">=</span> <span class="n">0</span><span class="p">;</span> c <span class="p">&lt;</span> <span class="n">26</span><span class="p">;</span> c<span class="p">++)</span> <span class="p">{</span>
+            <span class="t">int</span> child <span class="p">=</span> nxt<span class="p">[</span>node<span class="p">][</span>c<span class="p">];</span>
+            <span class="k">if</span> <span class="p">(</span>child <span class="p">&amp;&amp;</span> <span class="f">dfs</span><span class="p">(</span>word<span class="p">,</span> idx <span class="p">+</span> <span class="n">1</span><span class="p">,</span> child<span class="p">))</span> <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="k">public</span><span class="p">:</span>
+    <span class="f">WordDictionary</span><span class="p">()</span> <span class="p">{</span>
+        <span class="f">memset</span><span class="p">(</span>nxt<span class="p">[</span><span class="n">0</span><span class="p">],</span> <span class="n">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span>nxt<span class="p">[</span><span class="n">0</span><span class="p">]));</span>
+        isWord<span class="p">[</span><span class="n">0</span><span class="p">]</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">addWord</span><span class="p">(</span><span class="t">string</span> word<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> cur <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">char</span> c <span class="p">:</span> word<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> i <span class="p">=</span> c <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(!</span>nxt<span class="p">[</span>cur<span class="p">][</span>i<span class="p">])</span> <span class="p">{</span>
+                <span class="f">memset</span><span class="p">(</span>nxt<span class="p">[</span>cnt<span class="p">],</span> <span class="n">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span>nxt<span class="p">[</span>cnt<span class="p">]));</span>
+                isWord<span class="p">[</span>cnt<span class="p">]</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+                nxt<span class="p">[</span>cur<span class="p">][</span>i<span class="p">]</span> <span class="p">=</span> cnt<span class="p">++;</span>
+            <span class="p">}</span>
+            cur <span class="p">=</span> nxt<span class="p">[</span>cur<span class="p">][</span>i<span class="p">];</span>
+        <span class="p">}</span>
+        isWord<span class="p">[</span>cur<span class="p">]</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">bool</span> <span class="f">search</span><span class="p">(</span><span class="t">string</span> word<span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="f">dfs</span><span class="p">(</span>word<span class="p">,</span> <span class="n">0</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>實測(-O2,各跑 3 次取最小)</th><th>指標版</th><th>節點池</th></tr></thead>
+      <tbody>
+        <tr><td>類 LeetCode(10<sup>4</sup> 次操作、L ≤ 25、a–z)</td><td class="mono">167.2 ms</td><td class="mono ok">33.2 ms</td></tr>
+        <tr><td>字母只有 a–c、L ≤ 12('.' 分支多)</td><td class="mono">31.9 ms</td><td class="mono ok">13.5 ms</td></tr>
+        <tr><td>4,000 組小測資、每組 50 次操作</td><td class="mono">72.4 ms</td><td class="mono ok">12.8 ms</td></tr>
+        <tr><td>正確性</td><td colspan="2">官方範例 ✓;對拍 155,125 次查詢 0 錯;ASan / UBSan 乾淨</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">為什麼快、要注意什麼</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <strong>快</strong>:少了幾十萬次小 <code>new</code>;節點排在連續記憶體,cache 好。只有建新節點時才 <code>memset</code> 那一列,不會每次清掉 25 萬列。
+          <strong>只改搜尋端沒用</strong>:迴圈走字母 + 跳過 null,但保留 <code>new</code>,實測三輪都落在 167–191 ms,和指標版分不出差別。
+          <strong>注意</strong>:物件本身 26,250,112 B(約 25 MB),LeetCode 用 <code>new</code> 建在 heap 沒事,當區域變數會爆 stack;<code>MAXN</code> 是從「10<sup>4</sup> 次 × 長度 25 + root」推來的,換題要重算。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>addWord</td><td class="mono">L</td><td>和 208 insert 相同,最多建 L 個節點</td></tr>
+        <tr><td>search 的字母</td><td class="mono">1 條路</td><td>每層一次 dfs</td></tr>
+        <tr><td>search 的每個 '.'</td><td class="mono">× 26</td><td>26 格全部丟下去;空格在下一層 ① 立刻回 false</td></tr>
+        <tr><td>遞迴深度</td><td class="mono">≤ L + 1</td><td>最多 26 層</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      search 最壞 <strong>O(26<sup>k</sup> · L)</strong>,k ≤ 2 ⇒ 最多 <strong>676</strong> 條分支　·　空間 <strong>O(Σ|word| · 26)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>官方範例(實跑)</th><th>結果</th><th>dfs 呼叫(其中 null)</th></tr></thead>
+      <tbody>
+        <tr><td><code>"pad"</code></td><td class="mono">false</td><td class="mono">2(1)</td></tr>
+        <tr><td><code>"bad"</code></td><td class="mono ok">true</td><td class="mono">4(0)</td></tr>
+        <tr><td><code>".ad"</code></td><td class="mono ok">true</td><td class="mono">5(1)· d、m 沒走到</td></tr>
+        <tr><td><code>"b.."</code></td><td class="mono ok">true</td><td class="mono">7(3)</td></tr>
+        <tr><td><code>"..x"</code>(額外)</td><td class="mono">false</td><td class="mono fail">108(101)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">每一種都實際改出來跑:隨機 20,000 組(字母 a–c、長度 1–4、每組 1–8 個操作、查詢 0–2 個 '.'),每組在獨立子行程裡跑以抓當機;最小反例用 BFS 窮舉 ≤ 3 個操作。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr><td>拿掉 ① <code>if (!node)</code></td><td class="mono fail">17,244 當掉</td><td>空字典 <code>search("a")</code> → segfault</td></tr>
+        <tr><td>② 改成 <code>return true</code></td><td class="mono fail">4,442</td><td><code>add("aa")</code> <code>search("a")</code> → true(正解 false)</td></tr>
+        <tr><td>② 改成 <code>idx == word.size() - 1</code></td><td class="mono fail">4,673</td><td><code>add("a")</code> <code>search("a")</code> → false:早一層看了 root 的 isWord</td></tr>
+        <tr><td>④ 迴圈裡直接 <code>return dfs(...)</code></td><td class="mono fail">1,972</td><td><code>add("b")</code> <code>search(".")</code> → false:只試了 child['a']</td></tr>
+        <tr><td>④ 下一層傳 <code>idx</code> 而不是 <code>idx + 1</code></td><td class="mono fail">2,849</td><td><code>add("a")</code> <code>search(".")</code> → false:'.' 永遠配不到(不會無窮遞迴,樹高有限)</td></tr>
+        <tr><td>拿掉 ③ 的 '.' 判斷,'.' 當字母</td><td class="mono fail">UB · 4,019</td><td>空字典 <code>search(".")</code> → segfault:<code>'.' - 'a'</code> = −51</td></tr>
+        <tr><td><code>search</code> 忘了 <code>return</code></td><td class="mono fail">UB · 17,533 當掉</td><td><code>search("a")</code> → -O2 segfault、-O0 SIGILL;-Wall 會警告</td></tr>
+        <tr><td>④ 改成 <code>if (child &amp;&amp; dfs(...))</code></td><td class="mono ok">0</td><td>也對,只是提早跳過空格</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>最常見的兩個錯都和「沒有 return」有關:search 沒寫 return(未定義行為)、'.' 迴圈第一圈就 return(只試 child['a'])。</strong>
+      <b>'.' 迴圈的規則:true 才提早 return,false 要繼續試下一格,26 格都 false 才 false。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · {bad, dad, mad}</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">和概念頁動畫同一組,插樁印出的每一次 dfs。節點用從 root 走到它的字串命名;字典共 10 個節點(含 root)。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: "pad" · 字母走不到</span>
+#1 dfs(0, root)   'p' → child['p']
+#2 dfs(1, null)   ① 擋下 → false
+                  → false(2 次,null 1 次)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: ".ad" · 在 root 分叉</span>
+#1 dfs(0, root)   '.' → ④ 從 child['a'] 開始試
+#2 dfs(1, null)       'a' 不存在 → ① false,換下一格
+#3 dfs(1, "b")        'a' → child['a']
+#4 dfs(2, "ba")       'd' → child['d']
+#5 dfs(3, "bad")      ② idx == 3 → isWord = true
+                  ⑤ 一路 return true;d、m 分支沒走(5 次,null 1 次)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 3: "b.." · 在第 2 層分叉</span>
+#1 dfs(0, root)   'b' → child['b']
+#2 dfs(1, "b")    '.' → ④ child['a'] 就存在
+#3 dfs(2, "ba")   '.' → ④ 從 child['a'] 開始試
+#4 dfs(3, null)       a ✗
+#5 dfs(3, null)       b ✗
+#6 dfs(3, null)       c ✗
+#7 dfs(3, "bad")      ② isWord = true → true(7 次,null 3 次)
+<span class="sc-trace__out">// OUTPUT: [null, null, null, null, false, true, true, true]</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">① null 在開頭擋 ② 配完看 isWord ③ 字母走一條 ④ '.' 試 26 格 ⑤ true 才提早 return。search 記得 return。要快就改節點池:167 → 33 ms。</div>
+    <div class="sc-summary-bar__detail">ADD AND SEARCH WORDS · CODE</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>211 · Design Add and Search Words Data Structure // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P211</span>
+    <span><a href="https://leetcode.com/problems/design-add-and-search-words-data-structure/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Design Add and Search Words Data Structure</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 208 的 Trie + 遇到 '.' 就分叉的 DFS</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 211</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TRIE · DFS · WILDCARD</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>addWord(word)</code> 加入一個字;<code>search(word)</code> → 有沒有加過的字和它<strong>完全吻合</strong>?查詢字串裡的 <code>'.'</code> 可以配<strong>任意一個字母</strong>。<br>
+        <code>1 ≤ word.length ≤ 25</code>,每個查詢<strong>最多 2 個 <code>'.'</code></strong>,兩種操作合計最多 <code>10<sup>4</sup></code> 次。
+      </p>
+    </div>
+
+    <p>
+      範例:加入 <code>bad</code>、<code>dad</code>、<code>mad</code> 之後,<code>search("pad")</code> → false、<code>"bad"</code> → true、<code>".ad"</code> → true、<code>"b.."</code> → true。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>addWord 和 <a href="../p208/index.html">208</a> 的 insert 一字不差;只有 search 要改。</strong>
+      <b>一般字母照 208 走一條路;遇到 '.' 不知道走哪條,就 26 條都試 —— 迴圈變成遞迴 DFS。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 Trie + DFS ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Trie + DFS<span class="sc-section__title-en">// WHY BRANCH ON THE TRIE</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">vector&lt;string&gt;,查詢時逐字比對</span>
+            <span class="sc-ko-card__o">O(N · L) / 次</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每次 search 都要和已加入的 N 個字一個一個比('.' 跳過不比)。字越多越慢,共同前綴也被重複比。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">unordered_set,把 '.' 展開成 26 種字母去查</span>
+            <span class="sc-ko-card__o">26<sup>k</sup> 次雜湊</span>
+          </div>
+          <div class="sc-ko-card__body">
+            2 個 '.' 就要組出 676 個字串,每個都算一次長度 L 的雜湊 —— 不管字典裡有沒有那些字母都得試。'.' 一多就爆炸,而且多數組合根本不存在。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 白試很多不存在的字</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Trie,'.' 只沿著「真的存在」的子節點分叉</span>
+          <span class="sc-ko-card__o">字母 O(1),'.' 才分叉</span>
+        </div>
+        <div class="sc-ko-card__body">
+          字母照樣一步走完;遇到 '.',只有 <strong>Trie 上真的有的子節點</strong>才會往下長(nullptr 下一層立刻 false)。
+          一旦某條路回傳 true 就停,其他分支不用看。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 只分叉存在的路,找到就停</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>dfs(word, idx, node)</strong>:「從 node 出發,能不能配完 <code>word[idx..]</code>」。開頭先擋 <code>if (!node) return false</code>。</li>
+      <li><strong>配完了</strong>(<code>idx == word.size()</code>)→ 回傳 <code>node-&gt;isWord</code>,和 208 的 search 一樣。</li>
+      <li><strong>字母</strong> → 只走 <code>child[c - 'a']</code> 一條;<strong>'.'</strong> → 26 個子節點逐一 dfs,任一個 true 就 true,全部 false 才 false。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// pad · .ad · b..</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      字典 {bad, dad, mad}。三個查詢各看一件事:<code>pad</code> 字母走不到 → null;<code>.ad</code> 在 root 分叉,先撞到 null、再找到 b 就停;<code>b..</code> 在第 2 層分叉,連撞 3 個 null 才到 <code>bad</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ {bad, dad, mad} · 字母走一條、'.' 試 26 條、nullptr 在開頭擋掉</div>
+      <div class="sc-viz__cvwrap"><canvas id="v211-canvas" class="sc-viz__canvas" style="height:530px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v211-reset">Reset</button><button class="sc-btn" id="v211-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v211-play">Play</button><button class="sc-btn" id="v211-next">Next</button>
+        <span class="sc-viz__step" id="v211-step">00 / 18</span>
+      </div>
+      <div class="sc-viz__label" id="v211-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>dfs 呼叫次數(實測):pad 2 次、.ad 5 次、b.. 7 次,其中 null 各 1、1、3 次。</strong>
+      <b>.ad 在 b 就找到,d、m 兩條分支一次都沒走;同一個字典查 <code>..x</code>(找不到)要 108 次,其中 101 次是 null。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">一行擋兩種 null、'.' 的位置決定成本<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · if (!node) 放在開頭,一次處理兩種 nullptr</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          字母走到不存在的子節點(<code>pad</code> 的 p),和 '.' 迴圈把 26 格全部丟下去時遇到的空格,本質都是「這條路不存在」。
+          把檢查放在 dfs 第一行,兩個分支都不用再自己判斷。
+          <b>拿掉這一行 → 下一層讀 <code>node-&gt;isWord</code> 或 <code>node-&gt;child</code> 就是對 nullptr 取值。</b>實測拿掉後隨機 20,000 組有 17,244 組當掉,最小反例:空字典 <code>search("a")</code>。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · '.' 越前面越貴</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          '.' 在前面,分叉發生在樹最寬的上層,每條分支後面還要走完整段;'.' 在後面,前面的字母已經把範圍縮到一條路。
+          實測同一個 5,000 字的字典(115k 個節點):<code>"..zzz…zb"</code> 要 <strong>16,251</strong> 次 dfs,<code>"zzz…z..b"</code> 只要 <strong>76</strong> 次,差約 200 倍。
+          <b>題目限制最多 2 個 '.',所以最壞也就是 26 × 26 條分支。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      addWord 和 208 一樣 O(L)。search 沒有 '.' 是 O(L);每個 '.' 最多讓分支數乘上 26,k 個 '.' 最壞 26<sup>k</sup> 條路,每條走 L 步。
+    </p>
+
+    <div class="sc-formula">
+      addWord <strong>O(L)</strong>　·　search <strong>O(26<sup>k</sup> · L)</strong>(k ≤ 2)　·　空間 <strong>O(Σ|word| · 26)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>實測(64-bit, -O2)</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td>10<sup>4</sup> 個隨機長度 25 的字</td><td class="mono">228,199 個節點、峰值 53,132 KB</td></tr>
+        <tr><td>理論上界 25 × 10<sup>4</sup> + 1 個節點</td><td class="mono">× 216 B ≈ 51.5 MiB</td></tr>
+        <tr><td>最壞查詢 <code>"..zzz…zb"</code> × 5,000 次</td><td class="mono">約 8,100 萬次 dfs,189 ms</td></tr>
+        <tr><td>改成節點池(程式碼頁第 2 節)</td><td class="mono ok">類 LeetCode 測資 167.2 → 33.2 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>208 的 search 是一條路;這題是「一條路 + 遇到 '.' 就分叉」的 DFS。</strong>
+      <b>null 一律在 dfs 開頭擋掉;配完看 isWord;任一分支 true 就停。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">addWord 照抄 208。search = dfs(idx, node):null → false;配完 → isWord;字母走一條;'.' 試 26 個子節點、任一 true 就 true。'.' 越前面越貴,最多 26² 條。</div>
+    <div class="sc-summary-bar__detail">ADD AND SEARCH WORDS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p211-dotdfs.js"></script>
+</body>
+</html>
