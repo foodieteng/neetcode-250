@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>212 · Word Search II // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P212</span>
+    <span><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Word Search II</h1>
+    <p class="sc-mast__subtitle">// CODE · 節點存字的 Trie + 回溯 + 剪掉找完的葉子 + 每一行改掉會怎樣</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 212</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(mn · 4 · 3^(L−1))</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// TRIE STORES THE WORD · MARK · PRUNE · RESTORE</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p212.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">TrieNode</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span> <span class="p">*</span>child<span class="p">[</span><span class="n">26</span><span class="p">]</span> <span class="p">=</span> <span class="p">{</span> <span class="k">nullptr</span> <span class="p">};</span>
+    <span class="t">string</span> word <span class="p">=</span> <span class="s">""</span><span class="p">;</span>                     <span class="c">// 結尾節點存整個字</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span> <span class="p">*</span>root<span class="p">;</span>
+
+    <span class="k">const</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;</span> dirs <span class="p">=</span> <span class="p">{{-</span><span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">},</span> <span class="p">{</span><span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">},</span> <span class="p">{</span><span class="n">0</span><span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">},</span> <span class="p">{</span><span class="n">0</span><span class="p">,</span> <span class="n">1</span><span class="p">}};</span>
+
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">findWords</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">char</span><span class="p">&gt;&gt;&amp;</span> board<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> words<span class="p">)</span> <span class="p">{</span>
+        root <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> w <span class="p">:</span> words<span class="p">)</span> <span class="f">insert</span><span class="p">(</span>w<span class="p">);</span>
+
+        <span class="t">int</span> m <span class="p">=</span> board<span class="p">.</span><span class="f">size</span><span class="p">(),</span> n <span class="p">=</span> board<span class="p">[</span><span class="n">0</span><span class="p">].</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> ans<span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> m<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> j <span class="p">=</span> <span class="n">0</span><span class="p">;</span> j <span class="p">&lt;</span> n<span class="p">;</span> j<span class="p">++)</span> <span class="p">{</span>
+                <span class="t">int</span> idx <span class="p">=</span> board<span class="p">[</span>i<span class="p">][</span>j<span class="p">]</span> <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span>root<span class="p">-&gt;</span>child<span class="p">[</span>idx<span class="p">])</span> <span class="p">{</span>           <span class="c">// ① 起點也要 Trie 有這個字母</span>
+                    <span class="t">char</span> cache <span class="p">=</span> board<span class="p">[</span>i<span class="p">][</span>j<span class="p">];</span>
+                    board<span class="p">[</span>i<span class="p">][</span>j<span class="p">]</span> <span class="p">=</span> <span class="s">'#'</span><span class="p">;</span>            <span class="c">// ② 起點先標 #</span>
+                    <span class="f">search</span><span class="p">(</span>board<span class="p">,</span> ans<span class="p">,</span> i<span class="p">,</span> j<span class="p">,</span> root<span class="p">-&gt;</span>child<span class="p">[</span>idx<span class="p">]);</span>
+                    board<span class="p">[</span>i<span class="p">][</span>j<span class="p">]</span> <span class="p">=</span> cache<span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">insert</span><span class="p">(</span><span class="t">string</span><span class="p">&amp;</span> w<span class="p">)</span> <span class="p">{</span>
+        <span class="t">TrieNode</span> <span class="p">*</span>cur <span class="p">=</span> root<span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">char</span><span class="p">&amp;</span> c <span class="p">:</span> w<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> i <span class="p">=</span> c <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(!</span>cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">])</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+            cur <span class="p">=</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">];</span>
+        <span class="p">}</span>
+        cur<span class="p">-&gt;</span>word <span class="p">=</span> w<span class="p">;</span>                    <span class="c">// 208 的 isWord 改成存字</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">search</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">char</span><span class="p">&gt;&gt;&amp;</span> board<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> ans<span class="p">,</span> <span class="t">int</span> r<span class="p">,</span> <span class="t">int</span> c<span class="p">,</span> <span class="t">TrieNode</span><span class="p">*</span> node<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> m <span class="p">=</span> board<span class="p">.</span><span class="f">size</span><span class="p">(),</span> n <span class="p">=</span> board<span class="p">[</span><span class="n">0</span><span class="p">].</span><span class="f">size</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(!</span>node<span class="p">-&gt;</span>word<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>node<span class="p">-&gt;</span>word<span class="p">);</span>        <span class="c">// ③ 收答案</span>
+            node<span class="p">-&gt;</span>word<span class="p">.</span><span class="f">clear</span><span class="p">();</span>               <span class="c">// ④ 清空,避免重複</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> <span class="p">[</span>dr<span class="p">,</span> dc<span class="p">]</span> <span class="p">:</span> dirs<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> nr <span class="p">=</span> r <span class="p">+</span> dr<span class="p">,</span> nc <span class="p">=</span> c <span class="p">+</span> dc<span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span>nr <span class="p">&lt;</span> <span class="n">0</span> <span class="p">||</span> nr <span class="p">&gt;=</span> m <span class="p">||</span> nc <span class="p">&lt;</span> <span class="n">0</span> <span class="p">||</span> nc <span class="p">&gt;=</span> n<span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span>board<span class="p">[</span>nr<span class="p">][</span>nc<span class="p">]</span> <span class="p">==</span> <span class="s">'#'</span> <span class="p">||</span> <span class="p">!</span>node<span class="p">-&gt;</span>child<span class="p">[</span>board<span class="p">[</span>nr<span class="p">][</span>nc<span class="p">]</span> <span class="p">-</span> <span class="s">'a'</span><span class="p">])</span> <span class="k">continue</span><span class="p">;</span>  <span class="c">// ⑤ 剪枝</span>
+
+            <span class="t">char</span> cache <span class="p">=</span> board<span class="p">[</span>nr<span class="p">][</span>nc<span class="p">];</span>
+            board<span class="p">[</span>nr<span class="p">][</span>nc<span class="p">]</span> <span class="p">=</span> <span class="s">'#'</span><span class="p">;</span>
+            <span class="f">search</span><span class="p">(</span>board<span class="p">,</span> ans<span class="p">,</span> nr<span class="p">,</span> nc<span class="p">,</span> node<span class="p">-&gt;</span>child<span class="p">[</span>cache <span class="p">-</span> <span class="s">'a'</span><span class="p">]);</span>
+            board<span class="p">[</span>nr<span class="p">][</span>nc<span class="p">]</span> <span class="p">=</span> cache<span class="p">;</span>            <span class="c">// ⑥ 還原</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+    </p>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>官方範例 1 輸出 <code>["oath","eat"]</code>、範例 2 輸出 <code>[]</code>,正確;對拍 30,000 組 0 錯、0 筆重複輸出。</strong>
+      <b>對照組是每個字各跑一次 79 的回溯。board 1–4 × 1–4、字母 2–4 種、每組 1–15 個長度 1–8 的字。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 剪葉子 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">Follow-up 加速 · 剪掉找完的葉子<span class="sc-section__title-en">// SHRINK THE TRIE AS YOU GO</span></h2>
+    </div>
+    <p style="margin:0 0 12px;">
+      上面的版本找到字只清空 <code>word</code>,節點還留著 —— 之後別的起點走到同一個前綴,照樣一路往下展開。
+      改成:每個節點記子節點數 <code>cnt</code>;回溯回來時,如果這個節點<strong>沒有子節點、也沒存字</strong>,就從父節點上拔掉。全部拔光(<code>root-&gt;cnt == 0</code>)就提早結束。
+    </p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p212_prune.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">TrieNode</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span> <span class="p">*</span>child<span class="p">[</span><span class="n">26</span><span class="p">]</span> <span class="p">=</span> <span class="p">{</span> <span class="k">nullptr</span> <span class="p">};</span>
+    <span class="t">string</span> word <span class="p">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="t">int</span> cnt <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span> <span class="p">*</span>root<span class="p">;</span>
+    <span class="t">int</span> m<span class="p">,</span> n<span class="p">;</span>
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> ans<span class="p">;</span>
+    <span class="k">const</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">pair</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">int</span><span class="p">&gt;&gt;</span> dirs <span class="p">=</span> <span class="p">{{-</span><span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">},</span> <span class="p">{</span><span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">},</span> <span class="p">{</span><span class="n">0</span><span class="p">,</span> <span class="p">-</span><span class="n">1</span><span class="p">},</span> <span class="p">{</span><span class="n">0</span><span class="p">,</span> <span class="n">1</span><span class="p">}};</span>
+
+    <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="f">findWords</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">char</span><span class="p">&gt;&gt;&amp;</span> board<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> words<span class="p">)</span> <span class="p">{</span>
+        root <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> w <span class="p">:</span> words<span class="p">)</span> <span class="f">insert</span><span class="p">(</span>w<span class="p">);</span>
+
+        m <span class="p">=</span> board<span class="p">.</span><span class="f">size</span><span class="p">(),</span> n <span class="p">=</span> board<span class="p">[</span><span class="n">0</span><span class="p">].</span><span class="f">size</span><span class="p">();</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">0</span><span class="p">;</span> i <span class="p">&lt;</span> m<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> j <span class="p">=</span> <span class="n">0</span><span class="p">;</span> j <span class="p">&lt;</span> n<span class="p">;</span> j<span class="p">++)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span>root<span class="p">-&gt;</span>cnt <span class="p">==</span> <span class="n">0</span><span class="p">)</span> <span class="k">return</span> ans<span class="p">;</span>
+                <span class="f">dfs</span><span class="p">(</span>board<span class="p">,</span> i<span class="p">,</span> j<span class="p">,</span> root<span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> ans<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">insert</span><span class="p">(</span><span class="t">string</span><span class="p">&amp;</span> w<span class="p">)</span> <span class="p">{</span>
+        <span class="t">TrieNode</span> <span class="p">*</span>cur <span class="p">=</span> root<span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="t">char</span><span class="p">&amp;</span> c <span class="p">:</span> w<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> i <span class="p">=</span> c <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(!</span>cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">])</span> <span class="p">{</span>
+                cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+                cur<span class="p">-&gt;</span>cnt<span class="p">++;</span>
+            <span class="p">}</span>
+            cur <span class="p">=</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">];</span>
+        <span class="p">}</span>
+        cur<span class="p">-&gt;</span>word <span class="p">=</span> w<span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">dfs</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">char</span><span class="p">&gt;&gt;&amp;</span> board<span class="p">,</span> <span class="t">int</span> r<span class="p">,</span> <span class="t">int</span> c<span class="p">,</span> <span class="t">TrieNode</span><span class="p">*</span> parent<span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span>r <span class="p">&lt;</span> <span class="n">0</span> <span class="p">||</span> r <span class="p">&gt;=</span> m <span class="p">||</span> c <span class="p">&lt;</span> <span class="n">0</span> <span class="p">||</span> c <span class="p">&gt;=</span> n<span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        <span class="t">char</span> ch <span class="p">=</span> board<span class="p">[</span>r<span class="p">][</span>c<span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span>ch <span class="p">==</span> <span class="s">'#'</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+        <span class="t">TrieNode</span> <span class="p">*</span>node <span class="p">=</span> parent<span class="p">-&gt;</span>child<span class="p">[</span>ch <span class="p">-</span> <span class="s">'a'</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(!</span>node<span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(!</span>node<span class="p">-&gt;</span>word<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            ans<span class="p">.</span><span class="f">push_back</span><span class="p">(</span>node<span class="p">-&gt;</span>word<span class="p">);</span>
+            node<span class="p">-&gt;</span>word<span class="p">.</span><span class="f">clear</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        board<span class="p">[</span>r<span class="p">][</span>c<span class="p">]</span> <span class="p">=</span> <span class="s">'#'</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> <span class="p">[</span>dr<span class="p">,</span> dc<span class="p">]</span> <span class="p">:</span> dirs<span class="p">)</span> <span class="f">dfs</span><span class="p">(</span>board<span class="p">,</span> r <span class="p">+</span> dr<span class="p">,</span> c <span class="p">+</span> dc<span class="p">,</span> node<span class="p">);</span>
+        board<span class="p">[</span>r<span class="p">][</span>c<span class="p">]</span> <span class="p">=</span> ch<span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span>node<span class="p">-&gt;</span>cnt <span class="p">==</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> node<span class="p">-&gt;</span>word<span class="p">.</span><span class="f">empty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">delete</span> node<span class="p">;</span>
+            parent<span class="p">-&gt;</span>child<span class="p">[</span>ch <span class="p">-</span> <span class="s">'a'</span><span class="p">]</span> <span class="p">=</span> <span class="k">nullptr</span><span class="p">;</span>
+            parent<span class="p">-&gt;</span>cnt<span class="p">--;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <table class="sc-table" style="margin-top:14px;">
+      <thead><tr><th>實測(-O2,3 次取最小;次數 = 進到存在節點的呼叫)</th><th>原版</th><th>剪葉子</th></tr></thead>
+      <tbody>
+        <tr><td>12×12 全 a;a … a<sup>10</sup>(全部找得到)</td><td class="mono">1,883,664 次 · 36.8 ms</td><td class="mono ok">10 次 · 0.0 ms</td></tr>
+        <tr><td>12×12 隨機 {a,b};全部 1,024 個長度 10 的 {a,b} 字</td><td class="mono">1,883,664 次 · 37.6 ms</td><td class="mono ok">4,699 次 · 0.4 ms</td></tr>
+        <tr><td>12×12 隨機 a–z;3 萬個隨機字(找到 612 個)</td><td class="mono">2,046 次 · 24.9 ms</td><td class="mono">2,033 次 · 28.3 ms</td></tr>
+        <tr><td>12×12 全 a;a … a<sup>9</sup> + <code>aaaaaaaaab</code>(b 找不到)</td><td class="mono">741,120 次 · 12.8 ms</td><td class="mono fail">741,120 次 · 21.2 ms</td></tr>
+        <tr><td>正確性</td><td colspan="2">兩個官方範例 ✓;對拍 30,000 組 0 錯、0 重複,board 回傳後完整還原;ASan / UBSan 乾淨(只有沒 delete 的 Trie 記憶體)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">什麼時候有用、什麼時候沒用</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <strong>有用</strong>:字真的被找到時。全 a 那組,第一個起點就把 a … a<sup>10</sup> 一路收完,整條鏈被拔光、<code>root-&gt;cnt</code> 歸零,第二格都不用看。
+          <strong>沒用</strong>:字找不到時,沒有葉子可以拔 —— <code>aaaaaaaaab</code> 那條鏈永遠留著,呼叫次數一模一樣,反而因為每個方向都多呼叫一次再判斷出界 / null 而變慢。
+          <strong>隨機字</strong>:3 萬個字只找到 612 個,幾乎沒得剪,時間主要花在建 Trie。
+          <b>結論:面試先寫原版;被問到「很多字都找得到時怎麼加速」再提剪葉子,並說清楚它只在找得到時有效。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>insert 全部的字</td><td class="mono">Σ|word|</td><td>208 的 insert,最多建 Σ|word| 個節點</td></tr>
+        <tr><td>起點</td><td class="mono">m · n</td><td>root 沒這個字母就跳過,不進 search</td></tr>
+        <tr><td>search 第一層</td><td class="mono">≤ 4 個方向</td><td>出界、'#'、Trie 無子節點 → continue</td></tr>
+        <tr><td>之後每層</td><td class="mono">≤ 3 個方向</td><td>來的那格是 '#',不會走回頭</td></tr>
+        <tr><td>遞迴深度</td><td class="mono">≤ L</td><td>Trie 最深 L 層,L ≤ 10</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      建樹 <strong>O(Σ|word|)</strong>　·　搜尋 <strong>O(m · n · 4 · 3<sup>L−1</sup>)</strong>　·　空間 <strong>O(Σ|word|)</strong> + 遞迴 <strong>O(L)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>對照組:每個字各跑一次 79(實跑)</th><th>每字一次 79</th><th>Trie</th></tr></thead>
+      <tbody>
+        <tr><td>12×12 全 a;25 個 <code>aaaaaaaaa?</code>(都找不到)</td><td class="mono fail">47,091,600 次 · 526.9 ms</td><td class="mono ok">741,120 次 · 17.2 ms</td></tr>
+        <tr><td>12×12 隨機 a–c;3 萬個長度 1–10 的字</td><td class="mono">9,956,246 次 · 98.8 ms</td><td class="mono ok">837,056 次 · 46.9 ms</td></tr>
+        <tr><td>12×12 隨機 {a,b};1,024 個長度 10 的字(全找得到)</td><td class="mono ok">46,427 次 · 0.6 ms</td><td class="mono">1,883,664 次 · 38.2 ms</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      最後一列反過來:79 找到第一條路就 <code>return true</code>,而原版 Trie 找到字也不停、不剪 —— 這正是第 2 節剪葉子要補的洞。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">每一種都實際改出來跑:隨機 5,000 組(board 1×1–3×3、字母 1–3 種、每組 1–5 個長度 1–5 的字),每組在獨立子行程裡跑以抓當機;最小反例用窮舉(≤ 4 格,由小到大)。「收完就 return」那列是另一批隨機 20,000 組。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例</th></tr></thead>
+      <tbody>
+        <tr><td>拿掉 ④ <code>node-&gt;word.clear()</code></td><td class="mono fail">2,585</td><td>board <code>["aa"]</code>、words <code>["a"]</code> → <code>["a","a"]</code>:兩個起點各收一次</td></tr>
+        <tr><td>拿掉 ② 起點的 <code>'#'</code>(和還原)</td><td class="mono fail">829</td><td>board <code>["aa"]</code>、words <code>["aaa"]</code> → <code>["aaa"]</code>(正解 []):走過去又走回起點</td></tr>
+        <tr><td>拿掉 ⑥ 還原</td><td class="mono fail">3,084 · 3,056 當掉</td><td>board <code>["aa"]</code>、words <code>["aa"]</code> → segfault:下一個起點讀到 '#',<code>'#' - 'a'</code> = −62</td></tr>
+        <tr><td>拿掉 ① <code>if (root-&gt;child[idx])</code></td><td class="mono fail">1,707 · 全部當掉</td><td>board <code>["a"]</code>、words <code>["b"]</code> → segfault:把 nullptr 傳進 search</td></tr>
+        <tr><td>⑤ 拿掉 <code>board[nr][nc] == '#'</code> 的判斷</td><td class="mono fail">UB · 288(194 當掉)</td><td>board <code>["ca"]</code>、words <code>["ca"]</code>:ASan 抓到 <code>child[-62]</code> 越界;不開 ASan 有時還印出正確答案</td></tr>
+        <tr><td>方向寫成 <code>nr = r + dc</code></td><td class="mono fail">2,061</td><td>board <code>["aa"]</code>、words <code>["aa"]</code> → <code>[]</code>:「右」變成往斜下走</td></tr>
+        <tr><td>④ 後面加 <code>return;</code>(找到就停)</td><td class="mono fail">651 / 20,000</td><td>board <code>b / a</code>(兩列)、words <code>["a","ab"]</code> → 只有 <code>["a"]</code></td></tr>
+        <tr><td>③④ 那段移到 for 迴圈後面</td><td class="mono ok">0</td><td>也對:收答案在展開前後都可以;窮舉 71,314 組也 0 錯</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>三個會當掉的錯,根源都是同一個:拿 <code>'#'</code> 或沒檢查過的字母去當 <code>child[]</code> 的索引。</strong>
+      <b>'#' 一定要在查 Trie 之前擋掉、離開時一定要還原、起點一定要先確認 root 有這個字母。會「答錯」的兩個(不清空、起點不標 #)則不會當掉,只能靠對拍抓。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · 官方範例 1</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">和概念頁動畫同一組,插樁印出的每一次 search。座標 (r,c),節點用從 root 走到它的字串命名。Trie 共 15 個節點(含 root)。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 起點 (0,0) 'o' · 一路走到 oath</span>
+#1 search(0,0, "o")      ① root 有 'o' → 標 #,進來
+#2 search(0,1, "oa")     右 (0,1)='a',o 有子節點 a → 進去
+#3 search(1,1, "oat")    下 (1,1)='t' → 進去
+#4 search(2,1, "oath")   下 (2,1)='h' → 進去
+                         ③ word = "oath" → ans = [oath]  ④ 清空
+                         四個方向都沒有子節點 → 一路還原回 main</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 2: (0,1)–(0,3) · root 沒有 a / n</span>
+3 格跳過,search 一次都沒進(① 擋下)</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 3: 起點 (1,0) 'e' · 旁邊沒有 a,再跳過 2 格</span>
+#5 search(1,0, "e")      上 o、下 i、右 t —— e 只有子節點 a → ⑤ 全剪
+                         → 還原,回 main
+(1,1) 't'、(1,2) 'a':root 沒有 → 跳過 2 格</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 4: 起點 (1,3) 'e' · 往左找到 eat</span>
+#6 search(1,3, "e")      左 (1,2)='a' → 進去
+#7 search(1,2, "ea")     左 (1,1)='t' → 進去
+#8 search(1,1, "eat")    ③ word = "eat" → ans = [oath, eat]  ④ 清空</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// PHASE 5: 起點 (2,3) 'r' · 其餘全部跳過</span>
+#9 search(2,3, "r")      上 e、下 v、左 k —— r 只有子節點 a → ⑤ 全剪
+(2,0)–(2,2)、(3,0)–(3,3) 共 7 格:root 沒有那個字母 → 跳過
+<span class="sc-trace__out">// OUTPUT: ["oath","eat"](9 次 search,12 格跳過,最深 4 層)</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">① 起點 root 要有那個字母 ② 起點先標 # ③ 有字就收 ④ 收完清空 ⑤ '#' 或 Trie 無子節點就剪 ⑥ 回來還原。字常常被找到時,再加剪葉子:1,883,664 → 10 次。</div>
+    <div class="sc-summary-bar__detail">WORD SEARCH II · CODE</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>212 · Word Search II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P212</span>
+    <span><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Word Search II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 79 的回溯 + 208 的 Trie:一次 DFS 同時找所有字</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 212</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TRIE · BACKTRACKING · GRID DFS</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一個 <code>m × n</code> 的小寫字母格 <code>board</code> 和一串<strong>互不相同</strong>的 <code>words</code>,回傳所有能在格子上拼出來的字(順序不限)。<br>
+        拼法和 <a href="../../../09-backtracking/problems/p79/index.html">79</a> 一樣:<strong>上下左右相鄰</strong>的格子依序連起來,<strong>同一個字裡一格只能用一次</strong>。<br>
+        <code>1 ≤ m, n ≤ 12</code>,<code>1 ≤ words.length ≤ 3 × 10<sup>4</sup></code>,<code>1 ≤ words[i].length ≤ 10</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:board <code>oaan / etae / ihkr / iflv</code>,words <code>["oath","pea","eat","rain"]</code> → <code>["eat","oath"]</code>;
+      board <code>ab / cd</code>,words <code>["abcb"]</code> → <code>[]</code>(要用兩次同一個 b)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>單一個字就是 <a href="../../../09-backtracking/problems/p79/index.html">79</a>;難在字有 3 萬個。</strong>
+      <b>把所有字建成 <a href="../p208/index.html">208</a> 的 Trie,DFS 時手上拿的不再是 <code>word[i]</code>,而是 Trie 節點 —— 走一次格子,同時替所有共用前綴的字配對。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 Trie + 回溯 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Trie + 回溯<span class="sc-section__title-en">// WHY SHARE THE PREFIX</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每個字各跑一次 79</span>
+            <span class="sc-ko-card__o">O(W · mn · 3<sup>L</sup>)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            字和字之間不共享任何工作。實測全 a 的 12×12 board、25 個 <code>aaaaaaaaa?</code>(都找不到):<strong>4,709 萬次 dfs、526.9 ms</strong>,而且和字數成正比 —— 3 萬個字就是上千倍。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">把 board 上所有長度 ≤ 10 的路徑都列出來,丟進 set 再查</span>
+            <span class="sc-ko-card__o">mn · 4 · 3<sup>9</sup></span>
+          </div>
+          <div class="sc-ko-card__body">
+            不管字典裡有沒有這個前綴都要走完,12×12 光長度 10 的路徑上界就是 144 × 4 × 3<sup>8</sup> ≈ 378 萬條,每條還要組字串。白走的路比要找的字多太多。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 不會剪枝</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Trie + 回溯:DFS 帶著 Trie 節點走</span>
+          <span class="sc-ko-card__o">共用前綴只走一次</span>
+        </div>
+        <div class="sc-ko-card__body">
+          下一格的字母在 <strong>Trie 上沒有對應子節點</strong> → 這條路不可能拼出任何字,當場剪掉(解決 B)。
+          所有字共用同一次 DFS,同一個前綴只走一次(解決 A)。同一組 25 個字:<strong>74 萬次、17.2 ms</strong>。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 前綴共享 + 前綴剪枝</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <ol>
+      <li><strong>建 Trie</strong>:208 的 insert,只是結尾不存 <code>isWord = true</code>,而是存<strong>整個字</strong> <code>node-&gt;word = w</code>。</li>
+      <li><strong>每格當起點</strong>:<code>root-&gt;child[board[i][j]]</code> 存在才進去;進去前先標 <code>'#'</code>,回來還原。</li>
+      <li><strong>search(r, c, node)</strong>:<code>node-&gt;word</code> 非空 → 收進答案並<strong>清空</strong>(避免重複);四個方向中,沒出界、不是 <code>'#'</code>、Trie 上有那個字母的子節點,才標 <code>'#'</code> 往下走,回來還原。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// oath · pea · eat · rain</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1。左邊是 board,右邊是 4 個字建出來的 Trie(15 個節點)。只有 o、e、e、r 四格能當起點,其餘 12 格 root 沒有那個字母,連 search 都不進。整個過程只呼叫 <strong>9 次 search</strong>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 格子走一步、Trie 走一層 · 沒有子節點就剪 · 有字就收並清空</div>
+      <div class="sc-viz__cvwrap"><canvas id="v212-canvas" class="sc-viz__canvas" style="height:560px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="v212-reset">Reset</button><button class="sc-btn" id="v212-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="v212-play">Play</button><button class="sc-btn" id="v212-next">Next</button>
+        <span class="sc-viz__step" id="v212-step">00 / 00</span>
+      </div>
+      <div class="sc-viz__label" id="v212-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>實測:9 次 search、最深 4 層;4 個起點、12 格直接跳過。</strong>
+      <b>pea 的 p 不在 board 上,rain 的 r 旁邊沒有 a —— 這兩個字在第一、二個字母就被 Trie 剪掉,完全沒有展開。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">從 79 改成 212 的兩個地方<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 手上拿 Trie 節點,代替 word[i]</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          79 的 dfs 問「這格是不是 <code>word[i]</code>」;這裡問「目前的 Trie 節點有沒有<strong>這個字母的子節點</strong>」。
+          有 → 至少有一個字的前綴還活著,往下走;沒有 → <b>所有字</b>都不可能從這條路拼出來,當場剪掉。
+          所以起點也一樣:<code>root-&gt;child[board[i][j]]</code> 不存在就整格跳過 —— 範例 1 的 16 格裡有 12 格連 search 都沒進。
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 找到不停,但要把字清掉</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          79 找到就 <code>return true</code>;這裡不行 —— 走到 <code>oa</code> 時就算 <code>"oa"</code> 是答案,<code>"oath"</code> 還在更下面,迴圈要繼續。
+          但同一個字可能從別的起點、別的路徑再走到一次,所以收進 <code>ans</code> 之後立刻 <code>node-&gt;word.clear()</code>。
+          <b>實測拿掉 clear,隨機 5,000 組錯 2,585 組;最小反例 board <code>["aa"]</code>、words <code>["a"]</code> → <code>["a","a"]</code>。反過來在 clear 後面加 <code>return</code>,20,000 組錯 651 組(<code>b / a</code> 配 <code>["a","ab"]</code> 漏掉 ab)。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      建 Trie 和 208 一樣,每個字 O(L)。搜尋時每格當起點,第一步最多 4 個方向,之後不能走回頭路,每層最多 3 個方向,最深 L 層。
+    </p>
+
+    <div class="sc-formula">
+      建樹 <strong>O(Σ|word|)</strong>　·　搜尋 <strong>O(m · n · 4 · 3<sup>L−1</sup>)</strong>(L ≤ 10)　·　空間 <strong>O(Σ|word|)</strong> 個節點 + 遞迴 <strong>O(L)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>實測(-O2,3 次取最小)</th><th>search 呼叫</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td>官方範例 1</td><td class="mono">9</td><td class="mono">—</td></tr>
+        <tr><td>12×12 全 a;a … a<sup>10</sup> 都在字典裡(最壞:每條長度 ≤ 10 的路都走)</td><td class="mono fail">1,883,664</td><td class="mono">36.6 ms</td></tr>
+        <tr><td>12×12 隨機 {a,b};3 萬個長度 10 的字(a–d)</td><td class="mono">246,625</td><td class="mono">40.2 ms</td></tr>
+        <tr><td>12×12 全 a;a<sup>10</sup> + 29,990 個隨機字(a–d)</td><td class="mono">1,883,664</td><td class="mono">72.3 ms · 102,245 節點</td></tr>
+        <tr><td>最深遞迴</td><td class="mono">10 層</td><td class="mono">= 最長字長</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>79 是「格子對 word[i]」;212 是「格子對 Trie 節點的子節點」。</strong>
+      <b>Trie 沒有這個字母就剪掉;走到存了字的節點就收、收完清空;找到也不停,因為更長的字可能還在後面。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">words 建 Trie、節點存整個字;每格當起點跑 79 的回溯,但手上拿 Trie 節點:沒有子節點就剪、有字就收並清空、找到不停。標 '#'、回來還原。</div>
+    <div class="sc-summary-bar__detail">WORD SEARCH II · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p212-triedfs.js"></script>
+</body>
+</html>
