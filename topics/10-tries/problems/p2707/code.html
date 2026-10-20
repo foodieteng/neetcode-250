@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2707 · Extra Characters in a String // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P2707</span>
+    <span><a href="https://leetcode.com/problems/extra-characters-in-a-string/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Extra Characters in a String</h1>
+    <p class="sc-mast__subtitle">// CODE · Trie 倒著走 vs unordered_set 正著比 + 每一行改掉會怎樣</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2707</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(Σ|w| + n · L)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 解法 A ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">解法 A · Trie + 由右往左<span class="sc-section__title-en">// +1 · WALK · BREAK ON MISSING CHILD</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p2707_trie.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">TrieNode</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span> <span class="p">*</span>child<span class="p">[</span><span class="n">26</span><span class="p">]</span> <span class="p">=</span> <span class="p">{</span> <span class="k">nullptr</span> <span class="p">};</span>
+    <span class="t">bool</span> isWord <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">TrieNode</span> <span class="p">*</span>root<span class="p">;</span>
+
+    <span class="t">int</span> <span class="f">minExtraChar</span><span class="p">(</span><span class="t">string</span> s<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> dictionary<span class="p">)</span> <span class="p">{</span>
+        root <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="p">&amp;</span> w <span class="p">:</span> dictionary<span class="p">)</span> <span class="f">insert</span><span class="p">(</span>w<span class="p">);</span>
+
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">length</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> dp<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>                      <span class="c">// dp[n] = 0:空後綴</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> start <span class="p">=</span> n <span class="p">-</span> <span class="n">1</span><span class="p">;</span> start <span class="p">&gt;=</span> <span class="n">0</span><span class="p">;</span> start<span class="p">--)</span> <span class="p">{</span>
+            dp<span class="p">[</span>start<span class="p">]</span> <span class="p">=</span> dp<span class="p">[</span>start <span class="p">+</span> <span class="n">1</span><span class="p">]</span> <span class="p">+</span> <span class="n">1</span><span class="p">;</span>             <span class="c">// ① 先當 s[start] 是多的</span>
+            <span class="t">TrieNode</span><span class="p">*</span> node <span class="p">=</span> root<span class="p">;</span>                     <span class="c">// ② 每個起點都從 root 走</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">int</span> <span class="f">end</span> <span class="p">=</span> start<span class="p">;</span> <span class="f">end</span> <span class="p">&lt;</span> n<span class="p">;</span> <span class="f">end</span><span class="p">++)</span> <span class="p">{</span>
+                <span class="t">int</span> idx <span class="p">=</span> s<span class="p">[</span><span class="f">end</span><span class="p">]</span> <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(!</span>node<span class="p">-&gt;</span>child<span class="p">[</span>idx<span class="p">])</span> <span class="k">break</span><span class="p">;</span>          <span class="c">// ③ 路斷了:不會有更長的字</span>
+                node <span class="p">=</span> node<span class="p">-&gt;</span>child<span class="p">[</span>idx<span class="p">];</span>
+                <span class="k">if</span> <span class="p">(</span>node<span class="p">-&gt;</span>isWord<span class="p">)</span> dp<span class="p">[</span>start<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>dp<span class="p">[</span>start<span class="p">],</span> dp<span class="p">[</span><span class="f">end</span> <span class="p">+</span> <span class="n">1</span><span class="p">]);</span>  <span class="c">// ④ 不 break</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> dp<span class="p">[</span><span class="n">0</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="t">void</span> <span class="f">insert</span><span class="p">(</span><span class="t">string</span><span class="p">&amp;</span> w<span class="p">)</span> <span class="p">{</span>
+        <span class="t">TrieNode</span> <span class="p">*</span>cur <span class="p">=</span> root<span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">char</span><span class="p">&amp;</span> c <span class="p">:</span> w<span class="p">)</span> <span class="p">{</span>
+            <span class="t">int</span> i <span class="p">=</span> c <span class="p">-</span> <span class="s">'a'</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(!</span>cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">])</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="k">new</span> <span class="t">TrieNode</span><span class="p">();</span>
+            cur <span class="p">=</span> cur<span class="p">-&gt;</span>child<span class="p">[</span>i<span class="p">];</span>
+        <span class="p">}</span>
+        cur<span class="p">-&gt;</span>isWord <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>(A、B 兩種寫法都有)
+    </p>
+  </section>
+
+  <!-- ════════════ 2 · 解法 B ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">解法 B · unordered_set + 由左往右<span class="sc-section__title-en">// +1 · TRY EVERY WORD ENDING AT i</span></h2>
+    </div>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p2707_set.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">minExtraChar</span><span class="p">(</span><span class="t">string</span> s<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> dictionary<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> dp<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>                      <span class="c">// dp[0] = 0:空前綴</span>
+        <span class="t">unordered_set</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> dict<span class="p">(</span>dictionary<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> dictionary<span class="p">.</span><span class="f">end</span><span class="p">());</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            dp<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> dp<span class="p">[</span>i <span class="p">-</span> <span class="n">1</span><span class="p">]</span> <span class="p">+</span> <span class="n">1</span><span class="p">;</span>                     <span class="c">// ① 先當 s[i-1] 是多的</span>
+            <span class="k">for</span> <span class="p">(</span><span class="t">string</span> w <span class="p">:</span> dict<span class="p">)</span> <span class="p">{</span>                    <span class="c">// ② 每個字都比一次</span>
+                <span class="t">int</span> L <span class="p">=</span> w<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+                <span class="k">if</span> <span class="p">(</span>i <span class="p">-</span> L <span class="p">&gt;=</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> <span class="p">(</span>s<span class="p">.</span><span class="f">substr</span><span class="p">(</span>i <span class="p">-</span> L<span class="p">,</span> L<span class="p">)</span> <span class="p">==</span> w<span class="p">))</span> <span class="p">{</span>  <span class="c">// ③ 結尾在 i 的那段</span>
+                    dp<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>dp<span class="p">[</span>i<span class="p">],</span> dp<span class="p">[</span>i <span class="p">-</span> w<span class="p">.</span><span class="f">size</span><span class="p">()]);</span>       <span class="c">// ④ 不 break</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> dp<span class="p">[</span>n<span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩種寫法:官方範例 1 → 1、範例 2 → 3,都正確;和記憶化遞迴的參考解隨機對拍 40,000 組,0 筆不一致。</strong>
+      <b>對拍輸入:字母 a–c,九成是 |s| ≤ 20、字典 ≤ 8 個短字;一成是 |s| = 50、字典 1–50 個字(含長到 50 的字)。</b>
+    </div>
+
+    <p style="margin:14px 0 10px;">B 的兩個小問題,都和正確性無關,只影響速度:</p>
+    <ul>
+      <li><code>unordered_set</code> 只被<strong>走訪</strong>、從沒被<strong>查找</strong>,雜湊完全沒用上;直接掃 <code>dictionary</code> 結果一樣(題目保證字不重複)。</li>
+      <li><code>for (string w : dict)</code> 每圈複製一次字;<code>s.substr(i − L, L)</code> 每次比對又配置一個新字串。改成 <code>const string&amp;</code> 和 <code>s.compare(i − L, L, w) == 0</code> 就都不用配置。</li>
+    </ul>
+
+    <div class="sc-codewindow" style="margin-top:12px;">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p2707_set_fast.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">minExtraChar</span><span class="p">(</span><span class="t">string</span> s<span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;&amp;</span> dictionary<span class="p">)</span> <span class="p">{</span>
+        <span class="t">int</span> n <span class="p">=</span> s<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;</span> dp<span class="p">(</span>n <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> n<span class="p">;</span> i<span class="p">++)</span> <span class="p">{</span>
+            dp<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> dp<span class="p">[</span>i <span class="p">-</span> <span class="n">1</span><span class="p">]</span> <span class="p">+</span> <span class="n">1</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="t">string</span><span class="p">&amp;</span> w <span class="p">:</span> dictionary<span class="p">)</span> <span class="p">{</span>       <span class="c">// 不複製字</span>
+                <span class="t">int</span> L <span class="p">=</span> w<span class="p">.</span><span class="f">size</span><span class="p">();</span>
+                <span class="k">if</span> <span class="p">(</span>i <span class="p">-</span> L <span class="p">&gt;=</span> <span class="n">0</span> <span class="p">&amp;&amp;</span> s<span class="p">.</span><span class="f">compare</span><span class="p">(</span>i <span class="p">-</span> L<span class="p">,</span> L<span class="p">,</span> w<span class="p">)</span> <span class="p">==</span> <span class="n">0</span><span class="p">)</span>  <span class="c">// 不配置新字串</span>
+                    dp<span class="p">[</span>i<span class="p">]</span> <span class="p">=</span> <span class="f">min</span><span class="p">(</span>dp<span class="p">[</span>i<span class="p">],</span> dp<span class="p">[</span>i <span class="p">-</span> L<span class="p">]);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> dp<span class="p">[</span>n<span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+    <p style="margin:10px 0 0;font-size:13.5px;">改良版和 A、B 對拍 20,000 組 0 錯。速度見第 3 節。</p>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>A · Trie</th><th>B · set</th></tr></thead>
+      <tbody>
+        <tr><td>前置</td><td class="mono">建樹 O(Σ|w|)</td><td class="mono">建 set O(Σ|w|)</td></tr>
+        <tr><td>每個位置</td><td class="mono">往下走 ≤ L 步,路斷就停</td><td class="mono">m 個字 × 每次比對 O(L)</td></tr>
+        <tr><td>DP 合計</td><td class="mono">O(n · L)</td><td class="mono">O(n · m · L)</td></tr>
+        <tr><td>空間</td><td class="mono">O(26 · Σ|w|) 節點 + O(n)</td><td class="mono">O(Σ|w|) + O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      A <strong>O(Σ|w| + n · L)</strong>　·　B <strong>O(n · m · L)</strong>　·　n, m, L ≤ 50
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>實測(-O2;s = 50 個 a,字典 a … a<sup>50</sup>,答案 0;連跑 10,000 次)</th><th>計數</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td>A · Trie</td><td class="mono">內層 1,275 次 · 建 51 個節點</td><td class="mono">171.8 ms</td></tr>
+        <tr><td>B · set(你的版本)</td><td class="mono fail">substr 1,275 次(複製 22,100 字元)+ <code>string w</code> 2,500 次(複製 63,750 字元)</td><td class="mono fail">996.4 ms</td></tr>
+        <tr><td>B · 改良版</td><td class="mono ok">0 次配置</td><td class="mono ok">115.3 ms</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      B 慢在配置字串,不在比對次數:兩版內層都是 1,275 次。改良版還贏過 Trie,因為 Trie 每次呼叫都要 <code>new</code> 51 個節點(而且沒 delete)。
+      <b>面試時兩種都能講;題目若改成「同一個字典、很多個 s」,Trie 建一次重複用,才是它真正的優勢。</b>
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 邊界與陷阱 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">邊界與陷阱<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">每一種都實際改出來跑:窮舉全部 59,094 組小輸入(字母 {a,b}、|s| 1–6、字典 1–3 個長度 1–3 的字),和暴力解比。最小反例依 |s|、字數、字長由小到大取第一個。</p>
+
+    <table class="sc-table">
+      <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例</th><th>過官方範例?</th></tr></thead>
+      <tbody>
+        <tr><td>A ④ 找到字就 <code>break</code></td><td class="mono fail">7,206</td><td><code>"ab"</code>、<code>["a","ab"]</code> → 1(正解 0):吃了 a,b 就沒人蓋</td><td class="mono fail">過</td></tr>
+        <tr><td>B ④ 找到第一個字就 <code>break</code></td><td class="mono fail">1,210</td><td><code>"aab"</code>、<code>["b","aa","ab"]</code> → 1(正解 0);結果隨 set 走訪順序而變</td><td class="mono fail">過</td></tr>
+        <tr><td>A ③ <code>break</code> 改 <code>continue</code></td><td class="mono fail">25,724</td><td><code>"ab"</code>、<code>["b"]</code> → 0(正解 1):配不上的 a 被跳過,"ab" 被當成 "b"</td><td class="mono">不過</td></tr>
+        <tr><td>A ② <code>node = root</code> 移到外層迴圈前</td><td class="mono fail">49,306</td><td><code>"aa"</code>、<code>["a"]</code> → 1(正解 0):第二個起點接著上次的節點走</td><td class="mono">不過</td></tr>
+        <tr><td>A 先判斷 isWord、再往下走一層</td><td class="mono fail">45,560</td><td><code>"a"</code>、<code>["a"]</code> → 1(正解 0):檢查的是父節點</td><td class="mono">不過</td></tr>
+        <tr><td>A <code>dp[end + 1]</code> 寫成 <code>dp[end]</code></td><td class="mono fail">45,470</td><td><code>"a"</code>、<code>["a"]</code> → 1(正解 0)</td><td class="mono">不過</td></tr>
+        <tr><td>拿掉 ① 的 <code>+ 1</code>(A、B 都一樣)</td><td class="mono fail">48,910</td><td><code>"a"</code>、<code>["b"]</code> → 0(正解 1):永遠是 0</td><td class="mono">不過</td></tr>
+        <tr><td>B <code>i - L &gt;= 0</code> 寫成 <code>&gt; 0</code></td><td class="mono fail">24,988</td><td><code>"a"</code>、<code>["a"]</code> → 1(正解 0):從 0 開始的字永遠比不到</td><td class="mono">不過</td></tr>
+        <tr><td>B 迴圈寫成 <code>i &lt; n</code></td><td class="mono fail">48,910</td><td><code>"a"</code>、<code>["b"]</code> → 0(正解 1):<code>dp[n]</code> 沒算到,一直是 0</td><td class="mono">不過</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>只有「找到就 break」能騙過兩個官方範例 —— 也是最自然會寫錯的一個。</strong>
+      <b>Trie 版只有「沒有子節點」能 break;遇到 isWord 只更新 min,繼續往下走。官方範例剛好讓第一個命中的字就是最佳解,自己測時記得加 <code>"ab"</code>、<code>["a","ab"]</code> 這種「短的字會擋住長的字」的例子。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · leetscode</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">和概念頁動畫同一組,插樁印出的實際過程。<code>s = l e e t s c o d e</code>(索引 0–8),字典 <code>[leet, code, leetcode]</code>。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// A · TRIE: start = 8 → 5</span>
+dp[9] = 0
+start=8  'e'  ① dp=1   root 沒有 e → ③ break       dp[8]=1
+start=7  'd'  ① dp=2   root 沒有 d → break          dp[7]=2
+start=6  'o'  ① dp=3   root 沒有 o → break          dp[6]=3
+start=5  'c'  ① dp=4   走 c → o → d → e
+              ④ isWord "code"(end=8):min(4, dp[9]=0)
+              end 到底,迴圈結束                     dp[5]=0</div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// A · TRIE: start = 4 → 0</span>
+start=4  's'  ① dp=1   root 沒有 s → break          dp[4]=1
+start=3  't'  ① dp=2   break                        dp[3]=2
+start=2  'e'  ① dp=3   break                        dp[2]=3
+start=1  'e'  ① dp=4   break                        dp[1]=4
+start=0  'l'  ① dp=5   走 l → e → e → t
+              ④ isWord "leet"(end=3):min(5, dp[4]=1) = 1
+              end=4 's':leet 節點只有子節點 c → ③ break
+              (leetcode 根本沒走到)                dp[0]=1
+<span class="sc-trace__out">// OUTPUT: dp[0..9] = 1 4 3 2 1 0 3 2 1 0 → 回傳 dp[0] = 1(內層 16 次)</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// B · SET: i = 1 → 9(set 走訪順序實測 leetcode, code, leet)</span>
+dp[0] = 0
+i=1..3  ① dp = 1, 2, 3     每個字都太長或對不上
+i=4     ① dp=4   leet = s[0..4) ✓ → min(4, dp[0]=0)  dp[4]=0
+i=5..8  ① dp = 1, 2, 3, 4  沒有命中
+        (i=8:leetcode 對 s[0..8) = "leetscod" ✗)
+i=9     ① dp=5   code = s[5..9) ✓ → min(5, dp[5]=1)  dp[9]=1
+        leetcode 對 s[1..9) = "eetscode" ✗
+<span class="sc-trace__out">// OUTPUT: dp[0..9] = 0 1 2 3 0 1 2 3 4 1 → 回傳 dp[9] = 1(substr 比對 14 次)</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念與動畫</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">觀念題與走讀</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">① 先 +1 ② 每個起點從 root 走(B:每個字都比)③ 只有沒子節點才 break ④ 找到字只取 min、不停。B 改成 const string&amp; + compare:996 → 115 ms。</div>
+    <div class="sc-summary-bar__detail">EXTRA CHARACTERS IN A STRING · CODE</div>
+  </div>
+
+</body>
+</html>

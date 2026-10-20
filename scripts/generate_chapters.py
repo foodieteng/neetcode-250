@@ -225,7 +225,7 @@ PROBLEMS = {
     '10': [  # Tries
         ('p208', 'Implement Trie (Prefix Tree)',              'implement-trie-prefix-tree',                'med', 'done'),
         ('p211', 'Design Add and Search Words Data Structure','design-add-and-search-words-data-structure','med', 'done'),
-        ('p2707','Extra Characters in a String',              'extra-characters-in-a-string',              'med', 'todo'),
+        ('p2707','Extra Characters in a String',              'extra-characters-in-a-string',              'med', 'done'),
         ('p212', 'Word Search II',                            'word-search-ii',                            'hard','done'),
     ],
     '11': [  # Graphs

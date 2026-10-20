@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2707 · Extra Characters in a String // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">10 · Tries</a> / P2707</span>
+    <span><a href="https://leetcode.com/problems/extra-characters-in-a-string/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Extra Characters in a String</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每個字元先當「多的」(+1),再看能不能用一個字典字整段蓋掉</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2707</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TRIE · 1-D DP</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給字串 <code>s</code> 和一串<strong>互不相同</strong>的字典字 <code>dictionary</code>。把 <code>s</code> 切出若干段<strong>不重疊</strong>、而且每段都是字典字的子字串,沒被任何一段蓋到的字元就是「多餘字元」。回傳多餘字元的<strong>最少</strong>數量。<br>
+        <code>1 ≤ s.length ≤ 50</code>,<code>1 ≤ dictionary.length ≤ 50</code>,<code>1 ≤ dictionary[i].length ≤ 50</code>,全部小寫。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>s = "leetscode"</code>,字典 <code>["leet","code","leetcode"]</code> → <code>1</code>(切成 leet + code,只剩 s);
+      <code>s = "sayhelloworld"</code>,字典 <code>["hello","world"]</code> → <code>3</code>(s、a、y 沒人蓋)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>這是 <a href="../../../13-1d-dp/problems/p139/index.html">139 Word Break</a> 的「允許失敗」版:139 問能不能全部蓋滿,這題問最少剩幾個沒蓋到。</strong>
+      <b>所以轉移多了一條「這個字元放棄,算 1 個多的」—— 有了這條,dp 永遠有值,不會出現 false。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 DP ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 DP + 找字典字<span class="sc-section__title-en">// WHY DP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">暴力遞迴:每個位置試「跳過」或「接一個字」</span>
+            <span class="sc-ko-card__o">指數級</span>
+          </div>
+          <div class="sc-ko-card__body">
+            同一個位置 <code>i</code> 會從很多種切法被走到,每次都把後綴重算一遍。實測 <code>s</code> 全 a、每種長度都在字典裡:n = 10 要 17,711 次呼叫,n = 20 就要 <strong>2.68 億次</strong>,每多 5 個字元約 ×120。n = 50 跑不完。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">貪心:遇到字典字就先吃掉</span>
+            <span class="sc-ko-card__o">O(n · m · L)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            從左邊開始,接得上字就吃(最長或最短都一樣錯)。實測 <code>s = "abcd"</code>、字典 <code>["ab","bcd"]</code>:貪心先吃 ab,剩 c、d 兩個 → <strong>2</strong>;正解是放掉 a、吃 bcd → <strong>1</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 局部最佳 ≠ 整體最佳</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">1-D DP:每個位置只算一次,所有切法都比過</span>
+          <span class="sc-ko-card__o">n + 1 格</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>dp</code> 存「某段後綴(或前綴)最少剩幾個」。每格先假設這個字元是多的(<strong>+1</strong>),再把所有能貼在這裡的字典字都試一遍取 min。
+          差別只在「怎麼找能貼的字」:<strong>A · Trie</strong> 從起點沿著樹往下走、路斷就停;<strong>B · set</strong> 每格把每個字拿出來比一次。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 兩種寫法都對,找字的方式不同</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 兩種寫法<span class="sc-section__title-en">// THE SHAPE</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th></th><th>A · Trie + 由右往左</th><th>B · unordered_set + 由左往右</th></tr></thead>
+      <tbody>
+        <tr><td>dp 的意思</td><td><code>dp[start]</code> = 後綴 <code>s[start..]</code> 最少剩幾個</td><td><code>dp[i]</code> = 前綴 <code>s[0..i)</code> 最少剩幾個</td></tr>
+        <tr><td>起點 / 答案</td><td><code>dp[n] = 0</code>,回傳 <code>dp[0]</code></td><td><code>dp[0] = 0</code>,回傳 <code>dp[n]</code></td></tr>
+        <tr><td>① 先 +1</td><td><code>dp[start] = dp[start + 1] + 1</code></td><td><code>dp[i] = dp[i − 1] + 1</code></td></tr>
+        <tr><td>② 找字</td><td>從 root 沿 <code>s[start], s[start+1] …</code> 往下走,<strong>沒有子節點就 break</strong></td><td>每個字 w(長 L)都看 <code>s[i−L..i)</code> 是不是 w</td></tr>
+        <tr><td>③ 取 min</td><td>走到 isWord(結尾在 end)→ <code>dp[end + 1]</code></td><td>對上了 → <code>dp[i − L]</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 4 · 動畫 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// leetscode · [leet, code, leetcode]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1,兩種寫法各一支。注意兩個 dp 陣列<strong>意思不同</strong>:A 存後綴、B 存前綴,所以中間的數字不一樣,只有答案(A 的 <code>dp[0]</code>、B 的 <code>dp[9]</code>)都是 1。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ A · TRIE + 由右往左 · +1 → 沿 Trie 走 → 路斷就 break</div>
+      <div class="sc-viz__cvwrap"><canvas id="va-canvas" class="sc-viz__canvas" style="height:470px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="va-reset">Reset</button><button class="sc-btn" id="va-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="va-play">Play</button><button class="sc-btn" id="va-next">Next</button>
+        <span class="sc-viz__step" id="va-step">00 / 06</span>
+      </div>
+      <div class="sc-viz__label" id="va-label">載入中…</div>
+    </div>
+
+    <div class="sc-viz" style="margin-top:18px;">
+      <div class="sc-viz__title">▶ B · UNORDERED_SET + 由左往右 · +1 → 每個字都比一次</div>
+      <div class="sc-viz__cvwrap"><canvas id="vb-canvas" class="sc-viz__canvas" style="height:384px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="vb-reset">Reset</button><button class="sc-btn" id="vb-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="vb-play">Play</button><button class="sc-btn" id="vb-next">Next</button>
+        <span class="sc-viz__step" id="vb-step">00 / 05</span>
+      </div>
+      <div class="sc-viz__label" id="vb-label">載入中…</div>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>實測:Trie 版內層迴圈共 16 次,set 版共 14 次 substr 比對 —— 這個小例子兩者差不多。</strong>
+      <b>Trie 的好處在 start = 0:走完 leet 之後下一個字是 s,leet 節點只有子節點 c,當場 break,leetcode 連看都不用看;set 版則每格都要把三個字拿出來比。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 先 +1 再取 min:「這格是多的」永遠是一個合法選項</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          任何一種切法裡,位置 <code>start</code> 的字元只有兩種命運:<strong>沒被蓋到</strong>(多 1 個,剩下交給 <code>dp[start+1]</code>),或是<strong>某個字典字的開頭</strong>(那個字結束在 end,剩下交給 <code>dp[end+1]</code>)。
+          先寫 <code>+1</code> 那條當預設值,再用每個字去挑戰它,兩種命運就都比到了。
+          <b>這也是和 139 最大的差別:139 沒有「+1」這條路,所以 dp 是 bool;這題有,所以 dp 永遠是一個數字。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 不能找到第一個字就停</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          同一個起點可能接得上好幾個字(leet、leetcode 都從 0 開始),接哪個最好要看<strong>後面</strong>剩多少,當下看不出來。
+          所以 Trie 版走到 isWord 只更新 min、<strong>繼續往下走</strong>;只有「沒有子節點」才 break —— 那代表從這個起點再也不可能有更長的字。
+          set 版同理,每個字都要比完。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <p>
+      n = <code>s</code> 長度、m = 字典字數、L = 最長字長。Trie 版每個起點最多往下走 L 步;set 版每個位置把 m 個字各比一次,每次比對(和 <code>substr</code> 複製)要 O(L)。
+    </p>
+
+    <div class="sc-formula">
+      A · Trie:建樹 <strong>O(Σ|w|)</strong> + DP <strong>O(n · L)</strong>　·　B · set:<strong>O(n · m · L)</strong>　·　空間 A <strong>O(26 · Σ|w|)</strong>、B <strong>O(Σ|w|)</strong>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>實測(-O2,s = 50 個 a,字典 a … a<sup>50</sup>,連跑 10,000 次)</th><th>計數</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td>A · Trie</td><td class="mono">內層 1,275 次 · 51 個節點</td><td class="mono">171.8 ms</td></tr>
+        <tr><td>B · set(原版)</td><td class="mono fail">substr 1,275 次 + 複製字串共 85,850 個字元</td><td class="mono fail">996.4 ms</td></tr>
+        <tr><td>B · set(改良:直接掃 dictionary、<code>const string&amp;</code>、<code>compare</code>)</td><td class="mono ok">不配置任何字串</td><td class="mono ok">115.3 ms</td></tr>
+        <tr><td>答案最大值</td><td class="mono">50</td><td>s 全 z、字典 ["a"]:一個都蓋不到</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      原版 set 慢在<strong>複製字串</strong>,不是演算法:改良版甚至比 Trie 快,因為 Trie 還要 <code>new</code> 節點。n、m、L 都 ≤ 50 時,兩種都輕鬆過;字典很大、前綴大量共用時,Trie 的 O(n · L) 才會拉開差距。
+    </p>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>139 + 「這個字元可以放棄,代價 1」。</strong>
+      <b>每格先 +1,再用每個能貼上的字典字挑戰它。Trie 讓「能貼上的字」從一個起點一路走出來、路斷就停;set 則是每格把每個字都比一次。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">dp 存「這段最少剩幾個」:每格先當多的 +1,再用每個能貼上的字典字取 min;找到字不停。A 用 Trie 從起點往下走、路斷就 break(由右往左);B 每格把每個字都比一次(由左往右)。</div>
+    <div class="sc-summary-bar__detail">EXTRA CHARACTERS IN A STRING · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p2707-trie.js"></script>
+  <script src="../../../../assets/js/viz/p2707-set.js"></script>
+</body>
+</html>
