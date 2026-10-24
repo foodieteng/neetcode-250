@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>53 · Maximum Subarray // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P53</span>
+    <span><a href="https://leetcode.com/problems/maximum-subarray/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Maximum Subarray</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 每一格只問一件事:接在前面那段後面,還是自己重開一段</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 53</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>KADANE · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>nums</code>,找出<strong>和最大的連續子陣列</strong>(至少一個元素),回傳那個和。<br>
+        <code>1 ≤ nums.length ≤ 10<sup>5</sup></code>,<code>−10<sup>4</sup> ≤ nums[i] ≤ 10<sup>4</sup></code>。進階:試試分治法。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[-2,1,-3,4,-1,2,1,-5,4] → 6</code>(<code>[4,-1,2,1]</code>);
+      <code>[1] → 1</code>;<code>[5,4,-1,7,8] → 23</code>(整段都拿)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 <a href="../p860/index.html">860 Lemonade Change</a> 一樣,每一步只做一個局部決定:這一格要<strong>接在前面那段後面</strong>,還是<strong>丟掉前面、從這格重開</strong>。</strong>
+      <b>判斷只看一個數字:前面那段的和 <code>curL</code> 是不是在拖後腿。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用 Kadane ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 Kadane<span class="sc-section__title-en">// WHY KADANE</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">暴力:每個起點往右累加</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            兩層迴圈,每個 <code>(i, j)</code> 都算一次和。答案對(驗證時拿它當參考解),但實測隨機 n = 10<sup>5</sup> 要 <strong>3,733 ms</strong>。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">分治:左半、右半、跨中間取最大</span>
+            <span class="sc-ko-card__o">O(n log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            題目的進階要求。窮舉 5,380,839 組 0 錯,同一組 n = 10<sup>5</sup> 實測 <strong>1.6 ms</strong>,完全夠快。只是要寫遞迴、處理跨中點的兩段,比 Kadane 長很多,還多 O(log n) 的遞迴深度。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 但比 Kadane 繞</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT THE SIMPLEST</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">Kadane:每格決定「接上」或「重開」</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          <code>curL</code> = 「結尾一定在這格」的最大和;<code>maxL</code> = 到目前為止看過的最好答案。每格 <code>curL = max(curL + num, num)</code>,再拿 <code>curL</code> 刷新 <code>maxL</code>。一趟掃完,兩個 int。實測每次約 <strong>0.28 ms</strong>,和暴力解對拍 0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 一行轉移</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>初值</strong> —— <code>maxL = INT_MIN</code>(還沒看過任何段),<code>curL = 0</code>。</li>
+      <li><strong>每一格 num</strong> —— 比「接上」<code>curL + num</code> 和「重開」<code>num</code>,大的那個當新的 <code>curL</code>。</li>
+      <li><strong>刷新答案</strong> —— <code>maxL = max(maxL, curL)</code>。掃完回傳 <code>maxL</code>。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      「接上」輸給「重開」的條件是 <code>curL + num &lt; num</code>,也就是 <strong><code>curL &lt; 0</code></strong>:前面那段是負的,帶著它只會更小。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [-2,1,-3,4,-1,2,1,-5,4]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1。重開只發生在 <code>i = 1</code>、<code>i = 3</code>(前面那段是 −2);<code>i = 7</code> 掉到 1 但還是正的,所以繼續接。<code>maxL</code> 在 <code>i = 6</code> 停在 6,最佳段是 <code>[3..6]</code>。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ KADANE · 接上 curL + num vs 重開 num → 刷新 maxL</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:362px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · curL 是「結尾在這格」的最佳解</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          任何結尾在 i 的子陣列,只有兩種:<strong>只有 <code>nums[i]</code> 自己</strong>,或是<strong>某段結尾在 i − 1 的子陣列再接上 <code>nums[i]</code></strong>。後者最好的就是 <code>curL(i−1) + nums[i]</code>。所以 <code>max(curL + num, num)</code> 已經把所有結尾在 i 的段都比過了。
+          <b>答案一定結尾在某一格,<code>maxL</code> 把每一格的 <code>curL</code> 都看過一次 —— 不會漏。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · maxL 要從 INT_MIN 開始,不能從 0</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          題目規定<strong>至少拿一個元素</strong>。全部都是負數時答案是最大的那個負數(<code>[-3,-1,-2] → −1</code>),從 0 開始的 <code>maxL</code> 永遠不會被刷新,回傳 0 —— 等於「一個都不拿」。
+          實測:<code>maxL = 0</code>、「先歸零再更新」、<code>curL = max(curL + x, 0)</code> 三種寫法都錯 <strong>21,844</strong> 組,剛好是窮舉裡全負陣列的總數,一組不差;而且三個官方範例都過。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每格一次 <code>max</code> 決定 curL、一次 <code>max</code> 刷新 maxL;只用兩個 int。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>實測(-O2,隨機 n = 10<sup>5</sup>,值 ±10<sup>4</sup>)</th><th>複雜度</th><th>時間</th></tr></thead>
+      <tbody>
+        <tr><td>A · 暴力</td><td class="mono">O(n²)</td><td class="mono fail">3,733 ms</td></tr>
+        <tr><td>B · 分治</td><td class="mono">O(n log n)</td><td class="mono">1.6 ms</td></tr>
+        <tr><td>C · Kadane</td><td class="mono">O(n)</td><td class="mono ok">約 0.28 ms</td></tr>
+        <tr><td>數值範圍</td><td class="mono">≤ 10<sup>9</sup></td><td>10<sup>5</sup> 個 10,000 的和是 1,000,000,000,int 上限 2,147,483,647,夠</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>前面那段是負的就丟掉,不是負的就帶著走。</strong>
+      <b>curL 記「結尾在這格」的最好,maxL 記「全程看過」的最好;maxL 從 INT_MIN 開始,因為至少要拿一個。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">curL = max(curL + num, num):前面那段是負的就重開;maxL = max(maxL, curL)。maxL 從 INT_MIN 開始,否則全負陣列回傳 0。O(n) / O(1)。</div>
+    <div class="sc-summary-bar__detail">MAXIMUM SUBARRAY · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p53-kadane.js"></script>
+</body>
+</html>
