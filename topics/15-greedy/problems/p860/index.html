@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>860 · Lemonade Change // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P860</span>
+    <span><a href="https://leetcode.com/problems/lemonade-change/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Lemonade Change</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 5 元是萬用零錢,能用 10 找就先用 10</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 860</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>GREEDY · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        檸檬水一杯 <strong>5 元</strong>。客人依序排隊,每人買一杯,付一張 <code>5</code>、<code>10</code> 或 <code>20</code> 元鈔票(<code>bills[i]</code>),你要<strong>當場找零</strong>,讓每個人實付 5 元。一開始抽屜<strong>沒有任何零錢</strong>。能讓每位客人都找得開就回傳 <code>true</code>。<br>
+        <code>1 ≤ bills.length ≤ 10<sup>5</sup></code>,<code>bills[i]</code> 只會是 5、10、20。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[5,5,5,10,20] → true</code>(最後一位找 10 + 5);
+      <code>[5,5,10,10,20] → false</code>(輪到 20 時抽屜只有兩張 10,沒有 5)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>第 15 章 Greedy 的開章題:每一步只做「眼前最好的選擇」,而且要說得出為什麼這樣不會吃虧。</strong>
+      <b>這題唯一需要選擇的時刻是收到 20 元:找 10 + 5,還是 5 + 5 + 5?其他情況都只有一種找法。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用貪心 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用貪心<span class="sc-section__title-en">// WHY GREEDY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">搜尋:每張 20 兩種找法都試</span>
+            <span class="sc-ko-card__o">2<sup>k</sup></span>
+          </div>
+          <div class="sc-ko-card__body">
+            k 張 20 就有最多 2<sup>k</sup> 條路;加記憶化也要記 <code>(i, pay5, pay10)</code> 三維狀態。答案對(驗證時就是拿它當參考解),但 n = 10<sup>5</sup> 時完全沒必要。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 殺雞用牛刀</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">貪心但選錯:20 先給 5 + 5 + 5</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            兩個官方範例都會過。實測窮舉長度 1–12 的全部 797,160 組,錯 <strong>2,729</strong> 組;最短反例長 7,例如 <code>[5,5,5,5,10,20,10]</code> → false(正解 true):三張 5 一次花光,下一個 10 元客人就找不開。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 把萬用的 5 用掉了</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">貪心:20 能用 10 + 5 就先用 10</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          10 元鈔<strong>只有一個用途</strong>(之後找 20 的零),5 元鈔<strong>兩種客人都要</strong>。所以能把 10 花掉就花掉,把 5 留著。只記兩個計數 <code>pay5</code>、<code>pay10</code>,一張一張處理、找不開就立刻回傳 false。和搜尋解對拍 797,160 + 20,000 組,0 筆不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 先花「用途少」的錢</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三種鈔票<span class="sc-section__title-en">// THE RULES</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>收到</th><th>要找</th><th>怎麼找</th><th>找不開的條件</th></tr></thead>
+      <tbody>
+        <tr><td><code>5</code></td><td>0</td><td><code>pay5++</code></td><td>不會</td></tr>
+        <tr><td><code>10</code></td><td>5</td><td>一張 5,然後 <code>pay10++</code></td><td>沒有 5</td></tr>
+        <tr><td><code>20</code></td><td>15</td><td><strong>有 10 → 10 + 5</strong>;沒有 10 → 5 + 5 + 5</td><td>有 10 但沒 5;或沒 10 且 5 不到三張</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      20 元收進來<strong>不用記</strong>:它永遠不會被拿去找零(最多只要找 15)。每一步扣完馬上檢查,負數就代表這位客人找不開。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [5,5,5,5,10,20,10] · 兩種找法並排</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      同一排客人,上面照本題的貪心(先 10 + 5),下面改成先給 5 + 5 + 5。前五位兩邊一模一樣;分歧點在 <code>i = 5</code> 的 20 元。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 抽屜裡的 pay5 / pay10 · 先 10 + 5 vs 先 5 + 5 + 5</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:410px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 07</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 交換論證:找 10 + 5 永遠不比 5 + 5 + 5 差</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0 0 8px;">
+          同一個時刻兩種找法,剩下的抽屜只差在:<strong>X(10 + 5)多兩張 5</strong>,<strong>Y(5 + 5 + 5)多一張 10</strong>。
+        </p>
+        <p style="margin:0;">
+          之後 Y 那張多出來的 10 只可能用在「某個 20 找 10 + 5」—— 同一刻 X 改找 5 + 5 + 5,剛好用掉那兩張多的 5 加上同一張 5。反過來,10 元客人要的是 5,X 只會更多。
+          <b>所以 Y 撐得過的任何後續,X 都撐得過:先用 10 是安全的選擇。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 不能先欠:扣完馬上檢查</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          客人是<strong>依序</strong>來的,第 i 位只能用他之前收到的錢找零。如果只在最後看 <code>pay5 &gt;= 0</code>,等於允許向後面的客人借錢。
+          實測這樣寫也能過兩個官方範例,但窮舉錯 <strong>45,536</strong> 組,最小反例 <code>[10,5]</code> → true(正解 false):第一位就找不開,後面那張 5 補不回來。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        每張鈔票只看一次,每次幾個加減和比較;抽屜只要兩個 <code>int</code>。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>掃描</td><td><code>O(n)</code></td><td>一張一張處理,找不開就提早結束</td></tr>
+        <tr><td>每張鈔票</td><td><code>O(1)</code></td><td>最多扣兩個計數 + 一次比較</td></tr>
+        <tr><td>空間</td><td><code>O(1)</code></td><td><code>pay5</code>、<code>pay10</code>;20 不用記</td></tr>
+        <tr><td>數值範圍</td><td class="mono">≤ 100,000</td><td>實測 10<sup>5</sup> 張全是 5,<code>pay5</code> 最大 100,000,<code>int</code> 綽綽有餘</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>先花用途少的錢,留住用途多的錢。</strong>
+      <b>10 元只能拿來找 20,5 元兩種客人都要 → 收到 20 能用 10 + 5 就別用 5 + 5 + 5。再加上「扣完立刻檢查、不能向後面的客人借」,就是全部。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">只記 pay5、pay10。5 收下;10 找一張 5;20 有 10 就找 10 + 5,否則 5 + 5 + 5。扣完立刻檢查。先 5 + 5 + 5 會過範例但錯 2,729 組。O(n) / O(1)。</div>
+    <div class="sc-summary-bar__detail">LEMONADE CHANGE · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p860-change.js"></script>
+</body>
+</html>

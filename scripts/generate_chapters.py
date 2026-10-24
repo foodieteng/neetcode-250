@@ -303,7 +303,7 @@ PROBLEMS = {
         ('p10',  'Regular Expression Matching',                  'regular-expression-matching',                  'hard','done'),
     ],
     '15': [  # Greedy
-        ('p860', 'Lemonade Change',                      'lemonade-change',                      'easy','todo'),
+        ('p860', 'Lemonade Change',                      'lemonade-change',                      'easy','done'),
         ('p53',  'Maximum Subarray',                     'maximum-subarray',                     'med', 'todo'),
         ('p918', 'Maximum Sum Circular Subarray',        'maximum-sum-circular-subarray',        'med', 'todo'),
         ('p978', 'Longest Turbulent Subarray',           'longest-turbulent-subarray',           'med', 'todo'),
