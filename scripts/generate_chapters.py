@@ -311,7 +311,7 @@ PROBLEMS = {
         ('p45',  'Jump Game II',                         'jump-game-ii',                         'med', 'done'),
         ('p1871','Jump Game VII',                        'jump-game-vii',                        'med', 'todo'),
         ('p134', 'Gas Station',                          'gas-station',                          'med', 'todo'),
-        ('p846', 'Hand of Straights',                    'hand-of-straights',                    'med', 'todo'),
+        ('p846', 'Hand of Straights',                    'hand-of-straights',                    'med', 'done'),
         ('p649', 'Dota2 Senate',                         'dota2-senate',                         'med', 'todo'),
         ('p1899','Merge Triplets to Form Target Triplet','merge-triplets-to-form-target-triplet','med', 'todo'),
         ('p763', 'Partition Labels',                     'partition-labels',                     'med', 'todo'),

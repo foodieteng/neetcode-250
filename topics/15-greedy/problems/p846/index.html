@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>846 · Hand of Straights // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P846</span>
+    <span><a href="https://leetcode.com/problems/hand-of-straights/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Hand of Straights</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 最小的那張牌一定是某一組的開頭</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 846</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORTED MAP · BATCH · O(n log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        手上有一疊牌 <code>hand</code>,問能不能把它們<strong>全部</strong>分成好幾組,每組剛好 <code>groupSize</code> 張,而且組內的點數是<strong>連續</strong>的(例如 3,4,5)。<br>
+        <code>1 ≤ n ≤ 10<sup>4</sup></code>,<code>0 ≤ hand[i] ≤ 10<sup>9</sup></code>,<code>1 ≤ groupSize ≤ n</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,2,3,6,2,3,4,7,8], 3 → true</code>(分成 <code>[1,2,3]</code>、<code>[2,3,4]</code>、<code>[6,7,8]</code>);
+      <code>[1,2,3,4,5], 4 → false</code>(拿走 1,2,3,4 之後只剩一張 5)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>看最小的那張牌:它前面已經沒有更小的牌,所以它只能當某一組的「開頭」。</strong>
+      <b>最小的 k 有 cnt 張,就一定要開 cnt 組 k, k+1, …, k+g−1 —— 不用選、不用試,一次扣完。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼從最小的開始扣<span class="sc-section__title-en">// WHY SMALLEST FIRST</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">回溯:每次試一種開頭</span>
+            <span class="sc-ko-card__o">指數</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每一步挑一個還有剩的點數當開頭、拿掉 g 張再遞迴。正確(驗證時拿它當參考解),但分支數爆炸;其實除了最小的那張,其他開頭都不用試。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">一次只湊一組</span>
+            <span class="sc-ko-card__o">O(n log n) · 常數大</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每次從最小、還有剩的 key 湊<strong>一組</strong>,k..k+g−1 各減 1,直到它變 0。也正確(窮舉 20,592 組 0 錯),但 k 有 c 張就要重跑 c 次。10,000 張全是 7、g = 1:0.117 ms 對批次的 0.050 ms;各極端輸入實測慢 1.05–2.4 倍。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 但一組一組扣</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BATCH IT · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">有序 map + 一次扣 cnt</span>
+          <span class="sc-ko-card__o">O(n log n) / O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          最小的 k 還剩 cnt 張,就同時開 cnt 組:k..k+g−1 每一格都減 cnt。用到 0 的 key 之後輪到它時直接跳過。和回溯參考解對拍 270,592 組 0 錯;n = 10<sup>4</sup> 實測約 3 ms。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每格成功只會發生一次</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>數頻率</strong> —— <code>map&lt;int,int&gt; freq</code>:key 會自動由小到大排好。</li>
+      <li><strong>由小到大走每個 key</strong> —— 先<strong>複製</strong> <code>cnt = v</code>;<code>cnt == 0</code> 代表這些牌已經被前面的組用光,跳過。</li>
+      <li><strong>開 cnt 組</strong> —— <code>i = 0..g−1</code>:<code>k+i</code> 不存在或剩不到 cnt 張 → <code>false</code>;否則減 cnt。全部走完 → <code>true</code>。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      和 <a href="../p55/index.html">55</a>、<a href="../p45/index.html">45</a> 一樣是「由左往右掃、每一步的選擇是被逼出來的」:那裡是「最遠能到哪」,這裡是「最小的牌沒得選,只能當開頭」。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [1,1,2,2,3,3,3,4,5] → 範例 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      先走一組有重複的牌(groupSize = 3):1 有 2 張,所以一次開 2 組,1、2、3 各減 2。再走範例 2(groupSize = 4):1..4 扣完,輪到 5 時找不到 6,回傳 false。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 由小到大走 key · cnt = v(複本)· cnt == 0 跳過 · k..k+g−1 各減 cnt</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:404px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 25</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 最小的牌只能當開頭,而且全部一起開</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          設目前還剩下的最小點數是 k。任何一種合法分法裡,含有 k 的那一組如果不是從 k 開始,就需要一張 k−1 —— 但 k−1 已經沒有了。所以<strong>每一張 k 都是某一組的第一張</strong>,剩 cnt 張就恰好要開 cnt 組,每組都需要 k+1, …, k+g−1 各一張。
+          <b>這一步完全沒有選擇:只要有任何一格不存在或不到 cnt 張,就不可能分得成,直接回傳 false;夠的話扣掉,剩下的牌又是同一個問題。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · cnt 一定要先複製,0 一定要跳過</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          迴圈寫的是 <code>auto &amp;[k, v]</code>,<code>v</code> 就是 <code>freq[k]</code> 本人。i = 0 時 <code>freq[k] -= v</code> 會把 freq[k] 變成 0,<strong>v 也跟著變成 0</strong>,後面的 k+1.. 就都在「減 0」。所以要先 <code>int cnt = v;</code> 存一份。
+          <b>另外,被前面的組用光的 key 還留在 map 裡、值是 0;它不是任何一組的開頭,必須跳過,否則會去檢查它後面的 key 而誤判。這兩件事就是我第一版寫錯的地方(見<a href="code.html">程式碼頁</a>)。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        內層看起來是 key 數 × g,但<strong>每一次成功的內層迭代至少扣掉 1 張牌</strong>,總共只有 n 張,所以成功的迭代 ≤ n 次,再加最多 1 次失敗。實測 n = 10<sup>4</sup> 的所有極端輸入,內層最多 10,001 次。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建 map</td><td class="mono">n 次插入</td><td class="mono">O(n log n),主要成本</td></tr>
+        <tr><td>內層迭代</td><td class="mono ok">≤ n + 1</td><td>g = 10<sup>4</sup>、0..9999 時 n·g = 10<sup>8</sup>,實際只跑 10,000 次</td></tr>
+        <tr><td>空間</td><td class="mono">O(n)</td><td>最多 n 個不同 key;迴圈中 map 大小不變(count 先擋住,<code>[]</code> 不會插入)</td></tr>
+        <tr><td>數值範圍</td><td class="mono">≤ 10<sup>9</sup> + 1</td><td><code>k + i</code> 一遇到缺的 key 就回傳,實測最大 1,000,000,001,int 夠用</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>最小的牌沒有前一張可以接,只能當開頭 —— 有幾張就開幾組。</strong>
+      <b>由小到大走 map,每個 key 把 k..k+g−1 各減 cnt;不夠就 false。cnt 要先複製,0 要跳過。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與我寫錯的地方</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">最小的牌只能當開頭。用有序 map 由小到大走:cnt = v(先複製)、cnt == 0 跳過、k..k+g−1 各減 cnt,缺或不夠就 false。每次成功至少扣 1 張,內層 ≤ n + 1 次,O(n log n) / O(n)。</div>
+    <div class="sc-summary-bar__detail">HAND OF STRAIGHTS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p846-batch.js"></script>
+</body>
+</html>
