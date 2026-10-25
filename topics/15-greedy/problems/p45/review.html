@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>45 · Jump Game II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P45</span>
+    <span><a href="https://leetcode.com/problems/jump-game-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Jump Game II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 每格一層 / 層不等寬走讀 + 應用題</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 45</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>隱式 BFS 分層 · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>本質</td><td>最短路 = BFS;第 k 層 = 跳 k 次才到的格子,而且是連續的一段</td></tr>
+        <tr><td>curEnd</td><td>目前這一層的右端(跳 step 次最遠到哪)</td></tr>
+        <tr><td>nextEnd</td><td>這一層的格子再跳一次最遠到哪,邊掃邊 max</td></tr>
+        <tr><td>step++ 的時機</td><td><code>i == curEnd</code>:這一層看完了,一定得多跳一次</td></tr>
+        <tr><td>順序 / 範圍</td><td>先收集 nextEnd 再檢查;迴圈到 n − 2(站在終點不用跳)</td></tr>
+        <tr><td>騙過範例的錯</td><td>「nextEnd 變大就 +1」兩個範例都過,錯 23,580 組(<code>[2,2,0]</code> → 2)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 用一句話說 <code>curEnd</code> 和 <code>nextEnd</code> 各代表什麼?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼 <code>step++</code> 要等到 <code>i == curEnd</code>,不能在 nextEnd 變大的時候就加?</div>
+
+    <div class="qa"><strong>Q3.</strong> 為什麼迴圈只跑到 <code>n − 2</code>?跑到 <code>n − 1</code> 會怎樣?</div>
+
+    <div class="qa"><strong>Q4.</strong> 「每次都跳最遠」為什麼錯?分層的做法為什麼不會犯同樣的錯?</div>
+
+    <div class="qa"><strong>Q5.</strong> 這題和 <a href="../p55/index.html">55</a> 的程式差在哪?為什麼 55 不需要 <code>curEnd</code>?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,1,1,1] · [1,2,1,1,1]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">程式碼頁走過範例 1 和 <code>[4,1,1,3,1,1,1]</code>;這裡走兩個不同形狀:每一格都是一層,和層的寬度不一樣。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// [1,1,1,1]:每一格都是層的盡頭</span>
+i  nums  i+nums  nextEnd  i==curEnd?  step  curEnd
+0    1      1       1        是         1      1
+1    1      2       2        是         2      2
+2    1      3       3        是         3      3
+<span class="sc-trace__out">// OUTPUT: return 3(層 [0] · [1] · [2] · [3])</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// [1,2,1,1,1]:層寬 1 · 1 · 2 · 1</span>
+i  nums  i+nums  nextEnd  i==curEnd?  step  curEnd
+0    1      1       1        是         1      1    第 1 層 [1]
+1    2      3       3        是         2      3    第 2 層 [2..3]
+2    1      3       3        否         2      3    第 2 層裡,沒推更遠
+3    1      4       4        是         3      4    第 3 層 [4],含終點
+<span class="sc-trace__out">// OUTPUT: return 3(路線 0 → 1 → 3 → 4)</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>step 只在「走到這一層盡頭」時加:<code>[1,1,1,1]</code> 每格都是盡頭所以每格都加;<code>[1,2,1,1,1]</code> 的 i = 2 在第 2 層中間,不加。</strong>
+      <b>Q2 的反例 <code>[2,2,0]</code>:i = 0 和 i = 1 都會把 nextEnd 推遠,「變大就 +1」會算成 2;但 i = 1 和終點 2 都在第 1 層,正解是 1。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 除了次數,還要回傳<strong>實際的路線</strong>(每一跳從哪一格起跳)。要多記什麼?</div>
+
+    <div class="qa"><strong>App 2.</strong> 拿掉「保證到得了」:到不了時要回傳 <code>−1</code>。原本的程式會回傳什麼?要加哪一行?</div>
+
+    <div class="qa"><strong>App 3.</strong> <a href="https://leetcode.com/problems/minimum-number-of-taps-to-open-to-water-a-garden/" target="_blank" rel="noopener">1326 Minimum Number of Taps</a>:花園 <code>[0, n]</code>,第 i 個水龍頭澆 <code>[i − r, i + r]</code>,問最少開幾個才能澆滿。怎麼變成這一題?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong><code>curEnd</code>:跳 step 次最遠能到哪,也就是「目前這一層」的右端。<code>nextEnd</code>:目前掃過的格子再多跳一次最遠能到哪,也就是「下一層」的右端(還在收集中)。</strong><br><br>
+  兩者之間 <code>(curEnd, nextEnd]</code> 就是下一層的格子。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>nextEnd 變大只代表「這一層某一格跳得比較遠」,不代表多跳了一次。同一層裡可能好幾格輪流把 nextEnd 推遠,但它們都是用同樣的跳數到的。</strong><br><br>
+  實測「變大就 +1」錯 23,580 組,而且兩個官方範例都過。最小反例 <code>[2,2,0]</code> → 2(正解 1:0 一跳直接到 2)。只有走到 curEnd,這一層所有格子都比過了,才確定「不多跳一次就到不了更遠」。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>i 是「起跳點」,站在最後一格不需要再起跳。如果也看最後一格,剛好 <code>curEnd == n − 1</code> 時會觸發一次多餘的 step++。</strong><br><br>
+  實測跑到 n − 1 錯 21,376 組,每一組都剛好多 1;兩個官方範例都變成 3。最小反例 <code>[0]</code> → 1(正解 0:本來就站在終點)。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>「跳最遠」在第一步就決定了落點,但跳最遠的那一格不一定是下一步最好的起跳點。分層把這一層<strong>每一格</strong>的 <code>i + nums[i]</code> 都比過才換層,等於所有起跳點都試過了。</strong><br><br>
+  <code>[4,1,1,3,1,1,1]</code>:跳最遠是 0 → 4 → 5 → 6,3 跳;分層看到第 1 層 [1..4] 裡的 index 3 能到 6,答案 2(0 → 3 → 6)。跳最遠還可能落在 0 上卡死:範例 2 <code>[2,3,0,1,4]</code> 就會。窮舉錯 11,884 組,其中 10,328 組是卡死。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>55 的 <code>farthest</code> 就是這裡的 <code>nextEnd</code>。55 只問「推得到終點嗎」,一路推就好;45 問「推了幾層」,所以要多一個 <code>curEnd</code> 標出每一層在哪裡結束。</strong><br><br>
+  55 的 <code>i &gt; farthest → false</code> 在這題用不到,因為題目保證到得了;拿掉保證時,它會以「換層時推不動」的形式回來(App 2)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>多記一個 <code>best</code>:<code>i + nums[i]</code> 讓 nextEnd 變大時,記下這個 i。換層時,這一層的 <code>best</code> 就是下一跳的起跳點。最後補上終點。</strong><br><br>
+  <code>[2,3,1,1,4]</code> → 0 → 1 → 4;<code>[4,1,1,3,1,1,1]</code> → 0 → 3 → 6;<code>[1,2,1,1,1]</code> → 0 → 1 → 3 → 4。實測窮舉 41,600 組,每條路線的每一跳都合法、跳數等於 BFS 答案,0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>原本的程式不會回傳 −1,而是一個看起來像答案的數:<code>[3,2,1,0,4]</code> → 2、<code>[0,1]</code> → 1、<code>[1,0,1]</code> → 2。在換層時加一行 <code>if (nextEnd == curEnd) return −1;</code>:這一層看完了,下一層卻推不出去。</strong><br><br>
+  實測窮舉值 0..3、長度 1–8 的<strong>全部</strong> 87,380 組(包含到不了的 45,780 組),和 BFS(到不了算 −1)比,0 錯。這就是 55 的 <code>i &gt; farthest</code>,換了個位置。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>先把每個水龍頭換成「從左端 <code>l = max(0, i − r)</code> 能延伸到 <code>min(n, i + r)</code>」,存成 <code>reach[l]</code> 取最大。這就變成 Jump Game II:站在 l 最遠能「跳」到 <code>reach[l]</code>,問從 0 到 n 最少幾跳;推不動就 −1。</strong><br><br>
+  <code>n = 5, ranges = [3,4,1,1,0,0]</code> → 1(index 1 的水龍頭澆 [0, 5]);<code>n = 3, ranges = [0,0,0,0]</code> → −1。和枚舉所有水龍頭組合的暴力解比 21,840 組,0 錯。同一招也能解 <a href="https://leetcode.com/problems/video-stitching/" target="_blank" rel="noopener">1024 Video Stitching</a>。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與陷阱</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 15 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">step 數的是層:nextEnd 在層裡收集、走到 curEnd 才換層。不能「nextEnd 變大就 +1」;迴圈到 n − 2。要路線就記 best;要 −1 就在換層時檢查 nextEnd == curEnd。1326 / 1024 同一招。</div>
+    <div class="sc-summary-bar__detail">JUMP GAME II · REVIEW</div>
+  </div>
+
+</body>
+</html>

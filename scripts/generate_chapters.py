@@ -308,7 +308,7 @@ PROBLEMS = {
         ('p918', 'Maximum Sum Circular Subarray',        'maximum-sum-circular-subarray',        'med', 'done'),
         ('p978', 'Longest Turbulent Subarray',           'longest-turbulent-subarray',           'med', 'done'),
         ('p55',  'Jump Game',                            'jump-game',                            'med', 'done'),
-        ('p45',  'Jump Game II',                         'jump-game-ii',                         'med', 'todo'),
+        ('p45',  'Jump Game II',                         'jump-game-ii',                         'med', 'done'),
         ('p1871','Jump Game VII',                        'jump-game-vii',                        'med', 'todo'),
         ('p134', 'Gas Station',                          'gas-station',                          'med', 'todo'),
         ('p846', 'Hand of Straights',                    'hand-of-straights',                    'med', 'todo'),
