@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>978 · Longest Turbulent Subarray // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P978</span>
+    <span><a href="https://leetcode.com/problems/longest-turbulent-subarray/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Longest Turbulent Subarray</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 相等斷開 / 一路往上走讀 + 應用題</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 978</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>UP / DOWN 交叉 · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>兩個狀態</td><td><code>curMx</code> = 結尾在 i、最後一步往上;<code>curMi</code> = 最後一步往下</td></tr>
+        <tr><td>轉移</td><td>往上 → <code>prevMi + 1</code>;往下 → <code>prevMx + 1</code>;另一邊與相等 → 1</td></tr>
+        <tr><td>初值</td><td>全部是 1:單一元素本身就是長度 1(<code>maxL = 0</code> 會讓 <code>[100]</code> 回傳 0)</td></tr>
+        <tr><td>我的錯</td><td>沒先存 prev,第二行讀到剛更新的 curMx → 往下永遠是 2、答案最多 3;範例 1 回傳 3,窮舉錯 1,923 / 3,279</td></tr>
+        <tr><td>嚴格比較</td><td>用 <code>&gt;=</code> / <code>&lt;=</code> 會把相等也算進去,錯 2,748 組(<code>[0,0]</code> → 2)</td></tr>
+        <tr><td>和 918 的差別</td><td>918 的兩個 Kadane 各讀各的;這題交叉讀對方,所以要暫存</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 為什麼「最後一步往上」的長度是接在 <code>prevMi</code> 後面,而不是 <code>prevMx</code>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 我的第一版少了 <code>prevMx</code> / <code>prevMi</code>。具體錯在哪一步?為什麼答案永遠不會超過 3?</div>
+
+    <div class="qa"><strong>Q3.</strong> 那為什麼 <a href="../p918/code.html">918</a> 的 <code>curMx</code> / <code>curMi</code> 不用暫存?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>arr[i] == arr[i−1]</code> 時,程式碼裡沒有特別寫,為什麼兩個長度都會變 1?</div>
+
+    <div class="qa"><strong>Q5.</strong> 第一版錯了 1,923 組,為什麼三個官方範例裡只有範例 1 抓得到?自測時該挑什麼樣的輸入?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// [1,2,1,2,2,1] · 範例 2 [4,8,12,16]</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">程式碼頁走過範例 1;這裡走兩個邊界:中間有相等把段切斷,和一路往上從來不交替。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// [1,2,1,2,2,1]:相等在中間</span>
+i  a[i-1]→a[i]  rel  prevMx prevMi  curMx curMi  maxL
+1    1 → 2       &gt;       1      1      2     1     2 ↑
+2    2 → 1       &lt;       2      1      1     3     3 ↑  往下接 prevMx = 2
+3    1 → 2       &gt;       1      3      4     1     4 ↑  往上接 prevMi = 3
+4    2 → 2       =       4      1      1     1     4    相等:兩邊都歸 1
+5    2 → 1       &lt;       1      1      1     2     4    從頭來,只有 2
+<span class="sc-trace__out">// OUTPUT: return 4(段 [0..3] = 1,2,1,2)</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 範例 2 [4,8,12,16]:一路往上</span>
+i  a[i-1]→a[i]  rel  prevMx prevMi  curMx curMi  maxL
+1    4 → 8       &gt;       1      1      2     1     2 ↑
+2    8 → 12      &gt;       2      1      2     1     2    往上接 prevMi = 1,不是 prevMx = 2
+3   12 → 16      &gt;       2      1      2     1     2
+<span class="sc-trace__out">// OUTPUT: return 2</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>範例 2 的 i = 2 是 Q1 的答案:往上只能接在「往下結尾」的段後面。prevMi 是 1,所以 curMx 只有 2。</strong>
+      <b>如果兩邊都接自己(Mx 接 Mx),範例 2 會回傳 4 —— 那是「最長單調段」,不是湍流;實測錯 2,318 組。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 除了長度,還要回傳那一段的<strong>起點和終點索引</strong>。要多記什麼?範例 1 回傳什麼?</div>
+
+    <div class="qa"><strong>App 2.</strong> 改成<strong>子序列</strong>(可以跳過元素,<a href="https://leetcode.com/problems/wiggle-subsequence/" target="_blank" rel="noopener">376 Wiggle Subsequence</a>)。同樣兩個狀態,哪裡要改?</div>
+
+    <div class="qa"><strong>App 3.</strong> <a href="https://leetcode.com/problems/maximum-product-subarray/" target="_blank" rel="noopener">152 Maximum Product Subarray</a> 也同時記「最大乘積」和「最小乘積」。我的第一版那個錯,在 152 會不會發生?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>湍流要交替。結尾在 i 且最後一步往上,倒數第二步就必須是往下 —— 所以前面那段是「結尾在 i − 1、最後一步往下」的,也就是 <code>prevMi</code>。</strong><br><br>
+  前面那段只有一格時 prevMi 剛好是 1,接上去得 2,所以不用特例。接 prevMx 的話會連續兩次往上,範例 2 就變成 4(正解 2)。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>錯在往下那一步:第一行判斷「往上?」不成立,先把 curMx 設成 1;第二行 <code>curMi = curMx + 1</code> 讀到的就是這個 1,得到 2。</strong><br><br>
+  所以往下永遠從 2 重來,下一次往上最多 <code>2 + 1 = 3</code>,答案不會超過 3。範例 1 第一次分岔在 i = 4:應該 <code>3 + 1 = 4</code>,實際 <code>1 + 1 = 2</code>。實測窮舉 6,015 個往下的步驟,第一版的 curMi 全部是 2。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>918 的 <code>curMx = max(curMx + x, x)</code> 只讀 curMx 自己,<code>curMi</code> 也只讀 curMi。第一行改的東西,第二行根本不看,所以不會讀到「這一格的新值」。</strong><br><br>
+  判斷規則:<strong>更新 A 時要讀 B、更新 B 時又要讀 A,就一定要先暫存</strong>(或同時用 <code>tie(a, b) = make_pair(…, …)</code> 一次賦值)。只有單向依賴(只有 B 讀 A)時,先更新 B 再更新 A 也可以。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>兩行的條件都是嚴格比較:相等時 <code>arr[i] &gt; arr[i−1]</code> 和 <code>arr[i] &lt; arr[i−1]</code> 都不成立,兩個三元運算都走到 <code>: 1</code>。</strong><br><br>
+  所以「相等斷開」是免費的。改成 <code>&gt;=</code> / <code>&lt;=</code> 就會把相等當成往上或往下,錯 2,748 組,而且全部偏大,最小反例 <code>[0,0]</code> → 2。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>第一版最多回傳 3,而且只會偏小。正解 ≤ 2 的輸入它全對,正解 ≥ 4 的全錯。</strong><br><br>
+  範例 2(正解 2)和範例 3(正解 1)都在「全對」那一區,只有範例 1(正解 5)抓得到。窮舉 3,279 組裡:正解 1、2 的 649 組全對,正解 3 的 1,260 組對了 707 組,正解 4 以上的 1,370 組一組都沒對。<b>自測要挑一個「答案至少 4」的輸入</b>,例如 <code>[0,1,0,1]</code>;最小反例是 <code>[0,1,0]</code>(正解 3,第一版 2)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>maxL 被刷新時,這一段的終點就是 i,長度是 <code>max(curMx, curMi)</code>,所以起點 = <code>i − 長度 + 1</code>。不用多記任何東西。</strong><br><br>
+  範例 1:i = 5 時長度 5 → 回傳 <code>[1, 5]</code>,即 <code>4,2,10,7,8</code>。實測窮舉 3,279 組,回傳的區間長度都等於正解、而且真的是湍流,0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>子序列可以跳過不交替的元素,所以不交替時<strong>保留</strong>舊值,不是重設成 1:往上 → <code>up = prevDown + 1</code>(down 不變);往下 → <code>down = prevUp + 1</code>(up 不變);相等兩個都不變。</strong><br><br>
+  一樣要先暫存。<code>[1,7,4,9,2,5]</code> → 6;<code>[1,17,5,10,13,15,10,5,16,8]</code> → 7;<code>[1..9]</code> → 2。和枚舉所有子序列的暴力解比,窮舉 3,279 組 0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>會,而且更難發現。152 的 <code>hi = max(x, hi·x, lo·x)</code>、<code>lo = min(x, hi·x, lo·x)</code> 也是交叉引用:不暫存的話,第二行的 <code>hi·x</code> 用到的是這一格的新 hi。</strong><br><br>
+  實測窮舉值 −3..3、長度 1–6 共 137,256 組,不暫存的版本錯 54,526 組,<strong>但 152 的兩個官方範例全過</strong>(<code>[2,3,-2,4]</code> → 6、<code>[-2,0,-1]</code> → 0),連常拿來測負負得正的 <code>[-2,3,-4]</code> → 24 也對。最小反例 <code>[-3,-3,-3]</code> → 81(正解 9):新 hi 是 9,再乘 −3 變 −27 當成 lo,下一格 <code>(−27)(−3) = 81</code>,把同一個元素算了兩次。先存 <code>prevHi</code> / <code>prevLo</code> 就 0 錯。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與我寫錯的地方</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 15 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">往上接 prevMi、往下接 prevMx,相等兩邊歸 1。我的錯:沒存 prev → 答案最多 3,只有範例 1 抓得到;自測要挑答案 ≥ 4 的輸入。交叉引用(這題、152)一定先暫存;918 各讀各的就不用。</div>
+    <div class="sc-summary-bar__detail">LONGEST TURBULENT SUBARRAY · REVIEW</div>
+  </div>
+
+</body>
+</html>

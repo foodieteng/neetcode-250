@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>978 · Longest Turbulent Subarray // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P978</span>
+    <span><a href="https://leetcode.com/problems/longest-turbulent-subarray/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Longest Turbulent Subarray</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 往上只能接在往下後面,往下只能接在往上後面</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 978</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>UP / DOWN 交叉 · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給整數陣列 <code>arr</code>,找出最長的<strong>湍流子陣列</strong>:相鄰兩格的大小關係<strong>嚴格地一大一小交替</strong>(<code>&gt; &lt; &gt; &lt; …</code> 或 <code>&lt; &gt; &lt; &gt; …</code>),相等就斷掉。回傳長度;單一元素長度是 1。<br>
+        <code>1 ≤ n ≤ 4 × 10<sup>4</sup></code>,<code>0 ≤ arr[i] ≤ 10<sup>9</sup></code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[9,4,2,10,7,8,8,1,9] → 5</code>(<code>4 &gt; 2 &lt; 10 &gt; 7 &lt; 8</code>);
+      <code>[4,8,12,16] → 2</code>(一路往上,只能拿兩格);<code>[100] → 1</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>和 <a href="../p53/index.html">53</a>、<a href="../p918/index.html">918</a> 同一個骨架:每格只記「結尾在這格」的最好,再刷新全域最大。</strong>
+      <b>不同的是「結尾在這格」要分兩種 —— 最後一步往上的、最後一步往下的 —— 而且兩種會<strong>互相接</strong>。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼用兩個狀態 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼記兩個長度<span class="sc-section__title-en">// WHY UP + DOWN</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">暴力:每個起點往右延伸到斷掉</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每個起點都重新檢查一次交替。正確(驗證時拿它當參考解),但同一段會被不同起點重複走很多次,n = 4 × 10<sup>4</sup> 時最壞要 8 × 10<sup>8</sup> 次比較。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">一個計數器:看方向有沒有翻轉</span>
+            <span class="sc-ko-card__o">O(n) / O(1)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            相等 → 1;和上一步方向相反 → +1;同方向 → 2。也對(窮舉 0 錯),但要另外記「上一步的方向」,還要處理第一步和相等。忘了相等的版本三個官方範例都過,卻錯 18 組。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 特例多</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ADOPT THE CLEANEST</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">兩個長度:往上結尾 curMx、往下結尾 curMi</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          往上 → <code>curMx = prevMi + 1</code>,往下 → <code>curMi = prevMx + 1</code>,另一個(和相等時兩個)都是 1。「方向」直接藏在用哪個變數裡,不用另外記;相等自然兩邊都歸 1。和暴力解對拍 223,279 組 0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 兩行交叉</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>初值</strong> —— <code>curMx = curMi = maxL = 1</code>:第 0 格自己就是長度 1。</li>
+      <li><strong>每一格 i ≥ 1</strong> —— 先存 <code>prevMx</code>、<code>prevMi</code>;<code>arr[i] &gt; arr[i−1]</code> 則 <code>curMx = prevMi + 1</code>,否則 1;<code>arr[i] &lt; arr[i−1]</code> 則 <code>curMi = prevMx + 1</code>,否則 1。</li>
+      <li><strong>刷新答案</strong> —— <code>maxL = max(maxL, curMx, curMi)</code>。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      第 2 步的「先存」不能省:兩行<strong>交叉讀對方</strong>,第一行寫完,第二行就讀不到上一格了(<a href="code.html">程式碼頁的「我寫錯的地方」</a>)。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// [9,4,2,10,7,8,8,1,9]</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1。i = 3 → 5 連續三次交叉接上(2 → 3 → 4 → 5),段 <code>[1..5] = 4,2,10,7,8</code>;i = 6 的 <code>8 = 8</code> 讓兩個長度都歸 1。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 交叉引用的兩條計數 · curMx 讀 prevMi / curMi 讀 prevMx → 最長 turbulent 段</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:496px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 09</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 往上結尾的最長段 = 往下結尾的最長段 + 1</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          結尾在 i、最後一步往上的湍流段,拿掉最後一格,剩下的是結尾在 i − 1 的湍流段,而且它的最後一步必須往下(才會交替)—— 或者它只剩一格。兩種情況的最長長度都是 <code>prevMi</code>(只有一格時 prevMi 正好是 1)。
+          <b>所以 <code>curMx = prevMi + 1</code>;往下對稱,<code>curMi = prevMx + 1</code>。不是往上(往下或相等)時,「最後一步往上」的段只剩 i 自己,長度 1。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 交叉引用 → 一定要先暫存上一格</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          918 的兩個 Kadane 各讀各的(curMx 只讀 curMx),順序無所謂;這題 curMx 讀 curMi、curMi 讀 curMx,不管先寫哪一行,第二行都會讀到這一格的新值。
+          實測沒存 prev 的版本錯 <strong>1,923 / 3,279</strong> 組:往下那一步的 curMi 永遠是 1 + 1 = 2,答案最多到 3;兩行對調也錯一樣多。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        一趟迴圈,每格兩次比較、最多一次加法;只用 maxL、curMx、curMi 和兩個暫存。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>做法</th><th>時間</th><th>空間</th></tr></thead>
+      <tbody>
+        <tr><td>A · 暴力</td><td class="mono fail">O(n²)</td><td class="mono">O(1)</td></tr>
+        <tr><td>B · 單一計數器</td><td class="mono">O(n)</td><td class="mono">O(1)</td></tr>
+        <tr><td>C · 往上 / 往下兩個長度</td><td class="mono ok">O(n),n = 4 × 10<sup>4</sup> 實測約 25–180 µs</td><td class="mono ok">O(1)</td></tr>
+        <tr><td>數值範圍</td><td class="mono">≤ 4 × 10<sup>4</sup></td><td>只比大小、從不相減;計數最大是 n</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>往上接在往下後面,往下接在往上後面;相等兩邊都歸 1。</strong>
+      <b>兩個狀態互相讀對方,所以每一格先把上一格存起來再更新。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與我寫錯的地方</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">curMx(往上結尾)= prevMi + 1,curMi(往下結尾)= prevMx + 1,否則 1;maxL 每格刷新。兩個狀態交叉引用,一定要先存 prev。O(n) / O(1)。</div>
+    <div class="sc-summary-bar__detail">LONGEST TURBULENT SUBARRAY · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p978-turbulent.js"></script>
+</body>
+</html>
