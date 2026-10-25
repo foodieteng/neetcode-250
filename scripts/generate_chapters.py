@@ -305,7 +305,7 @@ PROBLEMS = {
     '15': [  # Greedy
         ('p860', 'Lemonade Change',                      'lemonade-change',                      'easy','done'),
         ('p53',  'Maximum Subarray',                     'maximum-subarray',                     'med', 'done'),
-        ('p918', 'Maximum Sum Circular Subarray',        'maximum-sum-circular-subarray',        'med', 'todo'),
+        ('p918', 'Maximum Sum Circular Subarray',        'maximum-sum-circular-subarray',        'med', 'done'),
         ('p978', 'Longest Turbulent Subarray',           'longest-turbulent-subarray',           'med', 'todo'),
         ('p55',  'Jump Game',                            'jump-game',                            'med', 'todo'),
         ('p45',  'Jump Game II',                         'jump-game-ii',                         'med', 'todo'),
