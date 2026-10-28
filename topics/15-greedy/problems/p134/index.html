@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>134 · Gas Station // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P134</span>
+    <span><a href="https://leetcode.com/problems/gas-station/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Gas Station</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 油箱變負,這一整段都不能當起點</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 134</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TOTAL + CUR · ONE PASS · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        n 個加油站圍成一圈。到第 i 站可以加 <code>gas[i]</code>,從 i 開到 i+1 要花 <code>cost[i]</code>。油箱一開始是空的,問從哪一站出發可以順時針<strong>繞完一整圈</strong>;做不到回傳 <code>−1</code>。題目保證:如果有答案,答案只有一個。<br>
+        <code>1 ≤ n ≤ 10<sup>5</sup></code>,<code>0 ≤ gas[i], cost[i] ≤ 10<sup>4</sup></code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>gas=[1,2,3,4,5], cost=[3,4,5,1,2] → 3</code>(從 3 出發:4−1、+5−2、+1−3、+2−4、+3−5,油箱一路 3, 6, 4, 2, 0);<code>gas=[2,3,4], cost=[3,4,3] → −1</code>(油總共 9,路費總共 10)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>每一站只看 <code>diff = gas[i] − cost[i]</code>。這題其實是兩個問題:「有沒有答案」和「答案是哪一站」。</strong>
+      <b>有沒有:全部 diff 加起來(total)≥ 0 就有。是哪一站:從候選起點一路累加(cur),cur 一變負,候選起點到這裡的每一站全部淘汰,下一站當新候選。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼一次掃完就夠<span class="sc-section__title-en">// WHY ONE PASS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每一站都試著繞一圈</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每個起點模擬一圈,油箱變負就換下一個起點。正確(驗證時拿它當參考解),但 n = 10<sup>5</sup> 時最多 10<sup>10</sup> 步。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">直覺挑「最賺」的那站</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            從 diff 最大的那站出發,或從 gas 最多的那站出發。聽起來合理,但前面賺很多不代表後面撐得住。實測(612,240 組合法輸入):挑最大 diff 錯 27,179 組,挑最大 gas 錯 51,101 組。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · WRONG ANSWER</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">SKIP WHOLE SEGMENT · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">total 判有無 · cur 變負整段跳過</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          A 的問題是失敗之後只往前挪一站。其實從 start 開到 i 失敗,start..i 每一站都不可能是答案,可以直接跳到 i+1。每一站只被經過一次。和 A 窮舉比對 n ≤ 5、值 0..3 的全部 1,118,480 組,0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 失敗一次淘汰一整段</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>算 diff</strong> —— <code>diff = gas[i] − cost[i]</code>,同時加進 <code>total</code>(整圈)和 <code>cur</code>(從候選起點開始)。</li>
+      <li><strong>cur &lt; 0 就換人</strong> —— 從 start 開不到 i+1:<code>start = i + 1</code>,<code>cur = 0</code> 重新累加。</li>
+      <li><strong>看 total</strong> —— 掃完 <code>total &lt; 0</code> 回傳 −1,否則回傳最後的 start。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      cur 的處理和 <a href="../p53/index.html">53 Maximum Subarray</a>(Kadane)一樣:累加到負的,前面那一段只會拖累後面,整段丟掉、從下一格重新開始。差別是這裡丟掉的那一段也代表「這些站都不能當起點」。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 → 兩次重設</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      先走範例 1:前三站 diff 都是 −2,一站一站被淘汰,start 停在 3。再走 <code>gas=[5,1,2,3,4], cost=[4,4,1,5,1]</code>:第 0 站先賺 1,到第 1 站變 −2,0..1 整段淘汰;第 3 站又變負,2..3 淘汰;最後 start = 4、total = 0,回傳 4。範例 2(回傳 −1)在<a href="code.html">程式碼頁</a>走讀。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ diff 加進 total 和 cur · cur &lt; 0 → start..i 全部淘汰,start = i + 1 · 最後看 total</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:510px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 13</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 從 start 到不了 i+1,start..i 都到不了</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          從 start 出發,經過中間任一站 k(start &lt; k ≤ i)的時候,油箱裡是 start..k−1 的 diff 總和,而這個值 ≥ 0(否則早就在 k 之前重設了)。改從 k 出發,等於<strong>空著油箱</strong>到 k,只會比原本更少油 —— 原本帶著 ≥ 0 的油都在 i 撐不住,空油箱更不可能。
+          <b>所以 cur 一變負,start 到 i 整段一起淘汰,直接把候選跳到 i+1。每一站最多被淘汰一次,一趟就掃完。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · total ≥ 0,最後的 start 就是答案</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          total &lt; 0:油總量比路費少,從哪裡出發都不可能,回傳 −1。total ≥ 0:從最後的 start 開到 n−1,cur 一路沒變負;接著要繞回 0..start−1,那是前面被淘汰的幾段,每一段都只在最後一站才變負。而 total = cur + 前面各段的總和 ≥ 0,代表手上的 cur 剛好夠補前面所有段的虧損。
+          <b>實測:有答案時 start 從來沒有等於 n(0 次)—— start 要變成 n,代表最後一站也讓 cur 變負,那每一段都是虧的,total 一定 &lt; 0。另外就算答案不唯一(題目保證唯一,但窮舉時有 506,240 組不唯一),回傳的 start 也一定是可行的。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        一次迴圈,每站常數個加法和比較;只用了 total、cur、start 三個 int。重設最多 n 次(每一站都虧的時候,實測 n = 10<sup>5</sup> 重設 100,000 次),但重設本身也是 O(1)。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>迴圈</td><td class="mono">n</td><td>每站一次</td></tr>
+        <tr><td>重設</td><td class="mono">≤ n</td><td>全部 gas = 0、cost = 10<sup>4</sup>:每站都重設,回傳 −1</td></tr>
+        <tr><td>額外空間</td><td class="mono ok">3 個 int</td><td>不需要前綴和陣列</td></tr>
+        <tr><td>數值範圍</td><td class="mono">|total| ≤ 10<sup>9</sup></td><td>實測最大 1,000,000,000(n·10<sup>4</sup>),約 INT_MAX 的 47%,int 夠用但沒有很多餘裕</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>total 回答「有沒有」,cur 和 start 回答「是哪一站」。</strong>
+      <b>cur 一變負,從 start 到 i 每一站都不可能(它們只會帶更少油到 i),直接跳到 i+1。掃完 total ≥ 0 就回傳 start。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">diff = gas − cost,同時加進 total 和 cur;cur &lt; 0 → start..i 全部淘汰,start = i + 1、cur = 0。掃完 total &lt; 0 回 −1,否則回 start。一趟 O(n) / O(1);|total| 最大 10<sup>9</sup>,int 夠用。</div>
+    <div class="sc-summary-bar__detail">GAS STATION · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p134-reset.js"></script>
+</body>
+</html>
