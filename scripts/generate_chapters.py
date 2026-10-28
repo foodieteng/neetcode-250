@@ -315,7 +315,7 @@ PROBLEMS = {
         ('p649', 'Dota2 Senate',                         'dota2-senate',                         'med', 'done'),
         ('p1899','Merge Triplets to Form Target Triplet','merge-triplets-to-form-target-triplet','med', 'todo'),
         ('p763', 'Partition Labels',                     'partition-labels',                     'med', 'todo'),
-        ('p678', 'Valid Parenthesis String',             'valid-parenthesis-string',             'med', 'todo'),
+        ('p678', 'Valid Parenthesis String',             'valid-parenthesis-string',             'med', 'done'),
         ('p135', 'Candy',                                'candy',                                'hard','todo'),
     ],
     '16': [  # Intervals
