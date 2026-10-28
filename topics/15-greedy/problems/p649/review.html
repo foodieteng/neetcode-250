@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>649 · Dota2 Senate // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P649</span>
+    <span><a href="https://leetcode.com/problems/dota2-senate/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Dota2 Senate</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 拿掉 + n / 改禁隊尾走讀 + 應用題</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 649</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>BAN NEXT OPPONENT · O(n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>真正的決策</td><td>宣布勝利是自然發生的;每一步只要決定「禁誰」</td></tr>
+        <tr><td>貪心依據</td><td>敵人之間只差誰先動 → 禁下一個會行動的敵人(繞圈算);和博弈樹窮舉 8,190 組 0 錯</td></tr>
+        <tr><td>資料結構</td><td><code>qr</code> / <code>qd</code> 存位置;隊首 = 該方下一個要動的人</td></tr>
+        <tr><td>每一步</td><td>隊首小的先動、禁掉對方隊首、自己 <code>+ n</code> 回隊尾</td></tr>
+        <tr><td>+ n</td><td>同一座位、下一輪;拿掉錯 9,794 組("DRR"),<code>&lt;=</code> 和 <code>&lt;</code> 等價</td></tr>
+        <tr><td>常見錯覺</td><td>數人數:"DDRRR" R 多一人卻輸;改禁隊尾:錯 1,990 組,官方範例抓不到</td></tr>
+        <tr><td>複雜度</td><td>每次少 1 人 → while ≤ n − 1 次;O(n) / O(n)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 題目說每個人有「禁人」和「宣布勝利」兩種選擇。為什麼可以說每一步其實只有一個決策?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼要禁「下一個會行動的敵人」,而不是隨便一個敵人?「下一個」為什麼要繞圈算?</div>
+
+    <div class="qa"><strong>Q3.</strong> queue 裡出現 7,n = 5,它代表誰?為什麼贏家要存成 <code>位置 + n</code>?</div>
+
+    <div class="qa"><strong>Q4.</strong> <code>r &lt; d</code> 改成 <code>r &lt;= d</code> 會錯嗎?改成 <code>r + 1</code> 呢?</div>
+
+    <div class="qa"><strong>Q5.</strong> 為什麼 while 最多跑 n − 1 次?為什麼不會因為「一輪又一輪」而變成 O(n²)?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "DRR" · "DRDRR" · 正解 vs 改一行</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">概念頁動畫走了 "RDD"、"DDRRR",程式碼頁走了 "RDRDD"。這裡走兩個最小反例,每組都把正解和錯的版本並排,都是實際印出來的。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// "DRR", n = 3 · 正解</span>
+init qr = [1, 2]   qd = [0]
+1   r=1 vs d=0   D0 禁 R1,qd push 0+3 = 3    qr [2]   qd [3]
+2   r=2 vs d=3   R2 禁 D3,qr push 2+3 = 5    qr [5]   qd []
+<span class="sc-trace__out">// OUTPUT: "Radiant"</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// "DRR" · 拿掉 + n(qd.push(d))</span>
+init qr = [1, 2]   qd = [0]
+1   r=1 vs d=0   D0 禁 R1,qd push 0          qr [2]   qd [0]
+2   r=2 vs d=0   D0 又先動,禁 R2              qr []    qd [0]
+<span class="sc-trace__out">// OUTPUT: "Dire"(錯):D0 在同一輪動了兩次,R2 輪不到</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// "DRDRR", n = 5 · 正解(禁對方隊首)</span>
+init qr = [1, 3, 4]   qd = [0, 2]
+1   r=1 vs d=0   D0 禁 R1,qd push 5    qr [3, 4]   qd [2, 5]
+2   r=3 vs d=2   D2 禁 R3,qd push 7    qr [4]      qd [5, 7]
+3   r=4 vs d=5   R4 禁 D5,qr push 9    qr [9]      qd [7]
+4   r=9 vs d=7   D7 禁 R9,qd push 12   qr []       qd [12]
+<span class="sc-trace__out">// OUTPUT: "Dire"</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// "DRDRR" · 改禁對方隊尾</span>
+init qr = [1, 3, 4]   qd = [0, 2]
+1   r=1 vs d=0   D0 禁 R4(隊尾),qd push 5   qr [1, 3]   qd [2, 5]
+2   r=1 vs d=2   R1 還在,先動,禁 D5,qr push 6   qr [3, 6]   qd [2]
+3   r=3 vs d=2   D2 禁 R6,qd push 7         qr [3]      qd [7]
+4   r=3 vs d=7   R3 禁 D7,qr push 8         qr [8]      qd []
+<span class="sc-trace__out">// OUTPUT: "Radiant"(錯):D0 放過馬上要動的 R1,R1 反過來禁掉 D 方一人</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>"DRDRR" 那兩段就是 Q2 的答案:D0 禁 R4 是浪費 —— R4 要等很久才動,R1 卻是下一個。R1 一動手,D 方少一人,整局翻盤。</strong>
+      <b>"DRR" 那兩段就是 Q3 的答案:值 0 放回去還是 0,永遠比 R 小,等於「同一輪再動一次」;+ n 之後變 3,才會排到 R2 後面。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 除了回傳哪一方贏,還要回傳<strong>最後還有權利的是哪些座位</strong>。要怎麼改?<code>"DDRRR"</code>、<code>"RRDD"</code> 的答案是什麼?</div>
+
+    <div class="qa"><strong>App 2.</strong> 不存位置、只用<strong>一個</strong> <code>queue&lt;char&gt;</code> 讓所有人照順序輪流,能不能做?需要多記什麼?</div>
+
+    <div class="qa"><strong>App 3.</strong> <a href="https://leetcode.com/problems/find-the-winner-of-the-circular-game/" target="_blank" rel="noopener">1823 Find the Winner of the Circular Game</a>:n 個人圍成一圈,每數到第 k 個就淘汰。和這題的「繞圈輪流」有什麼相同的地方?用 queue 怎麼寫?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>「宣布勝利」只有在場上只剩自己陣營時才能做,條件成立就一定會做;條件不成立時唯一能做的就是禁人。所以每一步要想的只有「禁誰」。</strong><br><br>
+  先把題目包裝剝掉、找出真正的選擇,是貪心題的第一步。選擇縮小成「從敵人裡挑一個」之後,才看得出敵人之間唯一的差別是行動時間。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>所有敵人的能力一樣,每人每輪禁一個;唯一的差別是誰先動手。下一個會動的敵人最快造成傷害,禁他不會比禁別人差(交換論證:換成禁他,原本的目標只會更晚動手)。</strong><br><br>
+  「繞圈」是因為一輪走完會從頭再來:我後面已經沒有敵人時,下一個會動的是下一輪排最前面的那個。範例 Trace 的 "DRDRR" 改禁隊尾就錯了,1,990 組。和博弈樹窮舉(每一步把所有禁法都試過)比對 8,190 組 0 錯,證實「禁下一個」就是最佳策略。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>7 = 5 × 1 + 2:座位 2,第 2 輪(v % n 是座位,v / n + 1 是第幾輪)。程式碼頁 "RDRDD" 第 2 步的 R2 就是在這裡被存成 7。</strong><br><br>
+  贏家這輪已經動過,下一輪才能再動。存成 <code>位置 + n</code>,值就比這一輪所有還沒動的人大,會排在他們後面;而下一輪彼此之間的大小,又和原本座位順序一樣。拿掉 + n 會錯 9,794 組,最小反例 "DRR"(見範例 Trace)。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong><code>&lt;=</code> 不會錯:每個值都是「座位 + 輪數 × n」,R 和 D 不可能有同一個值,<code>r == d</code> 永遠不成立。窮舉 32,766 組 0 差異。</strong><br><br>
+  <code>+ 1</code> 會錯 6,716 組,最小反例也是 "DRR":D0 變成 1,還是比 R2 小,一樣在同一輪多動一次。要的是「整整一輪之後」,所以一定是 + n。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong>每次 while 都 pop 兩個、push 一個,兩個 queue 加起來剛好少 1 人;一開始 n 人、結束時至少剩 1 人,所以最多 n − 1 次。</strong><br><br>
+  「一輪又一輪」是值變大(+ n),不是重新掃一遍所有人:被禁的人已經不在 queue 裡,完全不會再碰到。對照「一輪一輪掃字串」的寫法,它每一輪都要掃過已經出局的人。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>迴圈結束後,把非空那個 queue 裡的值逐一取出,<code>值 % n</code> 就是座位。</strong><br><br>
+  實測:<code>"DDRRR"</code> → Dire,剩座位 1(qd = [11],11 % 5 = 1);<code>"RRDD"</code> → Radiant,剩座位 0、1(qr = [4, 5]);<code>"RDRDD"</code> → Radiant,剩座位 2(qr = [12])。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>可以。多記四個數:兩邊還活著幾人(<code>aliveR</code>、<code>aliveD</code>),和兩邊「欠幾個要被禁」(<code>banR</code>、<code>banD</code>)。</strong><br><br>
+  每次取隊首 c:如果 c 的陣營有欠(例如 c 是 R 且 <code>banR &gt; 0</code>),他就是被禁的那個 → <code>banR--</code>、<code>aliveR--</code>,不放回去;否則他去禁對方 → <code>banD++</code>,自己放回隊尾。任一方 alive 歸 0 就結束。這就是「禁下一個會動的敵人」:欠的債由對方下一個輪到的人來還。實測和正解對拍:長度 1–16 全部 131,070 組 + 隨機 5,000 組(n ≤ 10<sup>4</sup>),0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>相同點:都是「繞圈輪流、有人出局、出局的人之後跳過」—— queue 的「pop 隊首、放回隊尾」天然就是繞圈。</strong><br><br>
+  寫法:把 1..n 放進 queue;只要不只 1 人,就把隊首搬到隊尾 k − 1 次,再 pop 掉第 k 個;剩下的就是答案。官方範例 <code>n=5, k=2 → 3</code>、<code>n=6, k=5 → 1</code>;和用 vector 直接刪除的模擬比對 n ≤ 60 的全部 1,830 組 (n, k),0 錯。差別是 1823 沒有「挑誰出局」的選擇,649 才需要貪心決定禁誰。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 15 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">每一步只有「禁誰」要決定;敵人只差誰先動,所以禁下一個會動的。+ n = 同座位下一輪:拿掉它 "DRR" 會讓 D0 一輪動兩次;改禁隊尾 "DRDRR" 會放過馬上要動的 R1。每次少 1 人,while ≤ n − 1。</div>
+    <div class="sc-summary-bar__detail">DOTA2 SENATE · REVIEW</div>
+  </div>
+
+</body>
+</html>
