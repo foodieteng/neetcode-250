@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>763 · Partition Labels // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P763</span>
+    <span><a href="https://leetcode.com/problems/partition-labels/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Partition Labels</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + 拿掉 max / 兩行對調走讀 + 應用題</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 763</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>CUT AT EARLIEST LEGAL POINT · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+      <tbody>
+        <tr><td>換個說法</td><td>一段裡有某個字母,這段就必須延伸到它的最後一次出現</td></tr>
+        <tr><td>前處理</td><td><code>last[c]</code> 由左往右寫,後寫的蓋掉先寫的</td></tr>
+        <tr><td>r 的意思</td><td>這一段「至少要到哪」;<code>r = max(r, last[s[i]])</code> 只往右推</td></tr>
+        <tr><td>切點</td><td><code>i == r</code> 是最早合法的切點 → 段數最多,而且唯一</td></tr>
+        <tr><td>常見錯</td><td>不用 max("aba" → [2,1])、先比再更新("aa" → [1,1])、看目前字母自己的 last</td></tr>
+        <tr><td>複雜度</td><td>O(n) / O(1):26 格 last,最多 26 段</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 2 · 觀念題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+    </div>
+
+    <div class="qa"><strong>Q1.</strong> 「每個字母只能在一段裡」怎麼換成一個可以邊掃邊算的條件?為什麼需要 <code>last[]</code>,而不是 <code>first[]</code>?</div>
+
+    <div class="qa"><strong>Q2.</strong> 為什麼 i == r 一到就切,得到的段數一定最多?有沒有可能「晚一點切」反而更多段?</div>
+
+    <div class="qa"><strong>Q3.</strong> <code>r = max(r, last[s[i]])</code> 寫成 <code>r = last[s[i]]</code>,哪一種輸入會出錯?</div>
+
+    <div class="qa"><strong>Q4.</strong> 把「更新 r」和「比 i == r」兩行對調,為什麼第一個字永遠會被單獨切掉?</div>
+
+    <div class="qa"><strong>Q5.</strong> n 最大 500,為什麼空間是 O(1)?答案最多幾段?</div>
+  </section>
+
+  <!-- ════════════ 3 · 範例 Trace ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "aba" · "aa" · 正解 vs 改一行</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">概念頁動畫走了 "abacdcde" 和範例 1,程式碼頁走了範例 2。這裡走兩個最小反例,每組正解和錯的版本並排,都是實際印出來的。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// "aba" · 正解(last: a=2 b=1)</span>
+i=0  a  last 2   r = max(0, 2) = 2
+i=1  b  last 1   r = max(2, 1) = 2       b 的要求比較短,r 不動
+i=2  a  last 2   r = 2   i == r → 切 3
+<span class="sc-trace__out">// OUTPUT: [3]</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// "aba" · 拿掉 max(r = last[s[i]])</span>
+i=0  a  r: 0 → 2
+i=1  b  r: 2 → 1   i == r → 切 2         a 的要求被忘掉了
+i=2  a  r: 1 → 2   i == r → 切 1
+<span class="sc-trace__out">// OUTPUT: [2,1](錯):a 被拆到兩段</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// "aa" · 正解(last: a=1)</span>
+i=0  a  r = max(0, 1) = 1
+i=1  a  r = 1   i == r → 切 2
+<span class="sc-trace__out">// OUTPUT: [2]</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// "aa" · 先比 i == r,再更新 r</span>
+i=0  a  比:r 還是 0,i == r → 切 1        之後才 r = 1
+i=1  a  比:r = 1,i == r → 切 1
+<span class="sc-trace__out">// OUTPUT: [1,1](錯):i = 0 時 r 是起始值 0,還沒算到 a 的 last</span></div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>"aba" 就是 Q3 的答案:中間夾了一個 last 比較小的字母,直接指定會把 r 往回拉。</strong>
+      <b>"aa" 就是 Q4 的答案:i = 0 時 r 還是起始值 0,一比就相等;所以對調的版本第一個字永遠自己一段(範例 1 → [1,8,7,8])。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+    </div>
+
+    <div class="qa"><strong>App 1.</strong> 不要長度,要回傳<strong>每一段的子字串</strong>。要改哪一行?範例 1 回傳什麼?</div>
+
+    <div class="qa"><strong>App 2.</strong> <a href="https://leetcode.com/problems/optimal-partition-of-string/" target="_blank" rel="noopener">2405 Optimal Partition of String</a>:切成<strong>最少</strong>段,條件變成「每一段裡沒有重複的字母」。貪心的方向要怎麼反過來?</div>
+
+    <div class="qa"><strong>App 3.</strong> 把每個字母看成一個區間 <code>[第一次出現, 最後一次出現]</code>,這題可以變成哪一題?用那一題的寫法答案會一樣嗎?</div>
+  </section>
+
+  <div class="answer-divider">// ANSWERS</div>
+
+  <div class="qa qa--answer"><strong>A1.</strong> <strong>一段裡只要出現字母 c,這一段就必須包含 c 的所有出現位置,也就是一路延伸到 c 的最後一次出現。所以「這一段至少要到哪」= 段裡所有字母 last 的最大值,掃的時候用 max 維護。</strong><br><br>
+  需要的是 last,因為我們是由左往右掃:遇到 c 的時候,它的第一次出現一定已經在這一段裡了(不然它屬於前一段,前一段就不合法),要擔心的只有它後面還有沒有。改成記第一次出現,實測錯 1,398,036 / 1,398,100 組,只有沒有重複字母的 64 組剛好對。</div>
+
+  <div class="qa qa--answer"><strong>A2.</strong> <strong>在 r 之前切一定不合法(會拆開某個字母);在 r 切一定合法。所以 r 是最早能切的地方。每一刀都切在最早能切的地方,後面剩下的字串最長,能切的機會不會比任何別的切法少。</strong><br><br>
+  晚一點切只會把兩段併成一段,不會變多。驗證時用「每種切法都試」比對 615,243 組,段數最多的合法切法每次都恰好一種,程式找到的就是它。</div>
+
+  <div class="qa qa--answer"><strong>A3.</strong> <strong>只要中間夾了一個 last 比目前 r 小的字母就會錯,最小的例子是 "aba":走到 b 時 r 從 2 被蓋成 1,當場切一刀,a 被拆成兩段,回傳 [2,1]。</strong><br><br>
+  r 記的是「前面所有字母的要求」,新的字母只能加要求、不能取消要求,所以一定是 max。實測錯 1,389,600 / 1,398,100 組,範例 1 會回傳 12 段。</div>
+
+  <div class="qa qa--answer"><strong>A4.</strong> <strong>對調之後,i = 0 比的時候 r 還是起始值 0,i == r 一定成立,第一個字被單獨切出去,接著才把 r 更新成它的 last。</strong><br><br>
+  更一般地說,比的時候少算了 s[i] 自己的要求。"aa" → [1,1](正解 [2]),範例 1 → [1,8,7,8]、範例 2 → [1,9]。實測錯 1,292,424 / 1,398,100 組。</div>
+
+  <div class="qa qa--answer"><strong>A5.</strong> <strong><code>last</code> 固定 26 格,和 n 無關。答案每一段都至少有一個字母,而每個字母只會在一段裡,所以段數 ≤ 不同字母數 ≤ 26。</strong><br><br>
+  實測 n = 500 最多 26 段(例如 "a…y" 後面接 475 個 z → 25 個 1 加一段 475)。隨機的 n = 500 字串,10,000 組全部只有 1 段 —— 26 個字母隨機撒,頭尾幾乎一定有同一個字母把整串綁住。</div>
+
+  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>把 <code>ans.push_back(r − l + 1)</code> 改成 <code>ans.push_back(s.substr(l, r − l + 1))</code>,回傳型別換成 <code>vector&lt;string&gt;</code>。其他不用動。</strong><br><br>
+  範例 1 → <code>"ababcbaca"</code>、<code>"defegde"</code>、<code>"hijhklij"</code>(實跑印出來的)。</div>
+
+  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>方向反過來:763 是「能切就馬上切」(求最多段),2405 是「能不切就不切」(求最少段)—— 一直往目前這段加字,直到下一個字已經在這段裡出現過,才被迫切一刀。</strong><br><br>
+  寫法:用一個 26 位元的 bitmask 記這段出現過的字母;遇到已經出現的字母就 <code>cnt++</code>、mask 清空;再把這個字母加進去。官方範例 <code>"abacaba" → 4</code>、<code>"ssssss" → 6</code>;和 DP(每個切點都試)對拍 <code>{a,b,c,d}</code> 長度 ≤ 9 共 349,524 組,0 錯。</div>
+
+  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>變成 <a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">56 Merge Intervals</a>:每個字母一個區間 [first, last],有重疊的區間必須在同一段,合併完每個大區間的長度就是答案。</strong><br><br>
+  實作:收集最多 26 個區間、按起點排序、合併,輸出每個合併區間的 <code>R − L + 1</code>。範例 1 → [9,7,8]、範例 2 → [10];和這題的解對拍 349,524 組,0 錯。本題的寫法其實就是「區間已經按起點排好」的合併:由左往右掃時,第一次遇到某個字母就是它的區間起點,r 就是目前合併區間的右端。</div>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 15 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">一段要延伸到裡面每個字母的 last;r = max(r, last[s[i]]) 是最早能切的地方,一到就切 → 段數最多。直接指定會在 "aba" 把 r 拉回去;先比再更新會在 "aa" 把第一個字切掉。換成區間看就是 56 Merge Intervals;求最少段(2405)就反過來「能不切就不切」。</div>
+    <div class="sc-summary-bar__detail">PARTITION LABELS · REVIEW</div>
+  </div>
+
+</body>
+</html>

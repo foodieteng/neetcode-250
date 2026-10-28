@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>763 · Partition Labels // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P763</span>
+    <span><a href="https://leetcode.com/problems/partition-labels/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Partition Labels</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 這一段至少要延伸到每個字母的最後一次出現</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 763</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LAST OCCURRENCE · EXTEND r · O(n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        把小寫字串 <code>s</code> 切成<strong>越多段越好</strong>,條件是<strong>每個字母只能出現在其中一段</strong>(按順序接回去要等於 s)。回傳每一段的長度。<br>
+        <code>1 ≤ s.length ≤ 500</code>,只有小寫英文字母。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>"ababcbacadefegdehijhklij" → [9,7,8]</code>(切成 <code>ababcbaca</code> / <code>defegde</code> / <code>hijhklij</code>);<code>"eccbbbbdec" → [10]</code>(e 和 c 頭尾都有,整串只能是一段)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>一段裡只要出現某個字母,這一段就必須一路延伸到那個字母的最後一次出現。</strong>
+      <b>所以先記下每個字母最後出現在哪(<code>last[]</code>),由左往右掃時用 r 記「這一段至少要到哪」;i 追上 r 的那一刻,就是最早能切的地方。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 last[] + r<span class="sc-section__title-en">// WHY LAST OCCURRENCE</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每種切法都試</span>
+            <span class="sc-ko-card__o">O(2<sup>n−1</sup>)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            n − 1 個空隙,每個切或不切,檢查每個字母是不是只在一段裡,挑段數最多的。正確(驗證時拿它當參考解),但 n = 500 時有 2<sup>499</sup> 種切法。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">每個 i 回頭檢查能不能切</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            在 i 後面切一刀的條件是「s[0..i] 的字母都沒有在 i 後面再出現」。每個 i 都把前面的字母拿去後面找一遍。正確(隨機 50,000 組和最終解一致),但同一個字母被反覆檢查。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 重複檢查</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">PRECOMPUTE LAST · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">last[] 一次算好 · r 只往右推</span>
+          <span class="sc-ko-card__o">O(n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          B 的條件換個說法就是「s[0..i] 裡每個字母的 last 都 ≤ i」,也就是 <code>max(last) == i</code>。這個 max 一邊掃一邊更新就好。和「每種切法都試」比對:<code>{a,b,c}</code> 長度 ≤ 11、<code>{a,b,c,d}</code> 長度 ≤ 9,共 615,243 組,0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每個字元看一次</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>記最後位置</strong> —— 掃一遍,<code>last[c] = i</code>,後面的會蓋掉前面的,留下的就是最後一次。</li>
+      <li><strong>推 r</strong> —— 再掃一遍,遇到 s[i] 就 <code>r = max(r, last[s[i]])</code>:這一段至少要延伸到這裡。</li>
+      <li><strong>i == r 就切</strong> —— [l..r] 裡每個字母都不會再出現,記下 <code>r − l + 1</code>,下一段從 <code>l = r + 1</code> 開始。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      和 <a href="../p45/index.html">45 Jump Game II</a> 是同一個骨架:那裡用 nextEnd 收集「下一層最遠到哪」、<code>i == curEnd</code> 時 step++;這裡用 r 收集「這一段至少到哪」、<code>i == r</code> 時切一刀。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// "abacdcde" → 範例 1</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      先走短的 <code>"abacdcde"</code>:r 停在 2 切出 3 個字;c、d 把 r 推到 6 切出 4 個字;最後的 e 自己一段。再走範例 1 的 24 個字,看 r 怎麼被 d、e 一路往右推。每個例子先建好 <code>last[]</code>,再一格一格掃。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ r = max(r, last[s[i]]) · i == r 就切一刀 · 下一段從 r + 1 開始</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:440px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 35</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 在 r 切,是最早、也是唯一對的時機</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <strong>不能更早</strong>:r 是 [l..i] 裡某個字母的最後位置;在 r 之前切,那個字母就會被分到兩段。<strong>在 r 切一定合法</strong>:[l..r] 裡每個字母的 last 都 ≤ r,後面不會再出現。
+          <b>每一刀都切在最早合法的位置,剩下的字串最長、能切的刀數最多 —— 這就是貪心。驗證時也確認了:段數最多的切法每次都只有一種,而程式找到的就是它。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 先更新 r,再比 i == r;而且要 max</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          r 的意思是「目前這一段已經被要求延伸到哪」,只能變大。寫成 <code>r = last[s[i]]</code>(直接蓋掉)會把剛才的要求忘掉:<code>"aba"</code> 走到 b 時 r 從 2 掉回 1,當場切成 <code>[2,1]</code>。
+          <b>兩行對調(先比 i == r 再更新 r)也會錯:比的時候還沒把 s[i] 自己的 last 算進去,<code>"aa"</code> 會在第一個 a 就切,得到 <code>[1,1]</code>。兩種錯法都在<a href="review.html">複習頁</a>逐步走一遍。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(1)</strong></div>
+      <p class="sc-formula__hint">
+        兩次掃描,每次每個字元 O(1)。<code>last</code> 固定 26 格,和 n 無關;答案最多 26 段(每段至少有一個別段沒有的字母),所以回傳的 vector 也不會隨 n 變大。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>建 last[]</td><td class="mono">n</td><td>每個字元寫一次,後寫的蓋掉先寫的</td></tr>
+        <tr><td>主迴圈</td><td class="mono">n</td><td>一次 max + 一次比較</td></tr>
+        <tr><td>額外空間</td><td class="mono ok">26 個 int</td><td>和 n 無關,所以是 O(1)</td></tr>
+        <tr><td>答案段數</td><td class="mono">≤ 26</td><td>實測 n = 500 最多 26 段(字母表 + 474 個 z、或 26 個字母各一塊);隨機 10,000 組 n = 500 的字串全都只有 1 段</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>每遇到一個字母,這一段就被要求延伸到它的最後一次出現;i 追上這個要求的時候,就是最早能切的地方。</strong>
+      <b>last[] 一次算好,r = max(r, last[s[i]]),i == r 就切 r − l + 1。先更新再比,而且一定要 max。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">一段必須延伸到裡面每個字母的最後一次出現。last[] 先算好,掃的時候 r = max(r, last[s[i]]),i == r 就切 r − l + 1、l = r + 1。最早合法就切 → 段數最多。O(n) / O(1),最多 26 段。</div>
+    <div class="sc-summary-bar__detail">PARTITION LABELS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p763-reach.js"></script>
+</body>
+</html>
