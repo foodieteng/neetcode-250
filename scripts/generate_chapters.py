@@ -313,7 +313,7 @@ PROBLEMS = {
         ('p134', 'Gas Station',                          'gas-station',                          'med', 'done'),
         ('p846', 'Hand of Straights',                    'hand-of-straights',                    'med', 'done'),
         ('p649', 'Dota2 Senate',                         'dota2-senate',                         'med', 'done'),
-        ('p1899','Merge Triplets to Form Target Triplet','merge-triplets-to-form-target-triplet','med', 'todo'),
+        ('p1899','Merge Triplets to Form Target Triplet','merge-triplets-to-form-target-triplet','med', 'done'),
         ('p763', 'Partition Labels',                     'partition-labels',                     'med', 'done'),
         ('p678', 'Valid Parenthesis String',             'valid-parenthesis-string',             'med', 'done'),
         ('p135', 'Candy',                                'candy',                                'hard','todo'),
