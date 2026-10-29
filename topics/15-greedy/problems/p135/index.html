@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>135 · Candy // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">15 · Greedy</a> / P135</span>
+    <span><a href="https://leetcode.com/problems/candy/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Candy</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 左右兩條規則分開滿足,再取 max</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 135</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>TWO PASSES · MAX MERGE · O(n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        n 個小孩排成一排,每人有一個分數 <code>ratings[i]</code>。發糖果的規則:<strong>每人至少 1 顆</strong>;<strong>分數比旁邊鄰居高的,糖果要比那個鄰居多</strong>。回傳最少要準備幾顆。<br>
+        <code>1 ≤ n ≤ 2·10<sup>4</sup></code>,<code>0 ≤ ratings[i] ≤ 2·10<sup>4</sup></code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[1,0,2] → 5</code>(發 2,1,2);<code>[1,2,2] → 4</code>(發 1,2,1 —— 第三個人和第二個人<strong>同分</strong>,規則沒要求他比較多,所以 1 顆就好)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>「比鄰居高就要比較多」其實是兩條規則:比<em>左邊</em>高要比左邊多、比<em>右邊</em>高要比右邊多。同時顧兩邊很難,只顧一邊很簡單。</strong>
+      <b>從左往右掃一次只管左規則,從右往左掃一次只管右規則,每個人取兩次結果的 max,兩條就同時滿足了。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼掃兩次<span class="sc-section__title-en">// WHY TWO PASSES</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">一次掃描</span>
+            <span class="sc-ko-card__o">O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            只從左往右:比左邊高就 +1,否則給 1。快,但完全沒管右邊鄰居:<code>[1,0]</code> 會發 1,1(正解 2,1),第一個人比右邊高卻沒比較多。實測錯 69,820 / 121,844 組。往右走時你還不知道後面有多長的下坡。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 少看一邊</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">反覆修正到沒人違規</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            全部先給 1,一輪一輪掃,看到違規就把那個人補到「鄰居 + 1」,直到某一輪沒有改動。正確(和最終解對拍 20,000 組,0 錯),但修一個會牽動旁邊:遞減的 <code>n, n−1, …, 1</code> 每輪只能往前傳一格,實測 n = 1,000 要 1,000 輪、10<sup>6</sup> 次檢查。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 連鎖反應太慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">SPLIT THE RULE · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">左掃管左規則 · 右掃管右規則 · 取 max</span>
+          <span class="sc-ko-card__o">O(n) / O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          B 的連鎖反應只有兩個方向:往右傳(上坡)和往左傳(下坡)。各用一次掃描一口氣傳完,就不用一輪一輪等。和「每種發法都試、取最少」比對:長度 1–7、分數 0–3 全部窮舉 21,844 組 + 隨機 100,000 組,共 121,844 組,0 錯。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每人看兩次</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>全部先給 1</strong> —— <code>c(n, 1)</code>。谷底(不比任何鄰居高)最後就是 1。</li>
+      <li><strong>左往右</strong> —— 比左邊高就 <code>c[i] = c[i−1] + 1</code>,否則保持 1。這是「從左邊的谷底爬上來走了幾步」。</li>
+      <li><strong>右往左</strong> —— 比右邊高就 <code>c[i] = max(c[i], c[i+1] + 1)</code>。從右邊的谷底爬上來;山頂兩邊都爬得到,取比較大的那邊。最後加總。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      和 <a href="../../../02-two-pointers/problems/p42/index.html">42 Trapping Rain Water</a>、<a href="../../../01-arrays-hashing/problems/p238/index.html">238 Product of Array Except Self</a> 是同一個骨架:每個位置的答案同時需要「左邊的資訊」和「右邊的資訊」,就左掃一次、右掃一次、再合併。42 合併用 min(被矮的那邊限制),這題用 max(兩邊都要滿足)。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 → 山頂衝突 → 同分</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      把分數想成地形。先走範例 1 <code>[1,0,2]</code>。再走 <code>[1,3,5,4,3,2,1]</code>:山頂的 5 從左邊爬上來只要 3 步,從右邊爬上來要 5 步,左掃說 3、右掃說 5,取 5。最後是 <code>[1,2,87,87,87,2,1]</code>:三個 87 相鄰,同分不算「比較高」,正中間那個只拿 1 顆。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 左往右:比左邊高就 +1 · 右往左:比右邊高就 max(c[i], c[i+1] + 1) · 加總</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:430px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 30</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 兩次掃描的結果都是「下限」,所以 max 就是最少</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          左掃完的 <code>c[i]</code> = 以 i 結尾、往左看的連續上升段長度。例如 1, 3, 5 是長度 3 的上升,第三個人在<strong>任何</strong>合法發法裡都至少要 3 顆(1 → 2 → 3,每一步至少多 1)。右掃同理,是從 i 往右的連續下降段長度,5, 4, 3, 2, 1 讓那個 5 至少要 5 顆。
+          <b>每個人至少要兩個下限中比較大的那個;而「每人取 max」這組數字本身又合法(左右規則都滿足),所以它就是最少。驗證時和窮舉比對 121,844 組,0 錯。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 第二輪必須從右往左,而且一定要 max</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <code>c[i+1] + 1</code> 要用到 i+1 已經算好的值,所以必須從右往左。反過來從左往右,<code>[2,1,0]</code> 會發 2,2,1 = 5(正解 6):算 i = 0 時 i = 1 還沒被右邊推高。
+          <b>寫成 <code>c[i] = c[i+1] + 1</code>(不取 max)會把左掃算好的較大值蓋掉:<code>[0,1,2,0]</code> 左掃得 1,2,3,1,右掃到 2 時被改成 2,變成 1,2,2,1 = 6(正解 7),分數 2 比分數 1 高卻一樣多。兩種錯法都在<a href="review.html">複習頁</a>逐步走一遍。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        兩次掃描 + 一次加總,每個人 O(1)。<code>c</code> 存 n 個數。最多的情況是一路遞增(或遞減):總和 <code>n(n+1)/2</code>,n = 5·10<sup>4</sup> 時是 1,250,025,000,還在 <code>int</code> 上限 2,147,483,647 以內。
+      </p>
+    </div>
+
+    <table class="sc-table">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>左往右</td><td class="mono">n − 1</td><td>一次比較,最多一次寫入</td></tr>
+        <tr><td>右往左</td><td class="mono">n − 1</td><td>一次比較,最多一次 max</td></tr>
+        <tr><td>加總</td><td class="mono">n</td><td><code>accumulate</code>,起始值 0 是 int,用 int 加</td></tr>
+        <tr><td>實測時間</td><td class="mono">≈ 0.55 ms</td><td>n = 5·10<sup>4</sup> 隨機分數,單次呼叫</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════ 7 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>一個人的答案同時要看左邊和右邊時,就把規則拆成兩半:左掃帶左邊的資訊、右掃帶右邊的資訊,最後合併。</strong>
+      <b>谷底給 1,上坡每步 +1;山頂兩邊都爬得到,取 max。同分不算比較高,直接回到 1。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">「比鄰居高就要比較多」拆成左規則和右規則。全部先給 1;左往右,比左邊高就 c[i−1] + 1;右往左,比右邊高就 max(c[i], c[i+1] + 1);加總。兩次結果都是下限,max 又合法 → 最少。O(n) / O(n),int 夠。</div>
+    <div class="sc-summary-bar__detail">CANDY · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p135-twopass.js"></script>
+</body>
+</html>

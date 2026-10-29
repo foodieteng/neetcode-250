@@ -316,7 +316,7 @@ PROBLEMS = {
         ('p1899','Merge Triplets to Form Target Triplet','merge-triplets-to-form-target-triplet','med', 'done'),
         ('p763', 'Partition Labels',                     'partition-labels',                     'med', 'done'),
         ('p678', 'Valid Parenthesis String',             'valid-parenthesis-string',             'med', 'done'),
-        ('p135', 'Candy',                                'candy',                                'hard','todo'),
+        ('p135', 'Candy',                                'candy',                                'hard','done'),
     ],
     '16': [  # Intervals
         ('p57',  'Insert Interval',                       'insert-interval',                       'med', 'todo'),
