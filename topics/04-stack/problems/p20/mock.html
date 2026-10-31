@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 20 · Valid Parentheses</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 20 · Valid Parentheses · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given a string of just parentheses, square brackets, and curly braces <code class="chip">()[]{}</code>, decide if the brackets are validly matched — same type, correct order, and every closer has an opener.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> <code class="chip">"()[]{}"</code> is <code class="chip">true</code>. <code class="chip">"(]"</code> is <code class="chip">false</code>, wrong type. And <code class="chip">"([)]"</code> is <code class="chip">false</code> — wrong order, even though the counts match.</p>
+      <p>So valid brackets <strong>nest</strong> properly: the most recently opened one must close first, which is last-in-first-out. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right. The length goes up to 10<sup>4</sup>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>This problem reminds me of</strong> a <strong>stack</strong>, because last-in-first-out is exactly what a stack gives me. Push openers; on a closer, the stack top must be its matching opener — pop if so, else fail. At the end, the stack must be empty.</p>
+      <p>Three checks cover the three ways to fail: a <strong>top mismatch</strong>, for wrong type or order; an <strong>empty stack on a closer</strong>, for an extra closer; and a <strong>non-empty stack at the end</strong>, for an extra opener. That's O(n).</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why isn't counting brackets enough?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Counting loses <strong>order</strong>. <code class="chip">"([)]"</code> has one of each but is invalid. The stack catches it, because when the <code class="chip">)</code> arrives, the top is <code class="chip">[</code>, not <code class="chip">(</code>. Only a stack remembers which opener is currently innermost.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        for each char c:<br>
+        &nbsp;&nbsp;opener → push(c)<br>
+        &nbsp;&nbsp;closer → if <span class="em">empty()</span> || top() != match(c): return false<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else pop()<br>
+        return <span class="em">empty()</span> <span class="label">// leftover openers → false</span>
+      </div>
+      <p>One: for each character, an opener gets pushed.<br>
+      Two: for a closer, if the stack is empty or the top isn't its matching opener, return <code class="chip">false</code>; otherwise pop.<br>
+      Three: return <code class="chip">st.empty()</code>.</p>
+      <p><strong>One thing worth flagging</strong> — I'll check <code class="chip">empty()</code> <em>before</em> calling <code class="chip">top()</code>, to avoid undefined behavior on an empty stack. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">isValid</span>(<span class="typ">string</span> s) {
+        <span class="typ">stack</span>&lt;<span class="typ">int</span>&gt; st;
+
+        <span class="kw">for</span> (<span class="typ">char</span> c : s) {
+            <span class="kw">if</span> (c == <span class="str">')'</span>) {
+                <span class="kw">if</span> (st.<span class="fn">empty</span>() || st.<span class="fn">top</span>() != <span class="str">'('</span>) <span class="kw">return</span> <span class="kw">false</span>;
+                st.<span class="fn">pop</span>();
+            } <span class="kw">else if</span> (c == <span class="str">'}'</span>) {
+                <span class="kw">if</span> (st.<span class="fn">empty</span>() || st.<span class="fn">top</span>() != <span class="str">'{'</span>) <span class="kw">return</span> <span class="kw">false</span>;
+                st.<span class="fn">pop</span>();
+            } <span class="kw">else if</span> (c == <span class="str">']'</span>) {
+                <span class="kw">if</span> (st.<span class="fn">empty</span>() || st.<span class="fn">top</span>() != <span class="str">'['</span>) <span class="kw">return</span> <span class="kw">false</span>;
+                st.<span class="fn">pop</span>();
+            } <span class="kw">else</span> {
+                st.<span class="fn">push</span>(c);                <span class="com">// opener → push</span>
+            }
+        }
+
+        <span class="kw">return</span> st.<span class="fn">empty</span>();                 <span class="com">// leftover openers → invalid</span>
+    }
+};</pre>
+      <p>One loop with three closer branches — <code class="chip">)</code>, <code class="chip">}</code>, <code class="chip">]</code> — each checking that the stack is non-empty and the top is the matching opener, then popping. Anything else is an opener, so it gets pushed. After the loop, I return <code class="chip">st.empty()</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the order inside each check, <code class="chip">empty()</code> first, then <code class="chip">top()</code>. The <code class="chip">||</code> short-circuits, so <code class="chip">top()</code> is never called on an empty stack.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> <code class="chip">"([])"</code> — expected <code class="chip">true</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:420px;white-space:nowrap;">
+        <thead><tr><th>input</th><th>steps</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>"([])"</td><td>push ( [, ] → pop [, ) → pop (</td><td><span class="answer-cell">empty → true</span></td></tr>
+          <tr class="highlight-row"><td>"([)]"</td><td>push ( [, ) → top [ ≠ (</td><td>false</td></tr>
+          <tr><td>"]"</td><td>closer, stack empty</td><td>false</td></tr>
+          <tr><td>"("</td><td>push (, end non-empty</td><td>false</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Both closers find their partner on top, so the stack ends empty and I return <code class="chip">true</code>.</p>
+      <p>The row that matters is the same brackets reordered: <code class="chip">"([)]"</code>. When the <code class="chip">)</code> arrives, the top is <code class="chip">[</code>, so I return <code class="chip">false</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">"]"</code> → <code class="chip">false</code> — closer on an empty stack.<br>
+      • <code class="chip">"("</code> → <code class="chip">false</code> — the stack isn't empty at the end.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why the final empty check?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The loop only fails on closers. Pure openers, like <code class="chip">"(("</code>, never trigger a failure inside the loop, but they leave items on the stack. The final <code class="chip">empty()</code> catches those unclosed openers.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n) — one pass, with O(1) push, pop, and top. Space is O(n) in the worst case, when every character is an opener.</p>
+      <p>A single bracket type could use a counter, but multiple types need the stack to remember which opener is innermost. The same stack idea powers evaluating postfix expressions and removing invalid parentheses.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Clean — the LIFO fit, the three checks, the short-circuit point, and the counting-vs-stack distinction. Done.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 11.78, 43.98, 47.65, 78.79, 81.52, 98.63, 125.33, 128.11, 156.02, 190.57, 193.16, 206.26, 231.16]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
