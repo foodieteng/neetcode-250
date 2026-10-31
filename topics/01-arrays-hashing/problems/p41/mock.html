@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 41 · First Missing Positive</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 41 · First Missing Positive · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given an unsorted integer array <code class="chip">nums</code>, return the smallest positive integer that is <strong>not</strong> present. You must run in <code class="chip">O(n)</code> time and use <code class="chip">O(1)</code> auxiliary space.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to confirm —</em> "positive" means <code class="chip num">≥ 1</code>, so <code class="chip num">0</code> and negatives never count as the answer, right? And the array can contain anything — negatives, zeros, duplicates, huge values?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct on both. Values span the full <code class="chip">int</code> range.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Here's the key observation I want to lock in first.</strong> With <code class="chip">n</code> elements, the answer is <em>always</em> in <code class="chip">[1, n+1]</code>. If the array holds exactly <code class="chip">1..n</code>, the answer is <code class="chip">n+1</code>; otherwise one of <code class="chip">1..n</code> is missing, and that's the answer. So any value <code class="chip">≤ 0</code> or <code class="chip">&gt; n</code> is <strong>irrelevant</strong> — it can never be the answer.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run the example:</strong> <code class="chip">[3,4,-1,1]</code>. The present positives are <code class="chip num">1</code>, <code class="chip num">3</code> and <code class="chip num">4</code>, so <code class="chip num">2</code> is missing — answer <code class="chip num">2</code>. And <code class="chip">[7,8,9,11,12]</code> has no <code class="chip num">1</code>, so the answer is <code class="chip num">1</code>. Matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about the constraints for a second.</em></p>
+      <p><strong>The naive route</strong> is a hash set of all values, then probe <code class="chip num">1</code>, <code class="chip num">2</code>, … until one is missing — <code class="chip">O(n)</code> time, but <code class="chip">O(n)</code> space, which <strong>breaks the space rule</strong>. Sorting is <code class="chip">O(n log n)</code>, which <strong>breaks the time rule</strong>.</p>
+      <p><strong>This problem reminds me of</strong> cyclic sort. Since the answer lives in <code class="chip">[1, n+1]</code>, <strong>the array indices themselves can act as the hash table</strong>: put value <code class="chip">v</code> at index <code class="chip">v-1</code>, and the first index whose value doesn't match is the gap.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// invariant: value v belongs at index v-1</span><br>
+        for each element, carry its value x:<br>
+        &nbsp;&nbsp;while 1 ≤ x ≤ n AND <span class="em">x != nums[x-1]</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;swap(x, nums[x-1]) <span class="label">// place x home, pick up displaced</span><br>
+        then scan: first i with nums[i] != i+1 → return i+1<br>
+        else return n+1
+      </div>
+      <p>One: walk the array, carrying each value <code class="chip">x</code> in hand.<br>
+      Two: while <code class="chip">x</code> is in <code class="chip">[1, n]</code>, and its home, index <code class="chip">x-1</code>, doesn't already hold <code class="chip">x</code>, swap <code class="chip">x</code> into its home and pick up whatever was there.<br>
+      Three: scan for the first index <code class="chip">i</code> where <code class="chip">nums[i] != i+1</code>, and return <code class="chip">i+1</code>; if there is none, return <code class="chip">n+1</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the guard <code class="chip">x != nums[x-1]</code> is load-bearing. Without it, a duplicate like <code class="chip">[1,1]</code> swaps <code class="chip num">1</code> with an already-correct <code class="chip num">1</code> forever — an <strong>infinite loop</strong>.</p>
+      <p>And the nested <code class="chip">while</code> looks like <code class="chip">O(n²)</code>, but each swap fixes one value into its <em>final</em> home for good, so there are <code class="chip">≤ n</code> swaps — amortized <code class="chip">O(n)</code>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll use a copied value <code class="chip">x</code> as the "hand" that places elements home.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">firstMissingPositive</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
+        <span class="typ">int</span> n = nums.<span class="fn">size</span>();
+
+        <span class="kw">for</span> (<span class="typ">int</span> x : nums) {                       <span class="com">// x = the value in hand</span>
+            <span class="kw">while</span> (<span class="num2">1</span> &lt;= x &amp;&amp; x &lt;= n &amp;&amp; x != nums[x - <span class="num2">1</span>]) {
+                <span class="fn">swap</span>(x, nums[x - <span class="num2">1</span>]);    <span class="com">// put x home; x picks up the old value</span>
+            }
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n; i++) {
+            <span class="kw">if</span> (nums[i] != i + <span class="num2">1</span>) <span class="kw">return</span> i + <span class="num2">1</span>;  <span class="com">// first mismatch → answer</span>
+        }
+        <span class="kw">return</span> n + <span class="num2">1</span>;                          <span class="com">// 1..n all present</span>
+    }
+};</pre>
+      <p>The outer loop picks up each element; the <code class="chip">while</code> swaps <code class="chip">x</code> into its home and carries the old value onward, until <code class="chip">x</code> is out of range or already home. Then one scan finds the first mismatch.</p>
+      <p><strong>One detail worth flagging</strong> — the range check <code class="chip">1 &lt;= x &amp;&amp; x &lt;= n</code> must come <em>before</em> touching <code class="chip">nums[x-1]</code>; otherwise a negative or oversized <code class="chip">x</code> indexes out of bounds. The short-circuit <code class="chip">&amp;&amp;</code> makes that order safe.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on <code class="chip">[3,4,-1,1]</code>, with <code class="chip">n = 4</code>. Expected output <code class="chip num">2</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>step</th><th>action</th><th>nums after</th></tr></thead>
+        <tbody>
+          <tr><td>x=3</td><td>swap → home idx2; x becomes -1 (out)</td><td>[3,4,3,1]</td></tr>
+          <tr><td>x=4</td><td>swap → home idx3; x becomes 1</td><td>[3,4,3,4]</td></tr>
+          <tr><td>x=1</td><td>swap → home idx0; x becomes 3 (home holds 3, stop)</td><td>[1,4,3,4]</td></tr>
+          <tr><td>x=3,4</td><td>already home → no move</td><td>[1,4,3,4]</td></tr>
+          <tr class="highlight-row"><td>scan</td><td>idx0=1 ok; idx1=4 ≠ 2</td><td><span class="answer-cell">return 2</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the scan: after placing, the array is <code class="chip">[1,4,3,4]</code>. Index <code class="chip num">0</code> holds <code class="chip num">1</code>, fine, but index <code class="chip num">1</code> should hold <code class="chip num">2</code> and holds a leftover <code class="chip num">4</code>, so <code class="chip num">2</code> is the smallest missing positive. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[1]</code> → <code class="chip num">2</code>.<br>
+      • <code class="chip">[1,1]</code> → <code class="chip num">2</code>, and the guard prevents the infinite loop.<br>
+      • <code class="chip">[7,8,9,11,12]</code> → <code class="chip num">1</code>, since nothing is in range and nothing moves.<br>
+      • <code class="chip">[1,2,3]</code> → <code class="chip num">4</code>, falling through to <code class="chip">n+1</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is <code class="chip">O(n)</code> — amortized, since every swap finalizes one home that's never swapped out again, so there are <code class="chip">≤ n</code> swaps, plus two linear scans. Space is <code class="chip">O(1)</code> — I mutate the input in place with just one scratch variable.</p>
+      <p><em class="pause">Oh, one more thing —</em> if mutating the input isn't allowed, I'd need an <code class="chip">O(n)</code>-space copy; the in-place trick is exactly what buys the <code class="chip">O(1)</code>. And the same "index-as-hash" idea extends to finding all missing or duplicated numbers, sometimes with sign-marking instead of swaps.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out: you pinned the <code class="chip">[1, n+1]</code> bound before writing anything, you caught the duplicate infinite loop and why the guard fixes it, and you defended the amortized <code class="chip">O(n)</code> against the "looks quadratic" trap. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 11.59, 29.05, 33.44, 57.41, 74.42, 105.56, 157.4, 160.25, 194.06, 237.23, 272.6]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
