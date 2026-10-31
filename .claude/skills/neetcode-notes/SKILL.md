@@ -235,14 +235,17 @@ Pager: PREV disabled / NEXT → `code.html`.
 
 Pager: PREV → `index.html` / NEXT → `review.html`.
 
-### PAGE 3 · `review.html` — Review
+### PAGE 3 · `review.html` — Review 複習考卷(exam paper)
 
-1. **重點回顧** · `.sc-table` of key insights.
-2. **觀念題** · 5 `.qa` blocks (`Q1`..`Q5`), question only.
-3. **範例 Trace** · small input walked through the actual code via sequential `.sc-trace` blocks, ending with `// OUTPUT`. Conclude with a `.sc-insight`.
-4. **應用題** · 3 `.qa` blocks tagged `App 1..3`.
-5. **`.answer-divider`** (`// ANSWERS` band) then `.qa.qa--answer` blocks answering Q1..Q5 + App1..App3.
+Components (`.xp-*`, `.xq*`) live in `study-card.css` — 定稿「C-2 藍圖框 × VS Code Light+」: steel (`--sc-steel`) 題章/卡框/解答橫條;exam 裡的行內 `code` 無底色直接印在紙上(本體 `#001080`,數字包 `<span class="nm">`,關鍵字包 `<span class="kw2">` — spans 寫死在 HTML,不用 JS)。**排版寧鬆勿擠**:題卡間 20px、題目 15/18、答案 17/18、行高 ≥ 2,元件間距已在 CSS 裡,不要在頁內用 style 縮小。
 
+1. **考卷頭** · `.xp-strip`:單元/範圍/共 N 題/滿分 100 + 建議時間 + NAME/SCORE 填空線;其後 `.xp-tools` 全部展開/收合按鈕(頁尾 ~8 行 script)。
+2. **PART A · 觀念題** · 5 題 × 10 分。每題一張 `.xq`:`.xq__head`(`.xq__no` 題章 + `.xq__pts` 配分)→ `.xq__body` 題目 → `<details class="xq__ans">`「// 解答與說明 · ANSWER」下拉 → `.xq__ansbody`:一句粗體主張 → 空行 → 理由與反例,數字只引 PHASE A fact sheet。
+3. **PART B · 手走模擬** · 1 題 × 10 分:答案內放對照 `.sc-trace`(照程式 vs 錯誤走法,各以 `// OUTPUT` 結尾)+ `.sc-insight` 收尾。
+4. **PART C · 應用題** · 3 題 × 12–14 分;全卷配分合計 100。
+5. **考後重點** · 一張收合卡:六句話 `.sc-table`。
+
+答案一律內嵌在各題的 `<details>` 裡 — 不再有 `.answer-divider` / 頁尾 ANSWERS 區。
 Pager: PREV → `code.html` / NEXT → `../../index.html` ("↑ 回 <NN> 分類").
 
 ## Required `<head>` includes per page (study-card variant)
@@ -305,6 +308,8 @@ Restrained industrial-mono look. **The palette is exactly three layers:**
 
 (Difficulty chips on the *category index pages* — Easy green `#6ba368` / Medium `#d4a017` / Hard `#c1440e` — are a `components.css` concern, separate from the study-card palette. Don't bring those colors into study-card pages.)
 
+(One sanctioned exception — the review 考卷 only: `study-card.css`'s exam components add steel `--sc-steel #33566b` for 題章/卡框/解答橫條, and the VS Code Light+ ink set inside `.xq code`(`#001080`, `.nm #098658`, `.kw2 #af00db`). These never appear outside `review.html`.)
+
 ### Animation rules (learned the hard way)
 
 1. **Base case animation = the algorithm itself on its smallest non-trivial input.** Never show "brute force on the full problem" as the "base case" — that conveys a different algorithm. If Canvas A shows code the user wouldn't submit, you've drawn the wrong thing.
@@ -322,7 +327,7 @@ Restrained industrial-mono look. **The palette is exactly three layers:**
 ## Common pitfalls (memorize)
 
 1. **Trace blocks must not have `language-cpp`** — trace text has Chinese + arrows.
-2. **No "Variants / 延伸題" section** — use the `.qa` App questions instead.
+2. **No "Variants / 延伸題" section** — they belong in the 考卷's PART C 應用題.
 3. **Animations are white-bg solid-fill**, not dark outlined cells.
 4. **Re-run the generator** after any change to `PROBLEMS` / `CHAPTERS` — sidebars desync silently otherwise.
 5. **Never ship unverified C++** (Integration step 4). **Never ship mis-indented C++** — run `scripts/format_code.py` before every commit (step 8). No dead placeholder lines. The `// OUTPUT` trace must match the verified binary.
