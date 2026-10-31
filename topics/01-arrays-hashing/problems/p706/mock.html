@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 706 · Design HashMap</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 706 · Design HashMap · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design a HashMap without using a built-in hash table. Implement <code class="chip">put(key, value)</code>; <code class="chip">get(key)</code>, which returns the value, or <code class="chip num">-1</code> if the key is absent; and <code class="chip">remove(key)</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> what are the ranges of the key and the value? And does <code class="chip">put</code> on an existing key update it?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Both key and value are from 0 to 10<sup>6</sup>, and yes, <code class="chip">put</code> updates.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Two things stand out. The key is bounded, so I can <strong>direct-address</strong>, the same way a hash set would — but now each slot holds a <em>value</em>, not a boolean. And the value is <strong>non-negative</strong>, so I can use <code class="chip num">-1</code> as a sentinel for "no mapping." It's basically a hash set with <code class="chip">bool</code> swapped for <code class="chip">int</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about the sentinel.</em></p>
+      <p><strong>This problem reminds me of</strong> direct addressing: when keys are small, dense integers, the key itself can be the array index, so there's no hashing and no collisions.</p>
+      <p>A set marks "present" with a bit; a map has to store the value <em>and</em> still tell "absent" apart. Since values are ≥ 0, filling the array with <code class="chip num">-1</code> gives a clean "absent" marker that no real value can collide with. If <code class="chip">get</code> reads <code class="chip num">-1</code>, the key was never put.</p>
+      <p><strong>One thing worth flagging</strong> — it all rides on values being ≥ 0. If values could be <code class="chip num">-1</code>, I'd need a separate presence array.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Code the direct-address version.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        mp = vector&lt;int&gt;(<span class="em">1000001</span>, -1)&nbsp;&nbsp;<span class="label">// -1 = no mapping</span><br>
+        put(k,v)&nbsp;&nbsp;→ mp[k] = v&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// insert or update, same op</span><br>
+        get(k)&nbsp;&nbsp;&nbsp;&nbsp;→ return mp[k]&nbsp;&nbsp;&nbsp;<span class="label">// -1 if absent</span><br>
+        remove(k) → mp[k] = <span class="em">-1</span>
+      </div>
+      <p>One: one <code class="chip">int</code> array of size 10<sup>6</sup> + 1, all set to <code class="chip num">-1</code>.<br>
+      Two: <code class="chip">put</code> just writes the slot, so insert and update are the same operation.<br>
+      Three: <code class="chip">get</code> returns the slot, and <code class="chip">remove</code> writes <code class="chip num">-1</code> back.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MyHashMap</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; mp;
+
+    <span class="fn">MyHashMap</span>() {
+        mp.<span class="fn">assign</span>(<span class="num2">1000001</span>, -<span class="num2">1</span>);      <span class="com">// all -1 = no mapping</span>
+    }
+
+    <span class="typ">void</span> <span class="fn">put</span>(<span class="typ">int</span> key, <span class="typ">int</span> value) {
+        mp[key] = value;            <span class="com">// store / overwrite</span>
+    }
+
+    <span class="typ">int</span> <span class="fn">get</span>(<span class="typ">int</span> key) {
+        <span class="kw">return</span> mp[key];            <span class="com">// -1 means absent</span>
+    }
+
+    <span class="typ">void</span> <span class="fn">remove</span>(<span class="typ">int</span> key) {
+        mp[key] = -<span class="num2">1</span>;              <span class="com">// reset to sentinel</span>
+    }
+};</pre>
+      <p>The constructor fills <code class="chip num">1000001</code> slots with <code class="chip num">-1</code>, and each method is a single array access.</p>
+      <p>The size is the line that's easy to get wrong: keys go up to 10<sup>6</sup> <strong>inclusive</strong>, so the array needs <code class="chip num">1000001</code> slots, or the largest key goes out of bounds.</p>
+      <p>Every operation is O(1), and <code class="chip">put</code> handles insert and update identically — it just overwrites the slot.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if the value could be any integer, including <code class="chip num">-1</code>?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then a single sentinel breaks — <code class="chip">put(k, -1)</code> would be indistinguishable from "absent." I'd split existence from value with a parallel presence array:</p>
+<pre class="code"><span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;  val;       <span class="com">// any value</span>
+<span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; present;   <span class="com">// does this key map?</span>
+<span class="typ">void</span> <span class="fn">put</span>(<span class="typ">int</span> k, <span class="typ">int</span> v) { val[k] = v; present[k] = <span class="kw">true</span>; }
+<span class="typ">int</span>  <span class="fn">get</span>(<span class="typ">int</span> k) { <span class="kw">return</span> present[k] ? val[k] : -<span class="num2">1</span>; }
+<span class="typ">void</span> <span class="fn">remove</span>(<span class="typ">int</span> k) { present[k] = <span class="kw">false</span>; }</pre>
+      <p>Now the value can be anything — the boolean carries existence separately. And for unbounded keys, I'd use buckets of <code class="chip">list&lt;pair&lt;int,int&gt;&gt;</code>, indexed by <code class="chip">key % prime</code>, where <code class="chip">put</code> scans the bucket to update or insert — that's <code class="chip">unordered_map</code> in miniature.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's trace</strong> update and remove.</p>
+      <div style="overflow-x:auto;"><table class="trace" style="min-width:440px;">
+        <thead><tr><th>op</th><th>effect</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>put(1,1)</td><td>mp[1]=1</td><td>—</td></tr>
+          <tr><td>get(1)</td><td>read mp[1]</td><td>1</td></tr>
+          <tr><td>get(3)</td><td>read mp[3]</td><td>-1 (absent)</td></tr>
+          <tr><td>put(2,1)</td><td>mp[2]=1</td><td>—</td></tr>
+          <tr><td>put(2,1)→put(2,?)</td><td>overwrite</td><td>update, no dup</td></tr>
+          <tr class="highlight-row"><td>remove(2); get(2)</td><td>mp[2]=-1</td><td><span class="answer-cell">-1</span></td></tr>
+        </tbody>
+      </table></div>
+      <p><code class="chip">put(1,1)</code>, then <code class="chip">get(1)</code> returns <code class="chip num">1</code>, and <code class="chip">get(3)</code> returns <code class="chip num">-1</code>, since it was never put. The row that matters is the last one: put key 2, overwrite it, then <code class="chip">remove(2)</code> — <code class="chip">get(2)</code> returns <code class="chip num">-1</code>.</p>
+      <p>"Never put" and "put then removed" both return <code class="chip num">-1</code>. For a map both are "absent," so the shared sentinel is correct.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Direct addressing is O(1) per operation. Space is O(range) — a <code class="chip">vector&lt;int&gt;</code> of 10<sup>6</sup> is about 4 MB, 32× a bit-packed hash set's 125 KB, because each slot holds a 32-bit int instead of one bit.</p>
+      <p><em class="pause">Oh, one more thing —</em> a set is just a map whose value is one bit. And whenever the key range is small and dense, a plain array beats a hash map — no hashing, no collisions, cache-friendly, worst-case O(1). That's exactly why anagram-style problems use <code class="chip">int cnt[26]</code>. The array <em>is</em> the map when keys are indices.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Excellent. You reused the direct-address idea, picked <code class="chip num">-1</code> as the sentinel with the value ≥ 0 justification, and knew the presence-array fallback and the bucket generalization. Clean.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>window.MOCK_CUES = [0.0, 12.81, 25.57, 30.82, 48.77, 86.08, 89.56, 110.48, 111.67, 138.5, 143.08, 168.61, 192.34, 230.25]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
