@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 287 · Find the Duplicate Number</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 287 · Find the Duplicate Number · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given an array <code class="chip">nums</code> of <code class="chip">n + 1</code> integers, where every integer is in the range <code class="chip">[1, n]</code> inclusive. There is exactly one repeated number. Return it.</p>
+      <p>Two constraints: you must not modify the array, and you may only use constant extra space.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me make sure I have the shape right. The array has <strong>one more slot than there are possible values</strong> — <code class="chip">n + 1</code> slots, values drawn from <code class="chip">1</code> through <code class="chip">n</code>.</p>
+      <p>So for <code class="chip">[1,3,4,2,2]</code>, that's five elements with values from one to four, and the answer is <code class="chip num">2</code>.</p>
+      <p>Two clarifications. First — <strong>can the duplicate appear more than twice?</strong> Like <code class="chip">[2,2,2,1,3]</code>?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, it can. Only one <em>value</em> repeats, but it may repeat any number of times.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — that rules out anything that assumes exactly two occurrences.</p>
+      <p>Second: <strong>is it guaranteed a duplicate exists at all?</strong></p>
+      <p><em class="pause">Actually, I can answer that myself.</em> It's <strong>pigeonhole</strong>. I have <code class="chip">n + 1</code> items to place into <code class="chip">n</code> possible values, so at least one value is used twice. The extra guarantee — that only <em>one</em> value repeats — isn't needed for existence; it's what makes the answer unique.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>That's the follow-up question, answered before I asked it. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me lay out the obvious approaches and let the constraints eliminate them.</p>
+      <p><strong>Hash set</strong> — O(n) time but O(n) space. <em>Breaks the space rule.</em></p>
+      <p><strong>Sort</strong> — O(n log n), and sorting in place <em>modifies the array</em>, while a sorted copy costs O(n) space.</p>
+      <p><strong>Negative marking</strong> — flip the sign of <code class="chip">nums[abs(nums[i])]</code>. O(1) space, but the sign bits <em>are</em> the memory, so it <em>modifies the array</em>.</p>
+      <p>Both constraints together block every "remember what I've seen" strategy. That's the signal: I need something that <strong>doesn't record anything</strong>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Do you have anything that survives both?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes — let me put a safe one on the table first, then try to beat it.</p>
+      <p><strong>Binary search on the value, not the index.</strong> Pick a midpoint value <code class="chip">mid</code>, then count how many elements are <code class="chip">&lt;= mid</code>. Pigeonhole again: if that count exceeds <code class="chip">mid</code>, the duplicate lives in the left half.</p>
+      <p>That's O(n log n) time, O(1) space, and it only <em>reads</em> the array. <strong>Both constraints satisfied.</strong> But you'd probably ask for linear, so let me look for a better angle.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>I would. Take a minute.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The values are in <code class="chip">[1, n]</code> and the indices are in <code class="chip">[0, n]</code>. So <strong>every value is itself a valid index</strong> — I can treat <code class="chip">nums[i]</code> as a <em>pointer</em>.</p>
+      <p>Define an edge <strong>from index <code class="chip">i</code> to index <code class="chip">nums[i]</code></strong>. Every node has exactly one outgoing edge, so this is a linked list whose "next pointer" is an array lookup.</p>
+      <p>With finitely many nodes, walking from index <code class="chip">0</code> must revisit one: <strong>there is a cycle.</strong></p>
+      <p>And the key detail: <strong>values are at least 1, so no edge ever points at index 0.</strong> Index 0 has no predecessor, so it's <strong>outside the cycle</strong>. The shape is a tail leading into a loop — a rho.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>And how does that give you the duplicate?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The <strong>entrance to the cycle</strong> is the one node with <strong>two incoming edges</strong> — one from the tail, one from wrapping around the loop.</p>
+      <p>Translate that back: an edge <em>into</em> node <code class="chip">v</code> means some index holds <code class="chip">v</code>. Two edges into <code class="chip">v</code> means <strong>two different indices hold the same value</strong>. That's the duplicate. <strong>So find the cycle entrance, and that's the answer.</strong></p>
+      <p><strong>This problem reminds me of</strong> finding where a linked list's cycle begins — Floyd's tortoise and hare fits exactly, with <code class="chip">p-&gt;next</code> replaced by <code class="chip">nums[p]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me walk <code class="chip">[1,3,4,2,2]</code> first.</p>
+      <div class="insight-box">
+        <span class="label">// edges: i -&gt; nums[i]</span><br>
+        index : 0 1 2 3 4<br>
+        nums&nbsp; : 1 3 4 2 2<br>
+        walk&nbsp; : 0 -&gt; 1 -&gt; 3 -&gt; <span class="em">2</span> -&gt; 4 -&gt; <span class="em">2</span> -&gt; 4 -&gt; ...<br>
+        tail&nbsp; : 0, 1, 3&nbsp;&nbsp;&nbsp;<span class="label">// mu = 3</span><br>
+        cycle : 2, 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// lambda = 2</span><br>
+        entrance = <span class="em">2</span>&nbsp;&nbsp;<span class="label">// and 2 is indeed the repeated value</span>
+      </div>
+      <p>From index 0, the walk goes 1, 3, then 2, 4, 2, 4 — a tail of three into a cycle of length two, entering at <code class="chip num">2</code>, the repeated value.</p>
+      <p>Here's the plan.<br>
+      One: start <code class="chip">slow</code> and <code class="chip">fast</code> together at <code class="chip">nums[0]</code>.<br>
+      Two: slow moves one step, fast moves two, until they meet — <em>somewhere on the cycle</em>, <strong>not necessarily the entrance</strong>; in this example they happen to coincide, which is misleading.<br>
+      Three: reset slow to the start, leave fast at the meeting point, move <strong>both one step at a time</strong>; where they meet is the entrance.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why does phase two land on the entrance? Don't just tell me it works.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Measure from where both pointers start. Let <code class="chip">mu</code> be the distance to the entrance, <code class="chip">lambda</code> the cycle length, and <code class="chip">d</code> the steps slow has taken when they meet.</p>
+      <p>Fast has taken <code class="chip">2d</code>, on the same node, so the difference <code class="chip">2d - d = d</code> is <strong>a whole number of laps</strong>.</p>
+      <p>Walking <code class="chip">mu</code> steps from the start lands on the entrance by definition. Walking <code class="chip">mu</code> steps from the <em>meeting point</em> is like walking <code class="chip">d + mu</code> from the start, and the <code class="chip">d</code> is <strong>whole laps, so it cancels out</strong>.</p>
+      <p>Both reach the entrance after exactly <code class="chip">mu</code> steps — which is why they must move at <strong>the same speed</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, here's the code.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">findDuplicate</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
+        <span class="com">// both start at nums[0] — same as "each already took one step"</span>
+        <span class="typ">int</span> slow = nums[<span class="num2">0</span>], fast = nums[<span class="num2">0</span>];
+
+        <span class="com">// phase 1: slow 1 step, fast 2 — find a meeting point (NOT the entrance)</span>
+        <span class="kw">do</span> {
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        } <span class="kw">while</span> (slow != fast);
+
+        <span class="com">// phase 2: slow back to start, fast stays; both 1 step at a time</span>
+        slow = nums[<span class="num2">0</span>];
+
+        <span class="kw">while</span> (slow != fast) {
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+
+        <span class="com">// meeting point = cycle entrance = 2 incoming edges = the duplicate</span>
+        <span class="kw">return</span> slow;
+    }
+};</pre>
+      <p>Two things to call out.</p>
+      <p><strong>The <code class="chip">do-while</code> is not stylistic.</strong> Both pointers start at <code class="chip">nums[0]</code>, so they're <em>already equal</em>. A plain <code class="chip">while</code> would skip the loop, phase two would skip too, and the function degenerates into <code class="chip">return nums[0]</code>.</p>
+      <p><strong>The double index needs no bounds check.</strong> Every value is in <code class="chip">[1, n]</code>, and the array has indices <code class="chip">0</code> through <code class="chip">n</code>, so both lookups in <code class="chip">nums[nums[fast]]</code> are provably in range — and there's no null to guard.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Trace it on your example.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><code class="chip">[1,3,4,2,2]</code> — expected <code class="chip num">2</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:460px;">
+        <thead><tr><th>phase</th><th>step</th><th>slow</th><th>fast</th><th>note</th></tr></thead>
+        <tbody>
+          <tr><td>—</td><td>init</td><td>1</td><td>1</td><td>both = nums[0]</td></tr>
+          <tr><td>1</td><td>round 1</td><td>3</td><td>2</td><td>slow +1, fast +2</td></tr>
+          <tr class="highlight-row"><td>1</td><td>round 2</td><td>2</td><td>2</td><td>meet — on the cycle</td></tr>
+          <tr><td>2</td><td>reset</td><td>1</td><td>2</td><td>slow home, fast stays</td></tr>
+          <tr><td>2</td><td>round 1</td><td>3</td><td>4</td><td>both +1 now</td></tr>
+          <tr><td>2</td><td>round 2</td><td>2</td><td>2</td><td><span class="answer-cell">meet = entrance = 2</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is round two of phase one: slow and fast meet at <code class="chip num">2</code>, which here is also the entrance — <strong>a coincidence of this input.</strong> Stopping after phase one would pass this test and fail others. Phase two resets slow, and two rounds later they meet at <code class="chip num">2</code> again. Returns <code class="chip num">2</code>. Correct.</p>
+      <p>Edge case: the smallest legal input, <code class="chip">[1,1]</code>. They meet at 1 in phase one, and phase two finds them already equal. Returns <code class="chip num">1</code>. Correct.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if I told you a candidate wrote this with a plain <code class="chip">while</code>, and it passed most of their own tests?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>I'd believe it, and that's the <em>worst</em> kind of bug — it just returns <code class="chip">nums[0]</code>, which is the right answer surprisingly often: about <strong>44%</strong> of all small inputs up to <code class="chip">n = 6</code>.</p>
+      <p>The shortest input that exposes it is <code class="chip">[1,2,2]</code> — it returns <code class="chip num">1</code> instead of <code class="chip num">2</code>.</p>
+      <p>The general lesson: <strong>if two pointers start at the same node, "test then move" is a no-op.</strong> Either move first, or stagger the starting positions.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Time O(n)</strong>: phase one is bounded by tail plus cycle length, phase two by the tail, and both are at most <code class="chip">n</code>. <strong>Space O(1)</strong> — two integers.</p>
+      <p><strong>The array is never written to.</strong> So both constraints hold, and the linear follow-up is answered.</p>
+      <p>One honest caveat: this leans hard on the values being <code class="chip">[1, n]</code> and not <code class="chip">[0, n-1]</code>. If zero were legal, index 0 could sit <em>inside</em> the cycle and the rho shape is gone. <code class="chip">[0,1,1]</code> breaks it — index 0 is a self-loop, and it returns 0 instead of 1.</p>
+      <p>Then I'd fall back to the binary search on values, which doesn't care where the range starts.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good session. Three things I'll note.</p>
+      <p>You <strong>let the constraints do the work</strong> — you listed the obvious approaches and showed exactly which constraint killed each one.</p>
+      <p>You put a <strong>correct, slower solution on the table first</strong>, so even out of time you'd have an answer that meets every requirement.</p>
+      <p>And you knew <strong>which condition your solution depends on</strong>. Many people can recite Floyd's; fewer can tell me that "values start at 1" is the load-bearing sentence, and hand me the input that breaks it.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 18.21, 42.92, 49.3, 75.41, 80.3, 113.68, 116.38, 144.02, 146.23, 185.96, 188.29, 218.57, 257.85, 262.52, 293.36, 321.24, 323.3, 356.6, 362.81, 389.52, 428.54]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
