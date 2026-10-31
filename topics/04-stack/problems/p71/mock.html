@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 71 · Simplify Path</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 600px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  table.trace th, table.trace td { padding-left: 8px; padding-right: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 71 · Simplify Path · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given an absolute Unix-style <code class="chip">path</code>, return its simplified canonical form. A single <code class="chip">.</code> is the current directory, <code class="chip">..</code> is the parent, multiple slashes collapse to one, and the result starts with a <code class="chip">/</code> and has no trailing slash unless it's root.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> only exactly <code class="chip">..</code> means parent; sequences like <code class="chip">...</code> or <code class="chip">....</code> are ordinary directory names. And a <code class="chip">..</code> at the root just stays at root. Right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>So I'll split on the <code class="chip">/</code> first.</strong> After splitting, every segment is one of four things — empty, a <code class="chip">.</code>, a <code class="chip">..</code>, or a name — and each maps to a simple action on a directory stack.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>Editing the string directly</strong> — deleting the segment before each <code class="chip">..</code> — is fiddly with all the slash edge cases.</p>
+      <p><strong>This problem reminds me of</strong> a stack used as an undo history: each name steps one level down, and a <code class="chip">..</code> undoes the most recent step, which is exactly last in, first out. So <strong>splitting into segments and pushing names onto a stack</strong> is cleaner: <code class="chip">..</code> pops, empty and <code class="chip">.</code> are skipped, everything else pushes.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// split on '/', four cases per segment</span><br>
+        getline(ss, seg, '/'):<br>
+        &nbsp;&nbsp;seg == ".." → <span class="em">pop if stack not empty</span><br>
+        &nbsp;&nbsp;seg == "." or empty → skip<br>
+        &nbsp;&nbsp;else → push seg<br>
+        join stack with '/', or <span class="em">"/" if empty</span>
+      </div>
+      <p>One: split the path on the <code class="chip">/</code>.<br>
+      Two: for each segment, <code class="chip">..</code> pops if the stack isn't empty, <code class="chip">.</code> or empty is skipped, anything else is pushed.<br>
+      Three: join the stack with slashes, or return a single <code class="chip">/</code> if it's empty.</p>
+      <p><strong>One thing worth flagging</strong> — I'll split with <code class="chip">getline(ss, seg, '/')</code> on a string stream, with the slash as the delimiter. The leading slash and consecutive slashes naturally produce <em>empty</em> segments, so collapsing multiple slashes falls out for free by skipping empties. And I match <code class="chip">..</code> as a whole string, so <code class="chip">...</code> stays a name.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I read segments with <code class="chip">getline</code> on a string stream, run the four cases against a <code class="chip">stack&lt;string&gt;</code>, and return a single <code class="chip">/</code> when the stack ends up empty.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">string</span> <span class="fn">simplifyPath</span>(<span class="typ">string</span> path) {
+        <span class="typ">stringstream</span> ss(path);              <span class="com">// treat the string as an input stream</span>
+        <span class="typ">string</span> component;
+        <span class="typ">stack</span>&lt;<span class="typ">string</span>&gt; st;
+
+        <span class="kw">while</span> (<span class="fn">getline</span>(ss, component, <span class="str">'/'</span>)) {  <span class="com">// split on '/'</span>
+            <span class="kw">if</span> (component == <span class="str">".."</span>) {
+                <span class="kw">if</span> (!st.<span class="fn">empty</span>()) st.<span class="fn">pop</span>();      <span class="com">// go up (ignore if empty)</span>
+            } <span class="kw">else if</span> (component == <span class="str">"."</span> || component.<span class="fn">empty</span>()) {
+                <span class="kw">continue</span>;                       <span class="com">// '.' or empty segment → skip</span>
+            } <span class="kw">else</span> {
+                st.<span class="fn">push</span>(component);              <span class="com">// a real name (incl. "...")</span>
+            }
+        }
+
+        <span class="kw">if</span> (st.<span class="fn">empty</span>()) <span class="kw">return</span> <span class="str">"/"</span>;          <span class="com">// root</span>
+
+        <span class="typ">string</span> ans = <span class="str">""</span>;
+        <span class="kw">while</span> (!st.<span class="fn">empty</span>()) {
+            ans = <span class="str">'/'</span> + st.<span class="fn">top</span>() + ans;       <span class="com">// prepend, top to bottom</span>
+            st.<span class="fn">pop</span>();
+        }
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">getline</code>'s third argument is the delimiter; without it, it defaults to newline and the whole path comes back as one chunk. And since a <code class="chip">stack</code> only exposes the top, I pop from the top and prepend each directory, so the answer still reads left to right.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> <code class="chip">/a/./b/../../c/</code>. Expected: <code class="chip">/c</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:340px;">
+        <thead><tr><th>segment</th><th>action</th><th>stack</th></tr></thead>
+        <tbody>
+          <tr><td>""</td><td>skip (empty)</td><td>[]</td></tr>
+          <tr><td>a</td><td>push</td><td>[a]</td></tr>
+          <tr><td>.</td><td>skip</td><td>[a]</td></tr>
+          <tr><td>b</td><td>push</td><td>[a, b]</td></tr>
+          <tr class="highlight-row"><td>..</td><td>pop</td><td>[a]</td></tr>
+          <tr class="highlight-row"><td>..</td><td>pop</td><td>[]</td></tr>
+          <tr><td>c</td><td>push</td><td>[c]</td></tr>
+          <tr><td>(end)</td><td>getline → false</td><td><span class="answer-cell">[c] → /c</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The rows that matter are the two <code class="chip">..</code>s: they pop <code class="chip">b</code>, then <code class="chip">a</code>, back to root, and then <code class="chip">c</code> is pushed. The leading empty segment and the <code class="chip">.</code> are skipped, and the trailing slash yields no segment at all, because <code class="chip">getline</code> stops at the end of the stream. Answer: <code class="chip">/c</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">/../</code> → <code class="chip">/</code>, since <code class="chip">..</code> on an empty stack is ignored.<br>
+      • <code class="chip">/...</code> → <code class="chip">/...</code>, because <code class="chip">...</code> is a name.<br>
+      • <code class="chip">/home//foo/</code> → <code class="chip">/home/foo</code>, since the double slash just makes an empty segment.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> O(n) for the split — one pass, with constant-time checks per segment. <strong>The space complexity is</strong> O(n) for the stack of segments.</p>
+      <p>To be precise, prepending copies the partial answer every time, so the join can be O(n<sup>2</sup>) in the worst case.</p>
+      <p><em class="pause">Oh, one more thing —</em> using a <code class="chip">vector&lt;string&gt;</code> instead of a <code class="chip">stack</code> makes the join a simple front-to-back concatenation, no prepending, and the whole thing truly O(n).</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You split first, so multiple and trailing slashes simply vanish. You matched <code class="chip">..</code> exactly, keeping <code class="chip">...</code> a valid name. And you guarded the pop at root and the empty-stack result. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 17.18, 35.08, 37.4, 49.68, 78.64, 118.24, 120.99, 148.15, 192.14, 218.82]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
