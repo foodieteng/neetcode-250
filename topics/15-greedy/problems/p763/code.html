@@ -84,8 +84,9 @@
     </div>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
     </p>
+    <audio controls preload="none" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>兩個官方範例 → [9,7,8]、[10],都正確。</strong>
@@ -97,7 +98,7 @@
       <li><code>last[s[i] - 'a'] = i</code>:由左往右寫,同一個字母後寫的蓋掉先寫的,最後留下的就是最後一次出現的位置。</li>
       <li><code>r = max(r, …)</code>:r 是「這一段至少要到哪」,遇到新字母只會把要求往右推,不會往回縮。</li>
       <li><code>i == r</code>:[l..i] 裡所有字母的最後位置都 ≤ i,在這裡切不會把任何字母拆開。</li>
-      <li><code>l = r + 1</code>:下一段從切口右邊開始;r 不用重設,下一個字元的 last 一定 ≥ 它自己的位置 &gt; 舊的 r。</li>
+      <li><code>l = r + <span class="nm">1</span></code>:下一段從切口右邊開始;r 不用重設,下一個字元的 last 一定 ≥ 它自己的位置 &gt; 舊的 r。</li>
     </ul>
   </section>
 
@@ -108,7 +109,8 @@
       <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
     </div>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:460px;">
       <thead><tr><th>部分</th><th>次數</th><th>每次成本</th></tr></thead>
       <tbody>
         <tr><td>建 last[]</td><td class="mono">n</td><td class="mono">O(1) 寫入</td></tr>
@@ -117,12 +119,14 @@
         <tr><td>額外空間</td><td class="mono">—</td><td class="mono">last 26 格 + 答案 ≤ 26 格</td></tr>
       </tbody>
     </table>
+    </div>
 
     <div class="sc-formula" style="margin-top:14px;">
       時間 <strong>O(n)</strong>　·　空間 <strong>O(1)</strong>　·　段數 ≤ 26
     </div>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
       <thead><tr><th>極端輸入(實跑)</th><th>結果</th><th>段數 · r 往右推了幾次</th></tr></thead>
       <tbody>
         <tr><td><code>"a"</code>(n = 1)</td><td class="mono ok">[1]</td><td>1 段 · 0 次</td></tr>
@@ -134,6 +138,7 @@
         <tr><td>隨機 10,000 組,n = 500</td><td class="mono ok">都是 [500]</td><td>26 種字母或 3 種字母都一樣,全部只有 1 段</td></tr>
       </tbody>
     </table>
+    </div>
     <p style="margin:10px 0 0;font-size:13.5px;">
       所有測過的輸入,段長加起來都剛好等於 n(共 1,430,110 次執行)。ASan + UBSan 0 警告;n = 500 單次約 1 µs。
     </p>
@@ -148,7 +153,8 @@
 
     <p style="margin:0 0 12px;">每一種都實際改出來跑:<code>{a,b,c,d}</code> 上長度 1–10 的全部字串,共 1,398,100 組,和正解比。全部用有邊界檢查的版本跑,沒有一種越界。</p>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:600px;">
       <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例 / 說明</th></tr></thead>
       <tbody>
         <tr><td><code>r = last[…]</code>(蓋掉,不取 max)</td><td class="mono fail">1,389,600</td><td><code>"aba"</code> → [2,1](正解 [3])。走到 b 時 r 從 2 掉回 1</td></tr>
@@ -157,12 +163,13 @@
         <tr><td><code>l = r</code>(少了 + 1)</td><td class="mono fail">345,516</td><td><code>"ab"</code> → [1,2](正解 [1,1])。下一段把切口那個字也算進去</td></tr>
         <tr><td><code>r − l</code>(少了 + 1)</td><td class="mono fail">1,398,100</td><td><code>"a"</code> → [0];每一組都錯</td></tr>
         <tr><td>記<strong>第一次</strong>出現(或從右往左建 last)</td><td class="mono fail">1,398,036</td><td><code>"aa"</code> → [1]。只有 64 組「沒有重複字母」的輸入剛好對</td></tr>
-        <tr><td>主迴圈只跑到 <code>i &lt; n − 1</code></td><td class="mono fail">1,398,100</td><td><code>"a"</code> → []:最後一段永遠切不出來</td></tr>
-        <tr><td>(不是錯)<code>if (i &gt;= r)</code></td><td class="mono ok">0</td><td>更新完 r ≥ last[s[i]] ≥ i,i 不可能大於 r</td></tr>
-        <tr><td>(不是錯)<code>l = i + 1</code></td><td class="mono ok">0</td><td>只在 i == r 時執行,i + 1 就是 r + 1</td></tr>
-        <tr><td>(不是錯)<code>r = −1</code> 起始、或 <code>last(26, −1)</code></td><td class="mono ok">0</td><td>第一步 max 就把 r 蓋成 ≥ 0;沒出現的字母的格子永遠不會被讀到</td></tr>
+        <tr><td>主迴圈只跑到 <code>i &lt; n − <span class="nm">1</span></code></td><td class="mono fail">1,398,100</td><td><code>"a"</code> → []:最後一段永遠切不出來</td></tr>
+        <tr><td>(不是錯)<code><span class="kw2">if</span> (i &gt;= r)</code></td><td class="mono ok">0</td><td>更新完 r ≥ last[s[i]] ≥ i,i 不可能大於 r</td></tr>
+        <tr><td>(不是錯)<code>l = i + <span class="nm">1</span></code></td><td class="mono ok">0</td><td>只在 i == r 時執行,i + 1 就是 r + 1</td></tr>
+        <tr><td>(不是錯)<code>r = −<span class="nm">1</span></code> 起始、或 <code>last(<span class="nm">26,</span> −<span class="nm">1</span>)</code></td><td class="mono ok">0</td><td>第一步 max 就把 r 蓋成 ≥ 0;沒出現的字母的格子永遠不會被讀到</td></tr>
       </tbody>
     </table>
+    </div>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>最容易寫錯的兩個:max 寫成直接指定、和兩行順序對調。兩個都會在很短的輸入就露出來("aba"、"aa")。</strong>
