@@ -75,7 +75,7 @@ Runs first and blocks everything else, because every page quotes its numbers. Th
 | Agent | Owns |
 | --- | --- |
 | **B1 · 動畫** | Write `assets/js/viz/<pid>-<algo>.js` from the Trace section, then run the headless-Chrome screenshot loop itself (940 + 720, a mid-step and the final step) and **keep iterating until the layout passes**. Hand it the full geometry rules from Integration step 6 — the header-vs-cell gap, the 620px floor, the `.sc-viz__cvwrap` requirement. Return the JS path + the widths/steps it verified. |
-| **B2 · mock + 語音** | Build the transcript from the `leetcode-mock-png` template, render + slice-check → `mock.png`, keep the HTML as `mock.html` (click-to-seek audio version), write `mock.script.json`, run `scripts/make_mock_audio.py` → `mock.mp3`. Hand it the fact sheet + the exact C++ + Integration step 7 verbatim. |
+| **B2 · mock + 語音** | Write the transcript directly as `mock.html` (the `leetcode-mock-png` dialogue spec + dark template, no PNG render), write `mock.script.json`, run `scripts/make_mock_audio.py` → `mock.mp3`, screenshot-check 880 + 390. Hand it the fact sheet + the exact C++ + Integration step 7 verbatim. |
 
 These two touch disjoint files and neither reads the other's output, so they parallelize cleanly.
 
@@ -148,16 +148,15 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    - The `string.length`-based bbox stub is **unreliable for CJK** — trust the rendered PNG, not the stub.
    - Anything clipped/overlapping/dead-zoned: **fix the JS geometry per Animation rules #2–#3 and re-render.** Clear horizontal bands (see `p157-incexc.js`) is the layout that reliably passes.
 
-7. **🎤🎧 MANDATORY: mock-interview PNG + 語音版.** (Delegate to PHASE B2, in parallel with B1.) Every problem ships four mock files in `topics/<NN>-<slug>/problems/<pXXX>/`:
+7. **🎧 MANDATORY: 有聲 mock interview.** (Delegate to PHASE B2, in parallel with B1.) Every problem ships three mock files in `topics/<NN>-<slug>/problems/<pXXX>/` — no PNG; `mock.html` *is* the transcript:
 
    | file | what |
    | --- | --- |
-   | `mock.png` | the `leetcode-mock-png` transcript render |
-   | `mock.html` | the same transcript as a live page with click-to-seek audio |
+   | `mock.html` | the full UMPIRE transcript as a live dark-theme page with click-to-seek audio |
    | `mock.script.json` | the spoken adaptation, one entry per dialogue turn |
    | `mock.mp3` | the two-voice audio built by `scripts/make_mock_audio.py` |
 
-   Build the transcript with the `leetcode-mock-png` skill as before, render + slice-check → `mock.png`. If the problem has **two implementations**, the mock covers **both**. The mock's code boxes use the **same LeetCode layout** as `code.html` (see *C++ code layout* below) — paste, never re-indent by hand.
+   Write the transcript straight into `mock.html`, following the `leetcode-mock-png` skill's dialogue spec (UMPIRE structure, signature phrases, simple-to-say English, Python-trace before any dry-run table) and its dark template — just skip the PNG render. If the problem has **two implementations**, the mock covers **both**. The mock's code boxes use the **same LeetCode layout** as `code.html` (see *C++ code layout* below) — paste, never re-indent by hand. Screenshot-check `mock.html` at ~880 and ~390 widths (code-box overflow scrolls inside the box; sticky audio bar doesn't cover text). Problems built before this change still carry a `mock.png` + 🎤 link — when touching one, transcribe it into `mock.html` and delete the PNG.
 
    **`mock.script.json` — 廣播劇改編, not a transcript reading:**
    ```json
@@ -181,11 +180,10 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
 
    **Spot-check (mandatory):** listen to the first ~20 s and one code-explanation turn; the script prints total duration (expect ≥ 8 min); click two turns in `mock.html` and confirm the seek lands on the right sentence.
 
-   Link all of it from `code.html` right after the code window:
+   Link it from `code.html` right after the code window:
    ```html
    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-     🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a><br>
-     🎧 面試語音 · <a href="mock.html" target="_blank" rel="noopener">逐句點播版 ↗</a>
+     🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
    </p>
    <audio controls preload="none" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
    ```
