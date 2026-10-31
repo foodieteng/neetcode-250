@@ -88,9 +88,9 @@
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong><code>-Wall -Wextra</code> 會對兩個 <code>pq.size() &gt; k</code> 報 <code>-Wsign-compare</code></strong>
-      (<code>size()</code> 是無號的 <code>size_t</code>,<code>k</code> 是 <code>int</code>)。
-      <b>這裡無害:<code>k ≥ 1</code>,轉成無號數值不變。</b>
-      想消掉警告,把成員 <code>size</code> 宣告成 <code>size_t</code>,或寫 <code>(int)pq.size()</code>。
+      (<code>size()</code> 是無號的 <code>size_t</code>,<code>k</code> 是 <code><span class="kw2">int</span></code>)。
+      <b>這裡無害:<code>k ≥ <span class="nm">1</span></code>,轉成無號數值不變。</b>
+      想消掉警告,把成員 <code>size</code> 宣告成 <code>size_t</code>,或寫 <code>(<span class="kw2">int</span>)pq.size()</code>。
     </div>
   </section>
 
@@ -142,7 +142,7 @@ k=4, nums=[7,7,7,7,8,3],   add 2,10,9,9   → [null,7,7,7,8]     ✓
     <table class="sc-table">
       <thead><tr><th>項目</th><th>值</th></tr></thead>
       <tbody>
-        <tr><td>Time</td><td>10⁴ + 10⁴,<code>k=5000</code>:<strong>0.911 ms</strong>;<code>k=1</code>:<strong>0.085 ms</strong></td></tr>
+        <tr><td>Time</td><td>10⁴ + 10⁴,<code>k=<span class="nm">5000</span></code>:<strong>0.911 ms</strong>;<code>k=<span class="nm">1</span></code>:<strong>0.085 ms</strong></td></tr>
         <tr><td>對照</td><td>每次 add 都排序:<strong>約 1.1 秒</strong>,k 大小幾乎沒影響(每次都重排約 2×10⁴ 個)</td></tr>
         <tr><td>Space</td><td>堆最大 <strong>k+1</strong>,只在 push 與 pop 之間</td></tr>
         <tr><td>溢位</td><td>只做比較、不做加法,<strong>不可能溢位</strong></td></tr>
@@ -160,17 +160,17 @@ k=4, nums=[7,7,7,7,8,3],   add 2,10,9,9   → [null,7,7,7,8]     ✓
     <table class="sc-table">
       <thead><tr><th>陷阱</th><th>實測(窮舉 13962 個 session)</th><th>修正</th></tr></thead>
       <tbody>
-        <tr><td><strong>忘了 <code>greater</code></strong>(最大堆)</td><td class="mono fail">錯 11560 · k=1, add 1,2 → <code>[1,1]</code></td><td>最大堆留下的是最小的 k 個 → 第 k <em>小</em></td></tr>
+        <tr><td><strong>忘了 <code>greater</code></strong>(最大堆)</td><td class="mono fail">錯 11560 · k=1, add 1,2 → <code>[<span class="nm">1,1</span>]</code></td><td>最大堆留下的是最小的 k 個 → 第 k <em>小</em></td></tr>
         <tr><td><code>&gt;=</code> 取代 <code>&gt;</code></td><td class="mono fail">錯 9746(4719 次崩潰)· k=1, add 1 → 空堆 <code>top()</code></td><td>堆只剩 k−1 個;k=1 時直接變空</td></tr>
-        <tr><td><strong>先 pop 再 push</strong></td><td class="mono fail">錯 9907 · k=1, add 2,1 → <code>[2,1]</code></td><td>還沒比較就把守門員趕走;要先 push</td></tr>
-        <tr><td>建構時不修剪</td><td class="mono fail">錯 9694 · k=1, nums=[1,1], add 2 → <code>[1]</code></td><td>每次 add 只 pop 一個,堆永遠 &gt; k,top 變成全體最小</td></tr>
-        <tr><td>「<code>val &gt; top</code> 才換」少了未滿分支</td><td class="mono fail">錯 411(39 次崩潰)· k=2, nums=[1], add 2 → <code>[2]</code></td><td>堆未滿(nums 比 k 少)時要無條件 push</td></tr>
-        <tr><td><code>-Wsign-compare</code> 警告</td><td class="mono">兩處,無害</td><td><code>size_t size</code> 或 <code>(int)pq.size()</code></td></tr>
+        <tr><td><strong>先 pop 再 push</strong></td><td class="mono fail">錯 9907 · k=1, add 2,1 → <code>[<span class="nm">2,1</span>]</code></td><td>還沒比較就把守門員趕走;要先 push</td></tr>
+        <tr><td>建構時不修剪</td><td class="mono fail">錯 9694 · k=1, nums=[1,1], add 2 → <code>[<span class="nm">1</span>]</code></td><td>每次 add 只 pop 一個,堆永遠 &gt; k,top 變成全體最小</td></tr>
+        <tr><td>「<code>val &gt; top</code> 才換」少了未滿分支</td><td class="mono fail">錯 411(39 次崩潰)· k=2, nums=[1], add 2 → <code>[<span class="nm">2</span>]</code></td><td>堆未滿(nums 比 k 少)時要無條件 push</td></tr>
+        <tr><td><code>-Wsign-compare</code> 警告</td><td class="mono">兩處,無害</td><td><code>size_t size</code> 或 <code>(<span class="kw2">int</span>)pq.size()</code></td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>四個主要陷阱的最小反例都只要 <code>k = 1</code> 和一兩次 add</strong> ——
+      <strong>四個主要陷阱的最小反例都只要 <code>k = <span class="nm">1</span></code> 和一兩次 add</strong> ——
       <b>k=1 就是「目前最大值」,拿它手算一遍,方向、順序、邊界的錯都會現形。</b>
     </div>
   </section>
@@ -182,7 +182,7 @@ k=4, nums=[7,7,7,7,8,3],   add 2,10,9,9   → [null,7,7,7,8]     ✓
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
     </div>
 
-    <p style="margin:0 0 12px;">範例 1:<code>k = 3</code>,<code>nums = [4,5,8,2]</code>。方括號是堆的底層陣列(libstdc++ 實跑印出),<code>[0]</code> 就是 top。</p>
+    <p style="margin:0 0 12px;">範例 1:<code>k = <span class="nm">3</span></code>,<code>nums = [<span class="nm">4,5,8,2</span>]</code>。方括號是堆的底層陣列(libstdc++ 實跑印出),<code>[<span class="nm">0</span>]</code> 就是 top。</p>
 
     <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 建構</span>
 push 4 → [4]

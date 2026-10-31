@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">N-Queens</h1>
-    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★★☆</span>
       <span class="sc-mast__sep">|</span>
@@ -42,105 +42,160 @@
 
   <div class="sc-mast__rule"></div>
 
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>BACKTRACKING · UNIT 09 複習測驗</span>
+      <span>範圍:N-QUEENS(LC 51)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
     </div>
 
-    <table class="sc-table">
-      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
-      <tbody>
-        <tr><td>骨架</td><td>第 r 層 = 第 r 列,選一欄(和 <a href="../p17/index.html">17</a> 一樣)</td></tr>
-        <tr><td>列</td><td>一層一列,自動不衝突 → row[] 不需要</td></tr>
-        <tr><td>欄</td><td><code>col[c]</code></td></tr>
-        <tr><td>/ 斜線</td><td><code>diag1[r + c]</code>,0 ~ 2n − 2</td></tr>
-        <tr><td>\ 斜線</td><td><code>diag2[r - c + n - 1]</code>,平移成非負</td></tr>
-        <tr><td>撤銷</td><td>三個旗標清掉 + Q 改回 <code>'.'</code></td></tr>
-        <tr><td>規模</td><td>n = 9:352 個解、8,393 次放置、0.56 ms</td></tr>
-      </tbody>
-    </table>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼檢查裡沒有「同一列」?<code>row[]</code> 有什麼用?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>每一層只在第 r 列放一個皇后,接著就去 r + 1,不可能有兩個皇后同列 —— 所以不用檢查。</strong><br/><br/>
+<code>row[]</code> 只有被寫、沒有被讀;整個刪掉 n = 1~12 的輸出逐位元組相同。小心不要把它誤用在 <code><span class="kw2">if</span></code> 裡:寫成 <code>row[c]</code> 時,每個 n 都只輸出 1 個錯的盤面。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼同一條「/」斜線上 r + c 相同、「\」斜線上 r − c 相同?為什麼要加 n − 1?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>沿著「/」走一步是 (r−1, c+1),和不變;沿著「\」走一步是 (r+1, c+1),差不變。</strong><br/><br/>
+  r − c 最小是 0 − (n−1) = −(n−1),加 n − 1 平移到 0 ~ 2n − 2。忘了平移:一般編譯 n = 1~9 全對(負索引讀到 vector&lt;bool&gt; 緩衝區前面的位元),ASan 會報 heap-buffer-overflow。
+  寫成 <code>c - r + n - <span class="nm">1</span></code> 也對,只是編號左右翻過來。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">diag 陣列只開 n 格,n = 1~9 全部答對、ASan 也沒報錯。那它算對嗎?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>不對,只是剛好沒被抓到。</strong><br/><br/>
+  索引最大到 2n − 2 = 16,超出 n 格。vector&lt;bool&gt; 把位元打包在 64 位元的 word 裡,索引 16 還在同一個 word,所以讀寫都「成功」,連 ASan 都看不到。這仍然是未定義行為,n 大到 2n − 1 &gt; 64 就會壞。陣列大小照斜線條數開:2n − 1。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">忘了 <code>board[r][c] = '.'</code>,但旗標有清。解數會錯嗎?盤面呢?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>解數全對(n = 1~9 都對),盤面全錯。</strong><br/><br/>
+  剪枝只看旗標,旗標有清,所以走的路完全一樣;但棋盤上之前放過的 Q 沒拿掉,收進答案的盤面會多出很多 Q,例如 n = 4 收到 <code>QQ.. / ..QQ / QQ.. / ..Q.</code>。只比對解數的測試會漏掉這個錯。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">輸出的盤面是什麼順序?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>照「每列皇后所在的欄」由小到大:先比第 0 列的欄,再比第 1 列 ……</strong><br/><br/>
+  因為每一列都是 c 從 0 試到 n − 1。n = 4 是 <code>[<span class="nm">1,3,0,2</span>]</code> 在 <code>[<span class="nm">2,0,3,1</span>]</code> 前面。題目說順序不限,所以不用管。</div>
+      </details>
+    </div>
   </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
     </div>
 
-    <div class="qa"><strong>Q1.</strong> 為什麼檢查裡沒有「同一列」?<code>row[]</code> 有什麼用?</div>
-
-    <div class="qa"><strong>Q2.</strong> 為什麼同一條「/」斜線上 r + c 相同、「\」斜線上 r − c 相同?為什麼要加 n − 1?</div>
-
-    <div class="qa"><strong>Q3.</strong> diag 陣列只開 n 格,n = 1~9 全部答對、ASan 也沒報錯。那它算對嗎?</div>
-
-    <div class="qa"><strong>Q4.</strong> 忘了 <code>board[r][c] = '.'</code>,但旗標有清。解數會錯嗎?盤面呢?</div>
-
-    <div class="qa"><strong>Q5.</strong> 輸出的盤面是什麼順序?</div>
-  </section>
-  <section class="sc-section">
-    <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// n = 4 · 解 #1 是怎麼長出來的</span></h2>
-    </div>
-
-    <p style="margin:0 0 12px;">插樁實跑,只看 (0,1) 開頭那一支。每一行寫出這一列被擋的欄和擋它的旗標。</p>
-
-    <div class="sc-trace"><span class="sc-trace__head">// 放 (0,1):佔 col[1]、diag1[1]、diag2[2]</span>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">拿一張紙,照程式手走 n = 4 · 解 #1 是怎麼長出來的:逐步寫出關鍵變數的變化,最後回傳什麼?決定結果的是哪一步?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><p style="margin:0 0 12px;">插樁實跑,只看 (0,1) 開頭那一支。每一行寫出這一列被擋的欄和擋它的旗標。</p>
+<div class="sc-trace"><span class="sc-trace__head">// 放 (0,1):佔 col[1]、diag1[1]、diag2[2]</span>
 #6 r1  c0:diag1[1] 已佔(r+c = 1)→ ／
        c1:col[1] 已佔 → 欄
        c2:diag2[2] 已佔(1−2+3 = 2)→ ＼
        c3:放 (1,3),佔 col[3]、diag1[4]、diag2[1]</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 下兩列</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 下兩列</span>
 #7 r2  c0:放 (2,0),佔 col[0]、diag1[2]、diag2[5]
 #8 r3  c0 欄、c1 欄 → c2:放 (3,2)
 #9 r4 = n → 收 .Q.. / ...Q / Q... / ..Q.
 <span class="sc-trace__out">// OUTPUT: 解 #1 = 每列的欄 [1,3,0,2]</span></div>
-
-    <div class="sc-insight" style="margin-top:14px;">
-      <strong>#6 那一列 4 格有 3 格被擋,而且三種旗標各擋一格。</strong>
-      <b>一個皇后最多讓下一列 3 格不能放:正下方(欄)和左下、右下(兩條斜線)。</b>
+<div class="sc-insight" style="margin-top:14px;">
+<strong>#6 那一列 4 格有 3 格被擋,而且三種旗標各擋一格。</strong>
+<b>一個皇后最多讓下一列 3 格不能放:正下方(欄)和左下、右下(兩條斜線)。</b>
+</div></div>
+      </details>
     </div>
   </section>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 13–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body"><a href="https://leetcode.com/problems/n-queens-ii/" rel="noopener" target="_blank">52 · N-Queens II ↗</a> 只要解的個數。程式可以拿掉什麼?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>拿掉整個 board 和 ans,base case 改成 <code>count++</code>。</strong><br/><br/>
+  旗標和回溯完全不動。少了每個解 O(n²) 的棋盤複製,也不用存答案。n = 1~9 的答案就是 1、0、0、2、10、4、40、92、352。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">把三個 bool 陣列換成三個整數的位元遮罩,要怎麼寫?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>cols、d1、d2 三個整數;這一列能放的位置 = <code>~(cols | d1 | d2) &amp; ((<span class="nm">1</span> &lt;&lt; n) - <span class="nm">1</span>)</code>。</strong><br/><br/>
+  每次取最低位 <code>p = avail &amp; -avail</code> 放下去,遞迴 <code>(cols | p, (d1 | p) &lt;&lt; <span class="nm">1</span>, (d2 | p) &gt;&gt; <span class="nm">1</span>)</code>:斜線遮罩每往下一列就左移 / 右移一格,剛好對應「左下、右下」。不用 continue 一格一格試,只走能放的位置。完整程式和實測(n = 9 約快 5~6 倍)在<a href="code.html">程式碼頁第 2 節</a>。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">解是左右對稱成對出現的。能不能只算一半?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>可以:每個解左右翻轉後還是解,而且第 0 列的欄 c 會變成 n − 1 − c。</strong><br/><br/>
+  所以只讓第 0 列試前一半的欄,答案 × 2;n 是奇數時,第 0 列放正中間那欄的解另外算一次、不乘 2。n = 4 的兩個解 <code>[<span class="nm">1,3,0,2</span>]</code>、<code>[<span class="nm">2,0,3,1</span>]</code> 就是一對鏡像。</div>
+      </details>
+    </div>
+  </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
     </div>
 
-    <div class="qa"><strong>App 1.</strong> <a href="https://leetcode.com/problems/n-queens-ii/" target="_blank" rel="noopener">52 · N-Queens II ↗</a> 只要解的個數。程式可以拿掉什麼?</div>
-
-    <div class="qa"><strong>App 2.</strong> 把三個 bool 陣列換成三個整數的位元遮罩,要怎麼寫?</div>
-
-    <div class="qa"><strong>App 3.</strong> 解是左右對稱成對出現的。能不能只算一半?</div>
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;"><table class="sc-table">
+<thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+<tbody>
+<tr><td>骨架</td><td>第 r 層 = 第 r 列,選一欄(和 <a href="../p17/index.html">17</a> 一樣)</td></tr>
+<tr><td>列</td><td>一層一列,自動不衝突 → row[] 不需要</td></tr>
+<tr><td>欄</td><td><code>col[c]</code></td></tr>
+<tr><td>/ 斜線</td><td><code>diag1[r + c]</code>,0 ~ 2n − 2</td></tr>
+<tr><td>\ 斜線</td><td><code>diag2[r - c + n - <span class="nm">1</span>]</code>,平移成非負</td></tr>
+<tr><td>撤銷</td><td>三個旗標清掉 + Q 改回 <code>'.'</code></td></tr>
+<tr><td>規模</td><td>n = 9:352 個解、8,393 次放置、0.56 ms</td></tr>
+</tbody>
+</table></div>
+        </div>
+      </details>
+    </div>
   </section>
 
-  <div class="answer-divider">// ANSWERS</div>
-
-  <div class="qa qa--answer"><strong>A1.</strong> <strong>每一層只在第 r 列放一個皇后,接著就去 r + 1,不可能有兩個皇后同列 —— 所以不用檢查。</strong><br><br>
-  <code>row[]</code> 只有被寫、沒有被讀;整個刪掉 n = 1~12 的輸出逐位元組相同。小心不要把它誤用在 <code>if</code> 裡:寫成 <code>row[c]</code> 時,每個 n 都只輸出 1 個錯的盤面。</div>
-
-  <div class="qa qa--answer"><strong>A2.</strong> <strong>沿著「/」走一步是 (r−1, c+1),和不變;沿著「\」走一步是 (r+1, c+1),差不變。</strong><br><br>
-  r − c 最小是 0 − (n−1) = −(n−1),加 n − 1 平移到 0 ~ 2n − 2。忘了平移:一般編譯 n = 1~9 全對(負索引讀到 vector&lt;bool&gt; 緩衝區前面的位元),ASan 會報 heap-buffer-overflow。
-  寫成 <code>c - r + n - 1</code> 也對,只是編號左右翻過來。</div>
-
-  <div class="qa qa--answer"><strong>A3.</strong> <strong>不對,只是剛好沒被抓到。</strong><br><br>
-  索引最大到 2n − 2 = 16,超出 n 格。vector&lt;bool&gt; 把位元打包在 64 位元的 word 裡,索引 16 還在同一個 word,所以讀寫都「成功」,連 ASan 都看不到。這仍然是未定義行為,n 大到 2n − 1 &gt; 64 就會壞。陣列大小照斜線條數開:2n − 1。</div>
-
-  <div class="qa qa--answer"><strong>A4.</strong> <strong>解數全對(n = 1~9 都對),盤面全錯。</strong><br><br>
-  剪枝只看旗標,旗標有清,所以走的路完全一樣;但棋盤上之前放過的 Q 沒拿掉,收進答案的盤面會多出很多 Q,例如 n = 4 收到 <code>QQ.. / ..QQ / QQ.. / ..Q.</code>。只比對解數的測試會漏掉這個錯。</div>
-
-  <div class="qa qa--answer"><strong>A5.</strong> <strong>照「每列皇后所在的欄」由小到大:先比第 0 列的欄,再比第 1 列 ……</strong><br><br>
-  因為每一列都是 c 從 0 試到 n − 1。n = 4 是 <code>[1,3,0,2]</code> 在 <code>[2,0,3,1]</code> 前面。題目說順序不限,所以不用管。</div>
-
-  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>拿掉整個 board 和 ans,base case 改成 <code>count++</code>。</strong><br><br>
-  旗標和回溯完全不動。少了每個解 O(n²) 的棋盤複製,也不用存答案。n = 1~9 的答案就是 1、0、0、2、10、4、40、92、352。</div>
-
-  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>cols、d1、d2 三個整數;這一列能放的位置 = <code>~(cols | d1 | d2) &amp; ((1 &lt;&lt; n) - 1)</code>。</strong><br><br>
-  每次取最低位 <code>p = avail &amp; -avail</code> 放下去,遞迴 <code>(cols | p, (d1 | p) &lt;&lt; 1, (d2 | p) &gt;&gt; 1)</code>:斜線遮罩每往下一列就左移 / 右移一格,剛好對應「左下、右下」。不用 continue 一格一格試,只走能放的位置。完整程式和實測(n = 9 約快 5~6 倍)在<a href="code.html">程式碼頁第 2 節</a>。</div>
-
-  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>可以:每個解左右翻轉後還是解,而且第 0 列的欄 c 會變成 n − 1 − c。</strong><br><br>
-  所以只讓第 0 列試前一半的欄,答案 × 2;n 是奇數時,第 0 列放正中間那欄的解另外算一次、不乘 2。n = 4 的兩個解 <code>[1,3,0,2]</code>、<code>[2,0,3,1]</code> 就是一對鏡像。</div>
 
   <!-- ── pager ── -->
   <nav class="sc-pager">
@@ -158,5 +213,13 @@
     <div class="sc-summary-bar__detail">N-QUEENS · REVIEW</div>
   </div>
 
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
 </body>
 </html>

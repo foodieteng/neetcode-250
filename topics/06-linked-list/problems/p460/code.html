@@ -135,7 +135,7 @@
     </div>
 
     <p>
-      把 <code>if (freq[minFreq].size() == 0) ++minFreq;</code> 拿掉,拿 4 萬條隨機操作序列跑:
+      把 <code><span class="kw2">if</span> (freq[minFreq].size() == <span class="nm">0</span>) ++minFreq;</code> 拿掉,拿 4 萬條隨機操作序列跑:
     </p>
 
     <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 拿掉那一行的實測結果(40000 條序列,410030 次 get)</span>
@@ -182,31 +182,31 @@ ERROR: AddressSanitizer: attempting free on address which was not malloc()-ed
           <td>拿掉 <code>++minFreq</code> 那一行</td>
           <td class="mono">0</td>
           <td class="mono fail"><strong>直接崩</strong></td>
-          <td class="mono"><code>cap=1: put(0,0) get(0) put(1,0)</code> → <strong>ASan</strong></td>
+          <td class="mono"><code>cap=<span class="nm">1</span>: put(<span class="nm">0,0</span>) get(<span class="nm">0</span>) put(<span class="nm">1,0</span>)</code> → <strong>ASan</strong></td>
         </tr>
         <tr>
           <td>升級時用 <code>push_front</code></td>
           <td class="mono fail"><strong>5366</strong></td>
           <td class="mono">1840 / 40000</td>
-          <td class="mono"><code>cap=2: put(0,0) get(0) put(1,0) get(1) put(2,0) get(0)</code> → <code>0</code>(正解 <code>-1</code>)</td>
+          <td class="mono"><code>cap=<span class="nm">2</span>: put(<span class="nm">0,0</span>) get(<span class="nm">0</span>) put(<span class="nm">1,0</span>) get(<span class="nm">1</span>) put(<span class="nm">2,0</span>) get(<span class="nm">0</span>)</code> → <code><span class="nm">0</span></code>(正解 <code>-<span class="nm">1</span></code>)</td>
         </tr>
         <tr>
           <td>淘汰 <code>back()</code> 而非 <code>front()</code></td>
           <td class="mono fail"><strong>8834</strong></td>
           <td class="mono">3012 / 40000</td>
-          <td class="mono"><code>cap=2: put(0,0) put(1,0) put(2,0) get(0)</code> → <code>0</code>(正解 <code>-1</code>)</td>
+          <td class="mono"><code>cap=<span class="nm">2</span>: put(<span class="nm">0,0</span>) put(<span class="nm">1,0</span>) put(<span class="nm">2,0</span>) get(<span class="nm">0</span>)</code> → <code><span class="nm">0</span></code>(正解 <code>-<span class="nm">1</span></code>)</td>
         </tr>
         <tr>
           <td><code>m.size() &gt; cap</code>(而非 <code>&gt;=</code>)</td>
           <td class="mono fail"><strong>29448</strong></td>
           <td class="mono">10726 / 40000</td>
-          <td class="mono"><code>cap=1: put(0,0) put(1,0) get(0)</code> → <code>0</code>(正解 <code>-1</code>)</td>
+          <td class="mono"><code>cap=<span class="nm">1</span>: put(<span class="nm">0,0</span>) put(<span class="nm">1,0</span>) get(<span class="nm">0</span>)</code> → <code><span class="nm">0</span></code>(正解 <code>-<span class="nm">1</span></code>)</td>
         </tr>
         <tr>
           <td><code>put</code> 命中時不加使用次數</td>
           <td class="mono fail"><strong>9082</strong></td>
           <td class="mono">3127 / 40000</td>
-          <td class="mono"><code>cap=2: put(0,0) put(0,0) put(1,0) put(2,0) get(0)</code> → <code>-1</code>(正解 <code>0</code>)</td>
+          <td class="mono"><code>cap=<span class="nm">2</span>: put(<span class="nm">0,0</span>) put(<span class="nm">0,0</span>) put(<span class="nm">1,0</span>) put(<span class="nm">2,0</span>) get(<span class="nm">0</span>)</code> → <code>-<span class="nm">1</span></code>(正解 <code><span class="nm">0</span></code>)</td>
         </tr>
       </tbody>
     </table>
@@ -230,12 +230,12 @@ ERROR: AddressSanitizer: attempting free on address which was not malloc()-ed
       <div class="sc-dark-box__title">問題 1 · 用 -1 當「不存在」的哨兵 —— 值本身就可能是 -1</div>
       <div class="sc-dark-box__body">
         <p style="margin:0 0 10px;">
-          <code>if (get(key) != -1)</code> 拿<strong>回傳值</strong>來判斷 key 在不在。
-          但 <code>-1</code> <strong>同時也是一個合法的值</strong> ——
-          存了 <code>-1</code> 的 key,<code>get</code> 會回傳 <code>-1</code>,於是 <code>put</code> <strong>誤判它不存在</strong>。
+          <code><span class="kw2">if</span> (get(key) != -<span class="nm">1</span>)</code> 拿<strong>回傳值</strong>來判斷 key 在不在。
+          但 <code>-<span class="nm">1</span></code> <strong>同時也是一個合法的值</strong> ——
+          存了 <code>-<span class="nm">1</span></code> 的 key,<code>get</code> 會回傳 <code>-<span class="nm">1</span></code>,於是 <code>put</code> <strong>誤判它不存在</strong>。
         </p>
         <p style="margin:0 0 10px;">
-          <strong>LeetCode 保證 <code>0 ≤ value ≤ 10⁹</code>,所以這在題內永遠不會發生。</strong>
+          <strong>LeetCode 保證 <code><span class="nm">0</span> ≤ value ≤ <span class="nm">10</span>⁹</code>,所以這在題內永遠不會發生。</strong>
           但把約束放寬到允許負值,實測就會現形:<strong>105752 次 <code>get</code> 中不一致 257 次</strong>。
         </p>
         <p style="margin:0 0 10px;">
@@ -274,9 +274,9 @@ cap=1,同一個 key 反覆 put 20 萬次 → freq 桶數 <span class="sc-trace__
     </div>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>順帶一提第三個小問題:<code>m.size() >= cap</code> 是 <code>size_t</code> 比 <code>int</code></strong> ——
-      <code>-Wsign-compare</code> 會警告。<b>但這裡不會出事</b>,因為前面 <code>if (cap &lt;= 0) return;</code>
-      已經保證 <code>cap ≥ 1</code>,轉成無號不會變成天文數字。<strong>寫成 <code>(int)m.size() &gt;= cap</code> 就沒警告了。</strong>
+      <strong>順帶一提第三個小問題:<code>m.size() >= cap</code> 是 <code>size_t</code> 比 <code><span class="kw2">int</span></code></strong> ——
+      <code>-Wsign-compare</code> 會警告。<b>但這裡不會出事</b>,因為前面 <code><span class="kw2">if</span> (cap &lt;= <span class="nm">0</span>) <span class="kw2">return</span>;</code>
+      已經保證 <code>cap ≥ <span class="nm">1</span></code>,轉成無號不會變成天文數字。<strong>寫成 <code>(<span class="kw2">int</span>)m.size() &gt;= cap</code> 就沒警告了。</strong>
     </div>
   </section>
 
@@ -288,7 +288,7 @@ cap=1,同一個 key 反覆 put 20 萬次 → freq 桶數 <span class="sc-trace__
     </div>
 
     <p style="margin:0 0 12px;">
-      改兩件事:<strong>用 <code>find</code> 判斷存在(不再依賴 <code>-1</code> 哨兵)</strong>,
+      改兩件事:<strong>用 <code>find</code> 判斷存在(不再依賴 <code>-<span class="nm">1</span></code> 哨兵)</strong>,
       以及<strong>桶空了就 <code>freq.erase</code> 掉</strong>。
     </p>
 
@@ -367,7 +367,7 @@ cap=10,10 萬次操作          → freq 桶數 <span class="sc-trace__out">10</
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>但要說清楚:在 LeetCode 上,原碼和這版是<em>同樣正確</em>的。</strong>
-      <b><code>-1</code> 哨兵靠的是題目的值域保證,空桶靠的是呼叫次數上限。</b>
+      <b><code>-<span class="nm">1</span></code> 哨兵靠的是題目的值域保證,空桶靠的是呼叫次數上限。</b>
       <strong>兩者都是「借來的正確性」</strong> ——
       <b>面試時能主動說出「我這裡依賴了 value ≥ 0 這個條件」,比默默寫對更值錢。</b>
     </div>

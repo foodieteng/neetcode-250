@@ -105,7 +105,7 @@
     </p>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>官方範例輸出 <code>[null,null,null,null,false,true,true,true]</code> 正確;對拍 24,000 組(350,798 次查詢,每次 0–2 個 '.')0 錯。</strong>
+      <strong>官方範例輸出 <code>[null,null,null,null,<span class="kw2">false</span>,<span class="kw2">true</span>,<span class="kw2">true</span>,<span class="kw2">true</span>]</code> 正確;對拍 24,000 組(350,798 次查詢,每次 0–2 個 '.')0 錯。</strong>
       <b>對照組是 <code>vector&lt;string&gt;</code> 逐字比對。超過 2 個 '.' 的壓力查詢 15,910 次也 0 錯;ASan / UBSan 乾淨。</b>
     </div>
   </section>
@@ -241,14 +241,14 @@
     <table class="sc-table">
       <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例</th></tr></thead>
       <tbody>
-        <tr><td>拿掉 ① <code>if (!node)</code></td><td class="mono fail">17,244 當掉</td><td>空字典 <code>search("a")</code> → segfault</td></tr>
-        <tr><td>② 改成 <code>return true</code></td><td class="mono fail">4,442</td><td><code>add("aa")</code> <code>search("a")</code> → true(正解 false)</td></tr>
-        <tr><td>② 改成 <code>idx == word.size() - 1</code></td><td class="mono fail">4,673</td><td><code>add("a")</code> <code>search("a")</code> → false:早一層看了 root 的 isWord</td></tr>
-        <tr><td>④ 迴圈裡直接 <code>return dfs(...)</code></td><td class="mono fail">1,972</td><td><code>add("b")</code> <code>search(".")</code> → false:只試了 child['a']</td></tr>
-        <tr><td>④ 下一層傳 <code>idx</code> 而不是 <code>idx + 1</code></td><td class="mono fail">2,849</td><td><code>add("a")</code> <code>search(".")</code> → false:'.' 永遠配不到(不會無窮遞迴,樹高有限)</td></tr>
+        <tr><td>拿掉 ① <code><span class="kw2">if</span> (!node)</code></td><td class="mono fail">17,244 當掉</td><td>空字典 <code>search("a")</code> → segfault</td></tr>
+        <tr><td>② 改成 <code><span class="kw2">return</span> <span class="kw2">true</span></code></td><td class="mono fail">4,442</td><td><code>add("aa")</code> <code>search("a")</code> → true(正解 false)</td></tr>
+        <tr><td>② 改成 <code>idx == word.size() - <span class="nm">1</span></code></td><td class="mono fail">4,673</td><td><code>add("a")</code> <code>search("a")</code> → false:早一層看了 root 的 isWord</td></tr>
+        <tr><td>④ 迴圈裡直接 <code><span class="kw2">return</span> dfs(...)</code></td><td class="mono fail">1,972</td><td><code>add("b")</code> <code>search(".")</code> → false:只試了 child['a']</td></tr>
+        <tr><td>④ 下一層傳 <code>idx</code> 而不是 <code>idx + <span class="nm">1</span></code></td><td class="mono fail">2,849</td><td><code>add("a")</code> <code>search(".")</code> → false:'.' 永遠配不到(不會無窮遞迴,樹高有限)</td></tr>
         <tr><td>拿掉 ③ 的 '.' 判斷,'.' 當字母</td><td class="mono fail">UB · 4,019</td><td>空字典 <code>search(".")</code> → segfault:<code>'.' - 'a'</code> = −51</td></tr>
-        <tr><td><code>search</code> 忘了 <code>return</code></td><td class="mono fail">UB · 17,533 當掉</td><td><code>search("a")</code> → -O2 segfault、-O0 SIGILL;-Wall 會警告</td></tr>
-        <tr><td>④ 改成 <code>if (child &amp;&amp; dfs(...))</code></td><td class="mono ok">0</td><td>也對,只是提早跳過空格</td></tr>
+        <tr><td><code>search</code> 忘了 <code><span class="kw2">return</span></code></td><td class="mono fail">UB · 17,533 當掉</td><td><code>search("a")</code> → -O2 segfault、-O0 SIGILL;-Wall 會警告</td></tr>
+        <tr><td>④ 改成 <code><span class="kw2">if</span> (child &amp;&amp; dfs(...))</code></td><td class="mono ok">0</td><td>也對,只是提早跳過空格</td></tr>
       </tbody>
     </table>
 

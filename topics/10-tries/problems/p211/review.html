@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">Design Add and Search Words Data Structure</h1>
-    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★☆☆</span>
       <span class="sc-mast__sep">|</span>
@@ -42,115 +42,162 @@
 
   <div class="sc-mast__rule"></div>
 
-  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>TRIES · UNIT 10 複習測驗</span>
+      <span>範圍:DESIGN ADD AND SEARCH WORDS DATA STRUCTURE(LC 211)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
     </div>
 
-    <table class="sc-table">
-      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
-      <tbody>
-        <tr><td>和 <a href="../p208/index.html">208</a> 比</td><td>addWord = insert;search 從迴圈變成 <code>dfs(word, idx, node)</code></td></tr>
-        <tr><td>null</td><td>一律在 dfs 第一行 <code>if (!node) return false</code></td></tr>
-        <tr><td>配完</td><td><code>idx == word.size()</code> → 回傳 <code>isWord</code>,不是 true</td></tr>
-        <tr><td>'.'</td><td>26 格逐一 dfs;<strong>true 才提早 return</strong>,全部 false 才 false</td></tr>
-        <tr><td>成本</td><td>每個 '.' × 26;'.' 越前面越貴(16,251 vs 76 次 dfs)</td></tr>
-        <tr><td>常見錯</td><td>search 忘了 return(UB);迴圈裡直接 <code>return dfs</code>(只試 'a')</td></tr>
-        <tr><td>加速</td><td>瓶頸是 <code>new</code>;節點池 167.2 → 33.2 ms</td></tr>
-      </tbody>
-    </table>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼把 <code><span class="kw2">if</span> (!node) <span class="kw2">return</span> <span class="kw2">false</span>;</code> 放在 dfs 開頭,而不是在遞迴之前檢查子節點?拿掉會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>null 有兩個來源:字母走到不存在的子節點、'.' 迴圈把空格也丟下去。放在開頭一行就全部處理,兩個分支都變短。</strong><br/><br/>
+  拿掉之後,下一層會讀 <code>node-&gt;isWord</code> 或 <code>node-&gt;child[...]</code>,就是對 nullptr 取值。實測隨機 20,000 組有 17,244 組當掉,最小反例是空字典 <code>search("a")</code>。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">'.' 的迴圈為什麼要寫 <code><span class="kw2">if</span> (dfs(...)) <span class="kw2">return</span> <span class="kw2">true</span>;</code>,不能寫 <code><span class="kw2">return</span> dfs(...);</code>?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong><code><span class="kw2">return</span> dfs(...)</code> 會在第一圈就把結果交出去,不管它是 true 還是 false。</strong><br/><br/>
+  第一圈是 child['a'];它不存在就直接回 false,後面 25 格根本沒試。最小反例 <code>add("b")</code> → <code>search(".")</code> 回 false(正解 true),隨機 20,000 組錯 1,972 組。<b>規則:true 才提早走,false 要繼續。</b></div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body"><code>search</code> 裡寫成 <code>dfs(word, <span class="nm">0</span>, root);</code>(少了 return),編譯會過嗎?執行會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>會過(只有 <code>-Wreturn-type</code> 警告),但這是未定義行為。</strong><br/><br/>
+  實測 g++ 13 在 -O2 把「函式結尾」當成不可能到達,沒產生 ret 指令,程式直接掉進後面的程式碼:<code>search("a")</code> 在 -O2 segfault、-O0 是 SIGILL,隨機 20,000 組有 17,533 組當掉。<b>這種錯不會「剛好回 false」,要靠 -Wall 抓。</b></div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">同樣是 2 個 '.',為什麼 <code>"..zzz…zb"</code> 比 <code>"zzz…z..b"</code> 慢兩百倍?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>'.' 在前面,分叉發生在樹最寬的上層,每條分支後面還要走二十幾層;'.' 在後面,前面的字母已經把範圍縮成一條路。</strong><br/><br/>
+  實測 5,000 字、114,991 個節點的字典:<code>"..zzz…zb"</code> 要 16,251 次 dfs(1 + 26 + 676 × 24),<code>"zzz…z..b"</code> 只要 76 次。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">想加速,'.' 迴圈改成先跳過 nullptr(<code><span class="kw2">if</span> (child &amp;&amp; dfs(...))</code>)有用嗎?真正的瓶頸在哪?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>跳過 nullptr 的邏輯是對的(0 錯),但幾乎不會變快;真正花時間的是每個節點一次 <code>new</code>。</strong><br/><br/>
+  最壞查詢的 workload 上兩者分不出差別(16,251 次 dfs 裡只有 4.2% 是 null);改成節點池(整塊陣列、編號當指標)才有感:類 LeetCode 測資 167.2 → 33.2 ms。只有 '.' 落在很稀疏的節點上時,跳過 null 才省得多(例如 <code>"z…z.."</code> 那種 93% 的呼叫是 null 的情況)。</div>
+      </details>
+    </div>
   </section>
 
-  <!-- ════════════ 2 · 觀念題 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
     </div>
 
-    <div class="qa"><strong>Q1.</strong> 為什麼把 <code>if (!node) return false;</code> 放在 dfs 開頭,而不是在遞迴之前檢查子節點?拿掉會怎樣?</div>
-
-    <div class="qa"><strong>Q2.</strong> '.' 的迴圈為什麼要寫 <code>if (dfs(...)) return true;</code>,不能寫 <code>return dfs(...);</code>?</div>
-
-    <div class="qa"><strong>Q3.</strong> <code>search</code> 裡寫成 <code>dfs(word, 0, root);</code>(少了 return),編譯會過嗎?執行會怎樣?</div>
-
-    <div class="qa"><strong>Q4.</strong> 同樣是 2 個 '.',為什麼 <code>"..zzz…zb"</code> 比 <code>"zzz…z..b"</code> 慢兩百倍?</div>
-
-    <div class="qa"><strong>Q5.</strong> 想加速,'.' 迴圈改成先跳過 nullptr(<code>if (child &amp;&amp; dfs(...))</code>)有用嗎?真正的瓶頸在哪?</div>
-  </section>
-
-  <!-- ════════════ 3 · 範例 Trace ════════════ -->
-  <section class="sc-section">
-    <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "..x" · 找不到,每條路都要走完</span></h2>
-    </div>
-
-    <p style="margin:0 0 12px;">同一個字典 {bad, dad, mad}。概念頁的三個查詢都找到就停;這組找不到,看「全部失敗」要付多少。實跑插樁輸出。</p>
-
-    <div class="sc-trace"><span class="sc-trace__head">// 第 0 層 '.':root 的 26 格</span>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">拿一張紙,照程式手走 "..x" · 找不到,每條路都要走完:逐步寫出關鍵變數的變化,最後回傳什麼?決定結果的是哪一步?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><p style="margin:0 0 12px;">同一個字典 {bad, dad, mad}。概念頁的三個查詢都找到就停;這組找不到,看「全部失敗」要付多少。實跑插樁輸出。</p>
+<div class="sc-trace"><span class="sc-trace__head">// 第 0 層 '.':root 的 26 格</span>
 dfs(0, root)   '.' → 試 a..z
   a、c、e..l、n..z → 23 次 dfs(1, null),① 擋下
   b、d、m          → 3 個真的節點,各自往下</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 第 1 層 '.':每個真節點再試 26 格(以 b 為例)</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 第 1 層 '.':每個真節點再試 26 格(以 b 為例)</span>
 dfs(1, "b")    '.' → 試 a..z
   a → dfs(2, "ba")   'x' → child['x'] → dfs(3, null) ✗
   b..z → 25 次 dfs(2, null) ✗
 d、m 兩條一模一樣</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 加總</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 加總</span>
 真節點 7 次:root、b、ba、d、da、m、ma
 null  101 次:23 + 3 × 26
 <span class="sc-trace__out">// OUTPUT: false(108 次 dfs,其中 101 次是 null)</span></div>
-
-    <div class="sc-insight" style="margin-top:14px;">
-      <strong>找不到時沒有提早 return,'.' 的每一格都要試過 —— 108 次裡 94% 是 null。</strong>
-      <b>對照:<code>"..d"</code> 只要 5 次(1 次 null)、<code>"b.d"</code> 只要 4 次,因為第一條路就成功。</b>
+<div class="sc-insight" style="margin-top:14px;">
+<strong>找不到時沒有提早 return,'.' 的每一格都要試過 —— 108 次裡 94% 是 null。</strong>
+<b>對照:<code>"..d"</code> 只要 5 次(1 次 null)、<code>"b.d"</code> 只要 4 次,因為第一條路就成功。</b>
+</div></div>
+      </details>
     </div>
   </section>
 
-  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 13–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body"><code>search</code> 改成回傳「有幾個加過的字和 pattern 吻合」。dfs 要怎麼改?還能提早停嗎?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>不能提早停:'.' 的迴圈改成把 26 個 dfs 的回傳值加起來,終點回傳 <code>isWord ? <span class="nm">1</span> : <span class="nm">0</span></code>,null 回傳 0。</strong><br/><br/>
+  每條路都要走完,所以時間永遠是最壞情況(就像 Trace 那組的 108 次)。字母分支照舊走一條。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">萬用字元改成 <code>'*'</code>,代表<strong>任意長度</strong>(含 0 個)的字母。dfs 遇到 <code>'*'</code> 有哪幾種選擇?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong><code>'*'</code> 有兩種選擇:配 0 個字母(<code>dfs(idx + <span class="nm">1</span>, node)</code>,節點不動),或吃掉一個字母但留在 <code>'*'</code>(對每個存在的子節點 <code>dfs(idx, child)</code>)。</strong><br/><br/>
+  任一個 true 就 true。終點條件也要改:<code>idx</code> 到底時看 isWord,但如果剩下的全是 <code>'*'</code> 也能配。狀態 (idx, node) 會重複,可以加記憶化。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">字母格上一次找很多個 word(<a href="https://leetcode.com/problems/word-search-ii/" rel="noopener" target="_blank">212 ↗</a>)。這題的「dfs 帶著 Trie 節點往下走」要怎麼和 <a href="../../../09-backtracking/problems/p79/index.html">79 · Word Search</a> 的回溯結合?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>把所有 word 建成 Trie,每個格子當起點跑 79 的回溯;每走一格,同時在 Trie 上往下走一層 —— 和這題的 dfs(idx, node) 一樣,只是「下一個字元」來自格子而不是 pattern。</strong><br/><br/>
+  Trie 上沒有這個字母 → 剪掉這條路;走到 isWord → 收答案(收完把 isWord 關掉避免重複)。標 # / 還原的骨架照 79。</div>
+      </details>
+    </div>
+  </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
     </div>
 
-    <div class="qa"><strong>App 1.</strong> <code>search</code> 改成回傳「有幾個加過的字和 pattern 吻合」。dfs 要怎麼改?還能提早停嗎?</div>
-
-    <div class="qa"><strong>App 2.</strong> 萬用字元改成 <code>'*'</code>,代表<strong>任意長度</strong>(含 0 個)的字母。dfs 遇到 <code>'*'</code> 有哪幾種選擇?</div>
-
-    <div class="qa"><strong>App 3.</strong> 字母格上一次找很多個 word(<a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">212 ↗</a>)。這題的「dfs 帶著 Trie 節點往下走」要怎麼和 <a href="../../../09-backtracking/problems/p79/index.html">79 · Word Search</a> 的回溯結合?</div>
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;"><table class="sc-table">
+<thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+<tbody>
+<tr><td>和 <a href="../p208/index.html">208</a> 比</td><td>addWord = insert;search 從迴圈變成 <code>dfs(word, idx, node)</code></td></tr>
+<tr><td>null</td><td>一律在 dfs 第一行 <code><span class="kw2">if</span> (!node) <span class="kw2">return</span> <span class="kw2">false</span></code></td></tr>
+<tr><td>配完</td><td><code>idx == word.size()</code> → 回傳 <code>isWord</code>,不是 true</td></tr>
+<tr><td>'.'</td><td>26 格逐一 dfs;<strong>true 才提早 return</strong>,全部 false 才 false</td></tr>
+<tr><td>成本</td><td>每個 '.' × 26;'.' 越前面越貴(16,251 vs 76 次 dfs)</td></tr>
+<tr><td>常見錯</td><td>search 忘了 return(UB);迴圈裡直接 <code><span class="kw2">return</span> dfs</code>(只試 'a')</td></tr>
+<tr><td>加速</td><td>瓶頸是 <code>new</code>;節點池 167.2 → 33.2 ms</td></tr>
+</tbody>
+</table></div>
+        </div>
+      </details>
+    </div>
   </section>
 
-  <div class="answer-divider">// ANSWERS</div>
-
-  <div class="qa qa--answer"><strong>A1.</strong> <strong>null 有兩個來源:字母走到不存在的子節點、'.' 迴圈把空格也丟下去。放在開頭一行就全部處理,兩個分支都變短。</strong><br><br>
-  拿掉之後,下一層會讀 <code>node-&gt;isWord</code> 或 <code>node-&gt;child[...]</code>,就是對 nullptr 取值。實測隨機 20,000 組有 17,244 組當掉,最小反例是空字典 <code>search("a")</code>。</div>
-
-  <div class="qa qa--answer"><strong>A2.</strong> <strong><code>return dfs(...)</code> 會在第一圈就把結果交出去,不管它是 true 還是 false。</strong><br><br>
-  第一圈是 child['a'];它不存在就直接回 false,後面 25 格根本沒試。最小反例 <code>add("b")</code> → <code>search(".")</code> 回 false(正解 true),隨機 20,000 組錯 1,972 組。<b>規則:true 才提早走,false 要繼續。</b></div>
-
-  <div class="qa qa--answer"><strong>A3.</strong> <strong>會過(只有 <code>-Wreturn-type</code> 警告),但這是未定義行為。</strong><br><br>
-  實測 g++ 13 在 -O2 把「函式結尾」當成不可能到達,沒產生 ret 指令,程式直接掉進後面的程式碼:<code>search("a")</code> 在 -O2 segfault、-O0 是 SIGILL,隨機 20,000 組有 17,533 組當掉。<b>這種錯不會「剛好回 false」,要靠 -Wall 抓。</b></div>
-
-  <div class="qa qa--answer"><strong>A4.</strong> <strong>'.' 在前面,分叉發生在樹最寬的上層,每條分支後面還要走二十幾層;'.' 在後面,前面的字母已經把範圍縮成一條路。</strong><br><br>
-  實測 5,000 字、114,991 個節點的字典:<code>"..zzz…zb"</code> 要 16,251 次 dfs(1 + 26 + 676 × 24),<code>"zzz…z..b"</code> 只要 76 次。</div>
-
-  <div class="qa qa--answer"><strong>A5.</strong> <strong>跳過 nullptr 的邏輯是對的(0 錯),但幾乎不會變快;真正花時間的是每個節點一次 <code>new</code>。</strong><br><br>
-  最壞查詢的 workload 上兩者分不出差別(16,251 次 dfs 裡只有 4.2% 是 null);改成節點池(整塊陣列、編號當指標)才有感:類 LeetCode 測資 167.2 → 33.2 ms。只有 '.' 落在很稀疏的節點上時,跳過 null 才省得多(例如 <code>"z…z.."</code> 那種 93% 的呼叫是 null 的情況)。</div>
-
-  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>不能提早停:'.' 的迴圈改成把 26 個 dfs 的回傳值加起來,終點回傳 <code>isWord ? 1 : 0</code>,null 回傳 0。</strong><br><br>
-  每條路都要走完,所以時間永遠是最壞情況(就像 Trace 那組的 108 次)。字母分支照舊走一條。</div>
-
-  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong><code>'*'</code> 有兩種選擇:配 0 個字母(<code>dfs(idx + 1, node)</code>,節點不動),或吃掉一個字母但留在 <code>'*'</code>(對每個存在的子節點 <code>dfs(idx, child)</code>)。</strong><br><br>
-  任一個 true 就 true。終點條件也要改:<code>idx</code> 到底時看 isWord,但如果剩下的全是 <code>'*'</code> 也能配。狀態 (idx, node) 會重複,可以加記憶化。</div>
-
-  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>把所有 word 建成 Trie,每個格子當起點跑 79 的回溯;每走一格,同時在 Trie 上往下走一層 —— 和這題的 dfs(idx, node) 一樣,只是「下一個字元」來自格子而不是 pattern。</strong><br><br>
-  Trie 上沒有這個字母 → 剪掉這條路;走到 isWord → 收答案(收完把 isWord 關掉避免重複)。標 # / 還原的骨架照 79。</div>
 
   <!-- ── pager ── -->
   <nav class="sc-pager">
@@ -168,5 +215,13 @@ null  101 次:23 + 3 × 26
     <div class="sc-summary-bar__detail">ADD AND SEARCH WORDS · REVIEW</div>
   </div>
 
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
 </body>
 </html>

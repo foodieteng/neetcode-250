@@ -87,7 +87,7 @@
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>註解 ①~④ 就是下一節那四個錯的修正位置。</strong>
-      <b>堆裡不用存 index</b>:選了之後只用到 profit(存 <code>pair</code> 和存 <code>int</code> 對拍 10 萬組 0 不一致)。
+      <b>堆裡不用存 index</b>:選了之後只用到 profit(存 <code>pair</code> 和存 <code><span class="kw2">int</span></code> 對拍 10 萬組 0 不一致)。
       <code>-Wall -Wextra</code> 零警告。
     </div>
   </section>
@@ -132,9 +132,9 @@
       <thead><tr><th>#</th><th>錯在哪</th><th>只剩這個錯時(實測)</th><th>修正</th></tr></thead>
       <tbody>
         <tr><td class="mono">①</td><td><strong><code>w += capital[...]</code></strong>:把門檻當成收入</td><td class="mono fail">範例 1 的 w 一直是 0</td><td><code>w += 利潤</code></td></tr>
-        <tr><td class="mono">②</td><td>回傳 <code>maxProfit</code>(利潤總和)</td><td class="mono fail">起始 w &gt; 0 時就少算了 w</td><td><code>return w;</code></td></tr>
+        <tr><td class="mono">②</td><td>回傳 <code>maxProfit</code>(利潤總和)</td><td class="mono fail">起始 w &gt; 0 時就少算了 w</td><td><code><span class="kw2">return</span> w;</code></td></tr>
         <tr><td class="mono">③</td><td>pop 完堆空就 return</td><td class="mono fail">錯 131,067 / 1,034,592</td><td>每輪先補堆,補完還空才 <code>break</code></td></tr>
-        <tr><td class="mono">④</td><td>迴圈條件 <code>i &lt; n &amp;&amp; k</code></td><td class="mono fail">錯 605,881 / 1,034,592</td><td>外層跑 k 輪:<code>while (k--)</code></td></tr>
+        <tr><td class="mono">④</td><td>迴圈條件 <code>i &lt; n &amp;&amp; k</code></td><td class="mono fail">錯 605,881 / 1,034,592</td><td>外層跑 k 輪:<code><span class="kw2">while</span> (k--)</code></td></tr>
       </tbody>
     </table>
 
@@ -143,7 +143,7 @@
       <div class="sc-dark-box__body">
         <p style="margin:0;">
           <b>capital 是「要有這麼多錢才能做」,做的時候不扣、也不會加。</b>做完增加的是 profit。
-          範例 1:做完 #0 後 <code>w = 0 + capital[0] = 0</code>,w 永遠長不大,門檻 1 的 #1、#2 一直解鎖不了。<br>
+          範例 1:做完 #0 後 <code>w = <span class="nm">0</span> + capital[<span class="nm">0</span>] = <span class="nm">0</span></code>,w 永遠長不大,門檻 1 的 #1、#2 一直解鎖不了。<br>
           <strong>只修 ① 反而錯得更多</strong>(808,410 → 813,628 / 1,034,592):因為還在回傳 maxProfit,w 變大只是讓迴圈走到別的地方提早結束。四個錯是綁在一起的。
         </p>
       </div>
@@ -154,7 +154,7 @@
       <div class="sc-dark-box__body">
         <p style="margin:0;">
           pop 完堆變空,<b>不代表沒專案可做</b>:剛拿到的利潤可能讓 <code>idx[i]</code> 剛好解鎖。要先回頭補堆,補完還是空才停。<br>
-          最小反例(① ② ④ 都修好,只剩 ③):<code>k=2, w=0, profits=[1,1], capital=[0,1]</code> → 回 1,正解 2(做完 #0 後 w=1,#1 剛好做得起)。<br>
+          最小反例(① ② ④ 都修好,只剩 ③):<code>k=<span class="nm">2</span>, w=<span class="nm">0</span>, profits=[<span class="nm">1,1</span>], capital=[<span class="nm">0,1</span>]</code> → 回 1,正解 2(做完 #0 後 w=1,#1 剛好做得起)。<br>
           <strong>也不能直接刪掉這行</strong>:實測刪掉後 225,192 組變成無窮迴圈 —— 堆空、<code>capital[idx[i]] &gt; w</code> 時,<code>i</code> 和 <code>k</code> 都不會動。這行在原稿裡同時扛著「停止條件」的責任。
         </p>
       </div>
@@ -165,7 +165,7 @@
       <div class="sc-dark-box__body">
         <p style="margin:0;">
           原稿只有在「遇到做不起的專案」時才會 pop。<b>所有專案都推進堆之後(i == n),迴圈直接結束</b>,堆裡的利潤和剩下的 k 都浪費了。<br>
-          最小反例(只剩 ④):<code>k=1, w=0, profits=[1], capital=[0]</code> → 回 0,正解 1。只有一個專案、而且做得起,卻一個都沒做。
+          最小反例(只剩 ④):<code>k=<span class="nm">1</span>, w=<span class="nm">0</span>, profits=[<span class="nm">1</span>], capital=[<span class="nm">0</span>]</code> → 回 0,正解 1。只有一個專案、而且做得起,卻一個都沒做。
         </p>
       </div>
     </div>
@@ -220,16 +220,16 @@ k 比 n 大         k=10⁵ w=0 p=[1,2,3] c=[0,1,1] → 6
     <table class="sc-table">
       <thead><tr><th>其他可能的寫法(改修正版)</th><th>實測(窮舉 1,034,592 組)</th><th>說明</th></tr></thead>
       <tbody>
-        <tr><td>拿掉 <code>if (pq.empty()) break;</code></td><td class="mono fail">錯 205,874 · 兩個範例都過</td><td>對空堆 <code>top()</code>:多數 segfault,約 3 成靜默回錯答案</td></tr>
+        <tr><td>拿掉 <code><span class="kw2">if</span> (pq.empty()) break;</code></td><td class="mono fail">錯 205,874 · 兩個範例都過</td><td>對空堆 <code>top()</code>:多數 segfault,約 3 成靜默回錯答案</td></tr>
         <tr><td>idx 沒依門檻排序</td><td class="mono fail">錯 391,638 · 兩個範例都過</td><td>指標停在做不起的,後面做得起的推不進來</td></tr>
         <tr><td>用最小堆</td><td class="mono fail">錯 393,441 · 範例 2 過</td><td>每輪拿到最少的利潤</td></tr>
-        <tr><td>內層 <code>while</code> 改成 <code>if</code></td><td class="mono fail">錯 247,357 · 範例 2 過</td><td>一輪只補一個,同時解鎖的會漏比</td></tr>
+        <tr><td>內層 <code><span class="kw2">while</span></code> 改成 <code><span class="kw2">if</span></code></td><td class="mono fail">錯 247,357 · 範例 2 過</td><td>一輪只補一個,同時解鎖的會漏比</td></tr>
         <tr><td>條件寫 <code>capital &lt; w</code></td><td class="mono fail">錯 386,268 · 兩個範例都回 0</td><td>剛好等於門檻就該做得起:<code>&lt;=</code></td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>範例 2 是一條「一次只解鎖一個」的樓梯</strong>,每輪都沒得選,所以最小堆、<code>if</code> 補堆、沒排序都抓不到。
+      <strong>範例 2 是一條「一次只解鎖一個」的樓梯</strong>,每輪都沒得選,所以最小堆、<code><span class="kw2">if</span></code> 補堆、沒排序都抓不到。
       <b>要自己造「同時解鎖好幾個」和「門檻剛好等於 w」的測資。</b>
     </div>
   </section>
@@ -241,7 +241,7 @@ k 比 n 大         k=10⁵ w=0 p=[1,2,3] c=[0,1,1] → 6
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
     </div>
 
-    <p style="margin:0 0 12px;">範例 1 <code>k=2, w=0, profits=[1,2,3], capital=[0,1,1]</code>,<code>idx = [0,1,2]</code>。上下兩段對照修正版和原稿。</p>
+    <p style="margin:0 0 12px;">範例 1 <code>k=<span class="nm">2</span>, w=<span class="nm">0</span>, profits=[<span class="nm">1,2,3</span>], capital=[<span class="nm">0,1,1</span>]</code>,<code>idx = [<span class="nm">0,1,2</span>]</code>。上下兩段對照修正版和原稿。</p>
 
     <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 修正版</span>
 第 1 輪:w 0   push #0(門檻 0,利潤 1)       堆 [1]     拿 1   w = 1

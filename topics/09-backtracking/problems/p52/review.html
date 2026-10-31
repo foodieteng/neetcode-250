@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">N-Queens II</h1>
-    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★☆☆</span>
       <span class="sc-mast__sep">|</span>
@@ -42,105 +42,160 @@
 
   <div class="sc-mast__rule"></div>
 
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>BACKTRACKING · UNIT 09 複習測驗</span>
+      <span>範圍:N-QUEENS II(LC 52)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
     </div>
 
-    <table class="sc-table">
-      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
-      <tbody>
-        <tr><td>和 51 的關係</td><td>同一棵搜尋樹,只換 base case:存棋盤 → <code>ans += 1</code></td></tr>
-        <tr><td>衝突檢查</td><td><code>col[c]</code>、<code>diag1[r + c]</code>、<code>diag2[r - c + n - 1]</code>;row[] 多餘</td></tr>
-        <tr><td>計數器</td><td><code>int&amp; ans</code>,或讓 dfs 回傳子樹解數再相加</td></tr>
-        <tr><td>空間</td><td>O(n):沒有棋盤,只有遞迴 + 旗標</td></tr>
-        <tr><td>加速</td><td>bitmask(約一個數量級)+ 第 0 列只試左半 × 2(約再 2 倍)</td></tr>
-        <tr><td>規模</td><td>n = 9:352 個解、8,394 次 dfs</td></tr>
-      </tbody>
-    </table>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">從 51 改成這題,程式哪幾行要動?哪些完全不用動?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>只動三處:回傳型別 → int;拿掉 board 和 ans 陣列,改成一個 int 計數器;base case 從 push_back(board) 改成 ans += 1。</strong><br/><br/>
+  for 迴圈、三個旗標的檢查、設 true、遞迴、設回 false 一字不改。所以兩題的 dfs 呼叫數完全一樣(n = 9 都是 8,394)。51 裡的 <code>board[r][c] = 'Q'</code> / <code>'.'</code> 那兩行也一起消失。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">把 <code><span class="kw2">int</span>&amp; ans</code> 寫成 <code><span class="kw2">int</span> ans</code>,會發生什麼事?為什麼 n = 2、3 看起來是對的?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>每一層拿到的是 ans 的副本,葉子加 1 只加在自己的副本上,return 後就丟了;最外層的 ans 永遠是 0。</strong><br/><br/>
+  實測 n = 1~9 全部回傳 0。n = 2、3 的正確答案本來就是 0,所以這兩個測資會「通過」—— 只測小 n 抓不到。至少用 n = 4(→ 2)測。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">怎麼確定 <code>ans += <span class="nm">1</span></code> 不會把同一個解數兩次?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>一個解 = 每一列各選一欄 = 搜尋樹上一條從根到 r == n 的路,而每條路只會被走一次。</strong><br/><br/>
+  每一層的 for 迴圈 c 從 0 到 n − 1,每欄只試一次;兩條不同的路一定在某一列選了不同的欄,所以對應不同的解。實測和排列暴力法 n = 1~9 一致。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">不用 <code><span class="kw2">int</span>&amp;</code>,改成讓 dfs 回傳 int,要怎麼寫?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong><code><span class="kw2">if</span> (r == n) <span class="kw2">return</span> <span class="nm">1</span>;</code>,迴圈裡 <code>count += dfs(r + <span class="nm">1</span>, …)</code>,最後 <code><span class="kw2">return</span> count;</code>。</strong><br/><br/>
+  每個節點回傳「自己這棵子樹的解數」= 子節點回傳值的和 —— 概念頁動畫裡節點右邊的小格就是這個值。<a href="code.html">程式碼頁第 2 節</a>的 bitmask 版就是這樣寫的,不需要成員變數或參考參數。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼第 0 列放 c 和放 n − 1 − c 的解數一定一樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>左右翻轉把每個合法盤面變成另一個合法盤面,而且第 0 列的欄 c 會變成 n − 1 − c。</strong><br/><br/>
+  翻轉後同欄還是同欄,「/」斜線變成「\」、「\」變成「/」,同一條斜線上的兩個皇后翻過去還在同一條斜線上 —— 所以不衝突的翻過去也不衝突。這是一一對應,兩邊個數相等。n = 4 的小計 0 / 1 / 1 / 0 就是例子。</div>
+      </details>
+    </div>
   </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
     </div>
 
-    <div class="qa"><strong>Q1.</strong> 從 51 改成這題,程式哪幾行要動?哪些完全不用動?</div>
-
-    <div class="qa"><strong>Q2.</strong> 把 <code>int&amp; ans</code> 寫成 <code>int ans</code>,會發生什麼事?為什麼 n = 2、3 看起來是對的?</div>
-
-    <div class="qa"><strong>Q3.</strong> 怎麼確定 <code>ans += 1</code> 不會把同一個解數兩次?</div>
-
-    <div class="qa"><strong>Q4.</strong> 不用 <code>int&amp;</code>,改成讓 dfs 回傳 int,要怎麼寫?</div>
-
-    <div class="qa"><strong>Q5.</strong> 為什麼第 0 列放 c 和放 n − 1 − c 的解數一定一樣?</div>
-  </section>
-  <section class="sc-section">
-    <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// n = 4 · ans 什麼時候變</span></h2>
-    </div>
-
-    <p style="margin:0 0 12px;">插樁實跑。ans 只在 dfs(4) 被改,其他 15 次 dfs 呼叫都沒碰它。</p>
-
-    <div class="sc-trace"><span class="sc-trace__head">// 第一次 ans += 1</span>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">拿一張紙,照程式手走 n = 4 · ans 什麼時候變:逐步寫出關鍵變數的變化,最後回傳什麼?決定結果的是哪一步?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><p style="margin:0 0 12px;">插樁實跑。ans 只在 dfs(4) 被改,其他 15 次 dfs 呼叫都沒碰它。</p>
+<div class="sc-trace"><span class="sc-trace__head">// 第一次 ans += 1</span>
 dfs(0) 放 (0,0) → … 兩條路都在 r2、r3 死掉        ans = 0
 dfs(0) 放 (0,1) 佔 col[1]、diag1[1]、diag2[2]
  dfs(1) c0 ／、c1 欄、c2 ＼ → 放 (1,3)
   dfs(2) 放 (2,0)
    dfs(3) c0 欄、c1 欄 → 放 (3,2)
     dfs(4) r == n → ans += 1                     ans = 1</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 第二次,然後收尾</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 第二次,然後收尾</span>
 dfs(0) 放 (0,2) → (1,0) → (2,3) → (3,1)
     dfs(4) r == n → ans += 1                     ans = 2
 dfs(0) 放 (0,3) → (1,0)→(2,2) 死、(1,1) 死        ans = 2
 <span class="sc-trace__out">// OUTPUT: return ans → 2</span></div>
-
-    <div class="sc-insight" style="margin-top:14px;">
-      <strong>兩次 +1 對應兩條走到 r == n 的路:[1,3,0,2] 和 [2,0,3,1],剛好互為左右鏡像。</strong>
-      <b>(0,0) 和 (0,3) 的小計也一樣都是 0 —— 鏡像對稱在每一欄都成立,不只對有解的欄。</b>
+<div class="sc-insight" style="margin-top:14px;">
+<strong>兩次 +1 對應兩條走到 r == n 的路:[1,3,0,2] 和 [2,0,3,1],剛好互為左右鏡像。</strong>
+<b>(0,0) 和 (0,3) 的小計也一樣都是 0 —— 鏡像對稱在每一欄都成立,不只對有解的欄。</b>
+</div></div>
+      </details>
     </div>
   </section>
+
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 13–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">題目改成「回傳第一個找到的解」或「判斷有沒有解」。回溯要怎麼提早停?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>讓 dfs 回傳 bool:base case 回 true;遞迴回來是 true 就直接往上 return true,不要再試下一欄。</strong><br/><br/>
+  要回傳盤面的話,在 return true 之前先不要撤銷(或在 base case 把目前的欄位記下來)。這是 <a href="../p79/index.html">79 · Word Search</a> 那種「找到就停」的寫法;計數和列舉則必須把整棵樹走完。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">面試官說:n 最大 9,你直接打表就好。你怎麼回應?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>可以說打表在這個限制下是合法的 O(1),但表本身要靠一支正確的回溯產生,我會先寫那支程式。</strong><br/><br/>
+  然後把討論帶到可延伸的部分:n 變大時 bitmask 和鏡像能省多少(n = 12:73 ms → 4.2 ms)。面試官想看的是你能不能寫出搜尋、能不能講出剪枝。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">同樣「只數不存」的想法,還能用在這一章哪些題目?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>任何「回傳有幾種」而不是「列出全部」的題目:base case 改成 +1,省掉複製路徑。</strong><br/><br/>
+  例如把 <a href="../p78/index.html">78 · Subsets</a>、<a href="../p46/index.html">46 · Permutations</a> 改問個數,也是同一招。不過很多計數題的子問題會重複出現(例如只跟「剩多少」有關),那時應該改用 DP 加記憶化,而不是回溯一條一條數 —— N-Queens 的狀態包含整個旗標組合,幾乎不重複,所以回溯是對的工具。</div>
+      </details>
+    </div>
+  </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
     </div>
 
-    <div class="qa"><strong>App 1.</strong> 題目改成「回傳第一個找到的解」或「判斷有沒有解」。回溯要怎麼提早停?</div>
-
-    <div class="qa"><strong>App 2.</strong> 面試官說:n 最大 9,你直接打表就好。你怎麼回應?</div>
-
-    <div class="qa"><strong>App 3.</strong> 同樣「只數不存」的想法,還能用在這一章哪些題目?</div>
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;"><table class="sc-table">
+<thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+<tbody>
+<tr><td>和 51 的關係</td><td>同一棵搜尋樹,只換 base case:存棋盤 → <code>ans += <span class="nm">1</span></code></td></tr>
+<tr><td>衝突檢查</td><td><code>col[c]</code>、<code>diag1[r + c]</code>、<code>diag2[r - c + n - <span class="nm">1</span>]</code>;row[] 多餘</td></tr>
+<tr><td>計數器</td><td><code><span class="kw2">int</span>&amp; ans</code>,或讓 dfs 回傳子樹解數再相加</td></tr>
+<tr><td>空間</td><td>O(n):沒有棋盤,只有遞迴 + 旗標</td></tr>
+<tr><td>加速</td><td>bitmask(約一個數量級)+ 第 0 列只試左半 × 2(約再 2 倍)</td></tr>
+<tr><td>規模</td><td>n = 9:352 個解、8,394 次 dfs</td></tr>
+</tbody>
+</table></div>
+        </div>
+      </details>
+    </div>
   </section>
 
-  <div class="answer-divider">// ANSWERS</div>
-
-  <div class="qa qa--answer"><strong>A1.</strong> <strong>只動三處:回傳型別 → int;拿掉 board 和 ans 陣列,改成一個 int 計數器;base case 從 push_back(board) 改成 ans += 1。</strong><br><br>
-  for 迴圈、三個旗標的檢查、設 true、遞迴、設回 false 一字不改。所以兩題的 dfs 呼叫數完全一樣(n = 9 都是 8,394)。51 裡的 <code>board[r][c] = 'Q'</code> / <code>'.'</code> 那兩行也一起消失。</div>
-
-  <div class="qa qa--answer"><strong>A2.</strong> <strong>每一層拿到的是 ans 的副本,葉子加 1 只加在自己的副本上,return 後就丟了;最外層的 ans 永遠是 0。</strong><br><br>
-  實測 n = 1~9 全部回傳 0。n = 2、3 的正確答案本來就是 0,所以這兩個測資會「通過」—— 只測小 n 抓不到。至少用 n = 4(→ 2)測。</div>
-
-  <div class="qa qa--answer"><strong>A3.</strong> <strong>一個解 = 每一列各選一欄 = 搜尋樹上一條從根到 r == n 的路,而每條路只會被走一次。</strong><br><br>
-  每一層的 for 迴圈 c 從 0 到 n − 1,每欄只試一次;兩條不同的路一定在某一列選了不同的欄,所以對應不同的解。實測和排列暴力法 n = 1~9 一致。</div>
-
-  <div class="qa qa--answer"><strong>A4.</strong> <strong><code>if (r == n) return 1;</code>,迴圈裡 <code>count += dfs(r + 1, …)</code>,最後 <code>return count;</code>。</strong><br><br>
-  每個節點回傳「自己這棵子樹的解數」= 子節點回傳值的和 —— 概念頁動畫裡節點右邊的小格就是這個值。<a href="code.html">程式碼頁第 2 節</a>的 bitmask 版就是這樣寫的,不需要成員變數或參考參數。</div>
-
-  <div class="qa qa--answer"><strong>A5.</strong> <strong>左右翻轉把每個合法盤面變成另一個合法盤面,而且第 0 列的欄 c 會變成 n − 1 − c。</strong><br><br>
-  翻轉後同欄還是同欄,「/」斜線變成「\」、「\」變成「/」,同一條斜線上的兩個皇后翻過去還在同一條斜線上 —— 所以不衝突的翻過去也不衝突。這是一一對應,兩邊個數相等。n = 4 的小計 0 / 1 / 1 / 0 就是例子。</div>
-
-  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>讓 dfs 回傳 bool:base case 回 true;遞迴回來是 true 就直接往上 return true,不要再試下一欄。</strong><br><br>
-  要回傳盤面的話,在 return true 之前先不要撤銷(或在 base case 把目前的欄位記下來)。這是 <a href="../p79/index.html">79 · Word Search</a> 那種「找到就停」的寫法;計數和列舉則必須把整棵樹走完。</div>
-
-  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>可以說打表在這個限制下是合法的 O(1),但表本身要靠一支正確的回溯產生,我會先寫那支程式。</strong><br><br>
-  然後把討論帶到可延伸的部分:n 變大時 bitmask 和鏡像能省多少(n = 12:73 ms → 4.2 ms)。面試官想看的是你能不能寫出搜尋、能不能講出剪枝。</div>
-
-  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>任何「回傳有幾種」而不是「列出全部」的題目:base case 改成 +1,省掉複製路徑。</strong><br><br>
-  例如把 <a href="../p78/index.html">78 · Subsets</a>、<a href="../p46/index.html">46 · Permutations</a> 改問個數,也是同一招。不過很多計數題的子問題會重複出現(例如只跟「剩多少」有關),那時應該改用 DP 加記憶化,而不是回溯一條一條數 —— N-Queens 的狀態包含整個旗標組合,幾乎不重複,所以回溯是對的工具。</div>
 
   <!-- ── pager ── -->
   <nav class="sc-pager">
@@ -158,5 +213,13 @@ dfs(0) 放 (0,3) → (1,0)→(2,2) 死、(1,1) 死        ans = 2
     <div class="sc-summary-bar__detail">N-QUEENS II · REVIEW</div>
   </div>
 
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
 </body>
 </html>

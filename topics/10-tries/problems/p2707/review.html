@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">Extra Characters in a String</h1>
-    <p class="sc-mast__subtitle">// REVIEW · 觀念題 + sayhelloworld 走讀 + 應用題</p>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★☆☆</span>
       <span class="sc-mast__sep">|</span>
@@ -42,54 +42,86 @@
 
   <div class="sc-mast__rule"></div>
 
-  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>TRIES · UNIT 10 複習測驗</span>
+      <span>範圍:EXTRA CHARACTERS IN A STRING(LC 2707)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
     </div>
 
-    <table class="sc-table">
-      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
-      <tbody>
-        <tr><td>和 <a href="../../../13-1d-dp/problems/p139/index.html">139</a> 比</td><td>139 是 bool「能不能全蓋」;這題多一條「這格放棄、+1」,dp 變成最少剩幾個</td></tr>
-        <tr><td>轉移</td><td>先 <code>+1</code>,再用每個能貼上的字典字取 min</td></tr>
-        <tr><td>A · Trie</td><td>由右往左:<code>dp[start]</code> 存後綴;從 start 沿 Trie 走,<strong>沒有子節點才 break</strong>,isWord 就看 <code>dp[end+1]</code></td></tr>
-        <tr><td>B · set</td><td>由左往右:<code>dp[i]</code> 存前綴;每個字 w 看 <code>s[i−L..i)</code>,對上就看 <code>dp[i−L]</code></td></tr>
-        <tr><td>最常見的錯</td><td>找到字就 break:能過兩個官方範例,窮舉 59,094 組錯 7,206(A)/ 1,210(B)組</td></tr>
-        <tr><td>速度</td><td>最壞情況 10,000 次:Trie 171.8 ms、set 996.4 ms、set 改 <code>const&amp;</code> + <code>compare</code> 115.3 ms</td></tr>
-      </tbody>
-    </table>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼每一格都先寫 <code>dp[start] = dp[start + <span class="nm">1</span>] + <span class="nm">1</span></code>,再去找字典字?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>位置 start 的字元只有兩種命運:沒被蓋到,或是某個字的開頭。先寫 +1,就是把「沒被蓋到」當成預設答案,再讓每個字去挑戰它。</strong><br/><br/>
+  這條路永遠存在,所以 dp 一定有值,不會像 <a href="../../../13-1d-dp/problems/p139/index.html">139</a> 那樣出現 false。實測拿掉 <code>+ <span class="nm">1</span></code>(A、B 都一樣),窮舉 59,094 組錯 48,910 組:dp 永遠是 0,最小反例 <code>"a"</code>、<code>["b"]</code> → 0(正解 1)。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">Trie 版走到 <code>isWord</code> 的節點時,為什麼不能直接 <code>break</code>?那什麼時候可以 break?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>這個節點下面可能還有更長的字,而哪個字最好要看後面剩多少。只有「沒有子節點」才能 break —— 那代表從 start 出發,再也不可能有任何字。</strong><br/><br/>
+  實測 isWord 後加 <code>break</code>:窮舉錯 7,206 組,而且兩個官方範例都過。最小反例 <code>"ab"</code>、<code>["a","ab"]</code> → 1(正解 0):從 0 先吃到 "a" 就停,"ab" 沒機會。<br/><br/>
+  反過來,把「沒有子節點就 break」改成 <code>continue</code> 也錯(25,724 組):配不上的字元被跳過,<code>"ab"</code> 會被當成 <code>"b"</code>。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼 Trie 版是<strong>由右往左</strong>填 dp,set 版卻是<strong>由左往右</strong>?能不能把 Trie 版改成由左往右?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>方向取決於「從哪一端去找字」。Trie 是從字的開頭往下走,所以站在 start、往右找到結尾 end,需要的是右邊的 <code>dp[end+<span class="nm">1</span>]</code> —— 右邊得先算好。set 版站在 i、往左看結尾在 i 的字,需要的是左邊的 <code>dp[i−L]</code>。</strong><br/><br/>
+  要讓 Trie 版由左往右,就把每個字<strong>反過來</strong>建 Trie:站在 i,沿 <code>s[i−<span class="nm">1</span>], s[i−<span class="nm">2</span>], …</code> 往下走,走到 isWord(長度 L)就看 <code>dp[i−L]</code>。同一套「路斷就停」照樣成立。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">set 版用了 <code>unordered_set</code>,為什麼說雜湊「完全沒用上」?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>程式只做了 <code><span class="kw2">for</span> (string w : dict)</code> —— 這是走訪,不是查找。雜湊表的價值在 O(1) 的 <code>count</code> / <code>find</code>,這裡一次都沒呼叫。</strong><br/><br/>
+  題目保證字不重複,直接掃 <code>dictionary</code> 結果一樣。真正拖慢的是每圈複製字和 substr:實測最壞情況共複製 85,850 個字元,10,000 次 996.4 ms;改成 <code>const string&amp;</code> + <code>compare</code> 是 115.3 ms。<br/><br/>
+  如果真的想用雜湊,寫法是反過來:對每個 i、每個可能的長度 L,查 <code>dict.count(s.substr(i − L, L))</code>。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">兩個 dp 陣列在 leetscode 上分別是 <code><span class="nm">1</span> <span class="nm">4</span> <span class="nm">3</span> <span class="nm">2</span> <span class="nm">1</span> <span class="nm">0</span> <span class="nm">3</span> <span class="nm">2</span> <span class="nm">1</span> <span class="nm">0</span></code> 和 <code><span class="nm">0</span> <span class="nm">1</span> <span class="nm">2</span> <span class="nm">3</span> <span class="nm">0</span> <span class="nm">1</span> <span class="nm">2</span> <span class="nm">3</span> <span class="nm">4</span> <span class="nm">1</span></code>,中間差這麼多,為什麼答案一樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>兩個 dp 的意思不同:A 的 <code>dp[k]</code> 是後綴 <code>s[k..]</code>,B 的 <code>dp[k]</code> 是前綴 <code>s[<span class="nm">0</span>..k)</code>。只有 A 的 <code>dp[<span class="nm">0</span>]</code> 和 B 的 <code>dp[<span class="nm">9</span>]</code> 都代表「整個字串」。</strong><br/><br/>
+  例如 A 的 <code>dp[<span class="nm">5</span>] = <span class="nm">0</span></code>(後綴 code 全蓋到),B 的 <code>dp[<span class="nm">5</span>] = <span class="nm">1</span></code>(前綴 leets 剩 s)。中間值本來就不該相同,而且 A[k] + B[k] 也不一定等於答案 —— 最佳切法可能有一個字橫跨 k。</div>
+      </details>
+    </div>
   </section>
 
-  <!-- ════════════ 2 · 觀念題 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
     </div>
 
-    <div class="qa"><strong>Q1.</strong> 為什麼每一格都先寫 <code>dp[start] = dp[start + 1] + 1</code>,再去找字典字?</div>
-
-    <div class="qa"><strong>Q2.</strong> Trie 版走到 <code>isWord</code> 的節點時,為什麼不能直接 <code>break</code>?那什麼時候可以 break?</div>
-
-    <div class="qa"><strong>Q3.</strong> 為什麼 Trie 版是<strong>由右往左</strong>填 dp,set 版卻是<strong>由左往右</strong>?能不能把 Trie 版改成由左往右?</div>
-
-    <div class="qa"><strong>Q4.</strong> set 版用了 <code>unordered_set</code>,為什麼說雜湊「完全沒用上」?</div>
-
-    <div class="qa"><strong>Q5.</strong> 兩個 dp 陣列在 leetscode 上分別是 <code>1 4 3 2 1 0 3 2 1 0</code> 和 <code>0 1 2 3 0 1 2 3 4 1</code>,中間差這麼多,為什麼答案一樣?</div>
-  </section>
-
-  <!-- ════════════ 3 · 範例 Trace ════════════ -->
-  <section class="sc-section">
-    <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 官方範例 2 · sayhelloworld · [hello, world]</span></h2>
-    </div>
-
-    <p style="margin:0 0 12px;">程式碼頁走過了範例 1;這裡看範例 2 的 Trie 版。<code>s = s a y h e l l o w o r l d</code>(索引 0–12),Trie 只有兩條鏈 h-e-l-l-o、w-o-r-l-d。實跑插樁輸出。</p>
-
-    <div class="sc-trace"><span class="sc-trace__head">// start = 12 → 8:先遇到 world</span>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">拿一張紙,照程式手走 官方範例 2 · sayhelloworld · [hello, world]:逐步寫出關鍵變數的變化,最後回傳什麼?決定結果的是哪一步?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><p style="margin:0 0 12px;">程式碼頁走過了範例 1;這裡看範例 2 的 Trie 版。<code>s = s a y h e l l o w o r l d</code>(索引 0–12),Trie 只有兩條鏈 h-e-l-l-o、w-o-r-l-d。實跑插樁輸出。</p>
+<div class="sc-trace"><span class="sc-trace__head">// start = 12 → 8:先遇到 world</span>
 dp[13] = 0
 start=12 'd'  dp=1   root 沒有 d → break   dp[12]=1
 start=11 'l'  dp=2   break                 dp[11]=2
@@ -97,8 +129,7 @@ start=10 'r'  dp=3   break                 dp[10]=3
 start=9  'o'  dp=4   break                 dp[9]=4
 start=8  'w'  dp=5   走 w → o → r → l → d
               isWord "world":min(5, dp[13]=0)     dp[8]=0</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// start = 7 → 3:hello 接到 world 前面</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// start = 7 → 3:hello 接到 world 前面</span>
 start=7  'o'  dp=1   break                 dp[7]=1
 start=6  'l'  dp=2   break                 dp[6]=2
 start=5  'l'  dp=3   break                 dp[5]=3
@@ -106,60 +137,76 @@ start=4  'e'  dp=4   break                 dp[4]=4
 start=3  'h'  dp=5   走 h → e → l → l → o
               isWord "hello":min(5, dp[8]=0) = 0
               end=8 'w':hello 節點沒有子節點 → break   dp[3]=0</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// start = 2 → 0:say 沒人蓋</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// start = 2 → 0:say 沒人蓋</span>
 start=2  'y'  dp=1   break                 dp[2]=1
 start=1  'a'  dp=2   break                 dp[1]=2
 start=0  's'  dp=3   break                 dp[0]=3
 <span class="sc-trace__out">// OUTPUT: dp[0..13] = 3 2 1 0 4 3 2 1 0 4 3 2 1 0 → 回傳 3(內層 22 次)</span></div>
-
-    <div class="sc-insight" style="margin-top:14px;">
-      <strong>dp[3] 能是 0,是因為 dp[8] 已經先算好了 —— 由右往左填,才能讓「hello 接在 world 前面」一步取到。</strong>
-      <b>set 版同一題則是 <code>dp[8] = 3</code>(前綴 sayhello 剩 say)、<code>dp[13] = min(8, dp[8]) = 3</code>,substr 比對 18 次。兩個方向在同一條鏈上相遇,答案一樣。</b>
+<div class="sc-insight" style="margin-top:14px;">
+<strong>dp[3] 能是 0,是因為 dp[8] 已經先算好了 —— 由右往左填,才能讓「hello 接在 world 前面」一步取到。</strong>
+<b>set 版同一題則是 <code>dp[<span class="nm">8</span>] = <span class="nm">3</span></code>(前綴 sayhello 剩 say)、<code>dp[<span class="nm">13</span>] = min(<span class="nm">8</span>, dp[<span class="nm">8</span>]) = <span class="nm">3</span></code>,substr 比對 18 次。兩個方向在同一條鏈上相遇,答案一樣。</b>
+</div></div>
+      </details>
     </div>
   </section>
 
-  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 13–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">同一個字典,要回答 <strong>10<sup>4</sup> 個不同的 s</strong>。兩種寫法各要怎麼調整?哪一種比較划算?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>Trie 建一次、重複用;每個 s 只付 O(n · L)。set 版每個 s 都要 O(n · m · L)。</strong><br/><br/>
+  把 <code>root</code> 和 insert 移到建構子(或另一個函式)裡,<code>minExtraChar</code> 只跑 DP。這才是 Trie 版真正拉開差距的情境:單一個 s 時,改良版 set 實測還比 Trie 快,因為 Trie 的成本大半花在建樹和 <code>new</code> 節點。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">每個字母放棄的代價不同:給 <code>cost[<span class="nm">26</span>]</code>,沒被蓋到的字元 c 要付 <code>cost[c]</code>。求最小總代價。要改哪一行?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>只改 ① 那一行:A 改成 <code>dp[start] = dp[start + <span class="nm">1</span>] + cost[s[start] − 'a']</code>,B 改成 <code>dp[i] = dp[i − <span class="nm">1</span>] + cost[s[i − <span class="nm">1</span>] − 'a']</code>。</strong><br/><br/>
+  其餘完全不動 —— 「被字蓋到」的代價還是 0,只是「放棄」的代價從 1 變成看字母。原題就是 <code>cost</code> 全 1 的特例。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">除了最少剩幾個,還要回傳<strong>其中一種實際切法</strong>(哪些段用了哪個字)。dp 要多存什麼?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>多開一個 <code>choice[start]</code>,記下 dp[start] 是由哪個選擇得到的:-1 表示「放棄這個字元」,否則記 end(用到 <code>s[start..end]</code> 這個字)。</strong><br/><br/>
+  算完後從 start = 0 開始照著 choice 走:-1 就前進 1 格,否則記下這一段、跳到 end + 1,直到 n。注意更新 min 時要用嚴格小於(或固定的平手規則),choice 才會和最後的 dp 值一致。</div>
+      </details>
+    </div>
+  </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
     </div>
 
-    <div class="qa"><strong>App 1.</strong> 同一個字典,要回答 <strong>10<sup>4</sup> 個不同的 s</strong>。兩種寫法各要怎麼調整?哪一種比較划算?</div>
-
-    <div class="qa"><strong>App 2.</strong> 每個字母放棄的代價不同:給 <code>cost[26]</code>,沒被蓋到的字元 c 要付 <code>cost[c]</code>。求最小總代價。要改哪一行?</div>
-
-    <div class="qa"><strong>App 3.</strong> 除了最少剩幾個,還要回傳<strong>其中一種實際切法</strong>(哪些段用了哪個字)。dp 要多存什麼?</div>
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;"><table class="sc-table">
+<thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+<tbody>
+<tr><td>和 <a href="../../../13-1d-dp/problems/p139/index.html">139</a> 比</td><td>139 是 bool「能不能全蓋」;這題多一條「這格放棄、+1」,dp 變成最少剩幾個</td></tr>
+<tr><td>轉移</td><td>先 <code>+<span class="nm">1</span></code>,再用每個能貼上的字典字取 min</td></tr>
+<tr><td>A · Trie</td><td>由右往左:<code>dp[start]</code> 存後綴;從 start 沿 Trie 走,<strong>沒有子節點才 break</strong>,isWord 就看 <code>dp[end+<span class="nm">1</span>]</code></td></tr>
+<tr><td>B · set</td><td>由左往右:<code>dp[i]</code> 存前綴;每個字 w 看 <code>s[i−L..i)</code>,對上就看 <code>dp[i−L]</code></td></tr>
+<tr><td>最常見的錯</td><td>找到字就 break:能過兩個官方範例,窮舉 59,094 組錯 7,206(A)/ 1,210(B)組</td></tr>
+<tr><td>速度</td><td>最壞情況 10,000 次:Trie 171.8 ms、set 996.4 ms、set 改 <code>const&amp;</code> + <code>compare</code> 115.3 ms</td></tr>
+</tbody>
+</table></div>
+        </div>
+      </details>
+    </div>
   </section>
 
-  <div class="answer-divider">// ANSWERS</div>
-
-  <div class="qa qa--answer"><strong>A1.</strong> <strong>位置 start 的字元只有兩種命運:沒被蓋到,或是某個字的開頭。先寫 +1,就是把「沒被蓋到」當成預設答案,再讓每個字去挑戰它。</strong><br><br>
-  這條路永遠存在,所以 dp 一定有值,不會像 <a href="../../../13-1d-dp/problems/p139/index.html">139</a> 那樣出現 false。實測拿掉 <code>+ 1</code>(A、B 都一樣),窮舉 59,094 組錯 48,910 組:dp 永遠是 0,最小反例 <code>"a"</code>、<code>["b"]</code> → 0(正解 1)。</div>
-
-  <div class="qa qa--answer"><strong>A2.</strong> <strong>這個節點下面可能還有更長的字,而哪個字最好要看後面剩多少。只有「沒有子節點」才能 break —— 那代表從 start 出發,再也不可能有任何字。</strong><br><br>
-  實測 isWord 後加 <code>break</code>:窮舉錯 7,206 組,而且兩個官方範例都過。最小反例 <code>"ab"</code>、<code>["a","ab"]</code> → 1(正解 0):從 0 先吃到 "a" 就停,"ab" 沒機會。<br><br>
-  反過來,把「沒有子節點就 break」改成 <code>continue</code> 也錯(25,724 組):配不上的字元被跳過,<code>"ab"</code> 會被當成 <code>"b"</code>。</div>
-
-  <div class="qa qa--answer"><strong>A3.</strong> <strong>方向取決於「從哪一端去找字」。Trie 是從字的開頭往下走,所以站在 start、往右找到結尾 end,需要的是右邊的 <code>dp[end+1]</code> —— 右邊得先算好。set 版站在 i、往左看結尾在 i 的字,需要的是左邊的 <code>dp[i−L]</code>。</strong><br><br>
-  要讓 Trie 版由左往右,就把每個字<strong>反過來</strong>建 Trie:站在 i,沿 <code>s[i−1], s[i−2], …</code> 往下走,走到 isWord(長度 L)就看 <code>dp[i−L]</code>。同一套「路斷就停」照樣成立。</div>
-
-  <div class="qa qa--answer"><strong>A4.</strong> <strong>程式只做了 <code>for (string w : dict)</code> —— 這是走訪,不是查找。雜湊表的價值在 O(1) 的 <code>count</code> / <code>find</code>,這裡一次都沒呼叫。</strong><br><br>
-  題目保證字不重複,直接掃 <code>dictionary</code> 結果一樣。真正拖慢的是每圈複製字和 substr:實測最壞情況共複製 85,850 個字元,10,000 次 996.4 ms;改成 <code>const string&amp;</code> + <code>compare</code> 是 115.3 ms。<br><br>
-  如果真的想用雜湊,寫法是反過來:對每個 i、每個可能的長度 L,查 <code>dict.count(s.substr(i − L, L))</code>。</div>
-
-  <div class="qa qa--answer"><strong>A5.</strong> <strong>兩個 dp 的意思不同:A 的 <code>dp[k]</code> 是後綴 <code>s[k..]</code>,B 的 <code>dp[k]</code> 是前綴 <code>s[0..k)</code>。只有 A 的 <code>dp[0]</code> 和 B 的 <code>dp[9]</code> 都代表「整個字串」。</strong><br><br>
-  例如 A 的 <code>dp[5] = 0</code>(後綴 code 全蓋到),B 的 <code>dp[5] = 1</code>(前綴 leets 剩 s)。中間值本來就不該相同,而且 A[k] + B[k] 也不一定等於答案 —— 最佳切法可能有一個字橫跨 k。</div>
-
-  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>Trie 建一次、重複用;每個 s 只付 O(n · L)。set 版每個 s 都要 O(n · m · L)。</strong><br><br>
-  把 <code>root</code> 和 insert 移到建構子(或另一個函式)裡,<code>minExtraChar</code> 只跑 DP。這才是 Trie 版真正拉開差距的情境:單一個 s 時,改良版 set 實測還比 Trie 快,因為 Trie 的成本大半花在建樹和 <code>new</code> 節點。</div>
-
-  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>只改 ① 那一行:A 改成 <code>dp[start] = dp[start + 1] + cost[s[start] − 'a']</code>,B 改成 <code>dp[i] = dp[i − 1] + cost[s[i − 1] − 'a']</code>。</strong><br><br>
-  其餘完全不動 —— 「被字蓋到」的代價還是 0,只是「放棄」的代價從 1 變成看字母。原題就是 <code>cost</code> 全 1 的特例。</div>
-
-  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>多開一個 <code>choice[start]</code>,記下 dp[start] 是由哪個選擇得到的:-1 表示「放棄這個字元」,否則記 end(用到 <code>s[start..end]</code> 這個字)。</strong><br><br>
-  算完後從 start = 0 開始照著 choice 走:-1 就前進 1 格,否則記下這一段、跳到 end + 1,直到 n。注意更新 min 時要用嚴格小於(或固定的平手規則),choice 才會和最後的 dp 值一致。</div>
 
   <!-- ── pager ── -->
   <nav class="sc-pager">
@@ -177,5 +224,13 @@ start=0  's'  dp=3   break                 dp[0]=3
     <div class="sc-summary-bar__detail">EXTRA CHARACTERS IN A STRING · REVIEW</div>
   </div>
 
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
 </body>
 </html>

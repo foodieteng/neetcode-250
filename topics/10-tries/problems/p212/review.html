@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">Word Search II</h1>
-    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★★☆</span>
       <span class="sc-mast__sep">|</span>
@@ -42,115 +42,162 @@
 
   <div class="sc-mast__rule"></div>
 
-  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>TRIES · UNIT 10 複習測驗</span>
+      <span>範圍:WORD SEARCH II(LC 212)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
     </div>
 
-    <table class="sc-table">
-      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
-      <tbody>
-        <tr><td>和 <a href="../../../09-backtracking/problems/p79/index.html">79</a> 比</td><td>回溯骨架一樣(標 #、四方向、還原);手上的 <code>word[i]</code> 換成 Trie 節點</td></tr>
-        <tr><td>和 <a href="../p208/index.html">208</a> 比</td><td>insert 一樣;結尾不設 <code>isWord</code>,改存整個字 <code>node-&gt;word = w</code></td></tr>
-        <tr><td>剪枝</td><td>起點 root 沒這個字母 → 不進;鄰格是 '#' 或 Trie 無子節點 → continue</td></tr>
-        <tr><td>收答案</td><td><code>word</code> 非空就收,<strong>收完清空</strong>;<strong>找到也不 return</strong></td></tr>
-        <tr><td>還原</td><td>起點和每一步都是「呼叫前標 #、回來還原」,回傳時 board 是原樣</td></tr>
-        <tr><td>成本</td><td>最壞 O(mn · 4 · 3<sup>L−1</sup>);全 a 實測 1,883,664 次 search</td></tr>
-        <tr><td>加速</td><td>剪掉找完的葉子:找得到時 1,883,664 → 10 次;找不到時沒效果</td></tr>
-      </tbody>
-    </table>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">TrieNode 為什麼存整個 <code>string word</code>,而不是 208 的 <code><span class="kw2">bool</span> isWord</code>?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>走到終點時要知道「是哪個字」才能放進 <code>ans</code>;存整個字就不用一路帶著 path 字串。</strong><br/><br/>
+  用 <code>isWord</code> 的話,search 得多一個參數 <code>path</code>,每往下一層就 <code>path + c</code> 複製一次字串。存在節點上,收答案只要 <code>ans.push_back(node-&gt;word)</code>;非空字串也同時扮演 isWord 的角色(題目保證字長 ≥ 1,空字串不會是答案)。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">收進 <code>ans</code> 之後為什麼要 <code>node-&gt;word.clear()</code>?拿掉會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>同一個字可能被不同起點、不同路徑走到不只一次;不清空就會重複收。</strong><br/><br/>
+  實測拿掉 clear,隨機 5,000 組錯 2,585 組 —— 幾乎一半。最小反例:board <code>["aa"]</code>、words <code>["a"]</code> → <code>["a","a"]</code>,兩個起點各收一次。<br/><br/>
+  清空之後,那個節點對之後的走訪來說就是普通的前綴節點,不影響更長的字。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">79 找到就 <code><span class="kw2">return</span> <span class="kw2">true</span></code>。這題收完答案,能不能也直接 <code><span class="kw2">return</span></code>?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>不能:這個節點下面可能還有更長的字。</strong><br/><br/>
+  實測把 <code><span class="kw2">return</span>;</code> 加在 clear 後面,隨機 20,000 組錯 651 組。最小反例:board 兩列 <code>b / a</code>、words <code>["a","ab"]</code> → 只回傳 <code>["a"]</code>(正解還有 <code>"ab"</code>):從 a 出發收到 "a" 就回去了,沒往上走到 b。<b>79 能 return 是因為只有一個字;這裡一個節點同時是一個字的終點、另一個字的前綴。</b></div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">search 裡會幫鄰格標 <code>'#'</code>,為什麼 findWords 在呼叫 search 之前,還要先幫起點標一次?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>search 只會標「鄰格」;起點是 findWords 直接交給它的,沒人標它,它就可能在同一個字裡被走回來第二次。</strong><br/><br/>
+  實測拿掉起點的標記,隨機 5,000 組錯 829 組。最小反例:board <code>["aa"]</code>、words <code>["aaa"]</code> → 回傳 <code>["aaa"]</code>(正解 []):從 (0,0) 走到 (0,1),再走回沒被標過的 (0,0)。<br/><br/>
+  規則和 79 一樣:「進到一格之前就把它標成 '#'」,起點也不例外。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">「剪掉找完的葉子」在全 a 的 board 上從 1,883,664 次降到 10 次,為什麼換成找不到的字就完全沒用,甚至變慢?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>剪葉子只能拔「字已經收走、而且下面沒東西」的節點;字從沒被找到,就沒有任何節點能拔。</strong><br/><br/>
+  全 a 那組,第一個起點就把 a … a<sup>10</sup> 全收走,整條鏈被拔光、<code>root-&gt;cnt</code> 歸零 → 10 次就結束。換成 a … a<sup>9</sup> + <code>aaaaaaaaab</code>:board 沒有 b,那條鏈永遠留著,兩版都是 741,120 次;剪葉子版還多付「每個方向先呼叫、進去才判斷出界 / null」的成本,12.8 → 21.2 ms。</div>
+      </details>
+    </div>
   </section>
 
-  <!-- ════════════ 2 · 觀念題 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
     </div>
 
-    <div class="qa"><strong>Q1.</strong> TrieNode 為什麼存整個 <code>string word</code>,而不是 208 的 <code>bool isWord</code>?</div>
-
-    <div class="qa"><strong>Q2.</strong> 收進 <code>ans</code> 之後為什麼要 <code>node-&gt;word.clear()</code>?拿掉會怎樣?</div>
-
-    <div class="qa"><strong>Q3.</strong> 79 找到就 <code>return true</code>。這題收完答案,能不能也直接 <code>return</code>?</div>
-
-    <div class="qa"><strong>Q4.</strong> search 裡會幫鄰格標 <code>'#'</code>,為什麼 findWords 在呼叫 search 之前,還要先幫起點標一次?</div>
-
-    <div class="qa"><strong>Q5.</strong> 「剪掉找完的葉子」在全 a 的 board 上從 1,883,664 次降到 10 次,為什麼換成找不到的字就完全沒用,甚至變慢?</div>
-  </section>
-
-  <!-- ════════════ 3 · 範例 Trace ════════════ -->
-  <section class="sc-section">
-    <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// 官方範例 2 · ab / cd · ["abcb"]</span></h2>
-    </div>
-
-    <p style="margin:0 0 12px;">程式碼頁走過了範例 1;這裡看範例 2 —— 為什麼「b 用兩次」會被擋下來。Trie 只有一條鏈 a → ab → abc → abcb。實跑插樁輸出。</p>
-
-    <div class="sc-trace"><span class="sc-trace__head">// 起點 (0,0) 'a':root 有 a</span>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">拿一張紙,照程式手走 官方範例 2 · ab / cd · ["abcb"]:逐步寫出關鍵變數的變化,最後回傳什麼?決定結果的是哪一步?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><p style="margin:0 0 12px;">程式碼頁走過了範例 1;這裡看範例 2 —— 為什麼「b 用兩次」會被擋下來。Trie 只有一條鏈 a → ab → abc → abcb。實跑插樁輸出。</p>
+<div class="sc-trace"><span class="sc-trace__head">// 起點 (0,0) 'a':root 有 a</span>
 board[0][0] = '#'
 #1 search(0,0, "a")    上 出界、下 (1,0)='c' —— a 只有子節點 b → 剪
                        左 出界、右 (0,1)='b' → 標 #,進去</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 第二層 (0,1):要找 'c'</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 第二層 (0,1):要找 'c'</span>
 #2 search(0,1, "ab")   上 出界、下 (1,1)='d' → ab 只有子節點 c → 剪
                        左 (0,0)='#' → 跳過、右 出界
                        → 還原 (0,1),再還原 (0,0)</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 其餘起點 (0,1) 'b'、(1,0) 'c'、(1,1) 'd'</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 其餘起點 (0,1) 'b'、(1,0) 'c'、(1,1) 'd'</span>
 root 只有子節點 a → 3 格都跳過
 <span class="sc-trace__out">// OUTPUT: [](2 次 search)</span></div>
-
-    <div class="sc-insight" style="margin-top:14px;">
-      <strong>ab 之後要找 c,但 (0,1) 的鄰格只有 (0,0) 和 (1,1):一個是 '#'、一個是 d —— Trie 在第 3 個字母就剪掉了。</strong>
-      <b>就算 c 接得上,"abcb" 最後的 b 只能是同一格 (0,1),它已經在路徑上、是 '#',一樣過不去。這就是 '#' 擋「一格用兩次」的工作。</b>
+<div class="sc-insight" style="margin-top:14px;">
+<strong>ab 之後要找 c,但 (0,1) 的鄰格只有 (0,0) 和 (1,1):一個是 '#'、一個是 d —— Trie 在第 3 個字母就剪掉了。</strong>
+<b>就算 c 接得上,"abcb" 最後的 b 只能是同一格 (0,1),它已經在路徑上、是 '#',一樣過不去。這就是 '#' 擋「一格用兩次」的工作。</b>
+</div></div>
+      </details>
     </div>
   </section>
 
-  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 13–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">改成可以走<strong>斜角</strong>(8 個方向)。程式要改哪裡?複雜度變多少?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>只改 <code>dirs</code>,加上 4 個斜角 <code>{-<span class="nm">1</span>,-<span class="nm">1</span>},{-<span class="nm">1,1</span>},{<span class="nm">1</span>,-<span class="nm">1</span>},{<span class="nm">1,1</span>}</code>;其他邏輯不動。</strong><br/><br/>
+  第一步最多 8 個方向,之後最多 7 個(來的那格是 '#'),複雜度變成 O(mn · 8 · 7<sup>L−1</sup>)。Trie 剪枝照樣有效,實際上只有字典裡存在的前綴才會展開。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">words 只有 <strong>1 個</strong>字、board 是 12×12。還值得建 Trie 嗎?words 有 3 萬個、但全部都找不到呢?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>1 個字:直接跑 79 就好,Trie 只有一條鏈,沒有前綴可以共享。3 萬個字但都找不到:Trie 反而最划算 —— 每個字一走到 board 上接不下去的字母就被剪掉,共用的前綴也只走一次。</strong><br/><br/>
+  每字一次 79 的成本和字數成正比(程式碼頁實測 25 個找不到的字就要 4,709 萬次);Trie 不管字多少,搜尋次數只看 board 上「真的存在的前綴」。字很多、彼此共用前綴、又常常找不到,正是 Trie 的主場。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">題目改成「回傳每個字能用<strong>幾條不同路徑</strong>拼出來」。第 2 題、第 3 題 的兩條規則(收完清空、找到不停)哪一條要改?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>「收完清空」要拿掉 —— 每條路徑都要算;「找到不停」保留。</strong><br/><br/>
+  把 <code>ans</code> 換成 <code>unordered_map&lt;string,<span class="kw2">int</span>&gt; cnt</code>,走到存了字的節點就 <code>cnt[node-&gt;word]++</code>,不清空。剪葉子也不能用了(字收到還要再算)。注意:不同起點、不同方向走出的相同字母序列都算不同路徑,所以全 a 這種 board 次數會非常大。</div>
+      </details>
+    </div>
+  </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
     </div>
 
-    <div class="qa"><strong>App 1.</strong> 改成可以走<strong>斜角</strong>(8 個方向)。程式要改哪裡?複雜度變多少?</div>
-
-    <div class="qa"><strong>App 2.</strong> words 只有 <strong>1 個</strong>字、board 是 12×12。還值得建 Trie 嗎?words 有 3 萬個、但全部都找不到呢?</div>
-
-    <div class="qa"><strong>App 3.</strong> 題目改成「回傳每個字能用<strong>幾條不同路徑</strong>拼出來」。Q2、Q3 的兩條規則(收完清空、找到不停)哪一條要改?</div>
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;"><table class="sc-table">
+<thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+<tbody>
+<tr><td>和 <a href="../../../09-backtracking/problems/p79/index.html">79</a> 比</td><td>回溯骨架一樣(標 #、四方向、還原);手上的 <code>word[i]</code> 換成 Trie 節點</td></tr>
+<tr><td>和 <a href="../p208/index.html">208</a> 比</td><td>insert 一樣;結尾不設 <code>isWord</code>,改存整個字 <code>node-&gt;word = w</code></td></tr>
+<tr><td>剪枝</td><td>起點 root 沒這個字母 → 不進;鄰格是 '#' 或 Trie 無子節點 → continue</td></tr>
+<tr><td>收答案</td><td><code>word</code> 非空就收,<strong>收完清空</strong>;<strong>找到也不 return</strong></td></tr>
+<tr><td>還原</td><td>起點和每一步都是「呼叫前標 #、回來還原」,回傳時 board 是原樣</td></tr>
+<tr><td>成本</td><td>最壞 O(mn · 4 · 3<sup>L−1</sup>);全 a 實測 1,883,664 次 search</td></tr>
+<tr><td>加速</td><td>剪掉找完的葉子:找得到時 1,883,664 → 10 次;找不到時沒效果</td></tr>
+</tbody>
+</table></div>
+        </div>
+      </details>
+    </div>
   </section>
 
-  <div class="answer-divider">// ANSWERS</div>
-
-  <div class="qa qa--answer"><strong>A1.</strong> <strong>走到終點時要知道「是哪個字」才能放進 <code>ans</code>;存整個字就不用一路帶著 path 字串。</strong><br><br>
-  用 <code>isWord</code> 的話,search 得多一個參數 <code>path</code>,每往下一層就 <code>path + c</code> 複製一次字串。存在節點上,收答案只要 <code>ans.push_back(node-&gt;word)</code>;非空字串也同時扮演 isWord 的角色(題目保證字長 ≥ 1,空字串不會是答案)。</div>
-
-  <div class="qa qa--answer"><strong>A2.</strong> <strong>同一個字可能被不同起點、不同路徑走到不只一次;不清空就會重複收。</strong><br><br>
-  實測拿掉 clear,隨機 5,000 組錯 2,585 組 —— 幾乎一半。最小反例:board <code>["aa"]</code>、words <code>["a"]</code> → <code>["a","a"]</code>,兩個起點各收一次。<br><br>
-  清空之後,那個節點對之後的走訪來說就是普通的前綴節點,不影響更長的字。</div>
-
-  <div class="qa qa--answer"><strong>A3.</strong> <strong>不能:這個節點下面可能還有更長的字。</strong><br><br>
-  實測把 <code>return;</code> 加在 clear 後面,隨機 20,000 組錯 651 組。最小反例:board 兩列 <code>b / a</code>、words <code>["a","ab"]</code> → 只回傳 <code>["a"]</code>(正解還有 <code>"ab"</code>):從 a 出發收到 "a" 就回去了,沒往上走到 b。<b>79 能 return 是因為只有一個字;這裡一個節點同時是一個字的終點、另一個字的前綴。</b></div>
-
-  <div class="qa qa--answer"><strong>A4.</strong> <strong>search 只會標「鄰格」;起點是 findWords 直接交給它的,沒人標它,它就可能在同一個字裡被走回來第二次。</strong><br><br>
-  實測拿掉起點的標記,隨機 5,000 組錯 829 組。最小反例:board <code>["aa"]</code>、words <code>["aaa"]</code> → 回傳 <code>["aaa"]</code>(正解 []):從 (0,0) 走到 (0,1),再走回沒被標過的 (0,0)。<br><br>
-  規則和 79 一樣:「進到一格之前就把它標成 '#'」,起點也不例外。</div>
-
-  <div class="qa qa--answer"><strong>A5.</strong> <strong>剪葉子只能拔「字已經收走、而且下面沒東西」的節點;字從沒被找到,就沒有任何節點能拔。</strong><br><br>
-  全 a 那組,第一個起點就把 a … a<sup>10</sup> 全收走,整條鏈被拔光、<code>root-&gt;cnt</code> 歸零 → 10 次就結束。換成 a … a<sup>9</sup> + <code>aaaaaaaaab</code>:board 沒有 b,那條鏈永遠留著,兩版都是 741,120 次;剪葉子版還多付「每個方向先呼叫、進去才判斷出界 / null」的成本,12.8 → 21.2 ms。</div>
-
-  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>只改 <code>dirs</code>,加上 4 個斜角 <code>{-1,-1},{-1,1},{1,-1},{1,1}</code>;其他邏輯不動。</strong><br><br>
-  第一步最多 8 個方向,之後最多 7 個(來的那格是 '#'),複雜度變成 O(mn · 8 · 7<sup>L−1</sup>)。Trie 剪枝照樣有效,實際上只有字典裡存在的前綴才會展開。</div>
-
-  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>1 個字:直接跑 79 就好,Trie 只有一條鏈,沒有前綴可以共享。3 萬個字但都找不到:Trie 反而最划算 —— 每個字一走到 board 上接不下去的字母就被剪掉,共用的前綴也只走一次。</strong><br><br>
-  每字一次 79 的成本和字數成正比(程式碼頁實測 25 個找不到的字就要 4,709 萬次);Trie 不管字多少,搜尋次數只看 board 上「真的存在的前綴」。字很多、彼此共用前綴、又常常找不到,正是 Trie 的主場。</div>
-
-  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>「收完清空」要拿掉 —— 每條路徑都要算;「找到不停」保留。</strong><br><br>
-  把 <code>ans</code> 換成 <code>unordered_map&lt;string,int&gt; cnt</code>,走到存了字的節點就 <code>cnt[node-&gt;word]++</code>,不清空。剪葉子也不能用了(字收到還要再算)。注意:不同起點、不同方向走出的相同字母序列都算不同路徑,所以全 a 這種 board 次數會非常大。</div>
 
   <!-- ── pager ── -->
   <nav class="sc-pager">
@@ -168,5 +215,13 @@ root 只有子節點 a → 3 格都跳過
     <div class="sc-summary-bar__detail">WORD SEARCH II · REVIEW</div>
   </div>
 
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
 </body>
 </html>

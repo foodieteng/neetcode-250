@@ -80,7 +80,7 @@
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>整份程式碼的正確性,全靠 ① 在 ② 前面。</strong>
-      <b>把 ② 那個判斷搬到遞迴之前(前序),程式照樣能編譯、官方範例 2 也照樣會過</b>(實跑:範例 1 回 <code>[1,2,3,null,null,null,4]</code>、範例 3 回 <code>[1,2,null,2]</code>,只有這兩個抓得到)——
+      <b>把 ② 那個判斷搬到遞迴之前(前序),程式照樣能編譯、官方範例 2 也照樣會過</b>(實跑:範例 1 回 <code>[<span class="nm">1,2,3</span>,null,null,null,<span class="nm">4</span>]</code>、範例 3 回 <code>[<span class="nm">1,2</span>,null,<span class="nm">2</span>]</code>,只有這兩個抓得到)——
       <strong>但窮舉會錯 37770 組</strong>,見下方陷阱表。
     </div>
   </section>
@@ -118,7 +118,7 @@
     <table class="sc-table">
       <thead><tr><th>步驟</th><th>每次成本</th><th>次數</th><th>合計</th></tr></thead>
       <tbody>
-        <tr><td><code>if (!root) return nullptr;</code></td><td class="mono">O(1)</td><td class="mono">n+1(空指標)</td><td class="mono">O(n)</td></tr>
+        <tr><td><code><span class="kw2">if</span> (!root) <span class="kw2">return</span> nullptr;</code></td><td class="mono">O(1)</td><td class="mono">n+1(空指標)</td><td class="mono">O(n)</td></tr>
         <tr><td>兩個遞迴 + 接回</td><td class="mono">O(1)</td><td class="mono">n(真節點)</td><td class="mono">O(n)</td></tr>
         <tr><td>三條件判斷</td><td class="mono">O(1)</td><td class="mono">n</td><td class="mono">O(n)</td></tr>
         <tr><td>遞迴堆疊</td><td class="mono">—</td><td class="mono">最深 h+1 層</td><td class="mono">O(h)</td></tr>
@@ -150,18 +150,18 @@
     <table class="sc-table">
       <thead><tr><th>陷阱</th><th>實測(窮舉 129956 組)</th><th>修正</th></tr></thead>
       <tbody>
-        <tr><td><strong>前序判斷</strong>(先判自己再遞迴)</td><td class="mono fail">錯 37770 · <code>[1,null,1]</code>,t=1 → <code>[1]</code></td><td>判斷放在兩個遞迴<strong>之後</strong></td></tr>
-        <tr><td><strong>遞迴了但沒接回</strong></td><td class="mono fail">錯 96420 · <code>[1,null,1]</code>,t=1 → <code>[1,null,1]</code></td><td>寫成 <code>root-&gt;left = f(...)</code>,回傳的 <code>nullptr</code> 才能切斷邊</td></tr>
+        <tr><td><strong>前序判斷</strong>(先判自己再遞迴)</td><td class="mono fail">錯 37770 · <code>[<span class="nm">1</span>,null,<span class="nm">1</span>]</code>,t=1 → <code>[<span class="nm">1</span>]</code></td><td>判斷放在兩個遞迴<strong>之後</strong></td></tr>
+        <tr><td><strong>遞迴了但沒接回</strong></td><td class="mono fail">錯 96420 · <code>[<span class="nm">1</span>,null,<span class="nm">1</span>]</code>,t=1 → <code>[<span class="nm">1</span>,null,<span class="nm">1</span>]</code></td><td>寫成 <code>root-&gt;left = f(...)</code>,回傳的 <code>nullptr</code> 才能切斷邊</td></tr>
         <tr><td>只接回一邊</td><td class="mono fail">錯 67296 · 同上反例</td><td>左右都要接</td></tr>
-        <tr><td><code>||</code> 取代 <code>&amp;&amp;</code></td><td class="mono fail">錯 107544 · <code>[1,null,2]</code>,t=1 → <code>[]</code></td><td>「只缺一邊」不是葉子,<strong>會連帶丟掉保留下來的子樹</strong></td></tr>
-        <tr><td>忘了比 <code>val</code></td><td class="mono fail">錯 128706 · <code>[1]</code>,t=2 → <code>[]</code></td><td>三個條件缺一不可</td></tr>
-        <tr><td>呼叫端忽略回傳值</td><td class="mono fail">錯 1250 · <code>[1]</code>,t=1 → <code>[1]</code></td><td>整棵被刪光時<strong>根也會變</strong>,一定要用回傳值</td></tr>
+        <tr><td><code>||</code> 取代 <code>&amp;&amp;</code></td><td class="mono fail">錯 107544 · <code>[<span class="nm">1</span>,null,<span class="nm">2</span>]</code>,t=1 → <code>[]</code></td><td>「只缺一邊」不是葉子,<strong>會連帶丟掉保留下來的子樹</strong></td></tr>
+        <tr><td>忘了比 <code>val</code></td><td class="mono fail">錯 128706 · <code>[<span class="nm">1</span>]</code>,t=2 → <code>[]</code></td><td>三個條件缺一不可</td></tr>
+        <tr><td>呼叫端忽略回傳值</td><td class="mono fail">錯 1250 · <code>[<span class="nm">1</span>]</code>,t=1 → <code>[<span class="nm">1</span>]</code></td><td>整棵被刪光時<strong>根也會變</strong>,一定要用回傳值</td></tr>
         <tr><td>被刪的節點沒 <code>delete</code></td><td class="mono">全 target 斜鏈:3000 個節點脫離但未釋放</td><td>LeetCode 接受;自己寫的專案要在回 <code>nullptr</code> 前 <code>delete root</code></td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>「前序判斷」和「沒接回」的最小反例是同一棵兩個節點的樹 <code>[1,null,1]</code></strong> ——
+      <strong>「前序判斷」和「沒接回」的最小反例是同一棵兩個節點的樹 <code>[<span class="nm">1</span>,null,<span class="nm">1</span>]</code></strong> ——
       <b>面試時手寫完,拿這棵樹走一遍,兩個最常見的錯一次就能驗出來。</b>
     </div>
   </section>
@@ -173,7 +173,7 @@
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
     </div>
 
-    <p style="margin:0 0 12px;">範例 1:<code>[1,2,3,2,null,2,4]</code>,<code>target = 2</code>。節點命名:A=1(根)、B=2(A 左)、C=3(A 右)、D=2(B 左)、E=2(C 左)、F=4(C 右)。以下是實跑印出的後序回傳順序。</p>
+    <p style="margin:0 0 12px;">範例 1:<code>[<span class="nm">1,2,3,2</span>,null,<span class="nm">2,4</span>]</code>,<code>target = <span class="nm">2</span></code>。節點命名:A=1(根)、B=2(A 左)、C=3(A 右)、D=2(B 左)、E=2(C 左)、F=4(C 右)。以下是實跑印出的後序回傳順序。</p>
 
     <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 左子樹(B 那一支)</span>
 D(2)  左空 ✓ 右空 ✓ val==2 ✓  → return nullptr    ← B->left = nullptr

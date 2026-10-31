@@ -116,7 +116,7 @@
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>這是修正後的最終版</strong>:第一版有三個問題 —— <code>decltype(cmp)&gt;&gt;</code> 多一個 <code>&gt;</code>(編譯不過)、少了 <code>reverse</code>、<code>follow</code> 沒擋自己。
-      <b><code>-Wall -Wextra</code> 零警告</b>(<code>pq.size() &gt; 10</code> 和常數比,不會有號/無號警告);
+      <b><code>-Wall -Wextra</code> 零警告</b>(<code>pq.size() &gt; <span class="nm">10</span></code> 和常數比,不會有號/無號警告);
       加 <code>-Wshadow</code> 會提醒結構化綁定的 <code>ts</code> 蓋住了成員 <code>ts</code> —— 迴圈裡只讀不寫,不影響結果,改名成 <code>time</code> 更清楚。
     </div>
   </section>
@@ -165,9 +165,9 @@ unfollow(1,2)  feed(1) → [5]
     <table class="sc-table">
       <thead><tr><th>項目</th><th>值</th></tr></thead>
       <tbody>
-        <tr><td>最壞構造</td><td>user 1 追蹤 499 人、10,001 則推文輪流分給 500 人、接著 19,500 次 <code>feed(1)</code></td></tr>
+        <tr><td>最壞構造</td><td>user 1 追蹤 499 人、10,001 則推文輪流分給 500 人、接著 19,500 次 <code>feed(<span class="nm">1</span>)</code></td></tr>
         <tr><td>你的版本</td><td>每次 feed 推 10,001 則 → 共 195,019,500 次 push,約 2.4 ~ 2.6 s</td></tr>
-        <tr><td>每人只看最後 10 則</td><td>約 59 ~ 69 ms,輸出完全相同(寫法見<a href="review.html">複習頁</a> App 1)</td></tr>
+        <tr><td>每人只看最後 10 則</td><td>約 59 ~ 69 ms,輸出完全相同(寫法見<a href="review.html">複習頁</a> 第 7 題)</td></tr>
         <tr><td>副作用</td><td><code>tweets[x]</code>、<code>followG[x]</code> 用 <code>[]</code> 讀取時,不存在的 key 會被建立成空的 —— 不影響結果,只多占一點記憶體</td></tr>
       </tbody>
     </table>
@@ -184,17 +184,17 @@ unfollow(1,2)  feed(1) → [5]
       <thead><tr><th>陷阱</th><th>實測</th><th>修正</th></tr></thead>
       <tbody>
         <tr><td><strong><code>decltype(cmp)&gt;&gt;</code></strong></td><td class="mono fail">編譯錯誤:<code>expected unqualified-id before '&gt;' token</code></td><td>只要一個 <code>&gt;</code></td></tr>
-        <tr><td><strong>少了 <code>reverse</code></strong></td><td class="mono fail">窮舉錯 3,506 · post 1、post 2、feed → <code>[1,2]</code></td><td>最小堆倒出來是舊→新,要翻過來</td></tr>
-        <tr><td><strong>自己追蹤自己</strong></td><td class="mono fail">窮舉錯 5,024 · follow(1,1) → <code>[1,1]</code></td><td><code>follow</code> 擋掉 <code>followerId == followeeId</code></td></tr>
-        <tr><td>改用最大堆</td><td class="mono fail">留下最<em>舊</em>的 10 則:12 則時回 <code>[1..10]</code></td><td>留最新的要用最小堆</td></tr>
-        <tr><td><code>&gt;= 10</code> 才 pop</td><td class="mono fail">只留 9 則;隨機 session 錯 14,947 / 20,000</td><td>超過 10(<code>&gt; 10</code>)才 pop</td></tr>
+        <tr><td><strong>少了 <code>reverse</code></strong></td><td class="mono fail">窮舉錯 3,506 · post 1、post 2、feed → <code>[<span class="nm">1,2</span>]</code></td><td>最小堆倒出來是舊→新,要翻過來</td></tr>
+        <tr><td><strong>自己追蹤自己</strong></td><td class="mono fail">窮舉錯 5,024 · follow(1,1) → <code>[<span class="nm">1,1</span>]</code></td><td><code>follow</code> 擋掉 <code>followerId == followeeId</code></td></tr>
+        <tr><td>改用最大堆</td><td class="mono fail">留下最<em>舊</em>的 10 則:12 則時回 <code>[<span class="nm">1</span>..10]</code></td><td>留最新的要用最小堆</td></tr>
+        <tr><td><code>&gt;= <span class="nm">10</span></code> 才 pop</td><td class="mono fail">只留 9 則;隨機 session 錯 14,947 / 20,000</td><td>超過 10(<code>&gt; <span class="nm">10</span></code>)才 pop</td></tr>
         <tr><td>用 <code>tweetId</code> 當時間</td><td class="mono fail">隨機 session 錯 18,169 / 20,000</td><td>用全域 <code>++ts</code></td></tr>
         <tr><td><code>unfollow</code> 不擋自己</td><td class="mono ok">錯 0</td><td>自己從來沒被加進去,擋不擋都一樣</td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong><code>&gt;= 10</code> 和「用 tweetId 當時間」在長度 ≤ 5 的窮舉裡完全抓不到</strong>:
+      <strong><code>&gt;= <span class="nm">10</span></code> 和「用 tweetId 當時間」在長度 ≤ 5 的窮舉裡完全抓不到</strong>:
       前者要至少 10 則推文才會少一則,後者要 tweetId 不照時間遞增。<b>設計題的測試要故意做「很多則」和「亂序編號」的測資。</b>
     </div>
   </section>
@@ -206,7 +206,7 @@ unfollow(1,2)  feed(1) → [5]
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH</span></h2>
     </div>
 
-    <p style="margin:0 0 12px;">user 1 連發 12 則(tweetId 101~112,時間 1~12),然後 <code>feed(1)</code>。<code>(時間, tweetId)</code>,堆的內容依時間列出。</p>
+    <p style="margin:0 0 12px;">user 1 連發 12 則(tweetId 101~112,時間 1~12),然後 <code>feed(<span class="nm">1</span>)</code>。<code>(時間, tweetId)</code>,堆的內容依時間列出。</p>
 
     <div class="sc-trace"><span class="sc-trace__head">// PHASE 1: 前 10 則直接進堆</span>
 push (1,101) … (10,110)  → 堆 {(1,101) … (10,110)}   size 10,top = (1,101) 最舊</div>

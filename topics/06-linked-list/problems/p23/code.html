@@ -103,7 +103,7 @@
       <strong><code>l1-&gt;val &gt; l2-&gt;val</code> 這個「大於」很容易寫反。</strong>
       <b><code>std::priority_queue</code> 的比較子語意是「<em>優先度較低</em>的排在前面」</b> ——
       所以要做<strong>最小</strong>堆,比較子必須寫<strong>大於</strong>。
-      <strong>實測寫成小於,20 萬組錯 129342 組</strong>(最小反例:<code>[3]、[]、[1]</code> 回傳 <code>[3,1]</code>)。
+      <strong>實測寫成小於,20 萬組錯 129342 組</strong>(最小反例:<code>[<span class="nm">3</span>]、[]、[<span class="nm">1</span>]</code> 回傳 <code>[<span class="nm">3,1</span>]</code>)。
     </div>
   </section>
 
@@ -120,15 +120,15 @@
         <tr>
           <td>忘了 <code>tail = tail-&gt;next</code></td>
           <td class="mono fail"><strong>168945</strong></td>
-          <td class="mono"><code>[3] [] [1]</code> → <code>[3]</code>(正解 <code>[1,3]</code>)——每次都覆蓋同一根指標</td>
+          <td class="mono"><code>[<span class="nm">3</span>] [] [<span class="nm">1</span>]</code> → <code>[<span class="nm">3</span>]</code>(正解 <code>[<span class="nm">1,3</span>]</code>)——每次都覆蓋同一根指標</td>
         </tr>
         <tr>
           <td>比較子寫成 <code>l1-&gt;val &lt; l2-&gt;val</code></td>
           <td class="mono fail"><strong>129342</strong></td>
-          <td class="mono"><code>[3] [] [1]</code> → <code>[3,1]</code> —— 變成最大堆,輸出遞減</td>
+          <td class="mono"><code>[<span class="nm">3</span>] [] [<span class="nm">1</span>]</code> → <code>[<span class="nm">3,1</span>]</code> —— 變成最大堆,輸出遞減</td>
         </tr>
         <tr>
-          <td>播種時拿掉 <code>if (p)</code></td>
+          <td>播種時拿掉 <code><span class="kw2">if</span> (p)</code></td>
           <td class="mono fail"><strong>直接崩</strong></td>
           <td class="mono">UBSan「member access within null pointer」→ ASan <strong>SEGV at 0x0</strong></td>
         </tr>
@@ -154,7 +154,7 @@ AddressSanitizer: SEGV on unknown address <span class="sc-trace__out">0x00000000
 <span class="sc-trace__out">// 崩在比較子的 l1-&gt;val —— push 進去的那一刻就已經開始比較了</span></div>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>注意「拿掉 <code>if (p)</code>」的崩潰點:不是在 <code>while</code> 迴圈裡,是在 <code>push</code> 的當下。</strong>
+      <strong>注意「拿掉 <code><span class="kw2">if</span> (p)</code>」的崩潰點:不是在 <code><span class="kw2">while</span></code> 迴圈裡,是在 <code>push</code> 的當下。</strong>
       <b><code>push</code> 會立刻做 sift-up 比較,而比較子第一件事就是 <code>l1-&gt;val</code>。</b>
       <strong>所以這個 bug 連迴圈都跑不到 —— 一旦有空串列就立刻死。</strong>
     </div>
@@ -186,7 +186,7 @@ AddressSanitizer: SEGV on unknown address <span class="sc-trace__out">0x00000000
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>對照 <a href="../p21/index.html">21</a> 就更清楚了。</strong>
-      21 的迴圈是 <code>while (a &amp;&amp; b)</code> —— <b>它會在<em>還有東西沒接完</em>時結束</b>,
+      21 的迴圈是 <code><span class="kw2">while</span> (a &amp;&amp; b)</code> —— <b>它會在<em>還有東西沒接完</em>時結束</b>,
       所以<strong>必須</strong>補上 <code>t-&gt;next = a ? a : b;</code>。
       <b>而 23 的迴圈是「東西全部接完才結束」,所以尾巴自然就到位了。</b>
       <strong>同樣是合併,「迴圈為什麼停」不同,結尾要不要收也就不同。</strong>
@@ -285,7 +285,7 @@ priority_queue  錯 0
 分治兩兩合併    錯 0
 <span class="sc-trace__out">// 三個都對 —— 差別只在成本</span></div>
 
-    <p style="margin-top:14px;"><strong>比較次數</strong>(固定 <code>N = 12000</code> 個節點,只改變 <code>k</code>):</p>
+    <p style="margin-top:14px;"><strong>比較次數</strong>(固定 <code>N = <span class="nm">12000</span></code> 個節點,只改變 <code>k</code>):</p>
 
     <table class="sc-table">
       <thead><tr><th>k</th><th>每條長度</th><th>priority_queue</th><th>依序合併</th><th>分治合併</th><th>依序 / 分治</th></tr></thead>
@@ -298,7 +298,7 @@ priority_queue  錯 0
       </tbody>
     </table>
 
-    <p style="margin-top:14px;"><strong>實際耗時</strong>(<code>N = 200000</code> 個節點):</p>
+    <p style="margin-top:14px;"><strong>實際耗時</strong>(<code>N = <span class="nm">200000</span></code> 個節點):</p>
 
     <table class="sc-table">
       <thead><tr><th>k</th><th>每條長度</th><th>priority_queue</th><th>依序合併</th><th>分治合併</th></tr></thead>
@@ -311,10 +311,10 @@ priority_queue  錯 0
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>兩個值得注意的地方。</strong>
-      <b>第一,<code>k = 10</code> 時「依序合併」反而<em>最快</em></b>(2.0 ms vs 堆的 4.4 ms)——
+      <b>第一,<code>k = <span class="nm">10</span></code> 時「依序合併」反而<em>最快</em></b>(2.0 ms vs 堆的 4.4 ms)——
       <strong><code>O(N·k)</code> 在 <code>k</code> 很小時的常數比堆操作小得多</strong>,
       <b>漸進複雜度講的是趨勢,不是小規模下的勝負。</b><br><br>
-      <b>第二,分治法的比較次數在<em>每一個</em> <code>k</code> 都比堆少</b>(例如 <code>k=1024</code>:109946 vs 128784)——
+      <b>第二,分治法的比較次數在<em>每一個</em> <code>k</code> 都比堆少</b>(例如 <code>k=<span class="nm">1024</span></code>:109946 vs 128784)——
       因為<strong>分治每個節點每層只比一次,而堆每次 <code>pop</code> 要做 sift-down,比較次數約是兩倍</strong>。
       <strong>但實際耗時幾乎相同,因為堆的存取模式對快取更友善。</strong>
     </div>

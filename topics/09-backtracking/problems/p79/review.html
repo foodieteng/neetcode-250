@@ -21,7 +21,7 @@
   <header class="sc-mast">
     <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
     <h1 class="sc-mast__title">Word Search</h1>
-    <p class="sc-mast__subtitle">// REVIEW · 觀念題與走讀</p>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
     <div class="sc-mast__meta">
       <span class="sc-mast__stars">★★★★☆</span>
       <span class="sc-mast__sep">|</span>
@@ -42,112 +42,160 @@
 
   <div class="sc-mast__rule"></div>
 
-  <!-- ════════════ 1 · 重點回顧 ════════════ -->
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>BACKTRACKING · UNIT 09 複習測驗</span>
+      <span>範圍:WORD SEARCH(LC 79)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">1</span>
-      <h2 class="sc-section__title">重點回顧<span class="sc-section__title-en">// RECAP</span></h2>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
     </div>
 
-    <table class="sc-table">
-      <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
-      <tbody>
-        <tr><td>骨架</td><td>每格當起點;dfs 先比字元,最後一個就 true</td></tr>
-        <tr><td>visited</td><td>board 原地改 <code>'#'</code>;一次只走一條路,所以一份就夠</td></tr>
-        <tr><td>還原</td><td>四個方向都失敗才改回原字母;成功直接往上 return true</td></tr>
-        <tr><td>不標 / 太早還原</td><td>同一格用兩次 → 多出 true(<code>["AA"]</code>,<code>"AAA"</code>)</td></tr>
-        <tr><td>不還原</td><td>擋住後面的起點 → 少了 true(<code>["BAA"]</code>,<code>"AAB"</code>)</td></tr>
-        <tr><td>和 <a href="../p46/index.html">46</a> 比</td><td>46 的撤銷是 <code>pop + used=false</code>;這題是 <code>board[r][c] = cache</code></td></tr>
-        <tr><td>複雜度</td><td>O(m · n · 3<sup>L</sup>) 時間,O(L) 遞迴</td></tr>
-      </tbody>
-    </table>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">dfs 開頭為什麼要「先比字元,再看 <code>i == word.size() - <span class="nm">1</span></code>」?順序對調會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>i == last 只代表「走到第 L 格」,不代表第 L 個字母對;要先比完才能收。</strong><br/><br/>
+  對調後最後一個字母永遠不會被比:<code>["A"]</code>,<code>"B"</code> 直接回傳 true。實測窮舉 42,284 組錯 5,622 組,全部是多出來的 true。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">四個方向都失敗時,為什麼一定要把格子改回原字母?找一個不還原就錯的最小例子。</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>失敗的路留下的 # 會擋住之後的起點(或之後的方向)要走的路。</strong><br/><br/>
+  最小例子 <code>["BAA"]</code>,<code>"AAB"</code>:起點 (0,1) 標了 (0,1)、(0,2) 後失敗沒改回;輪到起點 (0,2) 時它已經是 #,唯一的正解 (0,2) → (0,1) → (0,0) 走不了 → false(正解 true)。窮舉錯 4,878 組,全部是少掉的 true。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">成功時直接 <code><span class="kw2">return</span> <span class="kw2">true</span></code>,路上的格子都沒還原。這樣對嗎?有什麼副作用?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>答案對:回傳 true 之後沒有人再讀 board。副作用是 board 被改掉了。</strong><br/><br/>
+  "SEE" 跑完是 <code>A B C E / S F C # / A D E #</code>。隨機 200,000 組裡,word 長度 ≥ 2 而回傳 true 的,board 全部留著 #;回傳 false 的 149,236 組全部還原乾淨。
+  如果呼叫的人之後還要用 board,就傳一份複本,或在 <code><span class="kw2">return</span> <span class="kw2">true</span></code> 前也還原(實測同樣 0 錯)。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼 visited 可以直接寫在 board 上,不用像 BFS 那樣每條路徑一份?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>DFS 一次只有一條路徑在進行,而且 # 一定在離開時清掉 —— 任何時刻 board 上的 # 剛好就是目前這條路徑。</strong><br/><br/>
+  這和 <a href="../p46/index.html">46</a> 的 <code>used[]</code> 是同一件事:一份共用的狀態,做選擇時改、撤銷時改回。BFS 同時有很多條路徑,共用一份就分不清是誰標的。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">鄰居判斷裡的 <code>board[nr][nc] == '#'</code> 拿掉會錯嗎?那把 <code>'#'</code> 換成 <code>'A'</code> 呢?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>拿掉不會錯:# 不是字母,進到下一層會被「先比字元」擋掉。換成 'A' 會錯:標過的格子又能被配到。</strong><br/><br/>
+  拿掉檢查:窮舉、隨機都 0 錯。標記用 <code>'A'</code>:窮舉錯 6,478 組,最小反例 <code>["AA"]</code>,<code>"AAA"</code> → true。標記一定要用 word 裡不可能出現的字元。</div>
+      </details>
+    </div>
   </section>
 
-  <!-- ════════════ 2 · 觀念題 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">觀念題<span class="sc-section__title-en">// CONCEPT Q&amp;A</span></h2>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
     </div>
 
-    <div class="qa"><strong>Q1.</strong> dfs 開頭為什麼要「先比字元,再看 <code>i == word.size() - 1</code>」?順序對調會怎樣?</div>
-
-    <div class="qa"><strong>Q2.</strong> 四個方向都失敗時,為什麼一定要把格子改回原字母?找一個不還原就錯的最小例子。</div>
-
-    <div class="qa"><strong>Q3.</strong> 成功時直接 <code>return true</code>,路上的格子都沒還原。這樣對嗎?有什麼副作用?</div>
-
-    <div class="qa"><strong>Q4.</strong> 為什麼 visited 可以直接寫在 board 上,不用像 BFS 那樣每條路徑一份?</div>
-
-    <div class="qa"><strong>Q5.</strong> 鄰居判斷裡的 <code>board[nr][nc] == '#'</code> 拿掉會錯嗎?那把 <code>'#'</code> 換成 <code>'A'</code> 呢?</div>
-  </section>
-
-  <!-- ════════════ 3 · 範例 Trace ════════════ -->
-  <section class="sc-section">
-    <div class="sc-section__head">
-      <span class="sc-section__num">3</span>
-      <h2 class="sc-section__title">範例 Trace<span class="sc-section__title-en">// "ABCCED" · 8 次 dfs,一次都沒回頭</span></h2>
-    </div>
-
-    <p style="margin:0 0 12px;">board <code>A B C E / S F C S / A D E E</code>,範例 1。概念頁的 "SEE" 有回頭,這組沒有 —— 拿來對照「沒失敗就不會還原」。</p>
-
-    <div class="sc-trace"><span class="sc-trace__head">// 起點 (0,0) 就對了</span>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">拿一張紙,照程式手走 "ABCCED" · 8 次 dfs,一次都沒回頭:逐步寫出關鍵變數的變化,最後回傳什麼?決定結果的是哪一步?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><p style="margin:0 0 12px;">board <code>A B C E / S F C S / A D E E</code>,範例 1。概念頁的 "SEE" 有回頭,這組沒有 —— 拿來對照「沒失敗就不會還原」。</p>
+<div class="sc-trace"><span class="sc-trace__head">// 起點 (0,0) 就對了</span>
 #1 (0,0) A  i=0  標 #     下 (1,0) → #2  S ≠ B
 #3 (0,1) B  i=1  標 #     下 (1,1) → #4  F ≠ C · 左 (0,0) 是 # 跳過
 #5 (0,2) C  i=2  標 #     下 (1,2) →
 #6 (1,2) C  i=3  標 #     上 (0,2) 是 # 跳過 · 下 (2,2) →
 #7 (2,2) E  i=4  標 #     上 (1,2) 是 # 跳過 · 下 出界 · 左 (2,1) →
 #8 (2,1) D  i=5  最後一個 → true</div>
-
-    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 一路往上傳</span>
+<div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 一路往上傳</span>
 #8 → #7 → #6 → #5 → #3 → #1 → exist 回傳 true
 <span class="sc-trace__out">// OUTPUT: true(8 次 dfs;board 留下 # # # E / S F # S / A D # E)</span></div>
-
-    <div class="sc-insight" style="margin-top:14px;">
-      <strong>#2、#4 不符只是那一次呼叫回 false,不會觸發還原 —— 還原只發生在「標過 # 的那一層四個方向全失敗」。</strong>
-      <b>這組沒有那種層,所以 0 次還原;"SEE" 有 2 次((1,0) 和 (0,3))。</b>
+<div class="sc-insight" style="margin-top:14px;">
+<strong>#2、#4 不符只是那一次呼叫回 false,不會觸發還原 —— 還原只發生在「標過 # 的那一層四個方向全失敗」。</strong>
+<b>這組沒有那種層,所以 0 次還原;"SEE" 有 2 次((1,0) 和 (0,3))。</b>
+</div></div>
+      </details>
     </div>
   </section>
 
-  <!-- ════════════ 4 · 應用題 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 13–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">Follow-up:board 變大時怎麼剪枝?6×6 全 A、找 <code>"A"×<span class="nm">14</span> + "B"</code> 要怎麼救?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>兩招:先數字母(word 某個字母比 board 多 → 直接 false),以及從比較稀有的那一端開始找(必要時把 word 反過來)。</strong><br/><br/>
+  6×6 全 A、<code>"A"×<span class="nm">14</span> + "B"</code>:原本 4,120,732 次 dfs(約 70 ms);反過來找 <code>"B" + "A"×<span class="nm">14</span></code> 只要 36 次(每個起點第一個字就不符);先數字母 board 沒有 B,0 次。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">13 分</span></div>
+      <div class="xq__body">改成一次給很多個 word(<a href="https://leetcode.com/problems/word-search-ii/" rel="noopener" target="_blank">212 · Word Search II ↗</a>),每個 word 跑一次這題的解法會有什麼問題?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>每個 word 都把整張 board 重新搜一次,共同前綴(例如 oath、oat)被重複走。</strong><br/><br/>
+  212 的做法:把所有 word 建成 Trie,每個起點只跑一次 dfs,沿著 Trie 往下走;Trie 節點沒有這個字母就剪掉,走到結尾就收答案。標 # / 還原的骨架和這題一樣。</div>
+      </details>
+    </div>
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">如果 board 是 <code>const</code>、不能改,要怎麼記 visited?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>另外開一個 <code><span class="kw2">bool</span> visited[<span class="nm">6</span>][<span class="nm">6</span>]</code>(或用 bitmask),標記、還原的位置和現在一模一樣。</strong><br/><br/>
+  進 dfs 時 <code>visited[r][c] = <span class="kw2">true</span></code>,四方向全失敗時改回 false;鄰居判斷改成看 visited。時間不變,多 <code>O(m · n)</code> 空間。成功時也記得 visited 是自己的,不會動到 board。</div>
+      </details>
+    </div>
+  </section>
+
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">4</span>
-      <h2 class="sc-section__title">應用題<span class="sc-section__title-en">// APPLY IT</span></h2>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
     </div>
 
-    <div class="qa"><strong>App 1.</strong> Follow-up:board 變大時怎麼剪枝?6×6 全 A、找 <code>"A"×14 + "B"</code> 要怎麼救?</div>
-
-    <div class="qa"><strong>App 2.</strong> 改成一次給很多個 word(<a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">212 · Word Search II ↗</a>),每個 word 跑一次這題的解法會有什麼問題?</div>
-
-    <div class="qa"><strong>App 3.</strong> 如果 board 是 <code>const</code>、不能改,要怎麼記 visited?</div>
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;"><table class="sc-table">
+<thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+<tbody>
+<tr><td>骨架</td><td>每格當起點;dfs 先比字元,最後一個就 true</td></tr>
+<tr><td>visited</td><td>board 原地改 <code>'#'</code>;一次只走一條路,所以一份就夠</td></tr>
+<tr><td>還原</td><td>四個方向都失敗才改回原字母;成功直接往上 return true</td></tr>
+<tr><td>不標 / 太早還原</td><td>同一格用兩次 → 多出 true(<code>["AA"]</code>,<code>"AAA"</code>)</td></tr>
+<tr><td>不還原</td><td>擋住後面的起點 → 少了 true(<code>["BAA"]</code>,<code>"AAB"</code>)</td></tr>
+<tr><td>和 <a href="../p46/index.html">46</a> 比</td><td>46 的撤銷是 <code>pop + used=<span class="kw2">false</span></code>;這題是 <code>board[r][c] = cache</code></td></tr>
+<tr><td>複雜度</td><td>O(m · n · 3<sup>L</sup>) 時間,O(L) 遞迴</td></tr>
+</tbody>
+</table></div>
+        </div>
+      </details>
+    </div>
   </section>
 
-  <div class="answer-divider">// ANSWERS</div>
-
-  <div class="qa qa--answer"><strong>A1.</strong> <strong>i == last 只代表「走到第 L 格」,不代表第 L 個字母對;要先比完才能收。</strong><br><br>
-  對調後最後一個字母永遠不會被比:<code>["A"]</code>,<code>"B"</code> 直接回傳 true。實測窮舉 42,284 組錯 5,622 組,全部是多出來的 true。</div>
-
-  <div class="qa qa--answer"><strong>A2.</strong> <strong>失敗的路留下的 # 會擋住之後的起點(或之後的方向)要走的路。</strong><br><br>
-  最小例子 <code>["BAA"]</code>,<code>"AAB"</code>:起點 (0,1) 標了 (0,1)、(0,2) 後失敗沒改回;輪到起點 (0,2) 時它已經是 #,唯一的正解 (0,2) → (0,1) → (0,0) 走不了 → false(正解 true)。窮舉錯 4,878 組,全部是少掉的 true。</div>
-
-  <div class="qa qa--answer"><strong>A3.</strong> <strong>答案對:回傳 true 之後沒有人再讀 board。副作用是 board 被改掉了。</strong><br><br>
-  "SEE" 跑完是 <code>A B C E / S F C # / A D E #</code>。隨機 200,000 組裡,word 長度 ≥ 2 而回傳 true 的,board 全部留著 #;回傳 false 的 149,236 組全部還原乾淨。
-  如果呼叫的人之後還要用 board,就傳一份複本,或在 <code>return true</code> 前也還原(實測同樣 0 錯)。</div>
-
-  <div class="qa qa--answer"><strong>A4.</strong> <strong>DFS 一次只有一條路徑在進行,而且 # 一定在離開時清掉 —— 任何時刻 board 上的 # 剛好就是目前這條路徑。</strong><br><br>
-  這和 <a href="../p46/index.html">46</a> 的 <code>used[]</code> 是同一件事:一份共用的狀態,做選擇時改、撤銷時改回。BFS 同時有很多條路徑,共用一份就分不清是誰標的。</div>
-
-  <div class="qa qa--answer"><strong>A5.</strong> <strong>拿掉不會錯:# 不是字母,進到下一層會被「先比字元」擋掉。換成 'A' 會錯:標過的格子又能被配到。</strong><br><br>
-  拿掉檢查:窮舉、隨機都 0 錯。標記用 <code>'A'</code>:窮舉錯 6,478 組,最小反例 <code>["AA"]</code>,<code>"AAA"</code> → true。標記一定要用 word 裡不可能出現的字元。</div>
-
-  <div class="qa qa--answer"><strong>A-App 1.</strong> <strong>兩招:先數字母(word 某個字母比 board 多 → 直接 false),以及從比較稀有的那一端開始找(必要時把 word 反過來)。</strong><br><br>
-  6×6 全 A、<code>"A"×14 + "B"</code>:原本 4,120,732 次 dfs(約 70 ms);反過來找 <code>"B" + "A"×14</code> 只要 36 次(每個起點第一個字就不符);先數字母 board 沒有 B,0 次。</div>
-
-  <div class="qa qa--answer"><strong>A-App 2.</strong> <strong>每個 word 都把整張 board 重新搜一次,共同前綴(例如 oath、oat)被重複走。</strong><br><br>
-  212 的做法:把所有 word 建成 Trie,每個起點只跑一次 dfs,沿著 Trie 往下走;Trie 節點沒有這個字母就剪掉,走到結尾就收答案。標 # / 還原的骨架和這題一樣。</div>
-
-  <div class="qa qa--answer"><strong>A-App 3.</strong> <strong>另外開一個 <code>bool visited[6][6]</code>(或用 bitmask),標記、還原的位置和現在一模一樣。</strong><br><br>
-  進 dfs 時 <code>visited[r][c] = true</code>,四方向全失敗時改回 false;鄰居判斷改成看 visited。時間不變,多 <code>O(m · n)</code> 空間。成功時也記得 visited 是自己的,不會動到 board。</div>
 
   <!-- ── pager ── -->
   <nav class="sc-pager">
@@ -165,5 +213,13 @@
     <div class="sc-summary-bar__detail">WORD SEARCH · REVIEW</div>
   </div>
 
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
 </body>
 </html>

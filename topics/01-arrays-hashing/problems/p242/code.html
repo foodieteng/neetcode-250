@@ -78,7 +78,7 @@
     </div>
 
     <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
-      <code>freq.count(c) == 0 || --freq[c] &lt; 0</code> 靠<strong>短路求值</strong>:先確認鍵存在(不存在直接偽,<strong>不會</strong>執行右邊的 <code>--freq[c]</code> 而誤建新鍵);存在才 <code>--</code> 並看是否變負。
+      <code>freq.count(c) == <span class="nm">0</span> || --freq[c] &lt; <span class="nm">0</span></code> 靠<strong>短路求值</strong>:先確認鍵存在(不存在直接偽,<strong>不會</strong>執行右邊的 <code>--freq[c]</code> 而誤建新鍵);存在才 <code>--</code> 並看是否變負。
     </p>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
@@ -90,7 +90,7 @@
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">關鍵 · 那個 <code>count(c)==0 ||</code> 守門<span class="sc-section__title-en">// THE GUARD</span></h2>
+      <h2 class="sc-section__title">關鍵 · 那個 <code>count(c)==<span class="nm">0</span> ||</code> 守門<span class="sc-section__title-en">// THE GUARD</span></h2>
     </div>
 
     <div class="sc-dark-box">
@@ -100,7 +100,7 @@
           C++ 的 <code>freq[c]</code> 對 <code>unordered_map</code> 有個陷阱:<strong>若鍵不存在,<code>operator[]</code> 會<strong>自動插入</strong>一個值為 0 的項</strong>,再回傳它的參考。所以 <code>--freq[c]</code> 在鍵不存在時,會先建一個 0、再減成 −1 —— <strong>看起來像「減到負數」,但其實是 <code>t</code> 有個 <code>s</code> 根本沒有的字元</strong>。
         </p>
         <p style="margin:0;">
-          兩種情況(<code>s</code> 沒這字元、<code>s</code> 這字元用完了)都該回 <code>false</code>,結果<strong>湊巧</strong>都被 <code>--freq[c] &lt; 0</code> 抓到。所以<strong>就算拿掉 <code>count(c)==0</code> 也能正確</strong> —— 但會<strong>污染 map</strong>(悄悄新增一堆值為 −1 的垃圾鍵)。加上 <code>count</code> 守門<strong>語意更清楚、也不亂建鍵</strong>,是好習慣。
+          兩種情況(<code>s</code> 沒這字元、<code>s</code> 這字元用完了)都該回 <code><span class="kw2">false</span></code>,結果<strong>湊巧</strong>都被 <code>--freq[c] &lt; <span class="nm">0</span></code> 抓到。所以<strong>就算拿掉 <code>count(c)==<span class="nm">0</span></code> 也能正確</strong> —— 但會<strong>污染 map</strong>(悄悄新增一堆值為 −1 的垃圾鍵)。加上 <code>count</code> 守門<strong>語意更清楚、也不亂建鍵</strong>,是好習慣。
         </p>
       </div>
     </div>
@@ -124,8 +124,8 @@ bool isAnagram(string s, string t) {
 <span class="sc-trace__out">下標 c-'a' 直接定址,無雜湊開銷。O(1) 空間(固定 26 格)</span></div>
 
     <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
-      <strong>陣列版不用 <code>count</code> 守門</strong> —— 因為 <code>cnt[26]</code> 全部預設 0、每個字元都有格子,不存在「鍵不存在」的問題。
-      <code>--cnt[c-'a'] &lt; 0</code> 就直接判偽。<strong>值域小且已知 → 陣列;值域大或未知(Unicode)→ hash map</strong>,兩者都是計數,只差容器。
+      <strong>陣列版不用 <code>count</code> 守門</strong> —— 因為 <code>cnt[<span class="nm">26</span>]</code> 全部預設 0、每個字元都有格子,不存在「鍵不存在」的問題。
+      <code>--cnt[c-'a'] &lt; <span class="nm">0</span></code> 就直接判偽。<strong>值域小且已知 → 陣列;值域大或未知(Unicode)→ hash map</strong>,兩者都是計數,只差容器。
     </p>
   </section>
 
@@ -141,28 +141,28 @@ bool isAnagram(string s, string t) {
       <tbody>
         <tr>
           <td><strong>不先擋長度</strong></td>
-          <td><code>"a"</code> vs <code>"ab"</code>:<code>s</code> 建 <code>{a:1}</code>,<code>t</code> 消完 a 剩 <code>b</code> 但迴圈已結束 → 誤判 true</td>
+          <td><code>"a"</code> vs <code>"ab"</code>:<code>s</code> 建 <code>{a:<span class="nm">1</span>}</code>,<code>t</code> 消完 a 剩 <code>b</code> 但迴圈已結束 → 誤判 true</td>
           <td>開頭 <code>s.size()!=t.size()</code> → false</td>
         </tr>
         <tr>
           <td><strong>先 <code>--</code> 再 <code>count</code></strong></td>
           <td>短路失效,不存在的鍵被 <code>[]</code> 建出來</td>
-          <td><code>count(c)==0 || --freq[c]&lt;0</code>(count 在前)</td>
+          <td><code>count(c)==<span class="nm">0</span> || --freq[c]&lt;<span class="nm">0</span></code>(count 在前)</td>
         </tr>
         <tr>
           <td><strong>結尾又檢查全零</strong></td>
           <td>多餘 —— 長度已相等 + 沒人變負就必然全零</td>
-          <td>沒人變負 → 直接 <code>return true</code></td>
+          <td>沒人變負 → 直接 <code><span class="kw2">return</span> <span class="kw2">true</span></code></td>
         </tr>
         <tr>
-          <td><strong>陣列版忘記 <code>= {0}</code></strong></td>
-          <td><code>cnt[26]</code> 未初始化 → 垃圾值 → 全錯</td>
-          <td><code>int cnt[26] = {0};</code></td>
+          <td><strong>陣列版忘記 <code>= {<span class="nm">0</span>}</code></strong></td>
+          <td><code>cnt[<span class="nm">26</span>]</code> 未初始化 → 垃圾值 → 全錯</td>
+          <td><code><span class="kw2">int</span> cnt[<span class="nm">26</span>] = {<span class="nm">0</span>};</code></td>
         </tr>
         <tr>
           <td><strong>Unicode 用 int[26]</strong></td>
           <td>非 a-z 字元下標越界 / 錯亂</td>
-          <td>用 <code>unordered_map&lt;char,int&gt;</code>(或依編碼調整)</td>
+          <td>用 <code>unordered_map&lt;char,<span class="kw2">int</span>&gt;</code>(或依編碼調整)</td>
         </tr>
       </tbody>
     </table>
@@ -190,8 +190,8 @@ bool isAnagram(string s, string t) {
 <span class="sc-trace__out">立刻 return false(不用消完)</span></div>
 
     <p style="margin-top:12px;font-size:13px;color:#4a4a44;">
-      兩種偽的成因:<code>"car"</code> 的 <code>c</code> 是「<strong>s 沒有的字元</strong>」(<code>count==0</code> 抓到);
-      若是 <code>"aab"</code> vs <code>"abb"</code>,則是 <code>b</code> 用超過(<code>freq[b]</code> 從 1 減到 −1,<code>&lt;0</code> 抓到)。<strong>兩種偽,兩個守門條件各抓一種。</strong>
+      兩種偽的成因:<code>"car"</code> 的 <code>c</code> 是「<strong>s 沒有的字元</strong>」(<code>count==<span class="nm">0</span></code> 抓到);
+      若是 <code>"aab"</code> vs <code>"abb"</code>,則是 <code>b</code> 用超過(<code>freq[b]</code> 從 1 減到 −1,<code>&lt;<span class="nm">0</span></code> 抓到)。<strong>兩種偽,兩個守門條件各抓一種。</strong>
     </p>
   </section>
 

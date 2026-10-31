@@ -227,7 +227,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
 
 ## Three sub-page contracts
 
-All three pages use `assets/css/study-card.css` and `<body class="study-card">`. Inline `code` on all three pages is the flat printed-ink style — when writing content, wrap standalone numbers in `<span class="nm">` and keywords in `<span class="kw2">` (identifiers stay bare). Each page has:
+All three pages use `assets/css/study-card.css` and `<body class="study-card">`. Inline `code` on all three pages is the flat printed-ink style — write plain `<code>…</code>`, then run `python3 scripts/code_tokens.py <the three pages>`: it wraps standalone numbers in `<span class="nm">` and keywords in `<span class="kw2">`, never splits a token (`2n`, `0x1F`, `1e9`, `dp2` stay plain), skips `<pre>`/`.sc-trace`, and is idempotent. Don't hand-wrap. Each page has:
 - Top nav strip `.sc-topnav` (Home / <NN> category / P<num>  ·  原題 LeetCode link)
 - Masthead `.sc-mast` (chip "學習卡 · STUDY CARD" + title + subtitle "// <page name>" + difficulty/meta row)
 - Page indicator `.sc-pageind` (`PAGE N / 3 · <NAME>` with 3 dots, current is `is-active`)
@@ -269,7 +269,8 @@ Components (`.xp-*`, `.xq*`) live in `study-card.css` — 定稿「C-2 藍圖框
 4. **PART C · 應用題** · 3 題 × 12–14 分;全卷配分合計 100。
 5. **考後重點** · 一張收合卡:六句話 `.sc-table`。
 
-答案一律內嵌在各題的 `<details>` 裡 — 不再有 `.answer-divider` / 頁尾 ANSWERS 區。
+答案一律內嵌在各題的 `<details>` 裡 — 不再有 `.answer-divider` / 頁尾 ANSWERS 區。題目和答案裡引用別題一律寫「第 N 題」,不寫 Q2 / A3 / App 1;概念頁、程式碼頁指向考卷時寫「複習頁第 N 題」。
+An old-format review page (Q/App blocks + `// ANSWERS` band) converts with `python3 scripts/review_to_exam.py <review.html>` — handles all five legacy label formats, renumbers references, fixes the "N + M QUESTIONS" badge; idempotent (skips pages that already have `.xp-strip`).
 Pager: PREV → `code.html` / NEXT → `../../index.html` ("↑ 回 <NN> 分類").
 
 ## Required `<head>` includes per page (study-card variant)

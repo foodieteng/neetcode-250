@@ -56,13 +56,13 @@
         容量滿了要插入新 key 時,<strong>淘汰最久沒被使用的那個</strong>。
       </p>
       <p style="margin-top:8px;">
-        <code>get</code> 與 <code>put</code> <strong>都算一次使用</strong>。查不到的 <code>get</code> 回傳 <code>-1</code>。
+        <code>get</code> 與 <code>put</code> <strong>都算一次使用</strong>。查不到的 <code>get</code> 回傳 <code>-<span class="nm">1</span></code>。
       </p>
       <p style="margin-top:8px;">
-        <code>1 ≤ capacity ≤ 3000</code>、<code>0 ≤ key ≤ 10⁴</code>、<code>0 ≤ value ≤ 10⁵</code>、最多 <code>2×10⁵</code> 次呼叫。
+        <code><span class="nm">1</span> ≤ capacity ≤ <span class="nm">3000</span></code>、<code><span class="nm">0</span> ≤ key ≤ <span class="nm">10</span>⁴</code>、<code><span class="nm">0</span> ≤ value ≤ <span class="nm">10</span>⁵</code>、最多 <code><span class="nm">2</span>×<span class="nm">10</span>⁵</code> 次呼叫。
       </p>
       <p style="margin-top:8px;">
-        <strong>兩個操作都要 <code>O(1)</code> 平均時間複雜度。</strong>
+        <strong>兩個操作都要 <code>O(<span class="nm">1</span>)</code> 平均時間複雜度。</strong>
       </p>
     </div>
 
@@ -73,9 +73,9 @@
     <table class="sc-table" style="margin-top:12px;">
       <thead><tr><th>需求</th><th>誰做得到</th><th>誰做不到</th></tr></thead>
       <tbody>
-        <tr><td><strong>用 key 找到資料</strong>,<code>O(1)</code></td><td class="ok">雜湊表</td><td class="fail">串列(要走過去,<code>O(n)</code>)</td></tr>
+        <tr><td><strong>用 key 找到資料</strong>,<code>O(<span class="nm">1</span>)</code></td><td class="ok">雜湊表</td><td class="fail">串列(要走過去,<code>O(n)</code>)</td></tr>
         <tr><td><strong>維持「誰最久沒用」的順序</strong></td><td class="ok">串列</td><td class="fail">雜湊表(根本沒有順序)</td></tr>
-        <tr><td><strong>把某一項搬到最新端</strong>,<code>O(1)</code></td><td class="ok">雙向串列</td><td class="fail">陣列 / vector(搬移要 <code>O(n)</code>)</td></tr>
+        <tr><td><strong>把某一項搬到最新端</strong>,<code>O(<span class="nm">1</span>)</code></td><td class="ok">雙向串列</td><td class="fail">陣列 / vector(搬移要 <code>O(n)</code>)</td></tr>
       </tbody>
     </table>
 
@@ -83,7 +83,7 @@
       <strong>所以答案是「兩個一起用」</strong>:<b>雙向串列負責順序,雜湊表負責速度</b>,
       而<strong>雜湊表的值存的是「節點的指標」</strong> ——
       <b>一次查表就直接握住那個節點,不必走串列。</b>
-      這樣「找到它」與「搬動它」<strong>兩步都是 <code>O(1)</code></strong>。
+      這樣「找到它」與「搬動它」<strong>兩步都是 <code>O(<span class="nm">1</span>)</code></strong>。
     </div>
   </section>
 
@@ -133,7 +133,7 @@
           <div class="sc-ko-card__body">
             <strong>這是最容易踩的坑。</strong>就算雜湊表直接給你節點指標,
             <b>單向串列要把一個節點拆下來,還是得先找到「它前面那個」</b> ——
-            而唯一的辦法是從頭走過去。<strong><code>O(1)</code> 的查表被 <code>O(n)</code> 的拆除抵銷掉了。</strong>
+            而唯一的辦法是從頭走過去。<strong><code>O(<span class="nm">1</span>)</code> 的查表被 <code>O(n)</code> 的拆除抵銷掉了。</strong>
           </div>
           <div class="sc-ko-card__verdict">× REJECT · 拆不下來</div>
         </div>
@@ -217,7 +217,7 @@ right-&gt;prev = node;
     </p>
 
     <p style="margin:2px 0 12px;">
-      <strong>A</strong>:重點看<strong>第 3 步</strong>:<code>get(1)</code> 把 key 1 從中間<strong>拆下來再接到最新端</strong> ——
+      <strong>A</strong>:重點看<strong>第 3 步</strong>:<code>get(<span class="nm">1</span>)</code> 把 key 1 從中間<strong>拆下來再接到最新端</strong> ——
       <b>這一個動作就是它躲過第一次淘汰的原因</b>。
       然後看<strong>第 4 步與第 6 步</strong>:兩次淘汰都是<strong>直接取 <code>left-&gt;next</code></strong>,不用比較也不用掃描。
     </p>
@@ -238,7 +238,7 @@ right-&gt;prev = node;
       <b>這個動畫只要說明一件事:每一格右下角的<strong>節點位址 <code>@Nk</code> 從頭到尾不會變</strong></b> ——
       <strong>第 3 步的 <code>splice</code> 只改前後鏈結,節點本體原地不動</strong>,所以 <code>m</code> 裡存的 iterator 搬完仍然有效,
       <b>整個 <code>get</code> 完全不必回頭更新雜湊表</b>。另外注意<strong>第 4 步</strong>:這個寫法是
-      <strong>先插進去、再檢查有沒有超載</strong>,所以串列會<b>短暫地存在 <code>cap + 1</code> 個節點</b>。
+      <strong>先插進去、再檢查有沒有超載</strong>,所以串列會<b>短暫地存在 <code>cap + <span class="nm">1</span></code> 個節點</b>。
     </p>
 
     <div class="sc-viz">
@@ -264,7 +264,7 @@ right-&gt;prev = node;
       <thead><tr><th>情形</th><th>做什麼</th><th>要動幾張表</th></tr></thead>
       <tbody>
         <tr><td><code>get</code> 命中</td><td class="mono"><code>remove(node)</code> → <code>insert(node)</code></td><td>只動串列</td></tr>
-        <tr><td><code>get</code> miss</td><td class="mono">直接 <code>return -1</code></td><td class="ok">兩張都不動</td></tr>
+        <tr><td><code>get</code> miss</td><td class="mono">直接 <code><span class="kw2">return</span> -<span class="nm">1</span></code></td><td class="ok">兩張都不動</td></tr>
         <tr><td><code>put</code> 命中</td><td class="mono">改值 → <code>remove</code> → <code>insert</code></td><td>只動串列</td></tr>
         <tr class="ok"><td><strong><code>put</code> 未命中 + 已滿</strong></td><td class="mono"><strong>淘汰 <code>left-&gt;next</code> → 新增</strong></td><td class="fail"><strong>兩張都要動</strong></td></tr>
         <tr><td><code>put</code> 未命中 + 未滿</td><td class="mono">直接新增</td><td>兩張都要動</td></tr>
@@ -314,7 +314,7 @@ right-&gt;prev = node;
       <div class="sc-formula__main">get / put = <strong>O(1) 平均</strong>　　空間 = <strong>O(capacity)</strong></div>
       <p class="sc-formula__hint">
         每個操作都只做一次雜湊查詢 + 固定幾根指標賦值。
-        <strong>「平均」是因為雜湊表本身有碰撞與重新雜湊的攤還成本</strong> —— 串列那半是真正的最壞情形 <code>O(1)</code>。
+        <strong>「平均」是因為雜湊表本身有碰撞與重新雜湊的攤還成本</strong> —— 串列那半是真正的最壞情形 <code>O(<span class="nm">1</span>)</code>。
       </p>
     </div>
 
