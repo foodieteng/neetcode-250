@@ -83,6 +83,16 @@ These two touch disjoint files and neither reads the other's output, so they par
 
 Write `index.html` / `code.html` / `review.html` yourself, then flip status → `generate_chapters.py` → commit.
 
+### PHASE D · 版面抽查(1 agent, after C — blocks the commit)
+
+Everything rendered gets eyeballed by a **fresh `general-purpose` agent that did not build it** — the builder grading its own layout misses the same bugs twice. Hand the agent only the problem dir + this spec:
+
+- **Render every page it finds** (`index.html` / `code.html` / `review.html` / `mock.html`) full-page in headless Chrome: study-card pages at **940 and 390**, mock at **880 and 390**. Before shooting: review → click 全部展開; animation pages → click Next 2–3 times (mid-step is where overlaps hide); mock → confirm the sticky audio bar, then scroll mid-page and shoot again.
+- **LOOK at every screenshot** and flag: clipped or overlapping text, elements touching (<12px), horizontal page overflow (`scrollWidth` at 390 may be up to 395 — the site-wide baseline; flag only >395), canvas cut off, sticky bar covering content, table columns crushed into vertical letter-stacks, code escaping its box, beige chip backgrounds that should not exist (printed-ink rule).
+- **Report per page × width: `PASS` or the exact issue + a cropped screenshot path.** No "looks fine" without listing what it rendered.
+
+Main thread fixes every flagged issue and re-runs PHASE D until all PASS — only then step 8 (flip status) and the commit.
+
 ### Wall-clock discipline(跑快一點)
 
 - **A 跑的同時,主線程先搭骨架。** 加 `PROBLEMS` 條目、鋪好三頁的 chrome(nav / mast / pageind / pager / summary-bar + 空 section)和 `mock.html` 外殼 — sheet 一到只剩填內容。
@@ -197,7 +207,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    <audio controls preload="none" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
    ```
 
-8. **🧹 MANDATORY: auto-fix code layout (LeetCode style), then flip status.**
+8. **🧹 MANDATORY: PHASE D 版面抽查 PASS → auto-fix code layout, then flip status.** A fresh subagent that didn't build the pages renders all of them (two widths, details opened, animation mid-step) and eyeballs every screenshot for 跑版 — see PHASE D. All PASS is the precondition for everything below.
    ```bash
    python3 scripts/format_code.py            # fixes indentation of every <pre class="sc-code"> / <pre class="tcode">
    python3 scripts/format_code.py --check    # must end with "0 block(s) need fixing, 0 skipped"
