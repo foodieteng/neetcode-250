@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1899 · Merge Triplets to Form Target Triplet</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="none" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1899 · Merge Triplets to Form Target Triplet · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a list of triplets <code class="chip">[a, b, c]</code> and a <code class="chip">target</code> triplet. In one move, you pick two different triplets <code class="chip">i</code> and <code class="chip">j</code>, and you replace triplet <code class="chip">j</code> with the max of each position. You can do this as many times as you want. Return true if the target can show up in the list.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> a move only uses <code class="chip">max</code>, position by position. So a number in a triplet can go up or stay the same. It can never go down. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Values never go down.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay, that's the key thing for me. If a triplet has even one number bigger than the target at that spot, it's <strong>poison</strong>. The moment I merge it into anything, that spot is too big, and it can never come back down. So I should never touch it.</p>
+      <p>And I don't need the target to be one of the original triplets. It just has to appear at the end, after some merges. A triplet that already equals the target counts too, with zero moves.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to <code class="chip num">10^5</code> triplets. Every value is between <code class="chip num">1</code> and <code class="chip num">1000</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. Values start at <code class="chip num">1</code>, never <code class="chip num">0</code>. I'll keep that in mind.</p>
+      <p><strong>Let me run through the example.</strong> Triplets are <code class="chip">[2,5,3]</code>, <code class="chip">[1,8,4]</code>, <code class="chip">[1,7,5]</code>, and the target is <code class="chip">[2,7,5]</code>. The middle one has an <code class="chip num">8</code>, and the target only allows <code class="chip num">7</code> there. So it's poison. The other two are safe. If I merge them, I get <code class="chip">[max(2,1), max(5,7), max(3,5)]</code> = <code class="chip">[2,7,5]</code>. That's the target, so the answer is true. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> actually do the moves. Keep merging pairs, collect every triplet I can reach, and stop when nothing new shows up. Then check if the target is in the set. That works, but the set can blow up fast, and with <code class="chip num">10^5</code> triplets even one round of all pairs is about <code class="chip num">10^10</code> merges. Way too slow.</p>
+      <p><strong>This problem reminds me of</strong> a greedy filter. Because <code class="chip">max</code> only goes up, there are just two kinds of triplets. Poison ones I must skip. And safe ones, where every number is <code class="chip">&lt;=</code> the target. Merging a safe triplet can't hurt. It can only push me closer to the target, and it can never push me past it.</p>
+      <p>So the greedy is: merge <strong>all</strong> the safe triplets together. That gives the biggest triplet I can ever build that still stays under the target. If even that one isn't equal to the target, nothing smaller will be. So the answer is just: does it equal the target? I'll go with that.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box" style="white-space:nowrap;overflow-x:auto;">
+        <span class="label">// state: ans = position-wise max of all safe triplets</span><br>
+        ans = [<span class="em">0</span>, <span class="em">0</span>, <span class="em">0</span>]&nbsp;&nbsp;<span class="label">// 0 = "nothing reached yet"</span><br>
+        for each t in triplets:<br>
+        &nbsp;&nbsp;if t[0] &lt;= x and t[1] &lt;= y and t[2] &lt;= z:&nbsp;&nbsp;<span class="label">// safe</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ans[k] = max(ans[k], t[k])&nbsp;&nbsp;for k = 0, 1, 2<br>
+        &nbsp;&nbsp;<span class="label">// else: poison, skip it forever</span><br>
+        return ans == target<br>
+        <span class="label">// invariant: ans &lt;= target at every position, always</span>
+      </div>
+      <p><strong>Here, I'm using</strong> <code class="chip">ans</code> <strong>to keep track of</strong> the best triplet I could build so far from safe triplets only.</p>
+      <p><strong>One thing worth flagging</strong> — the start value of <code class="chip">ans</code> is a correctness detail, not a style choice. It must be a value no real number can take. <em class="pause">Let me walk through that.</em> Say I start at <code class="chip">[1,1,1]</code> instead. Take triplets <code class="chip">[[1,1,2]]</code> and target <code class="chip">[1,1,1]</code>. The only triplet has a <code class="chip num">2</code>, so it's poison and gets skipped. The right answer is false. But <code class="chip">ans</code> is still <code class="chip">[1,1,1]</code>, which happens to equal the target, so I'd return true. Wrong. With <code class="chip num">0</code>, this can't happen. Every real value is at least <code class="chip num">1</code>, so a <code class="chip num">0</code> left over can never look like "reached".</p>
+      <p><strong>There's a trade-off here.</strong> Another way is three <code class="chip">found</code> flags. For each safe triplet, if <code class="chip">t[k] == target[k]</code>, set <code class="chip">found[k]</code>. Return true if all three are set. It's the same idea. Safe means every <code class="chip">t[k] &lt;= target[k]</code>, so the max at spot <code class="chip">k</code> hits the target exactly when some safe triplet equals it there. The flags make "did I reach it?" very clear. The max version is closer to what the move really does. Both are one pass, so I'll go with the max version.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="kw">bool</span> <span class="fn">mergeTriplets</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; triplets, <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&amp; target) {
+        <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt; ans(<span class="num2">3</span>, <span class="num2">0</span>);
+
+        <span class="kw">for</span> (<span class="kw">auto</span> &amp;t : triplets) {
+            <span class="kw">if</span> (t[<span class="num2">0</span>] &lt;= target[<span class="num2">0</span>] &amp;&amp; t[<span class="num2">1</span>] &lt;= target[<span class="num2">1</span>] &amp;&amp; t[<span class="num2">2</span>] &lt;= target[<span class="num2">2</span>]) {
+                ans[<span class="num2">0</span>] = <span class="fn">max</span>(ans[<span class="num2">0</span>], t[<span class="num2">0</span>]);
+                ans[<span class="num2">1</span>] = <span class="fn">max</span>(ans[<span class="num2">1</span>], t[<span class="num2">1</span>]);
+                ans[<span class="num2">2</span>] = <span class="fn">max</span>(ans[<span class="num2">2</span>], t[<span class="num2">2</span>]);
+            }
+        }
+
+        <span class="kw">return</span> ans == target;
+    }
+};</pre>
+      <p>That matches the plan. <strong>One thing worth flagging</strong> — I loop with <code class="chip">auto &amp;t</code>, not <code class="chip">auto t</code>. Each triplet is a <code class="chip">vector</code>, so <code class="chip">auto t</code> would copy it every time. On <code class="chip num">10^5</code> triplets, one call takes about <code class="chip num">0.2 ms</code> with the reference, and about <code class="chip num">1.7 ms</code> with the copy. That's around 7x slower for no reason.</p>
+      <p>Also, <code class="chip">ans == target</code> just compares two <code class="chip">vector&lt;int&gt;</code> of size 3, element by element. So the last line is the whole check.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> I'll use example 1. Triplets <code class="chip">[[2,5,3],[1,8,4],[1,7,5]]</code>, target <code class="chip">[2,7,5]</code>. Expected: true.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:460px;">
+        <thead><tr><th>step</th><th>t</th><th>safe?</th><th>ans after</th></tr></thead>
+        <tbody>
+          <tr><td>start</td><td>—</td><td>—</td><td>[0, 0, 0]</td></tr>
+          <tr><td>1</td><td>[2, 5, 3]</td><td>yes</td><td>[2, 5, 3]</td></tr>
+          <tr class="highlight-row"><td>2</td><td>[1, 8, 4]</td><td>no: 8 &gt; 7 at index 1</td><td>[2, 5, 3]</td></tr>
+          <tr><td>3</td><td>[1, 7, 5]</td><td>yes</td><td>[2, 7, 5]</td></tr>
+          <tr><td>end</td><td colspan="2">[2,7,5] == [2,7,5]</td><td><span class="answer-cell">true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Step 2 is the important one. <code class="chip">[1,8,4]</code> has an <code class="chip num">8</code> at index 1, but the target only allows <code class="chip num">7</code>. So I skip it, and <code class="chip">ans</code> stays <code class="chip">[2,5,3]</code>. If I had merged it, index 1 would be stuck at <code class="chip num">8</code> forever. Then step 3 brings in the <code class="chip num">7</code> and the <code class="chip num">5</code>, and I land right on the target. True, as expected.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>Example 2: <code class="chip">[[3,4,5],[4,5,6]]</code>, target <code class="chip">[3,2,5]</code>. The first has <code class="chip num">4</code> &gt; <code class="chip num">2</code> at index 1. The second has <code class="chip num">4</code> &gt; <code class="chip num">3</code> at index 0. Both are poison. <code class="chip">ans</code> stays <code class="chip">[0,0,0]</code>, so I return false. Correct.</p>
+      <p>Example 3: <code class="chip">[[2,5,3],[2,3,4],[1,2,5],[5,2,3]]</code>, target <code class="chip">[5,5,5]</code>. All four are safe. <code class="chip">ans</code> goes <code class="chip">[2,5,3]</code> → <code class="chip">[2,5,4]</code> → <code class="chip">[2,5,5]</code> → <code class="chip">[5,5,5]</code>. True. Correct.</p>
+      <p>The start-value case: <code class="chip">[[1,1,2]]</code>, target <code class="chip">[1,1,1]</code>. The only triplet is poison. <code class="chip">ans</code> stays <code class="chip">[0,0,0]</code>, so false. That's right, and this is exactly the case a <code class="chip">[1,1,1]</code> start would get wrong.</p>
+      <p>One triplet that already is the target: <code class="chip">[[2,5,3]]</code>, target <code class="chip">[2,5,3]</code>. It's safe, <code class="chip">ans</code> becomes <code class="chip">[2,5,3]</code>, so true. Zero moves needed.</p>
+      <p>Safe but missing a spot: <code class="chip">[[5,1,1],[1,5,1]]</code>, target <code class="chip">[5,5,5]</code>. Both are safe, but <code class="chip">ans</code> ends at <code class="chip">[5,5,1]</code>. Nobody gives a <code class="chip num">5</code> at index 2, so false.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>How sure are you about the greedy?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Pretty sure, and here's the short proof. Any triplet I can build is a max of some original triplets. If one of them is poison, the result is poison too. So the target can only come from safe ones. And the max of <strong>all</strong> safe ones is at least as big as any group of them, while still <code class="chip">&lt;=</code> the target. So if any group hits the target, the full group does too.</p>
+      <p>I also checked it against a brute force that really does all the merges until nothing new shows up. On 751,853 small cases, there were 0 mismatches. The <code class="chip">[1,1,1]</code> start version had 21,220 mismatches. Every one had target <code class="chip">[1,1,1]</code>, and every one was a false true. That's the bug from the plan, and nothing else.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(n). I look at each triplet once, and each look is a fixed amount of work: three compares and up to three <code class="chip">max</code> calls. <strong>The space complexity is</strong> O(1) extra. <code class="chip">ans</code> is always size 3, no matter how big the input is.</p>
+      <p><strong>In the worst-case scenario</strong> I have <code class="chip num">10^5</code> triplets and all of them are safe, so I do every <code class="chip">max</code>. That's still one pass, around <code class="chip num">0.2 ms</code>. The biggest value in <code class="chip">ans</code> is <code class="chip num">1000</code>, so plain <code class="chip">int</code> is more than enough. No overflow worries.</p>
+      <p><em class="pause">Oh, one more thing —</em> the order of the triplets doesn't matter. <code class="chip">max</code> doesn't care about order, and the safe test only looks at one triplet at a time. So this also works on a stream. I never need to sort or go back.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You saw right away that <code class="chip">max</code> only goes up, so any triplet above the target is poison forever, and you turned that into "merge every safe one, then compare." You flagged that starting <code class="chip">ans</code> at <code class="chip num">0</code> is a correctness detail, with the <code class="chip">[[1,1,2]]</code> / <code class="chip">[1,1,1]</code> counterexample to prove it. And you showed the <code class="chip">found</code> flags version is the same idea, and explained why. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 18.86, 34.62, 38.26, 64.7, 70.94, 95.12, 137.48, 183.0, 185.78, 227.24, 270.61, 273.29, 314.78, 350.8]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
