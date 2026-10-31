@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 875 · Koko Eating Bananas</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 875 · Koko Eating Bananas · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Koko has <code class="chip">n</code> piles of bananas, and the guards come back in <code class="chip">h</code> hours. She picks one speed, <code class="chip">k</code> bananas per hour. Each hour she picks a pile and eats <code class="chip">k</code> from it. If the pile has fewer than <code class="chip">k</code> left, she eats the rest and stops for that hour. Find the smallest <code class="chip">k</code> that lets her finish in time.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the important part is that she can't move to a second pile in the same hour. So a pile with <code class="chip num">1</code> banana still costs her a whole hour. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly right. One pile per hour.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good, because that kills the obvious shortcut. My first instinct would be total bananas divided by hours, but that assumes she can pour hours across piles freely. She can't.</p>
+      <p>Take <code class="chip">[1,1,1,99]</code>, with <code class="chip">h = 5</code>. The total is <code class="chip num">102</code>, so the formula says <code class="chip num">21</code>. But the three tiny piles burn three whole hours no matter what, leaving only two hours for the <code class="chip num">99</code>. The real answer is <code class="chip num">50</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Is the array sorted, or can I assume anything about the order?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>No order at all.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That's worth noting — it means there's <strong>no array here to binary search</strong>, which is where this problem gets interesting. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to 10<sup>4</sup> piles, each up to 10<sup>9</sup> bananas. And <code class="chip">h</code> is at least the number of piles, up to 10<sup>9</sup>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The lower bound on <code class="chip">h</code> is useful — it guarantees an answer exists. At speed <code class="chip">max(piles)</code>, every pile takes exactly one hour, so she needs <code class="chip">n</code> hours, and <code class="chip">h</code> is at least <code class="chip">n</code>. So I never have to report failure.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[3,6,7,11]</code>, with <code class="chip">h = 8</code>. At <code class="chip">k = 4</code> the piles cost <code class="chip num">1, 2, 2, 3</code> hours — <code class="chip num">8</code> in total, which fits exactly. At <code class="chip">k = 3</code> it's <code class="chip num">10</code>, too slow. So <code class="chip num">4</code> is the answer.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> try <code class="chip">k = 1</code>, then <code class="chip num">2</code>, and stop at the first one that works. That's correct, but <code class="chip">k</code> can run to 10<sup>9</sup> and each try costs 10<sup>4</sup>, so the worst case is 10<sup>13</sup> operations.</p>
+      <p><strong>This problem reminds me of</strong> binary search — but not on the input. On the <strong>answer</strong>. Computing <code class="chip">k</code> directly is hard, but <strong>checking</strong> a given <code class="chip">k</code> is easy: one pass, summing <code class="chip">ceil(pile / k)</code>. And the check is <strong>monotonic</strong>: if a speed works, every faster speed also works.</p>
+      <p>So the speeds form a <code class="chip">F F T T</code> pattern, and I want the first <code class="chip">T</code>. It's the same skeleton as searching a sorted array, with the lookup swapped for a simulation.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// search the RANGE OF ANSWERS, half-open [1, max+1)</span><br>
+        left = 1, right = max(piles) + 1<br>
+        check(k) = sum of ceil(pile / k) <span class="em">&lt;= h</span><br>
+        while left &lt; right:<br>
+        &nbsp;&nbsp;mid = left + (right - left) / 2<br>
+        &nbsp;&nbsp;if check(mid): right = mid&nbsp;&nbsp;&nbsp;<span class="label">// fits — maybe slower still fits</span><br>
+        &nbsp;&nbsp;else:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left = mid + 1 <span class="label">// too slow — drop it</span><br>
+        <span class="em">return left</span>
+      </div>
+      <p>One: search speeds in the half-open range <code class="chip">[1, max+1)</code>.<br>
+      Two: a speed fits if the per-pile ceilings sum to at most <code class="chip">h</code>.<br>
+      Three: if <code class="chip">mid</code> fits, keep it as the right end; otherwise move <code class="chip">left</code> past it; return <code class="chip">left</code>.</p>
+      <p><strong>One thing worth flagging</strong> — each bound has a reason. The low end is <code class="chip num">1</code>: speed <code class="chip num">0</code> never finishes and would divide by zero. Faster than the biggest pile buys nothing, so that's the top. The <code class="chip">+1</code> only reserves a "nothing worked" slot; an answer always exists, so <code class="chip">[1, max]</code> works too. And it's <code class="chip">&lt;=</code>: finishing exactly on the hour counts.</p>
+      <p><strong>The trade-off:</strong> each step costs O(n), but 10<sup>13</sup> drops to about 3 × 10<sup>5</sup>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The main loop is the plan line for line, and <code class="chip">getTime</code> sums the hours pile by pile.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minEatingSpeed</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; piles, <span class="typ">int</span> h) {
+        <span class="com">// range [1, max+1); [1, max] is equally correct (an answer is guaranteed)</span>
+        <span class="typ">int</span> left = <span class="num2">1</span>;
+        <span class="typ">int</span> right = *<span class="fn">max_element</span>(piles.<span class="fn">begin</span>(), piles.<span class="fn">end</span>()) + <span class="num2">1</span>;
+
+        <span class="kw">while</span> (left &lt; right) {
+            <span class="typ">int</span> mid = left + (right - left) / <span class="num2">2</span>;
+
+            <span class="kw">if</span> (<span class="fn">getTime</span>(piles, mid) &lt;= h) {
+                right = mid;              <span class="com">// fits → maybe slower still fits, keep mid</span>
+            } <span class="kw">else</span> {
+                left = mid + <span class="num2">1</span>;          <span class="com">// too slow → skip past mid</span>
+            }
+        }
+
+        <span class="kw">return</span> left;                     <span class="com">// first feasible speed; it always exists</span>
+    }
+
+    <span class="typ">int</span> <span class="fn">getTime</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; piles, <span class="typ">int</span> k) {
+        <span class="typ">int</span> t = <span class="num2">0</span>;
+
+        <span class="kw">for</span> (<span class="typ">int</span> p : piles) {
+            t += <span class="fn">ceil</span>((<span class="typ">double</span>)(p) / k);   <span class="com">// round up per pile (a partial hour is still an hour)</span>
+        }
+
+        <span class="kw">return</span> t;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — the ceiling is taken <em>per pile</em> and only then summed; summing first is the broken formula from earlier.</p>
+      <p>And the accumulator is an <code class="chip">int</code>. At <code class="chip">k = 1</code> the total could reach 10<sup>13</sup>, but the search only probes down to about half the answer, where the time is at most <code class="chip">2h</code> — under 2 × 10<sup>9</sup>, so an <code class="chip">int</code> survives. That argument leans on <code class="chip">h</code>'s upper bound, so <code class="chip">long long</code> is the safer habit.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> <code class="chip">[3,6,7,11]</code>, <code class="chip">h = 8</code> — I expect <code class="chip num">4</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>range</th><th>mid</th><th>hours per pile</th><th>total</th><th>fits h=8?</th><th>new range</th></tr></thead>
+        <tbody>
+          <tr><td>[1, 12)</td><td>6</td><td>1 + 1 + 2 + 2</td><td>6</td><td>yes</td><td>[1, 6)</td></tr>
+          <tr><td>[1, 6)</td><td>3</td><td>1 + 2 + 3 + 4</td><td>10</td><td>no</td><td>[4, 6)</td></tr>
+          <tr class="highlight-row"><td>[4, 6)</td><td>5</td><td>1 + 2 + 2 + 3</td><td>8</td><td>yes (exactly)</td><td>[4, 5)</td></tr>
+          <tr class="highlight-row"><td>[4, 5)</td><td>4</td><td>1 + 2 + 2 + 3</td><td>8</td><td>yes (exactly)</td><td><span class="answer-cell">[4, 4) → stop</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The deciding rows are the last two: speeds <code class="chip num">5</code> and <code class="chip num">4</code> both total exactly <code class="chip num">8</code>. That's the <code class="chip">&lt;=</code> earning its keep — with a strict <code class="chip">&lt;</code>, both get rejected and I'd return <code class="chip num">6</code>. Five and four tie because the pile of <code class="chip num">7</code> takes two hours either way: a staircase, monotonic but not strict, which is all binary search needs. It returns <code class="chip num">4</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[30,11,23,4,20]</code>, <code class="chip">h = 5</code> → <code class="chip num">30</code>, the max, so the range must reach it.<br>
+      • With <code class="chip">h = 6</code> → <code class="chip num">23</code>.<br>
+      • <code class="chip">[1,1,1,99]</code>, <code class="chip">h = 5</code> → <code class="chip num">50</code>.<br>
+      • The largest input (10<sup>4</sup> piles of 10<sup>9</sup>, <code class="chip">h = 10<sup>9</sup></code>) → <code class="chip num">10000</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> O(n log C), where <code class="chip">C</code> is the largest pile — about <code class="chip num">30</code> rounds, each a 10<sup>4</sup> pass, so roughly 3 × 10<sup>5</sup> operations. <strong>The space complexity is</strong> O(1). That's the general rule for this pattern: <strong>rounds times the cost of one check</strong>.</p>
+      <p><em class="pause">Oh, one more thing —</em> about the ceiling. I used <code class="chip">ceil((double)p / k)</code>. That's safe here: values up to 10<sup>9</sup> are exact in a double, and when the true quotient is a whole number, correctly rounded division returns it exactly. Still, <code class="chip">(p + k - 1) / k</code> is the habit I'd rather build — integer division has no precision cliff.</p>
+      <p>I also random-tested this against a <code class="chip">long long</code>, integer-ceiling version on <code class="chip num">20,000</code> cases, with no disagreement.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You killed the divide-the-total shortcut with a concrete counterexample before it could mislead you. You named the condition for searching on the answer — hard to compute, easy to verify, monotonic — instead of just saying "binary search." And you justified every bound, including why the plus one makes no difference here, and backed it with the input where the answer <em>is</em> the maximum. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 20.51, 37.12, 40.69, 68.35, 72.62, 74.94, 84.46, 93.12, 123.02, 168.88, 220.52, 223.27, 257.78, 305.39, 353.0]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
