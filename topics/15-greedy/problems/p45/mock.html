@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 45 · Jump Game II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.tablewrap { overflow-x: auto; }
+.tablewrap table.trace { min-width: 520px; }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.cellviz { display: flex; align-items: center; justify-content: center; gap: 18px;
+  flex-wrap: wrap; margin: 16px 0; }
+.cellviz .cells { display: flex; }
+.cellviz .cell { width: 42px; text-align: center;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.cellviz .cell .idx { font-size: 10.5px; color: var(--text-3); margin-bottom: 5px; }
+.cellviz .cell .val { padding: 10px 0; font-size: 14px; color: var(--text);
+  border: 1px solid var(--border); border-right: none; }
+.cellviz .cell:last-child .val { border-right: 1px solid var(--border); }
+.cellviz .cell.l0 .val { background: #223344; }
+.cellviz .cell.l1 .val { background: #39251e; }
+.cellviz .cell.l2 .val { background: #2a3020; }
+.cellviz .cell.hl .val { box-shadow: inset 0 0 0 2px var(--chip-num); }
+.cellviz .layers { font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; color: var(--text-2); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="none" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 45 · Jump Game II · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given an integer array <code class="chip">nums</code>. You start at index 0. Each value <code class="chip">nums[i]</code> is the <strong>maximum</strong> forward jump from index i. Return the <strong>minimum number of jumps</strong> to reach the last index. You can assume the last index is always reachable.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> from index i, I can land anywhere from i + 1 up to <code class="chip">i + nums[i]</code>. Forward only. I return a count, not the path. And since the end is always reachable, I never need to return −1. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Just the count, and you can trust the guarantee.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. One fact from Jump Game I helps a lot here. If I can reach index j, I can reach <strong>every index before j</strong> too, because the jump could just stop shorter. So "the cells I can reach" is always a <strong>prefix</strong>, not a random set.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 &lt;= n &lt;= 10^4</code>, and <code class="chip">0 &lt;= nums[i] &lt;= 1000</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. n can be 1. Then I'm already on the last index, so the answer is <code class="chip num">0</code>. The answer is at most n − 1, when every step is a jump of 1. And the biggest sum I compute is <code class="chip">i + nums[i]</code>, at most 9998 + 1000 = 10,998. That fits easily in <code class="chip">int</code>.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">[2,3,1,1,4]</code>. With zero jumps I'm at index 0. With one jump I can be at index 1 or 2. From index 1 I can jump 3, straight to index 4. So <code class="chip num">2</code>. The second example, <code class="chip">[2,3,0,1,4]</code>, is also <code class="chip num">2</code>, by the same path 0 → 1 → 4. The zero at index 2 doesn't matter, because I never need to stand there.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> use DP. <code class="chip">dp[j]</code> = fewest jumps to reach j. For each i, I try every j it can reach and set <code class="chip">dp[j] = min(dp[j], dp[i] + 1)</code>. That's correct, but it's O(n · max jump). Up to about 10<sup>7</sup> steps here. I'd keep it as a checker, not the answer.</p>
+      <p><strong>This problem reminds me of</strong> BFS shortest path. "Fewest jumps" is "fewest edges", and every edge costs 1. So I can think in <strong>layers</strong>. Layer k is the set of cells I can reach in exactly k jumps, and not fewer. The answer is the layer number of index n − 1.</p>
+      <p>Now the prefix fact pays off. "Reachable within k jumps" is a prefix. So each layer is a <strong>contiguous range</strong>: it starts right after the last layer ends. That means I don't need a queue. A layer is just a right edge. Here are the layers for example 1:</p>
+      <div class="cellviz">
+        <div class="cells">
+          <div class="cell l0"><div class="idx">0</div><div class="val">2</div></div>
+          <div class="cell l1"><div class="idx">1</div><div class="val">3</div></div>
+          <div class="cell l1"><div class="idx">2</div><div class="val">1</div></div>
+          <div class="cell l2"><div class="idx">3</div><div class="val">1</div></div>
+          <div class="cell l2"><div class="idx">4</div><div class="val">4</div></div>
+        </div>
+        <div class="layers">L0 = [0] · L1 = [1..2] · L2 = [3..4]</div>
+      </div>
+      <p>Index 4 is in layer 2, so the answer is 2. My job is just to find where each layer ends, while scanning left to right.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan. It's BFS, but with two numbers instead of a queue.</p>
+      <div class="insight-box">
+        <span class="label">// curEnd = right edge of the layer I can reach with `step` jumps</span><br>
+        <span class="label">// nextEnd = farthest index reachable with ONE more jump,</span><br>
+        <span class="label">// from any cell scanned so far</span><br>
+        step = 0, curEnd = 0, nextEnd = 0<br>
+        for i = 0 .. <span class="em">n-2</span>:&nbsp;&nbsp;<span class="label">// standing on n-1 needs no jump</span><br>
+        &nbsp;&nbsp;nextEnd = <span class="em">max</span>(nextEnd, i + nums[i])&nbsp;&nbsp;<span class="label">// cell i grows the next layer</span><br>
+        &nbsp;&nbsp;if i <span class="em">==</span> <span class="em">curEnd</span>:&nbsp;&nbsp;<span class="label">// current layer fully scanned</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;step++&nbsp;&nbsp;<span class="label">// I must take one more jump</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;curEnd = nextEnd&nbsp;&nbsp;<span class="label">// the next layer ends here</span><br>
+        return step
+      </div>
+      <p><strong>Here, I'm using</strong> <code class="chip">curEnd</code> <strong>to keep track of</strong> where the current layer stops. And <code class="chip">nextEnd</code> collects, from every cell in the current layer, how far one more jump could go. When i reaches <code class="chip">curEnd</code>, I've seen <strong>every</strong> cell of the current layer. The next layer can't grow anymore. So I close it: <code class="chip">step++</code>, and the new edge is <code class="chip">nextEnd</code>.</p>
+      <p>The key idea: <strong>this code never decides which cell to jump from.</strong> It only tracks how far each layer goes. The real path is hidden inside the layers, and I don't need it, because the question only asks for the count.</p>
+      <p><strong>One thing worth flagging</strong> — the loop stops at <strong>n − 2</strong>, not n − 1. <em class="pause">Let me walk through that.</em> Index n − 1 is always the edge of the last layer, because nothing past it exists. If I scanned it, <code class="chip">i == curEnd</code> would fire one extra time and add 1 for a jump I never take. That version is always exactly one too high. Even <code class="chip">[0]</code> gives 1 instead of 0.</p>
+      <p><strong>There's a trade-off here.</strong> I could also write a plain BFS with a queue, or keep explicit <code class="chip">l, r</code> bounds per layer. Same O(n) time, same answers, but more code and more state. The two-number version is shorter, and it's O(1) space. So I'll go with that.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">jump</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
+        <span class="typ">int</span> step = <span class="num2">0</span>, curEnd = <span class="num2">0</span>, nextEnd = <span class="num2">0</span>;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; nums.<span class="fn">size</span>() - <span class="num2">1</span>; i++) {
+            nextEnd = <span class="fn">max</span>(nextEnd, i + nums[i]);
+
+            <span class="kw">if</span> (curEnd == i) {
+                step++;
+                curEnd = nextEnd;
+            }
+        }
+
+        <span class="kw">return</span> step;
+    }
+};</pre>
+      <p>That matches the plan line by line.</p>
+      <p><strong>One thing worth flagging</strong> — the <strong>order</strong> inside the loop matters. I update <code class="chip">nextEnd</code> <strong>before</strong> the <code class="chip">curEnd</code> check. Cell i is part of the layer I'm closing, so its reach must count before I close it. If I swap the two lines, then at i = 0, <code class="chip">nextEnd</code> is still 0. The first layer closes with edge 0, and things go wrong from there. Example 1 returns 1 instead of 2.</p>
+      <p>Also, <code class="chip">-Wall -Wextra</code> gives one warning: <code class="chip">-Wsign-compare</code> on <code class="chip">i &lt; nums.size() - 1</code>, int against size_t. It's harmless here, since n ≥ 1. For n = 1, <code class="chip">size() - 1</code> is 0, and the loop doesn't run. Only an empty vector would wrap to SIZE_MAX, and that's outside the constraints. Writing <code class="chip">int n = nums.size();</code> and <code class="chip">i &lt; n - 1</code> removes the warning and gives the same answers.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Example 1, <code class="chip">[2,3,1,1,4]</code>. Expected output is <code class="chip num">2</code>. n = 5, so i goes from 0 to 3.</p>
+      <div class="tablewrap">
+      <table class="trace">
+        <thead><tr><th>i</th><th>nums[i]</th><th>i + nums[i]</th><th>nextEnd</th><th>curEnd == i?</th><th>step</th><th>curEnd</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>0</td><td>2</td><td>2</td><td>2</td><td>YES</td><td>1</td><td>2</td></tr>
+          <tr><td>1</td><td>3</td><td>4</td><td>4</td><td>no</td><td>1</td><td>2</td></tr>
+          <tr class="highlight-row"><td>2</td><td>1</td><td>3</td><td>4</td><td>YES</td><td>2</td><td>4</td></tr>
+          <tr><td>3</td><td>1</td><td>4</td><td>4</td><td>no</td><td>2</td><td>4</td></tr>
+          <tr><td colspan="6">loop ends (i = 4 = n − 1 is not scanned)</td><td><span class="answer-cell">2</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Read it in layers. At i = 0, layer 0 is just <code class="chip">[0]</code>, and it's done. One jump reaches up to 2, so layer 1 is <code class="chip">[1..2]</code>. At i = 1, the 3 pushes <code class="chip">nextEnd</code> to 4. But I don't jump yet, because layer 1 isn't fully scanned. At i = 2, I hit <code class="chip">curEnd</code>. Layer 1 is done, so step becomes 2, and layer 2 is <code class="chip">[3..4]</code>. Index 4 is inside it. Example 2 gives the exact same table, except i = 2 has <code class="chip">2 + 0 = 2</code>. That zero does nothing, because <code class="chip">nextEnd</code> is already 4.</p>
+      <p>Now the case that shows <strong>why I never pick a cell</strong>: <code class="chip">[4,1,1,3,1,1,1]</code>, answer <code class="chip num">2</code>.</p>
+      <div class="cellviz">
+        <div class="cells">
+          <div class="cell l0"><div class="idx">0</div><div class="val">4</div></div>
+          <div class="cell l1"><div class="idx">1</div><div class="val">1</div></div>
+          <div class="cell l1"><div class="idx">2</div><div class="val">1</div></div>
+          <div class="cell l1 hl"><div class="idx">3</div><div class="val">3</div></div>
+          <div class="cell l1"><div class="idx">4</div><div class="val">1</div></div>
+          <div class="cell l2"><div class="idx">5</div><div class="val">1</div></div>
+          <div class="cell l2"><div class="idx">6</div><div class="val">1</div></div>
+        </div>
+        <div class="layers">L0 = [0] · L1 = [1..4] · L2 = [5..6]</div>
+      </div>
+      <p>Layer 1 is <code class="chip">[1..4]</code>. While I scan it, i = 3 pushes <code class="chip">nextEnd</code> to 3 + 3 = 6, the last index. Then at i = 4, layer 1 closes and step becomes 2. The best path is 0 → 3 → 6, and index 3 is in the <strong>middle</strong> of layer 1. A greedy that "always jumps as far as possible" goes 0 → 4 → 5 → 6. That's <strong>3</strong> jumps, which is wrong. Jumping far now can leave you on a weak cell. Scanning the whole layer avoids that choice.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">[0]</code> → <code class="chip num">0</code>. n − 1 = 0, so the loop runs 0 times.<br>
+      • <code class="chip">[1,1,1,1]</code> → <code class="chip num">3</code>. Every i is a layer end. Each layer is one cell.<br>
+      • <code class="chip">[3,0,0,1]</code> → <code class="chip num">1</code>. One jump covers everything. The zeros never matter.<br>
+      • <code class="chip">[1,2,1,1,1]</code> → <code class="chip num">3</code>. Layers <code class="chip">[0]</code>, <code class="chip">[1]</code>, <code class="chip">[2..3]</code>, <code class="chip">[4]</code>. Path 0 → 1 → 3 → 4.<br>
+      • n = 10<sup>4</sup>, all ones → <code class="chip num">9,999</code>, the worst case, n − 1. All 1000 → <code class="chip num">10</code>. <code class="chip">[1000,1,1,...]</code> → <code class="chip num">9,000</code>: one big jump to index 1000, then 8,999 single steps.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(n). One pass over indices 0 to n − 2, with one max and one compare each.</p>
+      <p><strong>The space complexity is</strong> O(1). Three integers.</p>
+      <p><strong>In the worst-case scenario</strong> the loop always runs n − 1 times. There's no early exit. For n = 10<sup>4</sup> that's 9,999 iterations, about <code class="chip num">6.3 µs</code> for all 1000s and <code class="chip num">6.5 µs</code> for all ones. The largest <code class="chip">nextEnd</code> is <code class="chip num">10,998</code>, so <code class="chip">int</code> is safe.</p>
+      <p>I'd test this against a BFS checker. Every array of length 1 to 8, values 0 to 3, that can reach the end: <code class="chip num">41,600</code> arrays. Plus random ones, up to n = 2000 with values up to 1000. <code class="chip num">261,600</code> cases total, <code class="chip num">0</code> mismatches. The same test shows how the bugs fail. Scanning the last index fails <code class="chip num">21,376</code>, always exactly +1. Checking before updating fails <code class="chip num">41,488</code>. And one trap: "count a jump every time <code class="chip">nextEnd</code> improves" fails <code class="chip num">23,580</code>, but it passes <strong>both</strong> official examples. The smallest failure is <code class="chip">[2,2,0]</code>: it says 2, the right answer is 1. Always jumping the full <code class="chip">nums[i]</code> fails <code class="chip num">11,884</code>, and it loops forever on a zero.</p>
+      <p><em class="pause">Oh, one more thing —</em> this code trusts the guarantee. It never returns −1. If the end were <strong>not</strong> reachable, it would still return a normal-looking number. <code class="chip">[3,2,1,0,4]</code> returns 2, even though index 4 can't be reached. If the guarantee could break, I'd add the Jump Game I check: if <code class="chip">nextEnd</code> stays at i when a layer closes, return −1.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You framed it as a <strong>BFS by layers</strong>, and used the prefix fact to show each layer is a range, so <code class="chip">curEnd</code> and <code class="chip">nextEnd</code> replace the queue. You showed with <code class="chip">[4,1,1,3,1,1,1]</code> why the code must <strong>not</strong> pick a jump: the best jump comes from the middle of a layer, and "jump farthest" takes 3. And you nailed the two order details, stopping at n − 2 and updating before the check, plus the trap that passes both examples but fails <code class="chip">[2,2,0]</code>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 17.15, 38.22, 42.27, 60.02, 66.81, 116.72, 191.67, 312.55, 315.21, 403.24, 548.29, 659.26]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
