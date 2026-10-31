@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 374 · Guess Number Higher or Lower</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+table.trace th, table.trace td { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 374 · Guess Number Higher or Lower · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>I pick a number from <code class="chip num">1</code> to <code class="chip">n</code>, and you have to find it. You can call <code class="chip">guess(num)</code>, which returns <code class="chip num">-1</code> if your guess is too high, <code class="chip num">1</code> if it's too low, and <code class="chip num">0</code> if it's right. Return the number I picked.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the number never changes while I'm guessing, and it's guaranteed to be inside <code class="chip num">1</code> to <code class="chip">n</code>. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct on both.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me also make sure I have the sign right, because it's easy to flip. <code class="chip num">1</code> means <em>my guess</em> was too low, so the answer is bigger than what I said?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. The return value describes your guess, not my number.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">n</code> can go up to <code class="chip num">2<sup>31</sup> − 1</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That's a number I want to flag right away. <code class="chip num">2<sup>31</sup> − 1</code> is <code class="chip">INT_MAX</code>, so any place where I add two candidate values together can overflow. I'll come back to that when I write the midpoint.</p>
+      <p>The other thing I want to name early: <code class="chip">guess</code> is <strong>monotonic</strong>. If a guess is too low, everything below it is also too low. So the answers form one clean pattern — too low, too low, hit, too high, too high. That's a boundary, which means binary search.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> Say <code class="chip">n = 10</code> and the pick is <code class="chip num">6</code>. I guess <code class="chip num">5</code> and get <code class="chip num">1</code>, so <code class="chip num">1</code> through <code class="chip num">5</code> are gone. I guess <code class="chip num">8</code> and get <code class="chip num">-1</code>, so <code class="chip num">8</code> and up are gone. One more guess, and I land on <code class="chip num">6</code>.</p>
+    </div>
+  </div>
+
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> call <code class="chip">guess(1)</code>, <code class="chip">guess(2)</code>, and so on. That's O(n), and with <code class="chip">n</code> around two billion it's hopeless.</p>
+      <p><strong>This problem reminds me of</strong> plain binary search on a sorted array. The only difference is that I can't read the values — I can only ask the API. But binary search never needed an array. It needs a <strong>monotonic yes/no test</strong>, and <code class="chip">guess</code> gives me one.</p>
+      <p>There's a choice in how to write it. The obvious version has three branches and returns early on <code class="chip num">0</code>. I want to fold it into <strong>two</strong> branches instead, and I'll explain why in the plan.</p>
+    </div>
+  </div>
+
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan. Each round I ask only one yes/no question: <strong>"was my guess too low?"</strong></p>
+      <div class="insight-box">
+        <span class="label">// closed range [left, right], the pick is always inside it</span><br>
+        left = 1, right = n<br>
+        while left &lt; right:<br>
+        &nbsp;&nbsp;mid = left + (right - left) / 2<br>
+        &nbsp;&nbsp;if guess(mid) == 1: left = mid + 1&nbsp;&nbsp;<span class="label">// too low — drop mid too</span><br>
+        &nbsp;&nbsp;else:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right = mid&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// too high OR exact — keep mid</span><br>
+        <span class="em">return left</span>
+      </div>
+      <p>One: <code class="chip">left</code> and <code class="chip">right</code> mark a closed range that always holds the pick.<br>
+      Two: if <code class="chip">mid</code> is too low, <code class="chip">left = mid + 1</code>; otherwise <code class="chip">right = mid</code>.<br>
+      Three: when one cell is left, return it.</p>
+      <p><strong>One thing worth flagging</strong> — I'm merging "too high" and "exact" into the same line. <code class="chip num">-1</code> means the pick is below <code class="chip">mid</code>; <code class="chip num">0</code> means it <em>is</em> <code class="chip">mid</code>. Both give <code class="chip">pick &lt;= mid</code>, and <code class="chip">right = mid</code> keeps <code class="chip">mid</code> in range.</p>
+      <p>Shrinking to <code class="chip">mid - 1</code> could save a round, but it throws away an exact hit — I'll pay at most one extra round to drop a branch and a dead code path.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="com">/**
+ * Forward declaration of guess API.
+ * @param  num   your guess
+ * @return       -1 if num is higher than the picked number
+ *                1 if num is lower than the picked number
+ *                otherwise return 0
+ * int guess(int num);
+ */</span>
+<span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">guessNumber</span>(<span class="typ">int</span> n) {
+        <span class="typ">int</span> left = <span class="num2">1</span>, right = n;          <span class="com">// the answer is always in the closed range [left, right]</span>
+        <span class="kw">while</span> (left &lt; right) {            <span class="com">// stop at one cell; no need to wait for an empty range</span>
+            <span class="typ">int</span> mid = left + (right - left) / <span class="num2">2</span>;  <span class="com">// n can reach 2^31-1, so avoid overflow</span>
+            <span class="kw">if</span> (<span class="fn">guess</span>(mid) == <span class="num2">1</span>) {
+                left = mid + <span class="num2">1</span>;          <span class="com">// too low → answer in (mid, right]</span>
+            } <span class="kw">else</span> {
+                right = mid;              <span class="com">// too high or exact → answer in [left, mid]</span>
+            }
+        }
+        <span class="kw">return</span> left;                     <span class="com">// one cell left and the answer must exist → it's this one</span>
+    }
+};</pre>
+      <p><code class="chip">left</code> starts at <code class="chip num">1</code>, <code class="chip">right</code> at <code class="chip">n</code>, and the loop runs while <code class="chip">left &lt; right</code>. Each round calls <code class="chip">guess</code> exactly once — if the API were slow or metered, calling it twice would double the real cost. Too low moves <code class="chip">left</code> past <code class="chip">mid</code>; anything else sets <code class="chip">right = mid</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the midpoint is <code class="chip">left + (right - left) / 2</code>, never <code class="chip">(left + right) / 2</code>, because <code class="chip">n</code> can be <code class="chip">INT_MAX</code>. And there's no <code class="chip">return -1</code> at the bottom. In the three-branch version you're forced to write one for the compiler, but it can never run, since the pick is guaranteed to exist. Here the loop ends with exactly one candidate, so the dead line has nowhere to live.</p>
+    </div>
+  </div>
+
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> <code class="chip">n = 10</code>, pick is <code class="chip num">6</code>. I expect <code class="chip num">6</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>range</th><th>mid</th><th>guess(mid)</th><th>meaning</th><th>action</th><th>new range</th></tr></thead>
+        <tbody>
+          <tr><td>[1, 10]</td><td>5</td><td>1</td><td>too low</td><td>left = mid + 1</td><td>[6, 10]</td></tr>
+          <tr><td>[6, 10]</td><td>8</td><td>-1</td><td>too high</td><td>right = mid</td><td>[6, 8]</td></tr>
+          <tr><td>[6, 8]</td><td>7</td><td>-1</td><td>too high</td><td>right = mid</td><td>[6, 7]</td></tr>
+          <tr class="highlight-row"><td>[6, 7]</td><td>6</td><td>0</td><td>exact hit</td><td>right = mid</td><td><span class="answer-cell">[6, 6] → stop</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The last row is the interesting one: the range is <code class="chip">[6, 7]</code>, <code class="chip">mid</code> is <code class="chip num">6</code>, and <code class="chip">guess</code> says <code class="chip num">0</code>. I hit the number and I <em>don't</em> return — I treat <code class="chip num">0</code> exactly like "too high" and set <code class="chip">right = mid</code>. That keeps <code class="chip num">6</code> in range, so it becomes the only survivor, and <code class="chip">return left</code> hands it back. Four calls total.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">n = 1</code>: the loop never runs, so I return <code class="chip num">1</code> with zero API calls.<br>
+      • <code class="chip">n = 2, pick = 2</code>: <code class="chip">mid</code> rounds down to <code class="chip num">1</code>, too low, one call.<br>
+      • <code class="chip">n = INT_MAX, pick = 1</code>: <code class="chip num">31</code> calls.<br>
+      • <code class="chip">pick = INT_MAX</code>: <code class="chip num">30</code> calls, returning <code class="chip">INT_MAX</code>.</p>
+    </div>
+  </div>
+
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> O(log n), and the meaningful unit here is API calls, not instructions — one <code class="chip">guess</code> per round. <strong>The space complexity is</strong> O(1).</p>
+      <p><strong>In the worst-case scenario</strong> that's <code class="chip num">31</code> calls at <code class="chip">n = 2^31 − 1</code>. And that's essentially optimal: each call splits the candidates around one point, so <code class="chip">k</code> calls can only tell apart about 2<sup>k</sup> numbers.</p>
+      <p><em class="pause">Oh, one more thing —</em> back to the overflow point. When the pick is in the upper half, the second round already has <code class="chip">left = 1073741825</code> and <code class="chip">right = 2147483647</code>. <code class="chip">(left + right) / 2</code> wraps around to <code class="chip num">-536870912</code> — a guess that isn't even in range, and the search stops converging. <code class="chip">left + (right - left) / 2</code> gives <code class="chip num">1610612736</code>. Here it's the difference between working and not.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You proved the merge of "too high" and "exact" with one inequality — <code class="chip">pick &lt;= mid</code> — instead of asserting it. You pointed out that the usual <code class="chip">return -1</code> is unreachable and restructured the loop so it isn't needed. And you caught the overflow from the constraint alone, with the actual wrapped value to back it up. Good work.</p>
+    </div>
+  </div>
+
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.65, 26.53, 28.85, 37.03, 42.14, 45.88, 49.81, 79.08, 93.5, 130.02, 177.49, 180.24, 223.48, 270.8, 321.32]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
