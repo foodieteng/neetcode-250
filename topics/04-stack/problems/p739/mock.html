@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 739 · Daily Temperatures</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 739 · Daily Temperatures · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given an array of daily <code class="chip">temperatures</code>, return an array <code class="chip">answer</code>, where <code class="chip">answer[i]</code> is how many days you have to wait after day <code class="chip">i</code> to get a warmer temperature. If there is no such day, <code class="chip">answer[i] = 0</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> "warmer" means <strong>strictly greater</strong>, so an equal temperature doesn't count. And the answer is a count of days — an index difference — not the temperature itself. Right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct. There can be up to 10<sup>5</sup> temperatures.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. So for each day, I need the <strong>nearest later day that is strictly warmer</strong> — and I return the distance to it, not its value. One warm day can answer several earlier days at once.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be to</strong> scan forward from each day until I find a warmer one. That's <code class="chip">O(n²)</code>, too slow at 10<sup>5</sup>.</p>
+      <p><strong>This problem reminds me of</strong> a monotonic stack, and it fits because a warmer day settles every cooler day still waiting before it. I keep a stack of <em>indices</em> of days still waiting for a warmer day, with temperatures decreasing from bottom to top. When a new day is warmer than the top, I've found that day's answer — pop it, and keep going, since one day may resolve several.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// stack holds indices, temps decreasing; ans defaults to 0</span><br>
+        for i in 0..n:<br>
+        &nbsp;&nbsp;while stack and temp[i] <span class="em">&gt;</span> temp[stack.top]:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ans[stack.top] = <span class="em">i - stack.top</span>; pop<br>
+        &nbsp;&nbsp;push i
+      </div>
+      <p>One: keep a stack of waiting indices, and let <code class="chip">ans</code> default to <code class="chip num">0</code>.<br>
+      Two: for each day, while it's warmer than the top, set the top's answer to the index gap and pop.<br>
+      Three: push today's index.</p>
+      <p><strong>One thing worth flagging</strong> — I store <em>indices</em>, not temperatures, because the answer is <code class="chip">i - j</code>, a distance. I compare with strict <code class="chip">&gt;</code>, since equal isn't warmer. And <code class="chip">ans</code> starts at 0, so any index left on the stack — no warmer day ever came — is already correct.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">dailyTemperatures</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; temperatures) {
+        <span class="typ">int</span> n = temperatures.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; ans(n, <span class="num2">0</span>);          <span class="com">// default 0: stays 0 if no warmer day comes</span>
+        <span class="typ">stack</span>&lt;<span class="typ">int</span>&gt; st;                    <span class="com">// waiting indices, temps decreasing</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n; i++) {
+            <span class="kw">while</span> (!st.<span class="fn">empty</span>() &amp;&amp; temperatures[i] &gt; temperatures[st.<span class="fn">top</span>()]) {
+                ans[st.<span class="fn">top</span>()] = i - st.<span class="fn">top</span>();   <span class="com">// distance = index gap</span>
+                st.<span class="fn">pop</span>();                          <span class="com">// settled, remove it; may chain</span>
+            }
+            st.<span class="fn">push</span>(i);                          <span class="com">// i starts waiting</span>
+        }
+
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p><code class="chip">ans</code> starts at all zeros, and the stack holds indices. For each day, a <code class="chip">while</code> loop settles every waiting day that is cooler, then I push today's index. That matches the plan.</p>
+      <p><strong>One thing worth flagging</strong> — I read <code class="chip">st.top()</code> to set the answer <em>before</em> popping, or I'd lose the index I need for the distance.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> <code class="chip">[73,74,75,71,69,72,76,73]</code>. Expected <code class="chip">[1,1,4,2,1,1,0,0]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:420px;">
+        <thead><tr><th>i (temp)</th><th>while resolves</th><th>stack (idx)</th></tr></thead>
+        <tbody>
+          <tr><td>0 (73)</td><td>—, push</td><td>[0]</td></tr>
+          <tr><td>1 (74)</td><td>ans[0]=1, push</td><td>[1]</td></tr>
+          <tr><td>2 (75)</td><td>ans[1]=1, push</td><td>[2]</td></tr>
+          <tr><td>3 (71)</td><td>—, push</td><td>[2,3]</td></tr>
+          <tr><td>4 (69)</td><td>—, push</td><td>[2,3,4]</td></tr>
+          <tr><td>5 (72)</td><td>ans[4]=1, ans[3]=2, push</td><td>[2,5]</td></tr>
+          <tr class="highlight-row"><td>6 (76)</td><td>ans[5]=1, ans[2]=4, push</td><td><span class="answer-cell">[6]</span></td></tr>
+          <tr><td>7 (73)</td><td>—, push</td><td>[6,7]</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is day 6, at 76. It resolves day 5 at distance 1, then day 2, at 75, which had been waiting since index 2 — distance 4. Days 6 and 7 stay on the stack, so their answers remain 0. That matches.</p>
+      <p><strong>Let's also test corner cases.</strong></p>
+      <p>• A strictly increasing run like <code class="chip">[30,40,50,60]</code> → each waits 1, the last is 0.<br>
+      • A strictly decreasing run → all zeros, and every index just stacks up.<br>
+      • Equal neighbors, like <code class="chip">[70,70]</code> → both 0, because of the strict <code class="chip">&gt;</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> <code class="chip">O(n)</code> amortized. The <code class="chip">while</code> looks nested, but each index is pushed once and popped at most once, so total pops are bounded by n. <strong>The space complexity is</strong> <code class="chip">O(n)</code>, for the stack and the answer.</p>
+      <p><em class="pause">Oh, one more thing —</em> for "next cooler day," I'd flip the stack to increasing and use <code class="chip">&lt;</code>; the structure is identical.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You stored indices, so the distance is just a subtraction. You used strict greater-than deliberately, tying it to "warmer." And you gave a clean amortized argument for O(n). Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.37, 31.21, 35.38, 47.04, 81.07, 117.97, 120.75, 144.91, 196.46, 218.56]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
