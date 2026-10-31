@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 229 · Majority Element II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+table.trace td { white-space: nowrap; }
+@media (max-width: 600px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px 12px; font-size: 11.5px; }
+  .legend { gap: 16px; }
+  table.trace { font-size: 11px; }
+  table.trace th { font-size: 9.5px; padding: 8px 6px; letter-spacing: 0.04em; }
+  table.trace td { padding: 6px 6px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 229 · Majority Element II · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given an integer array of size <code class="chip">n</code>, find all elements that appear more than <code class="chip">⌊n/3⌋</code> times. Follow-up: can you do it in linear time and O(1) space?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, one quick observation to anchor on.</strong> <em class="pause">How many such elements can there even be?</em> If three distinct values each appeared more than <code class="chip">n/3</code> times, that's more than <code class="chip">n</code> elements in total — impossible. So <strong>at most two</strong> elements qualify.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly. That bound is the key.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Just to confirm the output —</em> I return the values themselves, in any order, and the answer can be empty, one, or two elements? And the threshold is <strong>strictly</strong> greater than <code class="chip">⌊n/3⌋</code>?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct — strictly greater, any order.</p>
+    </div>
+  </div>
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about the space constraint.</em></p>
+      <p><strong>A naive approach would</strong> count everything in a hash map — O(n) time, but O(n) space too, so it fails the follow-up. Sorting costs O(n log n).</p>
+      <p><strong>This problem reminds me of Boyer-Moore majority voting, extended to two candidates.</strong> The classic vote finds a value that fills more than half the array with one candidate slot. Since at most two elements can clear a third, I keep two <code class="chip">(candidate, count)</code> slots instead of one.</p>
+    </div>
+  </div>
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan, in two phases.</p>
+      <div class="insight-box">
+        <span class="label">// phase 1: vote → 2 candidates</span><br>
+        for num:<br>
+        &nbsp;&nbsp;if num == c1: cnt1++<br>
+        &nbsp;&nbsp;elif num == c2: cnt2++<br>
+        &nbsp;&nbsp;elif cnt1 == 0: c1 = num, cnt1 = 1<br>
+        &nbsp;&nbsp;elif cnt2 == 0: c2 = num, cnt2 = 1<br>
+        &nbsp;&nbsp;else: <span class="em">cnt1--, cnt2--</span> <span class="label">// 3rd distinct value</span><br>
+        <span class="label">// phase 2: verify by real count &gt; n/3</span>
+      </div>
+      <p>One: keep two candidate slots, each with a count.<br>
+      Two: for each number, if it matches a candidate, bump that count; else if a slot is empty, adopt the number there; otherwise it's a third distinct value, so decrement both counts.<br>
+      Three: in a second pass, count the two candidates for real, and keep each one that appears more than <code class="chip">n/3</code> times.</p>
+      <p><strong>One thing worth flagging</strong> — and this is the big difference from the more-than-half version — <strong>voting alone isn't enough</strong>. A candidate can survive the vote without truly qualifying, so I <strong>must verify</strong> with a real count. In the more-than-half version a majority is guaranteed to exist; here it isn't. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">majorityElement</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
+        <span class="typ">int</span> c1 = <span class="num2">0</span>, cnt1 = <span class="num2">0</span>, c2 = <span class="num2">0</span>, cnt2 = <span class="num2">0</span>;
+
+        <span class="com">// ── pass 1: vote, narrow down to 2 candidates ──</span>
+        <span class="kw">for</span> (<span class="typ">int</span> num : nums) {
+            <span class="kw">if</span> (num == c1) cnt1++;              <span class="com">// matches c1</span>
+            <span class="kw">else if</span> (num == c2) cnt2++;         <span class="com">// matches c2 (compare values first)</span>
+            <span class="kw">else if</span> (cnt1 == <span class="num2">0</span>) { c1 = num; cnt1++; }  <span class="com">// c1 empty → adopt</span>
+            <span class="kw">else if</span> (cnt2 == <span class="num2">0</span>) { c2 = num; cnt2++; }  <span class="com">// c2 empty → adopt</span>
+            <span class="kw">else</span> { cnt1--; cnt2--; }          <span class="com">// third value → decrement both</span>
+        }
+
+        <span class="com">// ── pass 2: verify the real counts ──</span>
+        cnt1 = <span class="num2">0</span>, cnt2 = <span class="num2">0</span>;
+        <span class="kw">for</span> (<span class="typ">int</span> num : nums) {
+            <span class="kw">if</span> (num == c1) cnt1++;
+            <span class="kw">else if</span> (num == c2) cnt2++;
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; ans;
+        <span class="kw">if</span> (cnt1 &gt; nums.<span class="fn">size</span>() / <span class="num2">3</span>) ans.<span class="fn">push_back</span>(c1);
+        <span class="kw">if</span> (cnt2 &gt; nums.<span class="fn">size</span>() / <span class="num2">3</span>) ans.<span class="fn">push_back</span>(c2);
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p>The first loop is the vote, with four integers: two candidates and their counts. The second loop resets the counts and recounts the two candidates, and I push each one whose count beats <code class="chip">nums.size() / 3</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the two <code class="chip">==</code> match checks must come <em>before</em> the two empty-slot checks. If an empty slot were checked first, a number already held in the other slot could be adopted again, and the same value would sit in both slots, wasting one.</p>
+    </div>
+  </div>
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on an input designed to trip up a missing verify. <code class="chip">[3,3,4,2,4,4,2,4]</code> — <code class="chip">n = 8</code>, so the threshold is <code class="chip num">2</code>, and the expected answer is just <code class="chip">[4]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:300px;">
+        <thead><tr><th>num</th><th>action</th><th>c1(cnt1)</th><th>c2(cnt2)</th></tr></thead>
+        <tbody>
+          <tr><td>3</td><td>adopt c1</td><td>3(1)</td><td>0(0)</td></tr>
+          <tr><td>3</td><td>==c1</td><td>3(2)</td><td>0(0)</td></tr>
+          <tr><td>4</td><td>adopt c2</td><td>3(2)</td><td>4(1)</td></tr>
+          <tr><td>2</td><td>dec both</td><td>3(1)</td><td>4(0)</td></tr>
+          <tr><td>4</td><td>==c2</td><td>3(1)</td><td>4(1)</td></tr>
+          <tr><td>4</td><td>==c2</td><td>3(1)</td><td>4(2)</td></tr>
+          <tr><td>2</td><td>dec both</td><td>3(0)</td><td>4(1)</td></tr>
+          <tr><td>4</td><td>==c2</td><td>3(0)</td><td>4(2)</td></tr>
+          <tr class="highlight-row"><td colspan="2">verify (real count)</td><td>3 → 2, not &gt; 2</td><td>4 → 4 &gt; 2</td></tr>
+          <tr><td colspan="2">return</td><td colspan="2"><span class="answer-cell">[4]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The vote ends with candidates <code class="chip num">3</code> and <code class="chip num">4</code>. The step that matters is the <strong>verify</strong>: 3 appears only twice, which is <em>not</em> more than 2, so it's dropped. 4 appears four times, so it's kept. Without the verify pass, I'd have wrongly returned 3 too. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[1]</code> → <code class="chip">[1]</code>.<br>
+      • <code class="chip">[1,2]</code> → <code class="chip">[1,2]</code>, since each count beats 0.<br>
+      • <code class="chip">[1,2,3]</code> → <code class="chip">[]</code> — nobody beats 1, and the verify catches it.</p>
+    </div>
+  </div>
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n) — two passes. Space is O(1) — just four integers, independent of <code class="chip">n</code>. That satisfies the follow-up.</p>
+      <p><em class="pause">Oh, one more thing —</em> this generalizes. For "more than <code class="chip">n/k</code>", I'd keep <code class="chip">k−1</code> candidate slots and decrement all of them on each new distinct value — O(nk) time, and O(k) space. The more-than-half version is just <code class="chip">k = 2</code>, with one slot.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You derived the at-most-two bound before anything else. You explained why the verify pass is mandatory here, but not when a majority is guaranteed. And you generalized cleanly to the <code class="chip">n/k</code> version. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.31, 30.64, 34.04, 48.12, 51.47, 82.36, 131.26, 134.04, 165.14, 211.88, 240.29]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
