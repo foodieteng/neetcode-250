@@ -41,24 +41,37 @@ def dur(path):
          "-of", "csv=p=0", path]).strip())
 
 
-async def synth(entries, iv, cd, tmp):
+async def synth(entries, iv, cd, tmp, workers=4):
     import edge_tts
     proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
-    outs = []
-    for i, e in enumerate(entries):
+    sem = asyncio.Semaphore(workers)  # ~4.2 s/turn serial; 4-way ≈ 3× faster
+
+    async def one(i, e):
         out = os.path.join(tmp, f"{i:03d}.mp3")
         voice = iv if e["v"] == "iv" else cd
         rate = "+2%" if e["v"] == "cd" else "-2%"
-        await edge_tts.Communicate(e["text"], voice, rate=rate,
-                                   proxy=proxy).save(out)
+        async with sem:
+            for attempt in (1, 2):
+                try:
+                    await edge_tts.Communicate(e["text"], voice, rate=rate,
+                                               proxy=proxy).save(out)
+                    if os.path.getsize(out):
+                        break
+                except Exception:
+                    if attempt == 2:
+                        raise
+                await asyncio.sleep(2)
         if not os.path.getsize(out):
             sys.exit(f"turn {i}: empty synthesis result")
         wav = out[:-4] + ".wav"  # sample-exact timing; mp3 frame padding drifts
         subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-i", out,
                                "-ar", "24000", "-ac", "1", wav])
-        outs.append(wav)
-        print(f"  {i:03d} {e['v']} {dur(wav):6.1f}s  {e['text'][:48]}…")
-    return outs
+        return wav
+
+    outs = await asyncio.gather(*[one(i, e) for i, e in enumerate(entries)])
+    for i, (e, w) in enumerate(zip(entries, outs)):
+        print(f"  {i:03d} {e['v']} {dur(w):6.1f}s  {e['text'][:48]}…")
+    return list(outs)
 
 
 def main():
