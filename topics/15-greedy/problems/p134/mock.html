@@ -110,7 +110,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>There are <code class="chip">n</code> gas stations in a circle. At station <code class="chip">i</code> you get <code class="chip">gas[i]</code>. Driving from <code class="chip">i</code> to <code class="chip">i + 1</code> costs <code class="chip">cost[i]</code>. You start with an empty tank. Return the index of the station where you can start and drive the full loop clockwise. If there is no such station, return <code class="chip num">-1</code>.</p>
+      <p>There are <code class="chip">n</code> gas stations arranged in a circle. At station <code class="chip">i</code> you get <code class="chip">gas[i]</code>. Driving from station <code class="chip">i</code> to the next station costs <code class="chip">cost[i]</code>. You start with an empty tank. Return the index of the station where you can start and drive the full loop clockwise. If there is no such station, return <code class="chip num">-1</code>.</p>
     </div>
   </div>
 
@@ -118,7 +118,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — at each station I first add <code class="chip">gas[i]</code>, then pay <code class="chip">cost[i]</code> to reach the next one. The tank can hit exactly zero, but never go below zero. And "a full loop" means I come back to where I started. Is that right?</p>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — at each station I first add the gas there, <code class="chip">gas[i]</code>, then pay the cost, <code class="chip">cost[i]</code>, to reach the next one. The tank can hit exactly zero, but it can never go below zero. And a full loop means I come back to where I started. Is that right?</p>
     </div>
   </div>
 
@@ -134,7 +134,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Good, that helps. Then the only number that matters at each station is the net change, <code class="chip">diff = gas[i] - cost[i]</code>. The tank after any stretch is just the sum of the diffs on that stretch. So I can think of it as a circle of numbers, and I need a start where the running sum never goes negative.</p>
+      <p>Good, that helps. Then the only number that really matters at each station is the net change — I'll call it <code class="chip">diff</code>, which is <code class="chip">gas[i] - cost[i]</code>, the gas at that station minus the cost to leave it. The tank after any stretch of road is just the sum of the diffs on that stretch. So I can think of the whole thing as a circle of numbers, and I need a starting point where the running sum never goes negative.</p>
       <p><strong>Are there any constraints on the input size?</strong></p>
     </div>
   </div>
@@ -143,7 +143,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= n &lt;= 10^5</code>, and <code class="chip">0 &lt;= gas[i], cost[i] &lt;= 10^4</code>.</p>
+      <p>n is between 1 and 10<sup>5</sup>, and every <code class="chip">gas</code> and <code class="chip">cost</code> value is between 0 and 10<sup>4</sup>.</p>
     </div>
   </div>
 
@@ -151,9 +151,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Got it. Up to 10<sup>5</sup> stations, so I want O(n).</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">gas = [1,2,3,4,5]</code>, <code class="chip">cost = [3,4,5,1,2]</code>. The diffs are <code class="chip">[-2,-2,-2,3,3]</code>. Start at 3: tank 3, then 6, then 4, then 2, then 0. I make it back with an empty tank, so the answer is <code class="chip num">3</code>. Matches.</p>
-      <p><code class="chip">gas = [2,3,4]</code>, <code class="chip">cost = [3,4,3]</code>. Diffs are <code class="chip">[-1,-1,1]</code>, and they add up to <code class="chip num">-1</code>. The whole loop burns more gas than it gives, so no start can work. Answer <code class="chip num">-1</code>. Also matches.</p>
+      <p>Got it. Up to 100,000 stations, so I want O(n).</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">gas = [1,2,3,4,5]</code> and <code class="chip">cost = [3,4,5,1,2]</code>, so the diffs are <code class="chip">[-2,-2,-2,3,3]</code>. Starting at station 3, the tank never dips below zero and comes back exactly empty, so the answer is <code class="chip num">3</code>. That matches.</p>
+      <p>The second example: <code class="chip">gas = [2,3,4]</code>, <code class="chip">cost = [3,4,3]</code>. The diffs add up to <code class="chip num">-1</code> — the loop burns more gas than it gives, so no start works, and the answer is <code class="chip num">-1</code>.</p>
     </div>
   </div>
 
@@ -164,11 +164,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> try every start, and drive the loop from it until the tank goes negative. That's O(n<sup>2</sup>). With 10<sup>5</sup> stations, that's up to 10<sup>10</sup> steps. Too slow.</p>
-      <p>Another quick idea is to start at the station with the biggest diff. That's wrong. <code class="chip">gas = [0,1,2]</code>, <code class="chip">cost = [3,0,0]</code>: the biggest diff is at 2, but the answer is 1. From 1 I save up 1 + 2 = 3, which is just enough for the 3 I need at station 0.</p>
-      <p><strong>This problem reminds me of</strong> a greedy with a running sum, like Kadane's: keep a sum, and when it goes negative, throw it away and start fresh. The question is why throwing it away is safe here.</p>
-      <p>The key fact is a <strong>skip lemma</strong>. Say I start at <code class="chip">s</code> and the tank first goes negative at <code class="chip">i</code>. Then <strong>no station in <code class="chip">[s..i]</code> can be the start.</strong> <em class="pause">Let me walk through that.</em> Pick any station <code class="chip">k</code> in between. When I drove from <code class="chip">s</code>, I reached <code class="chip">k</code> with some tank that was at least zero. If I start at <code class="chip">k</code> instead, I reach it with zero. So I'm never better off. I had at most the same gas all the way to <code class="chip">i</code>, and I already failed there. So I can jump the start straight to <code class="chip">i + 1</code>. Each station is looked at once.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be to</strong> try every start and simulate — O(n<sup>2</sup>), up to 10<sup>10</sup> steps, too slow. Starting at the biggest diff is also wrong: <code class="chip">gas = [0,1,2]</code> with <code class="chip">cost = [3,0,0]</code> has its biggest diff at station 2, but the answer is 1.</p>
+      <p><strong>This problem reminds me of</strong> a greedy with a running sum, like Kadane's algorithm: when the sum goes negative, throw it away and start fresh. Why is that safe? A <strong>skip lemma</strong>. If I start at <code class="chip">s</code> and the tank first goes negative at <code class="chip">i</code>, <strong>nothing from <code class="chip">s</code> through <code class="chip">i</code> can be the start.</strong> Any station in between was reached with a tank of at least zero; starting there gives zero, so I'd fail at <code class="chip">i</code> again. So I jump the start straight to <code class="chip">i + 1</code>.</p>
     </div>
   </div>
 
@@ -184,9 +182,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>That's the second fact: <strong>an answer exists exactly when the total of all diffs is at least zero.</strong> If the total is negative, the loop costs more than it gives, so nothing works. If the total is at least zero, the last candidate <code class="chip">start</code> works.</p>
-      <p>Here's why. From <code class="chip">start</code> to the end of the array, the running sum never went negative. That's how <code class="chip">start</code> survived. Then I wrap around to station 0 and drive the part before <code class="chip">start</code>. That part is made of pieces that each failed, so each has a negative sum. But inside a piece, the sum only dips below zero at its very end. So the lowest my tank can get is at the very end, and there it holds exactly <code class="chip">total</code>, which is at least zero. The part before <code class="chip">start</code> is paid for by <code class="chip">total &gt;= 0</code>.</p>
-      <p>So there are <strong>two separate jobs</strong>. <code class="chip">total</code> answers "is there an answer?" <code class="chip">cur</code> and <code class="chip">start</code> answer "which station is it?"</p>
+      <p>That's the second fact: <strong>an answer exists exactly when the total of all the diffs is at least zero.</strong> If it's negative, the loop costs more than it gives, so nothing works. If it's at least zero, the last candidate <code class="chip">start</code> works.</p>
+      <p>From <code class="chip">start</code> to the end of the array, the running sum never went negative — that's how <code class="chip">start</code> survived. The part before <code class="chip">start</code> is made of pieces that each failed, and each piece only dips below zero at its very end. So the lowest point of the whole loop is the very end, where the tank holds exactly <code class="chip">total</code>, which is at least zero.</p>
+      <p>So there are <strong>two separate jobs</strong>: <code class="chip">total</code> answers whether there's an answer at all, and <code class="chip">cur</code> with <code class="chip">start</code> answers which station it is.</p>
     </div>
   </div>
 
@@ -197,7 +195,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Here's the plan.</p>
+      <p>Here's the plan. Three integers, all zero: <code class="chip">total</code>, <code class="chip">cur</code>, and <code class="chip">start</code>. First, for each station, compute the diff and add it to both <code class="chip">total</code> and <code class="chip">cur</code>. Second, if <code class="chip">cur</code> drops below zero, nothing from <code class="chip">start</code> through i works, so <code class="chip">start</code> moves to <code class="chip">i + 1</code> and <code class="chip">cur</code> resets to 0. <code class="chip">total</code> is never reset. Third, return <code class="chip num">-1</code> if <code class="chip">total</code> is negative, otherwise <code class="chip">start</code>.</p>
       <div class="insight-box">
         <span class="label">// total: sum of all diffs → is there an answer?</span><br>
         <span class="label">// cur:&nbsp;&nbsp; tank since start → which station?</span><br>
@@ -209,9 +207,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         &nbsp;&nbsp;&nbsp;&nbsp;start = <span class="em">i + 1</span>, cur = <span class="em">0</span><br>
         return total &lt; 0 ? <span class="em">-1</span> : start
       </div>
-      <p><strong>Here, I'm using</strong> <code class="chip">cur</code> <strong>to keep track of</strong> the tank since the current candidate start. And I'm using <code class="chip">total</code> to keep track of the whole loop. <code class="chip">total</code> is never reset.</p>
-      <p><strong>One thing worth flagging</strong> — the two comparisons are both strict, and both on purpose. <code class="chip">cur &lt; 0</code>, not <code class="chip">&lt;= 0</code>: an empty tank is still fine, I just can't go below zero. And <code class="chip">total &lt; 0</code>, not <code class="chip">&lt;= 0</code>: a total of exactly zero is a valid loop. I come back with an empty tank, like in example 1.</p>
-      <p><strong>There's a trade-off here.</strong> I could do two passes: first sum everything to check <code class="chip">total</code>, then a second pass to find <code class="chip">start</code>. That's easier to read. But both jobs only need the same diffs, so one pass does both, with three ints.</p>
+      <p><strong>One thing worth flagging</strong> — both comparisons are strict, on purpose. <code class="chip">cur &lt; 0</code>, because an empty tank is still fine. And <code class="chip">total &lt; 0</code>, because a total of exactly zero is a valid loop — I come back empty, like in example 1.</p>
+      <p>Two passes would read a bit easier, but one pass does both jobs with three integers.</p>
       <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
@@ -231,7 +228,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">int</span> <span class="fn">canCompleteCircuit</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; gas, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; cost) {
@@ -252,16 +249,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> total &lt; <span class="num2">0</span> ? -<span class="num2">1</span> : start;
     }
 };</pre>
-      <p>That matches the plan line by line.</p>
-      <p><strong>One thing worth flagging</strong> — <code class="chip">start = i + 1</code> can be <code class="chip">n</code>, which is out of range. But that only happens if the very last station fails. Then every piece of the array went negative, so <code class="chip">total &lt; 0</code>, and I return <code class="chip num">-1</code> instead. When <code class="chip">total &gt;= 0</code>, <code class="chip">start</code> is never <code class="chip">n</code>. In my tests it happened <code class="chip num">0</code> times.</p>
-      <p>I also checked what breaks if I get a small detail wrong. I tested every input with <code class="chip">n</code> from 1 to 5 and values 0 to 3, keeping the <code class="chip num">612,240</code> inputs that meet the "unique answer" rule:</p>
-      <p>• <code class="chip">start = i</code> instead of <code class="chip">i + 1</code>: <code class="chip num">91,922</code> wrong. Smallest is <code class="chip">gas=[0,1], cost=[1,0]</code>: it returns 0, but the answer is 1.<br>
-      • Forget <code class="chip">cur = 0</code> on reset: <code class="chip num">24,699</code> wrong. Smallest is <code class="chip">gas=[0,1,1], cost=[2,0,0]</code>: it returns 2, but the answer is 1.<br>
-      • Return <code class="chip">start</code> with no <code class="chip">total</code> check: <code class="chip num">496,728</code> wrong, which is every <code class="chip num">-1</code> case. Smallest is <code class="chip">gas=[0], cost=[1]</code>: it returns 1, but the answer is -1.<br>
-      • <code class="chip">total &lt;= 0 ? -1</code>: <code class="chip num">71,092</code> wrong. <code class="chip">gas=[0], cost=[0]</code> returns -1, but the answer is 0. It fails exactly when the tank ends empty, <code class="chip">total == 0</code>.<br>
-      • <code class="chip">cur &lt;= 0</code>: <code class="chip num">14,511</code> wrong. <code class="chip">gas=[0], cost=[0]</code> returns 1, but the answer is 0. And 1 is not even a valid index.<br>
-      • Start at the station with the largest diff: <code class="chip num">27,179</code> wrong. Smallest is <code class="chip">gas=[0,1,2], cost=[3,0,0]</code>: it returns 2, but the answer is 1.</p>
-      <p>So every piece of this short code is doing real work.</p>
+      <p>One loop: <code class="chip">diff = gas[i] - cost[i]</code>, it goes into both <code class="chip">total</code> and <code class="chip">cur</code>, and when <code class="chip">cur &lt; 0</code>, <code class="chip">start</code> becomes <code class="chip">i + 1</code> and <code class="chip">cur</code> goes back to 0. After the loop, return <code class="chip num">-1</code> if <code class="chip">total &lt; 0</code>, otherwise <code class="chip">start</code>. That matches the plan line by line.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">start = i + 1</code> can end up equal to <code class="chip">n</code>, which is out of range. That only happens when the last station fails, which means every piece went negative, so <code class="chip">total &lt; 0</code> and I return <code class="chip num">-1</code> instead. And in my tests, returning <code class="chip">start</code> with no <code class="chip">total</code> check gets every single <code class="chip num">-1</code> case wrong.</p>
     </div>
   </div>
 
@@ -272,7 +261,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> Example 1: <code class="chip">gas = [1,2,3,4,5]</code>, <code class="chip">cost = [3,4,5,1,2]</code>. Expected <code class="chip num">3</code>. The <code class="chip">cur</code> column is the value right after adding <code class="chip">diff</code>, before any reset.</p>
+      <p><strong>Let's dry-run the code with an example.</strong> Example 1, expected <code class="chip num">3</code>.</p>
       <div class="tablewrap">
       <table class="trace">
         <thead><tr><th>i</th><th>diff</th><th>total</th><th>cur</th><th>reset?</th><th>start</th></tr></thead>
@@ -286,14 +275,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </tbody>
       </table>
       </div>
-      <p>The highlighted row is <code class="chip">i = 3</code>. Look at the two columns side by side. <code class="chip">total</code> is still <code class="chip num">-3</code>, but <code class="chip">cur</code> is <code class="chip num">3</code>. They tell different stories, because they do different jobs. <code class="chip">cur</code> says "start 3 is alive so far". <code class="chip">total</code> says "we don't know yet if any answer exists". From here <code class="chip">cur</code> never goes negative, so <code class="chip">start</code> stays at 3.</p>
-      <p>At the end, <code class="chip">total</code> is exactly <code class="chip num">0</code>. That's the case where the strict <code class="chip">&lt; 0</code> matters. With <code class="chip">&lt;= 0</code> I would wrongly return <code class="chip num">-1</code> here. And rows 0 to 2 are the skip lemma at work: each start fails right away, so I jump past it.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• Example 2, <code class="chip">gas = [2,3,4]</code>, <code class="chip">cost = [3,4,3]</code>: <code class="chip">total</code> ends at <code class="chip num">-1</code>, so return <code class="chip num">-1</code>. Correct.<br>
-      • One station, <code class="chip">gas=[0], cost=[1]</code>: <code class="chip">cur</code> goes to -1, <code class="chip">start</code> becomes 1, but <code class="chip">total = -1</code>, so return <code class="chip num">-1</code>. The out-of-range start is never returned.<br>
-      • One station, <code class="chip">gas=[0], cost=[0]</code>: <code class="chip">cur = 0</code>, no reset, <code class="chip">total = 0</code>. Return <code class="chip num">0</code>. This one input catches both <code class="chip">&lt;=</code> bugs.<br>
-      • <code class="chip">gas=[0,1], cost=[1,0]</code>: reset at 0, start becomes 1, total is 0. Return <code class="chip num">1</code>. Correct.</p>
-      <p>Then I checked it against brute force, which tries every start and simulates. All <code class="chip num">1,118,480</code> inputs with <code class="chip">n</code> from 1 to 5 and values 0 to 3. On the <code class="chip num">612,240</code> that meet the guarantee (<code class="chip num">115,512</code> with one answer, <code class="chip num">496,728</code> with -1), there were <code class="chip num">0</code> mismatches. On the other <code class="chip num">506,240</code>, which have several valid starts, the code always returned one of them. Plus <code class="chip num">20,000</code> random inputs with <code class="chip">n</code> up to 300 and values up to 10<sup>4</sup>: <code class="chip num">0</code> mismatches.</p>
+      <p>The first three stations each have a diff of <code class="chip num">-2</code>, so each start fails at once — that's the skip lemma — and <code class="chip">start</code> lands on 3. The key row is <code class="chip">i = 3</code>: <code class="chip">total</code> is still <code class="chip num">-3</code>, but <code class="chip">cur</code> is <code class="chip num">3</code>. They disagree because they do different jobs. <code class="chip">cur</code> never goes negative again, and <code class="chip">total</code> ends at exactly <code class="chip num">0</code>, so the strict comparison returns <code class="chip num">3</code>.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">gas=[0], cost=[1]</code> → <code class="chip num">-1</code>, so the out-of-range start never leaks out.<br>
+      • <code class="chip">gas=[0], cost=[0]</code> → <code class="chip num">0</code> — that single input catches both <code class="chip">&lt;=</code> bugs.<br>
+      • Against brute force on every small input: <code class="chip num">0</code> mismatches.</p>
     </div>
   </div>
 
@@ -305,7 +291,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Let me think about complexity here.</em> There's one loop over the stations. The start jumps forward, but it never moves back, and I never restart the loop. So each station is visited once.</p>
-      <p><strong>The time complexity is</strong> O(n). <strong>The space complexity is</strong> O(1): just <code class="chip">total</code>, <code class="chip">cur</code>, and <code class="chip">start</code>.</p>
+      <p><strong>The time complexity is</strong> O(n). <strong>The space complexity is</strong> constant, O(1): just <code class="chip">total</code>, <code class="chip">cur</code>, and <code class="chip">start</code>.</p>
       <p><strong>In the worst-case scenario</strong>, the start resets at almost every station, like in example 1. That's still O(1) per station. The skip lemma is what lets me never look back.</p>
       <p><em class="pause">Oh, one more thing</em> — overflow. <code class="chip">total</code> sums up to 10<sup>5</sup> diffs, each between -10<sup>4</sup> and 10<sup>4</sup>. So <code class="chip">|total| &lt;= 10^9</code>, which is below <code class="chip">INT_MAX</code>. A plain <code class="chip">int</code> is safe here. If the limits were bigger, I'd switch to <code class="chip">long long</code>.</p>
     </div>
@@ -315,7 +301,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You proved the skip lemma: if the tank fails at <code class="chip">i</code>, nothing in <code class="chip">[start..i]</code> can work, so one pass is enough. You split the two jobs: <code class="chip">total &gt;= 0</code> says an answer exists, and you explained why the last start is that answer. And you defended both strict comparisons with one tiny input, <code class="chip">gas=[0], cost=[0]</code>, where the tank ends empty. Good work.</p>
+      <p>Nicely done. Three things stood out. You proved the skip lemma: if the tank fails at <code class="chip">i</code>, nothing from <code class="chip">start</code> through <code class="chip">i</code> can work, so one pass is enough. You split the two jobs: a non-negative <code class="chip">total</code> says an answer exists, and you explained why the last start is that answer. And you defended both strict comparisons with one tiny input — <code class="chip">gas=[0], cost=[0]</code> — where the tank ends empty. Good work.</p>
     </div>
   </div>
 

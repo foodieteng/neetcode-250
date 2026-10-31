@@ -125,7 +125,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>You're given an integer array <code class="chip">nums</code>. You start at index 0. Each value <code class="chip">nums[i]</code> is the <strong>maximum</strong> forward jump from index i. Return the <strong>minimum number of jumps</strong> to reach the last index. You can assume the last index is always reachable.</p>
+      <p>You're given an integer array called <code class="chip">nums</code>. You start at index 0. Each value <code class="chip">nums[i]</code> is the <strong>maximum</strong> forward jump from index i. Return the <strong>minimum number of jumps</strong> to reach the last index. You can assume the last index is always reachable.</p>
     </div>
   </div>
 
@@ -158,7 +158,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= n &lt;= 10^4</code>, and <code class="chip">0 &lt;= nums[i] &lt;= 1000</code>.</p>
+      <p>The length is between 1 and 10<sup>4</sup>, and every value is between 0 and 1000.</p>
     </div>
   </div>
 
@@ -166,8 +166,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Got it. n can be 1. Then I'm already on the last index, so the answer is <code class="chip num">0</code>. The answer is at most n − 1, when every step is a jump of 1. And the biggest sum I compute is <code class="chip">i + nums[i]</code>, at most 9998 + 1000 = 10,998. That fits easily in <code class="chip">int</code>.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">[2,3,1,1,4]</code>. With zero jumps I'm at index 0. With one jump I can be at index 1 or 2. From index 1 I can jump 3, straight to index 4. So <code class="chip num">2</code>. The second example, <code class="chip">[2,3,0,1,4]</code>, is also <code class="chip num">2</code>, by the same path 0 → 1 → 4. The zero at index 2 doesn't matter, because I never need to stand there.</p>
+      <p>Got it. n can be 1 — then I'm already on the last index, so the answer is <code class="chip num">0</code>. The biggest sum, <code class="chip">i + nums[i]</code>, is at most 10,998, so an <code class="chip">int</code> is fine.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">[2,3,1,1,4]</code>: one jump gets me to index 1 or 2, and from index 1 a jump of 3 lands on index 4. So the answer is <code class="chip num">2</code>. The second example, <code class="chip">[2,3,0,1,4]</code>, is also <code class="chip num">2</code> by the same path — the zero at index 2 doesn't matter, because I never stand there.</p>
     </div>
   </div>
 
@@ -179,9 +179,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> use DP. <code class="chip">dp[j]</code> = fewest jumps to reach j. For each i, I try every j it can reach and set <code class="chip">dp[j] = min(dp[j], dp[i] + 1)</code>. That's correct, but it's O(n · max jump). Up to about 10<sup>7</sup> steps here. I'd keep it as a checker, not the answer.</p>
-      <p><strong>This problem reminds me of</strong> BFS shortest path. "Fewest jumps" is "fewest edges", and every edge costs 1. So I can think in <strong>layers</strong>. Layer k is the set of cells I can reach in exactly k jumps, and not fewer. The answer is the layer number of index n − 1.</p>
-      <p>Now the prefix fact pays off. "Reachable within k jumps" is a prefix. So each layer is a <strong>contiguous range</strong>: it starts right after the last layer ends. That means I don't need a queue. A layer is just a right edge. Here are the layers for example 1:</p>
+      <p><strong>A naive approach would be</strong> dynamic programming: <code class="chip">dp[j]</code> is the fewest jumps to reach j, and each i relaxes every j it can reach. Correct, but O(n · max jump) — about 10<sup>7</sup> here. I'd keep it as a checker, not the answer.</p>
+      <p><strong>This problem reminds me of</strong> BFS shortest path. Fewest jumps is fewest edges, and every edge costs 1, so I can think in <strong>layers</strong>: layer k is the cells I first reach in exactly k jumps. And the prefix fact pays off — each layer is a <strong>contiguous range</strong> that starts right after the last one ends. So I don't need a queue; a layer is just a right edge.</p>
       <div class="cellviz">
         <div class="cells">
           <div class="cell l0"><div class="idx">0</div><div class="val">2</div></div>
@@ -192,7 +191,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </div>
         <div class="layers">L0 = [0] · L1 = [1..2] · L2 = [3..4]</div>
       </div>
-      <p>Index 4 is in layer 2, so the answer is 2. My job is just to find where each layer ends, while scanning left to right.</p>
+      <p>My job is to find where each layer ends while scanning left to right.</p>
     </div>
   </div>
 
@@ -203,7 +202,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Here's the plan. It's BFS, but with two numbers instead of a queue.</p>
+      <p>Here's the plan. It's BFS, but with two numbers instead of a queue: <code class="chip">curEnd</code>, the right edge of the current layer, and <code class="chip">nextEnd</code>, the farthest one more jump can reach. First, scan i from 0 to n − 2. Second, at each cell, raise <code class="chip">nextEnd</code> to <code class="chip">i + nums[i]</code>. Third, when i reaches <code class="chip">curEnd</code>, the layer is done — add one jump and move <code class="chip">curEnd</code> to <code class="chip">nextEnd</code>.</p>
       <div class="insight-box">
         <span class="label">// curEnd = right edge of the layer I can reach with `step` jumps</span><br>
         <span class="label">// nextEnd = farthest index reachable with ONE more jump,</span><br>
@@ -216,10 +215,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         &nbsp;&nbsp;&nbsp;&nbsp;curEnd = nextEnd&nbsp;&nbsp;<span class="label">// the next layer ends here</span><br>
         return step
       </div>
-      <p><strong>Here, I'm using</strong> <code class="chip">curEnd</code> <strong>to keep track of</strong> where the current layer stops. And <code class="chip">nextEnd</code> collects, from every cell in the current layer, how far one more jump could go. When i reaches <code class="chip">curEnd</code>, I've seen <strong>every</strong> cell of the current layer. The next layer can't grow anymore. So I close it: <code class="chip">step++</code>, and the new edge is <code class="chip">nextEnd</code>.</p>
-      <p>The key idea: <strong>this code never decides which cell to jump from.</strong> It only tracks how far each layer goes. The real path is hidden inside the layers, and I don't need it, because the question only asks for the count.</p>
-      <p><strong>One thing worth flagging</strong> — the loop stops at <strong>n − 2</strong>, not n − 1. <em class="pause">Let me walk through that.</em> Index n − 1 is always the edge of the last layer, because nothing past it exists. If I scanned it, <code class="chip">i == curEnd</code> would fire one extra time and add 1 for a jump I never take. That version is always exactly one too high. Even <code class="chip">[0]</code> gives 1 instead of 0.</p>
-      <p><strong>There's a trade-off here.</strong> I could also write a plain BFS with a queue, or keep explicit <code class="chip">l, r</code> bounds per layer. Same O(n) time, same answers, but more code and more state. The two-number version is shorter, and it's O(1) space. So I'll go with that.</p>
+      <p>The key idea: <strong>the code never picks which cell to jump from</strong> — it only tracks how far each layer goes.</p>
+      <p><strong>One thing worth flagging</strong> — the loop stops at <strong>n − 2</strong>. Scanning the last index fires the check one extra time, so the answer is always one too high.</p>
+      <p>A queue-based BFS works too, but this is O(1) space.</p>
       <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
@@ -239,7 +237,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">int</span> <span class="fn">jump</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
@@ -257,9 +255,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> step;
     }
 };</pre>
-      <p>That matches the plan line by line.</p>
-      <p><strong>One thing worth flagging</strong> — the <strong>order</strong> inside the loop matters. I update <code class="chip">nextEnd</code> <strong>before</strong> the <code class="chip">curEnd</code> check. Cell i is part of the layer I'm closing, so its reach must count before I close it. If I swap the two lines, then at i = 0, <code class="chip">nextEnd</code> is still 0. The first layer closes with edge 0, and things go wrong from there. Example 1 returns 1 instead of 2.</p>
-      <p>Also, <code class="chip">-Wall -Wextra</code> gives one warning: <code class="chip">-Wsign-compare</code> on <code class="chip">i &lt; nums.size() - 1</code>, int against size_t. It's harmless here, since n ≥ 1. For n = 1, <code class="chip">size() - 1</code> is 0, and the loop doesn't run. Only an empty vector would wrap to SIZE_MAX, and that's outside the constraints. Writing <code class="chip">int n = nums.size();</code> and <code class="chip">i &lt; n - 1</code> removes the warning and gives the same answers.</p>
+      <p>Three ints at 0 — <code class="chip">step</code>, <code class="chip">curEnd</code>, <code class="chip">nextEnd</code> — and one loop while <code class="chip">i &lt; nums.size() - 1</code>. Inside, <code class="chip">nextEnd</code> takes the max with <code class="chip">i + nums[i]</code>; then, if <code class="chip">curEnd == i</code>, <code class="chip">step++</code> and <code class="chip">curEnd = nextEnd</code>. That matches the plan line by line.</p>
+      <p><strong>One thing worth flagging</strong> — the <strong>order</strong> inside the loop matters. <code class="chip">nextEnd</code> must update <strong>before</strong> the check, because cell i belongs to the layer I'm closing. Swap them and the first layer closes with edge 0, so example 1 returns 1 instead of 2.</p>
+      <p>Also, <code class="chip">size() - 1</code> is unsigned, so there's one harmless <code class="chip">-Wsign-compare</code> warning; storing <code class="chip">int n = nums.size();</code> first removes it.</p>
     </div>
   </div>
 
@@ -270,7 +268,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> Example 1, <code class="chip">[2,3,1,1,4]</code>. Expected output is <code class="chip num">2</code>. n = 5, so i goes from 0 to 3.</p>
+      <p><strong>Let's dry-run the code with an example.</strong> Example 1: <code class="chip">[2,3,1,1,4]</code>, expected <code class="chip num">2</code>.</p>
       <div class="tablewrap">
       <table class="trace">
         <thead><tr><th>i</th><th>nums[i]</th><th>i + nums[i]</th><th>nextEnd</th><th>curEnd == i?</th><th>step</th><th>curEnd</th></tr></thead>
@@ -283,7 +281,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </tbody>
       </table>
       </div>
-      <p>Read it in layers. At i = 0, layer 0 is just <code class="chip">[0]</code>, and it's done. One jump reaches up to 2, so layer 1 is <code class="chip">[1..2]</code>. At i = 1, the 3 pushes <code class="chip">nextEnd</code> to 4. But I don't jump yet, because layer 1 isn't fully scanned. At i = 2, I hit <code class="chip">curEnd</code>. Layer 1 is done, so step becomes 2, and layer 2 is <code class="chip">[3..4]</code>. Index 4 is inside it. Example 2 gives the exact same table, except i = 2 has <code class="chip">2 + 0 = 2</code>. That zero does nothing, because <code class="chip">nextEnd</code> is already 4.</p>
+      <p>The row that matters is i = 2: it's <code class="chip">curEnd</code>, so layer 1 closes — step becomes 2, and <code class="chip">curEnd</code> moves to 4, which covers the last index. Return <code class="chip num">2</code>.</p>
       <p>Now the case that shows <strong>why I never pick a cell</strong>: <code class="chip">[4,1,1,3,1,1,1]</code>, answer <code class="chip num">2</code>.</p>
       <div class="cellviz">
         <div class="cells">
@@ -297,13 +295,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </div>
         <div class="layers">L0 = [0] · L1 = [1..4] · L2 = [5..6]</div>
       </div>
-      <p>Layer 1 is <code class="chip">[1..4]</code>. While I scan it, i = 3 pushes <code class="chip">nextEnd</code> to 3 + 3 = 6, the last index. Then at i = 4, layer 1 closes and step becomes 2. The best path is 0 → 3 → 6, and index 3 is in the <strong>middle</strong> of layer 1. A greedy that "always jumps as far as possible" goes 0 → 4 → 5 → 6. That's <strong>3</strong> jumps, which is wrong. Jumping far now can leave you on a weak cell. Scanning the whole layer avoids that choice.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• <code class="chip">[0]</code> → <code class="chip num">0</code>. n − 1 = 0, so the loop runs 0 times.<br>
-      • <code class="chip">[1,1,1,1]</code> → <code class="chip num">3</code>. Every i is a layer end. Each layer is one cell.<br>
-      • <code class="chip">[3,0,0,1]</code> → <code class="chip num">1</code>. One jump covers everything. The zeros never matter.<br>
-      • <code class="chip">[1,2,1,1,1]</code> → <code class="chip num">3</code>. Layers <code class="chip">[0]</code>, <code class="chip">[1]</code>, <code class="chip">[2..3]</code>, <code class="chip">[4]</code>. Path 0 → 1 → 3 → 4.<br>
-      • n = 10<sup>4</sup>, all ones → <code class="chip num">9,999</code>, the worst case, n − 1. All 1000 → <code class="chip num">10</code>. <code class="chip">[1000,1,1,...]</code> → <code class="chip num">9,000</code>: one big jump to index 1000, then 8,999 single steps.</p>
+      <p>The best path is 0 → 3 → 6, through the <strong>middle</strong> of layer 1. Always jumping as far as possible takes <strong>3</strong> jumps, which is wrong.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[0]</code> → <code class="chip num">0</code><br>
+      • <code class="chip">[1,1,1,1]</code> → <code class="chip num">3</code><br>
+      • 10<sup>4</sup> ones → <code class="chip num">9,999</code>, the worst case</p>
     </div>
   </div>
 
@@ -315,11 +311,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Let me think about complexity here.</em></p>
-      <p><strong>The time complexity is</strong> O(n). One pass over indices 0 to n − 2, with one max and one compare each.</p>
-      <p><strong>The space complexity is</strong> O(1). Three integers.</p>
-      <p><strong>In the worst-case scenario</strong> the loop always runs n − 1 times. There's no early exit. For n = 10<sup>4</sup> that's 9,999 iterations, about <code class="chip num">6.3 µs</code> for all 1000s and <code class="chip num">6.5 µs</code> for all ones. The largest <code class="chip">nextEnd</code> is <code class="chip num">10,998</code>, so <code class="chip">int</code> is safe.</p>
-      <p>I'd test this against a BFS checker. Every array of length 1 to 8, values 0 to 3, that can reach the end: <code class="chip num">41,600</code> arrays. Plus random ones, up to n = 2000 with values up to 1000. <code class="chip num">261,600</code> cases total, <code class="chip num">0</code> mismatches. The same test shows how the bugs fail. Scanning the last index fails <code class="chip num">21,376</code>, always exactly +1. Checking before updating fails <code class="chip num">41,488</code>. And one trap: "count a jump every time <code class="chip">nextEnd</code> improves" fails <code class="chip num">23,580</code>, but it passes <strong>both</strong> official examples. The smallest failure is <code class="chip">[2,2,0]</code>: it says 2, the right answer is 1. Always jumping the full <code class="chip">nums[i]</code> fails <code class="chip num">11,884</code>, and it loops forever on a zero.</p>
-      <p><em class="pause">Oh, one more thing —</em> this code trusts the guarantee. It never returns −1. If the end were <strong>not</strong> reachable, it would still return a normal-looking number. <code class="chip">[3,2,1,0,4]</code> returns 2, even though index 4 can't be reached. If the guarantee could break, I'd add the Jump Game I check: if <code class="chip">nextEnd</code> stays at i when a layer closes, return −1.</p>
+      <p><strong>The time complexity is</strong> O(n) — one pass up to n − 2, with no early exit. <strong>The space complexity is</strong> O(1), three integers. The largest <code class="chip">nextEnd</code> is <code class="chip num">10,998</code>, so an <code class="chip">int</code> is safe.</p>
+      <p>I'd test this against a BFS checker: <code class="chip num">261,600</code> cases, <code class="chip num">0</code> mismatches. The trap worth knowing: counting a jump every time <code class="chip">nextEnd</code> improves passes <strong>both</strong> official examples, but fails <code class="chip">[2,2,0]</code> — it says 2, and the right answer is 1.</p>
+      <p><em class="pause">Oh, one more thing —</em> this code trusts the guarantee and never returns −1. <code class="chip">[3,2,1,0,4]</code> returns 2, even though index 4 can't be reached. If the guarantee could break, I'd return −1 when a layer closes with <code class="chip">nextEnd</code> still stuck at i.</p>
     </div>
   </div>
 
@@ -327,7 +321,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You framed it as a <strong>BFS by layers</strong>, and used the prefix fact to show each layer is a range, so <code class="chip">curEnd</code> and <code class="chip">nextEnd</code> replace the queue. You showed with <code class="chip">[4,1,1,3,1,1,1]</code> why the code must <strong>not</strong> pick a jump: the best jump comes from the middle of a layer, and "jump farthest" takes 3. And you nailed the two order details, stopping at n − 2 and updating before the check, plus the trap that passes both examples but fails <code class="chip">[2,2,0]</code>. Good work.</p>
+      <p>Nicely done. Three things stood out. You framed it as a <strong>BFS by layers</strong>, and used the prefix fact to show each layer is a range, so <code class="chip">curEnd</code> and <code class="chip">nextEnd</code> replace the queue. You showed with <code class="chip">[4,1,1,3,1,1,1]</code> why the code must <strong>not</strong> pick a jump: the best jump comes from the middle of a layer, and jump-farthest takes 3. And you nailed the two order details — stopping at n − 2 and updating before the check — plus the trap that passes both examples but fails <code class="chip">[2,2,0]</code>. Good work.</p>
     </div>
   </div>
 

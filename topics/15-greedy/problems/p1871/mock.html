@@ -110,7 +110,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>You get a binary string <code class="chip">s</code> and two ints, <code class="chip">minJump</code> and <code class="chip">maxJump</code>. You start at index 0, and <code class="chip">s[0]</code> is always <code class="chip">'0'</code>. From index <code class="chip">i</code> you can jump to <code class="chip">j</code> if <code class="chip">i + minJump &lt;= j &lt;= min(i + maxJump, n - 1)</code> and <code class="chip">s[j] == '0'</code>. Return true if you can reach the last index.</p>
+      <p>You get a binary string <code class="chip">s</code>, and two integers, <code class="chip">minJump</code> and <code class="chip">maxJump</code>. You start at index 0, and the first character is always <code class="chip">'0'</code>. From index i, you can jump to index j, as long as j is at least <code class="chip">i + minJump</code>, at most <code class="chip">i + maxJump</code>, not past the end of the string, and <code class="chip">s[j] == '0'</code>. Return true if you can reach the last index.</p>
     </div>
   </div>
 
@@ -143,7 +143,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Length is from 2 up to <code class="chip num">1e5</code>. Each char is <code class="chip">'0'</code> or <code class="chip">'1'</code>. And <code class="chip">1 &lt;= minJump &lt;= maxJump &lt; s.length</code>.</p>
+      <p>Length is from 2 up to 10<sup>5</sup>. Each character is <code class="chip">'0'</code> or <code class="chip">'1'</code>. And <code class="chip">minJump</code> is at least 1, at most <code class="chip">maxJump</code>, and <code class="chip">maxJump</code> is less than the length.</p>
     </div>
   </div>
 
@@ -151,8 +151,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Okay. So <code class="chip">maxJump</code> can be almost as big as <code class="chip">n</code>. That matters for the cost, I'll come back to it.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">s = "011010"</code>, <code class="chip">minJump = 2</code>, <code class="chip">maxJump = 3</code>. From 0, I can jump to 2 or 3. Index 2 is a wall, index 3 is open. From 3, I can jump to 5. Index 5 is the last one and it's <code class="chip">'0'</code>. So the path is <code class="chip num">0 → 3 → 5</code>, and the answer is <code class="chip">true</code>. That matches.</p>
+      <p>Okay. So <code class="chip">maxJump</code> can be almost as big as <code class="chip">n</code>. That matters for the cost — I'll come back to it.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">s = "011010"</code>, <code class="chip">minJump = 2</code>, <code class="chip">maxJump = 3</code>. From index 0, I can jump to 2 or 3. Index 2 is a wall, index 3 is open. From 3, I can jump to 5. Index 5 is the last one, and it's <code class="chip">'0'</code>. So the path is <code class="chip num">0 → 3 → 5</code>, and the answer is <code class="chip">true</code>. That matches.</p>
     </div>
   </div>
 
@@ -163,10 +163,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> keep a <code class="chip">dp</code> array, and for each <code class="chip">i</code>, scan the whole range <code class="chip">[i - maxJump, i - minJump]</code> to look for one true cell. That's correct, but it costs <code class="chip">O(n · (maxJump − minJump))</code>. With all zeros, <code class="chip">n = 1e5</code>, <code class="chip">minJump = 1</code>, <code class="chip">maxJump = 99999</code>, the naive scan took about <code class="chip num">1,792.3 ms</code> when I measured it. That's way too slow.</p>
-      <p><strong>This problem reminds me of</strong> a sliding window. Here's why. When <code class="chip">i</code> moves right by one, the range <code class="chip">[i - maxJump, i - minJump]</code> also moves right by one. Exactly one cell comes in on the right, <code class="chip">dp[i - minJump]</code>. Exactly one cell drops off on the left, <code class="chip">dp[i - maxJump - 1]</code>. So I don't need to rescan. I just update a running number.</p>
-      <p>I'll go with the sliding-window DP. It's one pass, and the window update is O(1) per step.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be</strong> a <code class="chip">dp</code> array where each index scans its whole range for one true cell. That's correct, but it costs n × the window width — with all zeros and <code class="chip">maxJump = 99999</code>, it took about <code class="chip num">1.8 s</code> when I measured it. Way too slow.</p>
+      <p><strong>This problem reminds me of</strong> a sliding window. When i moves right by one, the range moves right by one: exactly one cell enters on the right, at <code class="chip">i - minJump</code>, and one drops off on the left, at <code class="chip">i - maxJump - 1</code>. So I don't rescan — I just update a running number. I'll go with the sliding-window DP: one pass, O(1) work per step.</p>
     </div>
   </div>
 
@@ -177,7 +176,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Here's the plan.</p>
+      <p>Here's the plan. <code class="chip">dp[i]</code> means I can stand on index i, and <code class="chip">dp[0]</code> is true. <code class="chip">cnt</code> is how many true <code class="chip">dp</code> values sit in the window. First, for each i from <code class="chip">minJump</code>, count the cell entering at <code class="chip">i - minJump</code>. Second, uncount the cell leaving at <code class="chip">i - maxJump - 1</code>, if it exists. Third, <code class="chip">dp[i]</code> is true when <code class="chip">cnt &gt; 0</code> and <code class="chip">s[i] == '0'</code>.</p>
       <div class="insight-box" style="white-space:nowrap;">
         <span class="label">// state</span><br>
         dp[i] = can I stand on index i?&nbsp;&nbsp;dp[0] = true<br>
@@ -191,9 +190,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="label">// answer</span><br>
         return dp[n - 1]
       </div>
-      <p><strong>Here, I'm using</strong> <code class="chip">cnt</code> <strong>to keep track of</strong> how many reachable cells are inside the window right now. The invariant is simple: after the two updates, <code class="chip">cnt</code> is exactly the number of true <code class="chip">dp</code> values in <code class="chip">[i - maxJump, i - minJump]</code>. If it's above zero, someone can jump into <code class="chip">i</code>.</p>
-      <p><strong>One thing worth flagging</strong> — it has to be a <strong>count</strong>, not a yes/no flag. <em class="pause">Let me walk through that.</em> The window can hold more than one reachable cell. When one of them leaves, a flag would flip to false, even if another reachable cell is still inside. A count just goes down by one and stays correct. The tricky part is that a flag version passes <strong>both</strong> examples. It still fails on <code class="chip">("000", 1, 1)</code>: it says false, but the right answer is true.</p>
-      <p><strong>There's a trade-off here.</strong> I could also do BFS with a "farthest" pointer, so each index gets visited once. It's also linear. I like the DP because the window count is easy to prove and easy to dry-run. The cost is an <code class="chip">O(n)</code> <code class="chip">dp</code> array.</p>
+      <p><strong>One thing worth flagging</strong> — it has to be a <strong>count</strong>, not a flag. When one reachable cell leaves, a flag goes false even if another is still inside. A flag passes <strong>both</strong> examples but fails <code class="chip">("000", 1, 1)</code>.</p>
+      <p>A farthest-pointer BFS is also O(n), but the count is easier to prove.</p>
       <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
@@ -213,7 +211,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">bool</span> <span class="fn">canReach</span>(<span class="typ">string</span> s, <span class="typ">int</span> minJump, <span class="typ">int</span> maxJump) {
@@ -232,9 +230,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> dp[n - <span class="num2">1</span>];
     }
 };</pre>
-      <p>That matches the plan. The loop starts at <code class="chip">minJump</code>, because no index before that can be reached from 0. Those cells just stay false.</p>
-      <p><strong>One thing worth flagging</strong> — the remove guard is <code class="chip">&gt;= 0</code>, not <code class="chip">&gt; 0</code>. With <code class="chip">&gt; 0</code>, the start cell <code class="chip">dp[0]</code> never leaves the window, so it keeps "helping" cells it can't really reach. On <code class="chip">("010", 1, 1)</code> that bug returns true, but the answer is false. So this guard is a correctness rule, not a small detail.</p>
-      <p>Same idea for the <code class="chip">s[i] == '0'</code> check. If I drop it, a wall can be marked reachable. <code class="chip">("01", 1, 1)</code> would come back true, and it should be false.</p>
+      <p>One loop from <code class="chip">minJump</code> to n − 1, doing exactly the three plan steps: count the entering cell, uncount the leaving cell, then set <code class="chip">dp[i]</code> from the count and the character. Cells before <code class="chip">minJump</code> just stay false.</p>
+      <p><strong>One thing worth flagging</strong> — the remove guard checks <code class="chip">&gt;= 0</code>, not <code class="chip">&gt; 0</code>. With <code class="chip">&gt; 0</code>, the start cell never leaves the window, so it keeps "helping" cells it can't really reach: <code class="chip">("010", 1, 1)</code> returns true, but the answer is false. The <code class="chip">s[i] == '0'</code> check matters the same way — without it, <code class="chip">"01"</code> would mark a wall as reachable.</p>
     </div>
   </div>
 
@@ -245,7 +242,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll use example 1: <code class="chip">s = "011010"</code>, <code class="chip">minJump = 2</code>, <code class="chip">maxJump = 3</code>. Expected output is <code class="chip">true</code>. "Enters" is <code class="chip">dp[i - 2]</code>, "leaves" is <code class="chip">dp[i - 4]</code>, and <code class="chip">cnt</code> is the value after both updates.</p>
+      <p><strong>Let's dry-run the code with an example.</strong> Example 1: <code class="chip">"011010"</code>, jumps <code class="chip">(2, 3)</code>, expected <code class="chip">true</code>.</p>
       <div class="tablewrap">
       <table class="trace" style="min-width:560px;">
         <thead><tr><th>i</th><th>s[i]</th><th>enters</th><th>leaves</th><th>window</th><th>cnt</th><th>dp[i]</th></tr></thead>
@@ -257,23 +254,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </tbody>
       </table>
       </div>
-      <p>The key row is <code class="chip">i = 4</code>. Here the start cell <code class="chip">dp[0]</code> slides out of the window, so <code class="chip">cnt</code> drops to <code class="chip num">0</code>. Index 4 is a wall anyway, but this is the moment the window really "forgets" old cells. Then at <code class="chip">i = 5</code>, <code class="chip">dp[3]</code> comes in, <code class="chip">cnt</code> goes back to <code class="chip num">1</code>, and <code class="chip">s[5]</code> is <code class="chip">'0'</code>. Final <code class="chip">dp = [1,0,0,1,0,1]</code>, so we return <strong>true</strong>. That's the same <code class="chip num">0 → 3 → 5</code> path.</p>
-      <p>Example 2, <code class="chip">"01101110"</code> with <code class="chip">(2, 3)</code>, returns <code class="chip">false</code>. Index 3 is the only reachable cell after the start. While it's inside the window, at <code class="chip">i = 5</code> and <code class="chip">i = 6</code>, those cells are walls. At <code class="chip">i = 7</code>, <code class="chip">dp[3]</code> leaves, so <code class="chip">cnt</code> is <code class="chip num">0</code> and the last index stays false.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <div class="tablewrap">
-      <table class="trace" style="min-width:480px;">
-        <thead><tr><th>input (s, min, max)</th><th>result</th><th>what it checks</th></tr></thead>
-        <tbody>
-          <tr><td>("00", 1, 1)</td><td>true</td><td>smallest n, one jump</td></tr>
-          <tr><td>("01", 1, 1)</td><td>false</td><td>last cell is a wall</td></tr>
-          <tr><td>("000", 1, 1)</td><td>true</td><td>flag version says false</td></tr>
-          <tr><td>("010", 1, 1)</td><td>false</td><td>&gt; 0 guard says true</td></tr>
-          <tr><td>("0000", 2, 2)</td><td>false</td><td>no wall, but parity blocks it</td></tr>
-          <tr><td>all '0', n=1e5, (2, 2)</td><td>false</td><td>last index is odd</td></tr>
-        </tbody>
-      </table>
-      </div>
-      <p>The <code class="chip">("0000", 2, 2)</code> case is a nice one. There's no wall at all, but with a fixed jump of 2 I only land on even indices. So "no long run of 1s" is not enough. A run of <code class="chip">'1'</code>s of length <code class="chip">&gt;= maxJump</code> always blocks you, but with <code class="chip">minJump &gt;= 2</code> there are gaps too. The DP handles both for free.</p>
+      <p>The key row is <code class="chip">i = 4</code>: the start cell slides out of the window, so <code class="chip">cnt</code> drops to <code class="chip num">0</code> — the window really forgets old cells. Then at <code class="chip">i = 5</code>, <code class="chip">dp[3]</code> enters, <code class="chip">cnt</code> is <code class="chip num">1</code>, and <code class="chip">s[5]</code> is <code class="chip">'0'</code>. So <strong>true</strong>, along <code class="chip num">0 → 3 → 5</code>.</p>
+      <p>Example 2 returns <code class="chip">false</code>, because index 3, the only reachable cell, leaves the window right at the last index.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">"01"</code> → <code class="chip">false</code> — the last cell is a wall.<br>
+      • <code class="chip">("0000", 2, 2)</code> → <code class="chip">false</code> — no wall, but parity only lands on even indices.</p>
     </div>
   </div>
 
@@ -285,10 +270,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Let me think about complexity here.</em></p>
-      <p><strong>The time complexity is</strong> <code class="chip">O(n)</code>. Each index does one add check and one remove check, both O(1).</p>
-      <p><strong>The space complexity is</strong> <code class="chip">O(n)</code> for the <code class="chip">dp</code> array.</p>
-      <p><strong>In the worst-case scenario</strong> for the naive scan, all zeros with <code class="chip">(1, 99999)</code> and <code class="chip">n = 1e5</code>, the window holds up to <code class="chip num">99,999</code> reachable cells. The naive version took <code class="chip num">1,792.3 ms</code>. This version took <code class="chip num">104.9 µs</code>, because the window size never shows up in the cost.</p>
-      <p><em class="pause">Oh, one more thing —</em> I return <code class="chip">dp[n - 1]</code>, not <code class="chip">cnt &gt; 0</code>. <code class="chip">cnt</code> only says someone can jump <em>into</em> the last index. It ignores whether the last cell is a wall. <code class="chip">("01", 1, 1)</code> shows it: <code class="chip">cnt &gt; 0</code> gives true, the answer is false. And that bug also passes both examples, so it's easy to miss.</p>
+      <p><strong>The time complexity is</strong> O(n) — each index does one add check and one remove check. <strong>The space complexity is</strong> O(n), for the <code class="chip">dp</code> array.</p>
+      <p>On the naive scan's worst case the window holds almost <code class="chip num">100,000</code> cells, yet this version took about <code class="chip num">105 µs</code> instead of <code class="chip num">1.8 s</code>, because the window size never shows up in the cost.</p>
+      <p><em class="pause">Oh, one more thing —</em> I return <code class="chip">dp[n - 1]</code>, not <code class="chip">cnt &gt; 0</code>. The counter ignores whether the last cell is a wall, so <code class="chip">("01", 1, 1)</code> would wrongly give true. That bug also passes both examples, so it's easy to miss.</p>
     </div>
   </div>
 
@@ -304,9 +288,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Two ways. First, <strong>BFS with a farthest pointer</strong>. I pop a reachable index <code class="chip">i</code> and look at <code class="chip">[i + minJump, i + maxJump]</code>. But I keep a pointer to the farthest index I already checked, and I start from there. So every index is looked at once. On the same worst case it ran in <code class="chip num">117.7 µs</code>, about the same as the DP.</p>
-      <p>Second, a <strong>prefix-sum</strong> version. I keep <code class="chip">pre[k]</code> = number of true <code class="chip">dp</code> in the first <code class="chip">k</code> cells. Then "any reachable cell in the window" is just one subtraction of two prefix values. It's the same idea as <code class="chip">cnt</code>, written as a range sum.</p>
-      <p>Also, <code class="chip">vector&lt;bool&gt;</code> works and is much smaller, <code class="chip num">12,504 B</code> versus <code class="chip num">400,000 B</code> for <code class="chip">vector&lt;int&gt;</code>. But it was about 3× slower in my run, <code class="chip num">307.9 µs</code>. So I kept <code class="chip">vector&lt;int&gt;</code>.</p>
+      <p>Two ways. First, <strong>BFS with a farthest pointer</strong>: from each reachable index I scan its jump range, but start from the farthest index already checked, so every index is looked at once. On the same worst case it ran in about <code class="chip num">118 µs</code>, about the same as the DP.</p>
+      <p>Second, <strong>prefix sums</strong>: keep a running count of true <code class="chip">dp</code> values, and the window check becomes one subtraction. It's the same counter, written as a range sum.</p>
+      <p>Also, <code class="chip">vector&lt;bool&gt;</code> is much smaller — about <code class="chip num">12,500 B</code> versus <code class="chip num">400,000 B</code> — but it was about 3× slower in my run, so I kept <code class="chip">vector&lt;int&gt;</code>.</p>
     </div>
   </div>
 
@@ -314,7 +298,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You flipped the question to "who can jump into <code class="chip">i</code>?", which turned a graph search into a window that slides one step at a time. You explained why the window needs a <strong>count</strong>, not a flag, and backed it with <code class="chip">("000", 1, 1)</code>, a bug that passes both examples. And you showed that the <code class="chip">&gt;= 0</code> guard, the <code class="chip">s[i]</code> check, and returning <code class="chip">dp[n - 1]</code> are each correctness rules, with a small input that breaks each one. Good work.</p>
+      <p>Nicely done. Three things stood out. You flipped the question to "who can jump into <code class="chip">i</code>?", which turned a graph search into a window that slides one step at a time. You explained why the window needs a <strong>count</strong>, not a flag, and backed it with the three-zeros case, <code class="chip">("000", 1, 1)</code> — a bug that passes both examples. And you showed that the remove guard, the character check, and returning the last <code class="chip">dp</code> value are each correctness rules, with a small input that breaks each one. Good work.</p>
     </div>
   </div>
 
