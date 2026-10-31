@@ -192,7 +192,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    - Hard cap: no turn > 150 words; whole script ~900–1,300 words (≈ 6–8 min). Length follows content — never pad. The Concept page's 「面試這樣說」 is the register to match. `make_mock_audio.py` refuses a turn over 160 words.
    - Every number spoken comes from the PHASE A fact sheet, same as the pages.
 
-   **`mock.html` — click-to-seek contract:** the kept transcript HTML plus: a sticky `<audio id="mock-audio" controls preload="none" src="mock.mp3">` at the top; every dialogue turn tagged `class="turn"`; before `</body>`: `<script>window.MOCK_CUES = []</script>` then `<script src="../../../../assets/js/mock-audio.js"></script>`. The shared player makes turns clickable (seek + play), highlights the playing turn, and keeps it scrolled into view. `make_mock_audio.py` fills `MOCK_CUES` — never hand-edit it.
+   **`mock.html` — click-to-seek contract:** the kept transcript HTML plus: a sticky `<audio id="mock-audio" controls preload="metadata" src="mock.mp3">` at the top; every dialogue turn tagged `class="turn"`; before `</body>`: `<script>window.MOCK_CUES = []</script>` then `<script src="../../../../assets/js/mock-audio.js"></script>`. The shared player makes turns clickable (seek + play), highlights the playing turn, and keeps it scrolled into view. `make_mock_audio.py` fills `MOCK_CUES` — never hand-edit it.
 
    **Audio build:**
    ```bash
@@ -207,7 +207,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
    </p>
-   <audio controls preload="none" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
+   <audio controls preload="metadata" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
    ```
 
 8. **🧹 MANDATORY: PHASE D 版面抽查 PASS → auto-fix code layout, then flip status.** A fresh subagent that didn't build the pages renders all of them (two widths, details opened, animation mid-step) and eyeballs every screenshot for 跑版 — see PHASE D. All PASS is the precondition for everything below.
