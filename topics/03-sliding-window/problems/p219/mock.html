@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 219 · Contains Duplicate II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+@media (max-width: 480px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 219 · Contains Duplicate II · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given an integer array <code class="chip">nums</code> and an integer <code class="chip">k</code>, return <code class="chip">true</code> if there are two <strong>distinct</strong> indices <code class="chip">i</code> and <code class="chip">j</code> with <code class="chip">nums[i] == nums[j]</code>, and <code class="chip">abs(i - j) &lt;= k</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I need two equal values whose positions are <strong>at most <code class="chip">k</code> apart</strong>.</p>
+      <p>So <code class="chip">[1,0,1,1]</code> with <code class="chip">k=1</code> is <code class="chip">true</code>, because indices 2 and 3 are both 1 and one apart. But <code class="chip">[1,2,3,1]</code> with <code class="chip">k=2</code> is <code class="chip">false</code> — the two 1s are three apart.</p>
+      <p>Can <code class="chip">k</code> be 0? And <strong>are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes to both examples. <code class="chip">k</code> can be 0 — then no valid pair exists, since <code class="chip">i != j</code>. The array has up to 10<sup>5</sup> elements, values in [−10<sup>9</sup>, 10<sup>9</sup>], and <code class="chip">0 &lt;= k &lt;= 1e5</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> compare each index with the next <code class="chip">k</code>, which is O(n·k) — up to 10<sup>10</sup> here, too slow.</p>
+      <p><strong>This problem reminds me of</strong> a <strong>sliding window</strong> with a hash set: <code class="chip">abs(i - j) &lt;= k</code> is a proximity constraint, and "a duplicate within distance <code class="chip">k</code>" is exactly "a duplicate inside some window of length <code class="chip">k+1</code>". So I keep the <strong>last <code class="chip">k+1</code> values</strong> in a hash set; if the incoming value is already there, its earlier copy is within <code class="chip">k</code>. That's O(n).</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why length <code class="chip">k+1</code> and not <code class="chip">k</code>?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Because <code class="chip">abs(i - j) &lt;= k</code> includes distance <strong>exactly</strong> <code class="chip">k</code>. Two indices <code class="chip">k</code> apart span <code class="chip">k+1</code> slots, inclusive, so the window must hold up to <code class="chip">k+1</code> elements, or I'd miss the boundary pair.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan, with a right pointer <code class="chip">r</code> and a left pointer <code class="chip">l</code>.</p>
+      <div class="insight-box">
+        <span class="label">// window = nums[l..r], at most k+1 values</span><br>
+        for r in 0..n-1:<br>
+        &nbsp;&nbsp;<span class="em">shrink</span>: while r - l &gt; k → evict nums[l], l++<br>
+        &nbsp;&nbsp;<span class="em">insert/check</span> nums[r] → already present? return true<br>
+        return false
+      </div>
+      <p>One: for each <code class="chip">r</code>, first <strong>shrink</strong> — while <code class="chip">r - l &gt; k</code>, evict <code class="chip">nums[l]</code> and advance <code class="chip">l</code>.<br>
+      Two: then <strong>insert/check</strong> <code class="chip">nums[r]</code> — if it was already present, return <code class="chip">true</code>.<br>
+      Three: reach the end with no hit → <code class="chip">false</code>.</p>
+      <p><strong>One thing worth flagging</strong> — order matters: shrink <em>before</em> checking, so stale far-away values are gone first.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll use a count map with an explicit left pointer; a value hitting count <code class="chip num">2</code> means two copies coexist in the window.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">containsNearbyDuplicate</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums, <span class="typ">int</span> k) {
+        <span class="typ">int</span> n = nums.<span class="fn">size</span>(), l = <span class="num2">0</span>;
+        <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt; freq;          <span class="com">// count of each value in the window</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> r = <span class="num2">0</span>; r &lt; n; r++) {
+            <span class="kw">while</span> (r - l &gt; k) {                   <span class="com">// window longer than k+1 → shrink</span>
+                freq[nums[l++]]--;              <span class="com">// evict leftmost value, advance l</span>
+            }
+
+            <span class="kw">if</span> (++freq[nums[r]] == <span class="num2">2</span>) <span class="kw">return</span> <span class="kw">true</span>;  <span class="com">// a value reaches 2 after adding → hit</span>
+        }
+
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p>The <code class="chip">while</code> loop evicts from the left until <code class="chip">r - l &lt;= k</code>, then I increment the count for <code class="chip">nums[r]</code> and return <code class="chip">true</code> if it becomes <code class="chip num">2</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the shrink sits before the increment, so when I check, the window only holds indices within <code class="chip">k</code> of <code class="chip">r</code>. An equally clean variant uses a set: <code class="chip">if (r &gt; k) window.erase(nums[r - k - 1]);</code> and a failed <code class="chip">window.insert(nums[r])</code> means a hit.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> <code class="chip">[1,0,1,1]</code>, <code class="chip">k=1</code> — expected <code class="chip">true</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:340px;">
+        <thead><tr><th>r</th><th>shrink</th><th>window</th><th>action</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>—</td><td>{1}</td><td>add 1</td></tr>
+          <tr><td>1</td><td>—</td><td>{1,0}</td><td>add 0</td></tr>
+          <tr><td>2</td><td>evict 1 (l=1)</td><td>{0,1}</td><td>add 1, count=1</td></tr>
+          <tr class="highlight-row"><td>3</td><td>evict 0 (l=2)</td><td>{1,1}</td><td><span class="answer-cell">count=2 → true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">r=3</code>: the 0 is evicted first, so the 1s at indices 2 and 3 share the window, the count hits 2, and I return <code class="chip">true</code>. The far 1 at index 0 was already evicted at <code class="chip">r=2</code>, so it never caused a false hit. That matches.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What breaks if you check before shrinking?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then a value that's already too far still sits in the window when I test the new one, giving a <strong>false positive</strong>. On <code class="chip">[1,0,1]</code> with <code class="chip">k=1</code>, the answer is <code class="chip">false</code>, but checking before shrinking at <code class="chip">r=2</code> would still see the 1 at index 0 and wrongly report <code class="chip">true</code>. Shrink-first keeps the window honest.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n) — each index enters and leaves the window once, and map operations are O(1) amortized. Space is O(min(n, k)), since the window holds at most <code class="chip">k+1</code> values.</p>
+      <p>Follow-ups I'd expect: drop the distance limit, and the window becomes the whole array — plain duplicate detection. Add a value tolerance <code class="chip">abs(nums[i] - nums[j]) &lt;= t</code>, and I'd swap the hash set for an ordered set and query a range with <code class="chip">lower_bound</code>, or use bucketing for O(n).</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Clean reframing, the correct boundary on <code class="chip">k+1</code>, and you caught the shrink-order pitfall. Let's stop here.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 11.61, 39.83, 55.97, 92.28, 95.42, 108.37, 136.13, 170.23, 193.7, 196.86, 216.2, 249.94]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

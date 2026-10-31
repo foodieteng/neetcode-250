@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 881 · Boats to Save People</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+@media (max-width: 480px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 881 · Boats to Save People · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Each boat holds at most <code class="chip num">2</code> people, with a total weight of at most <code class="chip">limit</code>. Given the array <code class="chip">people</code> of weights, return the minimum number of boats to carry everyone.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> At most two per boat, so I want to pair people up as much as possible. For <code class="chip">[3,2,2,1]</code> with <code class="chip">limit=3</code>, the answer is <code class="chip num">3</code> boats: <code class="chip">{3}</code> alone, <code class="chip">{1,2}</code>, and the other <code class="chip">{2}</code> alone.</p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> each person's weight is at most <code class="chip">limit</code>, so everyone at least fits alone? And <strong>are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. <code class="chip">1 &lt;= people[i] &lt;= limit</code>, and there are up to 5 × 10<sup>4</sup> people.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> try every way of pairing people up, which is exponential — far too slow for 5 × 10<sup>4</sup> people.</p>
+      <p><strong>This problem reminds me of</strong> a sorted two-pointer greedy: once the array is sorted, the lightest and heaviest sit at the two ends, so each step is one O(1) decision. Pair the <strong>lightest with the heaviest</strong>. The heaviest person must take a boat; if even the lightest can't join them, they go alone, otherwise they take the lightest along. That's O(n log n) for the sort.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why is pairing the heaviest with the lightest optimal?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>It's an exchange argument. The heaviest person, <strong>H</strong>, needs a boat. If H fits with the lightest, <strong>L</strong>, suppose an optimal answer doesn't pair them — L sits elsewhere, and H rides alone or with some X.</p>
+      <p>Move L into H's boat. Since L is the lightest, <code class="chip">H+L &lt;= H+X &lt;= limit</code>, so it's still valid, and L's old boat only got lighter. The boat count doesn't go up, so pairing H with L is at least as good.</p>
+      <p>And if H can't fit even L, H can't fit anyone, since everyone weighs ≥ L — so H going alone is <strong>forced</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// sort; l = lightest end, r = heaviest end</span><br>
+        sort(people); l = 0, r = n - 1<br>
+        while l &lt;= r:<br>
+        &nbsp;&nbsp;boats++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// heaviest always boards</span><br>
+        &nbsp;&nbsp;people[l] + people[r] &lt;= limit → <span class="em">l++, r--</span>&nbsp;&nbsp;<span class="label">// pair</span><br>
+        &nbsp;&nbsp;else&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="em">r--</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// heaviest alone</span><br>
+        return boats
+      </div>
+      <p>One: sort, and put <code class="chip">l</code> at the start and <code class="chip">r</code> at the end.<br>
+      Two: while <code class="chip">l &lt;= r</code>, open a boat; if the two ends together fit within <code class="chip">limit</code>, pair them and move both pointers, otherwise the heaviest goes alone and only <code class="chip">r</code> moves.<br>
+      Three: return the boat count.</p>
+      <p><strong>One thing worth flagging</strong> — it's only one comparison per heaviest person: if the lightest doesn't fit, nobody does.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. Sort, set the two pointers, and loop while <code class="chip">l &lt;= r</code>.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">numRescueBoats</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; people, <span class="typ">int</span> limit) {
+        <span class="typ">int</span> n = people.<span class="fn">size</span>();
+        <span class="fn">sort</span>(people.<span class="fn">begin</span>(), people.<span class="fn">end</span>());       <span class="com">// sort → so lightest can pair with heaviest</span>
+        <span class="typ">int</span> l = <span class="num2">0</span>, r = n - <span class="num2">1</span>, boats = <span class="num2">0</span>;
+
+        <span class="kw">while</span> (l &lt;= r) {
+            boats++;                                <span class="com">// every step opens one boat</span>
+
+            <span class="typ">int</span> sum = people[l] + people[r];
+
+            <span class="kw">if</span> (sum &gt; limit) {
+                r--;                              <span class="com">// doesn't fit → heaviest goes alone</span>
+            } <span class="kw">else</span> {
+                l++; r--;                        <span class="com">// fits → lightest + heaviest share a boat</span>
+            }
+        }
+
+        <span class="kw">return</span> boats;
+    }
+};</pre>
+      <p>Every iteration opens one boat for the heaviest person. I compute the <code class="chip">sum</code> of the two ends; if it's <code class="chip">&gt; limit</code>, only <code class="chip">r</code> moves, otherwise both move.</p>
+      <p><strong>One thing worth flagging</strong> — the loop condition is <code class="chip">l &lt;= r</code>, not <code class="chip">l &lt; r</code>. When <code class="chip">l == r</code> there's one person left, and they still need a boat; with a strict check, that last person would be dropped.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> <code class="chip">[3,2,2,1]</code>, <code class="chip">limit=3</code>, sorted to <code class="chip">[1,2,2,3]</code> — expected <code class="chip num">3</code>.</p>
+      <table class="trace">
+        <thead><tr><th>l, r</th><th>sum</th><th>boat</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>0, 3</td><td>1+3=4 &gt; 3</td><td>{3} alone, r--</td></tr>
+          <tr><td>0, 2</td><td>1+2=3 ≤ 3</td><td>{1,2}, l++ r--</td></tr>
+          <tr><td>1, 1</td><td>last one</td><td><span class="answer-cell">{2} alone → 3 boats</span></td></tr>
+        </tbody>
+      </table>
+      <p>The row that matters is the first: <code class="chip">1+3=4</code>, over <code class="chip">limit</code>, so <code class="chip">3</code> goes alone. Then <code class="chip">{1,2}</code> share a boat, and the last <code class="chip">2</code> is handled when <code class="chip">l == r</code>, giving it its own boat. Three boats, which matches.</p>
+      <p>Corner case: <code class="chip">[3,3,4,5]</code> with <code class="chip">limit=5</code> — every pair exceeds, so nobody pairs and the answer is <code class="chip num">4</code> boats.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Would this greedy still work if boats held 3 people?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>No. With 3+ per boat it becomes <strong>bin packing</strong>, which is NP-hard in general. The clean two-pointer only works because each boat has exactly one companion slot, which is what makes "lightest with heaviest" a safe choice.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n log n) — the sort dominates, and the converging scan is O(n). Extra space is O(1), just two indices.</p>
+      <p>Since weights are bounded by <code class="chip">limit</code>, a counting sort would bring it down to O(n + limit).</p>
+      <p>This is the classic <strong>sorted + converge</strong> pattern: sorting puts the most useful values at the two ends, so each step is an O(1) decision.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Great. The exchange-argument proof, the one-comparison insight, the <code class="chip">l == r</code> edge case, and the bin-packing boundary. Done.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 10.39, 38.0, 44.05, 82.44, 86.35, 124.5, 151.16, 181.61, 215.27, 219.25, 234.56, 260.52]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
