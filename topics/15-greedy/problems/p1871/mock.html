@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1871 · Jump Game VII</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+.tablewrap { overflow-x: auto; margin: 12px 0; }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+.tablewrap table.trace { margin: 0; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="none" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1871 · Jump Game VII · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a binary string <code class="chip">s</code> and two ints, <code class="chip">minJump</code> and <code class="chip">maxJump</code>. You start at index 0, and <code class="chip">s[0]</code> is always <code class="chip">'0'</code>. From index <code class="chip">i</code> you can jump to <code class="chip">j</code> if <code class="chip">i + minJump &lt;= j &lt;= min(i + maxJump, n - 1)</code> and <code class="chip">s[j] == '0'</code>. Return true if you can reach the last index.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — a <code class="chip">'1'</code> is a wall. I can never land on it. A <code class="chip">'0'</code> is a spot I can land on. And every jump is at least <code class="chip">minJump</code> and at most <code class="chip">maxJump</code> to the right. I never move left. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Only forward jumps.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. Then I want to flip the question around. Instead of asking "where can I go from <code class="chip">i</code>?", I'll ask <strong>"who can jump into <code class="chip">i</code>?"</strong> A cell <code class="chip">j</code> can reach <code class="chip">i</code> only if <code class="chip">j</code> sits in the range <code class="chip">[i - maxJump, i - minJump]</code>. So index <code class="chip">i</code> is reachable when <code class="chip">s[i]</code> is <code class="chip">'0'</code> and at least one reachable cell sits in that range. That range is the whole problem.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Length is from 2 up to <code class="chip num">1e5</code>. Each char is <code class="chip">'0'</code> or <code class="chip">'1'</code>. And <code class="chip">1 &lt;= minJump &lt;= maxJump &lt; s.length</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. So <code class="chip">maxJump</code> can be almost as big as <code class="chip">n</code>. That matters for the cost, I'll come back to it.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">s = "011010"</code>, <code class="chip">minJump = 2</code>, <code class="chip">maxJump = 3</code>. From 0, I can jump to 2 or 3. Index 2 is a wall, index 3 is open. From 3, I can jump to 5. Index 5 is the last one and it's <code class="chip">'0'</code>. So the path is <code class="chip num">0 → 3 → 5</code>, and the answer is <code class="chip">true</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> keep a <code class="chip">dp</code> array, and for each <code class="chip">i</code>, scan the whole range <code class="chip">[i - maxJump, i - minJump]</code> to look for one true cell. That's correct, but it costs <code class="chip">O(n · (maxJump − minJump))</code>. With all zeros, <code class="chip">n = 1e5</code>, <code class="chip">minJump = 1</code>, <code class="chip">maxJump = 99999</code>, the naive scan took about <code class="chip num">1,792.3 ms</code> when I measured it. That's way too slow.</p>
+      <p><strong>This problem reminds me of</strong> a sliding window. Here's why. When <code class="chip">i</code> moves right by one, the range <code class="chip">[i - maxJump, i - minJump]</code> also moves right by one. Exactly one cell comes in on the right, <code class="chip">dp[i - minJump]</code>. Exactly one cell drops off on the left, <code class="chip">dp[i - maxJump - 1]</code>. So I don't need to rescan. I just update a running number.</p>
+      <p>I'll go with the sliding-window DP. It's one pass, and the window update is O(1) per step.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box" style="white-space:nowrap;">
+        <span class="label">// state</span><br>
+        dp[i] = can I stand on index i?&nbsp;&nbsp;dp[0] = true<br>
+        cnt&nbsp;&nbsp;&nbsp;= # of true dp in [i - maxJump, i - minJump]<br>
+        <br>
+        <span class="label">// for i = minJump .. n-1</span><br>
+        if dp[i - minJump]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: cnt++&nbsp;&nbsp;<span class="label">// enters</span><br>
+        if i-maxJump-1 &gt;= 0 and dp[i-maxJump-1] : cnt--&nbsp;&nbsp;<span class="label">// leaves</span><br>
+        dp[i] = cnt &gt; 0 and s[i] == '0'<br>
+        <br>
+        <span class="label">// answer</span><br>
+        return dp[n - 1]
+      </div>
+      <p><strong>Here, I'm using</strong> <code class="chip">cnt</code> <strong>to keep track of</strong> how many reachable cells are inside the window right now. The invariant is simple: after the two updates, <code class="chip">cnt</code> is exactly the number of true <code class="chip">dp</code> values in <code class="chip">[i - maxJump, i - minJump]</code>. If it's above zero, someone can jump into <code class="chip">i</code>.</p>
+      <p><strong>One thing worth flagging</strong> — it has to be a <strong>count</strong>, not a yes/no flag. <em class="pause">Let me walk through that.</em> The window can hold more than one reachable cell. When one of them leaves, a flag would flip to false, even if another reachable cell is still inside. A count just goes down by one and stays correct. The tricky part is that a flag version passes <strong>both</strong> examples. It still fails on <code class="chip">("000", 1, 1)</code>: it says false, but the right answer is true.</p>
+      <p><strong>There's a trade-off here.</strong> I could also do BFS with a "farthest" pointer, so each index gets visited once. It's also linear. I like the DP because the window count is easy to prove and easy to dry-run. The cost is an <code class="chip">O(n)</code> <code class="chip">dp</code> array.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">canReach</span>(<span class="typ">string</span> s, <span class="typ">int</span> minJump, <span class="typ">int</span> maxJump) {
+        <span class="typ">int</span> n = s.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; dp(n, <span class="kw">false</span>);
+        dp[<span class="num2">0</span>] = <span class="kw">true</span>;
+        <span class="typ">int</span> cnt = <span class="num2">0</span>;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = minJump; i &lt; n; i++) {
+            <span class="kw">if</span> (dp[i - minJump]) ++cnt;
+
+            <span class="kw">if</span> (i - maxJump - <span class="num2">1</span> &gt;= <span class="num2">0</span> &amp;&amp; dp[i - maxJump - <span class="num2">1</span>]) --cnt;
+
+            dp[i] = (cnt &gt; <span class="num2">0</span> &amp;&amp; s[i] == <span class="str">'0'</span>);
+        }
+        <span class="kw">return</span> dp[n - <span class="num2">1</span>];
+    }
+};</pre>
+      <p>That matches the plan. The loop starts at <code class="chip">minJump</code>, because no index before that can be reached from 0. Those cells just stay false.</p>
+      <p><strong>One thing worth flagging</strong> — the remove guard is <code class="chip">&gt;= 0</code>, not <code class="chip">&gt; 0</code>. With <code class="chip">&gt; 0</code>, the start cell <code class="chip">dp[0]</code> never leaves the window, so it keeps "helping" cells it can't really reach. On <code class="chip">("010", 1, 1)</code> that bug returns true, but the answer is false. So this guard is a correctness rule, not a small detail.</p>
+      <p>Same idea for the <code class="chip">s[i] == '0'</code> check. If I drop it, a wall can be marked reachable. <code class="chip">("01", 1, 1)</code> would come back true, and it should be false.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> I'll use example 1: <code class="chip">s = "011010"</code>, <code class="chip">minJump = 2</code>, <code class="chip">maxJump = 3</code>. Expected output is <code class="chip">true</code>. "Enters" is <code class="chip">dp[i - 2]</code>, "leaves" is <code class="chip">dp[i - 4]</code>, and <code class="chip">cnt</code> is the value after both updates.</p>
+      <div class="tablewrap">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>i</th><th>s[i]</th><th>enters</th><th>leaves</th><th>window</th><th>cnt</th><th>dp[i]</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>1</td><td>dp[0]=1 · ++</td><td>none</td><td>[0,0]</td><td>1</td><td>0</td></tr>
+          <tr><td>3</td><td>0</td><td>dp[1]=0</td><td>none</td><td>[0,1]</td><td>1</td><td>1</td></tr>
+          <tr class="highlight-row"><td>4</td><td>1</td><td>dp[2]=0</td><td>dp[0]=1 · --</td><td>[1,2]</td><td>0</td><td>0</td></tr>
+          <tr><td>5</td><td>0</td><td>dp[3]=1 · ++</td><td>dp[1]=0</td><td>[2,3]</td><td>1</td><td><span class="answer-cell">1 → true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key row is <code class="chip">i = 4</code>. Here the start cell <code class="chip">dp[0]</code> slides out of the window, so <code class="chip">cnt</code> drops to <code class="chip num">0</code>. Index 4 is a wall anyway, but this is the moment the window really "forgets" old cells. Then at <code class="chip">i = 5</code>, <code class="chip">dp[3]</code> comes in, <code class="chip">cnt</code> goes back to <code class="chip num">1</code>, and <code class="chip">s[5]</code> is <code class="chip">'0'</code>. Final <code class="chip">dp = [1,0,0,1,0,1]</code>, so we return <strong>true</strong>. That's the same <code class="chip num">0 → 3 → 5</code> path.</p>
+      <p>Example 2, <code class="chip">"01101110"</code> with <code class="chip">(2, 3)</code>, returns <code class="chip">false</code>. Index 3 is the only reachable cell after the start. While it's inside the window, at <code class="chip">i = 5</code> and <code class="chip">i = 6</code>, those cells are walls. At <code class="chip">i = 7</code>, <code class="chip">dp[3]</code> leaves, so <code class="chip">cnt</code> is <code class="chip num">0</code> and the last index stays false.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <div class="tablewrap">
+      <table class="trace" style="min-width:480px;">
+        <thead><tr><th>input (s, min, max)</th><th>result</th><th>what it checks</th></tr></thead>
+        <tbody>
+          <tr><td>("00", 1, 1)</td><td>true</td><td>smallest n, one jump</td></tr>
+          <tr><td>("01", 1, 1)</td><td>false</td><td>last cell is a wall</td></tr>
+          <tr><td>("000", 1, 1)</td><td>true</td><td>flag version says false</td></tr>
+          <tr><td>("010", 1, 1)</td><td>false</td><td>&gt; 0 guard says true</td></tr>
+          <tr><td>("0000", 2, 2)</td><td>false</td><td>no wall, but parity blocks it</td></tr>
+          <tr><td>all '0', n=1e5, (2, 2)</td><td>false</td><td>last index is odd</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The <code class="chip">("0000", 2, 2)</code> case is a nice one. There's no wall at all, but with a fixed jump of 2 I only land on even indices. So "no long run of 1s" is not enough. A run of <code class="chip">'1'</code>s of length <code class="chip">&gt;= maxJump</code> always blocks you, but with <code class="chip">minJump &gt;= 2</code> there are gaps too. The DP handles both for free.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> <code class="chip">O(n)</code>. Each index does one add check and one remove check, both O(1).</p>
+      <p><strong>The space complexity is</strong> <code class="chip">O(n)</code> for the <code class="chip">dp</code> array.</p>
+      <p><strong>In the worst-case scenario</strong> for the naive scan, all zeros with <code class="chip">(1, 99999)</code> and <code class="chip">n = 1e5</code>, the window holds up to <code class="chip num">99,999</code> reachable cells. The naive version took <code class="chip num">1,792.3 ms</code>. This version took <code class="chip num">104.9 µs</code>, because the window size never shows up in the cost.</p>
+      <p><em class="pause">Oh, one more thing —</em> I return <code class="chip">dp[n - 1]</code>, not <code class="chip">cnt &gt; 0</code>. <code class="chip">cnt</code> only says someone can jump <em>into</em> the last index. It ignores whether the last cell is a wall. <code class="chip">("01", 1, 1)</code> shows it: <code class="chip">cnt &gt; 0</code> gives true, the answer is false. And that bug also passes both examples, so it's easy to miss.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Could you do it without the window count?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Two ways. First, <strong>BFS with a farthest pointer</strong>. I pop a reachable index <code class="chip">i</code> and look at <code class="chip">[i + minJump, i + maxJump]</code>. But I keep a pointer to the farthest index I already checked, and I start from there. So every index is looked at once. On the same worst case it ran in <code class="chip num">117.7 µs</code>, about the same as the DP.</p>
+      <p>Second, a <strong>prefix-sum</strong> version. I keep <code class="chip">pre[k]</code> = number of true <code class="chip">dp</code> in the first <code class="chip">k</code> cells. Then "any reachable cell in the window" is just one subtraction of two prefix values. It's the same idea as <code class="chip">cnt</code>, written as a range sum.</p>
+      <p>Also, <code class="chip">vector&lt;bool&gt;</code> works and is much smaller, <code class="chip num">12,504 B</code> versus <code class="chip num">400,000 B</code> for <code class="chip">vector&lt;int&gt;</code>. But it was about 3× slower in my run, <code class="chip num">307.9 µs</code>. So I kept <code class="chip">vector&lt;int&gt;</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You flipped the question to "who can jump into <code class="chip">i</code>?", which turned a graph search into a window that slides one step at a time. You explained why the window needs a <strong>count</strong>, not a flag, and backed it with <code class="chip">("000", 1, 1)</code>, a bug that passes both examples. And you showed that the <code class="chip">&gt;= 0</code> guard, the <code class="chip">s[i]</code> check, and returning <code class="chip">dp[n - 1]</code> are each correctness rules, with a small input that breaks each one. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 24.26, 42.71, 45.87, 72.41, 84.02, 116.82, 172.09, 281.42, 284.27, 367.86, 515.84, 578.35, 582.02, 640.16]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
