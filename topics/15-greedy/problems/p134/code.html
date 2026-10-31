@@ -80,8 +80,9 @@
     </div>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
     </p>
+    <audio controls preload="none" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>兩個官方範例 → 3、−1,都正確。</strong>
@@ -93,8 +94,8 @@
       <li><code>diff</code>:這一站加的油減掉開到下一站的路費,正的是賺、負的是虧。</li>
       <li><code>total</code>:整圈的 diff 總和,只用來回答「有沒有答案」,中途不重設。</li>
       <li><code>cur</code>:從目前候選 start 開到這裡,油箱還剩多少。</li>
-      <li><code>cur &lt; 0</code>:開不到 i+1。start..i 全部淘汰(概念頁 LEMMA 1),候選換成 i+1,油箱歸零重來。</li>
-      <li><code>total &lt; 0 ? −1 : start</code>:油不夠一圈就沒有答案;夠的話,最後的候選就是答案(LEMMA 2)。</li>
+      <li><code>cur &lt; <span class="nm">0</span></code>:開不到 i+1。start..i 全部淘汰(概念頁 LEMMA 1),候選換成 i+1,油箱歸零重來。</li>
+      <li><code>total &lt; <span class="nm">0</span> ? −<span class="nm">1</span> : start</code>:油不夠一圈就沒有答案;夠的話,最後的候選就是答案(LEMMA 2)。</li>
     </ul>
   </section>
 
@@ -105,7 +106,8 @@
       <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
     </div>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:420px;">
       <thead><tr><th>部分</th><th>次數</th><th>每次成本</th></tr></thead>
       <tbody>
         <tr><td>迴圈</td><td class="mono">n</td><td class="mono">兩個加法 + 一個比較</td></tr>
@@ -113,12 +115,14 @@
         <tr><td>額外空間</td><td class="mono">—</td><td class="mono">total、cur、start、diff</td></tr>
       </tbody>
     </table>
+    </div>
 
     <div class="sc-formula" style="margin-top:14px;">
       時間 <strong>O(n)</strong>　·　空間 <strong>O(1)</strong>
     </div>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:600px;">
       <thead><tr><th>極端輸入(實跑)</th><th>回傳</th><th>重設次數 · total 範圍</th></tr></thead>
       <tbody>
         <tr><td>n = 1,gas=[5], cost=[4]</td><td class="mono ok">0</td><td>0 次 · total = 1</td></tr>
@@ -130,6 +134,7 @@
         <tr><td>隨機 10,000 組,n = 10<sup>5</sup></td><td class="mono">約一半 −1</td><td>重設最多 1,800 次 · |total| 最大 5,262,714</td></tr>
       </tbody>
     </table>
+    </div>
     <p style="margin:10px 0 0;font-size:13.5px;">
       |total| 實測最大 10<sup>9</sup>,約 INT_MAX(2,147,483,647)的 47%,int 夠用;如果題目把值放大到 10<sup>5</sup>,就要換 long long。ASan + UBSan(含 signed overflow 檢查)0 警告;n = 10<sup>5</sup> 單次約 0.1–0.7 ms。
     </p>
@@ -144,25 +149,27 @@
 
     <p style="margin:0 0 12px;">每一種都實際改出來跑:n = 1..5、值 0..3、而且符合「答案唯一」保證的全部 612,240 組,和暴力解比。</p>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:640px;">
       <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例 / 說明</th></tr></thead>
       <tbody>
         <tr><td><code>start = i</code>(少了 + 1)</td><td class="mono fail">91,922</td><td>gas=[0,1], cost=[1,0] → 0(正解 1)。剛失敗的那一站自己也被當成候選</td></tr>
-        <tr><td>重設時忘了 <code>cur = 0</code></td><td class="mono fail">24,699</td><td>gas=[0,1,1], cost=[2,0,0] → 2(正解 1)。舊的虧損被帶到新候選身上</td></tr>
+        <tr><td>重設時忘了 <code>cur = <span class="nm">0</span></code></td><td class="mono fail">24,699</td><td>gas=[0,1,1], cost=[2,0,0] → 2(正解 1)。舊的虧損被帶到新候選身上</td></tr>
         <tr><td>重設時寫 <code>cur = diff</code></td><td class="mono fail">23,984</td><td>同一個最小反例,一樣是把虧損帶過去</td></tr>
-        <tr><td><code>cur &lt;= 0</code></td><td class="mono fail">14,511</td><td>gas=[0], cost=[0] → 1(正解 0,而且 1 超出範圍)。油剛好用完不算失敗</td></tr>
-        <tr><td><code>total &lt;= 0 ? −1</code></td><td class="mono fail">71,092</td><td>gas=[0], cost=[0] → −1(正解 0)。剛好在 total == 0 的時候錯</td></tr>
-        <tr><td>沒有 total 檢查,直接 <code>return start</code></td><td class="mono fail">496,728</td><td>gas=[0], cost=[1] → 1(正解 −1)。所有 −1 的輸入全錯</td></tr>
+        <tr><td><code>cur &lt;= <span class="nm">0</span></code></td><td class="mono fail">14,511</td><td>gas=[0], cost=[0] → 1(正解 0,而且 1 超出範圍)。油剛好用完不算失敗</td></tr>
+        <tr><td><code>total &lt;= <span class="nm">0</span> ? −<span class="nm">1</span></code></td><td class="mono fail">71,092</td><td>gas=[0], cost=[0] → −1(正解 0)。剛好在 total == 0 的時候錯</td></tr>
+        <tr><td>沒有 total 檢查,直接 <code><span class="kw2">return</span> start</code></td><td class="mono fail">496,728</td><td>gas=[0], cost=[1] → 1(正解 −1)。所有 −1 的輸入全錯</td></tr>
         <tr><td>total 跟著 cur 一起重設</td><td class="mono fail">496,728</td><td>同上:最後的 total 只剩最後一段,而那一段一定 ≥ 0,永遠回不了 −1</td></tr>
         <tr><td>直接挑 diff 最大的那站</td><td class="mono fail">27,179</td><td>gas=[0,1,2], cost=[3,0,0] → 2(正解 1)</td></tr>
         <tr><td>直接挑 gas 最多的那站</td><td class="mono fail">51,101</td><td>gas=[1,1], cost=[2,0] → 0(正解 1)</td></tr>
-        <tr><td>(不是錯)<code>return start % n</code></td><td class="mono ok">0</td><td>start == n 只會發生在 total &lt; 0,那時回傳的是 −1</td></tr>
+        <tr><td>(不是錯)<code><span class="kw2">return</span> start % n</code></td><td class="mono ok">0</td><td>start == n 只會發生在 total &lt; 0,那時回傳的是 −1</td></tr>
       </tbody>
     </table>
+    </div>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>兩個 <code>&lt;</code> 都是嚴格的:cur 剛好 0 代表剛好開得到,total 剛好 0 代表剛好繞得完 —— 兩種都是成功。</strong>
-      <b>gas=[0], cost=[0] 一個輸入就同時抓到「cur &lt;= 0」和「total &lt;= 0」兩種錯。官方範例 1 的 total 剛好也是 0,所以 <code>total &lt;= 0</code> 會在範例 1 就答錯 −1。</b>
+      <b>gas=[0], cost=[0] 一個輸入就同時抓到「cur &lt;= 0」和「total &lt;= 0」兩種錯。官方範例 1 的 total 剛好也是 0,所以 <code>total &lt;= <span class="nm">0</span></code> 會在範例 1 就答錯 −1。</b>
     </div>
   </section>
 
@@ -173,7 +180,7 @@
       <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · 範例 2 → −1</span></h2>
     </div>
 
-    <p style="margin:0 0 12px;">範例 2 <code>gas=[2,3,4], cost=[3,4,3]</code>(概念頁動畫走的是範例 1 和兩次重設的例子)。每一行都是實際印出來的。</p>
+    <p style="margin:0 0 12px;">範例 2 <code>gas=[<span class="nm">2,3,4</span>], cost=[<span class="nm">3,4,3</span>]</code>(概念頁動畫走的是範例 1 和兩次重設的例子)。每一行都是實際印出來的。</p>
 
     <div class="sc-trace"><span class="sc-trace__head">// 一站一站累加</span>
 i=0  diff = 2−3 = −1   total = −1   cur = −1 &lt; 0 → start = 1,cur = 0
