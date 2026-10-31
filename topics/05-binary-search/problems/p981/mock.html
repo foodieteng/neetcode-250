@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 981 · Time Based Key-Value Store</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { white-space: nowrap; overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+
+@media (max-width: 480px) { .page { padding: 16px 16px 48px; } .turn { padding: 6px 0; gap: 10px; } }
+table.trace td, table.trace th { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 981 · Time Based Key-Value Store · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design a key-value store with timestamps. <code class="chip">set(key, value, timestamp)</code> stores a value. <code class="chip">get(key, timestamp)</code> returns the value stored at the <em>largest</em> timestamp that is less than or equal to the one you pass, or the empty string if there is none.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> <code class="chip">get</code> is a lookup back in time. If I ask for timestamp <code class="chip num">5</code> and the writes happened at <code class="chip num">1</code> and <code class="chip num">4</code>, I should get the one from <code class="chip num">4</code>. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>One more, and this one changes my whole design: are the timestamps passed to <code class="chip">set</code> in increasing order?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes — strictly increasing.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That's the key sentence in the whole problem. It means each key's history <strong>arrives already sorted</strong>, so I can just append to a plain array and never sort or insert in the middle. If that weren't guaranteed, I'd need something that keeps itself ordered, like a tree map, and I'd pay for it on every write.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to 2 × 10<sup>5</sup> calls in total, timestamps up to 10<sup>7</sup>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> Store <code class="chip">"bar"</code> at time <code class="chip num">1</code>. Ask at time <code class="chip num">1</code> — exact hit, <code class="chip">"bar"</code>. Ask at <code class="chip num">3</code> — nothing was written at <code class="chip num">2</code> or <code class="chip num">3</code>, so the newest thing at or before <code class="chip num">3</code> is still <code class="chip">"bar"</code>. Then store <code class="chip">"bar2"</code> at <code class="chip num">4</code>, and both <code class="chip num">4</code> and <code class="chip num">5</code> give <code class="chip">"bar2"</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> keep each key's history in a list and walk it backwards on every <code class="chip">get</code>. That's <code class="chip">O(n)</code> per query, and with 2 × 10<sup>5</sup> calls hitting one key, that's far too slow.</p>
+      <p><strong>This problem reminds me of</strong> an <code class="chip">upper_bound</code> binary search. I want "the last entry at or before T", and the standard move for a "last one satisfying" query is to search for the <strong>first one that fails</strong>, then step back one.</p>
+      <p>So: a hash map from key to a sorted array of <code class="chip">(timestamp, value)</code> pairs. <code class="chip">set</code> appends. <code class="chip">get</code> binary searches for the first timestamp strictly greater than the query, then takes the entry before it.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dict: key -&gt; vector of (timestamp, value), sorted by construction</span><br>
+        set: dict[key].push_back({timestamp, value})<br>
+        get: <span class="label">// find FIRST index whose timestamp &gt; query</span><br>
+        &nbsp;&nbsp;left = 0, right = v.size()<br>
+        &nbsp;&nbsp;while left &lt; right:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;mid = left + (right - left) / 2<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if v[mid].first &gt; timestamp: right = mid<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;else: left = mid + 1<br>
+        &nbsp;&nbsp;<span class="em">return left &gt; 0 ? v[left - 1].second : ""</span>
+      </div>
+      <p>One: <code class="chip">set</code> pushes the pair onto that key's array.<br>
+      Two: <code class="chip">get</code> searches a half-open range for the first entry that's <em>too new</em>.<br>
+      Three: return the entry just before it, or empty.</p>
+      <p><strong>One thing worth flagging</strong> — two details travel together. First, the test must be a <strong>strict</strong> <code class="chip">&gt;</code>. With <code class="chip">&gt;=</code>, an exact-hit entry would count as "too new", and stepping back would hand me the <em>previous</em> value — a bug only exact matches hit.</p>
+      <p>Second, because I answer with <code class="chip">left - 1</code>, I have to guard <code class="chip">left == 0</code>: that's when every timestamp is newer, and I'd index <code class="chip num">-1</code>.</p>
+      <p>A tree map would be shorter but slower, buying middle inserts I never need. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">TimeMap</span> {
+<span class="kw">public</span>:
+    <span class="typ">unordered_map</span>&lt;<span class="typ">string</span>, <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">string</span>&gt;&gt;&gt; dict;
+
+    <span class="typ">TimeMap</span>() {}
+
+    <span class="typ">void</span> <span class="fn">set</span>(<span class="typ">string</span> key, <span class="typ">string</span> value, <span class="typ">int</span> timestamp) {
+        <span class="com">// timestamps strictly increase -&gt; a plain push_back keeps it sorted</span>
+        dict[key].<span class="fn">push_back</span>({timestamp, value});
+    }
+
+    <span class="typ">string</span> <span class="fn">get</span>(<span class="typ">string</span> key, <span class="typ">int</span> timestamp) {
+        <span class="kw">auto</span> it = dict.<span class="fn">find</span>(key);
+        <span class="kw">if</span> (it == dict.<span class="fn">end</span>()) <span class="kw">return</span> <span class="str">""</span>;
+
+        <span class="kw">const</span> <span class="kw">auto</span>&amp; v = it-&gt;second;   <span class="com">// alias, no copy -- see the next section</span>
+
+        <span class="com">// find "the first timestamp &gt; query" = upper_bound</span>
+        <span class="typ">int</span> left = <span class="num2">0</span>, right = v.<span class="fn">size</span>();
+
+        <span class="kw">while</span> (left &lt; right) {
+            <span class="typ">int</span> mid = left + (right - left) / <span class="num2">2</span>;
+
+            <span class="kw">if</span> (v[mid].first &gt; timestamp) {
+                right = mid;              <span class="com">// too new, answer is to the left (keep mid)</span>
+            } <span class="kw">else</span> {
+                left = mid + <span class="num2">1</span>;          <span class="com">// not too new yet, step past mid</span>
+            }
+        }
+
+        <span class="com">// left = first "too new" slot; we want the cell before it</span>
+        <span class="kw">return</span> left &gt; <span class="num2">0</span> ? v[left - <span class="num2">1</span>].second : <span class="str">""</span>;
+    }
+};</pre>
+      <p><code class="chip">set</code> is one <code class="chip">push_back</code>. <code class="chip">get</code> finds the key, returns empty if it's missing, then runs the loop: too new means <code class="chip">right = mid</code>, otherwise <code class="chip">left = mid + 1</code>. At the end I return the entry before <code class="chip">left</code>, if there is one.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">const auto&amp;</code> on that lookup. Plain <code class="chip">auto</code> would still be <em>correct</em>, but <code class="chip">auto</code> strips the reference, so it copies the entire history vector on every <code class="chip">get</code>. That turns an <code class="chip">O(log n)</code> query into <code class="chip">O(n)</code>.</p>
+      <p>With <code class="chip num">200000</code> gets on a key holding <code class="chip num">200000</code> entries: <code class="chip num">17.7</code> ms with the reference, about <code class="chip num">122</code> seconds with the copy — roughly <code class="chip num">6900×</code> slower.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with three entries, <code class="chip">(1,"bar")</code>, <code class="chip">(4,"bar2")</code>, <code class="chip">(7,"bar3")</code>, querying <code class="chip num">5</code>. The "too new?" pattern is <code class="chip">F F T</code>, so I expect the boundary at index <code class="chip num">2</code> and the answer at index <code class="chip num">1</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>range</th><th>mid</th><th>v[mid].first</th><th>&gt; 5 ?</th><th>action</th><th>new range</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>[0, 3)</td><td>1</td><td>4</td><td>no (F)</td><td>left = mid + 1</td><td>[2, 3)</td></tr>
+          <tr><td>[2, 3)</td><td>2</td><td>7</td><td>yes (T)</td><td>right = mid</td><td>[2, 2) → stop</td></tr>
+          <tr><td colspan="4">left = 2 &gt; 0 → v[2 - 1]</td><td>step back</td><td><span class="answer-cell">"bar2"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key step: index <code class="chip num">1</code> was dropped from the search range on the very first step, and it's still the answer. That's not a bug — the search finds the <strong>boundary</strong>, and the answer is always one step behind it. <code class="chip">"bar2"</code>.</p>
+      <p>Corner cases:</p>
+      <p>• querying <code class="chip num">0</code> → everything is too new, <code class="chip">left</code> stays <code class="chip num">0</code>, and the guard returns <code class="chip">""</code>.<br>
+      • querying <code class="chip num">7</code> → nothing is too new, <code class="chip">left</code> reaches <code class="chip num">3</code>, giving <code class="chip">"bar3"</code>, no guard needed.<br>
+      • a key never set → hits the early return.</p>
+      <p>A cross-check against a tree map over <code class="chip num">300004</code> operations found no disagreements.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> amortized <code class="chip">O(1)</code> for <code class="chip">set</code> — a hash lookup and an append — and <code class="chip">O(log n)</code> for <code class="chip">get</code>, where <code class="chip">n</code> is the number of entries <em>for that key</em>, not the total. <strong>The space complexity is</strong> <code class="chip">O(total entries)</code>.</p>
+      <p><strong>In the worst-case scenario</strong> every call targets one key, so <code class="chip">n</code> reaches 2 × 10<sup>5</sup>, and each query is about <code class="chip num">18</code> comparisons.</p>
+      <p><em class="pause">Oh, one more thing —</em> if the increasing-timestamp guarantee were dropped, I'd switch each key's history to a tree map keyed by timestamp. <code class="chip">set</code> becomes <code class="chip">O(log n)</code> instead of amortized <code class="chip">O(1)</code>, and <code class="chip">get</code> becomes <code class="chip">upper_bound</code> plus one step back — the same idea, just done by the library instead of by hand.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You asked whether the timestamps were increasing before designing anything, and used the answer to justify a plain array over a tree. You framed "last one at or before T" as "first one after T, minus one", and tied the strict comparison and the left-hand guard to that framing rather than discovering them by debugging. And you knew <code class="chip">auto</code> would copy there, and brought numbers for it. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 19.31, 34.24, 36.56, 43.63, 46.34, 67.07, 73.33, 91.68, 131.99, 179.94, 182.72, 225.86, 274.29, 318.08]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
