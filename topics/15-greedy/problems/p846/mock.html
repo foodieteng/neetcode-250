@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 846 · Hand of Straights</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+.tablewrap { overflow-x: auto; margin: 12px 0; }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+.tablewrap table.trace { margin: 0; min-width: 640px; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  overflow-x: auto; white-space: nowrap; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="none" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 846 · Hand of Straights · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an integer array <code class="chip">hand</code> and an integer <code class="chip">groupSize</code>. Return true if you can split all the cards into groups. Each group has exactly <code class="chip">groupSize</code> cards, and the values in a group are <strong>consecutive</strong>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> every card must be used, and each card goes into exactly one group. A group like <code class="chip num">[2,3,4]</code> is fine, but <code class="chip num">[2,2,3]</code> is not. And the order in <code class="chip">hand</code> doesn't matter, because I can rearrange. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. All cards used, no repeats inside a group, order doesn't matter.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. Then only two things matter: <strong>which values</strong> I have, and <strong>how many copies</strong> of each. So I can think in counts, not in positions.</p>
+      <p>And here's the key fact I want to plant early. Look at the <strong>smallest</strong> card left. It can't be in the middle of a group, because nothing smaller is left to come before it. So it <strong>must start</strong> a group. And if it has <code class="chip">cnt</code> copies, every one of those copies must start its own group.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 &lt;= hand.length &lt;= 10^4</code>, <code class="chip">0 &lt;= hand[i] &lt;= 10^9</code>, and <code class="chip">1 &lt;= groupSize &lt;= hand.length</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. The values go up to 10<sup>9</sup>, so I can't use a plain array indexed by value. I'll need a map. And I'll compute <code class="chip">k + i</code> later, so I'll keep overflow in mind.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip num">[1,2,3,6,2,3,4,7,8]</code> with <code class="chip">groupSize = 3</code>. The smallest card is 1, so 1 starts a group: <code class="chip num">[1,2,3]</code>. Now the smallest left is 2: <code class="chip num">[2,3,4]</code>. Then 6: <code class="chip num">[6,7,8]</code>. All cards used, so <code class="chip">true</code>. The second one, <code class="chip num">[1,2,3,4,5]</code> with size 4: 1 starts <code class="chip num">[1,2,3,4]</code>, then 5 is left alone. It needs 6, 7, 8, and there's no 6. So <code class="chip">false</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> backtrack. Pick a card, try every way to build a group with it, and undo when stuck. That's exponential. With up to 10<sup>4</sup> cards, it won't finish.</p>
+      <p><strong>This problem reminds me of</strong> greedy with a sorted count map. The fact from before removes all the choice. The smallest card has only one legal role, so there's nothing to try. I just follow it.</p>
+      <p>And I don't need to build one group at a time. If the smallest value <code class="chip">k</code> has <code class="chip">cnt</code> copies, I start <code class="chip">cnt</code> groups at once. That means I need <code class="chip">cnt</code> copies of each of <code class="chip">k, k+1, ..., k+g−1</code>. So I subtract <code class="chip">cnt</code> from all of them in one pass.</p>
+      <p>I'll go with an ordered <code class="chip">map&lt;int,int&gt;</code>. It gives me counts and walks the keys from small to large for free.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state: freq[v] = copies of v not used yet</span><br>
+        <span class="label">// invariant: when I reach key k, every key &lt; k is 0</span><br>
+        build freq from hand<br>
+        for each key k in increasing order:<br>
+        &nbsp;&nbsp;cnt = freq[k]&nbsp;&nbsp; <span class="em">← copy, not a reference</span><br>
+        &nbsp;&nbsp;if cnt == 0: skip&nbsp;&nbsp; <span class="em">← used up by earlier groups</span><br>
+        &nbsp;&nbsp;for i in 0 .. g−1:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if k+i missing or freq[k+i] &lt; cnt: return false<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;freq[k+i] −= cnt<br>
+        return true
+      </div>
+      <p><strong>Here, I'm using</strong> an ordered map <strong>to keep track of</strong> how many copies of each value are still free. Because the keys come out sorted, the key I'm on is always the smallest card still left.</p>
+      <p><strong>One thing worth flagging</strong> — the invariant is what makes the greedy safe. <em class="pause">Let me walk through that.</em> When I reach <code class="chip">k</code>, all smaller keys are already 0. So the copies of <code class="chip">k</code> can't join any group that started earlier. They must start new groups. If any of <code class="chip">k+1</code> to <code class="chip">k+g−1</code> is short, there's no other way to place those cards. So returning false right away is correct, not just fast.</p>
+      <p><strong>There's a trade-off here.</strong> I could also sort the array and use a hash map. The ordered map costs O(log n) per access. But it keeps the code short, and it gives sorted keys without a separate sort. At 10<sup>4</sup> cards, that's fine.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">isNStraightHand</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; hand, <span class="typ">int</span> groupSize) {
+        <span class="typ">map</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt; freq;
+        <span class="kw">for</span> (<span class="typ">int</span> &amp;x : hand) {
+            freq[x]++;
+        }
+
+        <span class="kw">for</span> (<span class="kw">auto</span> &amp;[k, v] : freq) {
+            <span class="typ">int</span> cnt = v;
+            <span class="kw">if</span> (cnt == <span class="num2">0</span>) <span class="kw">continue</span>;
+            <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; groupSize; i++) {
+                <span class="kw">if</span> (!freq.<span class="fn">count</span>(k + i) || freq[k + i] &lt; cnt) <span class="kw">return</span> <span class="kw">false</span>;
+                freq[k + i] -= cnt;
+            }
+        }
+
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+};</pre>
+      <p>That matches the plan line by line.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">int cnt = v;</code> is a <strong>copy</strong>, and that's needed for correctness. <code class="chip">v</code> is a reference to <code class="chip">freq[k]</code>. At <code class="chip">i = 0</code>, the line <code class="chip">freq[k] -= cnt</code> sets <code class="chip">freq[k]</code> to 0. If I used <code class="chip">v</code> directly, <code class="chip">v</code> would also become 0 right there. Then every later check and subtraction for <code class="chip">k+1</code> and up would use 0, and the groups would never really be taken out. Copying first freezes the number of groups I'm starting.</p>
+      <p>Two more small details. The <code class="chip">cnt == 0</code> skip is also needed. Keys that earlier groups used up are still in the map, just with 0. Without the skip, I'd try to start groups at those keys. Near the top end, a key like <code class="chip">k+1</code> may not exist, so it could wrongly return false. And the order inside the <code class="chip">if</code> matters. <code class="chip">!freq.count(k + i)</code> runs first, and <code class="chip">||</code> short-circuits. So <code class="chip">freq[k + i]</code> only runs when the key already exists. It never inserts a new key while I'm walking the map. In my tests, the map size never changed.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Example 1, <code class="chip num">[1,2,3,6,2,3,4,7,8]</code>, <code class="chip">groupSize = 3</code>. Expected <code class="chip">true</code>. After the first loop, <code class="chip">freq = {1:1, 2:2, 3:2, 4:1, 6:1, 7:1, 8:1}</code>.</p>
+      <div class="tablewrap">
+      <table class="trace">
+        <thead><tr><th>key k</th><th>cnt</th><th>action</th><th>freq after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1</td><td>[1,2,3]: 1→0, 2→1, 3→1</td><td>{1:0, 2:1, 3:1, 4:1, 6:1, 7:1, 8:1}</td></tr>
+          <tr class="highlight-row"><td>2</td><td>1</td><td>[2,3,4]: 1→0, 1→0, 1→0</td><td>{1:0, 2:0, 3:0, 4:0, 6:1, 7:1, 8:1}</td></tr>
+          <tr><td>3</td><td>0</td><td>skip</td><td>unchanged</td></tr>
+          <tr><td>4</td><td>0</td><td>skip</td><td>unchanged</td></tr>
+          <tr><td>6</td><td>1</td><td>[6,7,8]: 1→0, 1→0, 1→0</td><td>{all 0}</td></tr>
+          <tr><td>7</td><td>0</td><td>skip</td><td>unchanged</td></tr>
+          <tr><td>8</td><td>0</td><td>skip</td><td>unchanged</td></tr>
+          <tr><td>end</td><td></td><td>loop done</td><td><span class="answer-cell">return true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The highlighted row is <code class="chip">k = 2</code>. Key 2 started with 2 copies, but the group at 1 already used one. So <code class="chip">cnt</code> is 1, and I start only one group here. That's the invariant at work: when I reach 2, key 1 is already 0. Then keys 3 and 4 show up with 0, and the skip handles them. In total, 4 keys get skipped: 3, 4, 7, and 8.</p>
+      <p>Example 2, <code class="chip num">[1,2,3,4,5]</code> with size 4. Start: <code class="chip">{1:1, 2:1, 3:1, 4:1, 5:1}</code>. At <code class="chip">k = 1</code>, <code class="chip">cnt = 1</code>, so 1 to 4 all go 1→0. Keys 2, 3, 4 are skipped. At <code class="chip">k = 5</code>, <code class="chip">cnt = 1</code>, 5 goes 1→0, then key 6 is missing. <span class="answer-cell">return false</span>. Correct.</p>
+      <p>I also want one case where <code class="chip">cnt</code> is bigger than 1. <code class="chip num">[1,1,2,2,3,3,3,4,5]</code> with size 3. Start: <code class="chip">{1:2, 2:2, 3:3, 4:1, 5:1}</code>. At <code class="chip">k = 1</code>, <code class="chip">cnt = 2</code>: I start two groups at once. 1 goes 2→0, 2 goes 2→0, 3 goes 3→1. Key 2 is skipped. At <code class="chip">k = 3</code>, <code class="chip">cnt = 1</code>: 3, 4, 5 all go to 0. Keys 4 and 5 are skipped. <span class="answer-cell">return true</span>. This is the case where the copy <code class="chip">cnt</code> really earns its place.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">groupSize = 1</code>: every card is its own group. The inner loop runs once and subtracts the full count. Always <code class="chip">true</code>.<br>
+      • <code class="chip num">[5,5,5]</code>, size 3: <code class="chip">cnt = 3</code>, 5 goes 3→0, then key 6 is missing. <code class="chip">false</code>. Three copies of one value can't be consecutive.<br>
+      • Big values: on legal input, the largest <code class="chip">k + i</code> the code ever computes is <code class="chip num">1,000,000,001</code>, that's 10<sup>9</sup>+1. It's well below <code class="chip">INT_MAX = 2,147,483,647</code>. Why so small? The loop returns at the first missing key, so it never walks far past the largest card. UBSan and ASan are both clean.</p>
+      <p>Both official examples pass. I also checked the code against exhaustive backtracking on <code class="chip num">270,592</code> cases, with <code class="chip num">0</code> mismatches.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em> The inner loop sits inside the outer loop, so it looks like O(n · g). It's not. Every inner step that passes subtracts <code class="chip">cnt</code>, and <code class="chip">cnt</code> is at least 1. The total I can subtract is at most n, the number of cards. Plus at most one failing step before I return. So the inner loop runs at most <strong>n + 1</strong> times in total. At n = 10<sup>4</sup>, the most I saw was <code class="chip num">10,001</code>.</p>
+      <p><strong>The time complexity is</strong> O(n log n). Building the map is n inserts at O(log n) each, and that part dominates. The inner steps are also map lookups, but there are at most n + 1 of them. <strong>The space complexity is</strong> O(n) for the map, one entry per distinct value.</p>
+      <p><strong>In the worst-case scenario</strong>, all values are distinct, so the map has n keys and every access costs log n. That's still O(n log n). At n = 10<sup>4</sup>, it runs in about 3 ms.</p>
+      <p><em class="pause">Oh, one more thing —</em> this code doesn't check <code class="chip">n % groupSize</code> up front. It's still correct without it, because a bad size always ends up with a short group. But adding <code class="chip">if (hand.size() % groupSize) return false;</code> at the top is a cheap, optional early exit.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You planted the greedy fact early: the smallest card must start a group, so you start all <code class="chip">cnt</code> groups at once. You explained why <code class="chip">int cnt = v</code> must be a copy, since <code class="chip">v</code> becomes 0 the moment you subtract at <code class="chip">i = 0</code>, and why the zero-skip is needed. And you showed the nested loop is really n + 1 steps in total, not n times g. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.44, 35.77, 42.01, 71.76, 83.97, 128.68, 182.02, 280.78, 283.0, 381.66, 538.3, 614.59]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
