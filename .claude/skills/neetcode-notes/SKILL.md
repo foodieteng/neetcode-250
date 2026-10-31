@@ -185,8 +185,11 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    - All English. One entry per dialogue turn, **same order as the `.turn` blocks in `mock.html`** — the audio cues bind by index.
    - Never speak the INTERVIEWER / CANDIDATE labels or the UMPIRE phase chips; the voice change carries the roles.
    - **Code is never read verbatim.** Every code block and pseudocode plan becomes the candidate explaining it in spoken English ("I keep two counters, pay-five and pay-ten. A ten always costs me one five, and I fail the moment a counter would go negative."). Symbols become words: `10^5` → "ten to the fifth", `O(n)` → "linear time", `[5,5,10]` → "five, five, ten", `--pay5 < 0` → "if that takes pay-five below zero".
-   - Dry-run tables → narrate only the turning-point rows ("By the fourth customer I'm out of fives — then the twenty shows up and I can't make fifteen.").
-   - Keep every UMPIRE beat and the full prose (target ≥ 8 min); only code and tables are re-spoken. The Concept page's 「面試這樣說」 wording is the register to match.
+   - **精簡、講重點、不報流水帳。** Every turn says what it is for, the one point that matters, and the conclusion — never a step-by-step log. Banned shapes: "At i = 0 … at i = 1 … then …", "first … second … third …" over rows, reading a loop line by line.
+     - **Code turn** ≤ ~120 words: the idea in 2–3 sentences + the one line that is easy to get wrong and why.
+     - **Dry-run turn** ≤ ~100 words: input + expected → **the one row where the decision happens** and why → result. ("Example two: five, five, ten, ten, twenty — expected false. The moment that matters is the twenty: I hold two tens but no five, and fifteen always needs a five. So false, on the spot.")
+     - **Plan** = 3 short spoken steps; **corner cases** = at most 4, one clause each.
+   - Hard cap: no turn > 150 words; whole script ~900–1,300 words (≈ 6–8 min). Length follows content — never pad. The Concept page's 「面試這樣說」 is the register to match. `make_mock_audio.py` refuses a turn over 160 words.
    - Every number spoken comes from the PHASE A fact sheet, same as the pages.
 
    **`mock.html` — click-to-seek contract:** the kept transcript HTML plus: a sticky `<audio id="mock-audio" controls preload="none" src="mock.mp3">` at the top; every dialogue turn tagged `class="turn"`; before `</body>`: `<script>window.MOCK_CUES = []</script>` then `<script src="../../../../assets/js/mock-audio.js"></script>`. The shared player makes turns clickable (seek + play), highlights the playing turn, and keeps it scrolled into view. `make_mock_audio.py` fills `MOCK_CUES` — never hand-edit it.
@@ -197,7 +200,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    ```
    edge-tts per turn → 0.45 s gaps → ffmpeg concat → `mock.mp3`, cue offsets written into `mock.html`. Voices: **two different people drawn from the Plus-grade Microsoft multilingual pool** (Andrew / Ava / Brian / Emma — the natural ones; same family NaturalReaders sells as Plus Voices), seeded by the problem number: stable across re-runs, roles not gender-fixed, speakers always differ. Don't add the older single-language voices (Guy/Jenny/Aria/Christopher…) back — noticeably more robotic. Needs `speech.platform.bing.com` reachable (honors `HTTPS_PROXY`); if synthesis is blocked, ship the other three files and say so — **never commit a silent or partial mp3**.
 
-   **Spot-check (mandatory):** listen to the first ~20 s and one code-explanation turn; the script prints total duration (expect ≥ 8 min); click two turns in `mock.html` and confirm the seek lands on the right sentence.
+   **Spot-check (mandatory):** listen to the first ~20 s and one code-explanation turn; the script prints total duration (expect ~6–8 min); click two turns in `mock.html` and confirm the seek lands on the right sentence.
 
    Link it from `code.html` right after the code window:
    ```html

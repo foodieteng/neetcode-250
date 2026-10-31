@@ -93,6 +93,11 @@ def main():
     if n_turns != len(entries):
         sys.exit(f"mock.html has {n_turns} .turn blocks, "
                  f"mock.script.json has {len(entries)} — must match 1:1")
+    long = [(i, len(e["text"].split())) for i, e in enumerate(entries)
+            if len(e["text"].split()) > 160]
+    if long:
+        sys.exit("turns over 160 words (精簡、講重點、不報流水帳 — tighten them): "
+                 + ", ".join(f"#{i} {w}w" for i, w in long))
     print(f"{pid}: {len(entries)} turns · interviewer={iv} · candidate={cd}")
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -120,8 +125,8 @@ def main():
     open(html_path, "w", encoding="utf-8").write(new)
     total = dur(f"{pdir}/mock.mp3")
     print(f"mock.mp3 {total / 60:.1f} min · {len(cues)} cues written into mock.html")
-    if total < 180:
-        print("WARNING: under 3 min — a full mock adaptation should be ≥ 8 min")
+    if not 240 <= total <= 600:
+        print("WARNING: expected ~6–8 min (900–1,300 words); check the script")
 
 
 if __name__ == "__main__":
