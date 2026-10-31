@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 232 · Implement Queue using Stacks</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 232 · Implement Queue using Stacks · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Implement a FIFO queue using only stack operations. Support <code class="chip">push</code> to the back, <code class="chip">pop</code> and <code class="chip">peek</code> from the front, and <code class="chip">empty</code>. Follow-up: make every operation <strong>amortized</strong> O(1).</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> I may only use stack operations, so I'll use two stacks: <code class="chip">in</code> takes pushes, <code class="chip">out</code> serves pops. <code class="chip">push</code> goes to <code class="chip">in</code>, in O(1).</p>
+      <p>For <code class="chip">pop</code> or <code class="chip">peek</code>, if <code class="chip">out</code> is empty, I pour <code class="chip">in</code> into <code class="chip">out</code>. That reverses the order once, so <code class="chip">out</code>'s top is the oldest element, the queue front. I only transfer when <code class="chip">out</code> is empty, so each element moves once, which gives amortized O(1). <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Why is <code class="chip">out</code>'s top the front?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The newest element sits on top of <code class="chip">in</code>. Popping <code class="chip">in</code>'s top over and over into <code class="chip">out</code> reverses them, so the oldest ends up on top of <code class="chip">out</code>. That's exactly the queue front. One reversal turns LIFO into FIFO.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>This problem reminds me of</strong> lazy evaluation with amortized analysis: put off the expensive work until it's actually needed, and make sure each element pays for it only once.</p>
+      <p>The lazy part is essential. I transfer <em>only when <code class="chip">out</code> is empty</em>. If I moved elements back and forth on every operation, each one would be O(n). Instead, each element is poured once and consumed from <code class="chip">out</code>, never returning to <code class="chip">in</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// in = st1 takes pushes · out = st2 serves pops</span><br>
+        push(x) → in.push(x)<br>
+        peek()&nbsp;&nbsp;→ if out empty: <span class="em">drain in → out</span>; return out.top()<br>
+        pop()&nbsp;&nbsp;&nbsp;→ v = <span class="em">peek()</span>; out.pop(); return v<br>
+        empty() → in.empty() &amp;&amp; out.empty()
+      </div>
+      <p>One: <code class="chip">push</code> goes onto <code class="chip">in</code>.<br>
+      Two: <code class="chip">peek</code> drains <code class="chip">in</code> into <code class="chip">out</code> if <code class="chip">out</code> is empty, then returns <code class="chip">out</code>'s top.<br>
+      Three: <code class="chip">empty</code> means both stacks are empty.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">pop</code> just calls <code class="chip">peek()</code>, then pops <code class="chip">out</code>. Reusing <code class="chip">peek</code> keeps the "when to transfer" logic in one place.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. <code class="chip">st1</code> is <code class="chip">in</code> and <code class="chip">st2</code> is <code class="chip">out</code>.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MyQueue</span> {
+    <span class="typ">stack</span>&lt;<span class="typ">int</span>&gt; st1, st2;                 <span class="com">// st1 = in (takes push) · st2 = out (serves pop)</span>
+<span class="kw">public</span>:
+    <span class="fn">MyQueue</span>() {}
+
+    <span class="typ">void</span> <span class="fn">push</span>(<span class="typ">int</span> x) { st1.<span class="fn">push</span>(x); }    <span class="com">// only into in, O(1)</span>
+
+    <span class="typ">int</span> <span class="fn">pop</span>() {
+        <span class="typ">int</span> v = <span class="fn">peek</span>();                  <span class="com">// make sure out holds the front (pour if needed)</span>
+        st2.<span class="fn">pop</span>();
+        <span class="kw">return</span> v;
+    }
+
+    <span class="typ">int</span> <span class="fn">peek</span>() {
+        <span class="kw">if</span> (st2.<span class="fn">empty</span>()) {               <span class="com">// pour only when out is empty (lazy transfer)</span>
+            <span class="kw">while</span> (!st1.<span class="fn">empty</span>()) {
+                st2.<span class="fn">push</span>(st1.<span class="fn">top</span>());     <span class="com">// in → out, order reversed</span>
+                st1.<span class="fn">pop</span>();
+            }
+        }
+        <span class="kw">return</span> st2.<span class="fn">top</span>();                <span class="com">// out's top = queue front</span>
+    }
+
+    <span class="typ">bool</span> <span class="fn">empty</span>() {
+        <span class="kw">return</span> st1.<span class="fn">empty</span>() &amp;&amp; st2.<span class="fn">empty</span>();  <span class="com">// empty only if both are empty</span>
+    }
+};</pre>
+      <p><code class="chip">push</code> only touches <code class="chip">in</code>. <code class="chip">peek</code> holds the transfer: if <code class="chip">out</code> is empty, it moves everything from <code class="chip">in</code> to <code class="chip">out</code>, which reverses the order, then returns <code class="chip">out</code>'s top. <code class="chip">pop</code> calls <code class="chip">peek()</code> first, so <code class="chip">out</code> is guaranteed to have the front, then pops it.</p>
+      <p>The line to get right is the guard on the transfer, <code class="chip">if (st2.empty())</code>: pour only when <code class="chip">out</code> is empty. Pouring while <code class="chip">out</code> still holds elements would bury the older ones under newer ones and break the order. And <code class="chip">empty</code> must check both stacks, since elements can sit in either one.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> Push 1, 2, 3, then pop, push 4, pop, pop — expected <code class="chip">1, 2, 3</code>. Top is on the right.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:360px; white-space:nowrap;">
+        <thead><tr><th>op</th><th>in</th><th>out</th><th>ret</th></tr></thead>
+        <tbody>
+          <tr><td>push 1,2,3</td><td>[1,2,3]</td><td>[]</td><td>—</td></tr>
+          <tr class="highlight-row"><td>pop</td><td>[]</td><td>drain → [3,2,1] → [3,2]</td><td><span class="answer-cell">1</span></td></tr>
+          <tr><td>push 4</td><td>[4]</td><td>[3,2]</td><td>—</td></tr>
+          <tr><td>pop</td><td>[4]</td><td>[3]</td><td><span class="answer-cell">2</span></td></tr>
+          <tr><td>pop</td><td>[4]</td><td>[]</td><td><span class="answer-cell">3</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the first <code class="chip">pop</code>: <code class="chip">out</code> is empty, so I drain <code class="chip">in</code>, and <code class="chip">out</code> becomes <code class="chip">[3,2,1]</code> with 1 on top. It returns 1.</p>
+      <p>After <code class="chip">push 4</code>, <code class="chip">out</code> still has items, so the next two pops don't transfer. They return 2 and 3, while 4 waits in <code class="chip">in</code> until <code class="chip">out</code> empties. Each element is poured at most once. That matches.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>A single <code class="chip">pop</code> can be O(n). Justify amortized O(1).</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Each element takes a fixed tour: a push onto <code class="chip">in</code>, one transfer to <code class="chip">out</code>, and one pop from <code class="chip">out</code>. That's a constant number of stack operations, done once.</p>
+      <p>Over <code class="chip">n</code> operations, that's O(n) total work, so O(1) amortized. The occasional expensive pop just settles up for the cheap pushes that came before it.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <div class="insight-box">
+        <span class="label">// complexity</span><br>
+        push <span class="em">O(1)</span>; pop / peek <span class="em">amortized O(1)</span> (worst single O(n)).<br>
+        Space <span class="em">O(n)</span> — two stacks.
+      </div>
+      <p><code class="chip">push</code> is O(1). <code class="chip">pop</code> and <code class="chip">peek</code> are amortized O(1), with a worst case of O(n) for a single call. Space is O(n) for the two stacks.</p>
+      <p>The mirror problem, a stack built from queues, doesn't get this with the rotate approach: rotating the queue redoes work on every push, because the old elements keep cycling around. Here the reversal happens once and flows one way, which is what makes lazy transfer amortize cleanly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Excellent. The reversal insight, the lazy transfer, <code class="chip">pop</code> reusing <code class="chip">peek</code>, and a crisp amortized argument. Done.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.08, 47.46, 51.05, 67.13, 94.31, 113.17, 147.27, 176.69, 182.11, 202.43, 232.49]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

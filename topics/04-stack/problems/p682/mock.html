@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 682 · Baseball Game</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 682 · Baseball Game · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You keep a record of scores through a list of operations. An integer records that score. <code class="chip">"+"</code> records the sum of the last two scores. <code class="chip">"D"</code> records double the last score. <code class="chip">"C"</code> cancels the last score. Return the total of the record.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> Every operation only touches the most recent one or two entries. For example, <code class="chip">["5","2","C","D","+"]</code>: record 5 and 2, cancel the 2, double 5 to get 10, then 5 + 10 is 15. The record is <code class="chip">[5,10,15]</code>, and the sum is <code class="chip num">30</code>. <strong>Can the integers be negative?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, anywhere from <code class="chip num">-3 × 10<sup>4</sup></code> up to <code class="chip num">3 × 10<sup>4</sup></code>. All operations are valid.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>This problem reminds me of</strong> a <strong>stack</strong>. Only the most recent entries matter, last in, first out. I push for an integer, <code class="chip">D</code>, or <code class="chip">+</code>, and pop for <code class="chip">C</code>. The "previous score" is always the top. One pass, then sum — O(n) time and space. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. But how do you read the second-from-top for <code class="chip">"+"</code>?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>With <code class="chip">std::stack</code> I can only see the top. So I pop the top, call it <code class="chip">b</code>, read the new top, <code class="chip">a</code>, push <code class="chip">b</code> back, then push <code class="chip">a + b</code>. A <code class="chip">vector</code> used as a stack could index <code class="chip">st[size-2]</code> directly, but the pop-and-restore trick works fine, so I'll stay with the stack.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// st = the record; top = "previous score"</span><br>
+        for each op:<br>
+        &nbsp;&nbsp;"C" → pop<br>
+        &nbsp;&nbsp;"D" → push <span class="em">2 × top</span><br>
+        &nbsp;&nbsp;"+" → pop b, read a, push b, push <span class="em">a + b</span><br>
+        &nbsp;&nbsp;else → push <span class="em">stoi(op)</span>&nbsp;&nbsp;<span class="label">// negatives included</span><br>
+        return sum of st
+      </div>
+      <p>One: <code class="chip">C</code> pops.<br>
+      Two: <code class="chip">D</code> pushes double the top, and <code class="chip">+</code> pushes the top two added together.<br>
+      Three: anything else is an integer, so I push <code class="chip">stoi(op)</code>.</p>
+      <p><strong>One thing worth flagging</strong> — to detect an integer I rule out the three operator strings. Checking <code class="chip">isdigit</code> on the first character would miss a leading minus sign.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. It's one loop over the operations with a stack of ints, then a loop that pops everything into the sum.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">calPoints</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; operations) {
+        <span class="typ">stack</span>&lt;<span class="typ">int</span>&gt; st;
+
+        <span class="kw">for</span> (<span class="typ">string</span> op : operations) {
+            <span class="kw">if</span> (op == <span class="str">"C"</span>) {
+                st.<span class="fn">pop</span>();                         <span class="com">// cancel the previous score</span>
+            } <span class="kw">else if</span> (op == <span class="str">"+"</span>) {
+                <span class="typ">int</span> b = st.<span class="fn">top</span>(); st.<span class="fn">pop</span>();       <span class="com">// take the top, b</span>
+                <span class="typ">int</span> a = st.<span class="fn">top</span>();                 <span class="com">// peek the second, a</span>
+                st.<span class="fn">push</span>(b);                       <span class="com">// put b back</span>
+                st.<span class="fn">push</span>(a + b);                   <span class="com">// push the sum of the last two</span>
+            } <span class="kw">else if</span> (op == <span class="str">"D"</span>) {
+                st.<span class="fn">push</span>(<span class="num2">2</span> * st.<span class="fn">top</span>());            <span class="com">// double the previous score</span>
+            } <span class="kw">else</span> {
+                st.<span class="fn">push</span>(<span class="fn">stoi</span>(op));                <span class="com">// integer → push</span>
+            }
+        }
+
+        <span class="typ">int</span> ans = <span class="num2">0</span>;
+        <span class="kw">while</span> (!st.<span class="fn">empty</span>()) { ans += st.<span class="fn">top</span>(); st.<span class="fn">pop</span>(); }  <span class="com">// sum up</span>
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p>The line to get right is the <code class="chip">"+"</code> branch: I pop <code class="chip">b</code>, peek <code class="chip">a</code>, push <code class="chip">b</code> back, and only then push <code class="chip">a + b</code>. If I forget to push <code class="chip">b</code> back, the record loses a score. The final <code class="chip">else</code> catches every integer, negative ones included, since <code class="chip">stoi</code> parses the minus sign.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on <code class="chip">["5","-2","4","C","D","9","+","+"]</code> — expected <code class="chip num">27</code>.</p>
+      <table class="trace">
+        <thead><tr><th>op</th><th>record</th></tr></thead>
+        <tbody>
+          <tr><td>5, -2, 4</td><td>[5,-2,4]</td></tr>
+          <tr><td>C</td><td>[5,-2]</td></tr>
+          <tr class="highlight-row"><td>D</td><td>[5,-2,-4]</td></tr>
+          <tr><td>9, +, +</td><td>[5,-2,-4,9,5,14]</td></tr>
+          <tr><td>sum</td><td><span class="answer-cell">27</span></td></tr>
+        </tbody>
+      </table>
+      <p>The row that matters is <code class="chip">D</code> right after <code class="chip">C</code>: <code class="chip">C</code> removes the 4, so the top is <code class="chip num">-2</code>, and <code class="chip">D</code> pushes <code class="chip num">-4</code>. Then 9, and the two pluses push 5 and 14. The record is <code class="chip">[5,-2,-4,9,5,14]</code>, which sums to <code class="chip num">27</code>. That matches.</p>
+      <p>It covers negatives, a <code class="chip">D</code> on a negative, and back-to-back <code class="chip">+</code>. And <code class="chip">"-2"</code> is caught as an integer by the exclude-the-operators check, not by <code class="chip">isdigit</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>After a <code class="chip">C</code>, how does the next <code class="chip">D</code> know the right "previous" score?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The pop makes the top point at the new last entry automatically. "Previous" is defined as the top, so I never track an index myself. That's why the stack fits so naturally.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <div class="insight-box">
+        <span class="label">// complexity</span><br>
+        Time&nbsp;&nbsp;<span class="em">O(n)</span> — one pass, O(1) push/pop/top each, plus an O(n) sum.<br>
+        Space <span class="em">O(n)</span> — the record stack.
+      </div>
+      <p>Time is O(n) — one pass with O(1) push, pop, and top, plus an O(n) sum at the end. Space is O(n) for the record stack.</p>
+      <p>The same last-in, first-out idea powers bracket matching, where I match the most recent opener, and postfix expression evaluation, where each operator pops its operands.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Clean. The stack fit, the second-from-top trick, and the integer and negative detection. Done.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 15.59, 41.94, 50.09, 70.39, 74.97, 92.2, 114.29, 140.71, 180.88, 185.63, 197.36, 220.32]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
