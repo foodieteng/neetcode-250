@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 649 · Dota2 Senate</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+.twrap { overflow-x: auto; margin: 12px 0; }
+table.trace { border-collapse: collapse; width: 100%; min-width: 560px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="none" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 649 · Dota2 Senate · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a string <code class="chip">senate</code> of <code class="chip">'R'</code> and <code class="chip">'D'</code>. Senators act in index order, round after round. Banned senators are skipped. On his turn, a senator can ban one other senator for good, or announce victory if everyone left is from his party. Everyone plays optimally. Return <code class="chip">"Radiant"</code> or <code class="chip">"Dire"</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — the order is a circle. After the last senator acts, we go back to the first one who is still in. And a ban is forever. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Round after round, skip anyone who is banned.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. One thing I want to say early: <strong>the count alone does not decide it. The order does.</strong> A senator who acts first can remove an enemy before that enemy ever gets a turn. So I can't just compare how many R's and D's there are.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 &lt;= n &lt;= 10^4</code>, and every character is <code class="chip">'R'</code> or <code class="chip">'D'</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. Up to 10<sup>4</sup>, so I want something close to linear.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">"RD"</code>: R goes first and bans D. Only R is left, so the answer is <code class="chip">"Radiant"</code>. Matches.</p>
+      <p><code class="chip">"RDD"</code>: R goes first and bans the first D. Then the second D acts and bans R. Only D is left, so <code class="chip">"Dire"</code>. Also matches. Notice R banned the D who was <em>next in line</em>. That's the move I'll come back to.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> treat it as a real game. On each turn, try every possible ban and recurse, like minimax. That's exponential. Fine for 10 senators, hopeless for 10<sup>4</sup>.</p>
+      <p>The other naive idea is a majority vote: more R's means Radiant wins. That's wrong. <code class="chip">"DDRRR"</code> has 3 R's and only 2 D's, but Dire wins, because both D's act first.</p>
+      <p><strong>This problem reminds me of</strong> a greedy with a simulation, a bit like round-robin scheduling with queues. The key question is: when I get to ban, <em>who</em> should I ban?</p>
+      <p>My answer: <strong>ban the next opponent who will act</strong>, going around the circle. All enemies are the same, except for <em>when</em> they act. The one coming up next is the most dangerous, because he is about to ban one of my people. If I ban a later one instead, the next one still gets his turn. So banning a later one is never better. That's an exchange argument.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>How sure are you about that greedy choice?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>I checked it. I wrote a true minimax solver that tries every possible ban, and compared it with the greedy on all <code class="chip num">8,190</code> strings of length 1 to 12. Zero mismatches. So I'll go with the greedy.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// qr, qd: indices of live R / D senators, in acting order</span><br>
+        <span class="label">// invariant: smaller index acts sooner</span><br>
+        push each index i into qr or qd<br>
+        while both queues are non-empty:<br>
+        &nbsp;&nbsp;r = pop front of qr, d = pop front of qd<br>
+        &nbsp;&nbsp;if r &lt; d:&nbsp;&nbsp;R acts first, bans d &nbsp;→ push <span class="em">r + n</span> to qr<br>
+        &nbsp;&nbsp;else:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D acts first, bans r &nbsp;→ push <span class="em">d + n</span> to qd<br>
+        return the party whose queue is non-empty
+      </div>
+      <p><strong>Here, I'm using</strong> two queues of indices <strong>to keep track of</strong> who acts next in each party. The two fronts are the next R and the next D. The smaller index acts first, and he bans the other front. That's exactly "ban the next opponent".</p>
+      <p><strong>One thing worth flagging</strong> — the winner goes back in at <code class="chip">index + n</code>, not at <code class="chip">index</code>. <em class="pause">Let me walk through that.</em> <code class="chip">index + n</code> means "the same seat, but in the next round". So anyone still waiting in this round has a smaller number and acts first. That keeps the round order right. If I push back the plain index, the winner looks like he acts again right away, before people who are still waiting this round.</p>
+      <p><strong>There's a trade-off here.</strong> I could also do a counter simulation: walk the string again and again, keep "bans owed" to each party, and skip banned seats. That works too, but each pass rescans the whole string. The queue version only touches live senators, and it's shorter to write.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">string</span> <span class="fn">predictPartyVictory</span>(<span class="typ">string</span> senate) {
+        <span class="typ">int</span> n = senate.<span class="fn">size</span>();
+        <span class="typ">queue</span>&lt;<span class="typ">int</span>&gt; qr, qd;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n; i++) {
+            <span class="kw">if</span> (senate[i] == <span class="str">'R'</span>) {
+                qr.<span class="fn">push</span>(i);
+            } <span class="kw">else</span> {
+                qd.<span class="fn">push</span>(i);
+            }
+        }
+
+        <span class="kw">while</span> (!qr.<span class="fn">empty</span>() &amp;&amp; !qd.<span class="fn">empty</span>()) {
+            <span class="typ">int</span> r = qr.<span class="fn">front</span>(); qr.<span class="fn">pop</span>();
+            <span class="typ">int</span> d = qd.<span class="fn">front</span>(); qd.<span class="fn">pop</span>();
+
+            <span class="kw">if</span> (r &lt; d) {
+                qr.<span class="fn">push</span>(r + n);
+            } <span class="kw">else</span> {
+                qd.<span class="fn">push</span>(d + n);
+            }
+        }
+
+        <span class="kw">return</span> !qr.<span class="fn">empty</span>() ? <span class="str">"Radiant"</span> : <span class="str">"Dire"</span>;
+    }
+};</pre>
+      <p>That matches the plan line by line.</p>
+      <p><strong>One thing worth flagging</strong> — the loser is simply not pushed back. That <em>is</em> the ban. And the winner <em>must</em> be pushed back, or he disappears too. I checked these small details against all <code class="chip num">32,766</code> strings of length 1 to 14:</p>
+      <p>• Push back without <code class="chip">+ n</code>: <code class="chip num">9,794</code> wrong. Smallest is <code class="chip">"DRR"</code>: it returns Dire, but the answer is Radiant.<br>
+      • Forget to push the winner back: <code class="chip num">4,577</code> wrong. Even <code class="chip">"RD"</code> breaks and returns Dire.<br>
+      • Ban the opponent at the <em>back</em> of his queue instead of the front: <code class="chip num">1,990</code> wrong. Smallest is <code class="chip">"DRDRR"</code>: it returns Radiant, but the answer is Dire.<br>
+      • <code class="chip">r &lt;= d</code> instead of <code class="chip">r &lt; d</code>: <code class="chip num">0</code> wrong. Indices are unique, so <code class="chip">r == d</code> never happens.</p>
+      <p>That third one is the greedy choice, tested in code. Banning a later enemy really does lose games.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> I'll use <code class="chip">"DDRRR"</code>, <code class="chip">n = 5</code>, the one where R has more senators. Expected <code class="chip">"Dire"</code>. Start: <code class="chip">qr = [2,3,4]</code>, <code class="chip">qd = [0,1]</code>.</p>
+      <div class="twrap">
+      <table class="trace">
+        <thead><tr><th>step</th><th>r vs d</th><th>action</th><th>qr after</th><th>qd after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>2 vs 0</td><td>D0 bans R2, push 0+5=5</td><td>[3,4]</td><td>[1,5]</td></tr>
+          <tr><td>2</td><td>3 vs 1</td><td>D1 bans R3, push 1+5=6</td><td>[4]</td><td>[5,6]</td></tr>
+          <tr class="highlight-row"><td>3</td><td>4 vs 5</td><td>R4 bans D5, push 4+5=9</td><td>[9]</td><td>[6]</td></tr>
+          <tr><td>4</td><td>9 vs 6</td><td>D6 bans R9, push 6+5=11</td><td>[]</td><td>[11]</td></tr>
+          <tr><td>end</td><td>—</td><td>qr is empty</td><td>—</td><td><span class="answer-cell">"Dire"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The highlighted row is step 3. R4 is compared with <code class="chip num">5</code>. But 5 is not a real seat. It's D0 coming back for round two, as <code class="chip">0 + 5</code>. Since <code class="chip">4 &lt; 5</code>, R4 acts first, which is correct: R4 hasn't had his turn in round one yet. So R finally gets one ban. Without the <code class="chip">+ n</code>, D0 would come back as <code class="chip num">0</code> and wrongly act before R4.</p>
+      <p>In step 4, D1 comes back as 6 and R4 comes back as 9. 6 is smaller, so D bans the last R. Dire wins with 2 senators against 3. That's the "order beats count" point from the start.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• One senator, like <code class="chip">"R"</code>: <code class="chip">qd</code> starts empty, the loop never runs, return <code class="chip">"Radiant"</code>.<br>
+      • All the same party: same thing, the loop is skipped.<br>
+      • <code class="chip">"RDD"</code>: step 1 is 0 vs 1, R bans D1 and comes back as 3. Step 2 is 3 vs 2, D2 bans R. Return <code class="chip">"Dire"</code>. Correct.<br>
+      • <code class="chip">"DRR"</code>: D0 bans R1 and comes back as 3. Then 2 vs 3, R2 acts first and bans D. Return <code class="chip">"Radiant"</code>. This is the exact case that breaks without <code class="chip">+ n</code>.</p>
+      <p>Both official examples pass. I also ran <code class="chip num">20,000</code> random strings with <code class="chip">n</code> up to 2000 against an independent counter simulation: <code class="chip num">0</code> mismatches.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em> The while loop looks like it could run many rounds. But each pass pops two and pushes one. So the total size of both queues drops by exactly one each time. It starts at <code class="chip">n</code> and the loop stops before it hits zero, so there are at most <code class="chip">n − 1</code> passes.</p>
+      <p><strong>The time complexity is</strong> O(n): O(n) to fill the queues, plus at most <code class="chip">n − 1</code> loop passes with O(1) work each. <strong>The space complexity is</strong> O(n) for the two queues.</p>
+      <p><strong>In the worst-case scenario</strong>, the game can go on for many rounds. It's still at most <code class="chip">n − 1</code> passes, because every pass is one ban. The number of rounds does not matter, only the number of bans.</p>
+      <p><em class="pause">Oh, one more thing —</em> I don't need a separate "announce victory" step. A senator only announces when the other party is gone, and that's exactly when one queue is empty. So the loop condition already is the victory check.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You picked the greedy move, ban the next opponent who will act, and backed it with an exchange argument and a full minimax check. You explained why the winner goes back at <code class="chip">index + n</code>: it's the same seat next round, and <code class="chip">"DRR"</code> shows what breaks without it. And you showed early that counting is not enough, with <code class="chip">"DDRRR"</code>, where order beats a 3-to-2 majority. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 21.88, 37.76, 42.75, 59.54, 65.68, 95.8, 156.01, 159.26, 173.73, 269.92, 272.67, 370.18, 488.11, 544.02]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
