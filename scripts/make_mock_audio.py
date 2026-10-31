@@ -45,25 +45,34 @@ async def synth(entries, iv, cd, tmp, workers=4):
 
     async def one(i, e):
         out = os.path.join(tmp, f"{i:03d}.mp3")
+        wav = out[:-4] + ".wav"  # sample-exact timing; mp3 frame padding drifts
         voice = iv if e["v"] == "iv" else cd
         rate = "+2%" if e["v"] == "cd" else "-2%"
+        words = len(e["text"].split())
         async with sem:
-            for attempt in (1, 2):
+            for attempt in (1, 2, 3):
                 try:
                     await edge_tts.Communicate(e["text"], voice, rate=rate,
                                                proxy=proxy).save(out)
-                    if os.path.getsize(out):
-                        break
                 except Exception:
-                    if attempt == 2:
+                    if attempt == 3:
                         raise
+                    await asyncio.sleep(2)
+                    continue
+                if not os.path.getsize(out):
+                    await asyncio.sleep(2)
+                    continue
+                subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-i", out,
+                                       "-ar", "24000", "-ac", "1", wav])
+                # edge-tts sometimes truncates long turns SILENTLY (e.g. 229
+                # words in 25 s). Normal speech is 130–200 wpm; > 260 wpm on a
+                # non-trivial turn means part of the text never got spoken.
+                wpm = words / (dur(wav) / 60)
+                if words < 20 or wpm <= 260:
+                    return wav
+                print(f"  turn {i}: {wpm:.0f} wpm looks truncated, retrying")
                 await asyncio.sleep(2)
-        if not os.path.getsize(out):
-            sys.exit(f"turn {i}: empty synthesis result")
-        wav = out[:-4] + ".wav"  # sample-exact timing; mp3 frame padding drifts
-        subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-i", out,
-                               "-ar", "24000", "-ac", "1", wav])
-        return wav
+        sys.exit(f"turn {i}: synthesis kept failing/truncating after 3 tries")
 
     outs = await asyncio.gather(*[one(i, e) for i, e in enumerate(entries)])
     for i, (e, w) in enumerate(zip(entries, outs)):
