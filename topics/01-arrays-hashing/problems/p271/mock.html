@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 271 · Encode and Decode Strings</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 480px) { .page { padding: 16px 16px 48px; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 271 · Encode and Decode Strings · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design <code class="chip">encode</code>, to turn a list of strings into one string, and <code class="chip">decode</code>, to recover the exact list. No built-in serialization. Strings may contain any of the <code class="chip num">256</code> ASCII characters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Since a string can contain literally any character</em> — including whatever I'd want as a separator — I can't just join with a delimiter. Empty strings are allowed too? And the follow-up asks it to work for <em class="pause">any</em> character set?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right on all counts — empties allowed, and yes, make it general.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then a plain delimiter is out: a single string <code class="chip">["a,b"]</code> would be split into two. The robust approach is <strong>length-prefixed framing</strong> — write each string's length before it, and decode by <em class="pause">reading exactly that many characters</em>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me reason about why this is safe.</em></p>
+      <p><strong>This problem reminds me of</strong> the <strong>length-prefix, or TLV</strong>, framing used in network protocols, and it fits for the same reason. Each chunk is <code class="chip">length + '@' + payload</code>. On decode, the pointer always sits at a length, which is pure digits, so the first <code class="chip">'@'</code> is guaranteed to be the framing marker — never a payload character. I then read the payload <strong>by count</strong>, so it never gets scanned. That works for any character set.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// encode</span><br>
+        for str: out += to_string(str.size()) + "@" + str<br>
+        <span class="label">// decode, i starts at a length</span><br>
+        while i &lt; n:<br>
+        &nbsp;&nbsp;j = find('@', i); len = stoi(s[i..j-1])<br>
+        &nbsp;&nbsp;push s.substr(j+1, len); <span class="em">i = j + 1 + len</span>
+      </div>
+      <p>One: encode each string as its length, an <code class="chip">'@'</code>, and the string.<br>
+      Two: to decode, find the next <code class="chip">'@'</code> from <code class="chip">i</code> and parse the digits before it as the length.<br>
+      Three: take exactly that many characters after it, then jump <code class="chip">i</code> past the whole chunk.</p>
+      <p><strong>Two things worth flagging.</strong> First, the delimiter must be a <em class="pause">non-digit</em>, like <code class="chip">'@'</code>, so it can't blend into the length. Second, the loop invariant: <code class="chip">i</code> always lands on the next length, because I jump the whole payload. Empty strings fall out for free — <code class="chip">len=0</code> reads zero characters.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me write it. <code class="chip">encode</code> loops over the strings and appends the length, an <code class="chip">'@'</code>, and the payload. <code class="chip">decode</code> keeps a pointer <code class="chip">i</code>: find the <code class="chip">'@'</code>, turn the digits between <code class="chip">i</code> and <code class="chip">j</code> into <code class="chip">len</code>, cut <code class="chip">len</code> characters after the <code class="chip">'@'</code>, and move on.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Codec</span> {
+<span class="kw">public</span>:
+    <span class="com">// encode: each chunk = length + '@' + content</span>
+    <span class="typ">string</span> <span class="fn">encode</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; strs) {
+        <span class="typ">string</span> enc = <span class="str">""</span>;
+        <span class="kw">for</span> (<span class="typ">auto</span> str : strs)
+            enc = enc + <span class="fn">to_string</span>(str.<span class="fn">size</span>()) + <span class="str">"@"</span> + str;
+        <span class="kw">return</span> enc;
+    }
+
+    <span class="com">// decode: read the length → cut exactly that many chars</span>
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">decode</span>(<span class="typ">string</span> s) {
+        <span class="typ">int</span> n = s.<span class="fn">size</span>(), i = <span class="num2">0</span>;
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; dec;
+
+        <span class="kw">while</span> (i &lt; n) {
+            <span class="typ">int</span> j = s.<span class="fn">find</span>(<span class="str">'@'</span>, i);          <span class="com">// length | payload</span>
+            <span class="typ">int</span> len = <span class="fn">stoi</span>(s.<span class="fn">substr</span>(i, j - i));  <span class="com">// i..j-1 is pure digits</span>
+            dec.<span class="fn">push_back</span>(s.<span class="fn">substr</span>(j + <span class="num2">1</span>, len)); <span class="com">// read exactly len chars</span>
+            i = j + <span class="num2">1</span> + len;               <span class="com">// jump the whole chunk</span>
+        }
+        <span class="kw">return</span> dec;
+    }
+};</pre>
+      <p>That matches the plan. <strong>One detail worth flagging</strong> — <code class="chip">i = j + 1 + len</code> skips over the entire payload, so any <code class="chip">'@'</code> inside it is never even looked at by <code class="chip">find</code>. Forget the <code class="chip">+ 1</code>, or the <code class="chip">len</code>, and the pointer lands mid-chunk.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> a payload that contains the delimiter: <code class="chip">["cat","n@p","hi"]</code> → <code class="chip">"3@cat3@n@p2@hi"</code>.</p>
+      <table class="trace">
+        <thead><tr><th>i</th><th>j = find('@')</th><th>len</th><th>payload</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>1</td><td>3</td><td>cat</td></tr>
+          <tr class="highlight-row"><td>5</td><td>6</td><td>3</td><td><span class="answer-cell">n@p</span></td></tr>
+          <tr><td>10</td><td>11</td><td>2</td><td>hi</td></tr>
+        </tbody>
+      </table>
+      <p>The highlighted row is the point: <code class="chip">find('@',5)</code> returns <code class="chip num">6</code>, not the <code class="chip">'@'</code> at index 8 inside <code class="chip">n@p</code> — because index 5 starts a length. We read 3 characters and jump to 10, so the inner <code class="chip">'@'</code> is pure data.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[""]</code> → <code class="chip">"0@"</code> → back to <code class="chip">[""]</code>, since <code class="chip">len=0</code> reads nothing.<br>
+      • A string of all <code class="chip">'@'</code>s round-trips.<br>
+      • NUL bytes round-trip.</p>
+      <p>All check out.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Decode is O(L)</strong> in <code class="chip">L</code>, the total number of characters — each character is read a constant number of times. <strong>Space is O(L)</strong> for the output, and the length prefix adds only a few bytes per string.</p>
+      <p><strong>One thing worth flagging</strong> on encode: <code class="chip">enc = enc + …</code> copies the whole string built so far, every time; <code class="chip">enc += …</code> appends in place and keeps encode O(L) too.</p>
+      <p><em class="pause">One more thing —</em> for a binary protocol I'd use a <strong>fixed-width</strong> length, say 4 bytes, instead of digits plus delimiter — no non-digit assumption, faster to parse. And this framing composes: nesting lists just wraps another length prefix around each encoded sublist.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out: seeing that a delimiter fails on adversarial payloads, the length-prefix invariant that keeps the pointer on a length, and reading the payload by count so any character is safe — plus the fixed-width and nesting extensions. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.01, 32.08, 36.87, 50.86, 79.03, 120.25, 123.1, 153.17, 191.73, 230.12]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
