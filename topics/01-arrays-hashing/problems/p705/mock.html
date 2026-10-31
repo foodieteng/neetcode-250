@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 705 · Design HashSet</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 705 · Design HashSet · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design a hash set without using any built-in hash table library. Implement three operations: <code class="chip">add(key)</code>, <code class="chip">remove(key)</code>, and <code class="chip">contains(key)</code> to check whether the set contains a key.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> what's the range of the keys? That decides whether I can take a shortcut, or whether I need a general hash. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Keys are between <code class="chip num">0</code> and 10<sup>6</sup>, and there are up to 10<sup>4</sup> calls in total.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That <strong>bounded range</strong> is the key detail. Every key is a valid index into an array of size 10<sup>6</sup> + 1. So I can skip the hash function entirely and use the key itself as the position.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about the trade-off.</em></p>
+      <p><strong>This problem reminds me of</strong> the <strong>direct-address table</strong> pattern — a boolean array where <code class="chip">mp[key]</code> means "key is present." It fits because the key range is small and fixed. It gives O(1) for everything, and it can't collide, because every key owns a distinct slot.</p>
+      <p>The cost is space proportional to the key <em>range</em>, 10<sup>6</sup>, not to the number of elements. But a <code class="chip">vector&lt;bool&gt;</code> bit-packs to about 125 KB, which is fine. It only works because the range is bounded; for arbitrary 32-bit keys, I'd need real hashing.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Go with direct addressing, then tell me the general version.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        mp = vector&lt;bool&gt;(<span class="em">1000001</span>, false)&nbsp;&nbsp;<span class="label">// one slot per possible key</span><br>
+        add(k)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&gt; mp[k] = true<br>
+        remove(k)&nbsp;&nbsp;&nbsp;-&gt; mp[k] = false<br>
+        contains(k) -&gt; return mp[k]
+      </div>
+      <p>One: allocate a boolean array with one slot per possible key, all <code class="chip">false</code>.<br>
+      Two: <code class="chip">add</code> sets the key's slot to <code class="chip">true</code>, and <code class="chip">remove</code> sets it to <code class="chip">false</code>.<br>
+      Three: <code class="chip">contains</code> just returns that slot.</p>
+      <p><strong>One thing worth flagging</strong> — the size is 10<sup>6</sup> <strong>+ 1</strong>, so the largest key, <code class="chip">key == 10^6</code> itself, is still in range. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The constructor assigns 1000001 <code class="chip">false</code> slots; each operation is a single array access.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MyHashSet</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; mp;
+
+    <span class="fn">MyHashSet</span>() {
+        mp.<span class="fn">assign</span>(<span class="num2">1000001</span>, <span class="kw">false</span>);   <span class="com">// one slot per key, 0..10^6</span>
+    }
+
+    <span class="typ">void</span> <span class="fn">add</span>(<span class="typ">int</span> key) {
+        mp[key] = <span class="kw">true</span>;
+    }
+
+    <span class="typ">void</span> <span class="fn">remove</span>(<span class="typ">int</span> key) {
+        mp[key] = <span class="kw">false</span>;
+    }
+
+    <span class="typ">bool</span> <span class="fn">contains</span>(<span class="typ">int</span> key) {
+        <span class="kw">return</span> mp[key];
+    }
+};</pre>
+      <p>Every operation is O(1). <strong>One thing worth flagging</strong> — <code class="chip">remove</code> needs no existence check. Setting a slot that's already <code class="chip">false</code> is harmless, so there's no branch at all. And because it's a <code class="chip">vector&lt;bool&gt;</code>, the whole table is bits, not bytes — about 125 KB, not 1 MB.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Now the general version, for unbounded keys.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>For that, I'd use a fixed number of buckets plus <strong>separate chaining</strong>. The hash is <code class="chip">key % B</code> with a prime bucket count, <code class="chip num">B = 769</code>, and each bucket is a linked list. The prime spreads keys evenly across buckets.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MyHashSet</span> {
+    <span class="kw">static const</span> <span class="typ">int</span> B = <span class="num2">769</span>;           <span class="com">// prime bucket count (fewer collisions)</span>
+    <span class="typ">vector</span>&lt;<span class="typ">list</span>&lt;<span class="typ">int</span>&gt;&gt; buckets;
+    <span class="typ">int</span> <span class="fn">h</span>(<span class="typ">int</span> key) { <span class="kw">return</span> key % B; }  <span class="com">// hash function</span>
+
+<span class="kw">public</span>:
+    <span class="fn">MyHashSet</span>() : buckets(B) {}
+
+    <span class="typ">void</span> <span class="fn">add</span>(<span class="typ">int</span> key) {
+        <span class="kw">auto</span>&amp; b = buckets[<span class="fn">h</span>(key)];
+        <span class="kw">for</span> (<span class="typ">int</span> x : b) <span class="kw">if</span> (x == key) <span class="kw">return</span>;   <span class="com">// already present → don't add twice</span>
+        b.<span class="fn">push_back</span>(key);
+    }
+    <span class="typ">void</span> <span class="fn">remove</span>(<span class="typ">int</span> key) {
+        buckets[<span class="fn">h</span>(key)].<span class="fn">remove</span>(key);            <span class="com">// removes all equal values</span>
+    }
+    <span class="typ">bool</span> <span class="fn">contains</span>(<span class="typ">int</span> key) {
+        <span class="kw">for</span> (<span class="typ">int</span> x : buckets[<span class="fn">h</span>(key)]) <span class="kw">if</span> (x == key) <span class="kw">return true</span>;
+        <span class="kw">return false</span>;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">add</code> has to scan its bucket first and return if the key is already there; otherwise I'd store duplicates and break set semantics. <code class="chip">remove</code> and <code class="chip">contains</code> only touch one bucket.</p>
+      <p>This <em>is</em> <code class="chip">unordered_set</code> in miniature — average O(1), but worst case O(n) if everything collides.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's trace</strong> the collision case in the bucket version, with <code class="chip num">B = 769</code>. I add <code class="chip num">5</code>, then <code class="chip num">774</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:330px;">
+        <thead><tr><th>op</th><th>bucket h(key)</th><th>state</th></tr></thead>
+        <tbody>
+          <tr><td>add(5)</td><td>5</td><td>[5]</td></tr>
+          <tr class="highlight-row"><td>add(774)</td><td>774%769=5</td><td><span class="answer-cell">[5, 774] — collision</span></td></tr>
+          <tr><td>contains(774)</td><td>5</td><td>scan → found</td></tr>
+          <tr><td>remove(5)</td><td>5</td><td>[774]</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">add(774)</code>: <code class="chip">774 % 769 = 5</code>, so it lands in the same bucket as <code class="chip num">5</code>, and the bucket chains both keys. <code class="chip">contains(774)</code> scans that bucket and finds it, and <code class="chip">remove(5)</code> leaves just <code class="chip">[774]</code>.</p>
+      <p>Direct addressing never hits this — <code class="chip num">5</code> and <code class="chip num">774</code> own separate slots. I verified both versions against <code class="chip">std::set</code> over 20,000 random add / remove / contains operations — zero mismatches.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Direct addressing: O(1) per op, <code class="chip">O(range)</code> space. Bucket version: average O(1), <code class="chip">O(buckets + n)</code> space. With at most 10<sup>4</sup> calls, either version is instant.</p>
+      <p><em class="pause">Oh, one more thing —</em> direct addressing is really a hash table with <code class="chip">buckets = range</code> and identity hash <code class="chip">h(k) = k</code>, so every bucket holds at most one key. That's why it can't collide. A real hash table shrinks the bucket count far below the range, which forces collisions and chaining, and it grows by <strong>rehashing</strong> to keep the load factor bounded. Direct addressing skips all of that dynamic machinery by paying for the whole range up front.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Great. Three things stood out. You spotted the bounded-range shortcut right away from the constraints. You bit-packed the space, so the full table stays small. And you framed direct addressing as the degenerate hash table with identity hashing, then built the general chained version on top. That's exactly the understanding I look for.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.11, 28.24, 34.49, 48.79, 86.99, 91.74, 118.47, 119.66, 148.43, 152.32, 187.18, 230.16, 277.36]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
