@@ -7,15 +7,21 @@
      · note  — free-text remark (e.g. "revisit dp", "用了提示")
    Persisted in localStorage, keyed by LeetCode number.
 
-   localStorage is per-origin AND per-device, so notes don't follow you
-   computer→phone by themselves. Two ways to carry them across, both here:
-     · Sync link — pack all data into a URL; open it on the other device
-       and it auto-imports (one tap, no copy-paste, no account).
-     · Export / Import — JSON textarea / file, for manual moves or backup.
+   Cross-device sync (computer ↔ phone) — GitHub Gist:
+     each device pastes the same GitHub token once (scope: gist only).
+     Data lives in one secret gist, file nc250-notes.json. Every record
+     carries _t (last edit, ms); merging keeps the newer record per
+     problem, so edits on either device win in time order.
+     Sync runs on page load, ~1.5 s after an edit, and whenever the
+     tab comes back into view. The token never leaves the browser
+     except to api.github.com.
    ============================================================ */
 (function () {
   var KEY = 'nc250-track-v1';
-  var LIVE = 'https://foodieteng.github.io/neetcode-250/';
+  var SYNC = 'nc250-sync-v1';                 // { token, gistId }
+  var FILE = 'nc250-notes.json';
+  var API = 'https://api.github.com';
+  var TOKEN_URL = 'https://github.com/settings/tokens/new?scopes=gist&description=neetcode-250%20notes%20sync';
 
   function load() {
     try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
@@ -24,18 +30,15 @@
   function save(d) {
     try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
   }
-
-  /* UTF-8-safe base64 (handles Chinese notes) */
-  function b64enc(str) { return btoa(unescape(encodeURIComponent(str))); }
-  function b64dec(b64) { return decodeURIComponent(escape(atob(b64))); }
-
-  /* live URL of the current category page, so a link made on file:// still
-     opens correctly on the phone */
-  function livePath() {
-    var p = location.pathname, i = p.indexOf('/topics/');
-    return i >= 0 ? LIVE + p.slice(i + 1) : LIVE + 'topics/01-arrays-hashing/index.html';
+  function cfg() {
+    try { return JSON.parse(localStorage.getItem(SYNC)) || {}; }
+    catch (e) { return {}; }
+  }
+  function setCfg(c) {
+    try { c ? localStorage.setItem(SYNC, JSON.stringify(c)) : localStorage.removeItem(SYNC); } catch (e) {}
   }
 
+  /* ---------------- fields ---------------- */
   function reflect(el, field) {
     if (field === 'diff') {
       el.classList.remove('is-easy', 'is-med', 'is-hard');
@@ -47,173 +50,232 @@
     }
   }
 
-  function wireFields() {
+  function fields() { return document.querySelectorAll('[data-trk]'); }
+
+  /* paint stored values into the inputs (skips the one being typed in) */
+  function paint() {
     var data = load();
-    var fields = document.querySelectorAll('[data-trk]');
-    Array.prototype.forEach.call(fields, function (el) {
+    Array.prototype.forEach.call(fields(), function (el) {
+      if (el === document.activeElement) return;
+      var rec = data[el.getAttribute('data-pid')];
+      var v = rec && rec[el.getAttribute('data-trk')];
+      el.value = v == null ? '' : v;
+      reflect(el, el.getAttribute('data-trk'));
+    });
+  }
+
+  function wireFields() {
+    paint();
+    Array.prototype.forEach.call(fields(), function (el) {
       var pid = el.getAttribute('data-pid');
       var field = el.getAttribute('data-trk');
-      var rec = data[pid];
-      if (rec && rec[field] != null && rec[field] !== '') el.value = rec[field];
-      reflect(el, field);
-
       var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
       el.addEventListener(evt, function () {
         var d = load();
         if (!d[pid]) d[pid] = {};
         d[pid][field] = el.value;
-        if (Object.keys(d[pid]).every(function (k) { return !d[pid][k]; })) delete d[pid];
+        d[pid]._t = Date.now();              // kept even when emptied, so a clear syncs too
         save(d);
         reflect(el, field);
+        scheduleSync();
       });
     });
   }
 
-  /* merge an incoming object into localStorage (imported wins, existing kept) */
-  function mergeIn(incoming) {
-    var d = load(), n = 0;
-    Object.keys(incoming).forEach(function (pid) {
-      var rec = incoming[pid];
-      if (!rec || typeof rec !== 'object') return;
-      if (!d[pid]) d[pid] = {};
-      Object.keys(rec).forEach(function (k) { d[pid][k] = rec[k]; });
-      n++;
+  /* ---------------- merge: newer record per problem wins ---------------- */
+  function merge(a, b) {
+    var out = {}, changed = false;
+    Object.keys(a).forEach(function (k) { out[k] = a[k]; });
+    Object.keys(b).forEach(function (k) {
+      var ra = a[k], rb = b[k];
+      if (!rb || typeof rb !== 'object') return;
+      if (!ra || (rb._t || 0) > (ra._t || 0)) { out[k] = rb; changed = true; }
     });
-    save(d);
-    return n;
+    return { data: out, changed: changed };
+  }
+  function same(a, b) { return JSON.stringify(sortKeys(a)) === JSON.stringify(sortKeys(b)); }
+  function sortKeys(o) {
+    if (!o || typeof o !== 'object') return o;
+    var r = {};
+    Object.keys(o).sort().forEach(function (k) { r[k] = sortKeys(o[k]); });
+    return r;
   }
 
-  function download(name, text) {
-    var blob = new Blob([text], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  /* ---------------- GitHub Gist ---------------- */
+  function gh(path, opts, token) {
+    opts = opts || {};
+    opts.headers = {
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    if (opts.body) opts.headers['Content-Type'] = 'application/json';
+    opts.cache = 'no-store';
+    return fetch(API + path, opts).then(function (r) {
+      if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+      return r.status === 204 ? null : r.json();
+    });
   }
 
-  /* ---- auto-import when opened via a sync link (#trk=...) ---- */
-  function checkSyncLink() {
-    var m = (location.hash || '').match(/trk=([^&]+)/);
-    if (!m) return;
-    var incoming;
-    try { incoming = JSON.parse(b64dec(decodeURIComponent(m[1]))); }
-    catch (e) { return; }
-    // clean the hash so a refresh doesn't re-prompt
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-    var count = incoming && typeof incoming === 'object' ? Object.keys(incoming).length : 0;
-    if (!count) return;
-    if (window.confirm('偵測到同步連結:要把 ' + count + ' 題的自評/註記匯入這台裝置嗎？\n(既有的資料會保留，同一題同欄位會以連結內容為準)')) {
-      var n = mergeIn(incoming);
-      alert('✓ 已匯入 ' + n + ' 題，重新整理後就會顯示。');
-      location.reload();
+  function findOrCreateGist(token) {
+    function page(n) {
+      return gh('/gists?per_page=100&page=' + n, {}, token).then(function (list) {
+        for (var i = 0; i < list.length; i++) if (list[i].files && list[i].files[FILE]) return list[i].id;
+        return list.length === 100 && n < 5 ? page(n + 1) : null;
+      });
     }
+    return page(1).then(function (id) {
+      if (id) return id;
+      var files = {}; files[FILE] = { content: JSON.stringify(load(), null, 1) };
+      return gh('/gists', { method: 'POST', body: JSON.stringify({
+        description: 'NeetCode 250 notes sync (foodieteng.github.io/neetcode-250)',
+        public: false, files: files }) }, token).then(function (g) { return g.id; });
+    });
   }
 
-  function buildIO() {
-    var host = document.querySelector('.table-scroll');
-    if (!host || document.querySelector('.trk-io')) return;
+  function readGist(token, id) {
+    return gh('/gists/' + id, {}, token).then(function (g) {
+      var f = g.files && g.files[FILE];
+      if (!f) return {};
+      if (!f.truncated) return JSON.parse(f.content || '{}');
+      return fetch(f.raw_url, { cache: 'no-store' }).then(function (r) { return r.json(); });
+    });
+  }
 
-    var wrap = document.createElement('div');
-    wrap.className = 'trk-io';
-    wrap.innerHTML =
-      '<div class="trk-io__bar">' +
-        '<button class="trk-io__btn trk-io__btn--go" data-a="link" type="button">🔗 產生同步連結</button>' +
-        '<button class="trk-io__btn" data-a="export" type="button">⤓ 匯出 JSON</button>' +
-        '<button class="trk-io__btn" data-a="import" type="button">⤒ 匯入 JSON</button>' +
-        '<span class="trk-io__hint">同步連結：電腦按一下→複製→傳到手機打開，就自動帶入註記</span>' +
-      '</div>' +
-      '<div class="trk-io__panel" hidden>' +
-        '<textarea class="trk-io__box" spellcheck="false" ' +
-          'placeholder="同步連結 / 匯出的 JSON 會出現在這裡。匯入時把 JSON 貼進來(或用「選檔案」)，再按「套用匯入」。"></textarea>' +
-        '<div class="trk-io__row">' +
-          '<button class="trk-io__btn" data-a="copy" type="button">複製</button>' +
-          '<button class="trk-io__btn" data-a="dl" type="button">下載 .json</button>' +
-          '<label class="trk-io__btn trk-io__file">選檔案<input type="file" accept="application/json,.json" hidden></label>' +
-          '<button class="trk-io__btn trk-io__btn--go" data-a="apply" type="button">✔ 套用匯入</button>' +
-          '<span class="trk-io__msg" role="status"></span>' +
-        '</div>' +
-      '</div>';
-    host.parentNode.insertBefore(wrap, host);
+  function writeGist(token, id, data) {
+    var files = {}; files[FILE] = { content: JSON.stringify(data, null, 1) };
+    return gh('/gists/' + id, { method: 'PATCH', body: JSON.stringify({ files: files }) }, token);
+  }
 
-    var panel = wrap.querySelector('.trk-io__panel');
-    var box = wrap.querySelector('.trk-io__box');
-    var msg = wrap.querySelector('.trk-io__msg');
-    function flash(m) {
-      msg.textContent = m;
-      if (m) setTimeout(function () { if (msg.textContent === m) msg.textContent = ''; }, 3500);
+  var busy = false, again = false, timer = null;
+  function scheduleSync() {
+    if (!cfg().token) return;
+    clearTimeout(timer);
+    timer = setTimeout(sync, 1500);
+    status('pending');
+  }
+
+  function sync() {
+    var c = cfg();
+    if (!c.token) { status('off'); return Promise.resolve(); }
+    if (busy) { again = true; return Promise.resolve(); }
+    busy = true; status('busy');
+    var idP = c.gistId ? Promise.resolve(c.gistId) : findOrCreateGist(c.token);
+    return idP.then(function (id) {
+      if (id !== c.gistId) { c.gistId = id; setCfg(c); }
+      return readGist(c.token, id).then(function (remote) {
+        var local = load();
+        var m = merge(local, remote);           // remote newer → into local
+        if (m.changed) { save(m.data); paint(); }
+        if (!same(m.data, remote)) return writeGist(c.token, id, m.data);
+      });
+    }).then(function () {
+      status('ok');
+    }, function (e) {
+      if (e && e.status === 404 && c.gistId) { delete c.gistId; setCfg(c); }   // gist deleted → recreate next time
+      status(e && (e.status === 401 || e.status === 403) ? 'auth' : 'err');
+    }).then(function () {
+      busy = false;
+      if (again) { again = false; sync(); }
+    });
+  }
+
+  /* ---------------- small status chip + setup panel ---------------- */
+  var chip, panel;
+  var LABEL = {
+    off: '☁ 啟用同步', pending: '☁ 待同步…', busy: '☁ 同步中…',
+    ok: '☁ 已同步', err: '☁ 同步失敗 · 重試', auth: '☁ Token 失效 · 重設'
+  };
+  function status(s) {
+    if (!chip) return;
+    chip.className = 'trk-sync trk-sync--' + s;
+    var t = LABEL[s];
+    if (s === 'ok') {
+      var d = new Date();
+      t += ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
     }
-    function copyBox(okMsg) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(box.value).then(function () { flash(okMsg); },
-          function () { box.select(); flash('請長按文字框手動複製'); });
-      } else { box.select(); try { document.execCommand('copy'); flash(okMsg); } catch (e) { flash('請長按文字框手動複製'); } }
-    }
+    chip.textContent = t;
+  }
 
-    wrap.addEventListener('click', function (e) {
+  function buildUI() {
+    if (!document.querySelector('[data-trk]') || document.querySelector('.trk-sync')) return;
+    chip = document.createElement('button');
+    chip.type = 'button';
+    document.body.appendChild(chip);
+
+    panel = document.createElement('div');
+    panel.className = 'trk-sync-panel';
+    panel.hidden = true;
+    document.body.appendChild(panel);
+
+    chip.addEventListener('click', function () {
+      var c = cfg();
+      if (c.token && !/auth/.test(chip.className)) {
+        if (/err/.test(chip.className)) { sync(); return; }
+        renderPanel(true);
+      } else {
+        renderPanel(false);
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (!panel.hidden && !panel.contains(e.target) && e.target !== chip) panel.hidden = true;
+    });
+    status(cfg().token ? 'ok' : 'off');
+  }
+
+  function renderPanel(enabled) {
+    panel.hidden = false;
+    if (enabled) {
+      panel.innerHTML =
+        '<div class="trk-sync-panel__title">雲端同步 · 已啟用</div>' +
+        '<p>這台裝置的時間 / 日期 / 自評 / 註記會自動和你 GitHub 上的私密 gist 同步。</p>' +
+        '<div class="trk-sync-panel__row">' +
+          '<button type="button" data-a="now">立即同步</button>' +
+          '<button type="button" data-a="off">停用此裝置</button>' +
+        '</div>';
+    } else {
+      panel.innerHTML =
+        '<div class="trk-sync-panel__title">雲端同步 · 每台裝置設定一次</div>' +
+        '<ol>' +
+          '<li><a href="' + TOKEN_URL + '" target="_blank" rel="noopener">建立 GitHub token ↗</a>(只勾 <b>gist</b>,到期日選 No expiration),複製它</li>' +
+          '<li>貼到下面按「啟用」;手機用<b>同一個</b> token 再做一次</li>' +
+        '</ol>' +
+        '<input type="password" class="trk-sync-panel__tok" placeholder="ghp_… 或 github_pat_…" autocomplete="off" spellcheck="false" />' +
+        '<div class="trk-sync-panel__row">' +
+          '<button type="button" data-a="on" class="is-go">啟用</button>' +
+          '<span class="trk-sync-panel__msg" role="status"></span>' +
+        '</div>';
+    }
+    panel.onclick = function (e) {
       var b = e.target.closest('[data-a]');
       if (!b) return;
       var a = b.getAttribute('data-a');
-      var data = load();
-      var count = Object.keys(data).length;
-
-      if (a === 'link') {
-        panel.hidden = false;
-        if (!count) { box.value = ''; flash('還沒有任何註記可同步'); return; }
-        box.value = livePath() + '#trk=' + encodeURIComponent(b64enc(JSON.stringify(data)));
-        box.focus(); box.select();
-        copyBox('✓ 已複製同步連結（' + count + ' 題）— 傳到手機打開即可');
-      } else if (a === 'export') {
-        panel.hidden = false;
-        box.value = JSON.stringify(data, null, 2);
-        box.focus(); box.select();
-        flash('已匯出 ' + count + ' 題');
-      } else if (a === 'import') {
-        panel.hidden = false;
-        if (!/^\s*[\{h]/.test(box.value)) box.value = '';
-        box.focus();
-        flash('貼上 JSON（或同步連結）再按「套用匯入」');
-      } else if (a === 'copy') {
-        copyBox('✓ 已複製');
-      } else if (a === 'dl') {
-        download('nc250-notes.json', box.value && /^\s*\{/.test(box.value) ? box.value : JSON.stringify(data, null, 2));
-        flash('✓ 已下載');
-      } else if (a === 'apply') {
-        applyFromBox(box.value, flash);
+      if (a === 'now') { panel.hidden = true; sync(); }
+      else if (a === 'off') { setCfg(null); panel.hidden = true; status('off'); }
+      else if (a === 'on') {
+        var tok = panel.querySelector('.trk-sync-panel__tok').value.trim();
+        var msg = panel.querySelector('.trk-sync-panel__msg');
+        if (!tok) { msg.textContent = '請先貼上 token'; return; }
+        msg.textContent = '驗證中…';
+        gh('/gists?per_page=1', {}, tok).then(function () {
+          setCfg({ token: tok });
+          panel.hidden = true;
+          sync();
+        }, function (err) {
+          msg.textContent = err && err.status === 401 ? '✗ token 無效' :
+                            err && err.status === 403 ? '✗ 沒有 gist 權限' : '✗ 連不到 GitHub';
+        });
       }
-    });
-
-    wrap.querySelector('input[type=file]').addEventListener('change', function () {
-      var f = this.files && this.files[0];
-      if (!f) return;
-      var rd = new FileReader();
-      rd.onload = function () { box.value = rd.result; flash('已載入檔案，按「套用匯入」'); };
-      rd.readAsText(f);
-    });
-  }
-
-  /* accept either raw JSON or a full sync link pasted into the box */
-  function applyFromBox(text, flash) {
-    text = (text || '').trim();
-    var linkMatch = text.match(/trk=([^&\s]+)/);
-    var jsonStr;
-    if (linkMatch) {
-      try { jsonStr = b64dec(decodeURIComponent(linkMatch[1])); }
-      catch (e) { flash('✗ 連結解不開'); return; }
-    } else { jsonStr = text; }
-    var incoming;
-    try { incoming = JSON.parse(jsonStr); }
-    catch (e) { flash('✗ JSON 格式錯誤'); return; }
-    if (!incoming || typeof incoming !== 'object') { flash('✗ 資料格式不對'); return; }
-    var n = mergeIn(incoming);
-    flash('✓ 已匯入 ' + n + ' 題，重新整理中…');
-    setTimeout(function () { location.reload(); }, 700);
+    };
   }
 
   function init() {
-    checkSyncLink();   // handle #trk= before wiring, so import→reload is clean
     wireFields();
-    buildIO();
+    buildUI();
+    if (cfg().token) sync();
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && cfg().token) sync();
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
