@@ -132,8 +132,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Okay. One more observation. Change only ever comes in two shapes. A <code class="chip num">$10</code> needs <code class="chip num">$5</code> back. A <code class="chip num">$20</code> needs <code class="chip num">$15</code> back, which is either <code class="chip num">10 + 5</code> or <code class="chip num">5 + 5 + 5</code>. I never hand out a <code class="chip num">$20</code>. So I don't need to count twenties at all — just fives and tens.</p>
-      <p><strong>Are there any constraints on the input size?</strong></p>
+      <p>Okay. One more observation. Change only ever comes in two shapes. A <code class="chip num">$10</code> needs <code class="chip num">$5</code> back. A <code class="chip num">$20</code> needs <code class="chip num">$15</code> back, which is either <code class="chip num">10 + 5</code>, or three fives. I never hand out a <code class="chip num">$20</code>, so I don't need to count twenties at all — just fives and tens. <strong>Are there any constraints on the input size?</strong></p>
     </div>
   </div>
 
@@ -141,7 +140,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= bills.length &lt;= 10^5</code>, and every <code class="chip">bills[i]</code> is 5, 10, or 20.</p>
+      <p>The array has up to 10<sup>5</sup> bills, and every bill is a <code class="chip num">$5</code>, a <code class="chip num">$10</code>, or a <code class="chip num">$20</code>.</p>
     </div>
   </div>
 
@@ -150,7 +149,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p>Got it. Up to 10<sup>5</sup> customers, so I want one pass.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">[5,5,5,10,20]</code>. The first three pay with $5, so I hold three fives. The fourth pays $10. I give one five back, so now I have two fives and one ten. The last one pays $20. I give back the ten and a five. Everyone got change, so the answer is <code class="chip">true</code>. That matches.</p>
+      <p>Quick check on the example: <code class="chip">[5,5,5,10,20]</code>. The only moment that matters is the $20 — by then I hold two fives and a ten, so I give back the ten and a five. Everyone got change, so <code class="chip">true</code>. That matches.</p>
     </div>
   </div>
 
@@ -161,9 +160,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> try both ways of giving change every time a $20 shows up, and search over all the choices. That branches at every $20, so the number of paths grows exponentially. With up to 10<sup>5</sup> customers, that's way too slow.</p>
-      <p><strong>This problem reminds me of</strong> a greedy coin choice. The only real decision is at a $20: <code class="chip num">10 + 5</code> or <code class="chip num">5 + 5 + 5</code>. And I think there's a clear winner. A five is the more useful bill. A five can pay change for a $10 <em>and</em> for a $20. A ten can only help with a $20. So when I have a choice, I should spend the less useful bill — the ten — and keep my fives. That turns it into a simple simulation with two counters.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> try both ways of giving change at every $20 and search all the choices. That branches at every $20, so it grows exponentially — way too slow for 10<sup>5</sup> customers.</p>
+      <p><strong>This problem reminds me of</strong> a greedy coin choice. The only real decision is at a $20: <code class="chip num">10 + 5</code>, or <code class="chip num">5 + 5 + 5</code>. A five is the more useful bill — it can pay change for a $10 <em>and</em> for a $20, while a ten only helps with a $20. So I spend the ten and keep my fives. That turns it into a simple simulation with two counters.</p>
     </div>
   </div>
 
@@ -186,8 +185,10 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="label">// invariant: pay5 >= 0 after every customer</span><br>
         return true
       </div>
-      <p><strong>Here, I'm using</strong> two integers, <code class="chip">pay5</code> and <code class="chip">pay10</code>, <strong>to keep track of</strong> the bills in my cash box after each customer.</p>
-      <p><strong>One thing worth flagging</strong> — why give the ten first? <em class="pause">Let me walk through that.</em> Take <code class="chip">[5,5,5,5,10,20,10]</code>. Both strategies are the same up to the $20. Then they split:</p>
+      <p>One: keep two counters, <code class="chip">pay5</code> and <code class="chip">pay10</code>, for the bills I hold.<br>
+      Two: a $5, keep it; a $10, hand back a five; a $20, hand back <code class="chip num">10 + 5</code> if I have a ten, otherwise <code class="chip num">5 + 5 + 5</code>.<br>
+      Three: the moment <code class="chip">pay5</code> would go <code class="chip">&lt; 0</code>, fail on the spot.</p>
+      <p><strong>One thing worth flagging</strong> — why give the ten first? Take <code class="chip">[5,5,5,5,10,20,10]</code>.</p>
       <table class="trace">
         <thead><tr><th>i</th><th>bill</th><th>10 + 5 first (greedy)</th><th>5 + 5 + 5 first</th></tr></thead>
         <tbody>
@@ -198,10 +199,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
           <tr><td></td><td>result</td><td><span class="answer-cell">true</span></td><td>false</td></tr>
         </tbody>
       </table>
-      <p>At i = 5, the "5 + 5 + 5" way burns all three fives and keeps a ten. Then the next $10 customer needs a five, and there's none left. The greedy way keeps two fives, so it survives. Spending the ten never hurts me, because a ten can't do anything a five can't.</p>
-      <p><strong>One thing worth flagging</strong> too — I check for failure <strong>right away</strong>, inside the loop. If I only checked <code class="chip">pay5 &gt;= 0</code> at the very end, <code class="chip">[10,5]</code> would end at zero fives and look fine. But the first customer already got no change. Checking early is a correctness rule here, not a speed trick.</p>
-      <p><strong>There's a trade-off here.</strong> I could keep the search over both choices to be 100% safe. But the argument above shows greedy is never worse, and it's O(n) with O(1) space. So I'll go with greedy.</p>
-      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+      <p>At the $20, greedy keeps two fives, while <code class="chip num">5 + 5 + 5</code> first keeps none. So the last $10 gets no change, and only greedy survives — a ten can't do anything a five can't.</p>
+      <p>Also, failing <strong>inside the loop</strong> is a correctness rule: an end-only check would pass <code class="chip">[10,5]</code>. Greedy is O(n) time, O(1) space. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
 
@@ -220,7 +219,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up. It's one loop with two counters.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">bool</span> <span class="fn">lemonadeChange</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; bills) {
@@ -247,8 +246,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> <span class="kw">true</span>;
     }
 };</pre>
-      <p>That matches the plan. The comment <code class="chip">// (10, 5) (5, 5, 5)</code> is the order I try the two ways for a $20.</p>
-      <p><strong>One thing worth flagging</strong> — in the $20 branch, if I have a ten but no five, I return <code class="chip">false</code> right away. I don't fall back to <code class="chip num">5 + 5 + 5</code>. Is that too early? No. The other way needs three fives, and I have zero. So no way works, and <code class="chip">false</code> is correct. Also, the check is <code class="chip">&lt; 0</code>, not <code class="chip">&lt;= 0</code>. Landing on exactly zero fives is fine — I paid the change, I'm just out of fives now.</p>
+      <p>A $5 bumps <code class="chip">pay5</code>; a $10 spends a five; a $20 spends a ten and a five if I hold a ten, else three fives — and any time <code class="chip">pay5</code> dips <code class="chip">&lt; 0</code>, I return <code class="chip">false</code> right away. If the loop finishes, I return <code class="chip">true</code>.</p>
+      <p><strong>One thing worth flagging</strong> — in the $20 branch, if I have a ten but no five, I return <code class="chip">false</code> without falling back to <code class="chip num">5 + 5 + 5</code>. That's correct: the fallback needs three fives and I have zero. And the check is <code class="chip">&lt; 0</code>, not <code class="chip">&lt;= 0</code> — landing on exactly zero fives is fine.</p>
     </div>
   </div>
 
@@ -259,7 +258,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll use <code class="chip">[5,5,10,10,20]</code>. The expected output is <code class="chip">false</code>.</p>
+      <p><strong>Let's dry-run the code.</strong> <code class="chip">[5,5,10,10,20]</code> — expected <code class="chip">false</code>.</p>
       <table class="trace">
         <thead><tr><th>i</th><th>b</th><th>action</th><th>pay5</th><th>pay10</th></tr></thead>
         <tbody>
@@ -271,15 +270,12 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
           <tr><td></td><td></td><td>return</td><td colspan="2"><span class="answer-cell">false</span></td></tr>
         </tbody>
       </table>
-      <p>The key row is i = 4. I hold two tens but zero fives. The customer pays $20, so I hand back a ten, and now I need a five. <code class="chip">--pay5</code> goes to <code class="chip num">-1</code>, which is below zero, so I return <code class="chip">false</code> on the spot. That matches the expected output. Two tens are no help here — fifteen dollars of change always needs at least one five.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• <code class="chip">[5]</code> → <code class="chip">true</code>. No change needed.<br>
-      • <code class="chip">[10]</code> → <code class="chip">false</code>, and <code class="chip">[20]</code> → <code class="chip">false</code>. I start with no change, so the first customer must pay with a five.<br>
-      • <code class="chip">[10,5]</code> → <code class="chip">false</code>. This is the case where an end-only check would wrongly say <code class="chip">true</code>. My code fails at i = 0.<br>
-      • <code class="chip">[5,10]</code> → <code class="chip">true</code>. pay5 lands on exactly 0. This is why the check is <code class="chip">&lt; 0</code>. With <code class="chip">&lt;= 0</code> it would wrongly say <code class="chip">false</code>.<br>
-      • <code class="chip">[5,5,5,20]</code> → <code class="chip">true</code>. No ten, so the <code class="chip num">5 + 5 + 5</code> branch runs and pay5 ends at 0.<br>
-      • <code class="chip">[5,10,20]</code> → <code class="chip">false</code>. At the $20 I have a ten but no five, so it fails right away.<br>
-      • <code class="chip num">100,000</code> fives → <code class="chip">true</code>. pay5 gets as high as 100,000, which fits in an <code class="chip">int</code> easily.</p>
+      <p>The row that matters is the $20: the two tens already used up both fives, so I hold two tens and zero fives. I hand back a ten, <code class="chip">pay5</code> goes to <code class="chip num">-1</code>, and I return <code class="chip">false</code> on the spot. $15 of change always needs a five. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[10]</code> or <code class="chip">[20]</code> → <code class="chip">false</code>, since the first customer must pay with a five.<br>
+      • <code class="chip">[10,5]</code> → <code class="chip">false</code> — exactly where an end-only check would wrongly say <code class="chip">true</code>.<br>
+      • <code class="chip">[5,10]</code> → <code class="chip">true</code>, landing on zero fives.<br>
+      • <code class="chip">[5,5,5,20]</code> → <code class="chip">true</code>, through the <code class="chip num">5 + 5 + 5</code> branch.</p>
     </div>
   </div>
 
@@ -291,10 +287,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Let me think about complexity here.</em></p>
-      <p><strong>The time complexity is</strong> O(n). I look at each bill once, and each step is a few constant-time updates.</p>
-      <p><strong>The space complexity is</strong> O(1). Just two counters, no matter how long the line is.</p>
-      <p><strong>In the worst-case scenario</strong> every customer can be paid, so the loop runs all n steps before returning <code class="chip">true</code>. Any failure only makes it stop earlier.</p>
-      <p><em class="pause">Oh, one more thing —</em> the greedy choice is the only "smart" part, so it's the part I'd test hardest. The easy check is to compare against the brute force from earlier — the one that tries both ways at every $20 — on lots of short inputs. Also, <code class="chip">if (pay10 &amp;&amp; pay5)</code> with a fallback to <code class="chip num">5 + 5 + 5</code> would work too. It gives the same answers. My version is just a bit shorter, because when there's a ten but no five, the fallback can't work anyway.</p>
+      <p>Time is O(n) — one look at each bill, a few constant-time updates each. Space is O(1) — just two counters.</p>
+      <p>The worst case is when everyone can be paid, so the loop runs to the end; any failure stops earlier.</p>
+      <p><em class="pause">Oh, one more thing —</em> the greedy choice is the only "smart" part, so I'd test it hardest, by comparing against the brute force that tries both ways at every $20, on lots of short inputs.</p>
     </div>
   </div>
 
@@ -302,7 +297,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You saw early that only fives and tens matter, and that the order of customers matters. You proved "give the ten first" with a real counterexample, <code class="chip">[5,5,5,5,10,20,10]</code>, instead of just saying "greedy." And you showed the early return is about correctness, not speed, with <code class="chip">[10,5]</code> — plus why the check is <code class="chip">&lt; 0</code> and not <code class="chip">&lt;= 0</code>. Good work.</p>
+      <p>Nicely done. Three things stood out. You saw early that only fives and tens matter, and that the order of customers matters. You proved "give the ten first" with a real counterexample, instead of just saying "greedy." And you showed the early return is about correctness, not speed — plus why the check is <code class="chip">&lt; 0</code> and not <code class="chip">&lt;= 0</code>. Good work.</p>
     </div>
   </div>
 

@@ -136,8 +136,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Okay. Then a few small facts. One element alone always counts, so the answer is <strong>at least 1</strong>. Any two different neighbors make a length-2 run, one step. And the only thing that matters is the <strong>direction</strong> of each step, not how big it is.</p>
-      <p><strong>Are there any constraints on the input size?</strong></p>
+      <p>Okay. Then a few small facts. One element alone always counts, so the answer is <strong>at least 1</strong>. Any two different neighbors make a length-2 run, one step. And the only thing that matters is the <strong>direction</strong> of each step, not how big it is. <strong>Are there any constraints on the input size?</strong></p>
     </div>
   </div>
 
@@ -145,7 +144,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= n &lt;= 4 * 10^4</code>, and <code class="chip">0 &lt;= arr[i] &lt;= 10^9</code>.</p>
+      <p>The array has up to 4·10<sup>4</sup> elements, and each value is between <code class="chip num">0</code> and 10<sup>9</sup>.</p>
     </div>
   </div>
 
@@ -153,8 +152,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Got it. So I want one pass. The values go up to 10<sup>9</sup>, which still fits in <code class="chip">int</code>. I'll keep that in mind, because it matters if I ever multiply two differences.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">[9,4,2,10,7,8,8,1,9]</code>. The steps are: down, down, up, down, up, equal, down, up. The best run is index 1 to 5, <code class="chip">[4,2,10,7,8]</code>: 4 &gt; 2 &lt; 10 &gt; 7 &lt; 8. That's down, up, down, up, so length <code class="chip num">5</code>. It can't grow left, because 9 → 4 is down again. And it can't grow right, because 8 → 8 is equal. The other two: <code class="chip">[4,8,12,16]</code> only goes up, so the best is any one step, length <code class="chip num">2</code>. And <code class="chip">[100]</code> is just <code class="chip num">1</code>.</p>
+      <p>Got it. So I want one pass. Values go up to 10<sup>9</sup>, which fits in an <code class="chip">int</code> — but I'll keep it in mind in case I ever multiply two differences.</p>
+      <p>On the example, <code class="chip">[9,4,2,10,7,8,8,1,9]</code>, the best run is index 1 to 5, <code class="chip">[4,2,10,7,8]</code>: down, up, down, up, length <code class="chip num">5</code>. It can't grow left, because 9 → 4 is down again, and it can't grow right, because 8 → 8 is equal. The all-up example gives <code class="chip num">2</code>, and a single <code class="chip">[100]</code> gives <code class="chip num">1</code>.</p>
     </div>
   </div>
 
@@ -165,9 +164,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> try every start and every end, and check if the part in between is turbulent. That's O(n³), or O(n²) if I grow each start until it breaks. It's correct, and I'd keep it as a brute force to test against. But at n = 4·10<sup>4</sup> it's too slow.</p>
-      <p><strong>This problem reminds me of</strong> the two-running-Kadanes pattern: a running best ending at each index, kept as <strong>two</strong> coupled values — like a running max and a running min, because one state swaps into the other. Here it's the same shape. I keep two runs ending at index i: one whose last step goes <strong>up</strong>, and one whose last step goes <strong>down</strong>. An up step can only extend a run that ended going down, and the other way around. So the two values feed each other.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach</strong> tries every start and grows each one until it breaks. That's O(n²) — correct, and I'd keep it as a brute force to test against, but too slow at 4·10<sup>4</sup> elements.</p>
+      <p><strong>This problem reminds me of</strong> the two-running-Kadanes pattern: a running best ending at each index, kept as <strong>two</strong> coupled values that swap into each other. Here I keep two runs ending at index i — one whose last step goes <strong>up</strong>, one whose last step goes <strong>down</strong>. An up step can only extend a run that ended going down, and the other way around, so the two values feed each other.</p>
     </div>
   </div>
 
@@ -190,11 +189,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         &nbsp;&nbsp;maxL = max(maxL, curMx, curMi)<br>
         return maxL&nbsp;&nbsp;&nbsp;<span class="label">// equal step → both reset to 1</span>
       </div>
-      <p><strong>Here, I'm using</strong> <code class="chip">curMx</code> and <code class="chip">curMi</code> <strong>to keep track of</strong> the two best runs that end right at index i. <code class="chip">maxL</code> is the best length seen anywhere.</p>
-      <p>The key rule is the <strong>cross</strong>. If this step goes up, the run before it must have ended going down. So <code class="chip">curMx = prevMi + 1</code>. If this step goes down, <code class="chip">curMi = prevMx + 1</code>. And whichever direction this step is <em>not</em>, that value resets to 1, because a run whose last step goes the other way can only be <code class="chip">a[i]</code> alone. If the step is equal, both reset to 1.</p>
-      <p><strong>One thing worth flagging</strong> — the start value is <code class="chip num">1</code>, not 0, for all three. <em class="pause">Let me walk through that.</em> One element alone is a valid run. If I started <code class="chip">maxL</code> at 0, then <code class="chip">[100]</code> never enters the loop and returns 0. And if the reset value were 0 instead of 1, every run would come out one too short. Example 1 would give 4.</p>
-      <p><strong>There's a trade-off here.</strong> I could also use one counter: if the sign of the step flips, add one; if it's equal, go to 1; otherwise go to 2. That also works. But then I need to compare the current step with the previous step, and the easy way to write that is multiplying two differences, which can overflow. I'll come back to that. The two-counter version only uses <code class="chip">&gt;</code> and <code class="chip">&lt;</code>, and it reads like the definition. So I'll go with that.</p>
-      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+      <p>One: keep three numbers, all starting at <code class="chip num">1</code> — the best length <code class="chip">maxL</code>, the up run <code class="chip">curMx</code>, and the down run <code class="chip">curMi</code> ending here.<br>
+      Two: for each index from 1, copy both runs first; an up step makes <code class="chip">curMx = prevMi + 1</code>, a down step makes <code class="chip">curMi = prevMx + 1</code>, and whichever direction this step is <em>not</em> resets to 1. Equal steps reset both, for free.<br>
+      Three: refresh <code class="chip">maxL</code> with both.</p>
+      <p><strong>One thing worth flagging</strong> — the start value is <code class="chip num">1</code>, not 0. Starting <code class="chip">maxL</code> at 0 returns 0 for a single element, and resetting to 0 makes every run one short — example 1 would give 4.</p>
+      <p>A one-counter version works too, but comparing steps the easy way multiplies two differences, which can overflow. Two counters only compare. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
 
@@ -213,7 +212,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up. <code class="chip">maxL</code>, <code class="chip">curMx</code>, and <code class="chip">curMi</code> all start at 1, and one loop from index 1: save both runs as <code class="chip">prevMx</code> and <code class="chip">prevMi</code>, then set each with a ternary — <code class="chip">&gt;</code> gives <code class="chip">prevMi + 1</code>, <code class="chip">&lt;</code> gives <code class="chip">prevMx + 1</code>, otherwise 1 — and take the max.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">int</span> <span class="fn">maxTurbulenceSize</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; arr) {
@@ -230,12 +229,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> maxL;
     }
 };</pre>
-      <p>That matches the plan line by line.</p>
-      <p><strong>One thing worth flagging</strong> — the two copies, <code class="chip">prevMx</code> and <code class="chip">prevMi</code>. They look extra, but they're needed for <strong>correctness</strong>. Here's a version I almost wrote:</p>
+      <p><strong>One thing worth flagging</strong> — those copies are for <strong>correctness</strong>.</p>
 <pre class="code">curMx = (arr[i] &gt; arr[i - <span class="num2">1</span>]) ? curMi + <span class="num2">1</span> : <span class="num2">1</span>;
 curMi = (arr[i] &lt; arr[i - <span class="num2">1</span>]) ? curMx + <span class="num2">1</span> : <span class="num2">1</span>;  <span class="com">// curMx is already new</span></pre>
-      <p>The problem is the second line. It reads <code class="chip">curMx</code> <em>after</em> the first line overwrote it. And on a down step, the first line always sets <code class="chip">curMx</code> to 1, because the step isn't up. So the second line always gives <code class="chip">curMi = 1 + 1 = 2</code>. Every down step cuts the chain back to 2. On example 1, it returns <code class="chip num">3</code> instead of <code class="chip num">5</code>. The first wrong step is i = 4: <code class="chip">curMi</code> should be 3 + 1 = 4, but it becomes 2. The smallest input that breaks it is <code class="chip">[0,1,0]</code>: it returns <code class="chip num">2</code>, but the answer is 3. And it's sneaky: <code class="chip">[4,8,12,16]</code> and <code class="chip">[100]</code> still pass. That version can never return more than 3. Copying both old values first, before I write either one, fixes it.</p>
-      <p>Also, I only compare with <code class="chip">&gt;</code> and <code class="chip">&lt;</code>. I don't write <code class="chip">(a[i]-a[i-1]) * (a[i-1]-a[i-2]) &lt; 0</code> in <code class="chip">int</code>. Each difference fits, but the product doesn't. On <code class="chip">[0,1e9,0]</code> it's 10<sup>9</sup> × (−10<sup>9</sup>), which overflows. That's undefined behavior, and in my test it printed garbage, <code class="chip num">1486618624</code>. A <code class="chip">long long</code> cast fixes it, but not needing it is cleaner.</p>
+      <p>If the second line reads <code class="chip">curMx</code> directly, it sees the value the first line just overwrote, which is 1 on every down step. So every down step cuts to 2: example 1 returns <code class="chip num">3</code>, and <code class="chip">[0,1,0]</code> returns <code class="chip num">2</code> instead of <code class="chip num">3</code>.</p>
+      <p>Also, I never multiply neighboring differences — on <code class="chip">[0,1e9,0]</code>, that product overflows an <code class="chip">int</code>.</p>
     </div>
   </div>
 
@@ -246,7 +244,7 @@ curMi = (arr[i] &lt; arr[i - <span class="num2">1</span>]) ? curMx + <span class
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll use example 1, <code class="chip">[9,4,2,10,7,8,8,1,9]</code>. Expected output is <code class="chip num">5</code>. At i = 0, all three start at 1.</p>
+      <p><strong>Let's dry-run the code with</strong> example 1 — expected <code class="chip num">5</code>.</p>
       <table class="trace">
         <thead><tr><th>i</th><th>a[i-1] → a[i]</th><th>step</th><th>prevMx</th><th>prevMi</th><th>curMx</th><th>curMi</th><th>maxL</th></tr></thead>
         <tbody>
@@ -261,15 +259,12 @@ curMi = (arr[i] &lt; arr[i - <span class="num2">1</span>]) ? curMx + <span class
           <tr><td colspan="7">return maxL</td><td><span class="answer-cell">5</span></td></tr>
         </tbody>
       </table>
-      <p>The key row is i = 5. The step 7 → 8 goes up, so <code class="chip">curMx = prevMi + 1 = 4 + 1 = 5</code>. That <code class="chip">prevMi = 4</code> came from i = 4, where 10 → 7 went down and took <code class="chip">prevMx = 3</code> plus one. So the chain is passed back and forth: 2 at i = 2, 3 at i = 3, 4 at i = 4, 5 at i = 5. That's the run <code class="chip">[4,2,10,7,8]</code>, index 1 to 5.</p>
-      <p>Then at i = 6, 8 → 8 is equal, so both reset to 1. After that the runs only reach 3, so <code class="chip">maxL</code> stays at <code class="chip num">5</code>. That matches. Also look at i = 2: two down steps in a row. <code class="chip">curMi</code> goes back to 2, because <code class="chip">prevMx</code> was 1. Same direction twice means start over from the last pair.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• <code class="chip">[4,8,12,16]</code> → <code class="chip num">2</code>. Every step is up, so <code class="chip">curMi</code> is always 1 and <code class="chip">curMx</code> is always 1 + 1 = 2.<br>
-      • <code class="chip">[100]</code> → <code class="chip num">1</code>. The loop never runs. This is why <code class="chip">maxL</code> starts at 1.<br>
-      • <code class="chip">[0,1,0]</code> → <code class="chip num">3</code>. Up then down: curMx = 2, then curMi = 2 + 1 = 3. The almost-written version returns 2 here.<br>
-      • <code class="chip">[1,2,1,2,2,1]</code> → <code class="chip num">4</code>. The run <code class="chip">[1,2,1,2]</code> grows to 4, then 2 → 2 resets both.<br>
-      • <code class="chip">[5,5,5,5]</code> → <code class="chip num">1</code>. All equal, every step resets. If I had used <code class="chip">&gt;=</code> instead of <code class="chip">&gt;</code>, <code class="chip">[0,0]</code> would give 2, and example 1 would give 6.<br>
-      • n = 4·10<sup>4</sup>, alternating 0, 10<sup>9</sup>, 0, ... → <code class="chip num">40000</code>, the whole array. All equal → <code class="chip num">1</code>. Strictly increasing → <code class="chip num">2</code>.</p>
+      <p>The row that matters is i = 5: 7 → 8 goes up, so <code class="chip">curMx = prevMi + 1 = 4 + 1 = 5</code>. That 4 came from i = 4, where 10 → 7 went down and took the up run's 3. So the chain passes back and forth — 2, 3, 4, 5 — for the run <code class="chip">[4,2,10,7,8]</code>. Then 8 → 8 resets both to 1, and nothing later beats <code class="chip num">5</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• All up, <code class="chip">[4,8,12,16]</code> → <code class="chip num">2</code>, since the down run stays at 1.<br>
+      • A single element, <code class="chip">[100]</code> → <code class="chip num">1</code>, because the loop never runs.<br>
+      • <code class="chip">[0,1,0]</code> → <code class="chip num">3</code> — the version without copies returns 2.<br>
+      • <code class="chip">[5,5,5,5]</code> → <code class="chip num">1</code>; using <code class="chip">&gt;=</code> would wrongly turn example 1 into 6.</p>
     </div>
   </div>
 
@@ -281,10 +276,8 @@ curMi = (arr[i] &lt; arr[i - <span class="num2">1</span>]) ? curMx + <span class
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Let me think about complexity here.</em></p>
-      <p><strong>The time complexity is</strong> O(n). One pass, and each step is two compares and a max.</p>
-      <p><strong>The space complexity is</strong> O(1). Just a few integers.</p>
-      <p><strong>In the worst-case scenario</strong> it's still exactly n − 1 steps, with no early exit. At n = 4·10<sup>4</sup>, the alternating array takes about <code class="chip num">28 µs</code>. The counters never go above n, and I never do math on the values, only compares. So there's no overflow anywhere.</p>
-      <p><em class="pause">Oh, one more thing</em> — I'd test this against the brute force on lots of arrays. I ran <code class="chip num">223,279</code> cases, every small array plus random large ones, with <code class="chip num">0</code> mismatches. That check matters here. The almost-written version passes two of the three official examples. But on every array of length 1 to 7 with values 0 to 2, it fails <code class="chip num">1,923</code> out of <code class="chip num">3,279</code>. And any answer of 4 or more is always wrong. A few hand-picked tests can miss that. A brute-force check won't.</p>
+      <p>Time is O(n) — one pass, two compares and a max per step. Space is O(1) — a few integers. No early exit, so it's always n − 1 steps, about <code class="chip num">28 µs</code> at 4·10<sup>4</sup> elements. I only compare values, never do math on them, so there's no overflow.</p>
+      <p><em class="pause">Oh, one more thing</em> — I'd test this against the brute force. I ran over <code class="chip num">223,000</code> cases with <code class="chip num">0</code> mismatches. That matters here: the version without copies passes two of the three official examples, yet fails <code class="chip num">1,923</code> of about <code class="chip num">3,300</code> small arrays. Hand-picked tests can miss that; a brute-force check won't.</p>
     </div>
   </div>
 
@@ -292,7 +285,7 @@ curMi = (arr[i] &lt; arr[i - <span class="num2">1</span>]) ? curMx + <span class
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You split the state into two runs, last step up and last step down, and saw that they <strong>cross-feed</strong>: <code class="chip">curMx = prevMi + 1</code> and <code class="chip">curMi = prevMx + 1</code>. You explained why the <code class="chip">prev</code> copies are a correctness need, not style: without them every down step cuts to 2, and <code class="chip">[0,1,0]</code> breaks it. And you avoided the difference-product trick because it overflows <code class="chip">int</code> at 10<sup>9</sup>. Good work.</p>
+      <p>Nicely done. Three things stood out. You split the state into two runs, last step up and last step down, and saw that they <strong>cross-feed</strong>: each one extends the other. You explained why the <code class="chip">prev</code> copies are a correctness need, not style — without them every down step cuts to 2, and <code class="chip">[0,1,0]</code> breaks it. And you avoided the difference-product trick because it overflows an <code class="chip">int</code> at 10<sup>9</sup>. Good work.</p>
     </div>
   </div>
 

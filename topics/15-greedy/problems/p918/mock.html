@@ -134,8 +134,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Okay. Then every answer is one of two shapes. Either it's a <strong>normal</strong> subarray in the middle, like the classic straight-line maximum subarray. Or it <strong>wraps</strong>: it takes a piece from the end and a piece from the start. And here's the trick. If a subarray wraps, then what it <em>leaves out</em> is one normal block in the middle. So the wrap sum is the <strong>total</strong> minus that middle block. I'll keep that in mind.</p>
-      <p><strong>Are there any constraints on the input size?</strong></p>
+      <p>Okay. Then every answer is one of two shapes. Either it's a <strong>normal</strong> subarray in the middle, like the classic straight-line maximum subarray. Or it <strong>wraps</strong>: it takes a piece from the end and a piece from the start. And here's the trick. If a subarray wraps, then what it <em>leaves out</em> is one normal block in the middle. So the wrap sum is the <strong>total</strong> minus that middle block. I'll keep that in mind. <strong>Are there any constraints on the input size?</strong></p>
     </div>
   </div>
 
@@ -143,7 +142,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= n &lt;= 3 * 10^4</code>, and <code class="chip">-3 * 10^4 &lt;= nums[i] &lt;= 3 * 10^4</code>.</p>
+      <p>The array has up to 3·10<sup>4</sup> elements, and each value is between <code class="chip num">-30000</code> and <code class="chip num">+30000</code>.</p>
     </div>
   </div>
 
@@ -151,8 +150,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Got it. So I want one pass. The biggest sum in size is 3·10<sup>4</sup> × 3·10<sup>4</sup> = <code class="chip num">900,000,000</code>. That's about 42% of <code class="chip">INT_MAX</code>, so <code class="chip">int</code> is enough.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">[5,-3,5]</code>. The normal best is the whole array, 5 − 3 + 5 = <code class="chip num">7</code>. But if I wrap, I can take the last 5 and then the first 5, and skip the <code class="chip num">-3</code>. That's <code class="chip num">10</code>. So the answer is 10. And look: 10 is the total, 7, minus the block I skipped, −3. The other two: <code class="chip">[1,-2,3,-2]</code> gives 3, just the <code class="chip num">3</code> alone. And <code class="chip">[-3,-2,-3]</code> gives −2, the single biggest number.</p>
+      <p>Got it. So I want one pass. The biggest sum in size is 30000 × 30000 = <code class="chip num">900,000,000</code> — about 42% of <code class="chip">INT_MAX</code>, so a plain <code class="chip">int</code> is enough.</p>
+      <p>On the example, <code class="chip">[5,-3,5]</code>, the normal best is the whole array, <code class="chip num">7</code>. But wrapping takes the last 5 and the first 5 and skips the <code class="chip num">-3</code>, for <code class="chip num">10</code>. And 10 is exactly the total, 7, minus the skipped block, −3. The other two examples give <code class="chip num">3</code>, the 3 alone, and <code class="chip num">-2</code>, the single biggest number.</p>
     </div>
   </div>
 
@@ -164,8 +163,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> try every start index, then walk forward up to n steps with <code class="chip">i % n</code>, and keep a running sum. That's O(n²). It's correct, and I'd keep it as a brute force to test against. But at n = 3·10<sup>4</sup> it's too slow.</p>
-      <p><strong>This problem reminds me of</strong> Kadane's algorithm — the running "extend or restart" scan that solves maximum subarray on a straight line, which fits here because the non-wrapping case is exactly that. Kadane already gives me the best normal subarray. For the wrap case, I flip the question. I don't search for the best wrap. I search for the <strong>worst</strong> normal block, the minimum subarray, and cut it out. Total minus the minimum block is the best wrap. And I can find the minimum block with the same Kadane, just with <code class="chip">min</code> instead of <code class="chip">max</code>. Both run in the same loop.</p>
+      <p><strong>A naive approach</strong> tries every start index and walks up to n steps with the index wrapping <code class="chip">i % n</code>. That's O(n²) — correct, and I'd keep it as a brute force to test against, but too slow at 3·10<sup>4</sup> elements.</p>
+      <p><strong>This problem reminds me of</strong> Kadane's algorithm — the extend-or-restart scan for maximum subarray on a straight line — and it covers the non-wrapping case directly. For the wrap case, I flip the question: instead of searching for the best wrap, I find the <strong>worst</strong> normal block, the minimum subarray, and cut it out. Total minus the minimum block is the best wrap, and the minimum comes from the same Kadane with <code class="chip">min</code> instead of <code class="chip">max</code>, in the same loop.</p>
     </div>
   </div>
 
@@ -191,11 +190,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         if subMx &lt; 0: return subMx&nbsp;&nbsp;<span class="label">// all negative</span><br>
         return max(<span class="em">total − subMi</span>, subMx)&nbsp;&nbsp;<span class="label">// wrap vs normal</span>
       </div>
-      <p><strong>Here, I'm using</strong> <code class="chip">curMx</code> and <code class="chip">subMx</code> <strong>to keep track of</strong> the best normal subarray, and <code class="chip">curMi</code> and <code class="chip">subMi</code> for the worst one. <code class="chip">total</code> is the sum of the whole circle.</p>
-      <p><strong>One thing worth flagging</strong> — the guard <code class="chip">subMx &lt; 0</code>. <em class="pause">Let me walk through that.</em> Take <code class="chip">[-3,-2,-3]</code>. The minimum block is the <strong>whole array</strong>, −8, which is also the total. So <code class="chip">total − subMi</code> is <code class="chip num">0</code>. But that 0 means "cut out everything", which is the <strong>empty</strong> subarray. That's not allowed. Without the guard I'd return 0, but the answer is −2. And <code class="chip">subMx &lt; 0</code> happens exactly when every number is negative. In that case no wrap can help, so I just return <code class="chip">subMx</code>.</p>
-      <p><strong>One thing worth flagging</strong> too — the guard has to check <code class="chip">subMx</code>, not <code class="chip">total</code>. A natural wrong idea is "if <code class="chip">total &lt; 0</code>, skip the wrap." Take <code class="chip">[1,-3,1]</code>. The total is −1, but the wrap <code class="chip">[1,1]</code> gives 2. That rule returns 1. So the question is not "is the total negative." It's "is every number negative."</p>
-      <p><strong>There's a trade-off here.</strong> Another way is to double the array and run a sliding window with a monotonic deque on prefix sums. That also works in O(n), but it needs O(n) extra space and much more code. The min-block trick is O(1) space and one loop. So I'll go with that.</p>
-      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+      <p>One: track the <code class="chip">total</code>, plus <code class="chip">curMx</code> and <code class="chip">subMx</code> for the best block, <code class="chip">curMi</code> and <code class="chip">subMi</code> for the worst.<br>
+      Two: for each element, add it to the total, run extend-or-restart for both, and refresh the records.<br>
+      Three: if <code class="chip">subMx &lt; 0</code>, return <code class="chip">subMx</code>; otherwise return the larger of <code class="chip">subMx</code> and <code class="chip">total − subMi</code>.</p>
+      <p><strong>One thing worth flagging</strong> — that guard. On <code class="chip">[-3,-2,-3]</code>, the minimum block is the <strong>whole array</strong>, so <code class="chip">total − subMi</code> is <code class="chip num">0</code> — the <strong>empty</strong> subarray, which isn't allowed. The answer is <code class="chip num">-2</code>. And the guard must check <code class="chip">subMx</code>, not <code class="chip">total</code>: <code class="chip">[1,-3,1]</code> has a negative total, yet the wrap gives <code class="chip num">2</code>.</p>
+      <p>A doubled array with a monotonic deque also works, but needs O(n) space. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
 
@@ -214,7 +213,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up. One loop: each element goes into the <code class="chip">total</code>, <code class="chip">curMx</code> and <code class="chip">curMi</code> each extend or restart, then <code class="chip">subMx</code> and <code class="chip">subMi</code> take any new record. After the loop, the guard returns <code class="chip">subMx</code> if it's negative; otherwise I return the larger of <code class="chip">total − subMi</code> and <code class="chip">subMx</code>.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">int</span> <span class="fn">maxSubarraySumCircular</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
@@ -234,9 +233,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> <span class="fn">max</span>(total - subMi, subMx);
     }
 };</pre>
-      <p>That matches the plan line by line.</p>
-      <p><strong>One thing worth flagging</strong> — the start values. <code class="chip">subMx</code> starts at <code class="chip">INT_MIN</code> and <code class="chip">subMi</code> at <code class="chip">INT_MAX</code>, not 0. If <code class="chip">subMx</code> started at 0, then <code class="chip">[-1]</code> would return 0 instead of −1. Same thing if I swap the order and update <code class="chip">sub*</code> before <code class="chip">cur*</code>: the first compare would see <code class="chip">cur = 0</code>, the empty subarray. <code class="chip">curMx = 0</code> at the start is fine, because on the first number extend and restart are both just <code class="chip">x</code>.</p>
-      <p>Also, the last line still needs the <code class="chip">max</code> with <code class="chip">subMx</code>. If I only returned <code class="chip">total − subMi</code>, then <code class="chip">[1]</code> would give 0, because the min block is the whole array again. The <code class="chip">max</code> rescues that.</p>
+      <p><strong>One thing worth flagging</strong> — the start values. <code class="chip">subMx</code> starts at <code class="chip">INT_MIN</code> and <code class="chip">subMi</code> at <code class="chip">INT_MAX</code>, not 0 — otherwise <code class="chip">[-1]</code> returns <code class="chip num">0</code>. Also, the last line still needs the <code class="chip">max</code> with <code class="chip">subMx</code>: <code class="chip">[1]</code> would otherwise give <code class="chip num">0</code>, because the min block is the whole array again.</p>
     </div>
   </div>
 
@@ -247,7 +244,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll use <code class="chip">[2,-3,4,-6,1,5]</code>, because here the wrap wins. Expected output is <code class="chip num">9</code>.</p>
+      <p><strong>Let's dry-run the code with</strong> <code class="chip">[2,-3,4,-6,1,5]</code> — the wrap wins here, expected <code class="chip num">9</code>.</p>
       <div class="tracewrap">
       <table class="trace">
         <thead><tr><th>i</th><th>x</th><th>total</th><th>curMx</th><th>curMi</th><th>subMx</th><th>subMi</th></tr></thead>
@@ -262,15 +259,12 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </tbody>
       </table>
       </div>
-      <p>The key row is i = 3. For <code class="chip">curMi</code>, extending gives 1 − 6 = −5, but <code class="chip num">-6</code> alone is smaller, so it restarts. The worst block becomes just index 3, sum <code class="chip num">-6</code>, and it never gets worse after that. On the max side, <code class="chip">curMx</code> restarts at i = 4 and ends at 6, so the best normal subarray is <code class="chip">[1,5]</code>, index 4 to 5.</p>
-      <p>At the end, the total is 3. Cut out the −6 block and I get 3 − (−6) = <code class="chip num">9</code>. That's every index except 3: 1 + 5 + 2 − 3 + 4 = 9, going 4, 5, 0, 1, 2 around the circle. 9 beats 6, so the answer is <code class="chip num">9</code>. That matches.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• <code class="chip">[5,-3,5]</code> → <code class="chip num">10</code>. total = 7, subMx = 7, subMi = −3. max(7 − (−3), 7) = 10. The wrap is index 2 then index 0.<br>
-      • <code class="chip">[1,-2,3,-2]</code> → <code class="chip num">3</code>. total = 0, subMi = −2, so the wrap gives 2. The normal <code class="chip">[3]</code> gives 3 and wins.<br>
-      • <code class="chip">[-3,-2,-3]</code> → <code class="chip num">-2</code>. subMi = −8 = total, so total − subMi = 0, the empty subarray. subMx = −2 &lt; 0, so the guard returns −2.<br>
-      • <code class="chip">[3,-1,2,-1]</code> → <code class="chip num">4</code>. A tie: normal <code class="chip">[3,-1,2]</code> = 4, and wrap <code class="chip">[2,-1,3]</code> = 4.<br>
-      • <code class="chip">[1]</code> → <code class="chip num">1</code>, and <code class="chip">[-1]</code> → <code class="chip num">-1</code>. One element; the guard handles the negative one.<br>
-      • n = 3·10<sup>4</sup>, all <code class="chip num">30000</code> → <code class="chip num">900,000,000</code>. All <code class="chip num">-30000</code> → <code class="chip num">-30000</code> by the guard. All 30000 with one −30000 in the middle → <code class="chip num">899,970,000</code>, the wrap wins. All fit in <code class="chip">int</code>.</p>
+      <p>The row that matters is i = 3, the <code class="chip num">-6</code>. For <code class="chip">curMi</code>, extending gives −5, but <code class="chip num">-6</code> alone is smaller, so it restarts — the worst block becomes just index 3, and it never gets worse. At the end the total is 3 and <code class="chip">subMx</code> is 6, so no guard. Cut out the −6: 3 − (−6) = <code class="chip num">9</code>, every index except 3. 9 beats 6, so <code class="chip num">9</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• All negative, <code class="chip">[-3,-2,-3]</code> → <code class="chip num">-2</code>, through the guard.<br>
+      • <code class="chip">[1,-2,3,-2]</code> → <code class="chip num">3</code>, normal winning.<br>
+      • <code class="chip">[3,-1,2,-1]</code> → <code class="chip num">4</code>, a tie.<br>
+      • All <code class="chip num">30000</code> with one <code class="chip num">-30000</code> → <code class="chip num">899,970,000</code>, which fits in an <code class="chip">int</code>.</p>
     </div>
   </div>
 
@@ -282,10 +276,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p><em class="pause">Let me think about complexity here.</em></p>
-      <p><strong>The time complexity is</strong> O(n). One pass, and two Kadanes share the same loop.</p>
-      <p><strong>The space complexity is</strong> O(1). Just five integers.</p>
-      <p><strong>In the worst-case scenario</strong> it's still exactly n steps. There's no early exit and no extra work. At n = 3·10<sup>4</sup> it takes about <code class="chip num">40 µs</code> per call. And the biggest value I ever hold is <code class="chip num">900,000,000</code>, so there's no overflow.</p>
-      <p><em class="pause">Oh, one more thing —</em> I'd test this against the O(n²) brute force on lots of arrays. I ran <code class="chip num">239,530</code> cases, small and large, with <code class="chip num">0</code> mismatches. That check matters here. The <code class="chip">total &lt; 0</code> guard passes all three official examples, but it fails on <code class="chip">[1,-3,1]</code>. And forgetting the guard only breaks on all-negative arrays. Bugs like that hide from a few hand-picked tests, so a brute-force check is worth it.</p>
+      <p>Time is O(n) — one pass, with both Kadanes in the same loop. Space is O(1) — five integers. There's no early exit, so it's always n steps, about <code class="chip num">40 µs</code> at 3·10<sup>4</sup> elements, and the biggest value I hold is <code class="chip num">900,000,000</code>, so no overflow.</p>
+      <p><em class="pause">Oh, one more thing —</em> I'd test this against the O(n²) brute force. I ran about <code class="chip num">240,000</code> cases with <code class="chip num">0</code> mismatches. That matters here: the wrong guard on the total passes all three official examples but fails on <code class="chip">[1,-3,1]</code>, and a missing guard only breaks all-negative arrays. Bugs like that hide from hand-picked tests.</p>
     </div>
   </div>
 
@@ -293,7 +285,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You reframed the wrap case as "the whole circle minus one middle block," so the best wrap is the total minus the <strong>minimum</strong> subarray, and you got both with one loop. You explained why the guard is needed: on an all-negative array the min block is the whole array, so <code class="chip">total − subMi</code> is 0, the empty subarray. And you showed the guard must check <code class="chip">subMx</code>, not <code class="chip">total</code>, with <code class="chip">[1,-3,1]</code>. Good work.</p>
+      <p>Nicely done. Three things stood out. You reframed the wrap case as "the whole circle minus one middle block," so the best wrap is the total minus the <strong>minimum</strong> subarray, and you got both with one loop. You explained why the guard is needed: on an all-negative array the min block is the whole array, so <code class="chip">total − subMi</code> is 0 — the empty subarray. And you showed the guard must check <code class="chip">subMx</code>, not <code class="chip">total</code>, with <code class="chip">[1,-3,1]</code>. Good work.</p>
     </div>
   </div>
 
