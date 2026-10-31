@@ -195,7 +195,7 @@ lists 為空（k = 0)        → 堆從沒被播種 → 迴圈不執行 → 回 
  20000       10   <span class="sc-trace__out">14.1 ms</span>  13385.3 ms    14.3 ms</div><br/>
 <b><code>k = <span class="nm">10</span></code> 時「依序合併」比堆快一倍</b> —— 因為 <code>O(N·k)</code> 在 <code>k=<span class="nm">10</span></code> 時的常數比堆操作小得多,<strong>而堆每次 <code>push</code>/<code>pop</code> 都有 sift 的開銷</strong>。<br/><br/>
 <b><code>k = <span class="nm">20000</span></code> 時依序要 13.4 秒,慢了 950 倍</b> —— <code>O(N·k)</code> 的代價完全顯現。<br/><br/>
-<strong>而堆與分治從頭到尾難分軒輊。</strong>有趣的是<strong>分治的<em>比較次數</em>在每個 <code>k</code> 都比堆少</strong>(<code>k=<span class="nm">1024</span></code>:109946 vs 128784),<b>因為分治每個節點每層只比一次,而堆的 <code>pop</code> 要做 sift-down,比較次數約兩倍</b> —— <strong>但實際耗時幾乎相同,因為堆的存取模式對快取比較友善。</strong><br/><br/>
+<strong>而堆與分治從頭到尾難分軒輊。</strong>有趣的是<strong>分治的<em>比較次數</em>在每個 <code>k</code> 都比堆少</strong>(<code>k=<span class="nm">1024</span></code>:109946 vs 128784),<b>因為分治每個節點每層只比一次,而堆的 <code>pop</code> 要做 sift-down,比較次數較多(實測約多 17%–35%,不到兩倍)</b> —— <strong>但實際耗時幾乎相同,因為堆的存取模式對快取比較友善。</strong><br/><br/>
 <b>結論</b>:面試寫哪個都行,<strong>但要能說出「它們一樣快」以及「<code>k</code> 小的時候笨方法反而贏」</strong> ——
   <b>漸進複雜度講的是趨勢,不是小規模下的勝負。</b></div>
       </details>
@@ -265,7 +265,7 @@ auto cmp = [](const Item&amp; a, const Item&amp; b) {
 <tr><td>不變量</td><td>堆裡<strong>每條串列最多一個節點</strong> ⇒ 堆頂就是全域最小</td></tr>
 <tr><td>堆的大小</td><td><strong>彈一個補一個</strong> ⇒ 恆 <code>≤ k</code>(實測 k=200 時最大 size 恰好 200)</td></tr>
 <tr><td>比較子方向</td><td>最小堆要寫 <code>&gt;</code> —— <code>priority_queue</code> 的語意是「<strong>優先度低的排前面</strong>」</td></tr>
-<tr><td><code><span class="kw2">if</span> (p)</code> 守衛</td><td>不能省 —— <code>push</code> 當下就會比較,<code>nullptr-&gt;val</code> <strong>立刻 SEGV</strong></td></tr>
+<tr><td><code><span class="kw2">if</span> (p)</code> 守衛</td><td>不能省 —— 堆裡已有元素時,<code>push</code> 當下比較 <code>nullptr-&gt;val</code> <strong>立刻 SEGV</strong>;只有 <code>[[]]</code> 這種「第一個就是空」的情況拖到迴圈裡才崩</td></tr>
 <tr><td>結尾不必收</td><td><strong>迴圈能結束 ⟺ 最後那個節點的 <code>next</code> 是 <code>nullptr</code></strong></td></tr>
 <tr><td>對照 21</td><td>21 的迴圈<strong>會提早停</strong>(<code><span class="kw2">while</span> (a &amp;&amp; b)</code>)⇒ 必須補 <code>t-&gt;next = a ? a : b</code></td></tr>
 <tr><td>複雜度</td><td><code>O(N log k)</code> 時間、<code>O(k)</code> 空間;<strong>每節點恰好 push 一次、pop 一次</strong></td></tr>

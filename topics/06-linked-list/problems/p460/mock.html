@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 460 · LFU Cache</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 520px) { .page { padding: 16px 16px 56px; } .turn { gap: 10px; padding: 6px 0; } pre.code { padding: 14px 14px; font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 460 · LFU Cache · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design and implement a data structure for a <strong>Least Frequently Used cache</strong>. It needs <code class="chip">get(key)</code> and <code class="chip">put(key, value)</code>. When the cache is full and you insert a new key, evict the least frequently used one. Both operations should run in <strong>O(1) average time</strong>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things</strong>, starting with the eviction rule, because "least frequently used" is ambiguous on its own.</p>
+      <p><strong>What happens on a tie?</strong> If two keys have both been used exactly three times, which one goes?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Break the tie with recency — evict the one that was used least recently.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>So it's <strong>two-level ordering</strong>: frequency first, recency as the tiebreaker. That means an LRU list will show up inside this somewhere.</p>
+      <p>Three more. <strong>Does <code class="chip">put</code> on an existing key count as a use?</strong> <strong>Does a failed <code class="chip">get</code> count?</strong> And <strong>what's the value range?</strong> I'm asking because the natural "not found" return is <code class="chip num">-1</code>, and I want to know whether <code class="chip num">-1</code> could also be a real value.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, <code class="chip">put</code> counts. No, a miss doesn't. Values are non-negative, up to 10<sup>9</sup>. Capacity can be zero. Up to 2 × 10<sup>5</sup> calls.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — <strong>values are non-negative, so <code class="chip num">-1</code> is a safe sentinel.</strong> If I lean on that, I'll say so explicitly, because if that guarantee went away it would be a real bug, not a style issue.</p>
+      <p>And <strong>capacity zero</strong> means <code class="chip">put</code> has to be a no-op — otherwise I'd insert, then immediately try to evict from an empty structure.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em> The whole difficulty is one question: <strong>how do I find the minimum-frequency key in O(1)?</strong></p>
+      <p><strong>A naive approach would</strong> scan everything on eviction — correct, and my reference for testing, but O(capacity).</p>
+      <p>A <strong>priority queue</strong> on (count, timestamp) can't update priorities in place, so it's O(log n), plus stale entries piling up. An <strong>ordered map</strong> from frequency to keys is clean, but still O(log n).</p>
+      <p>So the question becomes: <strong>can I avoid searching for the minimum at all?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Can you?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes, because <strong>the minimum barely moves.</strong> <strong>This problem reminds me of</strong> bucketing by count with a running minimum instead of a heap — it fits because the minimum only moves in small, predictable steps.</p>
+      <p><strong>Inserting a new key:</strong> its count is 1, the smallest possible, so the minimum becomes 1 — an assignment. <strong>Using the last key at the minimum:</strong> it moves to the next bucket, so the minimum is exactly <code class="chip">minFreq + 1</code> — an increment. <strong>Anything else</strong> leaves the minimum bucket occupied.</p>
+      <p>So it <strong>only ever resets to 1 or steps up by 1</strong>, and a single integer can track it.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan: three maps plus that integer.</p>
+      <div class="insight-box">
+        <span class="label">// m&nbsp;&nbsp;&nbsp;&nbsp;-- the cache itself</span><br>
+        m[key]&nbsp;&nbsp;&nbsp;&nbsp;= {value, useCount}<br>
+        <span class="label">// freq -- one LRU list per count; front = oldest in that bucket</span><br>
+        freq[f]&nbsp;&nbsp;&nbsp;= list&lt;key&gt;<br>
+        <span class="label">// iter -- where each key sits inside its list</span><br>
+        iter[key] = list&lt;int&gt;::iterator<br>
+        <span class="label">// and</span><br>
+        minFreq&nbsp;&nbsp;&nbsp;= smallest count currently present<br>
+        <span class="label">// eviction is then just:</span><br>
+        victim&nbsp;&nbsp;&nbsp;&nbsp;= <span class="em">freq[minFreq].front()</span>
+      </div>
+      <p>One: <code class="chip">m</code> maps each key to its value and use count.<br>
+      Two: <code class="chip">freq</code> maps each count to an LRU list of keys.<br>
+      Three: <code class="chip">iter</code> maps each key to its position in that list. Plus <code class="chip">minFreq</code>, the smallest count present — so the victim is just the front of that bucket.</p>
+      <p><strong>One thing worth flagging</strong> is <code class="chip">iter</code>: promoting a key pulls it out of the middle of its list, and <code class="chip">list::erase</code> is O(1) <strong>only with the iterator in hand.</strong> And it must be a <code class="chip">list</code>, not a <code class="chip">vector</code> — a vector erase shifts elements and <strong>invalidates my stored iterators.</strong></p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Why is <code class="chip">front</code> the right end to evict from?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Because I append with <code class="chip">push_back</code> on every use. So within a bucket, the list runs oldest to newest, and <strong><code class="chip">front</code> is the least recently used</strong> — exactly the tiebreaker you specified.</p>
+      <p>Each bucket is <strong>its own little LRU list</strong>; the whole structure is a stack of LRU caches, with <code class="chip">minFreq</code> telling me which one to evict from.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">LFUCache</span> {
+<span class="kw">public</span>:
+    <span class="typ">LFUCache</span>(<span class="typ">int</span> capacity) : <span class="fn">cap</span>(capacity), <span class="fn">minFreq</span>(<span class="num2">0</span>) {}   <span class="com">// minFreq initialised too</span>
+
+    <span class="typ">int</span> <span class="fn">get</span>(<span class="typ">int</span> key) {
+        <span class="kw">auto</span> it = m.<span class="fn">find</span>(key);
+        <span class="kw">if</span> (it == m.<span class="fn">end</span>()) <span class="kw">return</span> -<span class="num2">1</span>;
+        <span class="fn">touch</span>(it);
+        <span class="kw">return</span> it-&gt;second.first;
+    }
+
+    <span class="typ">void</span> <span class="fn">put</span>(<span class="typ">int</span> key, <span class="typ">int</span> value) {
+        <span class="kw">if</span> (cap &lt;= <span class="num2">0</span>) <span class="kw">return</span>;
+
+        <span class="kw">auto</span> it = m.<span class="fn">find</span>(key);          <span class="com">// test with find, not the return value</span>
+        <span class="kw">if</span> (it != m.<span class="fn">end</span>()) {
+            it-&gt;second.first = value;
+            <span class="fn">touch</span>(it);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">if</span> ((<span class="typ">int</span>)m.<span class="fn">size</span>() &gt;= cap) {     <span class="com">// explicit cast, no sign-compare warning</span>
+            <span class="typ">int</span> victim = freq[minFreq].<span class="fn">front</span>();
+            freq[minFreq].<span class="fn">pop_front</span>();
+            <span class="kw">if</span> (freq[minFreq].<span class="fn">empty</span>()) freq.<span class="fn">erase</span>(minFreq);   <span class="com">// drop the empty bucket</span>
+            m.<span class="fn">erase</span>(victim);
+            iter.<span class="fn">erase</span>(victim);
+        }
+
+        m[key] = {value, <span class="num2">1</span>};
+        freq[<span class="num2">1</span>].<span class="fn">push_back</span>(key);
+        iter[key] = --freq[<span class="num2">1</span>].<span class="fn">end</span>();
+        minFreq = <span class="num2">1</span>;
+    }
+
+<span class="kw">private</span>:
+    <span class="com">// one "use" -- shared by get and put</span>
+    <span class="typ">void</span> <span class="fn">touch</span>(<span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt;::iterator it) {
+        <span class="typ">int</span> key = it-&gt;first, f = it-&gt;second.second;
+
+        freq[f].<span class="fn">erase</span>(iter[key]);
+        <span class="kw">if</span> (freq[f].<span class="fn">empty</span>()) {
+            freq.<span class="fn">erase</span>(f);                   <span class="com">// drop the empty bucket</span>
+            <span class="kw">if</span> (minFreq == f) ++minFreq;      <span class="com">// the only way the min goes up</span>
+        }
+
+        ++it-&gt;second.second;
+        freq[f + <span class="num2">1</span>].<span class="fn">push_back</span>(key);
+        iter[key] = --freq[f + <span class="num2">1</span>].<span class="fn">end</span>();
+    }
+
+    <span class="typ">int</span> cap, minFreq;
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; m;
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">list</span>&lt;<span class="typ">int</span>&gt;&gt; freq;
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">list</span>&lt;<span class="typ">int</span>&gt;::iterator&gt; iter;
+};</pre>
+      <p>One helper, <code class="chip">touch</code>, does a use: pull the key out of its bucket, erase the bucket if it's now empty — bumping <code class="chip">minFreq</code> if that was the minimum — then append the key to the next bucket. <code class="chip">get</code> and <code class="chip">put</code> both go through it, so they can't drift apart. On a full <code class="chip">put</code>, the victim is the front of the <code class="chip">minFreq</code> bucket, removed from all three maps.</p>
+      <p>Two deliberate choices. I check membership with <code class="chip">m.find</code>, not <code class="chip">get(key) != -1</code> — <strong>values are non-negative, but I'd rather the code not depend on that.</strong> And I <code class="chip">erase</code> empty buckets; that's not cosmetic — I'll come back to it.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Trace the standard example with capacity <code class="chip num">2</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> Expected outputs: <code class="chip">1, -1, 3, -1, 3, 4</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;white-space:nowrap;">
+        <thead><tr><th>op</th><th>m (key → val / count)</th><th>freq</th><th>minFreq</th></tr></thead>
+        <tbody>
+          <tr><td>put(1,1)</td><td>1 → 1/c1</td><td>1: [1]</td><td>1</td></tr>
+          <tr><td>put(2,2)</td><td>1 → 1/c1, 2 → 2/c1</td><td>1: [1, 2]</td><td>1</td></tr>
+          <tr><td>get(1) = 1</td><td>1 → 1/c2, 2 → 2/c1</td><td>1: [2], 2: [1]</td><td>1</td></tr>
+          <tr class="highlight-row"><td>put(3,3)</td><td>1 → 1/c2, 3 → 3/c1</td><td>1: [3], 2: [1]</td><td>1 · evicts key 2</td></tr>
+          <tr><td>get(2) = -1</td><td>—</td><td>—</td><td>1</td></tr>
+          <tr class="highlight-row"><td>get(3) = 3</td><td>1 → 1/c2, 3 → 3/c2</td><td>2: [1, 3]</td><td>2 · bucket 1 emptied</td></tr>
+          <tr class="highlight-row"><td>put(4,4)</td><td>3 → 3/c2, 4 → 4/c1</td><td>1: [4], 2: [3]</td><td>1 · evicts key 1</td></tr>
+          <tr><td>get(1), get(3), get(4)</td><td colspan="2">unchanged contents</td><td><span class="answer-cell">-1, 3, 4</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>The two evictions are worth contrasting.</strong> <code class="chip">put(3,3)</code> drops key 2, which arrived <em>after</em> key 1 — frequency beat arrival order, since key 1 had been read. <code class="chip">put(4,4)</code> is a genuine tie at count 2, broken by recency, and <code class="chip">front</code> of that bucket is exactly the right node.</p>
+      <p>And <strong><code class="chip">get(3)</code> is the step where <code class="chip">minFreq</code> climbs</strong> — bucket 1 goes empty, so the minimum becomes 2. That's the only line that raises it. That matches.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What happens if you forget that increment?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>You'd expect a wrong eviction. <strong>What you actually get is memory corruption</strong>, which is worse.</p>
+      <p><code class="chip">minFreq</code> would point at an empty bucket, and eviction calls <code class="chip">front()</code> and <code class="chip">pop_front()</code> on it — <strong>undefined behaviour on an empty list.</strong> The shortest trigger is three operations at capacity 1: <code class="chip">put(0,0)</code>, <code class="chip">get(0)</code>, <code class="chip">put(1,0)</code>. The get empties bucket 1, and the put reaches straight into it.</p>
+      <p><strong>The thing I'd emphasize is that answer-comparison testing can't find this</strong> — hundreds of thousands of operations without one wrong return value. It's a sanitizer bug, not a diff bug, so I'd run this under ASan.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time: O(1) average</strong> for both operations — a few hash lookups, one <code class="chip">list::erase</code>, one <code class="chip">push_back</code>. <strong>Space: O(capacity)</strong> — but <em>only because I erase empty buckets.</em> Leave them, and <code class="chip">freq</code> grows with the highest count ever reached — with the <em>number of operations</em>, not the capacity.</p>
+      <p><em class="pause">Oh, one more thing —</em> two design caveats. Without the O(1) requirement, I'd ship the <strong>ordered-map version</strong>: the minimum is just <code class="chip">begin()</code>, and the <code class="chip">minFreq</code> bug class disappears.</p>
+      <p>And <strong>LFU has a behavioural flaw</strong>: keys that were hot early keep counts new keys can't reach, so after the working set shifts they <strong>never leave</strong>. LRU fails the opposite way — one big scan flushes it. <strong>Neither dominates</strong>; in production you'd add aging.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>That's a strong session. Three things stood out.</p>
+      <p>You <strong>found the real question immediately</strong> — how to avoid searching for the minimum — and answered it by listing how the minimum can change, instead of reaching for a fancier structure.</p>
+      <p>You flagged <code class="chip">iter</code> as load-bearing and explained <strong>why it's a <code class="chip">list</code> and not a <code class="chip">vector</code></strong>.</p>
+      <p>And you knew which of my guarantees you could <strong>lean on</strong> — the non-negative values — and chose not to. That instinct separates code that passes the tests from code I'd merge.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 16.05, 31.43, 36.82, 60.14, 71.66, 91.69, 124.61, 126.94, 162.47, 203.53, 208.01, 228.31, 265.84, 269.7, 303.41, 306.62, 343.31, 392.12]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

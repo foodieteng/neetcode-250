@@ -96,8 +96,9 @@
     </div>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
     </p>
+    <audio controls preload="metadata" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong><code>l1-&gt;val &gt; l2-&gt;val</code> 這個「大於」很容易寫反。</strong>
@@ -154,9 +155,9 @@ AddressSanitizer: SEGV on unknown address <span class="sc-trace__out">0x00000000
 <span class="sc-trace__out">// 崩在比較子的 l1-&gt;val —— push 進去的那一刻就已經開始比較了</span></div>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>注意「拿掉 <code><span class="kw2">if</span> (p)</code>」的崩潰點:不是在 <code><span class="kw2">while</span></code> 迴圈裡,是在 <code>push</code> 的當下。</strong>
+      <strong>注意「拿掉 <code><span class="kw2">if</span> (p)</code>」的崩潰點:只要堆裡已經有別的元素,就是在 <code>push</code> 的當下。</strong>
       <b><code>push</code> 會立刻做 sift-up 比較,而比較子第一件事就是 <code>l1-&gt;val</code>。</b>
-      <strong>所以這個 bug 連迴圈都跑不到 —— 一旦有空串列就立刻死。</strong>
+      <strong>例外是堆還空著時 push 進去的空串列(例如官方範例 3 的 <code>[[]]</code>):不需比較,push 平安過關,改在迴圈裡讀 <code>node-&gt;next</code> 時才死。兩種情況都一定會死(實際編譯 + ASan 驗證)。</strong>
     </div>
   </section>
 
@@ -287,6 +288,7 @@ priority_queue  錯 0
 
     <p style="margin-top:14px;"><strong>比較次數</strong>(固定 <code>N = <span class="nm">12000</span></code> 個節點,只改變 <code>k</code>):</p>
 
+    <div style="overflow-x:auto;">
     <table class="sc-table">
       <thead><tr><th>k</th><th>每條長度</th><th>priority_queue</th><th>依序合併</th><th>分治合併</th><th>依序 / 分治</th></tr></thead>
       <tbody>
@@ -297,9 +299,11 @@ priority_queue  錯 0
         <tr><td class="mono">1024</td><td class="mono">11</td><td class="mono">128784</td><td class="mono fail">5112395</td><td class="mono ok">109946</td><td class="mono fail">46.5×</td></tr>
       </tbody>
     </table>
+    </div>
 
     <p style="margin-top:14px;"><strong>實際耗時</strong>(<code>N = <span class="nm">200000</span></code> 個節點):</p>
 
+    <div style="overflow-x:auto;">
     <table class="sc-table">
       <thead><tr><th>k</th><th>每條長度</th><th>priority_queue</th><th>依序合併</th><th>分治合併</th></tr></thead>
       <tbody>
@@ -308,6 +312,7 @@ priority_queue  錯 0
         <tr><td class="mono">20000</td><td class="mono">10</td><td class="mono ok"><strong>14.1 ms</strong></td><td class="mono fail">13385.3 ms</td><td class="mono ok">14.3 ms</td></tr>
       </tbody>
     </table>
+    </div>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>兩個值得注意的地方。</strong>
@@ -315,7 +320,7 @@ priority_queue  錯 0
       <strong><code>O(N·k)</code> 在 <code>k</code> 很小時的常數比堆操作小得多</strong>,
       <b>漸進複雜度講的是趨勢,不是小規模下的勝負。</b><br><br>
       <b>第二,分治法的比較次數在<em>每一個</em> <code>k</code> 都比堆少</b>(例如 <code>k=<span class="nm">1024</span></code>:109946 vs 128784)——
-      因為<strong>分治每個節點每層只比一次,而堆每次 <code>pop</code> 要做 sift-down,比較次數約是兩倍</strong>。
+      因為<strong>分治每個節點每層只比一次,而堆每次 <code>pop</code> 要做 sift-down,比較次數因此較多 —— 頁面實測約多 17%–35%(k=1024:128784 vs 109946),不到兩倍</strong>。
       <strong>但實際耗時幾乎相同,因為堆的存取模式對快取更友善。</strong>
     </div>
   </section>

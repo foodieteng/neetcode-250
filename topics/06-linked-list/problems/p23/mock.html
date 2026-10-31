@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 23 · Merge k Sorted Lists</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 23 · Merge k Sorted Lists · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given an array of <code class="chip">k</code> linked lists, <strong>each one already sorted</strong>. Merge them into a single sorted linked list and return it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> The sortedness of each input is <strong>given</strong>, not something I have to establish — that's the property I should exploit. <strong>Can individual lists be null?</strong> And <strong>can the array itself be empty?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes to both. Empty array, and any element can be null.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — I'll make sure both fall out naturally rather than needing special cases.</p>
+      <p>And <strong>am I relinking the existing nodes, or building new ones?</strong> I'd default to relinking; it's O(1) extra space, and the caller usually owns those nodes anyway.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Relink. And the constraints: total nodes up to 10<sup>4</sup>, <code class="chip">k</code> up to 10<sup>4</sup>, values fit in an int.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me call the total number of nodes <code class="chip">N</code>, separate from <code class="chip">k</code> — they'll appear in the complexity separately, and I don't want to conflate them.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p>The baseline is to <strong>dump all values into a vector, sort, and rebuild.</strong> That's O(N log N) time and O(N) space. It works, but it throws away the sortedness, so it's only a fallback.</p>
+      <p>Here's the observation that matters: <strong>the global minimum has to be the head of one of the lists.</strong> Each list is sorted, so it can't be buried in the middle. There are only <code class="chip">k</code> candidates at any moment, not <code class="chip">N</code>.</p>
+      <p><strong>This problem reminds me of</strong> a k-way merge with a priority queue: <strong>repeatedly extract the minimum of <code class="chip">k</code> things</strong> — which is exactly what a min-heap is for.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Before you go there — is there a way to reuse something simpler?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes, and it's worth saying out loud. <strong>Merging two sorted lists is a solved problem</strong> — the standard two-pointer merge — so I could apply it repeatedly.</p>
+      <p><strong>The naive way is to fold left</strong>: merge list 0 with list 1, then that result with list 2, and so on. That's <code class="chip">O(N·k)</code>, because the growing result gets rescanned every step.</p>
+      <p><strong>The fix is a knockout tournament</strong>: merge in pairs, then merge the winners pairwise. <strong>Each node is touched once per round, and there are only <code class="chip">log k</code> rounds</strong>, so it's <code class="chip">O(N log k)</code>.</p>
+      <p>So I have two <code class="chip">O(N log k)</code> options: <strong>divide and conquer</strong>, or <strong>a min-heap over the <code class="chip">k</code> heads.</strong> I'll write the heap; it costs <code class="chip">O(k)</code> extra space, while divide and conquer only needs the two-list merge.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// INVARIANT: the heap holds at most one node per list —</span><br>
+        <span class="label">//   that list's smallest not-yet-taken node</span><br>
+        seed: push every <span class="em">non-null</span> head&nbsp;&nbsp;<span class="label">// heap size ≤ k</span><br>
+        loop: pop the min, append it to the tail<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if that node <span class="em">has a next</span>, push it<br>
+        <span class="label">// pop one, push one → heap stays ≤ k, never grows to N</span><br>
+        stop when the heap is empty
+      </div>
+      <p>One: seed the heap with every non-null head.<br>
+      Two: pop the minimum, append it to the tail, and if that node has a next, push it.<br>
+      Three: stop when the heap is empty.</p>
+      <p><strong>The invariant:</strong> the heap holds at most one node per list — that list's smallest node not yet taken. So the heap contains <em>every list's current minimum</em>, and <strong>the heap top is the global minimum.</strong> Pop one, push one, so the heap never grows past <code class="chip">k</code>.</p>
+      <p><strong>One thing worth flagging:</strong> two guards, both null-pointer traps. Seeding needs <code class="chip">if (p)</code>, and the refill needs <code class="chip">if (node-&gt;next)</code>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Where exactly would the null crash happen?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Usually <strong>on the <code class="chip">push</code> itself</strong>, not later in the loop — which surprises people.</p>
+      <p><code class="chip">push</code> does a sift-up right away, and sift-up calls the comparator, which reads <code class="chip">l1-&gt;val</code> through the null pointer. So with one real list and one empty list, it crashes <strong>at the moment of insertion</strong>, before the merge loop even starts.</p>
+      <p>One exception: if the only list is empty, the null sits alone in the heap, there's nothing to compare it with, and the push survives. Then it crashes inside the loop instead, at <code class="chip">node-&gt;next</code>. Either way, it crashes.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. It follows the plan line for line: seed with the guard, then pop, append, refill, and return <code class="chip">dummy.next</code>.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">ListNode</span>* <span class="fn">mergeKLists</span>(<span class="typ">vector</span>&lt;<span class="typ">ListNode</span>*&gt;&amp; lists) {
+        <span class="com">// "greater than" = min-heap. priority_queue is a max-heap by default, so flip it</span>
+        <span class="kw">auto</span> cmp = [&amp;](<span class="kw">auto</span> &amp;l1, <span class="kw">auto</span> &amp;l2) {
+            <span class="kw">return</span> l1-&gt;val &gt; l2-&gt;val;
+        };
+
+        <span class="typ">priority_queue</span>&lt;<span class="typ">ListNode</span>*, <span class="typ">vector</span>&lt;<span class="typ">ListNode</span>*&gt;, <span class="kw">decltype</span>(cmp)&gt; <span class="fn">pq</span>(cmp);
+
+        <span class="com">// seed: each list's head. if (p) is required — lists[i] may be nullptr</span>
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : lists) {
+            <span class="kw">if</span> (p) pq.<span class="fn">push</span>(p);
+        }
+
+        <span class="typ">ListNode</span> dummy;                <span class="com">// on the stack, freed automatically on return</span>
+        <span class="typ">ListNode</span>* tail = &amp;dummy;
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> node = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();   <span class="com">// heap top = global minimum</span>
+
+            tail-&gt;next = node;
+            tail = tail-&gt;next;
+
+            <span class="com">// pop one, push one ⇒ heap size always ≤ k</span>
+            <span class="kw">if</span> (node-&gt;next) pq.<span class="fn">push</span>(node-&gt;next);
+        }
+
+        <span class="com">// no tail-&gt;next = nullptr needed here — the list self-terminates</span>
+        <span class="kw">return</span> dummy.next;
+    }
+};</pre>
+      <p><strong>The comparator direction is the easiest thing to get backwards.</strong> <code class="chip">priority_queue</code>'s contract is that <code class="chip">cmp(a,b)</code> returning true means <em>a has lower priority</em> — and lower priority sinks. So to get the smallest on top, the comparator says greater than: <strong>a bigger value means lower priority.</strong></p>
+      <p>And I put the dummy <strong>on the stack</strong>. Heap-allocating it would leak one node per call, since nothing points at it after I return <code class="chip">dummy.next</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You didn't terminate the result list. Every node you appended still has its original <code class="chip">next</code>. Isn't that a bug?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>It looks like one, but it isn't — because of <em>why the loop stops</em>.</p>
+      <p>Each iteration <strong>pops one and pushes one, unless <code class="chip">node-&gt;next</code> is null.</strong> So the heap can only become empty on an iteration where <strong>nothing was pushed</strong> — which means the last appended node was already the tail of its own list. It's self-terminating.</p>
+      <p>Contrast that with the two-list merge: its loop is <code class="chip">while (a &amp;&amp; b)</code>, which <strong>stops while one list still has nodes</strong>, so you <em>must</em> attach the rest. The difference is the termination condition.</p>
+      <p>That said — <strong>I'd probably still write the terminator.</strong> The guarantee is implicit, and it evaporates the moment someone changes the loop to, say, "pop exactly N times." One line is cheap insurance.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Trace it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Using <code class="chip">[1,4]</code>, <code class="chip">[1,3]</code>, <code class="chip">[2,6]</code> — expected <code class="chip">[1,1,2,3,4,6]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>step</th><th>heap (top first)</th><th>output</th></tr></thead>
+        <tbody>
+          <tr><td>seed</td><td>1(L0) 1(L1) 2(L2)</td><td>—</td></tr>
+          <tr><td>pop 1(L0), push 4</td><td>1(L1) 2(L2) 4(L0)</td><td>1</td></tr>
+          <tr><td>pop 1(L1), push 3</td><td>2(L2) 3(L1) 4(L0)</td><td>1 1</td></tr>
+          <tr><td>pop 2(L2), push 6</td><td>3(L1) 4(L0) 6(L2)</td><td>1 1 2</td></tr>
+          <tr><td>pop 3(L1), L1 done</td><td>4(L0) 6(L2)</td><td>1 1 2 3</td></tr>
+          <tr><td>pop 4(L0), L0 done</td><td>6(L2)</td><td>1 1 2 3 4</td></tr>
+          <tr class="highlight-row"><td>pop 6(L2), L2 done</td><td>empty → stop</td><td><span class="answer-cell">1 1 2 3 4 6</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>Notice the heap size:</strong> it sits at 3 while every list still has nodes, and only shrinks once lists run out. It never approaches <code class="chip">N</code>.</p>
+      <p>The row that matters is the last one: I pop <code class="chip num">6</code>, which was already the tail of its list, so nothing is pushed, the heap empties, and the result ends correctly on its own. That matches.</p>
+      <p>Edge cases: <strong>an empty array</strong> seeds nothing, the loop never runs, and I return <code class="chip">dummy.next</code>, which is null. <strong>All-null lists</strong> are the same, via the <code class="chip">if (p)</code> guard.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if two nodes have the same value?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The heap doesn't guarantee which one comes out first</strong> — it isn't a stable structure.</p>
+      <p>For this problem <strong>that's harmless</strong>, because the output is judged on values, and the value sequence is identical either way.</p>
+      <p>But I'd flag it if the nodes carried anything beyond the key — <strong>merging timestamped log streams</strong>, for instance, where reordering same-millisecond events changes the meaning. The fix is a tiebreaker: carry the list index alongside the pointer, and on equal values prefer the lower index.</p>
+      <p>The general test is: <strong>do equal keys carry information other than the key?</strong> If yes, you need stability.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time: <code class="chip">O(N log k)</code>.</strong> Every node is pushed once and popped once — <code class="chip">2N</code> heap operations — and each costs <code class="chip">O(log k)</code>, because <strong>the heap never exceeds <code class="chip">k</code></strong>. The <code class="chip">log</code> is over <code class="chip">k</code>, not <code class="chip">N</code>, and that's exactly what the invariant buys.</p>
+      <p><strong>Space: <code class="chip">O(k)</code></strong> for the heap.</p>
+      <p>Two things to add. <strong>Divide and conquer is genuinely competitive</strong>: same complexity, slightly fewer comparisons, and about the same speed in practice.</p>
+      <p><strong>But the heap wins on one variant</strong>: if you only need the first <code class="chip">M</code> elements, it just stops after <code class="chip">M</code> pops, essentially independent of <code class="chip">N</code>. <strong>The heap is a streaming algorithm; the pairwise merge is a batch one.</strong></p>
+      <p>And one honest caveat: <strong>for small <code class="chip">k</code>, like ten lists, the naive fold-left merge is actually faster</strong> — its small constant beats the heap overhead.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Strong session. Three things.</p>
+      <p>You <strong>named the invariant and derived correctness from it</strong> — the heap holds each list's current minimum. That's the whole proof, and it explains the <code class="chip">O(k)</code> space and the <code class="chip">log</code> over <code class="chip">k</code>.</p>
+      <p>You <strong>caught the missing terminator and argued it correctly</strong>, including the contrast with the two-list merge, and then said you'd write the line anyway. That's the mature answer.</p>
+      <p>And you knew <strong>where each approach actually wins</strong>, including that the naive one wins for small <code class="chip">k</code>. Most people can recite the complexities; far fewer will tell me the asymptotically worse algorithm is the right choice in a real regime.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 9.19, 25.21, 30.17, 45.26, 53.15, 61.93, 100.71, 105.41, 152.97, 194.08, 197.29, 230.74, 266.78, 274.76, 319.81, 321.31, 360.55, 363.54, 402.63, 456.67]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

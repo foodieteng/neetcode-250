@@ -134,8 +134,9 @@
     </div>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
     </p>
+    <audio controls preload="metadata" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong><code>Node</code> 裡存 <code>key</code> 看起來重複(雜湊表的 key 不就是它嗎?),但它是必要的。</strong>
@@ -528,16 +529,16 @@ cap=10,put 10 萬個不同 key：new = 100002, delete = 100002 → 洩漏 <span 
     </p>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>(兩種寫法都在裡面)
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>(兩種寫法都在裡面)
     </p>
 
     <p style="margin:20px 0 10px;"><strong>這個寫法自己的陷阱</strong>(同樣是 6 萬條隨機序列實測):</p>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;"><table class="sc-table">
       <thead><tr><th>寫錯的地方</th><th>失敗率</th><th>最小反例 / 症狀</th></tr></thead>
       <tbody>
         <tr><td class="mono">(正確版)</td><td class="mono ok">0 / 900476</td><td class="ok">—</td></tr>
-        <tr class="fail"><td class="mono">先 <code>pop_back()</code> 再讀 <code>rbegin()</code> 取 key</td><td class="mono fail"><strong>直接崩潰</strong></td><td class="fail"><strong>ASan:<code>heap-use-after-free</code></strong>,<code>READ of size <span class="nm">8</span></code> 發生在下一次 <code>splice</code>,<br>釋放者正是 <code>pop_back</code> —— <b><code>rbegin()</code> 讀的是已經被還掉的節點</b></td></tr>
+        <tr class="fail"><td class="mono">先 <code>pop_back()</code> 再讀 <code>rbegin()</code> 取 key</td><td class="mono fail"><strong>直接崩潰</strong></td><td class="fail"><strong>ASan:<code>heap-use-after-free</code></strong>,<code>READ of size <span class="nm">8</span></code> 發生在下一次 <code>splice</code>,<br>釋放者正是 <code>pop_back</code> —— <b><code>rbegin()</code> 本身讀到的是新的最後一個節點(還活著),key 抄錯了 —— 真正被還掉的那個節點留在 map 裡,下一次 <code>splice</code> 才踩到</b></td></tr>
         <tr><td class="mono"><code>put</code> 命中忘了 <code>l.erase(it-&gt;second)</code></td><td class="mono fail">23032 / 785559</td><td class="mono"><code>LRUCache(<span class="nm">2</span>) put(<span class="nm">1,72</span>) put(<span class="nm">0,9</span>) put(<span class="nm">1,26</span>) put(<span class="nm">2,1</span>) get(<span class="nm">0</span>)→<span class="nm">9</span></code>(應為 <code>-<span class="nm">1</span></code>)<br><b>ASan 乾淨</b> —— 純邏輯錯,舊節點變成永遠淘汰不掉的孤兒</td></tr>
         <tr><td class="mono"><code>splice</code> 寫成 <code>l.splice(l.end(), ...)</code></td><td class="mono fail">13985 / 828943</td><td class="mono"><code>LRUCache(<span class="nm">2</span>) put(<span class="nm">0,3</span>) put(<span class="nm">3,53</span>) get(<span class="nm">0</span>) put(<span class="nm">1,4</span>) get(<span class="nm">0</span>)→-<span class="nm">1</span></code>(應為 <code><span class="nm">3</span></code>)<br>方向反了 = 每次使用都把它推向受害端,<b>LRU 整個顛倒</b></td></tr>
         <tr><td class="mono"><code>get</code> 命中不 <code>splice</code></td><td class="mono fail">7988 / 861805</td><td class="mono"><code>LRUCache(<span class="nm">2</span>) put(<span class="nm">1,23</span>) put(<span class="nm">3,9</span>) get(<span class="nm">1</span>) put(<span class="nm">2,53</span>) get(<span class="nm">3</span>)→<span class="nm">9</span></code>(應為 <code>-<span class="nm">1</span></code>)<br><b>退化成 FIFO</b>,結構完全正常 —— 最難察覺</td></tr>
@@ -545,7 +546,7 @@ cap=10,put 10 萬個不同 key：new = 100002, delete = 100002 → 洩漏 <span 
         <tr><td class="mono"><code>get</code> 寫成 <code>m[key]</code> 而不是 <code>m.find</code></td><td class="mono fail">未定義行為</td><td class="fail"><code>operator[]</code> 會<strong>替不存在的 key 插入一筆</strong>,值是<b>未初始化的 iterator</b>;<br>之後拿去 <code>splice</code> 就是 UB,而且 <code>m</code> 會無限膨脹</td></tr>
         <tr><td class="mono"><code>m.size() &gt; cap</code>(<code>cap</code> 是 <code><span class="kw2">int</span></code>)</td><td class="mono">編譯警告</td><td class="mono"><code>-Wsign-compare</code>:<code>unsigned long</code> vs <code><span class="kw2">int</span></code>。<br><code>cap ≥ <span class="nm">1</span></code> 所以實際安全,想乾淨就寫 <code>(size_t)cap</code> 或把 <code>cap</code> 宣告成 <code>size_t</code></td></tr>
       </tbody>
-    </table>
+    </table></div>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>注意前兩列的對比:會崩潰的那個反而是好消息。</strong>
@@ -646,7 +647,7 @@ for (auto&amp; x : l) x *= 2;                  <span class="sc-trace__out">// �
 
     <h3 style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;margin:26px 0 10px;">// 三個容易踩的雷</h3>
 
-    <table class="sc-table">
+    <div style="overflow-x:auto;"><table class="sc-table">
       <thead><tr><th>雷</th><th>為什麼</th><th>怎麼寫</th></tr></thead>
       <tbody>
         <tr>
@@ -665,7 +666,7 @@ for (auto&amp; x : l) x *= 2;                  <span class="sc-trace__out">// �
           <td class="mono ok">std::prev(l.end())<br>或直接用 l.back() / l.pop_back()</td>
         </tr>
       </tbody>
-    </table>
+    </table></div>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>前兩個雷是同一件事的兩種症狀</strong> —— <b><code>list</code> 沒有「第 k 個」這個概念</b>,

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 146 · LRU Cache</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 520px) { .page { padding: 16px 16px 56px; } .turn { gap: 10px; padding: 6px 0; } pre.code { padding: 14px 14px; font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 146 · LRU Cache · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Build an <strong>LRU cache</strong> with a fixed capacity. <code class="chip">get(key)</code> returns its value, or <code class="chip num">-1</code>. <code class="chip">put(key, value)</code> inserts or updates. When it's full and a new key comes in, you drop the one used least recently. Both operations should be O(1) on average.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong></p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> does a <code class="chip">get</code> count as a use? So if I read a key, does that move it away from the chopping block?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Both <code class="chip">get</code> and <code class="chip">put</code> count as a use.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. And a <code class="chip">get</code> that misses — does that count as a use too?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>No. A miss just returns <code class="chip num">-1</code>. Nothing changes.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That helps. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Capacity is between <code class="chip num">1</code> and <code class="chip num">3000</code>, with up to 2 × 10<sup>5</sup> calls.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the thing that shapes the whole design: <strong>this problem asks for two things at once, and no single data structure gives me both.</strong></p>
+      <p>A hash map <strong>finds a key fast</strong>, but it has no order, so it can't tell me who's oldest. A list <strong>keeps the order of use</strong>, but it can't find a key without walking it.</p>
+      <p>So I want both, side by side — and what ties them together is that <strong>the hash map stores the address of the list node.</strong> One lookup, and I'm holding the node.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> Capacity <code class="chip num">2</code>. <code class="chip">put(1,1)</code>, <code class="chip">put(2,2)</code> — now it's full. Then <code class="chip">get(1)</code> returns <code class="chip num">1</code>, and that read makes key <code class="chip num">1</code> the newest. So when <code class="chip">put(3,3)</code> comes in, the one that gets dropped is key <code class="chip num">2</code>, not key <code class="chip num">1</code>. That single <code class="chip">get</code> decided who lived.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> keep just a hash map with a timestamp per entry. That's correct and easy — I'd use it as my reference when I test — but eviction scans every entry, so it's O(capacity).</p>
+      <p>A <code class="chip">vector</code> for the order is no better: moving one item shifts everything after it, and <strong>every index saved in the map now points at the wrong element.</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>This problem reminds me of</strong> the classic hash-map-plus-doubly-linked-list pairing.</p>
+      <p><strong>One thing worth flagging</strong> — it has to be <strong>doubly</strong> linked. Even with the node in hand, a <em>singly</em> linked list can't unhook it without the node <em>before</em> it, and finding that means walking from the head. <strong>The O(1) lookup gets cancelled out by an O(n) unhook.</strong> With <code class="chip">prev</code> pointers, a node can unhook itself.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        list : oldest .......... newest&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// order lives here</span><br>
+        map&nbsp; : key -&gt; address of that node&nbsp;&nbsp;<span class="label">// speed lives here</span><br>
+        <br>
+        <span class="label">// invariant</span><br>
+        the list is <span class="em">always</span> sorted by last-use time.<br>
+        nothing computes it — every operation just maintains it.<br>
+        <br>
+        <span class="label">// the two moves</span><br>
+        use(node) = unhook(node), then attach at the newest end<br>
+        evict()&nbsp;&nbsp; = take the node at the oldest end,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove it from <span class="em">both</span> structures
+      </div>
+      <p>One: the list holds the order, oldest to newest, and the map holds key → node address.<br>
+      Two: a use unhooks the node and attaches it at the newest end.<br>
+      Three: an eviction takes the node at the oldest end and removes it from <strong>both</strong> structures.</p>
+      <p>The invariant is that the list is always sorted by last use — nothing computes it, every operation just maintains it. <strong>There's a trade-off:</strong> two structures and two pointers per node, to turn eviction from a scan into a single step.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>One thing worth flagging</strong> about the plan: whenever a node enters or leaves, <strong>both structures must change together.</strong> Unhook a node but forget the key, and the map keeps a ghost entry. Erase the key but forget to unhook, and the list keeps an orphan that can never be evicted.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Alright, let me code this up.</strong> I'll write the hand-rolled list first, so the mechanics are visible.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Node</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> key, val;
+    <span class="typ">Node</span> *prev, *next;
+    <span class="com">// store the key too -- eviction needs it for cache.erase()</span>
+    <span class="typ">Node</span>(<span class="typ">int</span> k = <span class="num2">0</span>, <span class="typ">int</span> v = <span class="num2">0</span>) : <span class="fn">key</span>(k), <span class="fn">val</span>(v), <span class="fn">prev</span>(<span class="kw">nullptr</span>), <span class="fn">next</span>(<span class="kw">nullptr</span>) {}
+};
+
+<span class="kw">class</span> <span class="typ">LRUCache</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> sz;
+    <span class="typ">Node</span> *left, *right;              <span class="com">// left end = oldest, right end = newest</span>
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">Node</span>*&gt; cache;  <span class="com">// key -&gt; node address (this pointer is the bridge)</span>
+
+    <span class="com">// attach just before right = newest end. zero ifs: right always exists</span>
+    <span class="typ">void</span> <span class="fn">insert</span>(<span class="typ">Node</span>* node) {
+        <span class="typ">Node</span> *back = right-&gt;prev;
+        back-&gt;next = node;
+        node-&gt;prev = back;
+        node-&gt;next = right;
+        right-&gt;prev = node;
+    }
+
+    <span class="com">// unhook in place. only a doubly linked list can: the predecessor is node-&gt;prev</span>
+    <span class="typ">void</span> <span class="fn">remove</span>(<span class="typ">Node</span>* node) {
+        <span class="typ">Node</span> *prev = node-&gt;prev, *next = node-&gt;next;
+        prev-&gt;next = next;
+        next-&gt;prev = prev;
+    }
+
+    <span class="typ">LRUCache</span>(<span class="typ">int</span> capacity) {
+        sz = capacity;
+        left = <span class="kw">new</span> <span class="typ">Node</span>();            <span class="com">// two sentinels, linked to each other</span>
+        right = <span class="kw">new</span> <span class="typ">Node</span>();
+        left-&gt;next = right;
+        right-&gt;prev = left;
+    }
+
+    <span class="typ">int</span> <span class="fn">get</span>(<span class="typ">int</span> key) {
+        <span class="kw">if</span> (cache.<span class="fn">find</span>(key) == cache.<span class="fn">end</span>()) <span class="kw">return</span> -<span class="num2">1</span>;  <span class="com">// a miss is not a use</span>
+
+        <span class="typ">Node</span> *node = cache[key];
+        <span class="fn">remove</span>(node);                    <span class="com">// unhook</span>
+        <span class="fn">insert</span>(node);                    <span class="com">// attach at the newest end</span>
+        <span class="kw">return</span> node-&gt;val;
+    }
+
+    <span class="typ">void</span> <span class="fn">put</span>(<span class="typ">int</span> key, <span class="typ">int</span> value) {
+        <span class="kw">if</span> (cache.<span class="fn">find</span>(key) != cache.<span class="fn">end</span>()) {
+            <span class="typ">Node</span> *node = cache[key];
+            node-&gt;key = key;              <span class="com">// redundant: node-&gt;key already equals key</span>
+            node-&gt;val = value;
+            <span class="fn">remove</span>(node);
+            <span class="fn">insert</span>(node);                <span class="com">// a put counts as a use too</span>
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">if</span> (cache.<span class="fn">size</span>() == sz) {
+            <span class="typ">Node</span> *lru = left-&gt;next;     <span class="com">// no search for the victim: it's at the left end</span>
+            <span class="fn">remove</span>(lru);                 <span class="com">// clean both structures --</span>
+            cache.<span class="fn">erase</span>(lru-&gt;key);      <span class="com">// this is what node-&gt;key is for</span>
+        }
+
+        <span class="typ">Node</span> *node = <span class="kw">new</span> <span class="typ">Node</span>(key, value);
+        <span class="fn">insert</span>(node);
+        cache[key] = node;
+    }
+};</pre>
+      <p>Two dummy nodes, <code class="chip">left</code> and <code class="chip">right</code>, sit at the ends, so <code class="chip">node-&gt;prev</code> and <code class="chip">node-&gt;next</code> are never null — that's why <code class="chip">remove</code> and <code class="chip">insert</code> have <strong>zero <code class="chip">if</code> statements</strong>. A <code class="chip">get</code> hit unhooks the node and re-attaches it before <code class="chip">right</code>, the newest end. A <code class="chip">put</code> on an existing key updates the value and moves it the same way. Otherwise, if the cache is full, the victim is simply <code class="chip">left-&gt;next</code>.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">Node</code> stores the <code class="chip">key</code>, which looks redundant. It isn't: at eviction I reach the node <em>from the list side</em>, and only the node knows which key to erase from the map.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You said there's a shorter version. Show me.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Right. <code class="chip">std::list</code> is already a doubly linked list, so I drop my <code class="chip">Node</code> class and both dummies, and the map stores a <strong>list iterator</strong> instead. The front is the newest end. The one call that makes this work is <code class="chip">splice</code>: passing the same list as source and target <strong>moves a node inside the list</strong> in O(1).</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">LRUCache</span> {
+<span class="kw">public</span>:
+    <span class="typ">LRUCache</span>(<span class="typ">int</span> capacity) {
+        cap = capacity;
+    }
+
+    <span class="typ">int</span> <span class="fn">get</span>(<span class="typ">int</span> key) {
+        <span class="kw">auto</span> it = m.<span class="fn">find</span>(key);                  <span class="com">// must use find: m[key] would insert a missing key</span>
+        <span class="kw">if</span> (it == m.<span class="fn">end</span>()) <span class="kw">return</span> -<span class="num2">1</span>;           <span class="com">// a miss is not a use; l is untouched</span>
+        l.<span class="fn">splice</span>(l.<span class="fn">begin</span>(), l, it-&gt;second);     <span class="com">// second arg is l itself = move within the list</span>
+        <span class="kw">return</span> it-&gt;second-&gt;second;              <span class="com">// it stays valid after the move; m needs no update</span>
+    }                                             <span class="com">//   it-&gt;second is an iterator; -&gt; reaches the pair</span>
+
+    <span class="typ">void</span> <span class="fn">put</span>(<span class="typ">int</span> key, <span class="typ">int</span> value) {
+        <span class="kw">auto</span> it = m.<span class="fn">find</span>(key);
+        <span class="kw">if</span> (it != m.<span class="fn">end</span>()) l.<span class="fn">erase</span>(it-&gt;second);   <span class="com">// hit: drop the old node first, or it's orphaned</span>
+        l.<span class="fn">push_front</span>(<span class="fn">make_pair</span>(key, value));     <span class="com">// always insert at the newest end (front)</span>
+        m[key] = l.<span class="fn">begin</span>();
+
+        <span class="kw">if</span> (m.<span class="fn">size</span>() &gt; cap) {                     <span class="com">// insert first, then check -&gt; so &gt; not &gt;=</span>
+            <span class="typ">int</span> k = l.<span class="fn">rbegin</span>()-&gt;first;           <span class="com">// copy the key FIRST</span>
+            l.<span class="fn">pop_back</span>();                        <span class="com">//   pop_back returns nothing and frees the node</span>
+            m.<span class="fn">erase</span>(k);                          <span class="com">// clean both structures together</span>
+        }
+    }
+
+<span class="kw">private</span>:
+    <span class="typ">int</span> cap;
+    <span class="typ">list</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; l;                     <span class="com">// order: front newest, back oldest</span>
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">list</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt;::iterator&gt; m;   <span class="com">// speed: key -&gt; the node's iterator</span>
+};</pre>
+      <p>Two details. <strong>First — after <code class="chip">splice</code>, the map needs no update.</strong> <code class="chip">splice</code> only rewires links, the node never moves, so the stored iterator stays valid.</p>
+      <p><strong>Second — the order of the eviction lines matters.</strong> <code class="chip">pop_back</code> returns nothing and frees the node, so I copy the key <em>first</em>. Swap them, and the evicted key stays in the map pointing at freed memory — AddressSanitizer reports <code class="chip">heap-use-after-free</code> at the next <code class="chip">splice</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on the official example, capacity <code class="chip num">2</code>, with the <code class="chip">std::list</code> version, where front is newest and back is oldest. Expected: <code class="chip">1, -1, -1, 3, 4</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;white-space:nowrap;">
+        <thead><tr><th>call</th><th>l (front = newest … back = oldest)</th><th>map keys</th><th>returns</th></tr></thead>
+        <tbody>
+          <tr><td>LRUCache(2)</td><td>[]</td><td>{}</td><td>—</td></tr>
+          <tr><td>put(1, 1)</td><td>[(1,1)]</td><td>{1}</td><td>—</td></tr>
+          <tr><td>put(2, 2)</td><td>[(2,2), (1,1)]</td><td>{1, 2}</td><td>— full</td></tr>
+          <tr class="highlight-row"><td>get(1)</td><td>[(1,1), (2,2)]</td><td>{1, 2}</td><td><span class="answer-cell">1</span></td></tr>
+          <tr><td>put(3, 3)</td><td>[(3,3), (1,1)]</td><td>{1, 3}</td><td>— dropped 2</td></tr>
+          <tr><td>get(2)</td><td>[(3,3), (1,1)]</td><td>{1, 3}</td><td><span class="answer-cell">-1</span></td></tr>
+          <tr><td>put(4, 4)</td><td>[(4,4), (3,3)]</td><td>{3, 4}</td><td>— dropped 1</td></tr>
+          <tr><td>get(1)</td><td>[(4,4), (3,3)]</td><td>{3, 4}</td><td><span class="answer-cell">-1</span></td></tr>
+          <tr><td>get(3)</td><td>[(3,3), (4,4)]</td><td>{3, 4}</td><td><span class="answer-cell">3</span></td></tr>
+          <tr><td>get(4)</td><td>[(4,4), (3,3)]</td><td>{3, 4}</td><td><span class="answer-cell">4</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">get(1)</code>: before it, key <code class="chip num">1</code> sits at the back, next to go. That single <code class="chip">get</code> splices it to the front, so <code class="chip">put(3,3)</code> drops key <code class="chip num">2</code> instead. <strong>One read changed who was evicted.</strong> After that nothing touches key <code class="chip num">1</code>, so it drifts back and <code class="chip">put(4,4)</code> drops it. That matches.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's also test corner cases.</strong></p>
+      <p>• capacity <code class="chip num">1</code>: every new key evicts the previous one.<br>
+      • <code class="chip">get</code> on an empty cache: finds nothing, returns <code class="chip num">-1</code>.<br>
+      • <code class="chip">get</code> miss: returns early, list untouched.<br>
+      • <code class="chip">put</code> on an existing key: updated and moved, no eviction.</p>
+      <p>Beyond that, I'd cross-check both versions against the timestamp brute force, comparing <strong>the full newest-to-oldest order after every operation</strong> — because a missing move-to-front keeps the contents right and only gets the order wrong.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time is O(1) average</strong> for both operations: one hash lookup plus a fixed number of pointer writes. The list half is worst-case O(1); the "average" comes only from the hash map.</p>
+      <p><strong>Space is O(capacity)</strong> — one node and one map entry per key.</p>
+      <p>The worst case is every <code class="chip">put</code> being a new key on a full cache, so every call evicts. That's still O(1), because the victim is always the node at the oldest end.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Oh, one more thing —</em> two notes on the versions.</p>
+      <p><strong>Memory.</strong> Version 1 never <code class="chip">delete</code>s the evicted node. LeetCode won't catch it, but the leak grows with evictions — capacity <code class="chip num">10</code> with <code class="chip num">100,000</code> distinct keys leaks <code class="chip num">100,002</code> nodes, about <code class="chip num">2.3 MB</code>. <code class="chip">std::list</code> frees its own nodes, so nothing is left outstanding.</p>
+      <p><strong>A speedup.</strong> On a hit, <code class="chip">put</code> can edit the value in place and <code class="chip">splice</code>, instead of <code class="chip">erase</code> + <code class="chip">push_front</code> — about 8× faster on hitting puts.</p>
+      <p>It all works because <strong>list iterators stay valid</strong>; a <code class="chip">vector</code> breaks that.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Three things stood out.</p>
+      <p>You explained <strong>why the list has to be doubly linked</strong> — a singly linked one cancels out the fast lookup.</p>
+      <p>You caught that <code class="chip">splice</code> <strong>doesn't move the node</strong>, so the stored iterator survives, and tied that to why a <code class="chip">vector</code> can't work here.</p>
+      <p>And you knew <code class="chip">pop_back</code> <strong>frees the node before you can read it</strong>, so the key has to be copied first — a bug that only blows up later, somewhere else. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 17.9, 30.8, 34.73, 38.9, 44.51, 48.49, 55.45, 83.16, 101.06, 126.73, 151.9, 184.37, 205.91, 208.5, 250.25, 253.8, 301.31, 334.16, 365.38, 395.35, 433.99]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

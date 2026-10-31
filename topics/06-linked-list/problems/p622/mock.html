@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 622 · Design Circular Queue</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 520px) { .page { padding: 16px 16px 56px; } .turn { gap: 10px; padding: 6px 0; } pre.code { padding: 14px 14px; font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 622 · Design Circular Queue · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design a <strong>circular queue</strong> with a fixed capacity <code class="chip">k</code>. It needs six operations: <code class="chip">enQueue</code>, <code class="chip">deQueue</code>, <code class="chip">Front</code>, <code class="chip">Rear</code>, <code class="chip">isEmpty</code>, and <code class="chip">isFull</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> There are six contracts, and the edge behaviour matters more than the algorithm here.</p>
+      <p><code class="chip">enQueue</code> and <code class="chip">deQueue</code> <strong>return a bool</strong> — <code class="chip">false</code> when the queue is full or empty, rather than throwing. And <code class="chip">Front</code> and <code class="chip">Rear</code> on an empty queue return <code class="chip num">-1</code>. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct on all four.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Two more. <strong>What's the range on <code class="chip">k</code></strong> — can it be zero? And <strong>what values can be stored?</strong> I'm asking because <code class="chip num">-1</code> is the sentinel, and I want to know whether it collides with a real value.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">k</code> is between 1 and 1000, so never zero. Values are 0 to 1000, with up to 3000 calls.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — <strong>values are non-negative, so <code class="chip num">-1</code> is unambiguous</strong>, and <code class="chip">k</code> is at least 1. I'll come back to <code class="chip">k = 0</code> at the end, because there "empty" and "full" become the same thing.</p>
+      <p><strong>One thing worth flagging:</strong> <code class="chip num">0</code> is a legal value. So I can't use "this slot holds 0" to mean the slot is unused — emptiness has to live entirely in the index bookkeeping.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> use a plain array and shift everything down after each dequeue — that's O(n) per operation.</p>
+      <p><strong>This problem reminds me of</strong> the <strong>ring buffer</strong> pattern: keep a fixed array of size <code class="chip">k</code> and let the indices wrap with a single <code class="chip">% capacity</code>. The array stays linear; "circular" lives entirely in the arithmetic. So the real design question is: <strong>which variables do I keep as state?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What are the options?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The obvious one is <code class="chip">front</code> and <code class="chip">rear</code>, and it's ambiguous.</p>
+      <div class="insight-box">
+        <span class="label">// k = 3, state = (front, rear)</span><br>
+        empty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: front = 0, rear = 0&nbsp;&nbsp;<span class="label">// equal</span><br>
+        after 3 enqueues : front = 0, rear = 0&nbsp;&nbsp;<span class="label">// equal again, but <span class="em">FULL</span></span><br>
+        <span class="label">// same two numbers, opposite states</span>
+      </div>
+      <p>With <code class="chip">k = 3</code>, an empty queue has both at <code class="chip num">0</code> — and after three enqueues, they're both at <code class="chip num">0</code> again, but now it's full. Same two numbers, opposite states.</p>
+      <p>Two standard fixes: <strong>waste a slot</strong>, or carry a boolean <code class="chip">full</code> flag. But both are <em>repairs</em>. The ambiguity comes from <code class="chip">rear</code> being a <em>position</em>, and positions wrap. <strong>What if I store <code class="chip">size</code> instead?</strong></p>
+      <p><strong>Counts don't wrap.</strong> Empty is <code class="chip">size == 0</code>, full is <code class="chip">size == capacity</code> — opposite ends of a number line, never both true. And <code class="chip">rear</code> is still recoverable: <code class="chip">(front + size - 1) % capacity</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Are the other two wrong, then?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>No — <strong>all three are correct.</strong> It's a design preference, not a correctness argument.</p>
+      <p>The costs differ, though. <strong>Wasting a slot</strong> means array length and capacity are different numbers, so every modulo has to use <code class="chip">k+1</code>, and using <code class="chip">k</code> by accident is an easy mistake. <strong>The flag</strong> costs no space but must be updated in two places — and <strong>a state you must remember to synchronize is a state you can forget to synchronize.</strong></p>
+      <p><code class="chip">(front, size)</code> cost nothing and need no upkeep. That's why I'd pick them.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        first element&nbsp;&nbsp;q[front]<br>
+        next free slot&nbsp;q[(front + size) % capacity]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// skip the size occupied slots</span><br>
+        last element&nbsp;&nbsp;&nbsp;q[(front + size <span class="em">- 1</span>) % capacity]&nbsp;<span class="label">// one back from the free slot</span>
+      </div>
+      <p>One: the first element is at <code class="chip">front</code>.<br>
+      Two: the next free slot is <code class="chip">(front + size) % capacity</code> — skip the occupied slots.<br>
+      Three: the last element is one back from that, <code class="chip">(front + size - 1) % capacity</code>.</p>
+      <p><strong>One thing worth flagging</strong> is that <code class="chip num">-1</code> — without it, <code class="chip">Rear</code> reads the next free slot, which holds a <code class="chip num">0</code> or a stale value, both plausible-looking.</p>
+      <p>And <code class="chip">deQueue</code> <strong>doesn't touch the array at all</strong>: it just advances <code class="chip">front</code> and decrements <code class="chip">size</code>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. But you leave the old data sitting there? Doesn't that cause problems?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>No, because <strong>membership is defined purely by the indices.</strong> Slot <code class="chip">j</code> is in the queue exactly when <code class="chip">(j - front + k) % k &lt; size</code> — <strong>the stored value never appears in that test.</strong> A stale value just gets overwritten when the indices wrap around.</p>
+      <p>Clearing it would be worse: a pointless extra write, and writing <code class="chip num">0</code> to mean "empty" makes a real <code class="chip num">0</code> ambiguous.</p>
+      <p>That's also why every operation is <strong>O(1) in the worst case</strong> — no element is ever moved.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The state is front, size, and capacity, over a vector of exactly k slots.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MyCircularQueue</span> {
+<span class="kw">private</span>:
+    <span class="com">// state is just two things: where the head is, how many. rear is computed</span>
+    <span class="typ">int</span> size, front, capacity;
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; q;
+
+<span class="kw">public</span>:
+    <span class="typ">MyCircularQueue</span>(<span class="typ">int</span> k) {
+        q.<span class="fn">resize</span>(k, <span class="num2">0</span>);          <span class="com">// exactly k slots, none wasted</span>
+        size = <span class="num2">0</span>;
+        front = <span class="num2">0</span>;
+        capacity = k;
+    }
+
+    <span class="typ">bool</span> <span class="fn">enQueue</span>(<span class="typ">int</span> value) {
+        <span class="kw">if</span> (<span class="fn">isFull</span>()) <span class="kw">return</span> <span class="kw">false</span>;
+        <span class="com">// next free slot = count size slots forward from the head</span>
+        q[(front + size) % capacity] = value;
+        size++;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+    <span class="typ">bool</span> <span class="fn">deQueue</span>() {
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">return</span> <span class="kw">false</span>;
+        <span class="com">// move the boundary only; the old value stays until a wrap overwrites it</span>
+        front = (front + <span class="num2">1</span>) % capacity;
+        size--;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+    <span class="typ">int</span> <span class="fn">Front</span>() {
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">return</span> -<span class="num2">1</span>;
+        <span class="kw">return</span> q[front];
+    }
+
+    <span class="typ">int</span> <span class="fn">Rear</span>() {
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">return</span> -<span class="num2">1</span>;   <span class="com">// this guard is load-bearing</span>
+        <span class="com">// one back from the free slot -- that -1 can't be dropped</span>
+        <span class="kw">return</span> q[(front + size - <span class="num2">1</span>) % capacity];
+    }
+
+    <span class="com">// the two checks sit at opposite ends of a number line, never both true</span>
+    <span class="typ">bool</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> size == <span class="num2">0</span>; }
+    <span class="typ">bool</span> <span class="fn">isFull</span>()  { <span class="kw">return</span> size == capacity; }
+};</pre>
+      <p><code class="chip">enQueue</code> writes at <code class="chip">(front + size) % capacity</code>, then bumps <code class="chip">size</code>. <code class="chip">deQueue</code> moves <code class="chip">front</code> forward by one, mod capacity, and decrements <code class="chip">size</code>. <code class="chip">Front</code> and <code class="chip">Rear</code> return <code class="chip num">-1</code> when empty.</p>
+      <p>Two things worth pointing at. <code class="chip">enQueue</code> and <code class="chip">deQueue</code> <strong>call the public predicates</strong>, <code class="chip">isFull</code> and <code class="chip">isEmpty</code>, rather than re-implementing the check — so the guard and the reported state can never disagree. And <strong>every modulo sits behind a guard</strong>, which will matter in a second.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Trace it with <code class="chip">k = 5</code> through a wrap.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> Enqueue 10, 20, 30, dequeue twice, then enqueue 40 through 70. Expected: <code class="chip">front = 2</code>, <code class="chip">size = 5</code>, and the array reads <code class="chip">[60,70,30,40,50]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:470px;white-space:nowrap;">
+        <thead><tr><th>op</th><th>q[0..4]</th><th>front</th><th>size</th><th>wrote to</th></tr></thead>
+        <tbody>
+          <tr><td>enQueue(10)</td><td>10 · · · ·</td><td>0</td><td>1</td><td>(0+0)%5 = 0</td></tr>
+          <tr><td>enQueue(20)</td><td>10 20 · · ·</td><td>0</td><td>2</td><td>(0+1)%5 = 1</td></tr>
+          <tr><td>enQueue(30)</td><td>10 20 30 · ·</td><td>0</td><td>3</td><td>(0+2)%5 = 2</td></tr>
+          <tr><td>deQueue()</td><td>10 20 30 · ·</td><td>1</td><td>2</td><td>— array untouched</td></tr>
+          <tr><td>deQueue()</td><td>10 20 30 · ·</td><td>2</td><td>1</td><td>— array untouched</td></tr>
+          <tr><td>enQueue(40)</td><td>10 20 30 40 ·</td><td>2</td><td>2</td><td>(2+1)%5 = 3</td></tr>
+          <tr><td>enQueue(50)</td><td>10 20 30 40 50</td><td>2</td><td>3</td><td>(2+2)%5 = 4</td></tr>
+          <tr class="highlight-row"><td>enQueue(60)</td><td>60 20 30 40 50</td><td>2</td><td>4</td><td>(2+3)%5 = 0 · wrapped</td></tr>
+          <tr><td>enQueue(70)</td><td>60 70 30 40 50</td><td>2</td><td>5</td><td><span class="answer-cell">(2+4)%5 = 1 · full</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">enQueue(60)</code>: <code class="chip">front</code> is 2 and <code class="chip">size</code> is 3, so the slot is <code class="chip">(2+3) % 5 = 0</code>. It wraps, and overwrites the stale <code class="chip num">10</code> from the first dequeue, without anyone ever having cleared it. 70 lands in slot 1, and the queue is full. That matches.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You called the <code class="chip">Rear</code> guard "load-bearing." Why?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Because without it, an empty queue with <code class="chip">front == 0</code> computes <code class="chip">(0 + 0 - 1) % capacity</code>. <strong>C++ truncates toward zero</strong> — the sign follows the dividend — so <code class="chip">(-1) % 5</code> is <code class="chip num">-1</code>, not <code class="chip num">4</code>. That's <code class="chip">q[-1]</code>, out of bounds.</p>
+      <p>What makes it nasty is that <strong>it depends on <code class="chip">k</code></strong>. At <code class="chip">k = 1</code>, <code class="chip">(-1) % 1</code> is <code class="chip num">0</code> — in bounds. It doesn't crash or trip a sanitizer; it quietly returns a stale value from slot 0. So the same bug is <strong>invisible at <code class="chip">k = 1</code></strong>, and an out-of-bounds read at <code class="chip">k ≥ 2</code>.</p>
+      <p>Even with a safe modulo, I'd keep the guard — an empty queue owes the caller <code class="chip num">-1</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>How would you test this?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The input space is small enough to enumerate exhaustively.</strong> Six operations, and the state is two small integers. For <code class="chip">k</code> up to 4, I can generate every operation sequence up to length 7 and compare against a <code class="chip">std::deque</code> reference.</p>
+      <p>Two things I'd insist on. <strong>Compare the full queue contents after every single call</strong>, not just return values — a write-to-the-wrong-slot bug only surfaces several calls later. And <strong>assert every index is in bounds</strong>, because a bad index that lands in range, like the <code class="chip">k = 1</code> case, is silent otherwise.</p>
+      <p>Then top it up with large <code class="chip">k</code>, and a long run that wraps <code class="chip">front</code> many times.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time: O(1) worst case</strong> for every operation, not amortized — there's no hash table, so no rehashing. <strong>Space: exactly <code class="chip">k</code> ints</strong>, with no pointers and nothing to leak. <strong>Overflow isn't reachable:</strong> <code class="chip">front + size</code> peaks at 1999.</p>
+      <p><em class="pause">Oh, one more thing —</em> at <code class="chip">k = 0</code>, this code happens to be safe. <code class="chip">isEmpty</code> and <code class="chip">isFull</code> are <em>both</em> true, so every operation returns early and <strong>no modulo by zero is reached</strong>. Still, if the constraint were relaxed, I'd add an explicit <code class="chip">capacity == 0</code> guard, because relying on that is correct but fragile.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out.</p>
+      <p>You <strong>dissolved the full-versus-empty ambiguity instead of patching it</strong> — <em>positions wrap and counts don't</em>.</p>
+      <p>You were <strong>careful to say the other two approaches are correct</strong>, separating a correctness argument from a preference.</p>
+      <p>And your testing answer was the strongest part: <strong>checking the contents after every call</strong>, and knowing why the <code class="chip">k = 1</code> case slips past a sanitizer. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 11.85, 32.89, 35.21, 48.02, 56.61, 80.84, 108.85, 111.17, 155.49, 157.91, 188.6, 224.52, 230.47, 262.62, 299.98, 303.48, 340.94, 344.46, 390.37, 392.69, 434.18, 475.6]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

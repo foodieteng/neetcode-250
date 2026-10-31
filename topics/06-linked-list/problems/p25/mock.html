@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 25 · Reverse Nodes in k-Group</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 25 · Reverse Nodes in k-Group · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given the head of a linked list, reverse the nodes <code class="chip">k</code> <strong>at a time</strong> and return the modified list. If the number of nodes isn't a multiple of <code class="chip">k</code>, the leftover nodes at the end stay in their original order. You may not alter the values — only the links.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> Let me restate: <code class="chip">[1,2,3,4,5]</code> with <code class="chip">k = 2</code> gives <code class="chip">[2,1,4,3,5]</code> — the trailing <code class="chip num">5</code> is alone, so it stays.</p>
+      <p><strong>Are the leftovers left alone even if there are several of them?</strong> So with <code class="chip">k = 3</code>, the pair <code class="chip">4,5</code> is <em>not</em> reversed?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct, the entire remainder stays as-is.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>And <strong>what are the bounds on <code class="chip">n</code> and <code class="chip">k</code>?</strong> I'm asking because <code class="chip">k = 1</code> is a degenerate case worth thinking about, and <code class="chip">n</code>'s ceiling determines whether a recursive solution is safe.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">k</code> is at least 1, and at most <code class="chip">n</code>, and <code class="chip">n</code> is at most 5000.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. So <code class="chip">k = 1</code> is legal and means "reverse each single node" — a no-op on the output, but it's the case that maximizes how many groups there are. <strong>I'll use it as my stress case for anything that scales with the group count.</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The reversal itself is a solved problem — three pointers, flip one link per step. What's new is doing it repeatedly and stitching the groups together.</p>
+      <p><strong>This problem reminds me of</strong> plain recursion on a list: <strong>reverse the first <code class="chip">k</code>, and the rest of the list is the same problem.</strong></p>
+      <p>The nice part is <strong>where the join lands</strong>. After reversal, the node I came in on, <code class="chip">head</code>, is this group's <em>tail</em> — <strong>exactly the node that must point at whatever comes next.</strong> So the join is one line: <code class="chip">head-&gt;next = recurse(rest)</code>. Then I return <code class="chip">prev</code>, which is sitting on the new head of this group.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What's the base case?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Fewer than <code class="chip">k</code> nodes left — return the head untouched.</strong></p>
+      <p>And that's a pleasant coincidence: the base case <em>is</em> the "leftovers stay in original order" requirement. <strong>I don't need a special case for it at all.</strong></p>
+      <p>I'll also mention the alternative up front: <strong>an iterative version with a dummy node and a <code class="chip">tail</code> pointer</strong>. Same work, <code class="chip">O(1)</code> space instead of an <code class="chip">O(n/k)</code> stack. I'll write the recursive one because it's clearer, and come back to the tradeoff.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Each call does three things.</p>
+      <div class="insight-box">
+        <span class="label">// 1. is there a full group left? if not → return head unchanged</span><br>
+        <span class="label">// 2. reverse k links (the standard reversal)</span><br>
+        <span class="label">// 3. join and return</span><br>
+        after step 2:&nbsp;&nbsp;prev = old last node&nbsp;&nbsp;→ <span class="em">new head of this group</span> → return this<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curr = node k+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="em">start of the next group</span> → recurse on this<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;head = old first node → <span class="em">new tail of this group</span> → its next gets the recursion result
+      </div>
+      <p>One: check whether a full group is left; if not, return <code class="chip">head</code> unchanged.<br>
+      Two: reverse <code class="chip">k</code> links, exactly like the standard reversal.<br>
+      Three: join and return — <code class="chip">head-&gt;next</code> gets the recursion on <code class="chip">curr</code>, and I return <code class="chip">prev</code>.</p>
+      <p><strong>One thing worth flagging: recurse on <code class="chip">curr</code>, not <code class="chip">prev</code>.</strong> <code class="chip">prev</code> is still inside the group I just handled; passing it would re-process the same nodes and splice the result back into itself, <strong>which makes a cycle, and the recursion never terminates.</strong></p>
+      <p>For step one, I'll write the obvious check first — count the length — and come back to it. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. It's the plan line for line.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">ListNode</span>* <span class="fn">reverseKGroup</span>(<span class="typ">ListNode</span>* head, <span class="typ">int</span> k) {
+        <span class="com">// 1. count the length — correct, but it walks the WHOLE remaining list</span>
+        <span class="typ">int</span> n = <span class="num2">0</span>;
+        <span class="typ">ListNode</span> *tail = head;
+        <span class="kw">while</span> (tail) {
+            tail = tail-&gt;next;
+            n++;
+        }
+
+        <span class="com">// base case: fewer than k left → return as-is — exactly the "leftovers stay" rule</span>
+        <span class="kw">if</span> (n &lt; k) <span class="kw">return</span> head;
+
+        <span class="com">// 2. reverse exactly k links — the standard three-pointer reversal</span>
+        <span class="typ">ListNode</span> *prev = <span class="kw">nullptr</span>, *curr = head, *next = <span class="kw">nullptr</span>;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; k; i++) {
+            next = curr-&gt;next;
+            curr-&gt;next = prev;
+            prev = curr;
+            curr = next;
+        }
+
+        <span class="com">// 3. head is now this group's TAIL — hang the rest off it</span>
+        head-&gt;next = <span class="fn">reverseKGroup</span>(curr, k);
+
+        <span class="kw">return</span> prev;   <span class="com">// prev is this group's new head</span>
+    }
+};</pre>
+      <p><strong>One thing worth flagging is step one.</strong> I counted the whole remaining list, and <strong>the question being asked is "are there at least <code class="chip">k</code> nodes," not "how many nodes are there."</strong></p>
+      <p>Since every level re-walks everything below it, that's <code class="chip">n + (n−k) + (n−2k) + …</code> — <strong><code class="chip">O(n²/k)</code></strong>. At <code class="chip">k = 1</code> and <code class="chip">n = 5000</code>, that's about <strong>12.5 million pointer hops instead of 5000</strong>.</p>
+      <p>It's correct, but the fix is to stop after <code class="chip">k</code> steps — one loop change, and it becomes O(n).</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>How much does that cost in practice?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>At the stated ceiling, roughly <strong>16 milliseconds versus a fraction of one</strong> — so it passes comfortably either way. <strong>The bound is what's saving it, not the algorithm.</strong></p>
+      <p>Move the ceiling and it shows: going from <code class="chip num">1000</code> to <code class="chip num">2000</code> nodes takes it from about 1 ms to 3.5 ms. <strong>At <code class="chip">n = 10<sup>5</sup></code>, it's about five billion pointer hops</strong> — same code, same correctness, instant time-limit failure.</p>
+      <p>One nuance worth stating: <strong>this only bites for small <code class="chip">k</code></strong>. The <code class="chip">k</code> is in the denominator, so at <code class="chip">k = 500</code> there are only ten levels, and the redundant counting is negligible. <code class="chip">k = 1</code> <strong>is the worst case.</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Trace it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><code class="chip">[1,2,3,4,5]</code> with <code class="chip">k = 2</code> — expected <code class="chip">[2,1,4,3,5]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>level</th><th>action</th><th>prev</th><th>curr</th><th>head</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>reverse [1,2]</td><td>2</td><td>3</td><td>1 (now the tail)</td></tr>
+          <tr><td>2</td><td>reverse [3,4]</td><td>4</td><td>5</td><td>3 (now the tail)</td></tr>
+          <tr class="highlight-row"><td>3</td><td>only 1 node left → return 5</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>2</td><td>3-&gt;next = 5, return 4</td><td>4</td><td>—</td><td>—</td></tr>
+          <tr><td>1</td><td>1-&gt;next = 4, return 2</td><td><span class="answer-cell">2 · final head</span></td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The decision happens at level 3: only the <code class="chip num">5</code> is left, fewer than <code class="chip">k</code>, so the base case returns it untouched. Then the stack unwinds: <code class="chip">3-&gt;next = 5</code>, return <code class="chip num">4</code>; <code class="chip">1-&gt;next = 4</code>, return <code class="chip num">2</code>, the final head.</p>
+      <p><strong>Notice the two join lines are identical in shape</strong> — <strong>the call stack remembers each group's tail for me.</strong></p>
+      <p>Edge cases: <code class="chip">k = 1</code> reverses single nodes, a no-op, but recurses <code class="chip">n</code> deep. <code class="chip">k = n</code> reverses everything in one group, and the second call hits the base case immediately.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You mentioned <code class="chip">k=1</code> recursing <code class="chip">n</code> deep. Is that a problem?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Not at the stated bound, but I'd rather answer with a number than a shrug.</p>
+      <p>Depth is <code class="chip">n/k + 1</code>, so <code class="chip">k=1, n=5000</code> is about 5000 frames. <strong>The frame here is roughly 64 bytes</strong>, so that's <strong>about 313 KB against a default stack of around 8 MB</strong> — under four percent.</p>
+      <p>Where it <em>would</em> break is around <strong>130,000 frames</strong>. So again, the constraint is doing the work. If <code class="chip">n</code> could be 10<sup>6</sup>, I'd switch to the iterative version — which also fixes the quadratic count, since it has no levels to re-count from.</p>
+      <p>So the recursion is <strong>clearer code with two borrowed guarantees.</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Show me the iterative version briefly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Two things replace the call stack: a <strong>dummy node</strong>, because the first group changes the list's head and I need something to hang it off; and a <code class="chip">tail</code> <strong>pointer</strong> holding the previous group's tail.</p>
+<pre class="code"><span class="typ">ListNode</span>* <span class="fn">reverseKGroup</span>(<span class="typ">ListNode</span>* head, <span class="typ">int</span> k) {
+    <span class="typ">ListNode</span> <span class="fn">dummy</span>(<span class="num2">0</span>, head);
+    <span class="typ">ListNode</span>* tail = &amp;dummy;       <span class="com">// previous group's tail — a hand-rolled "call stack"</span>
+
+    <span class="kw">while</span> (<span class="kw">true</span>) {
+        <span class="com">// first check that k nodes remain</span>
+        <span class="typ">ListNode</span>* chk = tail;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; k &amp;&amp; chk; i++) chk = chk-&gt;next;
+        <span class="kw">if</span> (!chk) <span class="kw">break</span>;                <span class="com">// fewer than k left → leave them as-is, done</span>
+
+        <span class="typ">ListNode</span> *prev = <span class="kw">nullptr</span>, *curr = tail-&gt;next, *next = <span class="kw">nullptr</span>;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; k; i++) {
+            next = curr-&gt;next; curr-&gt;next = prev; prev = curr; curr = next;
+        }
+
+        <span class="typ">ListNode</span>* newTail = tail-&gt;next;   <span class="com">// old head = this group's new tail, stash it first</span>
+        tail-&gt;next-&gt;next = next;          <span class="com">// join the tail forward</span>
+        tail-&gt;next = prev;                <span class="com">// join the previous group to the new head</span>
+        tail = newTail;                    <span class="com">// next group continues from here</span>
+    }
+
+    <span class="kw">return</span> dummy.next;
+}</pre>
+      <p>The one thing to be careful about is <code class="chip">newTail</code>. Both join lines involve <code class="chip">tail-&gt;next</code> — the first <em>reads</em> it to find the group's new tail, the second <em>overwrites</em> it. <strong>So I stash it before touching anything</strong>, the same reason the reversal loop saves <code class="chip">next</code> before clobbering <code class="chip">curr-&gt;next</code>.</p>
+      <p>O(n) time, O(1) space. <strong>If this were production code with an unbounded <code class="chip">n</code>, this is the one I'd ship.</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time:</strong> the code as written is <strong><code class="chip">O(n²/k)</code></strong>, because of the full-length count. With the k-step check, or the iterative version, it's <code class="chip">O(n)</code>; each node is visited by the lookahead and by the reversal.</p>
+      <p><strong>Space:</strong> <code class="chip">O(n/k)</code> for the recursion, <code class="chip">O(1)</code> for the iterative one.</p>
+      <p>For testing, <strong>the input space is small enough to enumerate</strong>: every <code class="chip">n</code> from 0 to 12, every <code class="chip">k</code> from 1 up past <code class="chip">n</code>, against a reference that reverses slices of a vector.</p>
+      <p>The variant I'd specifically test for is <strong><code class="chip">n</code> being an exact multiple of <code class="chip">k</code></strong>. If someone writes the base case as <code class="chip">n &lt;= k</code>, that's the <em>only</em> input class that breaks — and the standard example, with <code class="chip">k=2</code>, won't catch it, because it ends with a remainder.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good session. Three things.</p>
+      <p>You <strong>caught the quadratic before I had to point at it</strong>, and you explained it as a mismatch between the question being asked and the work being done — "are there at least <code class="chip">k</code>" versus "how many are there."</p>
+      <p>You <strong>quantified the borrowed guarantees</strong> instead of hand-waving: stack depth in bytes, the point where it breaks, what happens if the bound moves.</p>
+      <p>And your test plan named the input class that a specific off-by-one would break, and noted the canonical example misses it. <strong>Designing the test around the bug, not the happy path, is the part most people skip.</strong></p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 16.12, 38.05, 41.62, 52.63, 58.12, 72.28, 109.18, 111.5, 138.19, 180.4, 218.41, 221.4, 263.78, 266.1, 309.25, 314.52, 356.03, 359.1, 393.51, 444.07]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
