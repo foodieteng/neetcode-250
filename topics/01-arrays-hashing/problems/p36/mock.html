@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 36 · Valid Sudoku</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 36 · Valid Sudoku · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Determine if a 9×9 Sudoku board is valid. Only filled cells are checked: each row, each column, and each 3×3 box must have the digits <code class="chip num">1–9</code> with no repetition. It need not be solvable.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> So there are <em>three independent no-duplicate constraints</em> — row, column, and 3×3 box — and empty cells are <code class="chip">'.'</code>, which I skip? And I only need validity, not a full solution?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct. Just validity.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then the crux is mapping a cell <code class="chip">(r,c)</code> to its box. Two cells can be far apart yet share a box — like <code class="chip">(0,0)</code> and <code class="chip">(2,2)</code>, which are both in the top-left box.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about the cleanest structure.</em></p>
+      <p><strong>This problem reminds me of</strong> duplicate detection with hash sets — seen-before checks are exactly what a set is for. Here there are three independent constraints, so I keep <strong>three families of sets</strong>: one per row, one per column, one per box.</p>
+      <p>I do a single pass, and for each filled cell I check all three and insert. The box index is <code class="chip">r/3*3 + c/3</code> — integer division flattens the 3×3 grid of boxes into <code class="chip num">0..8</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// row[9], col[9], box[9] as sets of digits</span><br>
+        for r in 0..8, c in 0..8:<br>
+        &nbsp;&nbsp;if board[r][c] == '.': continue<br>
+        &nbsp;&nbsp;b = <span class="em">r/3*3 + c/3</span><br>
+        &nbsp;&nbsp;if d in row[r] or col[c] or box[b]: <span class="em">return false</span><br>
+        &nbsp;&nbsp;insert d into all three<br>
+        return true
+      </div>
+      <p>One: keep nine row sets, nine column sets, and nine box sets.<br>
+      Two: scan every cell, skipping <code class="chip">'.'</code>, and compute its box index.<br>
+      Three: if the digit is already in its row, column, or box set, return <code class="chip">false</code>; otherwise insert it into all three.</p>
+      <p><strong>Two things worth flagging.</strong> First, I <em>check before inserting</em> — otherwise I'd always find the digit I just inserted, and flag every cell as a duplicate. Second, the box formula: <code class="chip">r/3</code> and <code class="chip">c/3</code> each give a band from <code class="chip num">0</code> to <code class="chip num">2</code>, combined as <code class="chip">band_row*3 + band_col</code>.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me write it.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">isValidSudoku</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board) {
+        <span class="typ">vector</span>&lt;<span class="typ">unordered_set</span>&lt;<span class="typ">char</span>&gt;&gt; row(<span class="num2">9</span>), col(<span class="num2">9</span>), box(<span class="num2">9</span>);
+
+        <span class="kw">for</span> (<span class="typ">int</span> r = <span class="num2">0</span>; r &lt; <span class="num2">9</span>; r++) {
+            <span class="kw">for</span> (<span class="typ">int</span> c = <span class="num2">0</span>; c &lt; <span class="num2">9</span>; c++) {
+                <span class="kw">if</span> (board[r][c] == <span class="str">'.'</span>) <span class="kw">continue</span>;       <span class="com">// skip empty cells</span>
+
+                <span class="typ">int</span> boxId = r / <span class="num2">3</span> * <span class="num2">3</span> + c / <span class="num2">3</span>;       <span class="com">// which box (r,c) is in</span>
+                <span class="typ">char</span> digit = board[r][c];
+
+                <span class="kw">if</span> (row[r].<span class="fn">count</span>(digit) || col[c].<span class="fn">count</span>(digit)
+                    || box[boxId].<span class="fn">count</span>(digit)) <span class="kw">return</span> <span class="kw">false</span>;
+
+                row[r].<span class="fn">insert</span>(digit);
+                col[c].<span class="fn">insert</span>(digit);
+                box[boxId].<span class="fn">insert</span>(digit);
+            }
+        }
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+};</pre>
+      <p>Three vectors of nine sets, then a double loop over the board. Each filled cell gets its <code class="chip">boxId</code> and its <code class="chip">digit</code>, one lookup in each of the three sets, and then three inserts.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">boxId</code> line, <code class="chip">r / 3 * 3 + c / 3</code>. It relies on integer division truncating first, so the <code class="chip">*&nbsp;3</code> can't cancel the <code class="chip">/&nbsp;3</code>. And the three sets are fully symmetric, and <code class="chip">||</code> short-circuits, so a hit returns immediately without checking the rest.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> a box conflict: <code class="chip">(0,0)=5</code>, <code class="chip">(0,1)=3</code>, <code class="chip">(1,0)=6</code>, then <code class="chip">(2,2)=5</code>. Expected <code class="chip">false</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:400px;">
+        <thead><tr><th>cell</th><th>boxId</th><th>check</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>(0,0)=5</td><td>0</td><td>all empty</td><td>insert</td></tr>
+          <tr><td>(0,1)=3</td><td>0</td><td>no 3</td><td>insert</td></tr>
+          <tr><td>(1,0)=6</td><td>0</td><td>no 6</td><td>insert</td></tr>
+          <tr class="highlight-row"><td>(2,2)=5</td><td>0</td><td>box[0] has 5</td><td><span class="answer-cell">false</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the last one: <code class="chip">(2,2)</code> maps to box <code class="chip num">0</code>, just like <code class="chip">(0,0)</code>, so <code class="chip">box[0]</code> already holds a <code class="chip num">5</code>, and I return <code class="chip">false</code>. That's the whole point of the box formula.</p>
+      <p>Corner cases:</p>
+      <p>• An all-<code class="chip">'.'</code> board is valid.<br>
+      • A valid full board returns <code class="chip">true</code>.<br>
+      • A duplicate in a single row or column is caught the same way.<br>
+      All check out.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Time is O(81) = O(1)</strong> for the fixed board — each of the 81 cells does constant work. <strong>Space is O(1)</strong> too, for the 27 sets. Generalized to an <code class="chip">N×N</code> board, it's O(N²).</p>
+      <p><em class="pause">One more thing —</em> since digits are only <code class="chip num">1–9</code>, I could replace each set with a 9-bit <strong>bitmask</strong> in an <code class="chip">int</code>: <code class="chip">&amp;</code> to check, <code class="chip">|=</code> to insert — dropping the hashing overhead entirely. And this same structure powers the pruning in a backtracking Sudoku <em>solver</em>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out: three symmetric set families for three constraints, deriving the box index as a 2D-to-1D flatten, and knowing the bitmask optimization, plus the link to the solver. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.56, 32.17, 35.0, 48.67, 82.79, 126.2, 128.96, 164.14, 197.63, 231.9]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
