@@ -7,7 +7,7 @@ description: Use this skill when the user pastes a NeetCode/LeetCode problem int
 
 ## Site layout
 
-Static HTML notebook at the NeetCode250 repo root. Content is organized by the **18 NeetCode 250 categories** (`CHAPTERS` in the generator). Each category holds a set of problems. **Default layout is 3-page study card per problem:**
+Static HTML notebook at the NeetCode250 repo root, organized by the **18 NeetCode 250 categories** (`CHAPTERS` in the generator). **3-page study card per problem:**
 
 ```
 topics/<NN>-<slug>/
@@ -74,7 +74,7 @@ Runs first and blocks everything else, because every page quotes its numbers. Th
 
 | Agent | Owns |
 | --- | --- |
-| **B1 · 動畫** | Write `assets/js/viz/<pid>-<algo>.js` from the Trace section, then run the headless-Chrome screenshot loop itself (940 + 720, a mid-step and the final step) and **keep iterating until the layout passes**. Hand it the full geometry rules from Integration step 6 — the header-vs-cell gap, the 620px floor, the `.sc-viz__cvwrap` requirement. Return the JS path + the widths/steps it verified. |
+| **B1 · 動畫** | Write `assets/js/viz/<pid>-<algo>.js` from the Trace section, then run the headless-Chrome screenshot loop itself (940 + 720, a mid-step and the final step) and **keep iterating until the layout passes**. Hand it Integration steps 5–6 + the Animation rules verbatim. Return the JS path + the widths/steps it verified. |
 | **B2 · mock + 語音** | Write the transcript directly as `mock.html` (the `leetcode-mock-png` dialogue spec + dark template, no PNG render), write `mock.script.json`, run `scripts/make_mock_audio.py` → `mock.mp3`, screenshot-check 880 + 390. Hand it the fact sheet + the exact C++ + Integration step 7 verbatim. |
 
 These two touch disjoint files and neither reads the other's output, so they parallelize cleanly.
@@ -82,6 +82,13 @@ These two touch disjoint files and neither reads the other's output, so they par
 ### PHASE C · 三頁與收尾(main thread, never delegated)
 
 Write `index.html` / `code.html` / `review.html` yourself, then flip status → `generate_chapters.py` → commit.
+
+### Wall-clock discipline(跑快一點)
+
+- **A 跑的同時,主線程先搭骨架。** 加 `PROBLEMS` 條目、鋪好三頁的 chrome(nav / mast / pageind / pager / summary-bar + 空 section)和 `mock.html` 外殼 — sheet 一到只剩填內容。
+- **每個 A agent 給預算:單項檢查 ≤ ~90 秒。** 空間大就用編譯過的 C++ 窮舉,不用 Python;尺寸取預算內跑得完的,回報實際測的組數。五個驗完的變體勝過十一個驗一半的。
+- **Sheet 一到,B1 + B2 在同一則訊息發出。** 語音合成已是 4 路並發(8 分鐘 mp3 約 1 分鐘)。
+- **截圖同一個 session 抓完**:一個寬度開一次頁面,mid-step 和 final 在同一次裡抓,不要每張圖重啟瀏覽器。
 
 ### 🚫 Never parallelize these
 
@@ -156,7 +163,9 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    | `mock.script.json` | the spoken adaptation, one entry per dialogue turn |
    | `mock.mp3` | the two-voice audio built by `scripts/make_mock_audio.py` |
 
-   Write the transcript straight into `mock.html`, following the `leetcode-mock-png` skill's dialogue spec (UMPIRE structure, signature phrases, simple-to-say English, Python-trace before any dry-run table) and its dark template — just skip the PNG render. If the problem has **two implementations**, the mock covers **both**. The mock's code boxes use the **same LeetCode layout** as `code.html` (see *C++ code layout* below) — paste, never re-indent by hand. Screenshot-check `mock.html` at ~880 and ~390 widths (code-box overflow scrolls inside the box; sticky audio bar doesn't cover text). Problems built before this change still carry a `mock.png` + 🎤 link — when touching one, transcribe it into `mock.html` and delete the PNG.
+   Write the transcript straight into `mock.html`, following the `leetcode-mock-png` skill's dialogue spec (UMPIRE structure, signature phrases, simple-to-say English, Python-trace before any dry-run table) and its dark template — just skip the PNG render.
+
+   **M — match 講演算法類型,絕不引另一題 LeetCode。**「This problem reminds me of」後面接的是 pattern 的名字和它的機制(a greedy exchange argument / a sliding-window count / a monotonic stack / binary search on the answer …),再用一句話說這題為什麼符合那個 pattern 的使用條件。不說 "this is like LeetCode 322" — 面試裡引題號不真實,聽的人也未必做過那題。此規則管 `mock.html` 全文和語音;三頁學習卡之間的互相連結(筆記站導航)不受限。 If the problem has **two implementations**, the mock covers **both**. The mock's code boxes use the **same LeetCode layout** as `code.html` (see *C++ code layout* below) — paste, never re-indent by hand. Screenshot-check `mock.html` at ~880 and ~390 widths (code-box overflow scrolls inside the box; sticky audio bar doesn't cover text). Problems built before this change still carry a `mock.png` + 🎤 link — when touching one, transcribe it into `mock.html` and delete the PNG.
 
    **`mock.script.json` — 廣播劇改編, not a transcript reading:**
    ```json
@@ -201,7 +210,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    ```
    (e.g. `feat(01/P1): Two Sum — one-pass hash map`)
 
-## Three sub-page contracts (default)
+## Three sub-page contracts
 
 All three pages use `assets/css/study-card.css` and `<body class="study-card">`. Each page has:
 - Top nav strip `.sc-topnav` (Home / <NN> category / P<num>  ·  原題 LeetCode link)
@@ -330,7 +339,7 @@ Restrained industrial-mono look. **The palette is exactly three layers:**
 2. **No "Variants / 延伸題" section** — they belong in the 考卷's PART C 應用題.
 3. **Animations are white-bg solid-fill**, not dark outlined cells.
 4. **Re-run the generator** after any change to `PROBLEMS` / `CHAPTERS` — sidebars desync silently otherwise.
-5. **Never ship unverified C++** (Integration step 4). **Never ship mis-indented C++** — run `scripts/format_code.py` before every commit (step 8). No dead placeholder lines. The `// OUTPUT` trace must match the verified binary.
+5. **Never ship unverified or mis-indented C++** (steps 4 & 8); no dead placeholder lines; `// OUTPUT` must match the verified binary.
 6. **SVG `<text>` cannot contain `<strong>`/HTML tags** — use `<tspan font-weight="700">`. Screenshot-check figures.
 7. **Animation geometry, mobile wrap and screenshot verification all live in Animation rules #2/#3/#6/#7** — 940 + 720 widths on a mid-step, no bare `<canvas>`, headers clear of cells. Re-read them before writing any viz JS.
 8. **`mock.script.json` entries and `mock.html` `.turn` blocks bind by index** — same count, same order. After any transcript edit re-run `make_mock_audio.py`; never hand-edit `window.MOCK_CUES`. Never commit an unheard mp3.
