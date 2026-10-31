@@ -93,11 +93,35 @@ def main():
     if n_turns != len(entries):
         sys.exit(f"mock.html has {n_turns} .turn blocks, "
                  f"mock.script.json has {len(entries)} — must match 1:1")
+    # 頁面 = 語音: each .turn's prose (code blocks, tables, plan box removed)
+    # must say what its script entry says. Spoken numbers ("five, five, ten")
+    # vs chips ("[5,5,10]") shift word counts a little, so allow 35%.
+    def prose(turn_html):
+        t = re.sub(r'<pre class="code">.*?</pre>', '', turn_html, flags=re.S)
+        t = re.sub(r'<table.*?</table>', '', t, flags=re.S)
+        t = re.sub(r'<div class="insight-box">.*?</div>', '', t, flags=re.S)
+        t = re.sub(r'<div class="(avatar|role|stage)[^"]*">.*?</div>', '', t, flags=re.S)
+        t = re.sub(r'<[^>]+>', ' ', t)
+        return re.sub(r'\s+', ' ', t).strip()
+    body = html.split('<div class="page">', 1)[-1]
+    page_turns = [prose(t) for t in re.split(r'<div class="turn"[^>]*>', body)[1:]]
+    gaps = []
+    for i, (pt, e) in enumerate(zip(page_turns, entries)):
+        pw, sw = len(pt.split()), len(e["text"].split())
+        if sw >= 25 and abs(pw - sw) / sw > 0.35:
+            gaps.append(f"#{i} page {pw}w vs audio {sw}w")
+    if gaps:
+        sys.exit("頁面 ≠ 語音 — rewrite these turns' prose to match the script: "
+                 + "; ".join(gaps))
+
     long = [(i, len(e["text"].split())) for i, e in enumerate(entries)
             if len(e["text"].split()) > 160]
     if long:
         sys.exit("turns over 160 words (精簡、講重點、不報流水帳 — tighten them): "
                  + ", ".join(f"#{i} {w}w" for i, w in long))
+    if "--check" in sys.argv:
+        print(f"{pid}: OK — {len(entries)} turns, page prose matches script, no turn > 160 words")
+        return
     print(f"{pid}: {len(entries)} turns · interviewer={iv} · candidate={cd}")
 
     with tempfile.TemporaryDirectory() as tmp:

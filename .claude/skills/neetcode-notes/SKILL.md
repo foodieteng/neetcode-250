@@ -192,6 +192,8 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    - Hard cap: no turn > 150 words; whole script ~900–1,300 words (≈ 6–8 min). Length follows content — never pad. The Concept page's 「面試這樣說」 is the register to match. `make_mock_audio.py` refuses a turn over 160 words.
    - Every number spoken comes from the PHASE A fact sheet, same as the pages.
 
+   **頁面 = 語音(看到的就是聽到的)。** In every `.turn` of `mock.html`, the prose says exactly what that turn's script entry says — same sentences, same order, same corner cases — only in written form (`<code class="chip">[5,5,10]</code>` where the audio says "five, five, ten"). The `pre.code` block, `table.trace` and the plan `.insight-box` stay as visuals the audio talks *about*; they are not prose. Write the script first, then write each turn's prose from it — never keep a longer page version. `make_mock_audio.py` compares page prose vs script per turn and fails on a > 35% word-count gap.
+
    **`mock.html` — click-to-seek contract:** the kept transcript HTML plus: a sticky `<audio id="mock-audio" controls preload="metadata" src="mock.mp3">` at the top; every dialogue turn tagged `class="turn"`; before `</body>`: `<script>window.MOCK_CUES = []</script>` then `<script src="../../../../assets/js/mock-audio.js"></script>`. The shared player makes turns clickable (seek + play), highlights the playing turn, and keeps it scrolled into view. `make_mock_audio.py` fills `MOCK_CUES` — never hand-edit it.
 
    **Audio build:**
