@@ -212,7 +212,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
 
 ## Three sub-page contracts
 
-All three pages use `assets/css/study-card.css` and `<body class="study-card">`. Each page has:
+All three pages use `assets/css/study-card.css` and `<body class="study-card">`. Inline `code` on all three pages is the flat printed-ink style — when writing content, wrap standalone numbers in `<span class="nm">` and keywords in `<span class="kw2">` (identifiers stay bare). Each page has:
 - Top nav strip `.sc-topnav` (Home / <NN> category / P<num>  ·  原題 LeetCode link)
 - Masthead `.sc-mast` (chip "學習卡 · STUDY CARD" + title + subtitle "// <page name>" + difficulty/meta row)
 - Page indicator `.sc-pageind` (`PAGE N / 3 · <NAME>` with 3 dots, current is `is-active`)
@@ -246,7 +246,7 @@ Pager: PREV → `index.html` / NEXT → `review.html`.
 
 ### PAGE 3 · `review.html` — Review 複習考卷(exam paper)
 
-Components (`.xp-*`, `.xq*`) live in `study-card.css` — 定稿「C-2 藍圖框 × VS Code Light+」: steel (`--sc-steel`) 題章/卡框/解答橫條;exam 裡的行內 `code` 無底色直接印在紙上(本體 `#001080`,數字包 `<span class="nm">`,關鍵字包 `<span class="kw2">` — spans 寫死在 HTML,不用 JS)。**排版寧鬆勿擠**:題卡間 20px、題目 15/18、答案 17/18、行高 ≥ 2,元件間距已在 CSS 裡,不要在頁內用 style 縮小。
+Components (`.xp-*`, `.xq*`) live in `study-card.css` — 定稿「C-2 藍圖框 × VS Code Light+」: steel (`--sc-steel`) 題章/卡框/解答橫條;行內 `code` 用全站統一的 printed-ink 印字(見 palette 一節)。**排版寧鬆勿擠**:題卡間 20px、題目 15/18、答案 17/18、行高 ≥ 2,元件間距已在 CSS 裡,不要在頁內用 style 縮小。
 
 1. **考卷頭** · `.xp-strip`:單元/範圍/共 N 題/滿分 100 + 建議時間 + NAME/SCORE 填空線;其後 `.xp-tools` 全部展開/收合按鈕(頁尾 ~8 行 script)。
 2. **PART A · 觀念題** · 5 題 × 10 分。每題一張 `.xq`:`.xq__head`(`.xq__no` 題章 + `.xq__pts` 配分)→ `.xq__body` 題目 → `<details class="xq__ans">`「// 解答與說明 · ANSWER」下拉 → `.xq__ansbody`:一句粗體主張 → 空行 → 理由與反例,數字只引 PHASE A fact sheet。
@@ -317,7 +317,7 @@ Restrained industrial-mono look. **The palette is exactly three layers:**
 
 (Difficulty chips on the *category index pages* — Easy green `#6ba368` / Medium `#d4a017` / Hard `#c1440e` — are a `components.css` concern, separate from the study-card palette. Don't bring those colors into study-card pages.)
 
-(One sanctioned exception — the review 考卷 only: `study-card.css`'s exam components add steel `--sc-steel #33566b` for 題章/卡框/解答橫條, and the VS Code Light+ ink set inside `.xq code`(`#001080`, `.nm #098658`, `.kw2 #af00db`). These never appear outside `review.html`.)
+(One sanctioned extension — the **printed-ink set**: inline `code` on every study-card page is flat VS Code Light+ print — no background, no border(本體 `#001080`,獨立數字包 `<span class="nm">` `#098658`,關鍵字包 `<span class="kw2">` `#af00db`;spans 寫死在 HTML,不用 JS)。Steel `--sc-steel #33566b` marks the 考卷元件(題章/卡框/解答橫條)and the `.sc-trace` left bar + head。**米黃鋪底已退役**:never put a chip background under inline code, and never tint a trace block — 走讀 = 白紙 + 鋼青左線,printed like a note。The dark `.sc-codewindow` keeps its own Dark+ tokens.)
 
 ### Animation rules (learned the hard way)
 

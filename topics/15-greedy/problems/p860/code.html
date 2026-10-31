@@ -91,14 +91,14 @@
     <audio controls preload="none" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>官方範例 <code>[5,5,5,10,20]</code> → true、<code>[5,5,10,10,20]</code> → false,都正確。</strong>
+      <strong>官方範例 <code>[<span class="nm">5,5,5,10,20</span>]</code> → true、<code>[<span class="nm">5,5,10,10,20</span>]</code> → false,都正確。</strong>
       <b>和「每張 20 兩種找法都試」的記憶化搜尋對拍:窮舉長度 1–12 全部 797,160 組 + 隨機 20,000 組(長度 ≤ 200),0 筆不一致。</b>
     </div>
 
     <p style="margin:14px 0 10px;">三個小地方值得講清楚:</p>
     <ul>
-      <li><code>if (--pay5 &lt; 0)</code> 把「找一張 5」和「檢查夠不夠」寫在同一行:先扣,扣成負數就代表剛剛根本沒有 5。</li>
-      <li>20 元分支在 <code>pay10 &gt; 0</code> 但 <code>pay5 == 0</code> 時直接 false,沒有退回去試 5 + 5 + 5 —— 不用試,因為 5 是 0 張,三張 5 更不可能。</li>
+      <li><code><span class="kw2">if</span> (--pay5 &lt; <span class="nm">0</span>)</code> 把「找一張 5」和「檢查夠不夠」寫在同一行:先扣,扣成負數就代表剛剛根本沒有 5。</li>
+      <li>20 元分支在 <code>pay10 &gt; <span class="nm">0</span></code> 但 <code>pay5 == <span class="nm">0</span></code> 時直接 false,沒有退回去試 5 + 5 + 5 —— 不用試,因為 5 是 0 張,三張 5 更不可能。</li>
       <li>找不開時 <code>pay10</code> 已經先被扣了,但反正馬上 return,計數壞掉沒關係。</li>
     </ul>
   </section>
@@ -128,9 +128,9 @@
       <thead><tr><th>極端輸入(實跑)</th><th>結果</th><th>說明</th></tr></thead>
       <tbody>
         <tr><td>100,000 張 5</td><td class="mono ok">true</td><td><code>pay5</code> 最大 100,000,int 安全</td></tr>
-        <tr><td><code>(5,5,5,20)</code> × 25,000</td><td class="mono ok">true</td><td>每個 20 都只能走 5 + 5 + 5</td></tr>
-        <tr><td><code>(5,10)</code> × 50,000</td><td class="mono ok">true</td><td><code>pay5</code> 在 1 和 0 之間來回</td></tr>
-        <tr><td><code>[5]</code> / <code>[10]</code> / <code>[20]</code></td><td class="mono">true / false / false</td><td>第一位就付大鈔一定找不開</td></tr>
+        <tr><td><code>(<span class="nm">5,5,5,20</span>)</code> × 25,000</td><td class="mono ok">true</td><td>每個 20 都只能走 5 + 5 + 5</td></tr>
+        <tr><td><code>(<span class="nm">5,10</span>)</code> × 50,000</td><td class="mono ok">true</td><td><code>pay5</code> 在 1 和 0 之間來回</td></tr>
+        <tr><td><code>[<span class="nm">5</span>]</code> / <code>[<span class="nm">10</span>]</code> / <code>[<span class="nm">20</span>]</code></td><td class="mono">true / false / false</td><td>第一位就付大鈔一定找不開</td></tr>
       </tbody>
     </table>
   </section>
@@ -147,20 +147,20 @@
     <table class="sc-table">
       <thead><tr><th>改法</th><th>錯幾組</th><th>最小反例</th><th>過官方範例?</th></tr></thead>
       <tbody>
-        <tr><td>只在最後檢查 <code>pay5 &gt;= 0</code></td><td class="mono fail">45,536</td><td><code>[10,5]</code> → true(正解 false):向後面的客人借了一張 5</td><td class="mono fail">過</td></tr>
-        <tr><td>10 元分支 <code>&lt; 0</code> 寫成 <code>&lt;= 0</code></td><td class="mono fail">7,756</td><td><code>[5,10]</code> → false(正解 true):剛好用完最後一張 5 被當成不夠</td><td class="mono fail">過</td></tr>
-        <tr><td>20 沒有 10 就直接 false(忘了 5 + 5 + 5)</td><td class="mono fail">2,745</td><td><code>[5,5,5,20]</code> → false(正解 true)</td><td class="mono fail">過</td></tr>
-        <tr><td>20 先給 5 + 5 + 5,不夠才 10 + 5</td><td class="mono fail">2,729</td><td><code>[5,5,5,5,10,20,10]</code> → false(正解 true);長度 7 的反例共 4 組</td><td class="mono fail">過</td></tr>
-        <tr><td>5 + 5 + 5 分支 <code>&lt; 0</code> 寫成 <code>&lt;= 0</code></td><td class="mono fail">1,154</td><td><code>[5,5,5,20]</code> → false(正解 true)</td><td class="mono fail">過</td></tr>
-        <tr><td>忘了 <code>pay10++</code></td><td class="mono fail">10,000</td><td><code>[5,10,5,20]</code> → false(正解 true)</td><td class="mono">不過(範例 1)</td></tr>
-        <tr><td>10 + 5 分支沒檢查 <code>pay5</code></td><td class="mono fail">3,363</td><td><code>[5,10,20]</code> → true(正解 false)</td><td class="mono">不過(範例 2)</td></tr>
-        <tr><td>(不是錯)寫成 <code>if (pay10 &amp;&amp; pay5)</code> 10 + 5,否則 5 + 5 + 5</td><td class="mono ok">0</td><td>多一個判斷,結果完全一樣</td><td class="mono ok">過</td></tr>
+        <tr><td>只在最後檢查 <code>pay5 &gt;= <span class="nm">0</span></code></td><td class="mono fail">45,536</td><td><code>[<span class="nm">10,5</span>]</code> → true(正解 false):向後面的客人借了一張 5</td><td class="mono fail">過</td></tr>
+        <tr><td>10 元分支 <code>&lt; <span class="nm">0</span></code> 寫成 <code>&lt;= <span class="nm">0</span></code></td><td class="mono fail">7,756</td><td><code>[<span class="nm">5,10</span>]</code> → false(正解 true):剛好用完最後一張 5 被當成不夠</td><td class="mono fail">過</td></tr>
+        <tr><td>20 沒有 10 就直接 false(忘了 5 + 5 + 5)</td><td class="mono fail">2,745</td><td><code>[<span class="nm">5,5,5,20</span>]</code> → false(正解 true)</td><td class="mono fail">過</td></tr>
+        <tr><td>20 先給 5 + 5 + 5,不夠才 10 + 5</td><td class="mono fail">2,729</td><td><code>[<span class="nm">5,5,5,5,10,20,10</span>]</code> → false(正解 true);長度 7 的反例共 4 組</td><td class="mono fail">過</td></tr>
+        <tr><td>5 + 5 + 5 分支 <code>&lt; <span class="nm">0</span></code> 寫成 <code>&lt;= <span class="nm">0</span></code></td><td class="mono fail">1,154</td><td><code>[<span class="nm">5,5,5,20</span>]</code> → false(正解 true)</td><td class="mono fail">過</td></tr>
+        <tr><td>忘了 <code>pay10++</code></td><td class="mono fail">10,000</td><td><code>[<span class="nm">5,10,5,20</span>]</code> → false(正解 true)</td><td class="mono">不過(範例 1)</td></tr>
+        <tr><td>10 + 5 分支沒檢查 <code>pay5</code></td><td class="mono fail">3,363</td><td><code>[<span class="nm">5,10,20</span>]</code> → true(正解 false)</td><td class="mono">不過(範例 2)</td></tr>
+        <tr><td>(不是錯)寫成 <code><span class="kw2">if</span> (pay10 &amp;&amp; pay5)</code> 10 + 5,否則 5 + 5 + 5</td><td class="mono ok">0</td><td>多一個判斷,結果完全一樣</td><td class="mono ok">過</td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>八種改法裡有五種能騙過兩個官方範例 —— 這題範例太短,幾乎測不到東西。</strong>
-      <b>自己測時至少加:<code>[10,5]</code>(不能先欠)、<code>[5,10]</code>(剛好用完)、<code>[5,5,5,20]</code>(只能 5 + 5 + 5)、<code>[5,5,5,5,10,20,10]</code>(要先用 10)。</b>
+      <b>自己測時至少加:<code>[<span class="nm">10,5</span>]</code>(不能先欠)、<code>[<span class="nm">5,10</span>]</code>(剛好用完)、<code>[<span class="nm">5,5,5,20</span>]</code>(只能 5 + 5 + 5)、<code>[<span class="nm">5,5,5,5,10,20,10</span>]</code>(要先用 10)。</b>
     </div>
   </section>
 
