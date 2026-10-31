@@ -20,17 +20,14 @@ import subprocess
 import sys
 import tempfile
 
-IV_POOL = [
-    "en-US-AndrewMultilingualNeural",
-    "en-US-BrianMultilingualNeural",
-    "en-US-ChristopherNeural",
-    "en-US-GuyNeural",
-]
-CD_POOL = [
-    "en-US-AvaMultilingualNeural",
-    "en-US-EmmaMultilingualNeural",
-    "en-US-JennyNeural",
-    "en-US-AriaNeural",
+# The "Plus"-grade Microsoft multilingual voices (the natural ones — same
+# family NaturalReaders sells as Plus Voices). Two DIFFERENT people are drawn
+# per problem, seeded by the problem number; roles are not gender-fixed.
+PLUS_POOL = [
+    "en-US-AndrewMultilingualNeural",  # male,  warm, confident
+    "en-US-AvaMultilingualNeural",     # female, expressive, pleasant
+    "en-US-BrianMultilingualNeural",   # male,  approachable, casual
+    "en-US-EmmaMultilingualNeural",    # female, cheerful, conversational
 ]
 GAP = 0.45  # silence between turns, seconds
 
@@ -78,7 +75,7 @@ def main():
     pdir = sys.argv[1].rstrip("/")
     pid = os.path.basename(pdir)  # e.g. p860
     rng = random.Random(int(re.sub(r"\D", "", pid)))
-    iv, cd = rng.choice(IV_POOL), rng.choice(CD_POOL)
+    iv, cd = rng.sample(PLUS_POOL, 2)
 
     entries = json.load(open(f"{pdir}/mock.script.json", encoding="utf-8"))
     html_path = f"{pdir}/mock.html"

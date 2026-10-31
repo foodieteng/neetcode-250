@@ -177,7 +177,7 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    ```bash
    python3 scripts/make_mock_audio.py topics/<NN>-<slug>/problems/<pXXX>
    ```
-   edge-tts per turn → 0.45 s gaps → ffmpeg concat → `mock.mp3`, cue offsets written into `mock.html`. Voices draw per problem from two pools (interviewer Andrew/Brian/Christopher/Guy, candidate Ava/Emma/Jenny/Aria — Microsoft neural, the NaturalReaders-grade ones), seeded by the problem number: stable across re-runs, speakers always differ. Needs `speech.platform.bing.com` reachable (honors `HTTPS_PROXY`); if synthesis is blocked, ship the other three files and say so — **never commit a silent or partial mp3**.
+   edge-tts per turn → 0.45 s gaps → ffmpeg concat → `mock.mp3`, cue offsets written into `mock.html`. Voices: **two different people drawn from the Plus-grade Microsoft multilingual pool** (Andrew / Ava / Brian / Emma — the natural ones; same family NaturalReaders sells as Plus Voices), seeded by the problem number: stable across re-runs, roles not gender-fixed, speakers always differ. Don't add the older single-language voices (Guy/Jenny/Aria/Christopher…) back — noticeably more robotic. Needs `speech.platform.bing.com` reachable (honors `HTTPS_PROXY`); if synthesis is blocked, ship the other three files and say so — **never commit a silent or partial mp3**.
 
    **Spot-check (mandatory):** listen to the first ~20 s and one code-explanation turn; the script prints total duration (expect ≥ 8 min); click two turns in `mock.html` and confirm the seek lands on the right sentence.
 
