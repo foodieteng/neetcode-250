@@ -99,8 +99,9 @@ def main():
     def prose(turn_html):
         t = re.sub(r'<pre class="code">.*?</pre>', '', turn_html, flags=re.S)
         t = re.sub(r'<table.*?</table>', '', t, flags=re.S)
-        t = re.sub(r'<div class="insight-box">.*?</div>', '', t, flags=re.S)
-        t = re.sub(r'<div class="(avatar|role|stage)[^"]*">.*?</div>', '', t, flags=re.S)
+        t = re.sub(r'<div class="insight-box"[^>]*>.*?</div>', '', t, flags=re.S)
+        t = re.sub(r'<div class="(avatar|role|stage)[^"]*"[^>]*>.*?</div>', '', t, flags=re.S)
+        t = re.sub(r'<script.*?</script>', '', t, flags=re.S)
         t = re.sub(r'<[^>]+>', ' ', t)
         return re.sub(r'\s+', ' ', t).strip()
     body = html.split('<div class="page">', 1)[-1]

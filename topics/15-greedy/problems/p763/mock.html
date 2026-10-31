@@ -78,6 +78,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
 .insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
   font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
 .insight-box .label { color: var(--com); font-style: italic; }
 .insight-box .em { color: var(--chip-num); }
 </style>
@@ -141,7 +142,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= n &lt;= 500</code>, and only lowercase English letters.</p>
+      <p>The length is between <code class="chip num">1</code> and <code class="chip num">500</code>, and it's only lowercase English letters.</p>
     </div>
   </div>
 
@@ -149,9 +150,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Got it. Only 26 letters, so there are at most <code class="chip num">26</code> parts, one per letter. And the sizes always add up to <code class="chip">n</code>.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">"ababcbacadefegdehijhklij"</code> gives <code class="chip">[9,7,8]</code>. The first part is <code class="chip">"ababcbaca"</code>. It holds every a, b and c. None of those letters show up later. Then <code class="chip">"defegde"</code>, then <code class="chip">"hijhklij"</code>. Matches.</p>
-      <p><code class="chip">"eccbbbbdec"</code> gives <code class="chip">[10]</code>. The first <code class="chip">'e'</code> is at index 0 and the last one is at index 8. The last <code class="chip">'c'</code> is at 9. So the first part has to run to the end. One part, size 10.</p>
+      <p>Got it. Only 26 letters, so there are at most <code class="chip num">26</code> parts, and the sizes always add up to <code class="chip">n</code>.</p>
+      <p><strong>Let me check the first example.</strong> The long string gives <code class="chip">[9,7,8]</code>. The first part, <code class="chip">"ababcbaca"</code>, holds every a, b and c, and none of them show up later. Then the next two parts. Matches.</p>
+      <p>The second example, <code class="chip">"eccbbbbdec"</code>, gives <code class="chip">[10]</code>: the last <code class="chip">'c'</code> is at the very end, so the first part has to run all the way. One part, size 10.</p>
     </div>
   </div>
 
@@ -162,11 +163,10 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> try every set of cut points. There are <code class="chip">n − 1</code> gaps, so that's <code class="chip">2^(n−1)</code> choices, and each one needs a check. Fine for 10 letters, hopeless for 500.</p>
-      <p>A better but still slow idea: for each start, keep growing the part, and rescan to see if any letter inside also shows up later. That's O(n²). It works for 500, but we can do better.</p>
-      <p><strong>This problem reminds me of</strong> merging intervals. Each letter covers an interval, from its first copy to its last copy. Overlapping intervals must land in the same part. But I don't need to build the intervals. A greedy scan with the last positions does the same job.</p>
-      <p>The greedy: walk left to right. Keep <code class="chip">r</code>, the furthest last position of any letter I've seen in this part. That's the <strong>earliest</strong> place this part is allowed to end. When <code class="chip">i</code> reaches <code class="chip">r</code>, cut right there. Cutting earlier is not allowed, because some letter still has a copy ahead. Cutting later only makes this part bigger and gives fewer parts. So cutting as soon as possible gives the most parts.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> try every set of cut points — <code class="chip">2<sup>n−1</sup></code> choices. Fine for 10 letters, hopeless for 500. Rescanning each growing part is O(n²); it works, but we can do better.</p>
+      <p><strong>This problem reminds me of</strong> merging intervals. Each letter covers an interval, from its first copy to its last, and overlapping intervals must land in the same part. But a greedy scan with the last positions does the same job.</p>
+      <p>I keep <code class="chip">r</code>, the furthest last position of any letter in this part — the <strong>earliest</strong> place it may end. When <code class="chip">i</code> reaches <code class="chip">r</code>, I cut. Cutting earlier splits a letter; cutting later only gives fewer parts. So cutting as soon as possible gives the most parts.</p>
     </div>
   </div>
 
@@ -182,7 +182,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>I checked it. I wrote a brute force that tries every set of cut points. I compared it with the greedy on all <code class="chip num">265,719</code> strings over <code class="chip">{a,b,c}</code> up to length 11, and all <code class="chip num">349,524</code> strings over <code class="chip">{a,b,c,d}</code> up to length 9. Zero mismatches. Also, the best split was always unique. So I'll go with the greedy.</p>
+      <p>I checked it. I compared a brute force that tries every set of cut points against the greedy — every string over <code class="chip">{a,b,c}</code> up to length 11, and every string over <code class="chip">{a,b,c,d}</code> up to length 9. Over <code class="chip num">600,000</code> strings, <code class="chip num">0</code> mismatches, and the best split was always unique. So I'll go with the greedy.</p>
     </div>
   </div>
 
@@ -193,8 +193,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Here's the plan.</p>
-      <div class="insight-box" style="white-space:nowrap;overflow-x:auto;">
+      <p>Here's the plan, in three steps.</p>
+      <div class="insight-box">
         <span class="label">// pass 1: last[c] = last index of letter c</span><br>
         <span class="label">// pass 2: l = start of the current part</span><br>
         <span class="label">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r = furthest last[] seen in this part</span><br>
@@ -204,9 +204,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         &nbsp;&nbsp;if i == r:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// then check</span><br>
         &nbsp;&nbsp;&nbsp;&nbsp;add r - l + 1, then <span class="em">l = r + 1</span>
       </div>
-      <p><strong>Here, I'm using</strong> an array of 26 ints <strong>to keep track of</strong> the last index of each letter. Then <code class="chip">l</code> and <code class="chip">r</code> mark the current part.</p>
-      <p><strong>One thing worth flagging</strong> — it must be <code class="chip">max</code>, not a plain overwrite. <em class="pause">Let me walk through that.</em> Take <code class="chip">"aba"</code>. At <code class="chip">i = 0</code>, r becomes 2. At <code class="chip">i = 1</code>, the last <code class="chip">'b'</code> is 1. If I overwrite, r drops to 1, and I cut <code class="chip">"ab"</code> off. But the <code class="chip">'a'</code> at index 2 is still ahead. With <code class="chip">max</code>, r stays 2, and I get one part, <code class="chip">[3]</code>. The furthest end can only grow, never shrink.</p>
-      <p><strong>There's a trade-off here.</strong> I could build real intervals for each letter, sort them, and merge them. That's correct too, but it's more code and more steps. Two passes with a 26-slot array is simpler, and it's O(n) time.</p>
+      <p>First pass: record the last index of each letter in a 26-slot array <code class="chip">last</code>. Second pass: walk left to right, pushing <code class="chip">r</code> out to the furthest last index in the current part. Third: when <code class="chip">i == r</code>, record the size and start the next part right after <code class="chip">r</code>.</p>
+      <p><strong>One thing worth flagging</strong> — it must be <code class="chip">max</code>, not a plain overwrite. Take <code class="chip">"aba"</code>. After the first <code class="chip">'a'</code>, <code class="chip">r = 2</code>. The <code class="chip">'b'</code>'s last index is 1; overwrite, and r drops to 1, cutting <code class="chip">"ab"</code> off with an <code class="chip">'a'</code> still ahead. With <code class="chip">max</code>, r stays 2 and I get one part, <code class="chip">[3]</code>. The end only grows.</p>
+      <p><strong>The trade-off:</strong> I could build and merge real intervals, but two passes with a small array is simpler and O(n).</p>
       <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
@@ -226,7 +226,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright. Two loops.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">partitionLabels</span>(<span class="typ">string</span> s) {
@@ -251,13 +251,13 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> ans;
     }
 };</pre>
-      <p>That matches the plan line by line. The first loop just overwrites, so the last write wins. That gives the <em>last</em> index for free.</p>
-      <p><strong>One thing worth flagging</strong> — the order of the two lines in the second loop matters. Update <code class="chip">r</code> first, then check <code class="chip">i == r</code>. I checked small changes against all <code class="chip num">1,398,100</code> strings over <code class="chip">{a,b,c,d}</code> of length 1 to 10:</p>
-      <p>• Check <code class="chip">i == r</code> <em>before</em> updating r: <code class="chip num">1,292,424</code> wrong. Smallest is <code class="chip">"aa"</code>: it returns <code class="chip">[1,1]</code>, but the answer is <code class="chip">[2]</code>.<br>
-      • Overwrite <code class="chip">r = last[...]</code> instead of <code class="chip">max</code>: <code class="chip num">1,389,600</code> wrong. Smallest is <code class="chip">"aba"</code>: <code class="chip">[2,1]</code> instead of <code class="chip">[3]</code>.<br>
-      • <code class="chip">l = r</code> instead of <code class="chip">l = r + 1</code>: <code class="chip num">345,516</code> wrong. Smallest is <code class="chip">"ab"</code>: <code class="chip">[1,2]</code> instead of <code class="chip">[1,1]</code>.<br>
-      • Store the <em>first</em> copy instead of the last: <code class="chip num">1,398,036</code> wrong. Even <code class="chip">"aa"</code> returns <code class="chip">[1]</code>.<br>
-      • <code class="chip">i &gt;= r</code>, <code class="chip">l = i + 1</code>, starting at <code class="chip">r = -1</code>, or <code class="chip">last(26, -1)</code>: <code class="chip num">0</code> wrong. Those are all the same thing.</p>
+      <p>The first just overwrites <code class="chip">last</code> for each letter, so the last write wins — the <em>last</em> index for free. The second pushes <code class="chip">r</code> out with <code class="chip">max</code>, and when <code class="chip">i == r</code> it records <code class="chip">r - l + 1</code> and moves <code class="chip">l</code> past <code class="chip">r</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the order of those two lines matters: update <code class="chip">r</code> first, then check. I tested small changes against about <code class="chip num">1.4</code> million short strings:</p>
+      <p>• Checking before updating breaks on <code class="chip">"aa"</code>: <code class="chip">[1,1]</code> instead of <code class="chip">[2]</code>.<br>
+      • Overwriting instead of <code class="chip">max</code> breaks on <code class="chip">"aba"</code>.<br>
+      • <code class="chip">l = r</code> instead of <code class="chip">l = r + 1</code> breaks on <code class="chip">"ab"</code>.<br>
+      • Storing the <em>first</em> copy is wrong almost everywhere.<br>
+      • Cosmetic variants, like <code class="chip">i &gt;= r</code>, are never wrong.</p>
     </div>
   </div>
 
@@ -268,9 +268,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll use example 1, <code class="chip">n = 24</code>. Expected <code class="chip">[9,7,8]</code>. After pass 1:</p>
+      <p><strong>Let's dry-run</strong> example 1: <code class="chip">n = 24</code>, expected <code class="chip">[9,7,8]</code>. Pass 1 puts the last <code class="chip">'a'</code> at 8, the last <code class="chip">'e'</code> at 15, the last <code class="chip">'j'</code> at 23.</p>
 <pre class="code">last: a=<span class="num2">8</span> b=5 c=7 | d=14 e=<span class="num2">15</span> f=11 g=13 | h=19 i=22 j=<span class="num2">23</span> k=20 l=21</pre>
-      <p>For pass 2, I'll only show the rows where <code class="chip">r</code> changes or a cut happens. On every other row, r stays the same and nothing is cut.</p>
       <div style="overflow-x:auto;">
       <table class="trace" style="min-width:560px;">
         <thead><tr><th>i</th><th>s[i]</th><th>last</th><th>r after</th><th>i == r?</th><th>action</th></tr></thead>
@@ -288,14 +287,13 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </tbody>
       </table>
       </div>
-      <p>The highlighted row is <code class="chip">i = 8</code>. From <code class="chip">i = 1</code> to <code class="chip">7</code>, I see b's and c's. Their last copies are at 5 and 7, both inside 8. So r never moves. At <code class="chip">i = 8</code>, I hit the last <code class="chip">'a'</code>, and <code class="chip">i == r</code>. Every letter in <code class="chip">s[0..8]</code> is now done for good. So I cut a part of size 9.</p>
-      <p>In the last part, r moves three times in a row: 19, 22, 23. Each new letter pushes the end further out. Then nothing moves it again until <code class="chip">i = 23</code>, the end of the string.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• One letter, like <code class="chip">"a"</code>: r = 0 at <code class="chip">i = 0</code>, cut right away, return <code class="chip">[1]</code>.<br>
-      • All the same letter, 500 a's: r jumps to 499 at once, one cut at the end, return <code class="chip">[500]</code>.<br>
-      • All different, <code class="chip">"abc...z"</code>: every letter's last copy is itself, so I cut every time. Return 26 ones, the most parts possible.<br>
-      • <code class="chip">"eccbbbbdec"</code>: r goes 8, then 9 at <code class="chip">i = 1</code>, so the only cut is at the end. Return <code class="chip">[10]</code>.</p>
-      <p>Both official examples pass. I also ran <code class="chip num">50,000</code> random strings with <code class="chip">n</code> up to 500 against an O(n²) reference: <code class="chip num">0</code> mismatches.</p>
+      <p>The row that matters is <code class="chip">i = 8</code>. Before it I only see b's and c's, whose last copies are at 5 and 7 — inside 8, so <code class="chip">r</code> never moves. At 8 I hit the last <code class="chip">'a'</code>, <code class="chip">i == r</code>, and every letter so far is done. Cut, size <code class="chip num">9</code>. The other parts give <code class="chip num">7</code> and <code class="chip num">8</code>.</p>
+      <p><strong>Corner cases:</strong></p>
+      <p>• A single letter → <code class="chip">[1]</code>.<br>
+      • 500 of one letter → <code class="chip">[500]</code>.<br>
+      • All 26 different → 26 ones.<br>
+      • <code class="chip">"eccbbbbdec"</code> → <code class="chip">[10]</code>.</p>
+      <p>Both examples pass, and <code class="chip num">50,000</code> random strings matched an O(n²) reference.</p>
     </div>
   </div>
 
@@ -306,10 +304,9 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Let me think about complexity here.</em> There are two passes over the string. Each step does O(1) work: one array lookup, one max, one compare.</p>
-      <p><strong>The time complexity is</strong> O(n). <strong>The space complexity is</strong> O(1) extra. The <code class="chip">last</code> array is always 26 ints, no matter how long the string is. And the answer has at most 26 parts, so even the output is bounded by a constant.</p>
-      <p><strong>In the worst-case scenario</strong>, like 500 copies of one letter, the whole string is one part. It's still two passes, so it's still O(n).</p>
-      <p><em class="pause">Oh, one more thing</em> — the sizes always add up to <code class="chip">n</code>. Each cut starts the next part at <code class="chip">r + 1</code>, and the last cut is always at <code class="chip">n − 1</code>, because the last letter's last copy is the end of the string. So I never need a "leftover part" after the loop.</p>
+      <p><em class="pause">Let me think about complexity here.</em> There are two passes over the string, and each step is a lookup, a <code class="chip">max</code> and a compare. So <strong>time is</strong> O(n). <strong>Space is</strong> O(1) extra: the <code class="chip">last</code> array is always 26 ints, and the answer has at most 26 parts.</p>
+      <p><strong>The worst case</strong>, like 500 copies of one letter, is still just two passes.</p>
+      <p><em class="pause">Oh, one more thing</em> — the sizes always add up to <code class="chip">n</code>. The last cut always lands at the final index, because the last letter's last copy is the end of the string. So I never need a leftover part after the loop.</p>
     </div>
   </div>
 
@@ -317,7 +314,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You reframed the problem early: a part must reach the last copy of every letter in it, so <code class="chip">r</code> is the earliest legal end, and cutting right there gives the most parts. You showed the two lines in the loop are not free to change: update with <code class="chip">max</code> first, then check, and <code class="chip">"aba"</code> and <code class="chip">"aa"</code> show what breaks. And you saw the space is O(1), just 26 ints, with at most 26 parts. Good work.</p>
+      <p>Nicely done. Three things stood out. You reframed the problem early: a part must reach the last copy of every letter in it, so <code class="chip">r</code> is the earliest legal end, and cutting right there gives the most parts. You showed the two lines in the loop are not free to change — update with <code class="chip">max</code> first, then check — and <code class="chip">"aba"</code> and <code class="chip">"aa"</code> show what breaks. And you saw the space is constant, just 26 ints, with at most 26 parts. Good work.</p>
     </div>
   </div>
 

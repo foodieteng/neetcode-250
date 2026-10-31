@@ -78,6 +78,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
 .insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
   font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
 .insight-box .label { color: var(--com); font-style: italic; }
 .insight-box .em { color: var(--chip-num); }
 .tscroll { overflow-x: auto; margin: 12px 0; }
@@ -130,7 +131,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the rule only talks about <strong>direct neighbors</strong>. And it only works one way: higher rating means more candy. So if two neighbors have the <strong>same</strong> rating, there's no rule between them at all. One can have more, one can have less. Is that right?</p>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the rule only talks about <strong>direct neighbors</strong>, and it only works one way: higher rating means more candy. So if two neighbors have the <strong>same</strong> rating, there's no rule between them at all. One can have more, one can have less. Is that right?</p>
     </div>
   </div>
 
@@ -146,7 +147,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Good. Then I want to flag one thing early. Each child has <strong>two</strong> rules, one for the left neighbor and one for the right. The two-sided rule is what makes this hard. But each <strong>one-sided</strong> rule is easy. So my guess is I can solve each side alone, then combine them.</p>
+      <p>Good. Then I want to flag one thing early. Each child has <strong>two</strong> rules, one for the left neighbor and one for the right. The two-sided rule is what makes this hard, but each <strong>one-sided</strong> rule is easy. So my guess is I can solve each side alone, then combine them.</p>
       <p><strong>Are there any constraints on the input size?</strong></p>
     </div>
   </div>
@@ -155,7 +156,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">n</code> is from <code class="chip num">1</code> to <code class="chip num">2·10⁴</code>. Ratings are from <code class="chip num">0</code> to <code class="chip num">2·10⁴</code>.</p>
+      <p><code class="chip">n</code> goes from <code class="chip num">1</code> to <code class="chip num">2·10<sup>4</sup></code>. Ratings go from <code class="chip num">0</code> to <code class="chip num">2·10<sup>4</sup></code>.</p>
     </div>
   </div>
 
@@ -163,8 +164,9 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>So I want something close to O(n). <strong>Let me run through the example.</strong> Ratings <code class="chip">[1,0,2]</code>. The middle child is lowest, so it gets <code class="chip num">1</code>. Both ends are higher than the middle, so they each need <code class="chip num">2</code>. That's <code class="chip">[2,1,2]</code>, total <code class="chip num">5</code>. Matches.</p>
-      <p>Second example: <code class="chip">[1,2,2]</code>. First child gets <code class="chip num">1</code>, second gets <code class="chip num">2</code>. The third child has the same rating as the second, so no rule. It just gets <code class="chip num">1</code>. That's <code class="chip">[1,2,1]</code>, total <code class="chip num">4</code>. Matches too.</p>
+      <p>So I want something close to O(n). Quick check on the examples.</p>
+      <p><code class="chip">[1,0,2]</code>: the middle child is lowest and gets <code class="chip num">1</code>, both ends are higher so they each need <code class="chip num">2</code> — total <code class="chip num">5</code>. Matches.</p>
+      <p><code class="chip">[1,2,2]</code>: the third child ties the second, so there's no rule and it just gets <code class="chip num">1</code> — total <code class="chip num">4</code>. Matches too.</p>
     </div>
   </div>
 
@@ -175,9 +177,9 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> start everyone at <code class="chip num">1</code>, then keep scanning the line. Every time a rule is broken, bump that child up. Repeat until nothing changes. That gives the right answer, but on a long falling slope one pass only fixes one step. So it can take O(n) passes, which is O(n²) total. Too slow to be happy with.</p>
-      <p><strong>This problem reminds me of</strong> a two-sweep greedy pattern: build a lower bound from each side with one prefix-style scan, then combine the two. The answer at each spot depends on what's on the left and what's on the right. The trick there is one pass from each side, then combine. I'll do the same thing here: one greedy pass left-to-right for the left rule, one pass right-to-left for the right rule, and take the <code class="chip">max</code>.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach</strong> starts everyone at <code class="chip num">1</code> and keeps scanning, bumping any child who breaks a rule, until nothing changes. It's correct, but on a long falling slope each pass fixes only one step, so it's O(n²).</p>
+      <p><strong>This problem reminds me of</strong> a two-sweep greedy pattern: build a lower bound from each side with one scan, then combine them, because the answer at each spot depends on both the left and the right. So: one greedy pass left-to-right for the left rule, one pass right-to-left for the right rule, and take the <code class="chip">max</code>.</p>
     </div>
   </div>
 
@@ -189,7 +191,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p>Here's the plan.</p>
-      <div class="insight-box" style="white-space:nowrap;overflow-x:auto;">
+      <div class="insight-box">
         <span class="label">// c[i] = candies for child i, start all at 1</span><br>
         <span class="label">// pass 1, left → right: fix the LEFT rule</span><br>
         if ratings[i] &gt; ratings[i-1]: c[i] = c[i-1] + 1<br>
@@ -198,11 +200,10 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
         <span class="label">// answer</span><br>
         return sum(c)
       </div>
-      <p><strong>Here, I'm using</strong> one array <code class="chip">c</code> <strong>to keep track of</strong> the smallest legal candy count for each child so far.</p>
-      <p>Now, why is this the <strong>minimum</strong>, not just a valid answer? <em class="pause">Let me walk through that.</em> After pass 1, <code class="chip">c[i]</code> is the length of the rising run that ends at <code class="chip">i</code>. If five ratings in a row keep going up, the fifth child sits on top of a chain <code class="chip num">1 &lt; 2 &lt; 3 &lt; 4 &lt; 5</code>. <strong>Any</strong> valid answer must give that child at least <code class="chip num">5</code>. So pass 1 is a lower bound. Pass 2 gives the same kind of lower bound from the right side. The max of two lower bounds is still a lower bound. And the result follows both rules, so we can reach it. A lower bound we can reach is the optimum.</p>
-      <p>I like to picture it as terrain. Valleys get <code class="chip num">1</code>. Going uphill adds one each step. A peak gets climbed from both sides, so it takes the taller of the two climbs.</p>
-      <p><strong>One thing worth flagging</strong> — the second pass <strong>must</strong> go right-to-left. To fix child <code class="chip">i</code> against its right neighbor, I need <code class="chip">c[i+1]</code> to be final already. Going right-to-left means it is. If I go left-to-right, I read <code class="chip">c[i+1]</code> before it's fixed. On <code class="chip">[2,1,0]</code> that gives <code class="chip num">5</code>, but the answer is <code class="chip num">6</code>.</p>
-      <p><strong>There's a trade-off here.</strong> This uses O(n) extra space. There's an O(1)-space version that counts up-slopes and down-slopes in one pass. It's trickier to get right, so I'll start with the two-pass one and can talk about the other one after.</p>
+      <p>One: everyone starts at <code class="chip num">1</code> candy. Two: left to right, a child who beats its left neighbor gets one more than that neighbor. Three: right to left, a child who beats its right neighbor gets the <code class="chip">max</code> of what it has and one more than that neighbor. Then sum.</p>
+      <p>Why the <strong>minimum</strong>? Each pass measures a rising run that <strong>any</strong> valid answer must cover, so each is a lower bound, and their max is a lower bound we can reach.</p>
+      <p><strong>One thing worth flagging</strong> — the second pass <strong>must</strong> go right-to-left, so <code class="chip">c[i+1]</code> is already final; otherwise <code class="chip">[2,1,0]</code> gives <code class="chip num">5</code> instead of <code class="chip num">6</code>.</p>
+      <p>An O(1)-space version exists, but it's trickier.</p>
       <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
@@ -222,7 +223,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up. A candy array of ones, a forward loop for the left rule, a backward loop for the right rule, then <code class="chip">accumulate</code>.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="typ">int</span> <span class="fn">candy</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; ratings) {
@@ -240,8 +241,8 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
         <span class="kw">return</span> <span class="fn">accumulate</span>(c.<span class="fn">begin</span>(), c.<span class="fn">end</span>(), <span class="num2">0</span>);
     }
 };</pre>
-      <p>That matches the plan. <strong>One thing worth flagging</strong> — the <code class="chip">max</code> in the second loop is not just style. It's needed for correctness. Pass 1 may already have given child <code class="chip">i</code> a big number from a long climb on the left. If I just write <code class="chip">c[i] = c[i+1] + 1</code>, I throw that away. Take <code class="chip">[0,1,2,0]</code>. Pass 1 gives the <code class="chip num">2</code> a count of <code class="chip num">3</code>. Without <code class="chip">max</code>, pass 2 drops it to <code class="chip num">2</code>, and it's no longer more than its left neighbor. Total <code class="chip num">6</code> instead of <code class="chip num">7</code>.</p>
-      <p>Two small details. The second loop starts at <code class="chip">n - 2</code>, not <code class="chip">n - 1</code>, because it reads <code class="chip">ratings[i + 1]</code>. Starting at <code class="chip">n - 1</code> would read past the end on every input. And both checks use strict <code class="chip">&gt;</code>. With <code class="chip">&gt;=</code>, <code class="chip">[0,0]</code> would return <code class="chip num">3</code>, but equal ratings need nothing, so the answer is <code class="chip num">2</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">max</code> in the second loop is about correctness. Pass 1 may already have given a child a big number from a long climb on the left, and plain assignment throws that away: on <code class="chip">[0,1,2,0]</code>, the <code class="chip num">2</code> drops from <code class="chip num">3</code> to <code class="chip num">2</code>, and the total is <code class="chip num">6</code> instead of <code class="chip num">7</code>.</p>
+      <p>Two small details: the backward loop starts at <code class="chip">n - 2</code>, since it reads the right neighbor. And both checks are strict <code class="chip">&gt;</code> — with <code class="chip">&gt;=</code>, <code class="chip">[0,0]</code> returns <code class="chip num">3</code> instead of <code class="chip num">2</code>.</p>
     </div>
   </div>
 
@@ -252,8 +253,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll pick one with a peak, so the two passes disagree: <code class="chip">[1,3,5,4,3,2,1]</code>. The answer should be <code class="chip num">18</code>.</p>
-      <p>After pass 1, <code class="chip">c = [1,2,3,1,1,1,1]</code>. The climb on the left gives <code class="chip num">1, 2, 3</code>. Everything after the peak goes down, so the left rule does nothing there. Now pass 2, right to left:</p>
+      <p><strong>Let's dry-run</strong> with a peak, so the two passes disagree: <code class="chip">[1,3,5,4,3,2,1]</code> — expected <code class="chip num">18</code>. Pass 1 gives the left climb <code class="chip">[1,2,3]</code>.</p>
       <div class="tscroll">
       <table class="trace" style="min-width:520px;">
         <thead><tr><th>i</th><th>compare</th><th>c[i] before</th><th>c[i+1] + 1</th><th>c[i] after</th></tr></thead>
@@ -268,7 +268,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
         </tbody>
       </table>
       </div>
-      <p>The key row is <code class="chip">i = 2</code>, the peak. The left side says <code class="chip num">3</code>, because it's on top of a climb of three. The right side says <code class="chip num">5</code>, because the slope down from it is five long. The peak has to beat both neighbors, so it takes the bigger one, <code class="chip num">5</code>. Here's the same thing as terrain:</p>
+      <p>The row that matters in pass 2 is the peak, <code class="chip">i = 2</code>: the left side says <code class="chip num">3</code>, but the slope down from it is five long, so the <code class="chip">max</code> makes it <code class="chip num">5</code>. The sum is <code class="chip num">18</code>. Matches.</p>
       <div class="tscroll">
       <table class="terrain">
         <tr class="rt"><th>ratings</th><td>1</td><td>3</td><td>5</td><td>4</td><td>3</td><td>2</td><td>1</td></tr>
@@ -277,13 +277,11 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
         <tr class="mx"><th>max = c</th><td>1</td><td>2</td><td class="peak">5</td><td>4</td><td>3</td><td>2</td><td>1</td></tr>
       </table>
       </div>
-      <p>The blue row and the orange row are each a lower bound. The bottom row is just the bigger of the two, spot by spot. Both ends are valleys, so they get <code class="chip num">1</code>.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p><strong>Equal ratings:</strong> <code class="chip">[1,2,87,87,87,2,1]</code> gives <code class="chip">[1,2,3,1,3,2,1]</code>, total <code class="chip num">13</code>. The middle <code class="chip num">87</code> gets just <code class="chip num">1</code>. It's equal to both neighbors, not higher, so the run resets.</p>
-      <p><strong>One child:</strong> <code class="chip">[5]</code>. Both loops do nothing. Answer <code class="chip num">1</code>.</p>
-      <p><strong>Two children, falling:</strong> <code class="chip">[1,0]</code> gives <code class="chip num">3</code>. This is also why pass 1 alone isn't enough. It would return <code class="chip num">2</code> here, since the left rule never sees a drop.</p>
-      <p><strong>All the same:</strong> <code class="chip">[3,3,3]</code> gives <code class="chip num">3</code>. Everyone gets <code class="chip num">1</code>.</p>
-      <p><strong>Strictly rising or falling:</strong> <code class="chip">[1,2,3,4,5]</code> and <code class="chip">[5,4,3,2,1]</code> both give <code class="chip num">15</code>, which is <code class="chip">1+2+3+4+5</code>. One pass does all the work, the other one changes nothing.</p>
+      <p><strong>Corner cases:</strong></p>
+      <p>• Equal ratings in the middle reset to <code class="chip num">1</code>.<br>
+      • A single child gets <code class="chip num">1</code>.<br>
+      • <code class="chip">[1,0]</code> needs <code class="chip num">3</code>, where pass 1 alone says <code class="chip num">2</code>.<br>
+      • A strictly rising line of five, <code class="chip">[1,2,3,4,5]</code>, gives <code class="chip num">15</code>.</p>
     </div>
   </div>
 
@@ -299,7 +297,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>The lower-bound argument is the real proof. But I also checked it against a brute force that tries every assignment, for <code class="chip">n ≤ 7</code>. That was <code class="chip num">121,844</code> cases with zero mismatches. I also compared it to the "repeat until stable" version for <code class="chip">n ≤ 200</code>, on <code class="chip num">20,000</code> random cases. Zero mismatches there too.</p>
+      <p>The lower-bound argument is the real proof. But I also checked it against a brute force that tries every assignment for <code class="chip">n ≤ 7</code> — <code class="chip num">121,844</code> cases, <code class="chip num">0</code> mismatches. And against the repeat-until-stable version on <code class="chip num">20,000</code> random cases up to <code class="chip num">200</code> children. <code class="chip num">0</code> mismatches there too.</p>
     </div>
   </div>
 
@@ -310,9 +308,9 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Let me think about complexity here.</em> <strong>The time complexity is</strong> O(n). It's two passes plus one sum, each touching every child once. <strong>The space complexity is</strong> O(n) for the <code class="chip">c</code> array. On a random input of <code class="chip num">5·10⁴</code> children, it runs in about <code class="chip">0.55 ms</code>.</p>
-      <p><strong>In the worst-case scenario</strong> for the total, ratings go strictly up. Then the total is <code class="chip">n(n+1)/2</code>. For <code class="chip">n = 2·10⁴</code> that's <code class="chip num">200,010,000</code>. Even at <code class="chip">n = 5·10⁴</code> it's <code class="chip num">1,250,025,000</code>, still below <code class="chip">INT_MAX</code> of <code class="chip num">2,147,483,647</code>. So summing with an <code class="chip">int</code> start value of <code class="chip num">0</code> in <code class="chip">accumulate</code> is safe.</p>
-      <p><em class="pause">Oh, one more thing —</em> if you want O(1) extra space, there's a one-pass version that counts the length of each up-slope and down-slope and adds them as triangle sums. The tricky part is the peak, which belongs to both slopes. I'd want to test that one carefully before using it. For an interview, the two-pass version is much easier to explain and to prove.</p>
+      <p><em class="pause">Let me think about complexity here.</em> <strong>Time is</strong> O(n): two passes plus one sum. <strong>Space is</strong> O(n) for the <code class="chip">c</code> array. On <code class="chip num">50,000</code> random children it runs in about <code class="chip num">0.5 ms</code>.</p>
+      <p><strong>The worst-case total</strong> is a strictly rising line, <code class="chip">n(n+1)/2</code> — about <code class="chip num">1.25</code> billion at <code class="chip num">50,000</code> children, still below <code class="chip">INT_MAX</code>, so summing with an <code class="chip">int</code> is safe.</p>
+      <p><em class="pause">Oh, one more thing —</em> if you want O(1) extra space, there's a one-pass version that counts up-slopes and down-slopes as triangle sums. The tricky part is the peak, which belongs to both slopes. For an interview, the two-pass version is much easier to explain and to prove.</p>
     </div>
   </div>
 
@@ -320,7 +318,7 @@ table.terrain td.peak { background: rgba(216, 132, 100, 0.16); color: var(--chip
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You split the two-sided rule into two one-sided rules, and you explained why the second pass has to go right-to-left. You proved it's the minimum, not just valid: each pass is a lower bound, and the max of them is both a lower bound and reachable. And you showed the <code class="chip">max</code> in pass 2 is about correctness with <code class="chip">[0,1,2,0]</code>, plus why equal ratings reset to <code class="chip num">1</code>. Good work.</p>
+      <p>Nicely done. Three things stood out. You split the two-sided rule into two one-sided rules, and explained why the second pass has to go right-to-left. You proved it's the minimum, not just valid: each pass is a lower bound, and their max is both a lower bound and reachable. And you showed the <code class="chip">max</code> in pass 2 is about correctness, plus why equal ratings reset to <code class="chip num">1</code>. Good work.</p>
     </div>
   </div>
 

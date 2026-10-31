@@ -78,6 +78,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
 .insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
   font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
 .insight-box .label { color: var(--com); font-style: italic; }
 .insight-box .em { color: var(--chip-num); }
 </style>
@@ -108,7 +109,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>You get a string <code class="chip">s</code> made of <code class="chip">'('</code>, <code class="chip">')'</code> and <code class="chip">'*'</code>. Each <code class="chip">'*'</code> can be a <code class="chip">'('</code>, a <code class="chip">')'</code>, or an empty string. Return <code class="chip">true</code> if some choice makes <code class="chip">s</code> a valid parenthesis string.</p>
+      <p>You get a string made of <code class="chip">'('</code>, <code class="chip">')'</code>, and <code class="chip">'*'</code>. Each <code class="chip">'*'</code> can be a <code class="chip">'('</code>, a <code class="chip">')'</code>, or an empty string. Return <code class="chip">true</code> if some choice makes the string a valid parenthesis string.</p>
     </div>
   </div>
 
@@ -116,7 +117,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — "valid" means the usual rule. Every <code class="chip">'('</code> has a matching <code class="chip">')'</code> after it. And while I read from left to right, I never close more than I have opened. Each <code class="chip">'*'</code> picks its own role, so two stars can pick different things. Is that right?</p>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — "valid" means the usual rule. Every <code class="chip">'('</code> has a matching <code class="chip">')'</code> after it, and reading left to right, I never close more than I've opened. And each <code class="chip">'*'</code> picks its own role, so two stars can pick different things. Is that right?</p>
     </div>
   </div>
 
@@ -132,7 +133,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Okay. One thing I want to say early. With no stars, I'd keep one number: the count of open brackets. With stars, that number is not one value anymore. It can be <em>many</em> values. So I want to track the <strong>range</strong> of possible open counts, <code class="chip">[l, r]</code>. <code class="chip">l</code> is the fewest open brackets I could have. <code class="chip">r</code> is the most.</p>
+      <p>Okay. One thing I want to say early. With no stars, I'd keep one number: the count of open brackets. With stars, that count can be <em>many</em> values at once. So I want to track the <strong>range</strong> of possible open counts — <code class="chip">l</code>, the fewest I could have, and <code class="chip">r</code>, the most.</p>
       <p><strong>Are there any constraints on the input size?</strong></p>
     </div>
   </div>
@@ -141,7 +142,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p><code class="chip">1 &lt;= s.length &lt;= 100</code>, and every character is <code class="chip">'('</code>, <code class="chip">')'</code> or <code class="chip">'*'</code>.</p>
+      <p>The string has between <code class="chip num">1</code> and <code class="chip num">100</code> characters, and every character is a <code class="chip">'('</code>, a <code class="chip">')'</code>, or a <code class="chip">'*'</code>.</p>
     </div>
   </div>
 
@@ -149,8 +150,8 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Got it. Small input, but a string of 100 stars still has 3<sup>100</sup> choices. So I can't just try them all.</p>
-      <p><strong>Let me run through the example.</strong> <code class="chip">"()"</code> is valid with no stars, so <code class="chip">true</code>. <code class="chip">"(*)"</code>: the star becomes empty, and I get <code class="chip">"()"</code>. <code class="chip">true</code>. <code class="chip">"(*))"</code>: the star becomes <code class="chip">'('</code>, and I get <code class="chip">"(())"</code>. <code class="chip">true</code>. All three match.</p>
+      <p>Got it. Small input, but 100 stars still means 3<sup>100</sup> choices, so I can't try them all.</p>
+      <p>Quick check on the examples: the plain pair <code class="chip">"()"</code> is true; <code class="chip">"(*)"</code> is true with the star as empty; and <code class="chip">"(*))"</code> is true with the star as a <code class="chip">'('</code>. All three match.</p>
     </div>
   </div>
 
@@ -161,10 +162,10 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
-      <p><strong>A naive approach would be to</strong> try all 3<sup>k</sup> ways to replace the <code class="chip">k</code> stars, and check each string. That's exponential. A step up is a DP over the <em>set</em> of reachable open counts. That's correct, but it's O(n<sup>2</sup>).</p>
-      <p><strong>This problem reminds me of</strong> the classic balance-counter check for parentheses, plus a greedy idea. Here's the reframe. <strong>Instead of trying 3<sup>k</sup> choices, I track the range <code class="chip">[l, r]</code> of possible open counts.</strong> A <code class="chip">'('</code> moves the whole range up by one. A <code class="chip">')'</code> moves it down by one. A <code class="chip">'*'</code> widens it by one on each side: <code class="chip">l - 1</code> if it closes, <code class="chip">r + 1</code> if it opens.</p>
-      <p>The key fact is that the reachable counts are always a <strong>contiguous range</strong>. There are no gaps. So two ints are enough. I don't need the whole set.</p>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach</strong> tries all 3<sup>k</sup> ways to fill the stars — exponential. A step up is a DP over the <em>set</em> of reachable open counts, which is correct but O(n<sup>2</sup>).</p>
+      <p><strong>This problem reminds me of</strong> the classic balance-counter check for parentheses, plus a greedy idea: <strong>instead of trying every choice, I track the range <code class="chip">[l, r]</code> of possible open counts.</strong> A <code class="chip">'('</code> shifts the range up by one, a <code class="chip">')'</code> shifts it down, and a <code class="chip">'*'</code> widens it by one on each side.</p>
+      <p>The key fact is that the reachable counts are always <strong>contiguous</strong> — no gaps — so two ints are enough.</p>
     </div>
   </div>
 
@@ -180,7 +181,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>I checked it. I compared it with brute force over all 3<sup>k</sup> star choices, on every string of length 1 to 10. That's <code class="chip num">88,572</code> strings, <code class="chip num">24,349</code> of them true. Zero mismatches. Then I compared it with the set DP on all <code class="chip num">2,302,911</code> strings of length 11 to 13, and on <code class="chip num">50,000</code> random strings up to length 100. Zero mismatches again. And <code class="chip">l &lt;= r</code> held at every step.</p>
+      <p>I checked it. Against brute force on every string of length 1 to 10 — <code class="chip num">88,572</code> strings — <code class="chip num">0</code> mismatches. Against the set DP on over <code class="chip num">2.3</code> million strings of length 11 to 13, plus <code class="chip num">50,000</code> random strings up to length 100 — <code class="chip num">0</code> mismatches again. And <code class="chip">l &lt;= r</code> held at every step.</p>
     </div>
   </div>
 
@@ -192,7 +193,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="body">
       <div class="role c">CANDIDATE</div>
       <p>Here's the plan.</p>
-      <div class="insight-box" style="white-space:nowrap;overflow-x:auto;">
+      <div class="insight-box">
         <span class="label">// l = fewest possible open, r = most possible open</span><br>
         <span class="label">// invariant: every count in [l, r] is reachable</span><br>
         l = 0, r = 0<br>
@@ -204,10 +205,10 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         &nbsp;&nbsp;l = max(l, 0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// no negative open count</span><br>
         return l == 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// can I end at zero?</span>
       </div>
-      <p><strong>Here, I'm using</strong> two ints, <code class="chip">l</code> and <code class="chip">r</code>, <strong>to keep track of</strong> the lowest and highest open count I could have right now.</p>
-      <p>There are two ways to fail. First, <code class="chip">r &lt; 0</code>. Even if every star is <code class="chip">'('</code>, there are too many <code class="chip">')'</code>. Nothing later can fix that, so I return false right away. Second, at the end, <code class="chip">l &gt; 0</code>. Even if every star closes, there are too many <code class="chip">'('</code> left. So I return <code class="chip">l == 0</code>.</p>
-      <p><strong>One thing worth flagging</strong> — I clamp <code class="chip">l</code> at 0. <em class="pause">Let me walk through that.</em> A negative open count is not a real state. It means "I closed more than I opened", and that choice is just dead. So the lowest <em>real</em> count is 0. Without the clamp, the single string <code class="chip">"*"</code> breaks. <code class="chip">l</code> goes to <code class="chip num">-1</code> and stays there, so <code class="chip">l == 0</code> is false. But the right answer is true, because the star can be empty.</p>
-      <p><strong>There's a trade-off here.</strong> The set DP is easy to trust, but it's O(n<sup>2</sup>) time and O(n) space. The range version is O(n) time and O(1) space. But it needs the "no gaps" argument to be correct. I think that argument is simple enough to say out loud, so I'll go with the range.</p>
+      <p>One: start <code class="chip">l</code> and <code class="chip">r</code> at 0. Two: a <code class="chip">'('</code> bumps both, a <code class="chip">')'</code> drops both, a <code class="chip">'*'</code> drops <code class="chip">l</code> and bumps <code class="chip">r</code>. Three: if <code class="chip">r &lt; 0</code>, return false on the spot; clamp <code class="chip">l</code> at 0; at the end, return <code class="chip">l == 0</code>.</p>
+      <p>So there are two ways to fail: <code class="chip">r &lt; 0</code> means too many <code class="chip">')'</code> even if every star opens, and <code class="chip">l &gt; 0</code> at the end means too many <code class="chip">'('</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the clamp. A negative count is a dead choice, not a real state. Without it, a single <code class="chip">"*"</code> breaks: <code class="chip">l</code> sits at <code class="chip num">-1</code>, so I'd say false, but the star can be empty.</p>
+      <p>The set DP is easier to trust, but the range is O(n) time and O(1) space.</p>
       <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
     </div>
   </div>
@@ -227,7 +228,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+      <p>Alright, let me code this up. It's one loop over the string with two ints.</p>
 <pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
 <span class="kw">public</span>:
     <span class="kw">bool</span> <span class="fn">checkValidString</span>(<span class="typ">string</span> s) {
@@ -249,15 +250,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         <span class="kw">return</span> l == <span class="num2">0</span>;
     }
 };</pre>
-      <p>That matches the plan line by line.</p>
-      <p><strong>One thing worth flagging</strong> — each small line here is load-bearing. I checked some wrong versions against all <code class="chip num">88,572</code> strings of length 1 to 10:</p>
-      <p>• No clamp: <code class="chip num">27,516</code> wrong. Smallest is <code class="chip">"*"</code>: it returns false, but the answer is true.<br>
-      • <code class="chip">if (l &lt; 0) return false</code> instead of the clamp: <code class="chip num">22,731</code> wrong. <code class="chip">"*"</code> returns false again.<br>
-      • Return <code class="chip">r == 0</code>: <code class="chip num">22,731</code> wrong. <code class="chip">"*"</code> returns false, because <code class="chip">r</code> is 1.<br>
-      • Treat <code class="chip">'*'</code> as empty only: <code class="chip num">20,788</code> wrong. <code class="chip">"(*"</code> returns false, but the star can close it.<br>
-      • One counter, star as <code class="chip">'('</code>, no end check: <code class="chip num">22,731</code> wrong. Even <code class="chip">"("</code> returns true.<br>
-      • Check <code class="chip">r &lt; 0</code> only at the end: <code class="chip num">16,153</code> wrong. <code class="chip">")*"</code> returns true, but the first <code class="chip">')'</code> has nothing to close.</p>
-      <p>And two changes that are safe: swapping the clamp and the <code class="chip">r &lt; 0</code> check, or returning <code class="chip">l &lt;= 0</code>. Both give <code class="chip num">0</code> wrong. They are the same thing.</p>
+      <p>Each character shifts or widens the range, then I check <code class="chip">r &lt; 0</code> to fail early, then clamp <code class="chip">l</code> up to 0. After the loop, I return <code class="chip">l == 0</code>.</p>
+      <p><strong>One thing worth flagging</strong> — every small line is load-bearing. I tested wrong versions on all short strings:</p>
+      <p>• Dropping the clamp: over <code class="chip num">27,000</code> wrong, and a single <code class="chip">"*"</code> is enough to break it.<br>
+      • <code class="chip">if (l &lt; 0) return false</code> instead of clamping: also fails on a single <code class="chip">"*"</code>.<br>
+      • Checking <code class="chip">r &lt; 0</code> only at the end: fails on <code class="chip">")*"</code>, because the star hides the first <code class="chip">')'</code> that had nothing to match.</p>
     </div>
   </div>
 
@@ -268,7 +265,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><strong>Let's dry-run the code with an example.</strong> I'll use <code class="chip">"(*))"</code>. Expected <code class="chip">true</code>. Start: <code class="chip">l = 0</code>, <code class="chip">r = 0</code>.</p>
+      <p><strong>Let's dry-run the code.</strong> <code class="chip">"(*))"</code> — expected <code class="chip">true</code>.</p>
       <div style="overflow-x:auto;">
       <table class="trace" style="min-width:480px;">
         <thead><tr><th>step</th><th>char</th><th>after update</th><th>after clamp</th><th>range [l, r]</th></tr></thead>
@@ -281,15 +278,11 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
         </tbody>
       </table>
       </div>
-      <p>The highlighted row is step 3. After the star, the range is <code class="chip">[0, 2]</code>. The first <code class="chip">')'</code> moves it to <code class="chip">[-1, 1]</code>. But <code class="chip num">-1</code> means the star closed and then this <code class="chip">')'</code> closed again, with nothing open. That's not a real state. So I clamp to <code class="chip">[0, 1]</code>. The count 1 is still alive, because the star could be <code class="chip">'('</code>. That's what lets the last <code class="chip">')'</code> work. At the end <code class="chip">l = 0</code>, so true.</p>
-      <p>Now a failing one, <code class="chip">"*)("</code>. Expected <code class="chip">false</code>. The star gives <code class="chip">[-1, 1]</code>, clamp to <code class="chip">[0, 1]</code>. The <code class="chip">')'</code> gives <code class="chip">[-1, 0]</code>, clamp to <code class="chip">[0, 0]</code>. The <code class="chip">'('</code> gives <code class="chip">[1, 1]</code>. At the end <code class="chip">l = 1</code>. That last <code class="chip">'('</code> has nothing after it to close it, so false. Correct.</p>
-      <p><strong>Let's also test with corner cases.</strong></p>
-      <p>• <code class="chip">"*"</code>: <code class="chip">[-1, 1]</code>, clamp to <code class="chip">[0, 1]</code>, end <code class="chip">l = 0</code>. True. This is the case that breaks with no clamp.<br>
-      • <code class="chip">")"</code>: <code class="chip">r = -1</code>, so return false right away.<br>
-      • <code class="chip">"("</code>: range <code class="chip">[1, 1]</code>, end <code class="chip">l = 1</code>. False.<br>
-      • <code class="chip">"(*"</code>: <code class="chip">[1, 1]</code>, then <code class="chip">[0, 2]</code>. End <code class="chip">l = 0</code>. True, the star closes it.<br>
-      • <code class="chip">")*"</code>: the first <code class="chip">')'</code> makes <code class="chip">r = -1</code>, so false right away. This is why I check <code class="chip">r</code> inside the loop. At the end, the star would hide the problem.</p>
-      <p>All three official examples pass too.</p>
+      <p>The step that matters is the first <code class="chip">')'</code>: the range drops from <code class="chip">[0, 2]</code> to <code class="chip">[-1, 1]</code>. <code class="chip num">-1</code> isn't a real state, so I clamp to <code class="chip">[0, 1]</code>. 1 stays alive because the star could be a <code class="chip">'('</code>, and that lets the last <code class="chip">')'</code> work. <code class="chip">l</code> ends at 0, so true.</p>
+      <p>A failing one: <code class="chip">"*)("</code> ends with <code class="chip">l = 1</code> — that last <code class="chip">'('</code> never closes, so false.</p>
+      <p><strong>Corner cases:</strong></p>
+      <p>• <code class="chip">"*"</code> is true only thanks to the clamp.<br>
+      • <code class="chip">")*"</code> fails right away, which is why <code class="chip">r</code> is checked inside the loop.</p>
     </div>
   </div>
 
@@ -300,10 +293,10 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar c">C</div>
     <div class="body">
       <div class="role c">CANDIDATE</div>
-      <p><em class="pause">Let me think about complexity here.</em> There is one loop, and nothing nested inside it.</p>
-      <p><strong>The time complexity is</strong> O(n). It's one pass, with O(1) work per character. <strong>The space complexity is</strong> O(1). It's just two ints, no matter how many stars there are.</p>
-      <p><strong>In the worst-case scenario</strong>, every character is a star. Brute force would need 3<sup>100</sup> tries. Here, the range just gets wider by one each step. It's still one pass.</p>
-      <p><em class="pause">Oh, one more thing</em> — there's a two-pass version that's also correct. Go left to right and count <code class="chip">'('</code> and <code class="chip">'*'</code> as opens. If closes ever win, return false. Then go right to left and count <code class="chip">')'</code> and <code class="chip">'*'</code> as closes. If opens ever win, return false. I checked it on all <code class="chip num">88,572</code> short strings: <code class="chip num">0</code> wrong. The first pass is exactly my <code class="chip">r &lt; 0</code> check. The second pass catches too many <code class="chip">'('</code>, like my <code class="chip">l == 0</code> check at the end.</p>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time is</strong> O(n) — one pass, O(1) work per character. <strong>Space is</strong> O(1) — just two ints, however many stars there are.</p>
+      <p><strong>The worst case</strong> is all stars, where brute force needs 3<sup>100</sup> tries, but here the range just widens by one each step.</p>
+      <p><em class="pause">Oh, one more thing</em> — there's a two-pass version too. Left to right, treat stars as opens and fail if closes ever win; right to left, treat stars as closes and fail if opens ever win. The first pass is my <code class="chip">r &lt; 0</code> check; the second matches my end check on <code class="chip">l</code>.</p>
     </div>
   </div>
 
@@ -311,7 +304,7 @@ table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
     <div class="avatar i">I</div>
     <div class="body">
       <div class="role i">INTERVIEWER</div>
-      <p>Nicely done. Three things stood out. You turned 3<sup>k</sup> choices into a range <code class="chip">[l, r]</code>, and explained why it has no gaps, so two ints are enough. You named the two ways to fail: <code class="chip">r &lt; 0</code> during the pass, and <code class="chip">l &gt; 0</code> at the end. And you showed the clamp is needed for correctness, with <code class="chip">"*"</code> as the one-character proof. Plus the two-pass follow-up. Good work.</p>
+      <p>Nicely done. Three things stood out. You turned an exponential number of choices into a range <code class="chip">[l, r]</code>, and explained why it has no gaps, so two ints are enough. You named the two ways to fail: <code class="chip">r &lt; 0</code> during the pass, and <code class="chip">l &gt; 0</code> at the end. And you showed the clamp is needed for correctness, with a single <code class="chip">"*"</code> as the one-character proof. Plus the two-pass follow-up. Good work.</p>
     </div>
   </div>
 
