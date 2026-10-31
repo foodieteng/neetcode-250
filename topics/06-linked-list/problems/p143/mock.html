@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 143 · Reorder List</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 143 · Reorder List · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given the head of a singly linked list <code class="chip">L0 → L1 → … → Ln</code>. Reorder it to <code class="chip">L0 → Ln → L1 → Ln-1 → L2 → …</code>. You may not modify the values in the nodes — only the nodes themselves may be changed.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong></p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> I take the first node, then the last, then the second, then the second-to-last, alternating inward. And <strong>I have to relink the actual nodes</strong>; I can't just shuffle the numbers around.</p>
+      <p>So for <code class="chip">[1,2,3,4,5]</code> I want <code class="chip">[1,5,2,4,3]</code>. And for <code class="chip">[1,2,3,4]</code> it'd be <code class="chip">[1,4,2,3]</code>.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to 50,000 nodes. At least one node, so it's never empty.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me name the actual difficulty here.</em> Half of what I need is "the node from the back" — but this is a <strong>singly</strong> linked list. I can walk forward, and that's it. There's no way to step backward from the tail.</p>
+      <p>So the whole problem reduces to one question: <strong>how do I get at the back half without walking the list over and over?</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be:</strong> each time I need the current last node, walk from the head to find it, detach it, and splice it in. That's O(n) per node for <code class="chip">n/2</code> nodes, so O(n<sup>2</sup>) — around 2.5 × 10<sup>9</sup> operations at 50,000. Too slow.</p>
+      <p>A second option is to copy the node <em>pointers</em> into a vector and relink from both ends — O(n) time and correct, since it stores pointers, not values, but it costs O(n) extra space.</p>
+      <p><strong>This problem reminds me of</strong> the reverse-to-walk-backward pattern for singly linked lists. <strong>If I reverse the back half, walking backward from the tail becomes walking forward through the reversed half.</strong> Then it's three pieces I already know: find the middle with fast/slow pointers, reverse in place, and interleave. O(n) time, O(1) space.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// phase 1 — find the middle</span><br>
+        slow = fast = head<br>
+        while (fast &amp;&amp; fast-&gt;next) { slow += 1; fast += 2; }<br>
+        <br>
+        <span class="label">// phase 2 — reverse the back half, then CUT</span><br>
+        l2 = reverse(slow-&gt;next);<br>
+        slow-&gt;next = nullptr;&nbsp;&nbsp;<span class="em">← order matters, and this line does two jobs</span><br>
+        <br>
+        <span class="label">// phase 3 — interleave</span><br>
+        take one from l1, then one from l2, repeat<br>
+        <br>
+        <span class="label">// invariant that falls out of phase 1</span><br>
+        |l1| = floor(n/2) + 1&nbsp;&nbsp;→ <span class="em">l1 is always longer than l2</span>
+      </div>
+      <p>One: fast/slow pointers from the head, so <code class="chip">slow</code> stops where the first half ends.<br>
+      Two: reverse the back half starting at <code class="chip">slow-&gt;next</code>, then cut.<br>
+      Three: interleave, one node from each half, taking turns.</p>
+      <p><strong>One thing worth flagging</strong> is the order in phase 2: <strong>reverse first, then cut.</strong> <code class="chip">slow-&gt;next</code> is my only way into the back half, so if I null it out first, the reverse gets a null pointer and the whole back half is lost.</p>
+      <p>And that cut line does <strong>two</strong> jobs. First, the front half's tail still points at what is now the <em>tail</em> of the reversed half — without the cut, phase 3 builds a <strong>cycle</strong>. Second, it also ends the final result; I'll explain why when I get there.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. Three phases plus an iterative reverse helper.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">void</span> <span class="fn">reorderList</span>(<span class="typ">ListNode</span>* head) {
+        <span class="com">// ── Phase 1: fast/slow pointers find the middle (LC 141 skeleton) ──</span>
+        <span class="typ">ListNode</span> *slow = head, *fast = head;
+        <span class="kw">while</span> (fast &amp;&amp; fast-&gt;next) {
+            slow = slow-&gt;next;
+            fast = fast-&gt;next-&gt;next;
+        }
+
+        <span class="com">// ── Phase 2: reverse the back half, then cut (LC 206 skeleton) ──</span>
+        <span class="typ">ListNode</span>* l2 = <span class="fn">reverseList</span>(slow-&gt;next);
+        slow-&gt;next = <span class="kw">nullptr</span>;   <span class="com">// without this line → phase 3 builds a cycle</span>
+
+        <span class="com">// ── Phase 3: interleave (LC 21 skeleton, but no comparisons) ──</span>
+        <span class="com">// the result always starts at head, so no dummy is needed</span>
+        <span class="typ">ListNode</span>* l1 = head-&gt;next;
+        <span class="typ">ListNode</span>* tail = head;
+
+        <span class="kw">while</span> (l1 || l2) {
+            <span class="kw">if</span> (l2) {
+                tail-&gt;next = l2;
+                l2 = l2-&gt;next;
+                tail = tail-&gt;next;
+            }
+
+            <span class="kw">if</span> (l1) {
+                tail-&gt;next = l1;
+                l1 = l1-&gt;next;
+                tail = tail-&gt;next;
+            }
+        }
+    }
+
+<span class="kw">private</span>:
+    <span class="com">// LC 206 iterative version, unchanged. Not the recursive one: n goes up to 5×10^4</span>
+    <span class="typ">ListNode</span>* <span class="fn">reverseList</span>(<span class="typ">ListNode</span>* head) {
+        <span class="typ">ListNode</span> *prev = <span class="kw">nullptr</span>, *curr = head, *next = <span class="kw">nullptr</span>;
+
+        <span class="kw">while</span> (curr) {
+            next = curr-&gt;next;
+            curr-&gt;next = prev;
+            prev = curr;
+            curr = next;
+        }
+
+        <span class="kw">return</span> prev;
+    }
+};</pre>
+      <p><code class="chip">head</code> is already <code class="chip">L0</code>, so I start <code class="chip">tail</code> at <code class="chip">head</code> and <code class="chip">l1</code> at <code class="chip">head-&gt;next</code>, and each round attaches from the reversed half first, then from the front. That's also why there's <strong>no dummy node</strong> — I already know the first node, and the function returns <code class="chip">void</code>.</p>
+      <p><strong>One thing worth flagging</strong> — I never write <code class="chip">tail-&gt;next = nullptr</code> at the end, and that's deliberate. Phase 1 leaves <strong>the front half longer</strong>, by one for odd <code class="chip">n</code> and two for even. So <code class="chip">l2</code> runs out first, and the last node I attach is <code class="chip">slow</code>, whose <code class="chip">next</code> I nulled in phase 2. That's the cut's second job.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">[1,2,3,4,5]</code>, expecting <code class="chip">[1,5,2,4,3]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:460px;">
+        <thead><tr><th>phase</th><th>step</th><th>state</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>round 1</td><td>slow → node 2, fast → node 3</td></tr>
+          <tr><td>1</td><td>round 2</td><td>slow → node 3, fast → node 5; fast-&gt;next null, stop</td></tr>
+          <tr class="highlight-row"><td>2</td><td>reverse</td><td>back half 4→5 becomes 5→4</td></tr>
+          <tr class="highlight-row"><td>2</td><td>cut</td><td>l1 = 1→2→3 (len 3), l2 = 5→4 (len 2)</td></tr>
+          <tr><td>3</td><td>round 1</td><td>attach 1, attach 5 → 1→5</td></tr>
+          <tr><td>3</td><td>round 2</td><td>attach 2, attach 4 → 1→5→2→4</td></tr>
+          <tr><td>3</td><td>round 3</td><td>attach 3; l2 empty → <span class="answer-cell">1→5→2→4→3</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The rows that matter are phase 2. Before the reverse, reaching node 5 meant walking the list; after it, node 5 is just <code class="chip">l2</code>'s head — one pointer read.</p>
+      <p>In the last round I attach node 3 and stop. Node 3 <em>is</em> <code class="chip">slow</code>, so its <code class="chip">next</code> was already null — <strong>the result ends without a termination line.</strong> That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[1]</code> → <code class="chip">[1]</code>: a single node, where the back half is empty.<br>
+      • <code class="chip">[1,2]</code> → <code class="chip">[1,2]</code>: the back half is empty too — the easiest case to forget.<br>
+      • <code class="chip">[1,2,3]</code> → <code class="chip">[1,3,2]</code>: odd, halves differ by one.<br>
+      • <code class="chip">[1,2,3,4]</code> → <code class="chip">[1,4,2,3]</code>: even, halves differ by two.</p>
+      <p>Since only the length shapes the result, <strong>every length from 1 to 2,000</strong> was checked, with a step cap so a cycle can't hang the test.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n) — about <code class="chip">n/2</code> rounds to find the middle, <code class="chip">n/2</code> steps to reverse, and <code class="chip">n</code> steps to interleave, so roughly <code class="chip num">2n</code> pointer operations. Space is O(1) — a handful of pointers, no allocation. Even at 50,000 nodes it's linear, and the iterative reverse keeps the stack flat.</p>
+      <p><em class="pause">Oh, one more thing —</em> if I reuse this to check whether a list is a palindrome, <strong>the phases carry over but the midpoint rule doesn't.</strong> This version leaves the front half longer, which is what lets me skip the termination line. A palindrome check needs the halves <em>balanced</em>: with this midpoint, <code class="chip">[1,0]</code> leaves an empty back half, the comparison never runs, and it wrongly says <code class="chip">true</code>.</p>
+      <p>The fix is the loop condition <code class="chip">while (fast-&gt;next &amp;&amp; fast-&gt;next-&gt;next)</code>. Reuse the <em>structure</em>, re-derive the <em>boundaries</em>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Strong. Three things stood out. You reduced it to one sentence — "singly linked lists can't walk backward, so reverse the part you need to walk backward through" — and everything else followed from that. You noticed the cut line does <strong>two</strong> jobs, and proved the second one from the half-length invariant instead of just asserting the code works. And you skipped the dummy node with a reason, rather than adding one out of habit. Knowing when a pattern <em>doesn't</em> apply is the harder half of knowing the pattern.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 16.17, 45.01, 50.86, 69.65, 122.13, 172.0, 174.58, 217.27, 269.63, 324.83]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
