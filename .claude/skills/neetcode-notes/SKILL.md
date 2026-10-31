@@ -246,7 +246,7 @@ Pager: PREV → `index.html` / NEXT → `review.html`.
 
 ### PAGE 3 · `review.html` — Review 複習考卷(exam paper)
 
-Components (`.xp-*`, `.xq*`) live in `study-card.css` — 定稿「C-2 藍圖框 × VS Code Light+」: steel (`--sc-steel`) 題章/卡框/解答橫條;行內 `code` 用全站統一的 printed-ink 印字(見 palette 一節)。**排版寧鬆勿擠**:題卡間 20px、題目 15/18、答案 17/18、行高 ≥ 2,元件間距已在 CSS 裡,不要在頁內用 style 縮小。
+Components (`.xp-*`, `.xq*`) live in `study-card.css` — 定稿「C-2 藍圖框 × VS Code Light+」: steel (`--sc-steel`) 題章/卡框/解答橫條;**考卷 = 白紙**(考卷頭、題卡、卡內 insight/表格全是 `#fff`,米黃只留在頁面桌面);行內 `code` 用全站統一的 printed-ink 印字(見 palette 一節)。**排版寧鬆勿擠**:題卡間 20px、題目 15/18、答案 17/18、行高 ≥ 2,元件間距已在 CSS 裡,不要在頁內用 style 縮小。
 
 1. **考卷頭** · `.xp-strip`:單元/範圍/共 N 題/滿分 100 + 建議時間 + NAME/SCORE 填空線;其後 `.xp-tools` 全部展開/收合按鈕(頁尾 ~8 行 script)。
 2. **PART A · 觀念題** · 5 題 × 10 分。每題一張 `.xq`:`.xq__head`(`.xq__no` 題章 + `.xq__pts` 配分)→ `.xq__body` 題目 → `<details class="xq__ans">`「// 解答與說明 · ANSWER」下拉 → `.xq__ansbody`:一句粗體主張 → 空行 → 理由與反例,數字只引 PHASE A fact sheet。
