@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1325 · Delete Leaves With a Given Value</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+.tree { display: block; width: 100%; max-width: 420px; height: auto; margin: 10px auto; }
+.tree line { stroke: var(--border); stroke-width: 2; }
+.tree circle { fill: var(--surface-2); stroke: var(--interviewer); stroke-width: 2; }
+.tree text { fill: var(--text); font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 13px; text-anchor: middle; dominant-baseline: central; }
+.tree text.lbl { fill: var(--text-3); font-size: 11px; }
+.tree circle.del { stroke: var(--candidate); stroke-dasharray: 4 3; fill: rgba(216, 132, 100, 0.12); }
+.tree line.arrow { stroke: var(--text-3); }
+.tree path.arrowhead { fill: var(--text-3); }
+.tree text.ok { fill: var(--str); font-size: 12px; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } pre.code { padding: 14px 12px; font-size: 12px; } }
+</style></head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1325 · Delete Leaves With a Given Value · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get the root of a binary tree and an integer <code class="chip">target</code>. Delete every leaf whose value is <code class="chip">target</code>. If deleting a leaf turns its parent into a leaf, and the parent also has value <code class="chip">target</code>, delete the parent too. Keep going until you can't. Return the new root.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> a node is deleted only when it's a leaf <em>and</em> its value is <code class="chip">target</code>. An inner node with value <code class="chip">target</code> stays, unless all of its children get deleted first. Then it becomes a leaf, and it can go too. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. That chain reaction is the whole point.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. So the real question is <strong>order</strong>. Whether a node is a leaf depends on what happened to its children, so I should finish the children first, and only then decide about the parent.</p>
+      <p>And if the root itself gets deleted, I return <code class="chip">nullptr</code>. An empty tree is a valid answer, right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right. That's Example 3: <code class="chip">[1,2,null,2,null,2]</code> with target <code class="chip num">2</code> gives <code class="chip">[1]</code>, and if the root were also a <code class="chip num">2</code>, you'd return an empty tree.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Between <code class="chip num">1</code> and <code class="chip num">3000</code> nodes. Values and target are between <code class="chip num">1</code> and <code class="chip num">1000</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. The tree can be a straight chain, so the depth can reach 3000. I'll remember that for recursion.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[1,2,3,2,null,2,4]</code>, target <code class="chip num">2</code>.</p>
+      <svg class="tree" viewBox="0 0 420 200" role="img" aria-label="Before: A=1 with children B=2 and C=3; D=2 under B; E=2 and F=4 under C. D, E and B are deleted. After: 1, right child 3, its right child 4.">
+        <text class="lbl" x="105" y="12">before · target = 2</text>
+        <line x1="105" y1="45" x2="55" y2="100"/><line x1="105" y1="45" x2="155" y2="100"/>
+        <line x1="55" y1="100" x2="25" y2="155"/><line x1="155" y1="100" x2="125" y2="155"/><line x1="155" y1="100" x2="185" y2="155"/>
+        <circle cx="105" cy="45" r="16"/><text x="105" y="45">1</text><text class="lbl" x="130" y="36">A</text>
+        <circle class="del" cx="55" cy="100" r="16"/><text x="55" y="100">2</text><text class="lbl" x="30" y="90">B</text>
+        <circle cx="155" cy="100" r="16"/><text x="155" y="100">3</text><text class="lbl" x="180" y="90">C</text>
+        <circle class="del" cx="25" cy="155" r="16"/><text x="25" y="155">2</text><text class="lbl" x="25" y="186">D</text>
+        <circle class="del" cx="125" cy="155" r="16"/><text x="125" y="155">2</text><text class="lbl" x="125" y="186">E</text>
+        <circle cx="185" cy="155" r="16"/><text x="185" y="155">4</text><text class="lbl" x="185" y="186">F</text>
+        <line class="arrow" x1="225" y1="100" x2="262" y2="100"/><path class="arrowhead" d="M262 94 L272 100 L262 106 Z"/>
+        <text class="lbl" x="340" y="12">after</text>
+        <line x1="305" y1="45" x2="345" y2="100"/><line x1="345" y1="100" x2="385" y2="155"/>
+        <circle cx="305" cy="45" r="16"/><text x="305" y="45">1</text>
+        <circle cx="345" cy="100" r="16"/><text x="345" y="100">3</text>
+        <circle cx="385" cy="155" r="16"/><text x="385" y="155">4</text>
+        <text class="ok" x="340" y="190">[1,null,3,null,4]</text>
+      </svg>
+      <p><code class="chip">D</code> and <code class="chip">E</code> are leaves with value 2, so they go. Once D is gone, <code class="chip">B</code> has no children, so B is now a leaf with value 2, and B goes too. That's the <strong>chain reaction</strong>. <code class="chip">C</code> keeps the 4, so C stays. The answer is <code class="chip">[1,null,3,null,4]</code>, which matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> copy the rule word for word: scan the whole tree, delete every target leaf, and repeat until a scan deletes nothing. It's correct, but a long chain of targets needs a fresh scan for every level, so that's O(n²) work.</p>
+      <p><strong>This problem reminds me of post-order DFS</strong> — the pattern for when a parent's answer depends on its children's final answers. I clean the left subtree, clean the right subtree, and then look at the node. By then its children are final, so the chain reaction happens for free, in one pass.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// f(node) = root of the cleaned subtree (or null)</span><br>
+        f(null)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ null<br>
+        node.left&nbsp;&nbsp;= f(node.left)&nbsp;&nbsp;&nbsp;<span class="em">← children first</span><br>
+        node.right = f(node.right)<br>
+        if node is now a leaf <span class="em">and</span> node.val == target → null<br>
+        else → node<br>
+        <span class="label">// invariant: when we check a node, its children are final</span>
+      </div>
+      <p>One: null returns null.<br>
+      Two: clean both children and write the results back into <code class="chip">left</code> and <code class="chip">right</code> — a child that comes back <code class="chip">nullptr</code> was deleted.<br>
+      Three: if the node is now a leaf with the target value, return null; otherwise return the node.</p>
+      <p><strong>One thing worth flagging</strong> — the order is a <strong>correctness</strong> requirement, not a style choice. Take <code class="chip">[1,null,1]</code> with target <code class="chip num">1</code>. Pre-order checks the root while it still has a child, keeps it, deletes the child, and never looks at the root again. It returns <code class="chip">[1]</code> instead of an empty tree — and it fails <strong>37,770</strong> exhaustive cases.</p>
+      <p><strong>There's a trade-off here:</strong> an explicit stack is safer for very deep trees, but 3000 levels is fine, and recursion is easier to check. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">TreeNode</span>* <span class="fn">removeLeafNodes</span>(<span class="typ">TreeNode</span>* root, <span class="typ">int</span> target) {
+        <span class="kw">if</span> (!root)
+            <span class="kw">return</span> <span class="kw">nullptr</span>;
+
+        <span class="com">// ① clean both subtrees first and attach the results back (a deleted one returns nullptr)</span>
+        root-&gt;left = <span class="fn">removeLeafNodes</span>(root-&gt;left, target);
+        root-&gt;right = <span class="fn">removeLeafNodes</span>(root-&gt;right, target);
+
+        <span class="com">// ② now the children are final: delete self only if all three conditions hold</span>
+        <span class="kw">return</span> (!root-&gt;left &amp;&amp; !root-&gt;right &amp;&amp; root-&gt;val == target) ? <span class="kw">nullptr</span>
+                                                                    : root;
+    }
+};</pre>
+      <p>Base case first. Then I clean both children and <strong>assign the results back</strong>. The last line asks one question: is this node a leaf now, and is it the target? If yes, return <code class="chip">nullptr</code>; if not, return the node.</p>
+      <p><strong>One thing worth flagging</strong> — that assignment back into <code class="chip">root-&gt;left</code> and <code class="chip">root-&gt;right</code> is not optional. If I call the recursion and throw away the result, the parent still points to the deleted child, so <code class="chip">[1,null,1]</code> stays unchanged. And the leaf test needs <code class="chip">&amp;&amp;</code>, not <code class="chip">||</code>. With <code class="chip">||</code>, a node with only one child counts as a leaf, so <code class="chip">[1,null,2]</code> with target 1 returns an empty tree, losing a child that should stay.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on Example 1, target <code class="chip num">2</code>, expecting <code class="chip">[1,null,3,null,4]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>#</th><th>node</th><th>val</th><th>children after cleanup</th><th>leaf &amp;&amp; val==2?</th><th>returns</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>D</td><td>2</td><td>none</td><td>yes</td><td>null</td></tr>
+          <tr class="highlight-row"><td>2</td><td>B</td><td>2</td><td>none (D was cut)</td><td>yes · cascade</td><td>null</td></tr>
+          <tr><td>3</td><td>E</td><td>2</td><td>none</td><td>yes</td><td>null</td></tr>
+          <tr><td>4</td><td>F</td><td>4</td><td>none</td><td>no (val 4)</td><td>F</td></tr>
+          <tr><td>5</td><td>C</td><td>3</td><td>right = F</td><td>no</td><td>C</td></tr>
+          <tr><td>6</td><td>A</td><td>1</td><td>right = C</td><td>no</td><td><span class="answer-cell">[1,null,3,null,4]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">B</code>. In the input, B is <em>not</em> a leaf — it has D. But by the time we check B, D has already come back <code class="chip">nullptr</code>, so B is a leaf with value 2, and it goes — the chain reaction in a single pass.</p>
+      <p>Corner cases:</p>
+      <p>• Example 2, <code class="chip">[1,3,3,3,2]</code>, target 3: drops both leaf 3s but keeps the middle 3, which still has the 2.<br>
+      • Example 3's chain of 2s collapses to just <code class="chip">[1]</code>.<br>
+      • <code class="chip">[1,null,1]</code>, target 1 → empty tree — the pre-order trap.<br>
+      • <code class="chip">[1,null,2]</code>, target 1 → stays whole — the <code class="chip">||</code> trap.</p>
+      <p>Against a slow repeat-until-nothing-changes simulation, there were <strong>0 mismatches</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time is O(n):</strong> each node is visited once, and each null child is one quick call — exactly <code class="chip">2n + 1</code> calls, so 6001 for 3000 nodes. <strong>Space is O(h)</strong>, just the call stack.</p>
+      <p>In the worst case the tree is a straight chain, 3001 calls deep, and that runs fine; a balanced tree is only 13 calls deep. For something like a million nodes, I'd switch to the explicit stack.</p>
+      <p><em class="pause">Oh, one more thing —</em> my code cuts deleted nodes out but never frees them. On an all-target chain that's 3000 leaked nodes. LeetCode accepts that, but in production C++ I'd <code class="chip">delete root</code> right before returning <code class="chip">nullptr</code>, or use smart pointers.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You saw early that the problem is really about <strong>order</strong>, and you picked post-order because a node's leaf status depends on its children being final — so the cascade needs no second pass. You showed pre-order is a <strong>correctness</strong> bug, not a speed issue, with the tiny counterexample <code class="chip">[1,null,1]</code>. And you flagged that assigning the results back, and <code class="chip">&amp;&amp;</code> versus <code class="chip">||</code>, each break the answer — plus the memory leak a real codebase would care about. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 18.28, 38.99, 42.89, 59.93, 72.09, 75.16, 82.23, 111.41, 146.73, 198.44, 201.22, 239.69, 283.77, 328.62]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

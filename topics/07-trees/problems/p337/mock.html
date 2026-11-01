@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 337 · House Robber III</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+.tree { display: block; width: 100%; max-width: 300px; height: auto; margin: 10px auto; }
+.tree line { stroke: var(--border); stroke-width: 2; }
+.tree circle { fill: var(--surface-2); stroke: var(--interviewer); stroke-width: 2; }
+.tree text { fill: var(--text); font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 13px; text-anchor: middle; dominant-baseline: central; }
+.tree text.lbl { fill: var(--text-3); font-size: 11px; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } pre.code { padding: 14px 12px; font-size: 12px; } }
+</style></head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 337 · House Robber III · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have houses laid out as a binary tree. Each node holds an amount of money. You can't rob two houses that are directly linked — so never a parent and its own child. Return the most money you can rob.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the only rule is that <strong>a parent and its child can't both be robbed</strong>. A grandparent and a grandchild are fine, because they are not directly linked. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>That's right.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then I already see the shape. Every node has <strong>two choices</strong>: rob it, or skip it. If I rob it, both children are off limits, so the rest comes from the <strong>four grandchildren</strong>. If I skip it, both children are free. A node's answer only depends on its own subtree, so I can solve it bottom up.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong> And can a node's value be zero?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to 10<sup>4</sup> nodes. Each value is between <code class="chip num">0</code> and <code class="chip num">10⁴</code>. So yes, zero is a legal value.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good, I'll keep the zero in mind. Overflow first: 10<sup>4</sup> nodes all worth 10<sup>4</sup>, on a perfect tree, give about <code class="chip num">66,650,000</code> — <strong>3.10%</strong> of <code class="chip">INT_MAX</code>. So plain <code class="chip">int</code> is safe. Also, a chain can be 10<sup>4</sup> deep; I'll come back to the stack.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[3,2,3,null,3,null,1]</code>. The root's children are <code class="chip num">2</code> and <code class="chip num">3</code>, each with one right child, <code class="chip num">3</code> and <code class="chip num">1</code>. Robbing the root gives <code class="chip num">3 + 3 + 1 = 7</code>. Skipping it gives the best of each child, <code class="chip num">3 + 3 = 6</code>. So <code class="chip num">7</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> try every valid set of houses — exponentially many, so at 10<sup>4</sup> nodes it never finishes.</p>
+      <p><strong>This problem reminds me of dynamic programming on a tree</strong>: a take-it-or-skip-it choice per node, where the state is a subtree. The recursion alone is still exponential, because both branches reach into the same grandchildren. So I'll add a <strong>memo</strong> keyed by node pointer. Each node is solved once, and the whole thing becomes O(n).</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// rob(node) = the most money from this whole subtree</span><br>
+        rob(null) = <span class="em">0</span><br>
+        <br>
+        <span class="label">// two choices at every node</span><br>
+        robThis&nbsp;&nbsp;= node.val + rob(4 grandchildren)<br>
+        skipThis = rob(node.left) + rob(node.right)<br>
+        rob(node) = <span class="em">max(robThis, skipThis)</span><br>
+        <br>
+        <span class="label">// memo[node] caches the answer so each node is solved once</span>
+      </div>
+      <p>One: <code class="chip">rob(null)</code> is <code class="chip num">0</code>.<br>
+      Two: rob this is the node's value plus its four grandchildren; skip this is <code class="chip">rob(left) + rob(right)</code>.<br>
+      Three: take the max and cache it by node pointer.</p>
+      <p><strong>One thing worth flagging</strong> — the key must be the <strong>pointer</strong>, not the value, since two nodes can share a value over different subtrees.</p>
+      <p><strong>There's a trade-off here:</strong> a post-order pass returning a <code class="chip">{rob, skip}</code> pair needs no map at all. I'm picking the memo because the rob-or-skip story reads directly off the code, and the time is the same. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The memo is a class member.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="typ">unordered_map</span>&lt;<span class="typ">TreeNode</span>*, <span class="typ">int</span>&gt; memo;
+
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">rob</span>(<span class="typ">TreeNode</span>* root) {
+        <span class="kw">if</span> (root == <span class="kw">nullptr</span>) <span class="kw">return</span> <span class="num2">0</span>;
+        <span class="kw">if</span> (memo[root]) <span class="kw">return</span> memo[root];   <span class="com">// ⚠ tests the value, not presence</span>
+
+        <span class="typ">int</span> ll = <span class="num2">0</span>, lr = <span class="num2">0</span>, rl = <span class="num2">0</span>, rr = <span class="num2">0</span>;
+        <span class="kw">if</span> (root-&gt;left) {
+            ll = <span class="fn">rob</span>(root-&gt;left-&gt;left);       <span class="com">// grandchildren</span>
+            lr = <span class="fn">rob</span>(root-&gt;left-&gt;right);
+        }
+        <span class="kw">if</span> (root-&gt;right) {
+            rl = <span class="fn">rob</span>(root-&gt;right-&gt;left);
+            rr = <span class="fn">rob</span>(root-&gt;right-&gt;right);
+        }
+
+        <span class="kw">return</span> memo[root] = <span class="fn">max</span>(root-&gt;val + ll + lr + rl + rr,   <span class="com">// rob this one</span>
+                               <span class="fn">rob</span>(root-&gt;left) + <span class="fn">rob</span>(root-&gt;right)); <span class="com">// skip it</span>
+    }
+};</pre>
+      <p>Null returns <code class="chip num">0</code>, and a cached node returns its answer. Then I collect the four grandchildren, and return the max of rob this and skip this, storing it in the memo on the same line.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">if (root-&gt;left)</code> and <code class="chip">if (root-&gt;right)</code> guards exist so I can write <code class="chip">root-&gt;left-&gt;left</code> without dereferencing a null pointer. When a child is missing, its two values stay at <code class="chip num">0</code>, which is exactly what a missing subtree is worth.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on the example, expecting <code class="chip num">7</code>. Call the root <code class="chip">A</code>, its children <code class="chip">B</code> and <code class="chip">C</code>, then <code class="chip">D</code> under B and <code class="chip">E</code> under C.</p>
+      <svg class="tree" viewBox="0 0 300 175" role="img" aria-label="Example tree: A=3 with children B=2 and C=3; D=3 is B's right child, E=1 is C's right child">
+        <line x1="150" y1="28" x2="85" y2="88"/><line x1="150" y1="28" x2="215" y2="88"/>
+        <line x1="85" y1="88" x2="125" y2="148"/><line x1="215" y1="88" x2="255" y2="148"/>
+        <circle cx="150" cy="28" r="17"/><text x="150" y="28">3</text><text class="lbl" x="178" y="22">A</text>
+        <circle cx="85" cy="88" r="17"/><text x="85" y="88">2</text><text class="lbl" x="57" y="82">B</text>
+        <circle cx="215" cy="88" r="17"/><text x="215" y="88">3</text><text class="lbl" x="243" y="82">C</text>
+        <circle cx="125" cy="148" r="17"/><text x="125" y="148">3</text><text class="lbl" x="97" y="142">D</text>
+        <circle cx="255" cy="148" r="17"/><text x="255" y="148">1</text><text class="lbl" x="227" y="142">E</text>
+      </svg>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>#</th><th>call</th><th>what happens</th><th>memo</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>rob(A)</td><td>miss — fetch 4 grandchildren</td><td>—</td></tr>
+          <tr><td>2</td><td>rob(B.left)</td><td>null → ll = 0</td><td>—</td></tr>
+          <tr><td>3</td><td>rob(D)</td><td>miss — rob 3, skip 0</td><td>memo[D] = 3</td></tr>
+          <tr><td>4</td><td>rob(C.left)</td><td>null → rl = 0</td><td>—</td></tr>
+          <tr><td>5</td><td>rob(E)</td><td>miss — rob 1, skip 0</td><td>memo[E] = 1</td></tr>
+          <tr><td>6</td><td>rob A</td><td>3 + 0 + 3 + 0 + 1 = 7</td><td>—</td></tr>
+          <tr class="highlight-row"><td>7</td><td>rob(B)</td><td>miss — rob 2, skip 0 + <strong>rob(D) CACHE HIT 3</strong></td><td>memo[B] = max(2, 3) = 3</td></tr>
+          <tr><td>8</td><td>rob(C)</td><td>miss — rob 3, skip 0 + <strong>rob(E) CACHE HIT 1</strong></td><td>memo[C] = max(3, 1) = 3</td></tr>
+          <tr><td>9</td><td>skip A</td><td>3 + 3 = 6</td><td>—</td></tr>
+          <tr><td>10</td><td>rob(A) returns</td><td>max(7, 6) = <span class="answer-cell">7</span></td><td>memo[A] = 7</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">rob(B)</code>: <code class="chip">D</code> was already solved as A's grandchild, so when the skip branch asks again, it comes straight out of the map. That overlap is what would blow up without a cache. A is <code class="chip num">7</code> against <code class="chip num">6</code>, so <code class="chip num">7</code>. That matches.</p>
+      <p>The whole run is <strong>19 calls</strong>: 5 first-time nodes, 2 repeats, and 12 on null.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• An empty tree returns <code class="chip num">0</code> from the first line.<br>
+      • A single node returns its own value, since skip this is <code class="chip num">0</code>.<br>
+      • The second example, <code class="chip">[3,4,5,1,3,null,1]</code>, gives <code class="chip num">9</code> — skip the root, take <code class="chip num">4</code> and <code class="chip num">5</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>The answers look right. You flagged earlier that a node's value can be zero. What happens to this code then?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about that.</em> Good question — that's the line I marked, and my cache check is wrong.</p>
+      <p><code class="chip">if (memo[root])</code> tests the <strong>value</strong>, not whether the key is there. A subtree whose true answer is <code class="chip num">0</code> stores <code class="chip num">0</code>, which reads back as false, so that node is <strong>recomputed every single time</strong>.</p>
+      <p>The answers stay correct; this is purely a speed bug. And <code class="chip">memo[root]</code> on a miss <strong>inserts</strong> a <code class="chip num">0</code> entry, so <code class="chip">memo.size()</code> still ends at exactly the node count. That's why it's easy to miss.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>How bad does it get?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>With the memo dead, a long chain is exactly un-memoized Fibonacci. On an all-zero chain, every added node multiplies the calls by <code class="chip num">1.618</code>, the golden ratio:</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:340px;">
+        <thead><tr><th>chain length</th><th>calls</th><th>ratio per added node</th></tr></thead>
+        <tbody>
+          <tr><td>n = 10</td><td>463</td><td>—</td></tr>
+          <tr><td>n = 20</td><td>57,311</td><td>1.618</td></tr>
+          <tr><td>n = 30</td><td>7,049,153</td><td>1.618</td></tr>
+          <tr class="highlight-row"><td>n = 40</td><td>866,988,871</td><td>1.618 → 3.27 s</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Forty nodes already take 867 million calls and <strong>3.27 s</strong>, so about <strong>45 nodes</strong> times out — far under the limit.</p>
+      <p>And it really is the zeros: the same chain with values of <code class="chip num">1</code> makes just <strong>119 calls</strong> at <code class="chip">n = 30</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Would a big all-zero tree always be that bad?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>No, and that's the interesting part. <strong>The real discriminator is depth</strong>, not the zeros alone. Zeros kill the memo; <em>depth</em> turns that into an exponential.</p>
+      <p>A perfect all-zero tree is only <code class="chip">log n</code> deep, so calls grow roughly <code class="chip">n^1.694</code>:</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:300px;">
+        <thead><tr><th>perfect tree, all zeros</th><th>calls</th></tr></thead>
+        <tbody>
+          <tr><td>n = 1,023</td><td>131,891</td></tr>
+          <tr><td>n = 4,095</td><td>1,381,171</td></tr>
+          <tr><td>n = 16,383</td><td>14,463,795</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>At <code class="chip">n = 10⁴</code> it finishes in about <strong>35 ms</strong> — about 50× slower than it should be, but it <strong>passes</strong>. Only the deep chain actually dies.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>So how do you fix it?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>It's one word. Ask whether the key is <strong>present</strong> instead of whether the value is truthy:</p>
+<pre class="code"><span class="kw">if</span> (memo.<span class="fn">count</span>(root)) <span class="kw">return</span> memo[root];</pre>
+      <p>The fix gives <strong>identical answers</strong> on over a million test cases — purely a performance fix. With it, the call count is exactly <code class="chip">4n − 1</code> for any tree shape. That's clean O(n).</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time is O(n)</strong> with a working memo — each node is solved once, with a fixed amount of work. <strong>Space is O(h)</strong> for the stack plus O(n) for the map.</p>
+      <p>In the worst case the tree is a single chain. Measured at <code class="chip">-O0</code>, a frame is about <strong>56 bytes</strong>, and the default 8 MB stack survives about <code class="chip num">149,373</code> levels, so <code class="chip">n = 10⁴</code> has a <strong>14.94×</strong> margin. This isn't a tail call, so the compiler can't flatten it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Oh, one more thing —</em> the map is a class member on the heap, so it costs nothing per recursive call.</p>
+      <p>If I wanted only O(h) space, I'd switch to the pair version: one post-order pass returning <code class="chip">{rob, skip}</code>, and no map at all. Same time, less space.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Last one — what are the common ways people get this wrong?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Four I'd watch for.</p>
+      <p>• Adding the node's value to <strong>both</strong> branches — caught by <code class="chip">[1,1]</code>.<br>
+      • Summing even levels against odd levels — <code class="chip">[0,0,1,1]</code> gives 1 when the answer is 2.<br>
+      • Keying the memo on the value — <code class="chip">[0,0,0,1]</code> breaks it.<br>
+      • Dropping a grandchild term, caught by <code class="chip">[1,null,0,null,1]</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Three things stood out. You named the rob-or-skip structure before writing a line. You found a real bug in your own cache check from one constraint, and you were precise that it costs speed, not correctness. And you separated the zeros from the depth — the chain hits the golden ratio while the perfect tree still passes — then fixed it with one word. That's a strong hire.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.27, 30.66, 32.98, 51.34, 56.63, 66.13, 85.59, 104.74, 135.55, 173.56, 176.33, 205.03, 235.22, 251.77, 258.92, 287.47, 289.77, 318.13, 321.77, 348.65, 350.97, 370.69, 401.5, 417.91, 422.18, 442.81]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
