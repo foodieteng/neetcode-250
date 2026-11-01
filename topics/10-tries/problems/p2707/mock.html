@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 2707 · Extra Characters in a String</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation · Two implementations</div>
+    <div class="pill">LeetCode 2707 · Extra Characters in a String · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a string <code class="chip">s</code> and a dictionary of words. Break <code class="chip">s</code> into pieces that are dictionary words. Some characters may not fit in any word. Return the smallest number of leftover characters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I pick some words from the dictionary and place them inside <code class="chip">s</code>. Every character I don't cover counts as one extra, and I want to cover as much as I can. Is that right?</p>
+      <p>A few questions. Can the pieces overlap, or can one character be used twice? Are the dictionary words distinct? And is everything lowercase?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>No overlap — each character is used at most once. The words are distinct, and everything is lowercase, <code class="chip">a-z</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>The string has <code class="chip num">1 … 50</code> characters, the dictionary has <code class="chip num">1 … 50</code> words, and each word is <code class="chip num">1 … 50</code> letters long.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay, so everything is small. That tells me a clean DP is enough — I don't need anything fancy.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">s = "leetscode"</code>, dictionary <code class="chip">["leet","code","leetcode"]</code>. I take <code class="chip">"leet"</code> at 0..3, and <code class="chip">"code"</code> at 5..8. Only the <code class="chip">'s'</code> at index 4 is left, so the answer is <code class="chip num">1</code>. Note that <code class="chip">"leetcode"</code> is in the dictionary, but it never shows up in <code class="chip">s</code> as one piece, because the <code class="chip">'s'</code> is in the way.</p>
+      <p>Second example: <code class="chip">"sayhelloworld"</code>, with <code class="chip">["hello","world"]</code>. Both words fit, <code class="chip">"say"</code> is left, so the answer is <code class="chip num">3</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> try every choice at every position: skip this character, or start any word that matches here. That branching recursion can blow up exponentially. But the answer for "the rest of the string from position <code class="chip">i</code>" doesn't depend on how I got to <code class="chip">i</code>, so the subproblems repeat — a 1-D DP over positions.</p>
+      <p><strong>This problem reminds me of</strong> the word-segmentation DP: at each position, try every word that can start or end there. The difference is that a character may be skipped, at a cost of <code class="chip num">+1</code>. For the matching, a prefix tree lets me walk forward one character at a time and find every word that starts at a position in one walk.</p>
+      <p>I'll show two versions: a trie with a backward DP, and a simpler hash set with a forward DP.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan. Same idea in both: <strong>first assume this character is extra (+1), then try to cover it with a word.</strong></p>
+      <div class="insight-box">
+        <span class="label">// A — trie, backward. dp[i] = min extras in s[i..n-1]</span><br>
+        dp[n] = 0<br>
+        for start = n-1 down to 0:<br>
+        &nbsp;&nbsp;dp[start] = dp[start+1] + 1&nbsp;&nbsp;&nbsp;<span class="em">// s[start] is extra</span><br>
+        &nbsp;&nbsp;walk the trie from s[start]; stop at first missing child<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if s[start..end] is a word:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[start] = min(dp[start], dp[end+1])<br>
+        answer = <span class="em">dp[0]</span><br>
+        <br>
+        <span class="label">// B — set, forward. dp[i] = min extras in s[0..i-1]</span><br>
+        dp[0] = 0<br>
+        for i = 1 to n:<br>
+        &nbsp;&nbsp;dp[i] = dp[i-1] + 1&nbsp;&nbsp;&nbsp;<span class="em">// s[i-1] is extra</span><br>
+        &nbsp;&nbsp;for each word w of length L:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if s[i-L..i-1] == w: dp[i] = min(dp[i], dp[i-L])<br>
+        answer = <span class="em">dp[n]</span>
+      </div>
+      <p>One: in version A, <code class="chip">dp[i]</code> is the fewest extras in the suffix from <code class="chip">i</code>; <code class="chip">dp[n] = 0</code>.<br>
+      Two: from each start, I walk the trie and stop at the first missing child; every word end I pass offers <code class="chip">dp[end + 1]</code>.<br>
+      Three: version B mirrors it, with dp over prefixes, checking every word that ends at <code class="chip">i</code>.</p>
+      <p><strong>One thing worth flagging</strong> — I must take the <strong>min over every word</strong> that matches. A short word and a long word can both match at the same spot, so "first match wins" is wrong. In the trie walk, I only <code class="chip">break</code> when a child is missing.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code up both.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. First, <strong>version A — the trie with a backward DP.</strong></p>
+<pre class="code"><span class="kw">class</span> <span class="typ">TrieNode</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span> *child[<span class="num2">26</span>] = { <span class="kw">nullptr</span> };
+    <span class="typ">bool</span> isWord = <span class="kw">false</span>;
+};
+
+<span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span> *root;
+
+    <span class="typ">int</span> <span class="fn">minExtraChar</span>(<span class="typ">string</span> s, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; dictionary) {
+        root = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : dictionary) <span class="fn">insert</span>(w);
+
+        <span class="typ">int</span> n = s.<span class="fn">length</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">dp</span>(n + <span class="num2">1</span>, <span class="num2">0</span>);                      <span class="com">// dp[n] = 0: empty suffix</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> start = n - <span class="num2">1</span>; start &gt;= <span class="num2">0</span>; start--) {
+            dp[start] = dp[start + <span class="num2">1</span>] + <span class="num2">1</span>;             <span class="com">// ① first assume s[start] is extra</span>
+            <span class="typ">TrieNode</span>* node = root;                     <span class="com">// ② every start walks from root</span>
+            <span class="kw">for</span> (<span class="typ">int</span> end = start; end &lt; n; end++) {
+                <span class="typ">int</span> idx = s[end] - <span class="str">'a'</span>;
+                <span class="kw">if</span> (!node-&gt;child[idx]) <span class="kw">break</span>;          <span class="com">// ③ path broken: no longer word</span>
+                node = node-&gt;child[idx];
+                <span class="kw">if</span> (node-&gt;isWord) dp[start] = <span class="fn">min</span>(dp[start], dp[end + <span class="num2">1</span>]);  <span class="com">// ④ no break</span>
+            }
+        }
+
+        <span class="kw">return</span> dp[<span class="num2">0</span>];
+    }
+
+    <span class="typ">void</span> <span class="fn">insert</span>(<span class="typ">string</span>&amp; w) {
+        <span class="typ">TrieNode</span> *cur = root;
+
+        <span class="kw">for</span> (<span class="typ">char</span>&amp; c : w) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (!cur-&gt;child[i]) cur-&gt;child[i] = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+            cur = cur-&gt;child[i];
+        }
+        cur-&gt;isWord = <span class="kw">true</span>;
+    }
+};</pre>
+      <p>Each start sets <code class="chip">dp</code> to the next cell <code class="chip num">+ 1</code>, then walks from the root. The inner loop breaks only when <code class="chip">node-&gt;child[idx]</code> is missing; when <code class="chip">isWord</code> is true, I update the min and keep walking, so a longer word can still match.</p>
+      <p>Now <strong>version B — the hash set with a forward DP.</strong></p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minExtraChar</span>(<span class="typ">string</span> s, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; dictionary) {
+        <span class="typ">int</span> n = s.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">dp</span>(n + <span class="num2">1</span>, <span class="num2">0</span>);                      <span class="com">// dp[0] = 0: empty prefix</span>
+        <span class="typ">unordered_set</span>&lt;<span class="typ">string</span>&gt; <span class="fn">dict</span>(dictionary.<span class="fn">begin</span>(), dictionary.<span class="fn">end</span>());
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= n; i++) {
+            dp[i] = dp[i - <span class="num2">1</span>] + <span class="num2">1</span>;                     <span class="com">// ① first assume s[i-1] is extra</span>
+            <span class="kw">for</span> (<span class="typ">string</span> w : dict) {                    <span class="com">// ② compare every word once</span>
+                <span class="typ">int</span> L = w.<span class="fn">size</span>();
+                <span class="kw">if</span> (i - L &gt;= <span class="num2">0</span> &amp;&amp; (s.<span class="fn">substr</span>(i - L, L) == w)) {  <span class="com">// ③ the piece ending at i</span>
+                    dp[i] = <span class="fn">min</span>(dp[i], dp[i - w.<span class="fn">size</span>()]);       <span class="com">// ④ no break</span>
+                }
+            }
+        }
+        <span class="kw">return</span> dp[n];
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — two code-review notes on B. The <code class="chip">unordered_set</code> is only looped over; I never call <code class="chip">find</code> on it, so it gives no speed-up over looping on <code class="chip">dictionary</code> directly. And <code class="chip">for (string w : dict)</code> copies each word on every pass, while <code class="chip">s.substr(i - L, L)</code> allocates a new string; <code class="chip">const string&amp; w</code> and <code class="chip">s.compare(i - L, L, w) == 0</code> avoid both.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run version A on <code class="chip">"leetscode"</code>.</strong> <code class="chip">n = 9</code>, <code class="chip">dp[9] = 0</code>. Expected: <code class="chip num">1</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:600px;">
+        <thead><tr><th>start</th><th>char</th><th>trie walk</th><th>word hit</th><th>dp[start]</th></tr></thead>
+        <tbody>
+          <tr><td>8</td><td>e</td><td>no child → break</td><td>—</td><td>dp[9]+1 = 1</td></tr>
+          <tr><td>7</td><td>d</td><td>no child → break</td><td>—</td><td>dp[8]+1 = 2</td></tr>
+          <tr><td>6</td><td>o</td><td>no child → break</td><td>—</td><td>dp[7]+1 = 3</td></tr>
+          <tr><td>5</td><td>c</td><td>c → o → d → e</td><td>"code"</td><td>min(4, dp[9]=0) = 0</td></tr>
+          <tr><td>4</td><td>s</td><td>no child → break</td><td>—</td><td>dp[5]+1 = 1</td></tr>
+          <tr><td>3</td><td>t</td><td>no child → break</td><td>—</td><td>dp[4]+1 = 2</td></tr>
+          <tr><td>2</td><td>e</td><td>no child → break</td><td>—</td><td>dp[3]+1 = 3</td></tr>
+          <tr><td>1</td><td>e</td><td>no child → break</td><td>—</td><td>dp[2]+1 = 4</td></tr>
+          <tr class="highlight-row"><td>0</td><td>l</td><td>l → e → e → t, then 's' missing</td><td>"leet"</td><td>min(5, dp[4]=1) = <span class="answer-cell">1</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">start = 0</code>. The walk hits <code class="chip">"leet"</code>, so <code class="chip">dp[0]</code> drops to <code class="chip">dp[4]</code>, which is <code class="chip num">1</code>. Then the next character is <code class="chip">'s'</code>, and the "leet" node has no <code class="chip">'s'</code> child, so it breaks — <code class="chip">"leetcode"</code> is never reached, which is correct, since it isn't in <code class="chip">s</code>. That's <code class="chip num">16</code> inner-loop steps.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:540px;">
+        <thead><tr><th>B: i</th><th>s[i-1]</th><th>word ending here</th><th>dp[i]</th></tr></thead>
+        <tbody>
+          <tr><td>1..3</td><td>l e e</td><td>—</td><td>1, 2, 3</td></tr>
+          <tr><td>4</td><td>t</td><td>"leet"</td><td>min(4, dp[0]=0) = 0</td></tr>
+          <tr><td>5..8</td><td>s c o d</td><td>—</td><td>1, 2, 3, 4</td></tr>
+          <tr class="highlight-row"><td>9</td><td>e</td><td>"code"</td><td>min(5, dp[5]=1) = <span class="answer-cell">1</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Version B on the same string ends with <code class="chip">dp[9] = 1</code>, after <code class="chip num">14</code> comparisons, so both versions agree.</p>
+      <p>Corner cases:</p>
+      <p>• Example 2, <code class="chip">"sayhelloworld"</code>, gives <code class="chip num">3</code> in both.<br>
+      • <code class="chip">"ab"</code> with <code class="chip">["a","ab"]</code> gives <code class="chip num">0</code> — exactly where breaking on the first word would wrongly give <code class="chip num">1</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>For version A, building the trie is <code class="chip">O(Σ|w|)</code>, plus <code class="chip">O(n · Lmax)</code> for the DP, since each walk stops at the first missing child. For version B, it's <code class="chip">O(n · m · L)</code>, where <code class="chip">m</code> is the dictionary size, because each comparison costs up to <code class="chip">O(L)</code>.</p>
+      <p>Space is <code class="chip">O(26 · Σ|w|)</code> for the trie in A, or just <code class="chip">O(Σ|w|)</code> for the set in B, plus <code class="chip">O(n)</code> for <code class="chip">dp</code>.</p>
+      <p><strong>In the worst-case scenario</strong>, with many long words, B pays for every word at every position, while A only follows letters that exist in the trie. With every limit at <code class="chip num">50</code>, both pass easily.</p>
+      <p><em class="pause">Oh, one more thing —</em> version A never frees its trie nodes. That's fine on LeetCode, but in real code I'd use <code class="chip">unique_ptr</code> or a node pool.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You framed both versions with one rule: assume the character is extra, then try to cover it. You flagged that the first matching word is not enough, and you must take the min over all matches. And you reviewed your own set version honestly: the set is never looked up, the loop copies each word, and <code class="chip">compare</code> beats <code class="chip">substr</code>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.39, 39.32, 48.22, 51.29, 58.91, 96.3, 144.8, 192.79, 195.67, 238.76, 285.34, 335.42]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

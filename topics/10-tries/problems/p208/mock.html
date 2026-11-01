@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 208 · Implement Trie (Prefix Tree)</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 208 · Implement Trie (Prefix Tree) · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Build a <code class="chip">Trie</code> class. <code class="chip">insert(word)</code> adds a word. <code class="chip">search(word)</code> returns <code class="chip">true</code> if that exact word was inserted. <code class="chip">startsWith(prefix)</code> returns <code class="chip">true</code> if any inserted word starts with the given prefix.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> <code class="chip">search</code> and <code class="chip">startsWith</code> do the same walk down the tree. The only difference is the last check. <code class="chip">search</code> needs the walk to <strong>end on a real word</strong>. <code class="chip">startsWith</code> only needs the walk to <strong>not fall off</strong>. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, that's right.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong> And is it only lowercase letters?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Words and prefixes are <code class="chip num">1 … 2000</code> characters long. Lowercase English letters only. At most <code class="chip num">3·10<sup>4</sup></code> calls in total.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. Lowercase only means each node can hold a fixed array of <code class="chip num">26</code> child pointers — no hash map needed.</p>
+      <p><strong>Let me run through the example.</strong> Insert <code class="chip">"apple"</code>, and <code class="chip">search("apple")</code> is <code class="chip">true</code>. <code class="chip">search("app")</code> is <code class="chip">false</code>, because "app" was never inserted as a word, but <code class="chip">startsWith("app")</code> is <code class="chip">true</code>. Then insert <code class="chip">"app"</code>, and now <code class="chip">search("app")</code> is <code class="chip">true</code>. So the output is <code class="chip">[null,null,true,false,true,null,true]</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> keep every word in a list. Then <code class="chip">startsWith</code> has to check every stored word, so the cost grows with the number of words, not with the length of the prefix. A hash set makes <code class="chip">search</code> fast, but it can't answer prefix questions at all.</p>
+      <p><strong>This problem reminds me of</strong> the prefix tree behind autocomplete. Words that share a start should share the same path. Each edge is one letter, and each node is one prefix, so every call costs only the length of its string.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// node = one prefix; child[c-'a'] = that prefix + c</span><br>
+        TrieNode { child[26] = all null; isWord = false }<br>
+        <br>
+        insert(w): cur = root<br>
+        &nbsp;&nbsp;for c in w: <span class="em">if child is null → create it</span>; step down<br>
+        &nbsp;&nbsp;cur.isWord = true<br>
+        <br>
+        search(w, prefix): cur = root<br>
+        &nbsp;&nbsp;for c in w: if child is null → return false; step down<br>
+        &nbsp;&nbsp;return <span class="em">prefix ? true : cur.isWord</span><br>
+        <br>
+        startsWith(p) = search(p, true)
+      </div>
+      <p>One: each node has <code class="chip num">26</code> child slots, all null, plus an <code class="chip">isWord</code> flag.<br>
+      Two: <code class="chip">insert</code> walks the word, creates a child only when the slot is empty, then marks the last node.<br>
+      Three: <code class="chip">search</code> does the same walk and fails if it falls off; at the end, prefix mode returns <code class="chip">true</code> and word mode returns <code class="chip">isWord</code>. <code class="chip">startsWith</code> just calls <code class="chip">search</code> with <code class="chip">prefix = true</code>.</p>
+      <p>The flag matters because a node existing only means some word <em>passes through</em> it.</p>
+      <p><strong>One thing worth flagging</strong> — the nullptr check in <code class="chip">insert</code> is a <strong>correctness rule</strong>, not a speed trick. If I always wrote <code class="chip">cur-&gt;child[i] = new TrieNode()</code>, inserting "app" after "apple" would replace the old path and cut off the "l" and "e" nodes, so <code class="chip">search("apple")</code> would return <code class="chip">false</code>.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">TrieNode</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span>* child[<span class="num2">26</span>] = { <span class="kw">nullptr</span> };   <span class="com">// ① all 26 slots start as nullptr</span>
+    <span class="typ">bool</span> isWord = <span class="kw">false</span>;                 <span class="com">// ② does a word end here?</span>
+};
+
+<span class="kw">class</span> <span class="typ">Trie</span> {
+<span class="kw">private</span>:
+    <span class="typ">TrieNode</span>* root;
+
+<span class="kw">public</span>:
+    <span class="typ">Trie</span>() {
+        root = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+    }
+
+    <span class="typ">void</span> <span class="fn">insert</span>(<span class="typ">string</span> word) {
+        <span class="typ">TrieNode</span>* cur = root;
+        <span class="kw">for</span> (<span class="typ">char</span> c : word) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (cur-&gt;child[i] == <span class="kw">nullptr</span>) {    <span class="com">// ③ create only if missing, else reuse</span>
+                cur-&gt;child[i] = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+            }
+            cur = cur-&gt;child[i];
+        }
+        cur-&gt;isWord = <span class="kw">true</span>;                  <span class="com">// ④ mark the end</span>
+    }
+
+    <span class="typ">bool</span> <span class="fn">search</span>(<span class="typ">string</span> word, <span class="typ">bool</span> prefix = <span class="kw">false</span>) {
+        <span class="typ">TrieNode</span>* cur = root;
+        <span class="kw">for</span> (<span class="typ">char</span> &amp;c : word) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (cur-&gt;child[i] == <span class="kw">nullptr</span>) {
+                <span class="kw">return</span> <span class="kw">false</span>;                <span class="com">// fell off midway</span>
+            }
+            cur = cur-&gt;child[i];
+        }
+        <span class="kw">if</span> (prefix) <span class="kw">return</span> <span class="kw">true</span>;             <span class="com">// ⑤ prefix: reaching the end is enough</span>
+        <span class="kw">return</span> cur-&gt;isWord;                  <span class="com">// ⑥ whole word: also needs isWord</span>
+    }
+
+    <span class="typ">bool</span> <span class="fn">startsWith</span>(<span class="typ">string</span> prefix) {
+        <span class="kw">return</span> <span class="fn">search</span>(prefix, <span class="kw">true</span>);
+    }
+};</pre>
+      <p>A <code class="chip">TrieNode</code> holds <code class="chip num">26</code> child pointers, all starting as <code class="chip">nullptr</code>, and an <code class="chip">isWord</code> flag. <code class="chip">insert</code> creates a child only when its slot is null, steps down, and marks the last node. <code class="chip">search</code> returns <code class="chip">false</code> the moment a child is missing; after the loop it returns <code class="chip">true</code> in prefix mode, otherwise <code class="chip">isWord</code>.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">startsWith</code> reuses <code class="chip">search</code> through a default argument, <code class="chip">bool prefix = false</code>. LeetCode only calls <code class="chip">search(word)</code> with one argument, so the public behavior stays the same. The only difference is the last line: in prefix mode I return <code class="chip">true</code> before I look at <code class="chip">isWord</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with the official example.</strong> Expected: <code class="chip">[null,null,true,false,true,null,true]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>call</th><th>what happens</th><th>nodes</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>Trie()</td><td>create root</td><td>1</td><td>null</td></tr>
+          <tr><td>insert("apple")</td><td>create a, ap, app, appl, apple; mark apple</td><td>6</td><td>null</td></tr>
+          <tr><td>search("apple")</td><td>walk 5 nodes; apple.isWord = true</td><td>6</td><td><span class="answer-cell">true</span></td></tr>
+          <tr class="highlight-row"><td>search("app")</td><td>walk a, ap, app; app.isWord = false</td><td>6</td><td><span class="answer-cell">false</span></td></tr>
+          <tr class="highlight-row"><td>startsWith("app")</td><td>same walk; prefix mode skips isWord</td><td>6</td><td><span class="answer-cell">true</span></td></tr>
+          <tr><td>insert("app")</td><td>all 3 nodes exist → create 0; mark app</td><td>6</td><td>null</td></tr>
+          <tr><td>search("app")</td><td>walk a, ap, app; app.isWord = true</td><td>6</td><td><span class="answer-cell">true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The two rows that matter are <code class="chip">search("app")</code> and <code class="chip">startsWith("app")</code>. They do the <strong>same walk</strong> and end on the <strong>same node</strong>. <code class="chip">search</code> says <code class="chip">false</code> because no word ends there yet; <code class="chip">startsWith</code> says <code class="chip">true</code> because the path exists. Then <code class="chip">insert("app")</code> creates zero new nodes — we stay at <code class="chip num">6</code> — and only flips the flag. That's the nullptr check keeping the "apple" nodes attached. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">search("apx")</code> walks to "ap", finds no <code class="chip">child['x']</code>, and returns <code class="chip">false</code>.<br>
+      • <code class="chip">startsWith("apple")</code> is <code class="chip">true</code>, because a word counts as a prefix of itself.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is <code class="chip">O(L)</code> per call, for <code class="chip">insert</code>, <code class="chip">search</code> and <code class="chip">startsWith</code>, where <code class="chip">L</code> is the string length. It doesn't depend on how many words are stored.</p>
+      <p>Space is <code class="chip">O(total inserted chars × 26)</code> pointers. In the worst case no words share a prefix, so every character makes a new node, and each node carries <code class="chip num">26</code> slots.</p>
+      <p><em class="pause">Oh, one more thing —</em> there's no destructor, so the nodes are never freed. That's fine on LeetCode. In real code I'd add a destructor that deletes children recursively, or keep the nodes in <code class="chip">unique_ptr</code> or a pool.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You saw early that <code class="chip">search</code> and <code class="chip">startsWith</code> are the same walk with a different last check, and you shared one loop for both. You explained that the nullptr check in <code class="chip">insert</code> is about correctness, because overwriting a child would cut off existing words. And your dry-run showed <code class="chip">insert("app")</code> making zero new nodes, which proves the old subtree stays safe. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.43, 32.34, 34.66, 40.01, 50.37, 76.48, 108.08, 156.79, 159.55, 198.16, 237.63, 273.79]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 212 · Word Search II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 212 · Word Search II · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an <code class="chip">m × n</code> board of letters and a list of words. Return every word that can be built on the board. You build a word from letters in cells that touch up, down, left or right. You can't use the same cell twice in one word.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> this is the single-word grid search, but with <strong>many words at once</strong>. Each word should show up <strong>once</strong> in the answer, even if the board has it in two places. And the order of the answer doesn't matter. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Any order is fine, and no duplicates.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>The board is at most <code class="chip num">12 × 12</code>. Lowercase letters only. Up to <code class="chip num">3·10<sup>4</sup></code> words, each <code class="chip num">1 … 10</code> letters long. All words are unique.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. So the board is small, but the word list is big. That tells me the cost can't be one full board search per word.</p>
+      <p><strong>Let me run through the example.</strong> The board is <code class="chip">oaan / etae / ihkr / iflv</code>, and the words are <code class="chip">["oath","pea","eat","rain"]</code>.</p>
+      <table class="trace" style="width:auto;">
+        <tbody>
+          <tr><td>o</td><td>a</td><td>a</td><td>n</td></tr>
+          <tr><td>e</td><td>t</td><td>a</td><td>e</td></tr>
+          <tr><td>i</td><td>h</td><td>k</td><td>r</td></tr>
+          <tr><td>i</td><td>f</td><td>l</td><td>v</td></tr>
+        </tbody>
+      </table>
+      <p>"oath" goes o → a → t → h — right, then down, then down. "eat" starts at the <code class="chip">e</code> on the right edge and goes left. "pea" can't work — there's no <code class="chip">p</code> on the board. "rain" has no path. So the output is <code class="chip">["oath","eat"]</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> run a single-word backtracking search once for each word, starting a DFS from every cell. The problem is that words that share a start, like "oa" and "oath", redo the same walk again and again. With <code class="chip num">3·10<sup>4</sup></code> words, that's a lot of repeated work.</p>
+      <p><strong>This problem reminds me of</strong> backtracking guided by a prefix tree. If I put all the words in a trie, words with the same start share one path. Then I do <strong>one</strong> DFS on the board and walk the trie at the same time, so one board walk checks every word that starts with those letters.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// 1. build: put every word in a trie</span><br>
+        &nbsp;&nbsp;the last node of a word stores that word<br>
+        <br>
+        <span class="label">// 2. for each cell (i, j):</span><br>
+        &nbsp;&nbsp;if root has a child for board[i][j] → mark '#', search, restore<br>
+        <br>
+        <span class="label">// 3. search(r, c, node): node = trie node for the path so far</span><br>
+        &nbsp;&nbsp;<span class="em">if node-&gt;word is set → add it, then clear it</span><br>
+        &nbsp;&nbsp;for each of 4 neighbors:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;skip if off the board, or '#', <span class="em">or node has no child</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;mark '#', search(neighbor, child), restore
+      </div>
+      <p>One: put every word in a trie, and let each word's last node store it.<br>
+      Two: for each cell, start only if the root has a child for that letter — mark the cell <code class="chip">'#'</code>, search, and restore it.<br>
+      Three: the search carries the trie node for the path so far. If the node stores a word, add it and clear it; then try the four neighbors, skipping cells off the board, already marked, or with no trie child.</p>
+      <p><strong>One thing worth flagging</strong> — when I find a word, I <strong>don't stop</strong>. If the list has "oa" and "oath", returning at "oa" would miss "oath". And <strong>clearing</strong> the word is how I dedupe, because the same word can be reached from two start cells.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">TrieNode</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span> *child[<span class="num2">26</span>] = { <span class="kw">nullptr</span> };
+    <span class="typ">string</span> word = <span class="str">""</span>;                     <span class="com">// the end node stores the whole word</span>
+};
+
+<span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span> *root;
+
+    <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">0</span>, -<span class="num2">1</span>}, {<span class="num2">0</span>, <span class="num2">1</span>}};
+
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">findWords</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; words) {
+        root = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : words) <span class="fn">insert</span>(w);
+
+        <span class="typ">int</span> m = board.<span class="fn">size</span>(), n = board[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; ans;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="typ">int</span> idx = board[i][j] - <span class="str">'a'</span>;
+                <span class="kw">if</span> (root-&gt;child[idx]) {           <span class="com">// ① start only if the trie has this letter</span>
+                    <span class="typ">char</span> cache = board[i][j];
+                    board[i][j] = <span class="str">'#'</span>;            <span class="com">// ② mark the start cell first</span>
+                    <span class="fn">search</span>(board, ans, i, j, root-&gt;child[idx]);
+                    board[i][j] = cache;
+                }
+            }
+        }
+
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">insert</span>(<span class="typ">string</span>&amp; w) {
+        <span class="typ">TrieNode</span> *cur = root;
+
+        <span class="kw">for</span> (<span class="typ">char</span>&amp; c : w) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (!cur-&gt;child[i]) cur-&gt;child[i] = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+            cur = cur-&gt;child[i];
+        }
+        cur-&gt;word = w;                    <span class="com">// store the word, not an isWord flag</span>
+    }
+
+    <span class="typ">void</span> <span class="fn">search</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; ans, <span class="typ">int</span> r, <span class="typ">int</span> c, <span class="typ">TrieNode</span>* node) {
+        <span class="typ">int</span> m = board.<span class="fn">size</span>(), n = board[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">if</span> (!node-&gt;word.<span class="fn">empty</span>()) {
+            ans.<span class="fn">push_back</span>(node-&gt;word);        <span class="com">// ③ collect the answer</span>
+            node-&gt;word.<span class="fn">clear</span>();               <span class="com">// ④ clear it, so no duplicates</span>
+        }
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [dr, dc] : dirs) {
+            <span class="typ">int</span> nr = r + dr, nc = c + dc;
+            <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= m || nc &lt; <span class="num2">0</span> || nc &gt;= n) <span class="kw">continue</span>;
+            <span class="kw">if</span> (board[nr][nc] == <span class="str">'#'</span> || !node-&gt;child[board[nr][nc] - <span class="str">'a'</span>]) <span class="kw">continue</span>;  <span class="com">// ⑤ prune</span>
+
+            <span class="typ">char</span> cache = board[nr][nc];
+            board[nr][nc] = <span class="str">'#'</span>;
+            <span class="fn">search</span>(board, ans, nr, nc, node-&gt;child[cache - <span class="str">'a'</span>]);
+            board[nr][nc] = cache;            <span class="com">// ⑥ restore</span>
+        }
+    }
+};</pre>
+      <p><code class="chip">insert</code> stores the whole word at its last node, instead of an <code class="chip">isWord</code> flag. The main loop only starts a search if the root has a child for that letter. Inside <code class="chip">search</code>, the check <code class="chip">!node-&gt;child[...]</code> is the trie pruning — the same check, one level deeper.</p>
+      <p><strong>One thing worth flagging</strong> — the order inside <code class="chip">search</code>. I mark the neighbor <code class="chip">'#'</code> <strong>before</strong> I recurse, and I pass <code class="chip">node-&gt;child[cache - 'a']</code>. I have to use <code class="chip">cache</code> there, not <code class="chip">board[nr][nc]</code>, because that cell is already <code class="chip">'#'</code>, and <code class="chip">'#' - 'a'</code> would be a bad index.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with example 1.</strong> The trie has <code class="chip num">15</code> nodes, and the root's children are only <code class="chip">o, p, e, r</code>, so only four cells start a search. Expected: <code class="chip">["oath","eat"]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>start</th><th>what happens</th><th>calls</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>(0,0) o</td><td>o → (0,1) oa → (1,1) oat → (2,1) oath</td><td>4</td><td><span class="answer-cell">"oath"</span></td></tr>
+          <tr class="highlight-row"><td>(1,0) e</td><td>neighbors o, t, i — no 'a' child → stop</td><td>1</td><td>—</td></tr>
+          <tr><td>(1,3) e</td><td>e → (1,2) ea → (1,1) eat</td><td>3</td><td><span class="answer-cell">"eat"</span></td></tr>
+          <tr><td>(2,3) r</td><td>neighbors e, v, k — no 'a' child → stop</td><td>1</td><td>—</td></tr>
+          <tr><td>12 others</td><td>root has no child → never start</td><td>0</td><td>—</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">(1,0) e</code>: the trie says the only letter after "e" is "a", and no neighbor is "a", so it stops after one call. That's the pruning doing its job. <code class="chip num">9</code> search calls in total, output <code class="chip">["oath","eat"]</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• Example 2, <code class="chip">[[a,b],[c,d]]</code> with <code class="chip">["abcb"]</code>: "c" isn't next to "b", so "abcb" is pruned at the third letter — output <code class="chip">[]</code>.<br>
+      • "oa" and "oath" both come out, since a hit doesn't stop me.<br>
+      • Board <code class="chip">[[a,a]]</code>, word <code class="chip">"aa"</code>: added <strong>once</strong>, because I clear it.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Building the trie is <code class="chip">O(Σ|word|)</code>. The search is <code class="chip">O(m · n · 4 · 3<sup>L−1</sup>)</code>, where <code class="chip">L ≤ 10</code> is the longest word. The first step has 4 ways to go; after that I came from one side, so only 3 are left.</p>
+      <p><strong>In the worst-case scenario</strong> the board is all one letter and the words share a long start. On a <code class="chip num">12×12</code> board of all <code class="chip">'a'</code>, with <code class="chip num">25</code> words that are nine a's plus one other letter, nothing is found. Per-word search made about <code class="chip num">47,091,600</code> calls; the trie made about <code class="chip num">741,120</code>, because the words share their first 9 letters.</p>
+      <p>Space is <code class="chip">O(Σ|word|)</code>, plus <code class="chip">O(L)</code> for the recursion.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Can you make it faster when many words get found?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Follow-up: prune found words out of the trie.</strong> After I find a word, I clear it, but its nodes stay, so later searches still walk dead paths. The fix: each node keeps <code class="chip">cnt</code>, the number of its children. After a node's children are done, if it has no children and no word left, I delete it and lower the parent's <code class="chip">cnt</code> — that's why <code class="chip">dfs</code> takes the <strong>parent</strong>. When <code class="chip">root-&gt;cnt</code> hits <code class="chip num">0</code>, every word is found, so I return early.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">TrieNode</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span> *child[<span class="num2">26</span>] = { <span class="kw">nullptr</span> };
+    <span class="typ">string</span> word = <span class="str">""</span>;
+    <span class="typ">int</span> cnt = <span class="num2">0</span>;
+};
+
+<span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span> *root;
+    <span class="typ">int</span> m, n;
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; ans;
+    <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">0</span>, -<span class="num2">1</span>}, {<span class="num2">0</span>, <span class="num2">1</span>}};
+
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">findWords</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; words) {
+        root = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : words) <span class="fn">insert</span>(w);
+
+        m = board.<span class="fn">size</span>(), n = board[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="kw">if</span> (root-&gt;cnt == <span class="num2">0</span>) <span class="kw">return</span> ans;
+                <span class="fn">dfs</span>(board, i, j, root);
+            }
+        }
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">insert</span>(<span class="typ">string</span>&amp; w) {
+        <span class="typ">TrieNode</span> *cur = root;
+        <span class="kw">for</span> (<span class="typ">char</span>&amp; c : w) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (!cur-&gt;child[i]) {
+                cur-&gt;child[i] = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+                cur-&gt;cnt++;
+            }
+            cur = cur-&gt;child[i];
+        }
+        cur-&gt;word = w;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board, <span class="typ">int</span> r, <span class="typ">int</span> c, <span class="typ">TrieNode</span>* parent) {
+        <span class="kw">if</span> (r &lt; <span class="num2">0</span> || r &gt;= m || c &lt; <span class="num2">0</span> || c &gt;= n) <span class="kw">return</span>;
+        <span class="typ">char</span> ch = board[r][c];
+        <span class="kw">if</span> (ch == <span class="str">'#'</span>) <span class="kw">return</span>;
+
+        <span class="typ">TrieNode</span> *node = parent-&gt;child[ch - <span class="str">'a'</span>];
+        <span class="kw">if</span> (!node) <span class="kw">return</span>;
+
+        <span class="kw">if</span> (!node-&gt;word.<span class="fn">empty</span>()) {
+            ans.<span class="fn">push_back</span>(node-&gt;word);
+            node-&gt;word.<span class="fn">clear</span>();
+        }
+
+        board[r][c] = <span class="str">'#'</span>;
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [dr, dc] : dirs) <span class="fn">dfs</span>(board, r + dr, c + dc, node);
+        board[r][c] = ch;
+
+        <span class="kw">if</span> (node-&gt;cnt == <span class="num2">0</span> &amp;&amp; node-&gt;word.<span class="fn">empty</span>()) {
+            <span class="kw">delete</span> node;
+            parent-&gt;child[ch - <span class="str">'a'</span>] = <span class="kw">nullptr</span>;
+            parent-&gt;cnt--;
+        }
+    }
+};</pre>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:600px;">
+        <thead><tr><th>12×12 test</th><th>first version</th><th>pruning</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>all 'a', words a … a<sup>10</sup> (all found)</td><td>1,883,664 · 36.8 ms</td><td><span class="answer-cell">10 · 0.0 ms</span></td></tr>
+          <tr class="highlight-row"><td>random {a,b}, all 1,024 length-10 words</td><td>1,883,664 · 37.6 ms</td><td><span class="answer-cell">4,699 · 0.4 ms</span></td></tr>
+          <tr><td>all 'a', a … a<sup>9</sup> + "aaaaaaaaab"</td><td>741,120 · 12.8 ms</td><td>741,120 · 21.2 ms</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>There's a trade-off here.</strong> Pruning only helps when words are <strong>actually found</strong>. On an all-a board where every word is found, visits drop from about <code class="chip num">1.9</code> million to <code class="chip num">10</code>. But when a word is never found, its path stays, the visits are the same, and it's <strong>slower</strong>.</p>
+      <p><em class="pause">Oh, one more thing —</em> the Big-O stays the same; pruning changes the real work, not the bound.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You moved the DFS from carrying an index into one word to carrying a trie node, so shared starts are walked once and a missing child stops the search. You explained why "found" doesn't mean "stop", and why clearing the word is what removes duplicates. And for the follow-up, you measured both sides: pruning wins big when words get found, but it can't remove anything when they don't. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.68, 34.6, 38.79, 42.31, 53.63, 88.6, 125.12, 171.38, 174.23, 206.99, 250.45, 294.62, 299.01, 349.36]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

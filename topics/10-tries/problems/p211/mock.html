@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 211 · Design Add and Search Words Data Structure</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 211 · Design Add and Search Words Data Structure · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Build a <code class="chip">WordDictionary</code> class. <code class="chip">addWord(word)</code> stores a word. <code class="chip">search(word)</code> returns <code class="chip">true</code> if any stored word matches it. The search word may contain dots, and a <code class="chip">'.'</code> matches any letter.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> a match means the <strong>whole word</strong> matches, not just a prefix. And a dot stands for <strong>exactly one</strong> letter. So <code class="chip">"b.."</code> only matches three-letter words that start with "b". Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, that's right.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong> And how many dots can one search have?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Words are <code class="chip num">1 … 25</code> letters long. Lowercase letters, plus dots in <code class="chip">search</code>. At most <code class="chip num">2</code> dots per search. At most <code class="chip num">10<sup>4</sup></code> calls in total.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. That dot limit is important — I'll come back to it when I talk about complexity.</p>
+      <p><strong>Let me run through the example.</strong> Add <code class="chip">"bad"</code>, <code class="chip">"dad"</code>, and <code class="chip">"mad"</code>. Then <code class="chip">search("pad")</code> is <code class="chip">false</code> — no word starts with "p". <code class="chip">search("bad")</code> is <code class="chip">true</code>. <code class="chip">search(".ad")</code> is <code class="chip">true</code>, because the dot can be "b". <code class="chip">search("b..")</code> is <code class="chip">true</code>, because "bad" fits. So the output is <code class="chip">[null,null,null,null,false,true,true,true]</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> keep every word in a list. Then each search compares the pattern with every stored word, character by character, so the cost grows with the number of words stored.</p>
+      <p><strong>This problem reminds me of</strong> a prefix tree searched with depth-first backtracking. Words that share a start share one path, and a normal letter just follows one child. The new part is the dot. At a dot, I don't know which child to take, so I <strong>try all of them</strong>, and back up when a branch fails. That's a DFS over the trie.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// plain trie insert; only search changes</span><br>
+        addWord(w): cur = root<br>
+        &nbsp;&nbsp;for c in w: if child is null → create it; step down<br>
+        &nbsp;&nbsp;cur.isWord = true<br>
+        <br>
+        dfs(w, idx, node):<br>
+        &nbsp;&nbsp;<span class="em">if node is null → return false</span><br>
+        &nbsp;&nbsp;if idx == len(w) → return node.isWord<br>
+        &nbsp;&nbsp;if w[idx] is a letter → dfs(w, idx+1, that child)<br>
+        &nbsp;&nbsp;if w[idx] is '.' → <span class="em">try all 26 children</span>, stop at first true<br>
+        <br>
+        search(w) = dfs(w, 0, root)
+      </div>
+      <p>One: <code class="chip">addWord</code> is a normal trie insert — create a child only when it's missing, then mark the end.<br>
+      Two: <code class="chip">search</code> runs a DFS with <code class="chip">idx</code> into the pattern and <code class="chip">node</code> in the trie, moving down together.<br>
+      Three: in the DFS, a null node fails, the end of the pattern returns <code class="chip">isWord</code>, a letter follows one child, and a dot tries all <code class="chip num">26</code> children and stops at the first <code class="chip">true</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the line <code class="chip">if (!node) return false;</code> at the top of <code class="chip">dfs</code> does two jobs. It catches a letter with no child, like "p" in "pad", and the many null children the dot loop passes in. Without it, the next line reads <code class="chip">node-&gt;isWord</code> from a null pointer — a <strong>correctness rule</strong>, not a style choice.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">TrieNode</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span>* child[<span class="num2">26</span>] = { <span class="kw">nullptr</span> };
+    <span class="typ">bool</span> isWord = <span class="kw">false</span>;
+};
+
+<span class="kw">class</span> <span class="typ">WordDictionary</span> {
+<span class="kw">public</span>:
+    <span class="typ">TrieNode</span>* root;
+
+    <span class="typ">WordDictionary</span>() {
+        root = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+    }
+
+    <span class="typ">void</span> <span class="fn">addWord</span>(<span class="typ">string</span> word) {                          <span class="com">// same as a plain trie insert</span>
+        <span class="typ">TrieNode</span> *cur = root;
+
+        <span class="kw">for</span> (<span class="typ">char</span> &amp;c : word) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (!cur-&gt;child[i]) cur-&gt;child[i] = <span class="kw">new</span> <span class="typ">TrieNode</span>();
+            cur = cur-&gt;child[i];
+        }
+        cur-&gt;isWord = <span class="kw">true</span>;
+    }
+
+    <span class="typ">bool</span> <span class="fn">search</span>(<span class="typ">string</span> word) {
+        <span class="kw">return</span> <span class="fn">dfs</span>(word, <span class="num2">0</span>, root);
+    }
+
+    <span class="typ">bool</span> <span class="fn">dfs</span>(<span class="kw">const</span> <span class="typ">string</span>&amp; word, <span class="typ">int</span> idx, <span class="typ">TrieNode</span>* node) {
+        <span class="kw">if</span> (!node) <span class="kw">return</span> <span class="kw">false</span>;                         <span class="com">// ① both kinds of null stop here</span>
+        <span class="kw">if</span> (idx == word.<span class="fn">size</span>()) <span class="kw">return</span> node-&gt;isWord;     <span class="com">// ② all matched: check isWord</span>
+
+        <span class="typ">char</span> c = word[idx];
+        <span class="kw">if</span> (c != <span class="str">'.'</span>) <span class="kw">return</span> <span class="fn">dfs</span>(word, idx + <span class="num2">1</span>, node-&gt;child[c - <span class="str">'a'</span>]);   <span class="com">// ③ letter: one path</span>
+
+        <span class="kw">for</span> (<span class="typ">TrieNode</span>* child : node-&gt;child)              <span class="com">// ④ '.': try all 26</span>
+            <span class="kw">if</span> (<span class="fn">dfs</span>(word, idx + <span class="num2">1</span>, child)) <span class="kw">return</span> <span class="kw">true</span>;  <span class="com">// ⑤ stop at the first true</span>
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p><code class="chip">addWord</code> is the same as a plain trie insert. <code class="chip">search</code> just starts the DFS at the root. Inside <code class="chip">dfs</code>, a letter makes <strong>one</strong> recursive call, and a dot makes <strong>up to 26</strong>. The loop returns as soon as one branch finds a match.</p>
+      <p><strong>One thing worth flagging</strong> — inside the dot loop I write <code class="chip">if (dfs(...)) return true;</code>. Not <code class="chip">return dfs(...)</code> directly. A bare return would give up after the very first child, so <code class="chip">addWord("b")</code> then <code class="chip">search(".")</code> would wrongly say <code class="chip">false</code>, because only <code class="chip">child['a']</code> was ever tried.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Can you make it faster?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Follow-up: allocation dominates, so I'd use a node pool.</strong> Every new letter calls <code class="chip">new TrieNode()</code>. Instead, I keep all nodes in one big array and use an <code class="chip">int</code> index as the pointer. Index <code class="chip num">0</code> is the root, so <code class="chip num">0</code> can also mean "no child" — the root is never anyone's child.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">WordDictionary</span> {
+<span class="kw">private</span>:
+    <span class="kw">static</span> <span class="kw">const</span> <span class="typ">int</span> MAXN = <span class="num2">250001</span>;   <span class="com">// 10^4 calls × length 25 + root</span>
+    <span class="typ">int</span> nxt[MAXN][<span class="num2">26</span>];                <span class="com">// nxt[node][c] = child id, 0 = none</span>
+    <span class="typ">bool</span> isWord[MAXN];
+    <span class="typ">int</span> cnt = <span class="num2">1</span>;                      <span class="com">// node 0 is the root</span>
+
+    <span class="typ">bool</span> <span class="fn">dfs</span>(<span class="kw">const</span> <span class="typ">string</span>&amp; word, <span class="typ">int</span> idx, <span class="typ">int</span> node) {
+        <span class="kw">for</span> (; idx &lt; word.<span class="fn">size</span>() &amp;&amp; word[idx] != <span class="str">'.'</span>; idx++) {
+            node = nxt[node][word[idx] - <span class="str">'a'</span>];
+            <span class="kw">if</span> (!node) <span class="kw">return</span> <span class="kw">false</span>;
+        }
+        <span class="kw">if</span> (idx == word.<span class="fn">size</span>()) <span class="kw">return</span> isWord[node];
+        <span class="kw">for</span> (<span class="typ">int</span> c = <span class="num2">0</span>; c &lt; <span class="num2">26</span>; c++) {
+            <span class="typ">int</span> child = nxt[node][c];
+            <span class="kw">if</span> (child &amp;&amp; <span class="fn">dfs</span>(word, idx + <span class="num2">1</span>, child)) <span class="kw">return</span> <span class="kw">true</span>;
+        }
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+
+<span class="kw">public</span>:
+    <span class="typ">WordDictionary</span>() {
+        <span class="fn">memset</span>(nxt[<span class="num2">0</span>], <span class="num2">0</span>, <span class="kw">sizeof</span>(nxt[<span class="num2">0</span>]));
+        isWord[<span class="num2">0</span>] = <span class="kw">false</span>;
+    }
+
+    <span class="typ">void</span> <span class="fn">addWord</span>(<span class="typ">string</span> word) {
+        <span class="typ">int</span> cur = <span class="num2">0</span>;
+        <span class="kw">for</span> (<span class="typ">char</span> c : word) {
+            <span class="typ">int</span> i = c - <span class="str">'a'</span>;
+            <span class="kw">if</span> (!nxt[cur][i]) {
+                <span class="fn">memset</span>(nxt[cnt], <span class="num2">0</span>, <span class="kw">sizeof</span>(nxt[cnt]));
+                isWord[cnt] = <span class="kw">false</span>;
+                nxt[cur][i] = cnt++;
+            }
+            cur = nxt[cur][i];
+        }
+        isWord[cur] = <span class="kw">true</span>;
+    }
+
+    <span class="typ">bool</span> <span class="fn">search</span>(<span class="typ">string</span> word) {
+        <span class="kw">return</span> <span class="fn">dfs</span>(word, <span class="num2">0</span>, <span class="num2">0</span>);
+    }
+};</pre>
+      <p>Two small changes in <code class="chip">dfs</code>. Letters are walked in a loop, so only a dot recurses. And I check <code class="chip">child</code> before I recurse, so this version never calls <code class="chip">dfs</code> on an empty slot.</p>
+      <p><strong>One thing worth flagging</strong> — this object is big, about <code class="chip num">25 MB</code>. It must live on the heap, not the stack. That's fine on LeetCode, because LeetCode creates it with <code class="chip">new</code>. And <code class="chip">MAXN</code> comes from <code class="chip num">10<sup>4</sup></code> words × <code class="chip num">25</code> letters, plus the root, so it must be recomputed if the limits change.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with the example.</strong> After the three adds, the trie has <code class="chip num">10</code> nodes, including the root. Expected: <code class="chip">false, true, true, true</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:600px;">
+        <thead><tr><th>search</th><th>what happens</th><th>calls</th><th>null</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>"pad"</td><td>root → child['p'] is null → stop</td><td>2</td><td>1</td><td><span class="answer-cell">false</span></td></tr>
+          <tr><td>"bad"</td><td>b → a → d; isWord = true</td><td>4</td><td>0</td><td><span class="answer-cell">true</span></td></tr>
+          <tr class="highlight-row"><td>".ad"</td><td>dot: try a (null), then b → a → d ✓; d, m never visited</td><td>5</td><td>1</td><td><span class="answer-cell">true</span></td></tr>
+          <tr><td>"b.."</td><td>b → a; dot at "ba": a, b, c null; then d ✓</td><td>7</td><td>3</td><td><span class="answer-cell">true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">".ad"</code>. The dot tries child "a" first, which is null, so the top check returns <code class="chip">false</code> and the loop moves on. Then it finds "b", "a", "d" and returns <code class="chip">true</code> <strong>right away</strong>, so "dad" and "mad" are never visited — <code class="chip num">5</code> calls in total. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">search("..x")</code> returns <code class="chip">false</code> after <code class="chip num">108</code> calls, and <code class="chip num">101</code> of them land on null nodes — that's how much work the null check catches.<br>
+      • On an empty dictionary, any search returns <code class="chip">false</code> at the first null child instead of crashing.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><code class="chip">addWord</code> is <code class="chip">O(L)</code>, where <code class="chip">L</code> is the word length, and a search with no dots is also <code class="chip">O(L)</code>.</p>
+      <p>With <code class="chip">k</code> dots, each dot can branch 26 ways, so the worst case is <code class="chip">O(26<sup>k</sup> · L)</code>. Here the limit is 2 dots, so at most <code class="chip num">26<sup>2</sup> = 676</code> branches. That's why the dot limit matters — it keeps search small.</p>
+      <p>Space is <code class="chip">O(total added chars × 26)</code> pointers for the trie, plus <code class="chip">O(L)</code> recursion depth for the DFS.</p>
+      <p>The node pool has the <strong>same Big-O</strong>; the win is the constant. On a LeetCode-like workload, the pointer version took about <code class="chip num">167 ms</code>, and the pool about <code class="chip num">33 ms</code>. <strong>There's a trade-off here:</strong> the pool reserves about 25 MB up front, even for a few words.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You saw that only <code class="chip">search</code> changes: a dot means "try every child." You explained that the single null check at the top of <code class="chip">dfs</code> covers both missing letters and the null children from the dot loop. And you tied the complexity to the 2-dot limit, so <code class="chip">26<sup>k</sup></code> stays small. The node pool follow-up was a nice touch, and you backed it with numbers. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.52, 32.08, 34.4, 39.91, 51.83, 77.8, 111.03, 158.04, 160.79, 194.36, 197.17, 247.51, 289.24, 337.79]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
