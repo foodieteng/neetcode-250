@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 572 · Subtree of Another Tree</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 572 · Subtree of Another Tree · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get two binary trees, <code class="chip">root</code> and <code class="chip">subRoot</code>. Return <code class="chip">true</code> if <code class="chip">subRoot</code> shows up as a subtree of <code class="chip">root</code>. A subtree means one node of <code class="chip">root</code> plus <em>all</em> of its descendants.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the word <strong>all</strong> is doing a lot of work here. I need to find some node in <code class="chip">root</code> such that the whole tree hanging under it is identical to <code class="chip">subRoot</code>. Same shape, same values, all the way down to the leaves. It is not enough that it <em>starts</em> the same way. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>That's right. All the way down.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. So there are really <strong>two different jobs</strong> in this problem.</p>
+      <p>Job one is a <strong>search</strong>: pick a node in <code class="chip">root</code> to stand at. Job two is a <strong>check</strong>: at that node, compare two whole trees. They are not the same job, so I will write them as two functions.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong> And can values repeat, or can they be negative?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">root</code> has between <code class="chip num">1</code> and <code class="chip num">2000</code> nodes, and <code class="chip">subRoot</code> between <code class="chip num">1</code> and <code class="chip num">1000</code>. Values fit in the range −10<sup>4</sup> to 10<sup>4</sup>. Values can repeat.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Repeats matter. I can't stop at the first node whose value matches — several nodes may share that value and only one may be the real match. So the search has to keep going after a failed check.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">root = [3,4,5,1,2]</code> and <code class="chip">subRoot = [4,1,2]</code>. At node <code class="chip num">3</code> the top values differ. At node <code class="chip num">4</code>, the tree underneath is a 4 with children 1 and 2 — exactly <code class="chip">subRoot</code>. So the answer is <strong>true</strong>, and I never look at node <code class="chip num">5</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> collect every subtree of <code class="chip">root</code> into a list, then compare each one against <code class="chip">subRoot</code>. That works, but building and storing all those trees is wasteful. I only need to visit each node once and test on the spot.</p>
+      <p><strong>This problem reminds me of</strong> a nested recursion: a tree-equality check, which walks two trees in lockstep, wrapped inside an ordinary traversal. It fits because the search is a traversal and the check is a two-pointer comparison. Two layers, two jobs.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// outer layer — find a POSITION</span><br>
+        isSubtree(root, subRoot):<br>
+        &nbsp;&nbsp;if subRoot is null -&gt; true<br>
+        &nbsp;&nbsp;if root is null -&gt; false<br>
+        &nbsp;&nbsp;return isSame(root, subRoot)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="em">||</span> isSubtree(root.left, subRoot)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="em">||</span> isSubtree(root.right, subRoot)<br>
+        <br>
+        <span class="label">// inner layer — check a WHOLE TREE</span><br>
+        isSame(p, q):<br>
+        &nbsp;&nbsp;if p is null or q is null -&gt; return <span class="em">p == q</span><br>
+        &nbsp;&nbsp;return (p.val == q.val)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="em">&amp;&amp;</span> isSame(p.left, q.left)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="em">&amp;&amp;</span> isSame(p.right, q.right)
+      </div>
+      <p>One: in the outer layer, an empty <code class="chip">subRoot</code> is true and an empty <code class="chip">root</code> is false.<br>
+      Two: otherwise, try <code class="chip">isSame</code> right here, or search the left subtree, or the right subtree.<br>
+      Three: <code class="chip">isSame</code> returns <code class="chip">p == q</code> when either side is null, else compares values and both child pairs.</p>
+      <p>The outer layer joins with <code class="chip">||</code> and stops at the first place that works; the inner one joins with <code class="chip">&amp;&amp;</code> and stops at the first difference.</p>
+      <p><strong>One thing worth flagging</strong> — that null line has to be <code class="chip">p == q</code>, not <code class="chip">if (!q) return true;</code> when <code class="chip">subRoot</code> runs out. Otherwise a tree that only <em>starts</em> like <code class="chip">subRoot</code>, with extra nodes below, passes: <code class="chip">root = [1,2,3,4]</code> against <code class="chip">subRoot = [1,2,3]</code>. The right answer is <strong>false</strong>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The outer function guards the two empty cases, then tries <code class="chip">isSame</code> here, or recurses left, or right. The inner function is the plain same-tree check.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="com">// outer layer: try every position in root (|| stops once found)</span>
+    <span class="typ">bool</span> <span class="fn">isSubtree</span>(<span class="typ">TreeNode</span>* root, <span class="typ">TreeNode</span>* subRoot) {
+        <span class="kw">if</span> (!subRoot) {
+            <span class="kw">return</span> <span class="kw">true</span>;
+        }
+        <span class="kw">if</span> (!root) {
+            <span class="kw">return</span> <span class="kw">false</span>;
+        }
+
+        <span class="kw">return</span> <span class="fn">isSame</span>(root, subRoot)
+            || <span class="fn">isSubtree</span>(root-&gt;left,  subRoot)
+            || <span class="fn">isSubtree</span>(root-&gt;right, subRoot);
+    }
+
+    <span class="com">// inner layer: compare the whole tree (&amp;&amp; stops at one difference)</span>
+    <span class="typ">bool</span> <span class="fn">isSame</span>(<span class="typ">TreeNode</span>* p, <span class="typ">TreeNode</span>* q) {
+        <span class="kw">if</span> (!p || !q) {
+            <span class="kw">return</span> p == q;       <span class="com">// one side empty, the other not → false</span>
+        }
+
+        <span class="kw">return</span> (p-&gt;val == q-&gt;val)
+            &amp;&amp; <span class="fn">isSame</span>(p-&gt;left,  q-&gt;left)
+            &amp;&amp; <span class="fn">isSame</span>(p-&gt;right, q-&gt;right);
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — the single line <code class="chip">return p == q;</code> is carrying two cases at once. If both are null, it is true, which is how a leaf pair agrees. If exactly one is null, it is false, which is how the shapes are forced to match. One comparison, both jobs.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> <code class="chip">root = [3,4,5,1,2]</code>, <code class="chip">subRoot = [4,1,2]</code>, expected <strong>true</strong>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>#</th><th>call</th><th>what happens</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>isSubtree(3, 4)</td><td>both non-null, try isSame first</td><td>—</td></tr>
+          <tr><td>2</td><td>isSame(3, 4)</td><td>3 != 4, &amp;&amp; short-circuits</td><td>false</td></tr>
+          <tr class="highlight-row"><td>3</td><td>isSubtree(4, 4)</td><td>go left, try isSame at node 4</td><td>—</td></tr>
+          <tr><td>4</td><td>isSame(4, 4)</td><td>4 == 4, recurse into children</td><td>—</td></tr>
+          <tr><td>5</td><td>isSame(1, 1)</td><td>1 == 1, recurse into children</td><td>—</td></tr>
+          <tr><td>6–7</td><td>isSame(null, null) ×2</td><td>p == q, both null</td><td>true</td></tr>
+          <tr><td>8</td><td>isSame(2, 2)</td><td>2 == 2, recurse into children</td><td>—</td></tr>
+          <tr><td>9–10</td><td>isSame(null, null) ×2</td><td>p == q, both null</td><td>true</td></tr>
+          <tr><td>11</td><td>isSame(4, 4) returns</td><td>every branch agreed</td><td><span class="answer-cell">true</span></td></tr>
+          <tr><td>12</td><td>isSubtree(3, 4) returns</td><td>the || is satisfied</td><td><span class="answer-cell">true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <code class="chip">isSubtree</code> at node <code class="chip num">4</code>: <code class="chip">isSame</code> agrees all the way down, so the <code class="chip">||</code> is satisfied and the right side, node <code class="chip num">5</code>, is <strong>never evaluated</strong>. Two <code class="chip">isSubtree</code> calls, eight <code class="chip">isSame</code> calls.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• The partial match, <code class="chip">[1,2,3,4]</code> against <code class="chip">[1,2,3]</code>: <code class="chip">isSame</code> hits <code class="chip">isSame(4, null)</code>, so <code class="chip">false</code>.<br>
+      • The official second example, <code class="chip">[3,4,5,1,2,null,null,null,null,0]</code>, adds a <code class="chip num">0</code> under the 2, and returns <code class="chip">false</code>.<br>
+      • Single nodes: <code class="chip">[1]</code> against <code class="chip">[1]</code> is <code class="chip">true</code>, <code class="chip">[1]</code> against <code class="chip">[2]</code> is <code class="chip">false</code>.<br>
+      • And a tree is always a subtree of itself.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(n · m): the outer walk visits the n nodes of <code class="chip">root</code>, and each can run a check costing up to m, <code class="chip">subRoot</code>'s size. <strong>The space complexity is</strong> O(h<sub>root</sub>), since a check never goes deeper than <code class="chip">root</code> itself.</p>
+      <p><strong>In the worst-case scenario</strong>, long chains of equal values, the bound is real. But in practice it is <strong>pessimistic</strong>: on random pairs, about <strong>60%</strong> of <code class="chip">isSame</code> calls return at the very first value comparison.</p>
+      <p><em class="pause">Oh, one more thing —</em> the linear alternative is to serialize both trees with null markers and run a substring search, O(n + m). It needs a <strong>delimiter before every value</strong>: otherwise the tree <code class="chip">[1,2]</code> serializes to <code class="chip">12###</code>, which contains <code class="chip">12##</code>, the string for a single node <code class="chip num">12</code> — a false positive.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>One assumption I should say out loud. My guard order checks an empty <code class="chip">subRoot</code> before an empty <code class="chip">root</code>. That decides the both-empty case in favor of <strong>true</strong> — an empty <code class="chip">subRoot</code> counts as present in any tree. The constraints say both trees have at least one node, so it never comes up on the judge. But it is a real choice, and if the caller could pass an empty <code class="chip">subRoot</code> I'd want to agree on the answer first.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You split the problem into a search for a <em>position</em> and a check of a <em>whole tree</em>, then pointed out that the <code class="chip">||</code> and the <code class="chip">&amp;&amp;</code> are the same short-circuit trick with opposite polarity. You named the partial-match trap before writing any code and brought a concrete counterexample for it. And when you offered the linear serialization alternative, you named the delimiter bug instead of hand-waving it. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.4, 35.27, 38.29, 54.02, 60.43, 73.02, 102.37, 135.05, 183.67, 186.44, 215.48, 256.85, 308.35, 332.27]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

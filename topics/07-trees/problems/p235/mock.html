@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 235 · Lowest Common Ancestor of a BST</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+svg.tree { display: block; width: 100%; max-width: 460px; height: auto; margin: 14px auto; }
+svg.tree .edges line { stroke: var(--border); stroke-width: 2; }
+svg.tree circle { fill: var(--surface); stroke: var(--text-3); stroke-width: 1.5; }
+svg.tree circle.root { stroke: var(--interviewer); stroke-width: 2.5; }
+svg.tree circle.ans { stroke: var(--chip-num); stroke-width: 3; }
+svg.tree circle.tq { stroke: var(--candidate); stroke-width: 3; }
+svg.tree text { fill: var(--text); font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 15px; text-anchor: middle; }
+svg.tree text.lbl { font-size: 12.5px; fill: var(--text-2); text-anchor: start; }
+svg.tree text.ans-l { fill: var(--chip-num); text-anchor: middle; }
+svg.tree text.q-l { fill: var(--candidate); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 235 · Lowest Common Ancestor of a Binary Search Tree · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a binary search tree and two nodes in it, <code class="chip">p</code> and <code class="chip">q</code>. Return their lowest common ancestor — the deepest node that has both of them under it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> this is a <strong>BST</strong>, not a plain binary tree. So every value in a node's left subtree is smaller than it, and every value on the right is bigger. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct. All values are unique too.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. Then here is the thing I want to say up front: <strong>I don't have to search for anything.</strong> In a general binary tree I'd have to find <code class="chip">p</code> and <code class="chip">q</code> first. In a BST the values tell me which way to go, so this is not a search, it is a <strong>descent</strong>.</p>
+      <p>Let me put it as an interval: <code class="chip">lo = min(p, q)</code>, <code class="chip">hi = max(p, q)</code>. At any node there are only three answers. <strong>Bigger than</strong> <code class="chip">hi</code> — both targets are on the left, so I go left. <strong>Smaller than</strong> <code class="chip">lo</code> — I go right. Otherwise the node is <strong>inside the range</strong>, the two targets split here, and <strong>that node is the answer.</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>One more question, and it matters more than it sounds. <strong>Can a node be its own ancestor?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. The problem says so directly — a node is allowed to be a descendant of itself.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That is what I hoped. It fits the interval picture with no extra work. If <code class="chip">p</code> itself is the split node, then <code class="chip">p == lo</code>, and <code class="chip">lo</code> is still <em>inside</em> the closed range <code class="chip">[lo, hi]</code>. So the same "inside means stop" rule already returns it. I don't need a special case — but I <strong>do</strong> need my comparisons to be strict, and I'll come back to that in the code.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Between <code class="chip num">2</code> and 10<sup>5</sup> nodes. Values are unique and fit in an <code class="chip">int</code>, roughly ±10<sup>9</sup>. Both <code class="chip">p</code> and <code class="chip">q</code> are guaranteed to exist in the tree.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>I want to say that last one out loud as an <strong>assumption I am leaning on</strong>. My solution will have no null check, and it is safe only because of that promise.</p>
+      <p><strong>Let me run through the example.</strong> The tree is <code class="chip">[6,2,8,0,4,7,9,null,null,3,5]</code>, with <code class="chip">p = 2</code> and <code class="chip">q = 4</code>.</p>
+      <svg class="tree" viewBox="0 0 460 240" role="img" aria-label="BST 6,2,8,0,4,7,9,3,5 with p = 2 and q = 4">
+        <g class="edges">
+          <line x1="230" y1="30" x2="120" y2="90"/><line x1="230" y1="30" x2="340" y2="90"/>
+          <line x1="120" y1="90" x2="65" y2="150"/><line x1="120" y1="90" x2="175" y2="150"/>
+          <line x1="340" y1="90" x2="295" y2="150"/><line x1="340" y1="90" x2="385" y2="150"/>
+          <line x1="175" y1="150" x2="145" y2="210"/><line x1="175" y1="150" x2="205" y2="210"/>
+        </g>
+        <g class="nodes">
+          <circle cx="230" cy="30" r="17" class="root"/><text x="230" y="35">6</text>
+          <circle cx="120" cy="90" r="17" class="ans"/><text x="120" y="95">2</text>
+          <circle cx="340" cy="90" r="17"/><text x="340" y="95">8</text>
+          <circle cx="65" cy="150" r="17"/><text x="65" y="155">0</text>
+          <circle cx="175" cy="150" r="17" class="tq"/><text x="175" y="155">4</text>
+          <circle cx="295" cy="150" r="17"/><text x="295" y="155">7</text>
+          <circle cx="385" cy="150" r="17"/><text x="385" y="155">9</text>
+          <circle cx="145" cy="210" r="17"/><text x="145" y="215">3</text>
+          <circle cx="205" cy="210" r="17"/><text x="205" y="215">5</text>
+        </g>
+        <text x="62" y="60" class="lbl ans-l">p = 2 (answer)</text>
+        <text x="232" y="155" class="lbl q-l">q = 4</text>
+        <text x="262" y="34" class="lbl">root</text>
+      </svg>
+      <p>Node <code class="chip num">4</code> sits in the right subtree of node <code class="chip num">2</code>, and a node is its own ancestor, so the answer is <strong>node 2</strong>. That matches the expected output.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> ignore that this is a BST: walk the whole tree, record the path from the root to <code class="chip">p</code> and to <code class="chip">q</code>, and take the last node they share. That works, but it is O(n) time and O(n) space, and it throws away the one thing that makes this problem interesting.</p>
+      <p><strong>This problem reminds me of</strong> a <strong>binary search</strong>. In binary search I compare the target to the middle and drop half the array. Here I compare the range <code class="chip">[lo, hi]</code> to the current node and drop a whole subtree. Same two-way decision, just walking pointers instead of indices.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// invariant: the LCA is always inside the current subtree</span><br>
+        lo = min(p, q)<br>
+        hi = max(p, q)<br>
+        <br>
+        at node:<br>
+        &nbsp;&nbsp;hi &lt; node <span class="label">// whole range is left -&gt; go left</span><br>
+        &nbsp;&nbsp;lo &gt; node <span class="label">// whole range is right -&gt; go right</span><br>
+        &nbsp;&nbsp;else <span class="em">// node is inside [lo, hi] -&gt; this is the answer</span>
+      </div>
+      <p>One: compute <code class="chip">lo</code> and <code class="chip">hi</code> from the two values.<br>
+      Two: if <code class="chip">hi</code> is smaller than the node, go left; if <code class="chip">lo</code> is bigger, go right.<br>
+      Three: otherwise the node is inside the range — return it.</p>
+      <p>The invariant: <em>the answer is always inside the subtree I'm standing on</em>, because I only ever drop a side that holds neither target.</p>
+      <p><strong>One thing worth flagging</strong> — the first node inside the range is the answer, and I can stop. Below it, one target goes left and the other goes right, so no deeper node has both.</p>
+      <p><strong>There's a trade-off here.</strong> Recursion reads cleanly, but every call is a <strong>tail call</strong>, so it can also be an O(1)-space loop. I'll write the recursion first and mention the loop at the end. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. Three branches, one comparison each, no bookkeeping.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">TreeNode</span>* <span class="fn">lowestCommonAncestor</span>(<span class="typ">TreeNode</span>* root, <span class="typ">TreeNode</span>* p, <span class="typ">TreeNode</span>* q) {
+        <span class="kw">if</span> (<span class="fn">max</span>(p-&gt;val, q-&gt;val) &lt; root-&gt;val) {
+            <span class="kw">return</span> <span class="fn">lowestCommonAncestor</span>(root-&gt;left, p, q);   <span class="com">// both smaller than me</span>
+        } <span class="kw">else if</span> (<span class="fn">min</span>(p-&gt;val, q-&gt;val) &gt; root-&gt;val) {
+            <span class="kw">return</span> <span class="fn">lowestCommonAncestor</span>(root-&gt;right, p, q);  <span class="com">// both bigger than me</span>
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> root;                                       <span class="com">// split point = answer</span>
+        }
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — the two comparisons are <code class="chip">&lt;</code> and <code class="chip">&gt;</code>, and they have to be <strong>strict</strong>. That is a correctness requirement, and it is exactly the own-ancestor case.</p>
+      <p>If I loosen the first one to <code class="chip">&lt;=</code> and <code class="chip">p</code> itself is the split node, so <code class="chip">max(p, q) == root</code>, the strict version stops and returns it. The <code class="chip">&lt;=</code> version says "still go left", and walks <em>past the answer</em> into a subtree it can never come back up from.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Same tree, <code class="chip">p = 2</code> and <code class="chip">q = 4</code>, so <code class="chip">lo = 2</code> and <code class="chip">hi = 4</code>, and I expect node <code class="chip num">2</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:470px;">
+        <thead><tr><th>call</th><th>root-&gt;val</th><th>[lo, hi]</th><th>test</th><th>branch</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>6</td><td>[2, 4]</td><td>max 4 &lt; 6 → true</td><td>go left</td></tr>
+          <tr class="highlight-row"><td>2</td><td>2</td><td>[2, 4]</td><td>4 &lt; 2 false · 2 &gt; 2 false</td><td><span class="answer-cell">return node 2</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the second call, at node <code class="chip num">2</code>. <code class="chip num">4</code> is not less than <code class="chip num">2</code>, and <code class="chip num">2</code> is not <em>greater</em> than <code class="chip num">2</code> — that is where strictness earns its keep. With <code class="chip">&gt;=</code> I'd have gone right, past the answer. Both tests fail, so it returns node <code class="chip num">2</code>. Two calls.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">2, 8</code> split at the root: node <code class="chip num">6</code>, one call.<br>
+      • <code class="chip">3, 5</code>, the deepest split: node <code class="chip num">4</code>, three calls.<br>
+      • <code class="chip">0, 5</code>, both under 2: node <code class="chip num">2</code>, two calls.<br>
+      • The call count is always the depth of the answer plus one.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You keep saying the strict comparison is load-bearing. How sure are you?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Sure enough that I checked it by brute force. Every BST on the values <code class="chip">{0..n-1}</code>, for <code class="chip">n = 1..8</code> — <code class="chip num">2055</code> trees — and every ordered pair <code class="chip">(p, q)</code>: <code class="chip num">118621</code> triples.</p>
+      <div class="insight-box">
+        <span class="label">// measured, all 118621 triples</span><br>
+        strict &lt; and &gt;&nbsp;&nbsp;<span class="em">0 failures</span><br>
+        &lt; changed to &lt;=&nbsp;&nbsp;<span class="em">54283 failures</span> <span class="label">= every triple where LCA == max(p, q)</span><br>
+        <br>
+        <span class="label">// of those 54283, how it goes wrong:</span><br>
+        &nbsp;&nbsp;<span class="em">38762</span> (71%) return a wrong node <span class="label">-&gt; silent, no crash</span><br>
+        &nbsp;&nbsp;<span class="em">15521</span> (29%) walk off the tree <span class="label">-&gt; null deref, SIGSEGV</span>
+      </div>
+      <p>Strict comparisons: zero failures. <code class="chip">&lt;=</code>: <code class="chip num">54283</code> failures, and they are <strong>exactly</strong> the triples where the answer is the larger target — the own-ancestor case, nothing else.</p>
+      <p>The surprise is that <strong>most of those failures do not crash.</strong> About <code class="chip num">71%</code> quietly return a wrong node, because the subtree it walks into still holds the <em>other</em> target. In the example tree, <code class="chip">p = 0, q = 2</code> should give <code class="chip num">2</code>; the <code class="chip">&lt;=</code> version returns <code class="chip num">0</code>. Always wrong on that set, and <em>usually silent</em> about it — the worse failure mode.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> <code class="chip">O(h)</code>, the height — exactly the depth of the answer plus one; on a balanced tree, <code class="chip">O(log n)</code>. <strong>The space complexity is</strong> <code class="chip">O(h)</code> for the call stack.</p>
+      <p><strong>In the worst-case scenario</strong> the tree is a sorted chain, 10<sup>5</sup> deep. At <code class="chip">-O2</code> the compiler turns the tail call into a loop. At <code class="chip">-O0</code> it doesn't, and an 8 MB stack survives with a margin of only about <code class="chip num">1.31×</code>.</p>
+      <p>I'd rather not depend on the compiler, so here is the loop: same three branches, <code class="chip">O(1)</code> space, and it agrees with the recursion on every triple.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">TreeNode</span>* <span class="fn">lowestCommonAncestor</span>(<span class="typ">TreeNode</span>* root, <span class="typ">TreeNode</span>* p, <span class="typ">TreeNode</span>* q) {
+        <span class="typ">int</span> lo = <span class="fn">min</span>(p-&gt;val, q-&gt;val);
+        <span class="typ">int</span> hi = <span class="fn">max</span>(p-&gt;val, q-&gt;val);
+
+        <span class="kw">while</span> (root != <span class="kw">nullptr</span>) {
+            <span class="kw">if</span> (hi &lt; root-&gt;val) {
+                root = root-&gt;left;
+            } <span class="kw">else if</span> (lo &gt; root-&gt;val) {
+                root = root-&gt;right;
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> root;
+            }
+        }
+
+        <span class="kw">return</span> <span class="kw">nullptr</span>;   <span class="com">// guaranteed to return above; this line only keeps the compiler happy</span>
+    }
+};</pre>
+      <p><em class="pause">Oh, one more thing —</em> <strong>no null check</strong> is deliberate, safe only because both targets exist. Break that promise and it usually returns a wrong node rather than crashing.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You reframed it before writing anything — a descent instead of a search, and the two nodes as one interval, so the three-way test fell out on its own. You treated the strict <code class="chip">&lt;</code> and <code class="chip">&gt;</code> as a correctness requirement, measured it, and named the silent-wrong-answer split most people miss. And you didn't stop at quoting <code class="chip">O(h)</code> space: you noticed the tail call, checked what the compiler really does, and still offered the loop so the guarantee doesn't rest on the compiler. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 9.38, 27.3, 30.89, 65.93, 72.16, 78.56, 102.01, 114.17, 139.91, 174.95, 222.49, 225.24, 256.91, 299.34, 304.47, 354.02, 401.51]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
