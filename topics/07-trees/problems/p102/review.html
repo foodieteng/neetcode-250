@@ -164,7 +164,7 @@
       官方範例 1。<strong>以下是實跑印出來的</strong>。
       <b>重點看每一輪的 <code>sz</code> 是在「什麼時候」被讀取的。</b>
 </p>
-<div class="sc-trace"><span class="sc-trace__head">// 外層第 1 輪</span>
+<div class="sc-trace"><span class="sc-trace__head">// 外層第 1 輪 —— 這一輪最關鍵</span>
   初始     queue=[3]              ans=[]
 
   sz = q.size() = 1        ← 凍結(此刻佇列只有 3)
@@ -173,19 +173,18 @@
   i=0/1   deq 3   level=[3]    enq {9,20}    queue=[9,20]
   ── 內層結束:i 跑滿 sz=1 次,「即使佇列現在有 2 個」
 
+  ⚡ 如果條件寫成每圈重讀 q.size(),此刻它會看到 i=1 &lt; 2 而「繼續跑」
+     → 把 9 也彈進這一層;實測變體輸出 [[3,9],[20,15],[7]] —— 層界從第一層就漂移
+
   ans.push_back(level)     ans=[[3]]         queue=[9,20]
 <span class="sc-trace__out">// 第一次看到重點:佇列長大了,但這一層只跑 1 次就收手</span></div>
-<div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 外層第 2 輪 —— 這一輪最關鍵</span>
+<div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 外層第 2 輪</span>
   sz = q.size() = 2        ← 凍結(此刻佇列是 [9,20])
   level.clear()            level=[]
 
   i=0/2   deq 9   level=[9]      enq {}       queue=[20]
   i=1/2   deq 20  level=[9,20]   enq {15,7}   queue=[15,7]
   ── 內層結束:i 跑滿 sz=2 次
-
-  ⚡ 注意此刻:推完 15、7 之後,佇列「又剛好是 2 個」
-     如果條件寫成每圈重讀 q.size(),它會看到 i=1 &lt; 2 而「繼續跑」
-     → 把 15 拖進這一層,變成 [9,20,15]
 
   ans.push_back(level)     ans=[[3],[9,20]]   queue=[15,7]
 <span class="sc-trace__out">// 凍結的 sz 是「唯一」隔開這一層和下一層的東西</span></div>
@@ -203,9 +202,9 @@
       最大佇列長度 2
 <span class="sc-trace__out">// 入隊 == 出隊 == n 是 BFS 的招牌恆等式:每個節點恰好進出一次</span></div>
 <div class="sc-insight" style="margin-top:14px;">
-<strong>把第 2 輪單獨看,整題就講完了</strong>:
-      <b>節點 <code><span class="nm">20</span></code> 推入小孩之後,佇列長度「碰巧又回到 2」</b> ——
-      <strong>這正是「每圈重讀 <code>q.size()</code>」會被騙的瞬間</strong>。
+<strong>把第 1 輪單獨看,整題就講完了</strong>:
+      <b>節點 <code><span class="nm">3</span></code> 推入小孩之後,佇列從 1 長到 2</b> ——
+      <strong>這正是「每圈重讀 <code>q.size()</code>」會被騙的瞬間</strong>(實測變體 <code>[[<span class="nm">3,9</span>],[<span class="nm">20,15</span>],[<span class="nm">7</span>]]</code>)。
       <b>凍結的 <code>sz</code> 記住的是「推小孩<em>之前</em>」的狀態,而那才是這一層真正的寬度。</b>
 </div></div>
       </details>

@@ -176,7 +176,7 @@
     <p>
       <strong>⚠ 這一節推翻一個很常見的說法。</strong>
       幾乎所有題解都寫「由上往下是 <code>O(n²)</code>,最壞情況是退化成一條鏈」。
-      <b>實測結果:退化鏈反而是<em>線性</em>的,而真正的上限是 <code>O(n log n)</code>。</b>
+      <b>實測結果:退化鏈反而是<em>線性</em>的;但真正的上限也不是 <code>O(n log n)</code>,而是 <code>O(n·h)</code> —— 有比平衡樹更壞的形狀。</b>
     </p>
 
     <div class="sc-trace" style="margin-top:12px;"><span class="sc-trace__head">// 為什麼退化鏈不是最壞情況(實測)</span>
@@ -196,10 +196,9 @@ depth() 呼叫次數(退化左鏈):
 若真的是 O(n^2),n=2000 應該要 n(n+1) = 4002000 次 —— 實測只有 4000 次,差 1000 倍
 <span class="sc-trace__out">// 短路把「最壞情況」直接砍掉了 —— 這是紙上分析很容易漏掉的一環</span></div>
 
-    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 真正的最壞情況是「平衡樹」(因為它會被完整走完)</span>
-一棵樹要被「完整探索」,代表它處處通過檢查 ⇒ 它是平衡的
-而平衡樹的高度 h = O(log n) ⇒ 每個節點最多被重複走 O(log n) 次
-⇒ 上限是 O(n log n),不可能到 O(n^2)
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 平衡樹:會被完整走完,但 h = O(log n)</span>
+平衡樹處處通過檢查 ⇒ 兩個短路都不觸發,整棵樹被完整探索
+但它的高度 h = O(log n) ⇒ 每個節點最多被重複走 O(log n) 次 ⇒ O(n log n)
 
 實測 depth() 呼叫次數(完美樹):
   n =  143  →   由上往下 / 由下往上 =  6.5 倍
@@ -208,15 +207,34 @@ depth() 呼叫次數(退化左鏈):
   n = 4180(最深的合法 AVL)→ 96420 / 8361 = 11.5 倍
 
 倍率每次加倍約 +0.7 —— 正是 Θ(log n) 的成長
-<span class="sc-trace__out">// 「由上往下比由下往上慢多少」的答案是 O(log n) 倍,不是 O(n) 倍</span></div>
+<span class="sc-trace__out">// 在平衡樹上,「由上往下比由下往上慢多少」是 O(log n) 倍 —— 但平衡樹還不是最壞</span></div>
+
+    <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// 真正的最壞:「完整探索 ⇒ 平衡」這個推論是錯的</span>
+isBalanced 先遞迴進左子樹(並在那裡付完 depth() 的成本),
+之後才可能在右邊發現不平衡 —— 探索發生在「失敗的檢查」之前
+⇒ 一棵最後判成 false 的樹,照樣可以被走得很深
+
+反例「梳子樹」:左脊椎 h 個節點,脊椎第 i 個節點的右小孩是一根 h−i−2 個節點的左斜棍
+  每個脊椎節點:左高 h−i−1、右高 h−i−2,差 ≤ 1 ⇒ 通過,繼續往左遞迴
+  長度 ≥ 3 的棍子本身不平衡 —— 但要等整條脊椎都走完才輪到檢查它們
+
+實測 depth() 呼叫次數(梳子樹,結果都是 false):
+  h =  50,n =  1226  →    41764 次  ≈ 0.97·n^1.5
+  h = 100,n =  4951  →   333514 次  ≈ 0.96·n^1.5
+  h = 200,n = 19901  →  2667014 次  ≈ 0.95·n^1.5
+
+n 約變 4 倍、呼叫變 8.0 倍 —— 正是 n^1.5 的成長
+n=4951 已是 n=5000 完全二元樹(113644 次)的 2.9 倍
+⇒ 正確的上限是 O(n·h):每個節點最多被每個祖先各走一次
+<span class="sc-trace__out">// O(n^2) 到不了(退化鏈會短路),但 O(n log n) 也不是上限 —— 梳子樹已到 n^1.5</span></div>
 
     <table class="sc-table" style="margin-top:14px;">
       <thead><tr><th>維度</th><th>A · 由上往下</th><th>B · 由下往上</th></tr></thead>
       <tbody>
-        <tr><td>時間(最壞)</td><td class="mono"><strong>O(n log n)</strong></td><td class="mono ok"><strong>O(n)</strong></td></tr>
+        <tr><td>時間(最壞)</td><td class="mono"><strong>O(n·h)</strong></td><td class="mono ok"><strong>O(n)</strong></td></tr>
         <tr><td>退化鏈 n=2000</td><td class="mono ok">4000 次(線性,短路了)</td><td class="mono">2004 次</td></tr>
         <tr><td>完美樹 n=4095</td><td class="mono">90114 次</td><td class="mono ok">8191 次</td></tr>
-        <tr><td><strong>n=5000 最壞實測</strong></td><td class="mono"><strong>117328 次 · 0.347 ms</strong></td><td class="mono ok">約 10001 次</td></tr>
+        <tr><td><strong>梳子樹 n=4951</strong></td><td class="mono"><strong>333514 次 · 約 0.32 ms</strong></td><td class="mono ok">118 次(−1 早退)</td></tr>
         <tr><td>空間</td><td class="mono">O(h)</td><td class="mono">O(h)</td></tr>
         <tr><td>遞迴深度(n=5000 鏈)</td><td class="mono"><code>depth()</code> 5001 層 / <code>isBalanced()</code> <strong>1 層</strong></td><td class="mono">5001 層</td></tr>
         <tr><td>面試現場</td><td>先寫這個沒問題</td><td class="ok"><strong>被追問「能不能一趟」時給這個</strong></td></tr>
@@ -224,8 +242,8 @@ depth() 呼叫次數(退化左鏈):
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
-      <strong>你的寫法在 LeetCode 上綽綽有餘</strong> —— <code>n = <span class="nm">5000</span></code> 的最壞情況實測
-      <strong>0.347 ms</strong>,離 1 秒時限約有 <strong>3000 倍</strong>餘裕。<br>
+      <strong>你的寫法在 LeetCode 上綽綽有餘</strong> —— <code>n ≈ <span class="nm">5000</span></code> 的梳子樹實測
+      <strong>約 0.32 ms</strong>,離 1 秒時限約有 <strong>3000 倍</strong>餘裕。<br>
       <b>堆疊也安全</b>:<code>n=<span class="nm">5000</span></code> 的鏈只用約 <strong>235 KB</strong>(<code>ulimit -s</code> 的 2.9%),
       每層 <strong>48 bytes</strong>(clean <code>-O2</code>),崩潰臨界實測約 <strong>174200 層</strong>。
     </div>
@@ -331,8 +349,9 @@ depth() 呼叫次數(退化左鏈):
 
 總計 depth() 呼叫 22 次;由下往上版只需要 11 次(2n+1)—— 剛好一半
 
-一般規律:深度 d 的節點會被走 d+1 次(它自己 + 每個祖先各一次)
-<span class="sc-trace__out">// 樹越高,重複越嚴重 —— 這就是那 O(log n) 倍差距的來源</span></div>
+一般規律:深度 d 的節點會被 depth() 走 d 次(每個祖先的 isBalanced 各一次;
+          它自己那次 isBalanced 只量小孩,不會走到自己 —— 所以根 3 是 0 次)
+<span class="sc-trace__out">// 樹越高,重複越嚴重 —— 每個節點最多 h 次,這就是 O(n·h) 的來源(平衡樹上即 O(log n) 倍)</span></div>
 
     <div class="sc-trace" style="margin-top:10px;"><span class="sc-trace__head">// PHASE 2: 為什麼 base case 寫錯成 1 在這題完全無害</span>
 設 H'(x) = 錯誤版本(base case 回 1),H(x) = 正確版本
@@ -394,7 +413,7 @@ depth() 呼叫次數(退化左鏈):
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">由上往下不是 O(n²)：&& 短路讓退化鏈變成線性(實測成長倍率 2.0),真正的上限是平衡樹上的 O(n log n),實測 11 倍差。base case 回 1 在這題完全無害(偏移被減法消掉),但在 104 全錯 —— 同一個 bug 的傷害取決於後面怎麼用那個值。</div>
+    <div class="sc-summary-bar__body">由上往下不是 O(n²)：&& 短路讓退化鏈變成線性(實測成長倍率 2.0),但上限也不是 O(n log n),而是 O(n·h) —— 平衡樹實測 11 倍差,先探索、後失敗的梳子樹約 n<sup>1.5</sup>。base case 回 1 在這題完全無害(偏移被減法消掉),但在 104 全錯 —— 同一個 bug 的傷害取決於後面怎麼用那個值。</div>
     <div class="sc-summary-bar__detail">BALANCED BINARY TREE · CODE</div>
   </div>
 

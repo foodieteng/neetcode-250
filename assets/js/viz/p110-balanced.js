@@ -7,7 +7,7 @@
      }
    動畫要傳達的兩件事:
      ① 平衡的定義是「每一個節點」都要滿足,不是只看根
-     ② 這份寫法會「重複走訪」—— 深度 d 的節點被走 d+1 次
+     ② 這份寫法會「重複走訪」—— 深度 d 的節點被 depth() 走 d 次
    例 [3,9,20,null,null,15,7] → true(節點 15 和 7 各被 depth() 走了兩次)
      BAND 1  樹狀圖:節點下標「被 depth() 走過幾次」
      BAND 2  這一步在檢查誰、左右高度是多少
@@ -59,7 +59,7 @@
     S({2:1,3:1,6:2,7:2}, [2], 3, 28, 'repeat',
       '檢查節點 20:  depth(15)=1   depth(7)=1     ← 這兩個節點「又」被走了一次\n|1 - 1| = 0 <= 1  ✓  通過',
       '節點 15 和 7 被 depth() 走了「第二次」—— 這就是重複走訪',
-      '<strong>檢查節點 20 —— 注意重複</strong> · 為了量 <code>depth(15)</code> 和 <code>depth(7)</code>,這兩個節點<strong>又被走了一次</strong>。<b>但它們在第 1 步(量 <code>depth(20)</code> 時)就已經被走過了。</b>這就是「由上往下」的代價:<strong>深度 <code>d</code> 的節點會被走 <code>d+1</code> 次</strong>(每個祖先各走它一次)。'),
+      '<strong>檢查節點 20 —— 注意重複</strong> · 為了量 <code>depth(15)</code> 和 <code>depth(7)</code>,這兩個節點<strong>又被走了一次</strong>。<b>但它們在第 1 步(量 <code>depth(20)</code> 時)就已經被走過了。</b>這就是「由上往下」的代價:<strong>深度 <code>d</code> 的節點會被走 <code>d</code> 次</strong>(每個祖先各走它一次;它自己的 isBalanced 只量小孩)。'),
 
     S({2:1,3:1,6:2,7:2}, [2,3,6,7], -1, 44, 'done',
       'return true      // 每一個節點都通過了檢查',

@@ -98,12 +98,12 @@
           <div class="sc-ko-card__head">
             <span class="sc-ko-card__badge">B</span>
             <span class="sc-ko-card__title">由上往下:每個節點現場呼叫 <code>depth()</code></span>
-            <span class="sc-ko-card__o">O(n log n)</span>
+            <span class="sc-ko-card__o">O(n·h)</span>
           </div>
           <div class="sc-ko-card__body">
             <strong>完全正確</strong>(窮舉 <code>n ≤ <span class="nm">10</span></code> 共 23714 種樹形,零不一致),
             <strong>就是你寫的這一份</strong>。但每個節點會被<strong>重複走訪</strong> ——
-            深度 <code>d</code> 的節點被走 <code>d+<span class="nm">1</span></code> 次。
+            深度 <code>d</code> 的節點被走 <code>d</code> 次(每個祖先各一次)。
           </div>
           <div class="sc-ko-card__verdict">△ 正確但多做工</div>
         </div>
@@ -131,8 +131,10 @@
       <b>實測不是。</b>因為 <code>&amp;&amp;</code> <strong>會短路</strong> ——
       退化成一條鏈時,<strong>根節點的高度差就過大,兩個遞迴直接被跳過</strong>,
       實測呼叫次數只有 <code>2n</code>,<strong>是線性的</strong>。
-      <b>真正被完整走完的是<em>平衡</em>樹,而平衡樹的 <code>h = O(log n)</code>,
-      所以實際上限是 <code>O(n log n)</code>。</b>詳見<a href="code.html">程式碼頁</a>的實測表。
+      <b>但上限也不是 <code>O(n log n)</code>。</b><code>isBalanced</code> 會<strong>先</strong>遞迴進左子樹、在那裡付完 <code>depth()</code> 的成本,
+      <strong>之後</strong>才可能發現別處不平衡 —— 所以<strong>最後判成 false 的樹照樣可以被走得很深</strong>。
+      <b>正確的上限是 <code>O(n·h)</code></b>:平衡樹 <code>h = O(log n)</code> 得到 <code>n log n</code>,
+      而「梳子樹」(每個脊椎節點都通過檢查)實測約 <code>n<sup>1.5</sup></code>。詳見<a href="code.html">程式碼頁</a>的實測表。
     </div>
   </section>
 
@@ -258,18 +260,18 @@ depth base case 回 1        → 錯    0/2056  ← 這個是「無害」的,見
     <table class="sc-table">
       <thead><tr><th>維度</th><th>你的寫法(由上往下)</th><th>由下往上</th></tr></thead>
       <tbody>
-        <tr><td>時間(最壞)</td><td class="mono"><strong>O(n log n)</strong></td><td class="mono ok"><strong>O(n)</strong></td></tr>
+        <tr><td>時間(最壞)</td><td class="mono"><strong>O(n·h)</strong></td><td class="mono ok"><strong>O(n)</strong></td></tr>
         <tr><td>退化成鏈 n=2000</td><td class="mono ok">4000 次(<strong>線性!</strong>短路了)</td><td class="mono">2004 次</td></tr>
         <tr><td>完美樹 n=1023</td><td class="mono">18434 次</td><td class="mono ok">2047 次(<strong>9.0 倍差</strong>)</td></tr>
         <tr><td>完美樹 n=4095</td><td class="mono">90114 次</td><td class="mono ok">8191 次(<strong>11.0 倍差</strong>)</td></tr>
-        <tr><td>n=5000 最壞</td><td class="mono">117328 次 · <strong>0.347 ms</strong></td><td class="mono ok">約 10001 次</td></tr>
+        <tr><td>梳子樹 n=4951</td><td class="mono">333514 次(≈ n<sup>1.5</sup>)· <strong>約 0.32 ms</strong></td><td class="mono ok">118 次(−1 早退)</td></tr>
         <tr><td>空間</td><td class="mono">O(h)</td><td class="mono">O(h)</td></tr>
       </tbody>
     </table>
 
     <div class="sc-insight" style="margin-top:14px;">
       <strong>你的寫法在 LeetCode 上完全不成問題</strong> ——
-      實測 <code>n = <span class="nm">5000</span></code> 的最壞情況只花 <strong>0.347 ms</strong>,
+      實測 <code>n ≈ <span class="nm">5000</span></code> 的梳子樹(比平衡樹更壞的形狀)也只花<strong>約 0.32 ms</strong>,
       <b>離 1 秒的時限還有約 3000 倍餘裕</b>。
       <strong>但「由下往上只要一半的工作量」仍然值得知道</strong>,
       因為面試官很可能追問「能不能只走一趟」。
@@ -304,7 +306,7 @@ depth base case 回 1        → 錯    0/2056  ← 這個是「無害」的,見
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">平衡的定義是「每一個節點」都要滿足 —— 只看根錯 164/2056,而且 n≤5 全部碰巧對,最小反例要 6 個節點。由上往下不是 O(n²)(&& 會短路,退化鏈反而是線性),真正的上限是平衡樹上的 O(n log n),實測 11 倍差。</div>
+    <div class="sc-summary-bar__body">平衡的定義是「每一個節點」都要滿足 —— 只看根錯 164/2056,而且 n≤5 全部碰巧對,最小反例要 6 個節點。由上往下不是 O(n²)(&& 會短路,退化鏈反而是線性),但也不只 O(n log n):上限是 O(n·h) —— 平衡樹實測 11 倍差,先探索、後失敗的梳子樹約 n<sup>1.5</sup>。</div>
     <div class="sc-summary-bar__detail">BALANCED BINARY TREE · CONCEPT</div>
   </div>
 

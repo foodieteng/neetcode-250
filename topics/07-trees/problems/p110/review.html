@@ -86,13 +86,14 @@
       <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
       <div class="xq__body">很多題解說「由上往下是 <code>O(n²)</code>,最壞情況是退化成一條鏈」。<strong>這個說法對嗎?</strong>請用實測數字回答。</div>
       <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
-        <div class="xq__ansbody"><strong>不對。實測退化鏈是<em>線性</em>的,真正的上限是 <code>O(n log n)</code>。</strong><br/><br/>
+        <div class="xq__ansbody"><strong>不對。實測退化鏈是<em>線性</em>的;真正的上限是 <code>O(n·h)</code> —— 平衡樹上是 <code>n log n</code>,梳子樹約 <code>n<sup>1.5</sup></code>。</strong><br/><br/>
 <strong>為什麼退化鏈不慢:<code>&amp;&amp;</code> 會短路。</strong>一條長度 <code>n</code> 的鏈,在<strong>根節點</strong>就有 <code>depth(左) = n−<span class="nm">1</span></code>、<code>depth(右) = <span class="nm">0</span></code>,<code>abs(n−<span class="nm">1</span>) &gt; <span class="nm">1</span></code> <strong>第一個條件就 false</strong> —— <b>兩個 <code>isBalanced</code> 遞迴<em>完全不會被呼叫</em></b>。<br/><br/>
 <strong>實測 <code>depth()</code> 呼叫次數(退化左鏈):</strong><br/>
 <code>n=<span class="nm">250</span> → <span class="nm">500</span></code>、<code>n=<span class="nm">500</span> → <span class="nm">1000</span></code>、<code>n=<span class="nm">1000</span> → <span class="nm">2000</span></code>、<code>n=<span class="nm">2000</span> → <span class="nm">4000</span></code><br/>
 <b>每次加倍只變 2.0 倍 —— 嚴格線性。</b>若真是 <code>O(n²)</code>,<code>n=<span class="nm">2000</span></code> 應該要 <code><span class="nm">4002000</span></code> 次,<strong>實測只有 4000 次,差 1000 倍</strong>。而 <code>isBalanced()</code> 的呼叫次數<strong>永遠是 1</strong>。<br/><br/>
-<strong>真正的最壞情況是「平衡樹」。</strong>推理很簡單:<b>一棵樹要被「完整探索」,就代表它處處通過檢查 —— 也就是它是平衡的</b>;而<strong>平衡樹的高度 <code>h = O(log n)</code></strong>,每個節點最多被重複走 <code>O(log n)</code> 次 ⇒ 上限 <code>O(n log n)</code>,<strong>不可能到 <code>O(n²)</code></strong>。<br/><br/>
-<strong>實測完美樹的額外成本</strong>:<code>n=<span class="nm">1023</span></code> → <strong>9.0 倍</strong>、<code>n=<span class="nm">4095</span></code> → <strong>11.0 倍</strong>、<code>n=<span class="nm">4180</span></code> → <strong>11.5 倍</strong>。<b>倍率每次加倍約 +0.7,正是 <code>Θ(log n)</code> 的成長。</b><br/><br/>
+<strong>但「最壞情況是平衡樹」也不對。</strong>常見的推理是:一棵樹要被「完整探索」,就代表它處處通過檢查 —— 也就是它是平衡的 ⇒ <code>h = O(log n)</code> ⇒ <code>O(n log n)</code>。<b>漏洞在順序</b>:<code>isBalanced</code> 會<strong>先</strong>遞迴進左子樹、在那裡付完 <code>depth()</code> 的成本,<strong>之後</strong>才可能在別處發現不平衡 —— <b>探索發生在失敗的檢查<em>之前</em></b>,所以最後判成 false 的樹照樣可以被走得很深。<br/><br/>
+<strong>反例「梳子樹」</strong>:左脊椎 <code>h</code> 個節點,脊椎第 <code>i</code> 個節點的右小孩是一根 <code>h−i−<span class="nm">2</span></code> 個節點的左斜棍。<strong>每個脊椎節點的高度差都 ≤ 1</strong>,整條脊椎被走完之後才在棍子上判 false。<strong>實測 <code>depth()</code> 呼叫</strong>:<code>n=<span class="nm">4951</span> → <span class="nm">333514</span></code>(≈ <code><span class="nm">0.96</span>·n<sup>1.5</sup></code>)、<code>n=<span class="nm">19901</span> → <span class="nm">2667014</span></code>;<b>n 約變 4 倍、呼叫變 8.0 倍</b>。<strong>正確的上限是 <code>O(n·h)</code></strong> —— 只是 <code>O(n²)</code> 因為短路到不了。<br/><br/>
+<strong>實測完美樹(平衡樹)的額外成本</strong>:<code>n=<span class="nm">1023</span></code> → <strong>9.0 倍</strong>、<code>n=<span class="nm">4095</span></code> → <strong>11.0 倍</strong>、<code>n=<span class="nm">4180</span></code> → <strong>11.5 倍</strong>。<b>倍率每次加倍約 +0.7,正是 <code>Θ(log n)</code> 的成長。</b><br/><br/>
 <b>教訓:短路運算子會改變複雜度分析,而紙上分析很容易漏掉這一點。</b>(對比 <a href="../p104/review.html">104</a>:那題用的是 <code>max</code> —— 普通函式,<strong>不短路</strong>,所以兩邊一定都走完。)</div>
       </details>
     </div>
@@ -190,12 +191,13 @@ return true
 總計 depth() 呼叫 22 次
 由下往上版只需要 11 次(2n+1 = 2×5+1)—— 剛好一半
 
-一般規律:深度 d 的節點會被 depth() 走 d+1 次(它自己 + 每個祖先各一次)
+一般規律:深度 d 的節點會被 depth() 走 d 次(每個祖先的 isBalanced 各一次;
+          它自己那次 isBalanced 只量小孩,不會走到自己 —— 所以根 3 是 0 次)
 <span class="sc-trace__out">// 這棵樹只有 5 個節點就差了一倍;完美樹 n=4095 時差 11 倍</span></div>
 <div class="sc-insight" style="margin-top:14px;">
 <strong>注意這棵範例樹是<em>平衡</em>的,所以兩個 <code>&amp;&amp;</code> 短路<em>都沒有</em>觸發</strong> ——
-      整棵樹被完整探索。<b>這正是「最壞情況是平衡樹」的具體樣子</b>:
-      <strong>能讓程式走完全程的樹,必定是通過所有檢查的樹,也就是平衡樹。</strong>
+      整棵樹被完整探索。<b>但別由此推出「最壞情況是平衡樹」</b>:
+      <strong>探索發生在失敗的檢查<em>之前</em></strong>,一棵最後判 false 的樹(例如第 2 題的梳子樹)照樣會被走得很深 —— <strong>而且比平衡樹更貴。</strong>
 </div></div>
       </details>
     </div>
@@ -294,14 +296,14 @@ int check(TreeNode* root) {
 <tbody>
 <tr><td>定義</td><td><strong>「每一個節點」</strong>的左右高度差 ≤ 1 —— 不是只看根</td></tr>
 <tr><td>核心陷阱</td><td>只看根 → 錯 <strong>164/2056</strong>,<strong><code>n ≤ <span class="nm">5</span></code> 全部碰巧對</strong>,最小反例 6 節點</td></tr>
-<tr><td><strong>複雜度真相</strong></td><td>由上往下<strong>不是 <code>O(n²)</code></strong>,是 <strong><code>O(n log n)</code></strong> —— <code>&amp;&amp;</code> 會短路</td></tr>
+<tr><td><strong>複雜度真相</strong></td><td>由上往下<strong>不是 <code>O(n²)</code></strong>,是 <strong><code>O(n·h)</code></strong> —— <code>&amp;&amp;</code> 讓退化鏈短路;平衡樹 <code>n log n</code>、梳子樹約 <code>n<sup>1.5</sup></code></td></tr>
 <tr><td>短路的效果</td><td>退化鏈在<strong>根就 false</strong>,<code>isBalanced()</code> 只呼叫 <strong>1 次</strong></td></tr>
-<tr><td>真正的最壞</td><td><strong>平衡樹</strong>(因為它會被完整走完),實測 <code>n=<span class="nm">4095</span></code> 差 <strong>11 倍</strong></td></tr>
+<tr><td>最壞不是平衡樹</td><td><strong>梳子樹</strong>(先探索、後失敗)實測 <code>n=<span class="nm">4951</span></code> → <strong>333514 次</strong>;平衡樹 <code>n=<span class="nm">4095</span></code> 差 <strong>11 倍</strong></td></tr>
 <tr><td>優化方向</td><td>由下往上一趟:<strong>回傳高度,壞了就回 <code>−<span class="nm">1</span></code></strong> 並往上傳</td></tr>
 <tr><td>無害的錯誤</td><td><code>depth</code> base case 回 1 → <strong>0/2056 失敗</strong>(偏移被減法消掉)</td></tr>
 <tr><td>過嚴的錯誤</td><td>用節點數代替高度 → 錯 42/2056,<strong>只誤殺、不漏抓</strong></td></tr>
 <tr><td>單向的錯誤</td><td>忘記 <code>abs</code> → 錯 275/2056,<strong>右重的樹全數漏判</strong></td></tr>
-<tr><td>實務成本</td><td><code>n=<span class="nm">5000</span></code> 最壞 <strong>0.347 ms</strong> —— LeetCode 上餘裕約 3000 倍</td></tr>
+<tr><td>實務成本</td><td><code>n≈<span class="nm">5000</span></code> 梳子樹<strong>約 0.32 ms</strong> —— LeetCode 上餘裕約 3000 倍</td></tr>
 </tbody>
 </table></div>
         </div>
@@ -322,7 +324,7 @@ int check(TreeNode* root) {
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">「每一個節點」五個字就是全部 —— 漏掉錯 164/2056 而 n≤5 全對。短路運算子會改變複雜度分析:由上往下在退化鏈上是線性的,真正的最壞是平衡樹的 O(n log n)。一個 bug 會不會造成傷害,取決於下游怎麼用那個值。</div>
+    <div class="sc-summary-bar__body">「每一個節點」五個字就是全部 —— 漏掉錯 164/2056 而 n≤5 全對。短路運算子會改變複雜度分析:由上往下在退化鏈上是線性的,但上限是 O(n·h) 而非 O(n log n) —— 先探索、後失敗的梳子樹約 n<sup>1.5</sup>。一個 bug 會不會造成傷害,取決於下游怎麼用那個值。</div>
     <div class="sc-summary-bar__detail">BALANCED BINARY TREE · REVIEW</div>
   </div>
 
