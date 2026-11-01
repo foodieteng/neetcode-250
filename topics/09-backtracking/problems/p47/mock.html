@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 47 · Permutations II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+.trace-wrap { overflow-x: auto; }
+.trace-wrap table.trace { min-width: 520px; }
+.trace-wrap table.trace td { white-space: nowrap; }
+pre.code .hl { background: rgba(195, 232, 141, 0.10); }
+pre.code .del { color: #f07178; background: rgba(240, 113, 120, 0.10); }
+pre.code .add { color: var(--str); background: rgba(195, 232, 141, 0.10); }
+table.trace tr.bad-row td { background: rgba(240, 113, 120, 0.10); color: #f07178; }
+@media (max-width: 600px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  .legend { gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 47 · Permutations II · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an array <code class="chip">nums</code> that <strong>may contain duplicates</strong>. Return all possible <strong>unique</strong> permutations, in any order.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> two permutations are the same if they have the same values in the same order, no matter which copy of a value went where? So with two 1s, swapping the 1s does not make a new answer.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip num">1 ≤ n ≤ 8</code> and <code class="chip num">−10 ≤ nums[i] ≤ 10</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. n is at most <code class="chip num">8</code>, so listing every permutation is fine. The real work is not listing any of them twice.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">[1,1,2]</code> gives only 3 answers, <code class="chip">[[1,1,2],[1,2,1],[2,1,1]]</code>, because the two 1s can trade places. And <code class="chip">[1,2,3]</code> has no duplicates, so it gives all 6.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> run the plain permutation backtracking and drop repeats with a set at the end. It works, but it still builds every duplicate first. I'll keep it as a checker on small inputs.</p>
+      <p><strong>This problem reminds me of</strong> backtracking with a <code class="chip">used</code> array, where the loop always starts at <code class="chip num">0</code>, combined with the <strong>sort-and-skip dedupe</strong> pattern: sort first, then skip equal values <strong>on the same level</strong> of the tree.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        path = the numbers placed so far<br>
+        used = which indices are already in path<br>
+        <br>
+        <span class="label">// setup</span><br>
+        sort(nums)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">← equal values become adjacent</span><br>
+        <br>
+        <span class="label">// dfs</span><br>
+        if path is full: record it, return<br>
+        for i in [0, n):<br>
+        &nbsp;&nbsp;if used[i]: continue<br>
+        &nbsp;&nbsp;if nums[i] == nums[i-1] and !used[i-1]: skip&nbsp;&nbsp;<span class="em">← same level dedupe</span><br>
+        &nbsp;&nbsp;mark, push, dfs, pop, unmark
+      </div>
+      <p>One: sort, so equal values become neighbors.<br>
+      Two: in each call, loop over every unused index.<br>
+      Three: skip index <code class="chip">i</code> when <code class="chip">nums[i] == nums[i-1]</code> and <code class="chip">used[i-1]</code> is false, then mark, push, recurse, pop, unmark.</p>
+      <p>One loop is one level: it picks the value for the <strong>next</strong> slot. If the left copy is not used, it was already tried in this same slot and is back off the path, so putting this copy here gives the same subtree. If <code class="chip">used[i-1]</code> is true, it sits in an earlier slot, so this copy is fine. In effect, equal values always go in left-to-right order.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; <span class="fn">permuteUnique</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
+        <span class="fn">sort</span>(nums.<span class="fn">begin</span>(), nums.<span class="fn">end</span>());                     <span class="com">// equal values side by side</span>
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; ans;
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; path;
+        <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; <span class="fn">used</span>(nums.<span class="fn">size</span>(), <span class="kw">false</span>);
+        <span class="fn">dfs</span>(nums, ans, path, used);
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; ans, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; path, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&amp; used) {
+        <span class="kw">if</span> (path.<span class="fn">size</span>() == nums.<span class="fn">size</span>()) {
+            ans.<span class="fn">push_back</span>(path);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; nums.<span class="fn">size</span>(); i++) {
+            <span class="kw">if</span> (used[i]) <span class="kw">continue</span>;                          <span class="com">// already in path</span>
+<span class="hl">            <span class="kw">if</span> (i &gt; <span class="num2">0</span> &amp;&amp; nums[i] == nums[i - <span class="num2">1</span>] &amp;&amp; !used[i - <span class="num2">1</span>]) <span class="kw">continue</span>;</span>   <span class="com">// same-level duplicate: skip just this one</span>
+
+            used[i] = <span class="kw">true</span>;
+            path.<span class="fn">push_back</span>(nums[i]);
+            <span class="fn">dfs</span>(nums, ans, path, used);
+            path.<span class="fn">pop_back</span>();
+            used[i] = <span class="kw">false</span>;
+        }
+    }
+};</pre>
+      <p>The highlighted line is the dedupe. <em class="pause">My first draft ended it with <code class="chip">break</code> — I'll catch that in the review.</em> This is the final version.</p>
+      <p><strong>One thing worth flagging</strong> — the sort is a <strong>correctness</strong> requirement. The dedupe only compares neighbors, so without the sort, <code class="chip">[1,2,1]</code> gives 6 permutations, with duplicates.</p>
+      <p>The <code class="chip">!used[i-1]</code> part matters too. If I only compare values and skip, <code class="chip">[1,1]</code> → <code class="chip">[]</code>. Nothing at all, because the second 1 can never be placed.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run my first draft</strong>, with <code class="chip">break</code>, on <code class="chip">[1,1,2]</code> = 1₁ 1₂ 2 — expected 3 answers.</p>
+      <div class="trace-wrap">
+      <table class="trace">
+        <thead><tr><th>call</th><th>path</th><th>used</th><th>what happens</th></tr></thead>
+        <tbody>
+          <tr><td>#1</td><td>[]</td><td>F F F</td><td>i=0: push 1₁</td></tr>
+          <tr><td>#2</td><td>[1₁]</td><td>T F F</td><td>i=0 used → continue · i=1: push 1₂</td></tr>
+          <tr><td>#3</td><td>[1₁,1₂]</td><td>T T F</td><td>i=0,1 used · i=2: push 2</td></tr>
+          <tr><td>#4</td><td>[1₁,1₂,2]</td><td>T T T</td><td><span class="answer-cell">record [1,1,2]</span></td></tr>
+          <tr><td>#5</td><td>[1₁,2]</td><td>T F T</td><td>i=0 used · i=1: push 1₂</td></tr>
+          <tr><td>#6</td><td>[1₁,2,1₂]</td><td>T T T</td><td><span class="answer-cell">record [1,2,1]</span></td></tr>
+          <tr class="bad-row"><td>↩ #1</td><td></td><td>F F F</td><td>i=1: 1₂ == 1₁, 1₁ not used → <strong>break</strong> · i=2 never tried</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is back at the root: <code class="chip">1₂</code> equals <code class="chip">1₁</code>, and <code class="chip">1₁</code> is not used, so I skip. But <code class="chip">break</code> ends the <strong>whole loop</strong>, so <code class="chip num">2</code> is never tried in the first slot: <strong>6 calls</strong>, <strong>2 answers</strong>, and <code class="chip">[2,1,1]</code> is missing.</p>
+      <p>The next value is <strong>different</strong>, so it must be <code class="chip">continue</code>:</p>
+<pre class="code"><span class="del">- if (i &gt; 0 &amp;&amp; nums[i] == nums[i - 1] &amp;&amp; !used[i - 1]) break;</span>
+<span class="add">+ if (i &gt; 0 &amp;&amp; nums[i] == nums[i - 1] &amp;&amp; !used[i - 1]) continue;</span></pre>
+      <div class="trace-wrap">
+      <table class="trace">
+        <thead><tr><th>call</th><th>path</th><th>used</th><th>what happens</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>↩ #1</td><td></td><td>F F F</td><td>i=1: 1₂ == 1₁, 1₁ not used → continue · i=2: push 2</td></tr>
+          <tr><td>#7</td><td>[2]</td><td>F F T</td><td>i=0: push 1₁</td></tr>
+          <tr><td>#8</td><td>[2,1₁]</td><td>T F T</td><td>i=1: push 1₂ (1₁ is used → allowed)</td></tr>
+          <tr><td>#9</td><td>[2,1₁,1₂]</td><td>T T T</td><td><span class="answer-cell">record [2,1,1]</span></td></tr>
+          <tr><td>↩ #7</td><td></td><td>F F T</td><td>i=1: 1₂ == 1₁, 1₁ not used → continue</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>With <code class="chip">continue</code>, the root goes on to <code class="chip num">2</code> and builds <code class="chip">[2,1,1]</code>. <strong>9 calls</strong>, all three answers <code class="chip">[[1,1,2],[1,2,1],[2,1,1]]</code>. That matches.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>When you search for sums over a sorted array, you can <code class="chip">break</code>. Why not here?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>There, the break is on <strong>sum</strong>: the array is sorted, so if the current candidate already goes over the target, every later one is at least as big and goes over too. The test is <strong>monotone</strong> for all later i, so stopping loses nothing.</p>
+      <p>Here the test is "same as the neighbor". That is <strong>not</strong> monotone — a later i can be a new value, like the 2. So <code class="chip">break</code> is only safe when the condition stays true for every later i.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">[1,2,3]</code>: both versions give all 6 in 16 calls, since the line never fires — that's why the bug hides.<br>
+      • <code class="chip">[1,1]</code> and <code class="chip">[1,1,1]</code>: 1 answer each, even with <code class="chip">break</code>.<br>
+      • <code class="chip">break</code> on <code class="chip">[2,2,1,1]</code>: 3 answers instead of 6.<br>
+      • No dedupe line: <code class="chip">[1,1]</code> → <code class="chip">[[1,1],[1,1]]</code>, the same answer twice.</p>
+      <p>Against a brute force on all <code class="chip num">1,092</code> arrays of length 1–6 with values 1..3, <code class="chip">continue</code> is <strong>0 wrong</strong> and <code class="chip">break</code> is wrong on <code class="chip num">946</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(n · n!) in the worst case, when all values are distinct: n! leaves, and each copy into <code class="chip">ans</code> costs n. With duplicates, the dedupe cuts whole subtrees, so it only gets cheaper. Plus O(n log n) for the sort.</p>
+      <p><strong>For space</strong>, the stack and <code class="chip">used</code> are O(n). But <code class="chip">path</code> is passed <strong>by value</strong>, so every level holds its own copy, which makes it O(n<sup>2</sup>) extra; passing <code class="chip">path</code> by reference brings it back to O(n).</p>
+      <p>On <code class="chip">[1,1,2,2,3,3,4,4]</code>, with <code class="chip num">2,520</code> answers, it takes <code class="chip num">7,365</code> calls. With no dedupe, it's <code class="chip num">109,601</code> calls.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Follow-up: some people write <code class="chip">used[i-1]</code> instead of <code class="chip">!used[i-1]</code>. Does that work? And with that version, is <code class="chip">break</code> OK?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes, it works: <strong>0 wrong</strong> on the same arrays. It forces equal values in right-to-left order instead.</p>
+      <p><strong>Oh, one more thing —</strong> with that rule, both <code class="chip">continue</code> and <code class="chip">break</code> are correct. If the left copy is on the path but this copy is not, this copy will be skipped at every deeper level too, so the path can never be finished. That node is a <strong>dead end</strong>, and breaking out of its loop loses nothing. On <code class="chip">[1,1,2]</code>, that version makes 12 calls, with 3 dead-end nodes.</p>
+      <p>But it's slower: on the eight-element input, <code class="chip num">16,201</code> calls vs <code class="chip num">7,365</code>. The standard rule cuts at the top; the other one walks into dead ends first.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. Your <strong>dry run caught the <code class="chip">break</code> bug</strong>, and you explained it: break ends the whole loop, so the new value 2 is never tried. You explained <strong>when break is safe</strong>: only when the test is monotone, like a sum check on a sorted array. And you showed the <code class="chip">used[i-1]</code> variant, why break is fine there, and that it costs more than twice the calls. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 8.49, 26.99, 29.31, 32.38, 38.23, 59.36, 87.05, 130.32, 132.98, 164.56, 196.59, 202.01, 229.51, 265.31, 313.66, 324.19, 368.06]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

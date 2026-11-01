@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 46 · Permutations</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+.trace-wrap { overflow-x: auto; }
+.trace-wrap table.trace { min-width: 460px; }
+@media (max-width: 600px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  .legend { gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 46 · Permutations · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an array <code class="chip">nums</code> of distinct integers. Return all possible permutations. Any order is fine.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> here <strong>order matters</strong>. <code class="chip">[1,2]</code> and <code class="chip">[2,1]</code> are two different answers. And each element is used <strong>exactly once</strong> in one permutation. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, that's right.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip num">1 ≤ n ≤ 6</code>, <code class="chip num">−10 ≤ nums[i] ≤ 10</code>, and all values are distinct.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. Since the values are distinct, I don't need to handle duplicates. And <code class="chip">n ≤ 6</code> means at most <code class="chip num">720</code> answers, so listing them all is fine.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">[1,2,3]</code> gives six permutations — that's <code class="chip num">3! = 6</code>. <code class="chip">[0,1]</code> gives two, and <code class="chip">[1]</code> gives just itself.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>This problem reminds me of</strong> the <strong>backtracking</strong> template: fill a path one slot at a time, recurse, then undo. But there's one key difference.</p>
+      <p>When order doesn't matter, like choosing a group, the loop starts at a start index <code class="chip">s</code>, so every path is increasing and <code class="chip">[2,1]</code> never shows up. Here order <strong>does</strong> matter, so every slot must be able to take <strong>any</strong> element. So the loop always starts from <code class="chip num">0</code>, and I need another way to stop reuse: a <code class="chip">used[]</code> array.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        path&nbsp;&nbsp;&nbsp;= the elements placed so far<br>
+        used[i] = is nums[i] already in path?<br>
+        <br>
+        <span class="label">// dfs()</span><br>
+        if path.size() == n: record path, return<br>
+        for i in [0, n):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">← from 0, not from s</span><br>
+        &nbsp;&nbsp;if used[i]: skip<br>
+        &nbsp;&nbsp;used[i] = true; path.push_back(nums[i])<br>
+        &nbsp;&nbsp;dfs()<br>
+        &nbsp;&nbsp;path.pop_back(); used[i] = false&nbsp;&nbsp;&nbsp;<span class="em">← undo both</span>
+      </div>
+      <p>One: if the path has <code class="chip">n</code> elements, record it and return.<br>
+      Two: otherwise loop <code class="chip">i</code> from <code class="chip num">0</code>, and skip any index that's already used.<br>
+      Three: mark it used, push it, recurse, then pop it and clear the mark.</p>
+      <p>The loop decides <strong>which element goes in this slot</strong>, and <code class="chip">used[]</code> makes sure each one goes in only once.</p>
+      <p><strong>One thing worth flagging</strong> — I changed <strong>two</strong> pieces of state, so the undo has <strong>two</strong> parts: <code class="chip">pop_back</code> and <code class="chip">used[i] = false</code>. If I forget either one, the next branch sees a dirty state.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; <span class="fn">permute</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums) {
+        <span class="typ">int</span> n = nums.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; ans;
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; path;
+        <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; <span class="fn">used</span>(n, <span class="kw">false</span>);
+        <span class="fn">dfs</span>(nums, ans, path, used);
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; ans, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; path, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&amp; used) {
+        <span class="kw">if</span> (path.<span class="fn">size</span>() == nums.<span class="fn">size</span>()) {                   <span class="com">// every slot is filled</span>
+            ans.<span class="fn">push_back</span>(path);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; nums.<span class="fn">size</span>(); i++) {             <span class="com">// every slot may pick from the start</span>
+            <span class="kw">if</span> (used[i]) <span class="kw">continue</span>;                          <span class="com">// already in path</span>
+
+            used[i] = <span class="kw">true</span>;
+            path.<span class="fn">push_back</span>(nums[i]);
+            <span class="fn">dfs</span>(nums, ans, path, used);
+            path.<span class="fn">pop_back</span>();                                <span class="com">// undo both</span>
+            used[i] = <span class="kw">false</span>;
+        }
+    }
+};</pre>
+      <p><code class="chip">permute</code> just sets up the answer list, an empty path and a <code class="chip">used</code> array, then calls <code class="chip">dfs</code>. In <code class="chip">dfs</code>, a full path gets copied into the answer; otherwise the loop runs from <code class="chip num">0</code>, skips used indices, and does the set, push, recurse, pop, clear sequence.</p>
+      <p><code class="chip">path</code> and <code class="chip">used</code> are passed <strong>by reference</strong>. There's one shared copy of each, and every change is undone right after the recursive call returns. I only copy <code class="chip">path</code> when I record an answer.</p>
+      <p>The undo order mirrors the do order: set <code class="chip">used</code>, push; then pop, clear <code class="chip">used</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">nums = [1,2,3]</code> — expected all six permutations. <code class="chip">used</code> is shown per index as T / F.</p>
+      <div class="trace-wrap">
+      <table class="trace">
+        <thead><tr><th>call</th><th>path</th><th>used</th><th>what happens</th></tr></thead>
+        <tbody>
+          <tr><td>#1</td><td>[]</td><td>F F F</td><td>try i = 0, 1, 2</td></tr>
+          <tr><td>#2</td><td>[1]</td><td>T F F</td><td>i=0 skip</td></tr>
+          <tr><td>#3</td><td>[1,2]</td><td>T T F</td><td>i=0,1 skip</td></tr>
+          <tr><td>#4</td><td>[1,2,3]</td><td>T T T</td><td><span class="answer-cell">size 3 → ans</span></td></tr>
+          <tr><td>#5</td><td>[1,3]</td><td>T F T</td><td>i=0,2 skip</td></tr>
+          <tr><td>#6</td><td>[1,3,2]</td><td>T T T</td><td><span class="answer-cell">size 3 → ans</span></td></tr>
+          <tr class="highlight-row"><td>#7</td><td>[2]</td><td>F T F</td><td>i=1 skip · 1 is free again</td></tr>
+          <tr><td>#8</td><td>[2,1]</td><td>T T F</td><td>i=0,1 skip</td></tr>
+          <tr><td>#9</td><td>[2,1,3]</td><td>T T T</td><td><span class="answer-cell">size 3 → ans</span></td></tr>
+          <tr><td>#10</td><td>[2,3]</td><td>F T T</td><td>i=1,2 skip</td></tr>
+          <tr><td>#11</td><td>[2,3,1]</td><td>T T T</td><td><span class="answer-cell">size 3 → ans</span></td></tr>
+          <tr><td>#12</td><td>[3]</td><td>F F T</td><td>i=2 skip</td></tr>
+          <tr><td>#13</td><td>[3,1]</td><td>T F T</td><td>i=0,2 skip</td></tr>
+          <tr><td>#14</td><td>[3,1,2]</td><td>T T T</td><td><span class="answer-cell">size 3 → ans</span></td></tr>
+          <tr><td>#15</td><td>[3,2]</td><td>F T T</td><td>i=1,2 skip</td></tr>
+          <tr><td>#16</td><td>[3,2,1]</td><td>T T T</td><td><span class="answer-cell">size 3 → ans</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is call #7: after the whole <code class="chip">[1, …]</code> branch returns, <code class="chip">used</code> is back to all F, so <code class="chip num">2</code> can go first and <code class="chip num">1</code> is free again for the second slot. That only works because <strong>both</strong> undos ran. It takes <strong>16 calls</strong>, <code class="chip num">1 + 3 + 6 + 6</code>, and gives all six. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[0,1]</code> → <code class="chip">[[0,1],[1,0]]</code> in 5 calls.<br>
+      • Drop <code class="chip">if (used[i]) continue</code>: <code class="chip">[1,2]</code> → <code class="chip">[[1,1],[1,2],[2,1],[2,2]]</code>, with reuse.<br>
+      • Forget either undo: <code class="chip">[1,2]</code> → only <code class="chip">[[1,2]]</code>.<br>
+      • A start-index loop also returns only <code class="chip">[[1,2]]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is O(n · n!).</strong> There are <code class="chip">n!</code> answers, and copying each one costs <code class="chip">n</code>. The call count is <code class="chip">1 + n + n(n−1) + … + n!</code>, which is still bounded by a constant times <code class="chip">n!</code>.</p>
+      <p><strong>The space complexity is</strong> O(n) extra for the recursion stack, <code class="chip">path</code>, and <code class="chip">used</code>, not counting the output.</p>
+      <p><strong>In the worst-case scenario</strong>, <code class="chip">n = 6</code>: <code class="chip num">720</code> answers and <code class="chip num">1,957</code> calls, in about <code class="chip num">0.050 ms</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Can you do it without the <code class="chip">used</code> array?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes — the <strong>swap</strong> version. I keep <code class="chip">nums[0..k)</code> as the fixed prefix and <code class="chip">nums[k..n)</code> as the unused pool. For slot <code class="chip">k</code>, I swap each <code class="chip">nums[i]</code> with <code class="chip">i ≥ k</code> into position <code class="chip">k</code>, recurse on <code class="chip">k + 1</code>, then swap back.</p>
+      <div class="insight-box">
+        <span class="label">// dfs(k)</span><br>
+        if k == n: record nums, return<br>
+        for i in [k, n):<br>
+        &nbsp;&nbsp;swap(nums[k], nums[i])<br>
+        &nbsp;&nbsp;dfs(k + 1)<br>
+        &nbsp;&nbsp;swap(nums[k], nums[i])&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">← one-part undo</span>
+      </div>
+      <p>The array itself is the <code class="chip">used</code> set, so there's no extra array and no <code class="chip">path</code>, and the undo is one part. It makes the <strong>same</strong> number of calls: <code class="chip num">16</code> for n = 3 and <code class="chip num">1,957</code> for n = 6. It's a bit faster at <code class="chip">n = 6</code>, <code class="chip num">0.032 ms</code> vs <code class="chip num">0.050 ms</code>, same Big-O. The trade-off: the output order is not the same as the <code class="chip">used[]</code> version, but any order is allowed here.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You explained <strong>why the loop starts at 0</strong> — order matters — and contrasted it with the start index used when order doesn't matter. You treated the undo as <strong>two parts</strong>, and had a <code class="chip">[1,2]</code> counterexample for each missing piece. And you knew the <strong>swap version</strong> keeps the same call count while dropping the extra array. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 7.55, 26.24, 28.57, 31.68, 39.47, 61.67, 93.46, 132.6, 134.92, 171.9, 215.84, 251.88, 254.37, 298.69]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

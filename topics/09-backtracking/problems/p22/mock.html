@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 22 · Generate Parentheses</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+.trace-wrap { overflow-x: auto; }
+.trace-wrap table.trace { min-width: 560px; }
+.trace-wrap table.trace td { white-space: nowrap; }
+@media (max-width: 600px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  .legend { gap: 16px; }
+  code.chip.wrap { white-space: normal; word-break: break-all; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 22 · Generate Parentheses · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an integer <code class="chip">n</code>, the number of pairs of parentheses. Return all the strings of well-formed parentheses you can build with them.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> every answer has length <code class="chip num">2n</code>: exactly <code class="chip">n</code> open and <code class="chip">n</code> close. "Well-formed" means every <code class="chip">)</code> has a <code class="chip">(</code> before it to match. And the order of the output doesn't matter. Is that right?</p>
+      <p>So I think the real rule is about <strong>prefixes</strong>. Read left to right. At every point, the number of closes can never pass the number of opens. And opens can never pass <code class="chip">n</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, any order is fine.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip num">1 ≤ n ≤ 8</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. At <code class="chip">n = 8</code> there are <code class="chip num">1,430</code> answers. Those counts are the Catalan numbers: <code class="chip num">1, 2, 5, 14, …</code>. The output itself is the big cost, so I just want to build each answer once, with no wasted work.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">n = 3</code> → <code class="chip wrap">["((()))","(()())","(())()","()(())","()()()"]</code>, five strings, and <code class="chip">n = 1</code> → <code class="chip">["()"]</code>. A string like <code class="chip">")("</code> fails, because its first prefix already has more closes than opens.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> list all <code class="chip num">2<sup>2n</sup></code> strings of <code class="chip">(</code> and <code class="chip">)</code>, and keep the balanced ones. It works, and I'll use it later as a checker. But almost every string gets thrown away. At <code class="chip">n = 8</code> that's <code class="chip num">2<sup>16</sup></code> strings to check, just to keep <code class="chip num">1,430</code>.</p>
+      <p><strong>This problem reminds me of</strong> the <strong>backtracking</strong> template: build the answer one character at a time. Here, at each step I have two choices: add <code class="chip">(</code> or add <code class="chip">)</code>. If I only make a choice when it keeps the prefix valid, I never build a bad string. So there's nothing to filter at the end.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        res&nbsp;&nbsp;&nbsp;= the prefix built so far<br>
+        open&nbsp;&nbsp;= number of '(' in res<br>
+        close = number of ')' in res<br>
+        <span class="label">// invariant: close &lt;= open &lt;= n</span><br>
+        <br>
+        <span class="label">// dfs(res, open, close)</span><br>
+        if len(res) == 2n:&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">← full length, save it</span><br>
+        &nbsp;&nbsp;ans.add(res); return<br>
+        if open &lt; n:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">← still have a '(' to use</span><br>
+        &nbsp;&nbsp;dfs(res + '(', open + 1, close)<br>
+        if close &lt; open:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">← a '(' is waiting for a match</span><br>
+        &nbsp;&nbsp;dfs(res + ')', open, close + 1)
+      </div>
+      <p>One: track <code class="chip">open</code> and <code class="chip">close</code>, the counts in the prefix, so I never have to scan the string again.<br>
+      Two: if <code class="chip">open &lt; n</code>, add <code class="chip">(</code>; if <code class="chip">close &lt; open</code>, add <code class="chip">)</code>.<br>
+      Three: when the length reaches <code class="chip num">2n</code>, save it.</p>
+      <p><strong>One thing worth flagging</strong> — the guard <code class="chip">close &lt; open</code> is a <strong>correctness</strong> rule, not a speed-up. <em class="pause">Let me walk through that.</em> If I wrote <code class="chip">close &lt;= open</code>, then at <code class="chip">n = 1</code> I could put <code class="chip">)</code> first and get <code class="chip">")("</code>. Same for <code class="chip">close &lt; n</code>. Both are wrong on all 8 sizes.</p>
+      <p>And because the invariant always holds, <strong>there are no dead ends</strong>. Every call I make reaches at least one answer.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">generateParenthesis</span>(<span class="typ">int</span> n) {
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; ans;
+        <span class="typ">string</span> res = <span class="str">""</span>;
+        <span class="fn">dfs</span>(ans, res, <span class="num2">0</span>, <span class="num2">0</span>, n);
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; ans, <span class="typ">string</span> res, <span class="typ">int</span> open, <span class="typ">int</span> close, <span class="typ">int</span> n) {
+        <span class="kw">if</span> (res.<span class="fn">size</span>() == <span class="num2">2</span> * n) {                  <span class="com">// length 2n: always valid, record</span>
+            ans.<span class="fn">push_back</span>(res);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">if</span> (open &lt; n) {                             <span class="com">// still have a '(' left</span>
+            <span class="fn">dfs</span>(ans, res + <span class="str">'('</span>, open + <span class="num2">1</span>, close, n);
+        }
+
+        <span class="kw">if</span> (close &lt; open) {                          <span class="com">// an unmatched '(' is waiting</span>
+            <span class="fn">dfs</span>(ans, res + <span class="str">')'</span>, open, close + <span class="num2">1</span>, n);
+        }
+    }
+};</pre>
+      <p>That matches the plan: the base case saves a full-length string, and two guarded calls add <code class="chip">(</code> or <code class="chip">)</code>.</p>
+      <p><strong>One thing worth flagging</strong> — there's <strong>no pop</strong> here. <code class="chip">res</code> is passed <strong>by value</strong>, and <code class="chip">res + '('</code> builds a brand-new string. So the caller's <code class="chip">res</code> is never changed, and there's nothing to undo.</p>
+      <p>Also, the two branches are two separate <code class="chip">if</code>s on purpose. With <code class="chip">else if (close &lt; open)</code>, I'd only try <code class="chip">)</code> when <code class="chip">(</code> was not allowed, so <code class="chip">n = 2</code> gives only <code class="chip">["(())"]</code>.</p>
+      <p>And the base case checks the full length, <code class="chip">res.size() == 2 * n</code>: stopping at <code class="chip">open == n</code> would return <code class="chip">"("</code> for <code class="chip">n = 1</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>This works. Can you avoid copying <code class="chip">res</code> on every call?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes. I'd pass <code class="chip">string&amp; res</code>, do <code class="chip">push_back</code> before each call, and <code class="chip">pop_back</code> right after it. <strong>There's a trade-off here.</strong> With a reference, the <code class="chip">pop_back</code> is required. Without it, the <code class="chip">(</code> stays in the string when I try the <code class="chip">)</code> branch, and <code class="chip">n = 2</code> gives only <code class="chip">["(())"]</code>. The by-value version can't make that mistake.</p>
+      <p>On speed, at <code class="chip">n = 8</code> I measured <code class="chip num">~0.36 ms</code> by value and <code class="chip num">~0.15 ms</code> by reference. Same big-O. The reference is a constant-factor win.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">n = 2</code>, expecting <code class="chip">["(())","()()"]</code>. In DFS order:</p>
+      <div class="trace-wrap">
+      <table class="trace">
+        <thead><tr><th>call</th><th>depth</th><th>res</th><th>open</th><th>close</th><th>then</th></tr></thead>
+        <tbody>
+          <tr><td>#1</td><td>0</td><td>""</td><td>0</td><td>0</td><td>add ( · ) blocked (0 &lt; 0 no)</td></tr>
+          <tr><td>#2</td><td>1</td><td>"("</td><td>1</td><td>0</td><td>add ( · later add )</td></tr>
+          <tr><td>#3</td><td>2</td><td>"(("</td><td>2</td><td>0</td><td>( blocked (2 &lt; 2 no) · add )</td></tr>
+          <tr><td>#4</td><td>3</td><td>"(()"</td><td>2</td><td>1</td><td>add )</td></tr>
+          <tr><td>#5</td><td>4</td><td>"(())"</td><td>2</td><td>2</td><td><span class="answer-cell">size 4 → ans #1</span></td></tr>
+          <tr class="highlight-row"><td>#6</td><td>2</td><td>"()"</td><td>1</td><td>1</td><td>back in #2 · add ( · ) blocked</td></tr>
+          <tr><td>#7</td><td>3</td><td>"()("</td><td>2</td><td>1</td><td>( blocked · add )</td></tr>
+          <tr><td>#8</td><td>4</td><td>"()()"</td><td>2</td><td>2</td><td><span class="answer-cell">size 4 → ans #2</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is call #6: we are back in call #2, and its <code class="chip">res</code> is still <code class="chip">"("</code>. Nothing from the <code class="chip">"(())"</code> branch leaked in, because each call had its own copy. Now <code class="chip">close &lt; open</code> holds, so it adds <code class="chip">)</code> and continues to the second answer. <strong>8 calls</strong>, every one led to an answer, no dead ends. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">n = 1</code> takes 3 calls.<br>
+      • <code class="chip">n = 8</code> gives <code class="chip num">1,430</code> strings in <code class="chip num">6,917</code> calls.<br>
+      • Trying the <code class="chip">)</code> branch first is still correct, just in reverse order.<br>
+      • Against the brute force for <code class="chip">n = 1..8</code>, all sizes match with no duplicates.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(4<sup>n</sup> / √n). The number of answers is the Catalan number C<sub>n</sub>, which grows like 4<sup>n</sup> / n<sup>1.5</sup>, and each answer has length 2n. Since there are no dead ends, the work is tied to the output.</p>
+      <p><strong>The space complexity is</strong> O(n) for the recursion depth, not counting the output. With by-value strings, each level holds its own copy, so the live characters add up to O(n²); the reference version brings that back to O(n).</p>
+      <p><em class="pause">Oh, one more thing —</em> the call counts grow just like the answer counts, ending at <code class="chip num">6,917</code> calls for <code class="chip num">1,430</code> answers. That's the "no dead ends" idea in numbers.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You framed it as a <strong>prefix rule</strong>, <code class="chip">close ≤ open ≤ n</code>, and showed it means no dead ends and nothing to filter. You showed <code class="chip">close &lt; open</code> and the two separate <code class="chip">if</code>s are <strong>needed for correctness</strong>, with a counterexample for each. And you explained <strong>why there's no pop</strong>: by value is safe, and by reference is faster but needs <code class="chip">pop_back</code>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 8.83, 38.96, 41.36, 44.42, 47.42, 79.72, 119.0, 163.37, 165.95, 208.36, 213.8, 246.38, 296.56, 342.83]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
