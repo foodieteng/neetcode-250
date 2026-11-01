@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 17 · Letter Combinations of a Phone Number</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+code.chip { overflow-wrap: anywhere; }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.board { border-collapse: collapse; font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 13px; margin: 10px 0; }
+.board td { width: 30px; height: 30px; text-align: center; border: 1px solid var(--border); background: var(--surface); color: var(--mono); }
+</style>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 17 · Letter Combinations of a Phone Number · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a string of digits from <code class="chip num">2</code> to <code class="chip num">9</code>. Each digit maps to letters, like on an old phone keypad. Return every letter combination the number could spell.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I pick one letter for each digit, in the same order as the digits, so every answer has the same length as the input. And the keypad is the usual one: <code class="chip">2 → abc</code>, <code class="chip">7 → pqrs</code>, <code class="chip">9 → wxyz</code>, and <code class="chip">1</code> has no letters. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. You can return them in any order.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. <strong>Are there any constraints on the input size?</strong> And can the input be empty?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 ≤ digits.length ≤ 4</code>, and every digit is in <code class="chip">'2'..'9'</code>. So no, it's never empty.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. <code class="chip num">4</code> digits is tiny. Each digit has <code class="chip num">3</code> or <code class="chip num">4</code> letters, so the biggest answer is <code class="chip">4^4</code> = <code class="chip num">256</code> strings. The question asks for <strong>all</strong> of them, so an exponential output is expected.</p>
+      <p>Quick check on the example, <code class="chip">"23"</code>. <code class="chip">2</code> gives <code class="chip">abc</code>, <code class="chip">3</code> gives <code class="chip">def</code>. Pair every first letter with every second letter: <code class="chip">["ad","ae","af","bd","be","bf","cd","ce","cf"]</code>. That's <code class="chip">3 × 3</code> = <code class="chip num">9</code>. And <code class="chip">"2"</code> gives <code class="chip">["a","b","c"]</code>.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> write one nested loop per digit. But the number of digits isn't fixed, so I can't hard-code the loops.</p>
+      <p><strong>This problem reminds me of</strong> backtracking on a decision tree. Each digit is one level of the tree. At level <code class="chip">i</code>, I try each letter of <code class="chip">digits[i]</code>, then go one level down. When I've used every digit, the path from the root is one answer. Recursion gives me "a loop per digit" for any length.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dfs(res, i): res holds one letter for each of digits[0..i-1]</span><br>
+        dfs(res, i):<br>
+        &nbsp;&nbsp;if i == n → save res&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// every digit has a letter</span><br>
+        &nbsp;&nbsp;for c in mp[digits[i]]:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;dfs(<span class="em">res + c</span>, i + 1)&nbsp;&nbsp;&nbsp;<span class="label">// child gets its own new string</span>
+      </div>
+      <p>One: keep a small table <code class="chip">mp</code>, indexed by the digit's value — <code class="chip num">10</code> entries, and the first two are empty.<br>
+      Two: when <code class="chip">i</code> reaches the length, every digit has a letter, so save the string.<br>
+      Three: for each letter of <code class="chip">digits[i]</code>, recurse with <code class="chip">res + c</code> and <code class="chip">i + 1</code>.</p>
+      <p><strong>One thing worth flagging</strong> — I pass <code class="chip">res</code> <strong>by value</strong>, and build the child's string with <code class="chip">res + c</code>. The child gets a new string; my own <code class="chip">res</code> never changes. So there's <strong>no undo step</strong>: when the loop moves from <code class="chip">'a'</code> to <code class="chip">'b'</code>, <code class="chip">res</code> is still the clean prefix.</p>
+      <p><strong>There's a trade-off here.</strong> By reference, <code class="chip">string&amp; res</code> with <code class="chip">push_back</code> and <code class="chip">pop_back</code>, is also correct and avoids the copies, but by value is simpler and harder to get wrong. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; mp = {<span class="str">""</span>, <span class="str">""</span>, <span class="str">"abc"</span>, <span class="str">"def"</span>, <span class="str">"ghi"</span>, <span class="str">"jkl"</span>, <span class="str">"mno"</span>, <span class="str">"pqrs"</span>, <span class="str">"tuv"</span>, <span class="str">"wxyz"</span>};
+
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">letterCombinations</span>(<span class="typ">string</span> digits) {
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; ans;
+        <span class="typ">string</span> res = <span class="str">""</span>;
+        <span class="fn">dfs</span>(ans, res, digits, <span class="num2">0</span>);
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; ans, <span class="typ">string</span> res, <span class="typ">string</span>&amp; digits, <span class="typ">int</span> i) {   <span class="com">// res by value</span>
+        <span class="kw">if</span> (i &gt;= digits.<span class="fn">size</span>()) {                    <span class="com">// ① every digit has a letter</span>
+            ans.<span class="fn">push_back</span>(res);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">for</span> (<span class="typ">char</span> c : mp[digits[i] - <span class="str">'0'</span>]) {         <span class="com">// ② each letter of digit i</span>
+            <span class="fn">dfs</span>(ans, res + c, digits, i + <span class="num2">1</span>);        <span class="com">// ③ new string to the next level, no undo</span>
+        }
+    }
+};</pre>
+      <p>The search either saves the finished string or loops over the letters of the current digit, passing <code class="chip">res + c</code> down.</p>
+      <p><code class="chip">digits[i] - '0'</code> turns the character <code class="chip">'2'</code> into the number <code class="chip num">2</code>, so index 2 really is <code class="chip">"abc"</code>. If I dropped the two empty entries but kept <code class="chip">- '0'</code>, <code class="chip">"2"</code> would give <code class="chip">[g,h,i]</code>, and 8 or 9 would read past the end.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">return</code> in the base case matters. Without it, the code would read <code class="chip">digits[size]</code>, the null character <code class="chip">'\0'</code>, and index <code class="chip">mp[-48]</code>. That's undefined behavior.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">"23"</code>. Expected: <code class="chip">["ad",…,"cf"]</code>, nine strings.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>call</th><th>i</th><th>res</th><th>letters</th><th>action</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>#1 dfs</td><td>0</td><td>""</td><td>abc</td><td>a → #2, b → #6, c → #10</td></tr>
+          <tr><td>#2 dfs</td><td>1</td><td>"a"</td><td>def</td><td>d → #3, e → #4, f → #5</td></tr>
+          <tr><td>#3 dfs</td><td>2</td><td>"ad"</td><td></td><td><span class="answer-cell">2 ≥ 2 → ans#1 "ad"</span></td></tr>
+          <tr><td>#4 dfs</td><td>2</td><td>"ae"</td><td></td><td><span class="answer-cell">ans#2 "ae"</span></td></tr>
+          <tr><td>#5 dfs</td><td>2</td><td>"af"</td><td></td><td><span class="answer-cell">ans#3 "af"</span></td></tr>
+          <tr class="highlight-row"><td>#6 dfs</td><td>1</td><td>"b"</td><td>def</td><td>d → #7, e → #8, f → #9</td></tr>
+          <tr><td>#7 dfs</td><td>2</td><td>"bd"</td><td></td><td><span class="answer-cell">ans#4 "bd"</span></td></tr>
+          <tr><td>#8 dfs</td><td>2</td><td>"be"</td><td></td><td><span class="answer-cell">ans#5 "be"</span></td></tr>
+          <tr><td>#9 dfs</td><td>2</td><td>"bf"</td><td></td><td><span class="answer-cell">ans#6 "bf"</span></td></tr>
+          <tr><td>#10 dfs</td><td>1</td><td>"c"</td><td>def</td><td>d → #11, e → #12, f → #13</td></tr>
+          <tr><td>#11 dfs</td><td>2</td><td>"cd"</td><td></td><td><span class="answer-cell">ans#7 "cd"</span></td></tr>
+          <tr><td>#12 dfs</td><td>2</td><td>"ce"</td><td></td><td><span class="answer-cell">ans#8 "ce"</span></td></tr>
+          <tr><td>#13 dfs</td><td>2</td><td>"cf"</td><td></td><td><span class="answer-cell">ans#9 "cf"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key moment is when the whole <code class="chip">"a"</code> branch is done: <code class="chip">#1</code> moves on to <code class="chip">#6</code> with <code class="chip">"b"</code>, and its own <code class="chip">res</code> is still <code class="chip">""</code>, because <code class="chip">res + c</code> never touched it. No cleanup was needed. <code class="chip num">13</code> calls, <code class="chip num">9</code> answers, in the expected order.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">"2"</code> → <code class="chip">["a","b","c"]</code> in <code class="chip num">4</code> calls.<br>
+      • <code class="chip">"7"</code> → <code class="chip">["p","q","r","s"]</code>: the entry must be <code class="chip">"pqrs"</code>, not <code class="chip">"pqr"</code>.<br>
+      • <code class="chip">"2222"</code> → <code class="chip num">81</code> answers, the smallest at length 4.<br>
+      • <code class="chip">""</code> → <code class="chip">[""]</code>, one empty string. It's not allowed now, but older versions expected <code class="chip">[]</code>, so I'd add one defensive line: <code class="chip">if (digits.empty()) return {};</code></p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The worst case</strong> is every digit a <code class="chip">7</code> or <code class="chip">9</code>, the only keys with 4 letters. For <code class="chip">"7979"</code>, that's <code class="chip num">256</code> answers from <code class="chip">1 + 4 + 16 + 64 + 256</code> = <code class="chip num">341</code> calls, and the output is <code class="chip">256 × 4</code> = <code class="chip num">1,024</code> characters.</p>
+      <p>Time is <code class="chip">O(4^n · n)</code>: up to <code class="chip">4^n</code> answers, and building and saving each one costs <code class="chip">O(n)</code>. The inner calls are fewer than the leaf calls, so they don't change the bound, and I can't beat the output size.</p>
+      <p>Space is <code class="chip">O(n)</code> recursion depth, not counting the output. Strictly, each frame keeps its own copy of <code class="chip">res</code>, so it's <code class="chip">O(n²)</code> characters on the stack, but with <code class="chip">n ≤ 4</code> that's nothing.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You said by value means no undo. What if someone "optimizes" it to a reference?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good question. With <code class="chip">string&amp; res</code>, they <strong>must</strong> add the undo. The correct form is <code class="chip">push_back</code>, recurse, <code class="chip">pop_back</code>, and that passes all <code class="chip num">4,680</code> legal inputs.</p>
+      <p>The bug is to mutate without undo, like <code class="chip">res += c</code> with no <code class="chip">pop_back</code>. Then the old letter stays: on <code class="chip">"2"</code> you get <code class="chip">[a, ab, abc]</code> instead of <code class="chip">[a, b, c]</code>. It fails every legal input. The same thing happens even by value if you write <code class="chip">res += c</code> inside the loop.</p>
+      <div class="insight-box">
+        <span class="label">// by value (this code): child gets a new string</span><br>
+        dfs(ans, <span class="em">res + c</span>, digits, i + 1);<br>
+        <span class="label">// by reference: choose / explore / un-choose</span><br>
+        res.push_back(c); dfs(ans, res, digits, i + 1); <span class="em">res.pop_back();</span>
+      </div>
+      <p>And the reference version is faster: on <code class="chip">"7979"</code>, <code class="chip num">9.89 µs</code> by value versus <code class="chip num">4.58 µs</code> by reference, about <code class="chip num">2×</code>. At this size both are tiny, so I'd keep by value for clarity, and switch only in a hot loop.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You explained why <code class="chip">res + c</code> by value needs no undo, and showed it in the trace with <code class="chip">#1</code> still holding <code class="chip">""</code>. You knew exactly what breaks with a reference and no <code class="chip">pop_back</code>. And you tied the cost to the output, backed by real numbers. Catching the empty-input case was a nice touch too. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 10.58, 36.08, 39.73, 45.41, 52.43, 85.31, 113.36, 164.33, 167.01, 203.84, 247.18, 290.83, 296.87, 342.85]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

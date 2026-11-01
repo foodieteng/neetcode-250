@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 473 · Matchsticks to Square</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+code.chip { overflow-wrap: anywhere; }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.board { border-collapse: collapse; font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 13px; margin: 10px 0; }
+.board td { width: 30px; height: 30px; text-align: center; border: 1px solid var(--border); background: var(--surface); color: var(--mono); }
+</style>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 473 · Matchsticks to Square · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an array <code class="chip">matchsticks</code>. Each value is the length of one stick. Use <strong>all</strong> the sticks to make one square. You can't break a stick, but you can join them. Return <code class="chip">true</code> if it's possible.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> every stick is used exactly once, and each stick goes into exactly one side. So I'm splitting the sticks into <code class="chip num">4</code> groups with the same sum. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 ≤ matchsticks.length ≤ 15</code> and <code class="chip">1 ≤ matchsticks[i] ≤ 10^8</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. Only <code class="chip num">15</code> sticks, so an exponential search is fine. But the values go up to 10<sup>8</sup>, so I can't do a DP over lengths, and I'll need to check overflow later.</p>
+      <p>Quick check on the examples. <code class="chip">[1,1,2,2,2]</code>: the sum is <code class="chip num">8</code>, so each side is <code class="chip num">2</code> — sides <code class="chip">2</code>, <code class="chip">2</code>, <code class="chip">2</code>, <code class="chip">1+1</code>. So <code class="chip">true</code>. <code class="chip">[3,3,3,3,4]</code>: the sum is <code class="chip num">16</code>, so each side is <code class="chip num">4</code>. The 4 fills one side, but each 3 needs a 1, and there are none. So <code class="chip">false</code>.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p>There are two ways to see the search. The <strong>side view</strong> builds side 1 as a subset that sums to the target, then side 2, and so on. The <strong>bucket view</strong> walks the sticks one by one, and each stick picks one of <code class="chip num">4</code> sides.</p>
+      <p><strong>A naive approach would</strong> try all <code class="chip">4^n</code> assignments and check the sums at the end. <strong>This problem reminds me of</strong> partitioning into k equal-sum buckets, with <code class="chip">k = 4</code>. I'll use the bucket view with backtracking, and prune early: never let a side go over the target.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// buckets[0..3] = current length of each side</span><br>
+        if total % 4 != 0 → false&nbsp;&nbsp;&nbsp;<span class="label">// quick exit</span><br>
+        sort sticks <span class="em">descending</span>; target = total / 4<br>
+        exist(idx):<br>
+        &nbsp;&nbsp;if idx == n → true&nbsp;&nbsp;&nbsp;<span class="label">// every stick placed, no side over target</span><br>
+        &nbsp;&nbsp;for i = 0..3:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if buckets[i] + stick &gt; target → <span class="em">continue</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if buckets[i] == buckets[i-1] → <span class="em">continue</span> <span class="label">// same state, skip</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;place, recurse, undo
+      </div>
+      <p>One: if the total isn't divisible by 4, return <code class="chip">false</code>; else the target is a quarter, and I sort the sticks descending.<br>
+      Two: for each stick, try the four sides — skip a side if the stick would push it over the target, or if it's the same length as the side to its left.<br>
+      Three: place, recurse, and take it back if that fails.</p>
+      <p>Once every stick is placed, each side is exactly the target: they sum to <code class="chip">4 · target</code> and none is over.</p>
+      <p><strong>One thing worth flagging</strong> — the sort is <strong>descending</strong>: big sticks have the fewest places to go, so failures show up near the top of the tree. And two sides of the same length give the same state, just swapped, so I only try the first. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">makesquare</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; matchsticks) {
+        <span class="fn">sort</span>(matchsticks.<span class="fn">begin</span>(), matchsticks.<span class="fn">end</span>(), <span class="fn">greater</span>&lt;<span class="typ">int</span>&gt;());   <span class="com">// big ones first</span>
+        <span class="typ">int</span> n = matchsticks.<span class="fn">size</span>();
+        <span class="typ">int</span> total = <span class="fn">accumulate</span>(matchsticks.<span class="fn">begin</span>(), matchsticks.<span class="fn">end</span>(), <span class="num2">0</span>);
+        <span class="kw">if</span> (total % <span class="num2">4</span> != <span class="num2">0</span>) <span class="kw">return</span> <span class="kw">false</span>;
+        <span class="typ">int</span> target = total / <span class="num2">4</span>;
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; buckets(<span class="num2">4</span>, <span class="num2">0</span>);
+
+        <span class="kw">return</span> <span class="fn">exist</span>(matchsticks, buckets, target, <span class="num2">0</span>);
+    }
+
+    <span class="typ">bool</span> <span class="fn">exist</span>(<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; nums, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; buckets, <span class="typ">int</span> target, <span class="typ">int</span> idx) {
+        <span class="kw">if</span> (idx &gt;= nums.<span class="fn">size</span>()) <span class="kw">return</span> <span class="kw">true</span>;                  <span class="com">// ① every stick placed</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; <span class="num2">4</span>; i++) {                         <span class="com">// ② try this stick on 4 sides</span>
+            <span class="kw">if</span> (buckets[i] + nums[idx] &gt; target) <span class="kw">continue</span>;    <span class="com">// ③ doesn't fit</span>
+            <span class="kw">if</span> (i &gt; <span class="num2">0</span> &amp;&amp; buckets[i] == buckets[i - <span class="num2">1</span>]) <span class="kw">continue</span>;   <span class="com">// ④ same length as left: symmetric</span>
+
+            buckets[i] += nums[idx];
+            <span class="kw">if</span> (<span class="fn">exist</span>(nums, buckets, target, idx + <span class="num2">1</span>)) <span class="kw">return</span> <span class="kw">true</span>;
+            buckets[i] -= nums[idx];                          <span class="com">// ⑤ take it back</span>
+        }
+
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p>The main function sorts descending, checks the total, and starts the search with four empty buckets.</p>
+      <p><strong>One thing worth flagging</strong> — the over-target line must be <code class="chip">continue</code>, not <code class="chip">break</code>, because the buckets are <strong>not</strong> sorted; a full side can come before an empty one. Take <code class="chip">[1,1,1,1]</code>: the first 1 fills side 0, the next 1 overflows it, and a <code class="chip">break</code> would never try sides 1 to 3, so it returns <code class="chip">false</code>.</p>
+      <p>The same goes for the duplicate line: <code class="chip">buckets[i] == buckets[i-1]</code> says nothing about <code class="chip">buckets[i+1]</code>, so a <code class="chip">break</code> wrongly fails on <code class="chip">[2,2,2,2,2,2,3,3,3,7]</code> — and small tests won't catch it.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">[3,3,3,3,4]</code>. Sorted: <code class="chip">[4,3,3,3,3]</code>, target <code class="chip num">4</code>. Expected: <code class="chip">false</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>call</th><th>idx</th><th>stick</th><th>side tries</th><th>buckets after</th></tr></thead>
+        <tbody>
+          <tr><td>#1</td><td>0</td><td>4</td><td>i0 place → #2</td><td>[4,0,0,0]</td></tr>
+          <tr><td>#2</td><td>1</td><td>3</td><td>i0 over (7) · i1 place → #3</td><td>[4,3,0,0]</td></tr>
+          <tr><td>#3</td><td>2</td><td>3</td><td>i0, i1 over · i2 place → #4</td><td>[4,3,3,0]</td></tr>
+          <tr><td>#4</td><td>3</td><td>3</td><td>i0–i2 over · i3 place → #5</td><td>[4,3,3,3]</td></tr>
+          <tr class="highlight-row"><td>#5</td><td>4</td><td>3</td><td>all four over → false</td><td>[4,3,3,3]</td></tr>
+          <tr><td>#4</td><td></td><td></td><td>undo · loop ends → false</td><td>[4,3,3,0]</td></tr>
+          <tr><td>#3</td><td></td><td></td><td>undo · i3 dup (0 == 0) skip → false</td><td>[4,3,0,0]</td></tr>
+          <tr><td>#2</td><td></td><td></td><td>undo · i2, i3 dup skip → false</td><td>[4,0,0,0]</td></tr>
+          <tr><td>#1</td><td></td><td></td><td>undo · i1, i2, i3 dup skip</td><td><span class="answer-cell">[0,0,0,0] → false</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The 4 takes side 0, and the 3s take sides 1, 2 and 3. The key row is <code class="chip">#5</code>: the last 3 fits nowhere. Then on the way back up, every other try is an empty side next to an empty side, so the duplicate check skips it. Just <code class="chip num">5</code> calls; without that check, <code class="chip num">65</code>.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[1,1,1,1]</code> → <code class="chip">true</code> — the case that breaks a <code class="chip">break</code> on the over-target line.<br>
+      • A total not divisible by 4, like <code class="chip">14×10^8 + 99,999,999</code> → <code class="chip">false</code> with <code class="chip num">0</code> search calls.<br>
+      • <code class="chip">12×10^8</code> → <code class="chip">true</code> in <code class="chip num">13</code> calls.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is <code class="chip">O(4^n)</code> in the worst case, since each stick has up to 4 choices. In practice the pruning is huge: the hardest random <code class="chip">n = 15</code> input took <code class="chip num">32,142</code> calls, about <code class="chip num">0.34 ms</code>. Space is <code class="chip">O(n)</code> for the recursion stack, plus the 4 buckets.</p>
+      <p><strong>Overflow:</strong> the worst total is <code class="chip">15 × 10^8 = 1,500,000,000</code>, below <code class="chip">INT_MAX = 2,147,483,647</code>. And a bucket never passes the target, so <code class="chip">buckets[i] + nums[idx]</code> ≤ target + 10<sup>8</sup>, under half a billion. So <code class="chip">int</code> is safe.</p>
+      <p>The <code class="chip">total % 4</code> check is just a shortcut: without it, <code class="chip">target</code> rounds down, the sticks can never all fit, and the search still returns <code class="chip">false</code> — only slower.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>How much do the sort and the duplicate check actually buy you?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>I measured it on two hard <code class="chip">false</code> cases: H1 is the hardest random <code class="chip">n = 15</code> input, H3 is <code class="chip">12×10^8 + [2,1,1]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:480px;">
+        <thead><tr><th>variant</th><th>H1 calls</th><th>H3 calls</th><th>vs original</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>original (desc + dedupe)</td><td>32,142</td><td>2,035</td><td>1×</td></tr>
+          <tr><td>no sort</td><td>84,734</td><td></td><td>2.6× on H1</td></tr>
+          <tr><td>ascending sort</td><td>307,667</td><td>164,360</td><td>9.6× / 81×</td></tr>
+          <tr><td>no dedupe line</td><td>832,965</td><td>1,107,697</td><td>26× / 544×</td></tr>
+          <tr><td>any-earlier dedupe</td><td>31,186</td><td></td><td>~3% fewer</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Ascending is still correct but <code class="chip num">9.6×</code> and <code class="chip num">81×</code> slower. Dropping the duplicate line costs <code class="chip num">26×</code> and <code class="chip num">544×</code> more calls — that's the big win. All variants are still correct; only the speed changes.</p>
+      <p><strong>One thing worth flagging</strong> — the check only compares <strong>neighbours</strong>. Since the buckets aren't sorted, two equal sides can be apart, like <code class="chip">[9,6,8,6]</code>, and then side 3 gets tried even though it equals side 1. That's still correct, it only costs speed. Checking against <strong>any</strong> earlier side saves about 3%, so I'd keep the simple version.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if you want a guaranteed bound, not just good pruning?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then I'd use a <strong>bitmask DP</strong>. The state is the set of used sticks, and I fill the sides one at a time, in order.</p>
+      <div class="insight-box">
+        <span class="label">// dp[mask] = filled length of the current side, or -1 if unreachable</span><br>
+        dp[0] = 0<br>
+        for mask, if dp[mask] ≥ 0:<br>
+        &nbsp;&nbsp;for each unused stick j:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if dp[mask] + a[j] ≤ side:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[mask | 1&lt;&lt;j] = (dp[mask] + a[j]) <span class="em">% side</span><br>
+        answer: dp[full] == 0
+      </div>
+      <p>From a reachable mask, I add any unused stick that fits, and take the new length <code class="chip">% side</code>, so a full side resets to <code class="chip num">0</code> and the next stick starts a new side. The answer is whether the full mask reaches 0. That's <code class="chip">O(n · 2^n)</code> time and <code class="chip">O(2^n)</code> space — at <code class="chip">n = 15</code>, <code class="chip num">32,768</code> states.</p>
+      <p>And if the question asks for <code class="chip">k</code> sides instead of 4, both methods carry over: <code class="chip">k</code> buckets in the backtracking, or the same DP with <code class="chip">side = total / k</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You explained why the over-target line is <code class="chip">continue</code>, not <code class="chip">break</code>: the buckets aren't sorted, and <code class="chip">[1,1,1,1]</code> shows it. You justified the duplicate check as a symmetry argument and backed it with numbers, while noting the neighbour-only check is correct but not complete. And you checked overflow with real bounds against <code class="chip">INT_MAX</code>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.34, 30.23, 32.55, 36.48, 42.64, 76.12, 108.39, 156.29, 158.95, 197.68, 242.41, 289.3, 293.68, 338.53, 342.68, 387.53]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

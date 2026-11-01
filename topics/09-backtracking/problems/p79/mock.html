@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 79 · Word Search</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.board { border-collapse: collapse; font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 13px; margin: 10px 0; }
+.board td { width: 30px; height: 30px; text-align: center; border: 1px solid var(--border); background: var(--surface); color: var(--mono); }
+</style>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 79 · Word Search · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an <code class="chip">m × n</code> board of letters and a string <code class="chip">word</code>. Return <code class="chip">true</code> if the word can be built from cells that touch up, down, left, or right. Each cell can be used at most once.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I pick any start cell. Then each next letter must sit right next to the last one, and no diagonals. And I can't step on the same cell twice inside one path. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. A cell can be reused across different tries, just not within the same path.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. Is the match case-sensitive? The board has upper and lower case letters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, <code class="chip">'a'</code> and <code class="chip">'A'</code> are different.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 ≤ m, n ≤ 6</code>, and <code class="chip">1 ≤ word.length ≤ 15</code>. Only English letters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay, so at most <code class="chip num">36</code> cells, and the word is short. An exponential search is fine here, as long as I cut dead branches early. The only "memory" a path needs is <strong>which cells it already used</strong>, so my state is the cell, the index in the word, and the used set.</p>
+      <p>Quick check on the example board:</p>
+      <table class="board"><tbody>
+        <tr><td>A</td><td>B</td><td>C</td><td>E</td></tr>
+        <tr><td>S</td><td>F</td><td>C</td><td>S</td></tr>
+        <tr><td>A</td><td>D</td><td>E</td><td>E</td></tr>
+      </tbody></table>
+      <p><code class="chip">"ABCCED"</code> goes straight through, so <code class="chip">true</code>. <code class="chip">"SEE"</code> is also <code class="chip">true</code>. <code class="chip">"ABCB"</code> is <code class="chip">false</code>: after A → B → C, the only B next to that C is the one I already used. That's the "use once" rule in action.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> list every simple path of length <code class="chip">L</code> in the grid and compare each one to the word. Most of those paths are wrong from the very first letter, so it wastes almost all the work.</p>
+      <p><strong>This problem reminds me of</strong> backtracking — choose, recurse, undo. I grow the path one letter at a time, and the moment a letter doesn't match, I stop and go back. So I only extend paths that still match a prefix of the word.</p>
+      <p>BFS fits badly, because every path needs its own used set. DFS keeps one path alive at a time, so I can track used cells on the board itself.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dfs(r, c, i): can word[i..] start at cell (r, c)?</span><br>
+        for each cell (i, j): if dfs(i, j, 0) → return true<br>
+        <br>
+        dfs(r, c, i):<br>
+        &nbsp;&nbsp;if board[r][c] != word[i] → false&nbsp;&nbsp;&nbsp;<span class="label">// prune now</span><br>
+        &nbsp;&nbsp;if i == L - 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ true&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// last letter matched</span><br>
+        &nbsp;&nbsp;<span class="em">mark</span> board[r][c] = '#'<br>
+        &nbsp;&nbsp;for 4 neighbours (in bounds, not '#'):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if dfs(nr, nc, i + 1) → true<br>
+        &nbsp;&nbsp;<span class="em">restore</span> board[r][c] = original&nbsp;&nbsp;<span class="label">// undo before going back</span><br>
+        &nbsp;&nbsp;return false
+      </div>
+      <p>One: try every cell as a start.<br>
+      Two: compare the letter first — a mismatch is <code class="chip">false</code>, and a match on the last letter is <code class="chip">true</code>.<br>
+      Three: mark the cell with <code class="chip">'#'</code>, try the four neighbours, and if all fail, restore the letter and return <code class="chip">false</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the mark and the restore are both <strong>correctness</strong> rules. Without the mark, <code class="chip">["AA"]</code> with <code class="chip">"AAA"</code> bounces back and forth and says <code class="chip">true</code>. Without the restore, <code class="chip">["BAA"]</code> with <code class="chip">"AAB"</code> keeps <code class="chip">'#'</code>s from a failed try that block the real path, so it says <code class="chip">false</code>.</p>
+      <p>A separate <code class="chip">visited</code> grid would keep the input clean but costs <code class="chip">O(m·n)</code> extra space, so I'll mark in place. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">0</span>, -<span class="num2">1</span>}, {<span class="num2">0</span>, <span class="num2">1</span>}};   <span class="com">// up down left right</span>
+
+    <span class="typ">bool</span> <span class="fn">exist</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board, <span class="typ">string</span> word) {
+        <span class="typ">int</span> m = board.<span class="fn">size</span>(), n = board[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="kw">if</span> (<span class="fn">dfs</span>(board, word, i, j, <span class="num2">0</span>)) <span class="kw">return</span> <span class="kw">true</span>;   <span class="com">// every cell is a start</span>
+            }
+        }
+
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+
+    <span class="typ">bool</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">char</span>&gt;&gt;&amp; board, <span class="typ">string</span>&amp; word, <span class="typ">int</span> r, <span class="typ">int</span> c, <span class="typ">int</span> i) {
+        <span class="kw">if</span> (word[i] != board[r][c]) <span class="kw">return</span> <span class="kw">false</span>;      <span class="com">// ① compare the letter first</span>
+        <span class="kw">if</span> (i == word.<span class="fn">size</span>() - <span class="num2">1</span>) <span class="kw">return</span> <span class="kw">true</span>;        <span class="com">// ② last letter matched too</span>
+
+        <span class="kw">const</span> <span class="typ">char</span> cache = board[r][c];
+        board[r][c] = <span class="str">'#'</span>;                              <span class="com">// ③ mark: on this path now</span>
+
+        <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+            <span class="kw">auto</span> nr = r + dr, nc = c + dc;
+            <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= board.<span class="fn">size</span>() || nc &lt; <span class="num2">0</span> || nc &gt;= board[<span class="num2">0</span>].<span class="fn">size</span>() ||
+                board[nr][nc] == <span class="str">'#'</span>) <span class="kw">continue</span>;   <span class="com">// out of bounds or on the path</span>
+            <span class="kw">if</span> (<span class="fn">dfs</span>(board, word, nr, nc, i + <span class="num2">1</span>)) <span class="kw">return</span> <span class="kw">true</span>;   <span class="com">// ④ success: pass it straight up</span>
+        }
+
+        board[r][c] = cache;                             <span class="com">// ⑤ all failed: restore</span>
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p>The main function tries every cell as a start. The search compares the letter, returns <code class="chip">true</code> on the last letter, then marks the cell, tries four directions — skipping cells out of bounds or already <code class="chip">'#'</code> — and restores before returning <code class="chip">false</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the order of the first two checks matters. If I swap them, the last letter is never compared, so <code class="chip">["A"]</code> with <code class="chip">"B"</code> would say <code class="chip">true</code>. Checking <code class="chip">i == word.size()</code> at the top breaks too: <code class="chip">["A"]</code> with <code class="chip">"A"</code> would need a free neighbour to reach that check, so it says <code class="chip">false</code>.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">"SEE"</code> — expected <code class="chip">true</code> — since it has a real backtrack. Neighbour order: up, down, left, right.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>call</th><th>cell</th><th>i</th><th>want</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>#1–#4</td><td>(0,0)…(0,3)</td><td>0</td><td>S</td><td>A, B, C, E — mismatch</td></tr>
+          <tr><td>#5</td><td>(1,0) S</td><td>0</td><td>S</td><td>match → mark #</td></tr>
+          <tr><td>#6–#8</td><td>(0,0) (2,0) (1,1)</td><td>1</td><td>E</td><td>A, A, F — mismatch; left OOB</td></tr>
+          <tr><td></td><td>(1,0)</td><td></td><td></td><td>restore S, return false</td></tr>
+          <tr><td>#9–#10</td><td>(1,1) (1,2)</td><td>0</td><td>S</td><td>F, C — mismatch</td></tr>
+          <tr><td>#11</td><td>(1,3) S</td><td>0</td><td>S</td><td>match → mark #</td></tr>
+          <tr><td>#12</td><td>(0,3) E</td><td>1</td><td>E</td><td>match → mark # (went up)</td></tr>
+          <tr><td>#13</td><td>(0,2) C</td><td>2</td><td>E</td><td>mismatch; up/right OOB, down is #</td></tr>
+          <tr class="highlight-row"><td></td><td>(0,3)</td><td></td><td></td><td>restore E, return false</td></tr>
+          <tr><td>#14</td><td>(2,3) E</td><td>1</td><td>E</td><td>match → mark # (went down)</td></tr>
+          <tr><td>#15</td><td>(2,2) E</td><td>2</td><td>E</td><td><span class="answer-cell">match &amp; i == last → true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key moment: from the S at (1,3), I try <strong>up</strong> first. That E matches, so I mark it, but its only free neighbour is a C. The branch dies, and I <strong>restore</strong> it to E. Then I go <strong>down</strong>, then left — the last letter, so <code class="chip">true</code>, after <code class="chip num">15</code> calls.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">"ABCB"</code> → <code class="chip">false</code>, with every mark undone.<br>
+      • <code class="chip">["A"]</code> with <code class="chip">"AA"</code> → <code class="chip">false</code> — no neighbours.<br>
+      • <code class="chip">2×2</code> all A with <code class="chip">"AAAAA"</code> → <code class="chip">false</code> — the mark stops reuse.<br>
+      • <code class="chip">["ABCDEF"]</code> with <code class="chip">"FEDCBA"</code> → <code class="chip">true</code>, right to left.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is <code class="chip">O(m · n · 3^L)</code>. I try every start cell; the first letter has 4 directions, and after that at most 3, because the cell I came from is marked. Space is <code class="chip">O(L)</code> for the recursion stack — marking in place means no visited array.</p>
+      <p>The worst case is a board full of one letter where only the last letter fails. A <code class="chip">6×6</code> board of all A, with <code class="chip">"AAAAAAAAAAAAAAB"</code> (14 A's then B), returns <code class="chip">false</code> after about 4.1 million (<code class="chip num">4,120,732</code>) calls — around <code class="chip num">0.60%</code> of the <code class="chip">36 · 4 · 3^14</code> = <code class="chip num">688,747,536</code> bound.</p>
+      <p><em class="pause">Oh, one more thing —</em> when I return <code class="chip">true</code>, I don't restore, so the winning path stays as <code class="chip">'#'</code> on the caller's board. If the caller needs it again, pass a copy, or restore before <code class="chip">return true</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Follow-up: could you use search pruning to make it faster on a larger board?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes, two cheap checks before the search.</p>
+      <p><strong>First, a letter count check.</strong> If the word needs more of some letter than the board has, return <code class="chip">false</code> right away. In that worst case the board has no B, so it's <code class="chip num">0</code> search calls instead of 4 million.</p>
+      <p><strong>Second, start from the rarer end.</strong> If the last letter is rarer on the board than the first, reverse the word. A path exists for the word exactly when one exists for the reversed word, but now the first compare fails fast — <code class="chip">"BAAAAAAAAAAAAAA"</code> takes just <code class="chip num">36</code> calls, one per cell.</p>
+      <div class="insight-box">
+        <span class="label">// before the main loop</span><br>
+        if any count_word[ch] &gt; count_board[ch] → return false<br>
+        if count_board[word.back()] &lt; count_board[word.front()] → reverse(word)
+      </div>
+      <p>Both checks are linear, so they never hurt the big-O. They just kill the worst cases before the exponential part starts.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You used the board itself as the visited set, and you proved both the mark and the restore are needed with tiny counterexamples. You caught that a <code class="chip">true</code> return leaves <code class="chip">'#'</code> on the caller's board. And for the follow-up, you had concrete numbers: the letter count check turns 4 million calls into <code class="chip num">0</code>, and reversing turns them into <code class="chip num">36</code>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.75, 32.44, 38.89, 44.95, 49.12, 52.19, 60.77, 93.38, 131.68, 176.72, 179.5, 214.39, 253.27, 300.08, 305.96, 345.12]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
