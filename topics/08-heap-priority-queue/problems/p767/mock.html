@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 767 · Reorganize String</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.scroll-x { overflow-x: auto; }
+.scroll-x table.trace { min-width: 560px; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 767 · Reorganize String · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given a string <code class="chip">s</code>, rearrange its characters so that no two adjacent characters are the same. Return any valid rearrangement, or return an empty string <code class="chip">""</code> if it's not possible.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I have to use every character exactly once. I can only reorder them. And if there are many valid answers, any one is fine?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Any valid answer is accepted.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 &lt;= s.length &lt;= 500</code>, and <code class="chip">s</code> has only lowercase English letters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. So there are at most <code class="chip num">26</code> different letters — a small, fixed number.</p>
+      <p>Before any code, I want to know <strong>when</strong> it's possible. Say the most common letter shows up <code class="chip">maxFreq</code> times. Every two copies of it need another letter between them, so the best I can do is positions 0, 2, 4, and so on. That gives <code class="chip">(n+1)/2</code> slots. So it's possible exactly when <code class="chip">maxFreq &lt;= (n+1)/2</code>.</p>
+      <p>Quick check: <code class="chip">"aab"</code> has length 3 and two <code class="chip">'a'</code>s, which fits, so <code class="chip">"aba"</code> works. <code class="chip">"aaab"</code> has three <code class="chip">'a'</code>s but only 2 slots, so I return <code class="chip">""</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be to</strong> try every order of the characters and return the first one with no two equal neighbors. That's up to n! orders — hopeless for n up to 500.</p>
+      <p><strong>This problem reminds me of</strong> greedy scheduling with a max-heap. The letter with the most copies left is the one in the most danger, so I should use it as early and as often as I'm allowed.</p>
+      <p>I'll take <strong>two</strong> letters per round: the most common, then the second most common. They come from two different heap entries, so they're different letters. Then I put both back with one less copy.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        freq = count of each letter<br>
+        pq&nbsp;&nbsp;&nbsp;= max-heap of (count, letter)&nbsp;&nbsp;<span class="em">← letters still left</span><br>
+        ans&nbsp;&nbsp;= string built so far<br>
+        <br>
+        <span class="label">// each round</span><br>
+        pop (cnt1, ch1), append ch1<br>
+        if ans ends with two equal letters: return ""&nbsp;&nbsp;<span class="em">← seam</span><br>
+        if pq not empty: pop (cnt2, ch2), append ch2<br>
+        push back each one that still has copies left
+      </div>
+      <p>One: count each letter and push every count with its letter into a max-heap.<br>
+      Two: each round, pop up to two letters, most common first, and append them.<br>
+      Three: push back each one that still has copies left.</p>
+      <p><strong>One thing worth flagging</strong> — where can two equal letters end up next to each other?</p>
+      <p>• <strong>Inside</strong> one round, never: <code class="chip">ch1</code> and <code class="chip">ch2</code> are different heap entries.<br>
+      • <strong>Between</strong> rounds, maybe: the last letter of one round can match the first letter of the next.</p>
+      <p>So I only check that <strong>seam</strong> — right after adding <code class="chip">ch1</code>, compare the last two characters, and if they match, return <code class="chip">""</code>.</p>
+      <p><strong>There's a trade-off:</strong> an up-front <code class="chip">maxFreq &gt; (n+1)/2</code> check also works; the loop check needs no formula, but finds out late. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">string</span> <span class="fn">reorganizeString</span>(<span class="typ">string</span> s) {
+        <span class="kw">using</span> <span class="typ">P</span> = <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">char</span>&gt;;    <span class="com">// (count, char)</span>
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; freq(<span class="num2">26</span>, <span class="num2">0</span>);
+
+        <span class="kw">for</span> (<span class="typ">char</span> c : s) {
+            freq[c - <span class="str">'a'</span>]++;
+        }
+
+        <span class="typ">priority_queue</span>&lt;<span class="typ">P</span>&gt; pq;    <span class="com">// max-heap: higher count first</span>
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; <span class="num2">26</span>; i++) {
+            <span class="kw">if</span> (freq[i]) pq.<span class="fn">push</span>({freq[i], i + <span class="str">'a'</span>});
+        }
+
+        <span class="typ">string</span> ans = <span class="str">""</span>;
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [cnt1, ch1] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();
+            ans += ch1;
+            <span class="com">// seam check: ch1 vs the last char of the previous round; starts at size 2</span>
+            <span class="kw">if</span> (ans.<span class="fn">size</span>() &gt;= <span class="num2">2</span> &amp;&amp; ans[ans.<span class="fn">size</span>() - <span class="num2">1</span>] == ans[ans.<span class="fn">size</span>() - <span class="num2">2</span>]) <span class="kw">return</span> <span class="str">""</span>;
+            <span class="kw">if</span> (!pq.<span class="fn">empty</span>()) {
+                <span class="kw">auto</span> [cnt2, ch2] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();    <span class="com">// always ≠ ch1</span>
+                ans += ch2;
+                <span class="kw">if</span> (--cnt2) pq.<span class="fn">push</span>({cnt2, ch2});
+            }
+            <span class="kw">if</span> (--cnt1) pq.<span class="fn">push</span>({cnt1, ch1});    <span class="com">// push back only after both pops</span>
+        }
+
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p>I count the letters, fill a max-heap, then loop: pop the top, append it, check the seam, pop a second letter if one is left, and push back whatever still has copies.</p>
+      <p>The order matters here — I pop <code class="chip">ch2</code> <strong>before</strong> I push <code class="chip">ch1</code> back. If I pushed <code class="chip">ch1</code> back first, it could come right back out as <code class="chip">ch2</code>, and I'd place the same letter twice in a row.</p>
+      <p><strong>One thing worth flagging</strong> — the seam check is <code class="chip">ans.size() &gt;= 2</code>, not <code class="chip">&gt; 2</code>. The very first seam is at size 2, so it has to be included. I'll come back to this in the review.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">"aaabbc"</code> — three <code class="chip">'a'</code>s in six letters, exactly at the limit.</p>
+      <div class="scroll-x">
+      <table class="trace">
+        <thead><tr><th>round</th><th>heap before</th><th>pop</th><th>ans</th><th>push back</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>(3,a) (2,b) (1,c)</td><td>a, b</td><td>"ab"</td><td>(1,b) (2,a)</td></tr>
+          <tr class="highlight-row"><td>2</td><td>(2,a) (1,c) (1,b)</td><td>a, c</td><td>"abac"</td><td>(1,a)</td></tr>
+          <tr><td>3</td><td>(1,b) (1,a)</td><td>b, a</td><td>"abacba"</td><td>—</td></tr>
+          <tr><td>result</td><td colspan="4"><span class="answer-cell">"abacba"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key round is round 2: the last letter is <code class="chip">'b'</code> and the top is <code class="chip">'a'</code>, so the seam is safe. Then <code class="chip">(1,c)</code> pops before <code class="chip">(1,b)</code>, because on equal counts the larger letter wins in a <code class="chip">pair</code> max-heap. The result is <code class="chip">"abacba"</code> — no equal neighbors.</p>
+      <p>Corner cases:</p>
+      <p>• A single letter, <code class="chip">"a"</code>, returns itself.<br>
+      • <code class="chip">"aabb"</code> returns <code class="chip">"baba"</code>.<br>
+      • <code class="chip">"vvvlo"</code> is right at the limit and works: <code class="chip">"vovlv"</code>.<br>
+      • <code class="chip">"aa"</code>, the smallest impossible input, returns <code class="chip">""</code>.</p>
+      <div class="scroll-x">
+      <table class="trace">
+        <thead><tr><th>draft bug</th><th>what happens</th><th>fails (exhaustive)</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>ans.size() &gt; 2</td><td>"aa" → "aa", expected ""</td><td>7 / 15,300</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>That last one caught my first draft: with <code class="chip">&gt; 2</code>, the size-2 seam was skipped and <code class="chip">"aa"</code> came back unchanged — and both official examples pass with that bug.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n log 26), which is O(n): each character is popped once and pushed back at most once, and the heap never holds more than 26 entries, so each operation is constant.</p>
+      <p>Space is 26 counters plus the heap, so O(1) extra, not counting the output.</p>
+      <p>In the worst case, n = 500, so at most about 1,000 heap operations. That's tiny.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Could you avoid the check inside the loop?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes. Check <code class="chip">maxFreq &gt; (n+1)/2</code> once at the start, and return <code class="chip">""</code>. After that, the greedy never gets stuck, so the loop needs no check. But the formula must be exactly <code class="chip">(n+1)/2</code> — with <code class="chip">n/2</code>, even <code class="chip">"a"</code> and <code class="chip">"aab"</code> would wrongly return <code class="chip">""</code>.</p>
+      <p>The in-loop check works because of the pairing: inside a round, <code class="chip">ch1 ≠ ch2</code> always, so the <strong>only</strong> place a repeat can appear is the seam, and one compare per round covers it.</p>
+      <p><em class="pause">Oh, one more thing —</em> the answer depends on tie-breaking. <code class="chip">pair&lt;int, char&gt;</code> puts the larger letter first on equal counts, so <code class="chip">"aabb"</code> gives <code class="chip">"baba"</code>, not <code class="chip">"abab"</code>. That's fine here, but a test should check validity, not one exact string.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You stated the condition, <code class="chip">maxFreq &lt;= (n+1)/2</code>, before writing any code. You showed that taking two letters per round means only the seam between rounds needs checking. And you caught your own <code class="chip">&gt; 2</code> bug by testing <code class="chip">"aa"</code>, the smallest impossible input, which both official examples miss. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.5, 28.26, 31.93, 34.99, 41.85, 79.28, 115.49, 165.38, 167.71, 203.05, 247.61, 274.54, 277.19, 321.66]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

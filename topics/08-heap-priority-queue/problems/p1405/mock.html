@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1405 · Longest Happy String</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.scroll-x { overflow-x: auto; }
+.scroll-x table.trace { min-width: 560px; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1405 · Longest Happy String · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get three counts, <code class="chip">a</code>, <code class="chip">b</code> and <code class="chip">c</code>. Build the longest string that uses only the letters <code class="chip">'a'</code>, <code class="chip">'b'</code> and <code class="chip">'c'</code>, at most <code class="chip">a</code> a's, <code class="chip">b</code> b's and <code class="chip">c</code> c's, and never has three of the same letter in a row — no <code class="chip">"aaa"</code>, <code class="chip">"bbb"</code> or <code class="chip">"ccc"</code>. That's a happy string.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I don't have to use every letter. Two in a row is fine, three in a row is not. And if there are many longest strings, can I return any of them?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, any valid longest string is accepted. If none exists, return the empty string.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">0 ≤ a, b, c ≤ 100</code>, and <code class="chip">a + b + c &gt; 0</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. So the answer has at most <code class="chip num">300</code> letters. Some counts can be zero, so I need to be careful not to use a letter I don't have.</p>
+      <p>Quick check on the example: <code class="chip">a = 1, b = 1, c = 7</code>. I can only place c's two at a time, and each <code class="chip">a</code> or <code class="chip">b</code> can split them. So I get three blocks of two c's: <code class="chip">cc · b · cc · a · cc</code> = <code class="chip">"ccbccacc"</code>, length <code class="chip num">8</code>, with one <code class="chip">c</code> left over. The expected output is <code class="chip">"ccaccbcc"</code>, but any valid longest one is fine.</p>
+      <p>Second example: <code class="chip">(7, 1, 0)</code> gives <code class="chip">"aabaa"</code>, length <code class="chip num">5</code>, with three a's unused.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be</strong> a DFS over every choice, memoized on the state <code class="chip">(a, b, c, last letter, run length)</code>. That works, and I'll use it later as a checker, but it's heavy for something this small.</p>
+      <p><strong>This problem reminds me of</strong> <strong>greedy with a max-heap</strong> on counts. The letter with the most left is the one most likely to get stuck later, so I spend it first, as long as it doesn't break the rule.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        max-heap of (count, char), only counts &gt; 0<br>
+        <br>
+        <span class="label">// each step</span><br>
+        pop the most frequent ch1<br>
+        if the last two letters are ch1, ch1&nbsp;&nbsp;<span class="em">← blocked</span><br>
+        &nbsp;&nbsp;no other letter left → stop<br>
+        &nbsp;&nbsp;else add ONE of the 2nd most frequent ch2<br>
+        add ch1, push back anything still &gt; 0<br>
+        <br>
+        <span class="label">// max length (x = largest, y, z = the other two)</span><br>
+        <span class="em">min(a+b+c, 2(y+z+1) + y+z)</span>
+      </div>
+      <p>One: put each non-zero count into a max-heap.<br>
+      Two: pop the top letter; if the string already ends in two of it, I'm <strong>blocked</strong> — stop if the heap is empty, else add one runner-up.<br>
+      Three: add the top letter and push back whatever is left.</p>
+      <p><strong>One thing worth flagging</strong> — why the greedy is right. When blocked, I use the runner-up only <strong>once</strong>: one letter breaks the run, and saving the rest keeps more separators for later.</p>
+      <p>Call the biggest count <code class="chip">x</code>, the others <code class="chip">y</code> and <code class="chip">z</code>. <code class="chip">y + z</code> separators split <code class="chip">x</code> into at most <code class="chip">y + z + 1</code> blocks of two, so the best length is <code class="chip">2(y+z+1) + y+z</code>, capped by <code class="chip">a+b+c</code> — and the greedy reaches that cap. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">string</span> <span class="fn">longestDiverseString</span>(<span class="typ">int</span> a, <span class="typ">int</span> b, <span class="typ">int</span> c) {
+        <span class="kw">using</span> <span class="typ">P</span> = <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">char</span>&gt;;
+        <span class="typ">priority_queue</span>&lt;<span class="typ">P</span>&gt; pq;    <span class="com">// most left on top</span>
+
+        <span class="kw">if</span> (a) pq.<span class="fn">push</span>({a, <span class="str">'a'</span>});    <span class="com">// zero counts stay out</span>
+        <span class="kw">if</span> (b) pq.<span class="fn">push</span>({b, <span class="str">'b'</span>});
+        <span class="kw">if</span> (c) pq.<span class="fn">push</span>({c, <span class="str">'c'</span>});
+
+        <span class="typ">string</span> res = <span class="str">""</span>;
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [cnt1, ch1] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();    <span class="com">// the most frequent</span>
+            <span class="typ">int</span> n = res.<span class="fn">size</span>();
+
+            <span class="kw">if</span> (n &gt;= <span class="num2">2</span> &amp;&amp; ch1 == res[n - <span class="num2">2</span>] &amp;&amp; res[n - <span class="num2">1</span>] == ch1) {
+                <span class="kw">if</span> (pq.<span class="fn">empty</span>()) <span class="kw">return</span> res;    <span class="com">// no other letter to insert</span>
+
+                <span class="kw">auto</span> [cnt2, ch2] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();    <span class="com">// insert one of the 2nd most</span>
+                res += ch2;
+                <span class="kw">if</span> (--cnt2) pq.<span class="fn">push</span>({cnt2, ch2});
+            }
+
+            res += ch1;    <span class="com">// then the most frequent</span>
+            <span class="kw">if</span> (--cnt1) pq.<span class="fn">push</span>({cnt1, ch1});
+        }
+
+        <span class="kw">return</span> res;
+    }
+};</pre>
+      <p>The <code class="chip">if (a)</code> guards keep zero counts out of the heap. If a zero got in, <code class="chip">--cnt</code> would go negative and never hit zero, so the loop would never end.</p>
+      <p>Each turn, I pop the top and check for a block. <strong>One thing worth flagging</strong> — when I'm blocked, I add <code class="chip">ch2</code> and then <strong>still add <code class="chip">ch1</code></strong> right after. That's safe: <code class="chip">ch2</code> just broke the run, so <code class="chip">ch1</code> is a fresh run of one, and it's never lost.</p>
+      <p>Also, <code class="chip">if (pq.empty()) return res;</code> is required. When only the blocked letter is left, there's nothing to split it with — without that check, I'd call <code class="chip">top()</code> on an empty heap.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">a = 1, b = 1, c = 7</code>.</p>
+      <div class="scroll-x">
+      <table class="trace">
+        <thead><tr><th>step</th><th>pop</th><th>res before</th><th>action</th><th>res after</th><th>heap after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>c7</td><td>""</td><td>add c</td><td>c</td><td>[c6,b1,a1]</td></tr>
+          <tr><td>2</td><td>c6</td><td>c</td><td>add c</td><td>cc</td><td>[c5,b1,a1]</td></tr>
+          <tr class="highlight-row"><td>3</td><td>c5</td><td>cc</td><td>blocked → b, then c</td><td>ccbc</td><td>[c4,a1]</td></tr>
+          <tr><td>4</td><td>c4</td><td>ccbc</td><td>add c</td><td>ccbcc</td><td>[c3,a1]</td></tr>
+          <tr class="highlight-row"><td>5</td><td>c3</td><td>ccbcc</td><td>blocked → a, then c</td><td>ccbccac</td><td>[c2]</td></tr>
+          <tr><td>6</td><td>c2</td><td>ccbccac</td><td>add c</td><td>ccbccacc</td><td>[c1]</td></tr>
+          <tr><td>7</td><td>c1</td><td>ccbccacc</td><td>blocked, heap empty</td><td colspan="2"><span class="answer-cell">return "ccbccacc"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The decision happens at step 3: the string is <code class="chip">cc</code> and the top is still <code class="chip">c</code>, so I'm blocked. On equal counts, <code class="chip">pair</code> breaks the tie by letter, so <code class="chip">b1</code> comes out above <code class="chip">a1</code> — I add <code class="chip">b</code>, then <code class="chip">c</code>. Step 5 does the same with <code class="chip">a</code>. At the last step, <code class="chip">c</code> is blocked and the heap is empty, so I return <code class="chip">"ccbccacc"</code> — length <code class="chip num">8</code>, one <code class="chip">c</code> unused. The formula agrees: <code class="chip">2·(2+1) + 2 = 8</code>.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">(0,0,2)</code> → <code class="chip">"cc"</code> — checking only <code class="chip">res[n-1] == ch1</code> would wrongly give <code class="chip">"c"</code>.<br>
+      • <code class="chip">(0,0,3)</code> → <code class="chip">"cc"</code> — with <code class="chip">n &gt; 2</code>, I'd output <code class="chip">"ccc"</code>.<br>
+      • <code class="chip">(0,1,3)</code> → <code class="chip">"ccbc"</code> — a min-heap only reaches length <code class="chip num">3</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(a + b + c). Each loop turn adds at least one letter, and the heap never holds more than 3 items, so each push and pop is O(1). Space is O(1) extra, not counting the output.</p>
+      <p>In the worst case, <code class="chip">(100, 100, 100)</code>, the answer has <code class="chip num">300</code> letters, so the loop runs at most about 300 times.</p>
+      <p><em class="pause">Oh, one more thing —</em> the closed-form length is a quick sanity check for any output. I used it to test the whole input range, <code class="chip num">1,030,300</code> inputs, with <strong>0 wrong</strong>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You explained <strong>why the greedy works</strong>: use the most frequent letter, and when blocked, use the second one only once. You backed it with the <strong>closed-form max length</strong> and checked it against a brute force. And you knew which guards are for <strong>correctness</strong>: no zero counts in the heap, and stop when the blocked letter is alone. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.37, 30.52, 36.94, 40.01, 45.26, 85.43, 113.36, 162.86, 165.55, 203.92, 260.84, 296.93]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

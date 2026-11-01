@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 502 · IPO</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.scroll-x { overflow-x: auto; }
+.scroll-x table.trace { min-width: 560px; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 502 · IPO · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You start with capital <code class="chip">w</code>. There are <code class="chip">n</code> projects. Project i needs at least <code class="chip">capital[i]</code> to start, and when you finish it you gain <code class="chip">profits[i]</code>. You can do at most <code class="chip">k</code> different projects, one after another. Return the most capital you can end with.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> <code class="chip">capital[i]</code> is only a <strong>threshold</strong>. I need that much to start, but I don't pay it. So when I finish a project, <code class="chip">w</code> just goes up by the profit. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right. Nothing is spent. Profit is pure gain.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then that's the key fact. Profits are <code class="chip">&gt;= 0</code>, so <code class="chip">w</code> <strong>never goes down</strong>. Once a project is affordable, it stays affordable forever — the set of projects I can start only grows.</p>
+      <p>Two more things. "Distinct" means each project at most once, right? And if nothing is affordable, I just stop early, and doing fewer than <code class="chip">k</code> is fine?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes to both.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">n</code> and <code class="chip">k</code> are up to 10<sup>5</sup>. <code class="chip">w</code> and each <code class="chip">capital[i]</code> are up to 10<sup>9</sup>. Profits are up to 10<sup>4</sup>. The answer fits in a 32-bit signed int.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. With 10<sup>5</sup> for both n and k, O(k · n) is 10<sup>10</sup> — too slow. I want about O((n + k) log n).</p>
+      <p>Quick check on the example: <code class="chip">k = 2</code>, <code class="chip">w = 0</code>, profits <code class="chip">[1,2,3]</code>, capital <code class="chip">[0,1,1]</code>. With 0, only project 0 is affordable. I do it, so <code class="chip">w = 1</code>. Now projects 1 and 2 both open up. I pick the bigger profit, 3, so <code class="chip">w = 4</code>. The answer is <code class="chip num">4</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be to</strong> run k rounds, and in each round scan all n projects and pick the best affordable one I haven't done. It's correct, but O(k · n) is way too slow.</p>
+      <p>Which one is "best"? The one with the <strong>biggest profit</strong>. More money only opens up more projects and never closes one, so greedy is safe here.</p>
+      <p><strong>This problem reminds me of</strong> a sort-and-sweep feeding a max-heap.<br>
+      • Projects <strong>unlock</strong> in capital order, so I sort the indices by capital once and walk them with one pointer.<br>
+      • Among the unlocked ones, I need the <strong>max profit</strong> fast — that's a max-heap of profits.</p>
+      <p>Each project is pushed and popped at most once, so this is O(n log n + k log n).</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        idx = project indices sorted by capital<br>
+        i&nbsp;&nbsp;&nbsp;= next project in idx not unlocked yet<br>
+        pq&nbsp;&nbsp;= max-heap of profits&nbsp;&nbsp;<span class="em">← unlocked, not done</span><br>
+        <br>
+        <span class="label">// repeat k times</span><br>
+        push every idx[i] with capital &lt;= w&nbsp;&nbsp;<span class="em">← refill each round</span><br>
+        if pq is empty: stop&nbsp;&nbsp;<span class="em">← nothing affordable</span><br>
+        w += pq.top(); pop
+      </div>
+      <p>One: sort project indices by capital.<br>
+      Two: in each of the k rounds, push every newly affordable profit into a max-heap.<br>
+      Three: if the heap is empty, stop; otherwise add the top to <code class="chip">w</code> and pop it.</p>
+      <p><strong>One thing worth flagging</strong> — the loop is driven by <code class="chip">k</code>, not by <code class="chip">i</code>.<br>
+      • The refill must happen <strong>every round</strong>, after <code class="chip">w</code> grows, because the last profit might unlock new projects.<br>
+      • The pointer <code class="chip">i</code> can reach <code class="chip">n</code> early while the heap still has good projects, so that's no reason to stop.<br>
+      • The only early stop is an empty heap: nothing is affordable, and since <code class="chip">w</code> can't change, nothing ever will be.</p>
+      <p><strong>There's a trade-off:</strong> the heap stores plain profits, not indices — I never revisit a project once it's unlocked. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">findMaximizedCapital</span>(<span class="typ">int</span> k, <span class="typ">int</span> w, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; profits, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; capital) {
+        <span class="typ">int</span> n = profits.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; idx(n);
+        <span class="fn">iota</span>(idx.<span class="fn">begin</span>(), idx.<span class="fn">end</span>(), <span class="num2">0</span>);
+        <span class="fn">sort</span>(idx.<span class="fn">begin</span>(), idx.<span class="fn">end</span>(), [&amp;](<span class="typ">int</span> a, <span class="typ">int</span> b) {
+            <span class="kw">return</span> capital[a] &lt; capital[b];    <span class="com">// sort indices by threshold</span>
+        });
+
+        <span class="typ">priority_queue</span>&lt;<span class="typ">int</span>&gt; pq;    <span class="com">// profits only</span>
+        <span class="typ">int</span> i = <span class="num2">0</span>;
+        <span class="kw">while</span> (k--) {    <span class="com">// run k rounds, don't stop on i</span>
+            <span class="kw">while</span> (i &lt; n &amp;&amp; capital[idx[i]] &lt;= w)
+                pq.<span class="fn">push</span>(profits[idx[i++]]);    <span class="com">// refill first, every round</span>
+            <span class="kw">if</span> (pq.<span class="fn">empty</span>()) <span class="kw">break</span>;    <span class="com">// nothing affordable</span>
+            w += pq.<span class="fn">top</span>();    <span class="com">// add the profit</span>
+            pq.<span class="fn">pop</span>();
+        }
+        <span class="kw">return</span> w;    <span class="com">// return the capital</span>
+    }
+};</pre>
+      <p>I sort the indices by capital, then run k rounds. The inner <code class="chip">while</code> is the refill — it runs at the start of every round, after the last profit. The heap stores <strong>profits only</strong>; <code class="chip">priority_queue&lt;int&gt;</code> is a max-heap by default, so the top is the biggest profit I can afford.</p>
+      <p><strong>One thing worth flagging</strong> — the push loop uses <code class="chip">&lt;=</code>, not <code class="chip">&lt;</code>. With a strict <code class="chip">&lt;</code>, project 0 in both examples needs 0 and I have 0, so it never unlocks, and both examples return <code class="chip num">0</code>.</p>
+      <p>And the <code class="chip">if (pq.empty()) break;</code> isn't just an early exit — without it, the next line calls <code class="chip">top()</code> on an empty heap.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on example 1: <code class="chip">k = 2, w = 0</code>, profits <code class="chip">[1,2,3]</code>, capital <code class="chip">[0,1,1]</code>; sorted <code class="chip">idx = [0,1,2]</code>.</p>
+      <div class="scroll-x">
+      <table class="trace">
+        <thead><tr><th>round</th><th>w before</th><th>push #i (cap, profit)</th><th>heap (top first)</th><th>pop</th><th>w after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>0</td><td>#0 (0,1)</td><td>1</td><td>1</td><td>1</td></tr>
+          <tr class="highlight-row"><td>2</td><td>1</td><td>#1 (1,2), #2 (1,3)</td><td>3, 2</td><td>3</td><td>4</td></tr>
+          <tr><td>result</td><td colspan="5"><span class="answer-cell">4</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key row is round 2. Round 1 only unlocked project 0, and its profit made <code class="chip">w = 1</code>. That <strong>one unit</strong> unlocks projects 1 and 2 together at the start of round 2. Both go into the heap, and the max-heap gives me 3, not 2 — so <code class="chip">w = 4</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• Nothing affordable, <code class="chip">k=1, w=0, capital=[1,1,2]</code>: the heap is empty in round 1, so I break → <code class="chip num">0</code>.<br>
+      • <code class="chip">k</code> bigger than n, <code class="chip">k=5, w=0, profits=[1], capital=[0]</code>: after the only project, the heap is empty and I break → <code class="chip num">1</code>.<br>
+      • A chain, <code class="chip">k=2, w=0, profits=[1,1], capital=[0,1]</code>: project 1 unlocks only <strong>after</strong> project 0 is done → <code class="chip num">2</code>.</p>
+      <div class="scroll-x">
+      <table class="trace">
+        <thead><tr><th>draft bug</th><th>what happens</th><th>fails (exhaustive)</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td>if (pq.empty() || k == 0) return</td><td>chain above → 1, expected 2</td><td>131,067 / 1,034,592</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>That chain broke my first draft: it returned as soon as the heap went empty, before refilling, and got 1. The fix is to <strong>refill first, then check</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n log n + k log n). The sort is O(n log n). The pointer <code class="chip">i</code> only moves forward, so across all rounds there are at most n pushes, and at most k pops, each O(log n). Space is O(n), for <code class="chip">idx</code> and the heap.</p>
+      <p>In the worst case, n = k = 10<sup>5</sup>. That runs in about 15 to 20 ms, while the rescan-every-round O(k · n) version takes over 20 seconds.</p>
+      <p>I also checked it against a brute force on over 80 million small cases (<code class="chip num">80,132,960</code>) with <strong>0 mismatches</strong> — worth it, because some buggy versions still pass both examples.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Is <code class="chip">int</code> safe for <code class="chip">w</code>? You keep adding to it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here, yes. The biggest legal answer is <code class="chip">1e9 + 1e5 × 1e4 = 2,000,000,000</code>. That's still about <code class="chip num">147,483,647</code> below <code class="chip">INT_MAX</code>, and the problem promises the answer fits. If the limits were any bigger, I'd switch <code class="chip">w</code> to <code class="chip">long long</code>.</p>
+      <p><em class="pause">Oh, one more thing —</em> the whole greedy rests on <code class="chip">w</code> never going down. If capital were a <strong>cost</strong> I had to pay, an unlocked project could become unaffordable again. Then "always take the biggest profit" would no longer be safe, and the one-pointer refill would break. That's exactly why the first thing I asked was whether capital is spent.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You asked whether capital is spent, and used "<code class="chip">w</code> never goes down" to justify both the greedy and the one-pass pointer. You made the loop run on <code class="chip">k</code> with a refill every round, and showed with a two-project chain why returning on an empty heap before the refill is wrong. And you tested past the official examples, since buggy versions can pass them both. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 16.63, 32.6, 37.06, 59.47, 61.79, 64.86, 77.26, 110.26, 155.54, 207.83, 210.49, 252.05, 303.07, 343.33, 347.19, 385.46]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
