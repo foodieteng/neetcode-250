@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 140 · Word Break II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 140 · Word Break II · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get a string <code class="chip">s</code> and a list of words, <code class="chip">wordDict</code>. Add spaces to <code class="chip">s</code> so every piece is a dictionary word. Return <strong>all</strong> the sentences you can make, in any order.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I cut <code class="chip">s</code> into pieces, every piece must be in the dictionary, and I return every way to do that, with single spaces between the words. Is that right?</p>
+      <p>And a word can be used more than once, like <code class="chip">"apple"</code> twice in <code class="chip">"pine apple pen apple"</code>?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, words can repeat. And if there's no way to cut it, return an empty list.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">s.length</code> is at most <code class="chip num">20</code>. Up to <code class="chip num">1000</code> words, each at most <code class="chip num">10</code> letters. All lowercase, all words unique. And the total answer size won't go over 10<sup>5</sup>.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. So <code class="chip">n</code> is tiny, but the answer can still be big. That tells me two things. First, I really do have to list every sentence, so the output size is a floor on the time. Second, there's a different danger: inputs where the search does a lot of work and finds <strong>nothing</strong>.</p>
+      <p><strong>Let me run through the example.</strong> <code class="chip">"catsanddog"</code>, with <code class="chip">{cat, cats, and, sand, dog}</code>: from the start I can take <code class="chip">"cat"</code> or <code class="chip">"cats"</code>, and each leftover splits one way, so I get <code class="chip">"cats and dog"</code> and <code class="chip">"cat sand dog"</code>. That matches.</p>
+      <p>And <code class="chip">"catsandog"</code> gives <code class="chip">[]</code>. Here's the sneaky part: <code class="chip">"sand"</code> is a real word, but after it the leftover is <code class="chip">"og"</code>, a dead end. So a path can look good for a while and still fail at the very end.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> try every set of cut positions — <code class="chip">2^(n−1)</code> ways — and check each one. It's correct, but blind: it builds full cuts even when the first piece is already not a word.</p>
+      <p><strong>This problem reminds me of</strong> partition backtracking: at index <code class="chip">start</code>, pick where the next word ends, check it, go deeper, then undo. It also reminds me of the yes-or-no version, "can it be split at all?", which is a simple DP. I think I can use that yes/no DP to <strong>prune</strong> this search.</p>
+      <p>So my plan is two steps: first, plain backtracking; then add a pruning table so I never walk into a dead end.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// step 1 — plain backtracking</span><br>
+        dfs(start):<br>
+        &nbsp;&nbsp;if start == n → save path<br>
+        &nbsp;&nbsp;for end in start+1 .. n:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;word = s[start..end)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if word in dict → add word, dfs(end), undo<br>
+        <br>
+        <span class="label">// step 2 — prune with a suffix table</span><br>
+        <span class="em">canBreak[i]</span> = can s[i..n) be fully split into words?<br>
+        canBreak[n] = true <span class="label">// empty suffix: done</span><br>
+        for i = n-1 down to 0:<br>
+        &nbsp;&nbsp;canBreak[i] = some end with canBreak[end] and s[i..end) in dict<br>
+        in dfs: <span class="em">skip any end where canBreak[end] is false</span>
+      </div>
+      <p>One: the search tries every <code class="chip">end</code> from <code class="chip">start</code>; if the piece is a word, it adds it, recurses, and undoes.<br>
+      Two: <code class="chip">canBreak[i]</code> says whether the suffix from <code class="chip">i</code> can be fully split, filled from the right.<br>
+      Three: in the search, skip any <code class="chip">end</code> where <code class="chip">canBreak</code> is false — that cut can never finish, so I don't even look up the word.</p>
+      <p><strong>One thing worth flagging</strong> — the direction matters. The usual yes/no DP is a <strong>prefix</strong> table: "can I get <em>here</em>?" My search already got here; it needs: "can I get from here <em>to the end</em>?" A prefix table keeps the answers correct but prunes nothing.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>i</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr></thead>
+        <tbody>
+          <tr><td>s[i]</td><td>c</td><td>a</td><td>t</td><td>s</td><td>a</td><td>n</td><td>d</td><td>d</td><td>o</td><td>g</td><td>—</td></tr>
+          <tr class="highlight-row"><td>canBreak</td><td>T</td><td>F</td><td>F</td><td>T</td><td>T</td><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td><td>T</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>There's a trade-off:</strong> memoizing each suffix's sentences is also fast on dead ends, but it copies lists of partial sentences. Pruning keeps one <code class="chip">path</code> string. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Start with the plain version, then the pruned one.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. First, the plain backtracking. The search saves the path when <code class="chip">start</code> reaches the end; otherwise it tries every <code class="chip">end</code>, skips pieces that aren't words, appends the word with a space if needed, recurses, and resizes the path back.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">wordBreak</span>(<span class="typ">string</span> s, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; wordDict) {
+        <span class="typ">unordered_set</span>&lt;<span class="typ">string</span>&gt; <span class="fn">dict</span>(wordDict.<span class="fn">begin</span>(), wordDict.<span class="fn">end</span>());
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; ans;
+        <span class="typ">string</span> path;
+        <span class="fn">dfs</span>(s, <span class="num2">0</span>, dict, path, ans);
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="kw">const</span> <span class="typ">string</span>&amp; s, <span class="typ">int</span> start, <span class="typ">unordered_set</span>&lt;<span class="typ">string</span>&gt;&amp; dict, <span class="typ">string</span>&amp; path, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; ans) {
+        <span class="kw">if</span> (start == (<span class="typ">int</span>)s.<span class="fn">size</span>()) {                               <span class="com">// ① whole string cut</span>
+            ans.<span class="fn">push_back</span>(path);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> end = start + <span class="num2">1</span>; end &lt;= (<span class="typ">int</span>)s.<span class="fn">size</span>(); end++) {    <span class="com">// ② where this word ends</span>
+            <span class="typ">string</span> word = s.<span class="fn">substr</span>(start, end - start);
+            <span class="kw">if</span> (!dict.<span class="fn">count</span>(word)) <span class="kw">continue</span>;                        <span class="com">// ③ not a word</span>
+
+            <span class="typ">int</span> oldLen = path.<span class="fn">size</span>();                               <span class="com">// ④ append</span>
+            <span class="kw">if</span> (!path.<span class="fn">empty</span>()) path += <span class="str">' '</span>;
+            path += word;
+            <span class="fn">dfs</span>(s, end, dict, path, ans);
+            path.<span class="fn">resize</span>(oldLen);                                    <span class="com">// ⑤ remove (with the space)</span>
+        }
+    }
+};</pre>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>One thing worth flagging</strong> — the undo step. I save <code class="chip">oldLen</code> <em>before</em> I add the space and the word, so <code class="chip">path.resize(oldLen)</code> removes both. If I only cut off the word's length, the space would stay behind: on <code class="chip">s = "aa"</code>, with <code class="chip">{a, aa}</code>, the second answer comes out as <code class="chip">"a aa"</code>, instead of just <code class="chip">"aa"</code>.</p>
+      <p>Two more small guards. The loop is <code class="chip">end &lt;= n</code>, because the last word has to reach the end; with <code class="chip">&lt;</code>, <code class="chip">s = "a"</code> returns <code class="chip">[]</code>. And the <code class="chip">path.empty()</code> check stops a leading space.</p>
+      <p>Now the pruned version: same search, plus the <code class="chip">canBreak</code> table, and the loop only goes up to <code class="chip">maxLen</code> letters.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">wordBreak</span>(<span class="typ">string</span> s, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; wordDict) {
+        <span class="typ">unordered_set</span>&lt;<span class="typ">string</span>&gt; <span class="fn">dict</span>(wordDict.<span class="fn">begin</span>(), wordDict.<span class="fn">end</span>());
+        <span class="typ">int</span> n = s.<span class="fn">size</span>();
+        maxLen = <span class="num2">0</span>;
+        <span class="kw">for</span> (<span class="kw">const</span> <span class="typ">string</span>&amp; word : wordDict) maxLen = <span class="fn">max</span>(maxLen, (<span class="typ">int</span>)word.<span class="fn">size</span>());
+
+        <span class="com">// canBreak[i]: can s[i..n) be fully split into dictionary words</span>
+        canBreak.<span class="fn">assign</span>(n + <span class="num2">1</span>, <span class="kw">false</span>);
+        canBreak[n] = <span class="kw">true</span>;
+        <span class="kw">for</span> (<span class="typ">int</span> i = n - <span class="num2">1</span>; i &gt;= <span class="num2">0</span>; i--) {
+            <span class="kw">for</span> (<span class="typ">int</span> end = i + <span class="num2">1</span>; end &lt;= <span class="fn">min</span>(n, i + maxLen); end++) {
+                <span class="kw">if</span> (canBreak[end] &amp;&amp; dict.<span class="fn">count</span>(s.<span class="fn">substr</span>(i, end - i))) {
+                    canBreak[i] = <span class="kw">true</span>;
+                    break;
+                }
+            }
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; ans;
+        <span class="kw">if</span> (!canBreak[<span class="num2">0</span>]) <span class="kw">return</span> ans;                               <span class="com">// whole string can't be split</span>
+        <span class="typ">string</span> path;
+        <span class="fn">dfs</span>(s, <span class="num2">0</span>, dict, path, ans);
+        <span class="kw">return</span> ans;
+    }
+
+<span class="kw">private</span>:
+    <span class="typ">int</span> maxLen = <span class="num2">0</span>;
+    <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; canBreak;
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="kw">const</span> <span class="typ">string</span>&amp; s, <span class="typ">int</span> start, <span class="typ">unordered_set</span>&lt;<span class="typ">string</span>&gt;&amp; dict, <span class="typ">string</span>&amp; path, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; ans) {
+        <span class="typ">int</span> n = s.<span class="fn">size</span>();
+        <span class="kw">if</span> (start == n) {
+            ans.<span class="fn">push_back</span>(path);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> end = start + <span class="num2">1</span>; end &lt;= <span class="fn">min</span>(n, start + maxLen); end++) {
+            <span class="kw">if</span> (!canBreak[end]) <span class="kw">continue</span>;                           <span class="com">// cutting here can never finish</span>
+            <span class="typ">string</span> word = s.<span class="fn">substr</span>(start, end - start);
+            <span class="kw">if</span> (!dict.<span class="fn">count</span>(word)) <span class="kw">continue</span>;
+
+            <span class="typ">int</span> oldLen = path.<span class="fn">size</span>();
+            <span class="kw">if</span> (!path.<span class="fn">empty</span>()) path += <span class="str">' '</span>;
+            path += word;
+            <span class="fn">dfs</span>(s, end, dict, path, ans);
+            path.<span class="fn">resize</span>(oldLen);
+        }
+    }
+};</pre>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That matches the plan. <strong>One thing worth flagging</strong> — <code class="chip">canBreak[n] = true</code> is the base case. It's not optional. Without it, no index can ever become true, so every input returns <code class="chip">[]</code>.</p>
+      <p>Also, I check <code class="chip">canBreak[end]</code> <em>before</em> I build the <code class="chip">substr</code> and look in the set. That cheap check skips the expensive part.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> <code class="chip">"catsanddog"</code> on the pruned version, expected two sentences; <code class="chip">canBreak</code> is true only at <code class="chip">0, 3, 4, 7, 10</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>call</th><th>end</th><th>word</th><th>in dict?</th><th>path / result</th></tr></thead>
+        <tbody>
+          <tr><td>dfs(0)</td><td>3</td><td>"cat"</td><td>✓</td><td>"cat"</td></tr>
+          <tr><td>dfs(3)</td><td>4</td><td>"s"</td><td>✗</td><td>skip</td></tr>
+          <tr class="highlight-row"><td>dfs(3)</td><td>7</td><td>"sand"</td><td>✓</td><td>"cat sand"</td></tr>
+          <tr><td>dfs(7)</td><td>10</td><td>"dog"</td><td>✓</td><td>"cat sand dog"</td></tr>
+          <tr><td>dfs(10)</td><td>—</td><td>—</td><td>—</td><td><span class="answer-cell">collect "cat sand dog"</span></td></tr>
+          <tr><td>dfs(0)</td><td>4</td><td>"cats"</td><td>✓</td><td>"cats"</td></tr>
+          <tr><td>dfs(4)</td><td>7</td><td>"and"</td><td>✓</td><td>"cats and"</td></tr>
+          <tr><td>dfs(7)</td><td>10</td><td>"dog"</td><td>✓</td><td>"cats and dog"</td></tr>
+          <tr><td>dfs(10)</td><td>—</td><td>—</td><td>—</td><td><span class="answer-cell">collect "cats and dog"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the search from <code class="chip">3</code>: it only tries ends <code class="chip num">4</code> and <code class="chip num">7</code>, the true spots. <code class="chip">"s"</code> fails the dictionary check, <code class="chip">"sand"</code> works, and <code class="chip">dfs(7)</code> only tries <code class="chip num">10</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>input</th><th>plain</th><th>memo</th><th>prune</th></tr></thead>
+        <tbody>
+          <tr><td>catsanddog</td><td>7 calls, 29 checks</td><td>26 checks</td><td>7 calls, 7 checks (+14)</td></tr>
+          <tr><td>pineapplepenapple</td><td>61 checks</td><td>43 checks</td><td>11 checks (+28)</td></tr>
+          <tr class="highlight-row"><td>catsandog → []</td><td>5 calls, 24 checks</td><td>22 checks</td><td><span class="answer-cell">0 dfs calls</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Seven calls, like plain, but dictionary checks drop from <code class="chip num">29</code> to <code class="chip num">7</code>, plus <code class="chip num">14</code> to build the table. On <code class="chip">"catsandog"</code>, <code class="chip">canBreak[0]</code> is false, so it returns <code class="chip">[]</code> with no search call.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">s = "a"</code>, <code class="chip">{a}</code> → <code class="chip">["a"]</code>, catching the <code class="chip">end &lt; n</code> bug.<br>
+      • <code class="chip">s = "aa"</code>, <code class="chip">{a, aa}</code> → <code class="chip">["a a", "aa"]</code> checks the undo.<br>
+      • 19 <code class="chip">'a'</code> then a <code class="chip">'b'</code>, <code class="chip">{a, aa, aaa, aaaa}</code>: <code class="chip num">0</code> answers, yet plain backtracking makes <code class="chip num">306,128</code> calls, about <code class="chip num">9.7 ms</code>. Pruning makes <code class="chip num">0</code>.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if you used the prefix table you mentioned?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>It still gives correct answers, because the search checks every word anyway. But it prunes nothing. On that <code class="chip">19 'a' + 'b'</code> input it still makes all <code class="chip num">306,128</code> calls. The prefix table says "I could reach this spot." The search is already standing there, so that's no news. The useful question is "can I finish from here?", and only the suffix table answers it.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity</strong> for the pruned version has two parts. Building <code class="chip">canBreak</code> is <code class="chip">O(n · L²)</code>, where <code class="chip">L</code> is the longest word: <code class="chip">n</code> starts, <code class="chip">L</code> ends each, <code class="chip">L</code> per <code class="chip">substr</code>. The search is <strong>output-sensitive</strong>: every node I visit has <code class="chip">canBreak</code> true, so it leads to at least one sentence.</p>
+      <p><strong>The space complexity is</strong> <code class="chip">O(n)</code> besides the answer: the table, the recursion depth, and one <code class="chip">path</code>.</p>
+      <p>The output itself can be exponential, so nothing beats that; plain backtracking is <code class="chip">O(2^n · n)</code>, and pays it <strong>even with 0 answers</strong>.</p>
+      <p><em class="pause">Oh, one more thing —</em> pruning isn't magic when almost every branch works. 20 <code class="chip">'a'</code> with <code class="chip">{a, aa}</code> gives <code class="chip num">10,946</code> sentences; all three versions finish within a few milliseconds of each other (plain <code class="chip num">1.39 ms</code>, memo <code class="chip num">3.17 ms</code>, prune <code class="chip num">0.83 ms</code>), because writing the output is the real cost.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You built the plain version first, then showed with a real input — <code class="chip num">306,128</code> calls for zero answers — why it needs pruning. You saw that the pruning table has to be <strong>suffix</strong>-based, and explained why the prefix table prunes nothing. And you were honest about the limits: when the output is huge, the output size sets the cost, not the search. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.11, 34.0, 39.46, 42.53, 55.79, 99.3, 139.35, 191.76, 196.1, 212.22, 252.97, 274.06, 328.15, 331.14, 354.49, 407.38]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

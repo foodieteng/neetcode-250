@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 51 · N-Queens</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 51 · N-Queens · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Place <code class="chip">n</code> queens on an <code class="chip">n × n</code> chessboard so that no two queens attack each other. Return <strong>all</strong> distinct solutions, in any order. Each solution is a board, with <code class="chip">'Q'</code> for a queen and <code class="chip">'.'</code> for an empty square.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> two queens attack if they share a row, a column, or a diagonal, in either direction. And I need every full board, not just the count. Is that right?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Every board, as a list of strings.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">1 ≤ n ≤ 9</code>.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. <code class="chip num">9</code> is tiny, so an exponential search is fine. The real cost is the size of the output.</p>
+      <p><strong>Let me run through the examples.</strong> <code class="chip">n = 4</code> gives two boards: <code class="chip">[".Q..","...Q","Q...","..Q."]</code> and <code class="chip">["..Q.","Q...","...Q",".Q.."]</code> — one is the mirror of the other. <code class="chip">n = 1</code> gives <code class="chip">[["Q"]]</code>, a single board with one queen. And I know <code class="chip">n = 2</code> and <code class="chip">n = 3</code> have <strong>no</strong> solutions, so the answer can be an empty list.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> try every way to put <code class="chip">n</code> queens on <code class="chip">n²</code> squares, then check each board. That's way too many.</p>
+      <p>The first big cut: two queens can't share a row, so <strong>each row has exactly one queen</strong>. <strong>This problem reminds me of</strong> generating permutations by backtracking: row <code class="chip">r</code> picks a column, and no column repeats. So it's one recursion level per row, try each column, and prune the moment a queen is attacked.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// level r of the recursion = row r → rows can never clash</span><br>
+        dfs(r):<br>
+        &nbsp;&nbsp;if r == n → save a copy of the board<br>
+        &nbsp;&nbsp;for c = 0..n-1:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if col[c] or diag1[<span class="em">r+c</span>] or diag2[<span class="em">r-c+n-1</span>] → continue<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;place Q, set 3 flags, dfs(r+1), clear 3 flags, remove Q
+      </div>
+      <p>One: level <code class="chip">r</code> places the queen for row <code class="chip">r</code>; when <code class="chip">r</code> reaches <code class="chip">n</code>, save a copy of the board.<br>
+      Two: skip a column if its column, <code class="chip">"/"</code> diagonal, or <code class="chip">"\"</code> diagonal is taken.<br>
+      Three: place, set the three flags, recurse, then clear the flags and remove the queen.</p>
+      <p><strong>One thing worth flagging</strong> — since the row is the recursion level, I only need flags for <strong>columns</strong> and the <strong>two diagonals</strong>, each checked in <code class="chip">O(1)</code>.</p>
+      <p>On a <code class="chip">"/"</code> diagonal, <code class="chip">r + c</code> is constant. On a <code class="chip">"\"</code> diagonal, <code class="chip">r − c</code> is constant, but it can be negative, so I shift it by <code class="chip">n − 1</code>. Both kinds have <code class="chip">2n − 1</code> diagonals.</p>
+      <div class="insight-box">
+        diag1 = r + c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// "/" · index 3 = (0,3) (1,2) (2,1) (3,0)</span><br>
+        diag2 = r − c + n − 1 <span class="label">// "\" · index 3 = (0,0) (1,1) (2,2) (3,3)</span><br>
+        size of each = 2n − 1 = <span class="em">7</span>&nbsp;&nbsp;<span class="label">// n = 4</span>
+      </div>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The main function builds an all-dot board, the flag arrays, and starts the search at row 0. The search saves the board when every row is filled; otherwise it tries each column, skips a blocked one, and does place, recurse, undo.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt; <span class="fn">solveNQueens</span>(<span class="typ">int</span> n) {
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt; ans;
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; <span class="fn">board</span>(n, <span class="typ">string</span>(n, <span class="str">'.'</span>));
+        <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; <span class="fn">row</span>(n, <span class="kw">false</span>), <span class="fn">col</span>(n, <span class="kw">false</span>), <span class="fn">diag1</span>(<span class="num2">2</span> * n - <span class="num2">1</span>, <span class="kw">false</span>), <span class="fn">diag2</span>(<span class="num2">2</span> * n - <span class="num2">1</span>, <span class="kw">false</span>);
+        <span class="fn">dfs</span>(ans, board, n, <span class="num2">0</span>, row, col, diag1, diag2);
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt;&amp; ans, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; board, <span class="typ">int</span> n, <span class="typ">int</span> r, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&amp; row, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&amp; col, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&amp; diag1, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&amp; diag2) {
+        <span class="kw">if</span> (r &gt;= n) {                                        <span class="com">// ① every row is filled</span>
+            ans.<span class="fn">push_back</span>(board);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> c = <span class="num2">0</span>; c &lt; n; c++) {                        <span class="com">// ② row r tries each column</span>
+            <span class="kw">if</span> (col[c] || diag1[r + c] || diag2[r - c + n - <span class="num2">1</span>]) <span class="kw">continue</span>;   <span class="com">// ③ column, /, \ taken</span>
+
+            board[r][c] = <span class="str">'Q'</span>;                               <span class="com">// ④ place</span>
+            row[r] = col[c] = diag1[r + c] = diag2[r - c + n - <span class="num2">1</span>] = <span class="kw">true</span>;
+            <span class="fn">dfs</span>(ans, board, n, r + <span class="num2">1</span>, row, col, diag1, diag2);
+            row[r] = col[c] = diag1[r + c] = diag2[r - c + n - <span class="num2">1</span>] = <span class="kw">false</span>;   <span class="com">// ⑤ remove</span>
+            board[r][c] = <span class="str">'.'</span>;
+        }
+    }
+};</pre>
+      <p>The undo is the exact mirror of the do: the same four flags go back to <code class="chip">false</code>, and the square goes back to <code class="chip">'.'</code>. <code class="chip">ans.push_back(board)</code> copies the board, so later changes don't touch saved answers.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>I see you set <code class="chip">row[r]</code>. Where do you read it?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good catch — I don't. <code class="chip">row</code> is written in two lines and never read. Level <code class="chip">r</code> always places exactly one queen in row <code class="chip">r</code>, so a row can never clash. That's the same point I made in the plan; the array is left over. Removing <code class="chip">row</code> gives byte-identical output for <code class="chip">n = 1..12</code>, and no time difference. I'd delete it.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> <code class="chip">n = 4</code>, expected two boards. For a blocked column, the table shows the first check that fires.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:600px;">
+        <thead><tr><th>call</th><th>r</th><th>column scan</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>#1</td><td>0</td><td>c0 ✓</td><td>Q at (0,0) → #2</td></tr>
+          <tr class="highlight-row"><td>#2</td><td>1</td><td>c0 col · c1 diag2 · c2 ✓</td><td>Q at (1,2) → #3</td></tr>
+          <tr class="highlight-row"><td>#3</td><td>2</td><td>c0 col · c1 diag1 · c2 col · c3 diag2</td><td>dead · undo (1,2)</td></tr>
+          <tr><td>#2</td><td>1</td><td>c3 ✓</td><td>Q at (1,3) → #4</td></tr>
+          <tr><td>#4</td><td>2</td><td>c0 col · c1 ✓</td><td>Q at (2,1) → #5</td></tr>
+          <tr><td>#5</td><td>3</td><td>c0 col · c1 col · c2 diag2 · c3 col</td><td>dead · undo (2,1)</td></tr>
+          <tr><td>#4</td><td>2</td><td>c2 diag1 · c3 col</td><td>undo (1,3), undo (0,0)</td></tr>
+          <tr><td>#1</td><td>0</td><td>c1 ✓</td><td>Q at (0,1) → #6</td></tr>
+          <tr><td>#6</td><td>1</td><td>c0 diag1 · c1 col · c2 diag2 · c3 ✓</td><td>Q at (1,3) → #7</td></tr>
+          <tr><td>#7</td><td>2</td><td>c0 ✓</td><td>Q at (2,0) → #8</td></tr>
+          <tr><td>#8</td><td>3</td><td>c0 col · c1 col · c2 ✓</td><td><span class="answer-cell">#9 r=4 → solution 1</span></td></tr>
+          <tr><td>#1</td><td>0</td><td>c2 ✓</td><td>Q at (0,2) → #10</td></tr>
+          <tr><td>#10</td><td>1</td><td>c0 ✓</td><td>Q at (1,0) → #11</td></tr>
+          <tr><td>#11</td><td>2</td><td>c0 col · c1 diag2 · c2 col · c3 ✓</td><td>Q at (2,3) → #12</td></tr>
+          <tr><td>#12</td><td>3</td><td>c0 col · c1 ✓</td><td><span class="answer-cell">#13 r=4 → solution 2</span></td></tr>
+          <tr><td>#1</td><td>0</td><td>c3 ✓</td><td>Q at (0,3) → #14 … #17 all dead</td></tr>
+          <tr><td></td><td></td><td>loop ends</td><td><span class="answer-cell">2 boards</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the first branch: with a queen at <code class="chip">(0,0)</code>, row 1 tries column 2 and row 2 is dead at once; column 3 gets one row further, then dies too. So the whole branch is undone back to row 0. Starting from columns 1 and 2, each branch finds one solution; column 3 dies again. <code class="chip num">17</code> calls, <code class="chip num">16</code> placements, <code class="chip num">2</code> solutions, in the expected order.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">n = 1</code> → <code class="chip">[["Q"]]</code>, <code class="chip num">2</code> calls.<br>
+      • <code class="chip">n = 2</code> and <code class="chip">n = 3</code> → an empty list.<br>
+      • <code class="chip">n = 1..9</code> counts — <code class="chip">1, 0, 0, 2, 10, 4, 40, 92, 352</code> — match a brute force.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Which bugs would be easy to make here?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>One thing worth flagging</strong> — the scary ones here are the <strong>silent</strong> ones.</p>
+      <p>• <strong>Forget the <code class="chip">+ n − 1</code></strong>: <code class="chip">diag2[r − c]</code> can go negative. In a normal build the output is still correct, so tests pass; only the address sanitizer (ASan) catches it.<br>
+      • <strong>Size the diagonal arrays <code class="chip">n</code> instead of <code class="chip">2n − 1</code></strong>: even quieter. <code class="chip">vector&lt;bool&gt;</code> packs bits, so the extra indices stay inside one 64-bit word, and even ASan says nothing. Still undefined behavior.<br>
+      • <strong>Forget <code class="chip">board[r][c] = '.'</code></strong>: the flags are still reset, so the <strong>counts</strong> are all correct, but the boards have extra queens left over. A test that only checks the count misses it.<br>
+      • <strong>Forget to reset the flags</strong>: that one is loud — <code class="chip">n = 4</code> returns <code class="chip num">0</code> boards.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> <code class="chip">O(n!)</code> placements as an upper bound: row 0 has <code class="chip">n</code> choices, row 1 at most <code class="chip">n − 1</code> free columns, and so on. The diagonals cut far more: <code class="chip num">2,056</code> placements at <code class="chip">n = 8</code>, and <code class="chip num">8,393</code> at <code class="chip">n = 9</code>, around <code class="chip num">0.56 ms</code>. On top of that, each solution costs <code class="chip">O(n²)</code> to copy the board.</p>
+      <p><strong>The space complexity is</strong> <code class="chip">O(n)</code> for the recursion depth and the flags, plus <code class="chip">O(n²)</code> for the working board. The output itself is <code class="chip">O(S · n²)</code> for <code class="chip">S</code> solutions.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if I only want the number of solutions?</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>I'd drop the board completely; the flags alone decide everything, and the base case just does <code class="chip">count++</code>.</p>
+      <p>Then I'd make it faster with <strong>bitmasks</strong>: the three flag arrays become three ints.</p>
+      <div class="insight-box">
+        <span class="label">// cols, d1, d2: bit c set = column c is attacked in this row</span><br>
+        free = ~(cols | d1 | d2) &amp; ((1 &lt;&lt; n) − 1)<br>
+        while free:<br>
+        &nbsp;&nbsp;bit = free &amp; −free&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// lowest free column</span><br>
+        &nbsp;&nbsp;free ^= bit<br>
+        &nbsp;&nbsp;dfs(r+1, cols | bit, <span class="em">(d1 | bit) &lt;&lt; 1</span>, <span class="em">(d2 | bit) &gt;&gt; 1</span>)
+      </div>
+      <p>The free columns for this row are one expression, I take the lowest free bit each time, and the diagonal masks shift by one each row, because a diagonal moves one column per row. I only visit free columns, so there's no skipping at all.</p>
+      <p>One more trick: <strong>symmetry</strong>. A board and its mirror are both solutions, so I only try row-0 columns in the left half, double the count, and handle the middle column on its own when <code class="chip">n</code> is odd. That's about half the work.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You used "one queen per row" to drop the row check, and you owned it right away when I pointed at the unused <code class="chip">row[]</code>. You explained the diagonal indexing, including why <code class="chip">r − c</code> needs the <code class="chip">n − 1</code> shift and why both arrays are <code class="chip">2n − 1</code>. And you knew which bugs stay silent: a negative index that only ASan sees, and a missing board reset that count-only tests miss. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.68, 30.68, 34.73, 39.07, 42.31, 64.36, 94.4, 140.86, 143.44, 173.36, 176.98, 198.6, 247.58, 250.21, 296.91, 332.28, 335.51, 373.67]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
