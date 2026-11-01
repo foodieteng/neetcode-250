@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 427 · Construct Quad Tree</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 427 · Construct Quad Tree · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You get an <code class="chip">n × n</code> grid of 0s and 1s. Build a quad tree for it. Each node has <code class="chip">val</code> and <code class="chip">isLeaf</code>. If a square is all one value, it's a leaf. If not, it has four children: top-left, top-right, bottom-left, bottom-right. Return the root.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I look at one square at a time. If every cell in it is the same, I make one leaf and stop. If not, I cut it into four equal squares and solve each one the same way.</p>
+      <p>And for an internal node, <code class="chip">val</code> can be anything, so I don't have to pick a special value there. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes to both. Any <code class="chip">val</code> is accepted on an internal node.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. One thing already stands out. The rule is <strong>"check first, split only if the check fails."</strong> So a node only splits when its square really is mixed, which means I never create four children that all hold the same value. The tree comes out minimal with no clean-up pass.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">n == 2<sup>x</sup></code> with <code class="chip">0 &lt;= x &lt;= 6</code>. So n is 1, 2, 4, … up to 64.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That's small — at most <code class="chip num">4096</code> cells. And n is always a power of two, so <code class="chip">length / 2</code> is always exact.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[[0,1],[1,0]]</code>. The 2 × 2 square is mixed, so the root splits. Each 1 × 1 piece is a single cell, so each is a leaf: 0, 1, 1, 0. That matches.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be to</strong> build the full tree all the way down to single cells, then walk back up and merge any parent whose four children are equal leaves. That works, but it's two ideas in one: build, then clean up.</p>
+      <p><strong>This problem reminds me of</strong> plain divide and conquer on a square — like a segment tree, but in 2D. The state is a square, and the four quadrants are the four sub-problems. I'll go top-down: test the square, and split only if the test fails. That's the rule from the problem, read literally.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state: (length, r, c) = side + top-left corner</span><br>
+        <span class="label">// invariant: build(length, r, c) returns the tree</span><br>
+        <span class="label">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for exactly that length × length square</span><br>
+        <br>
+        build(length, r, c):<br>
+        &nbsp;&nbsp;if isSame(length, r, c): <span class="em">// all one value</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;return Node(grid[r][c], isLeaf = true)<br>
+        &nbsp;&nbsp;node = Node(grid[r][c], isLeaf = false) <span class="em">// val ignored</span><br>
+        &nbsp;&nbsp;h = length / 2<br>
+        &nbsp;&nbsp;node.topLeft&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= build(h, r,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c)<br>
+        &nbsp;&nbsp;node.topRight&nbsp;&nbsp;&nbsp;&nbsp;= build(h, r,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">c + h</span>)<br>
+        &nbsp;&nbsp;node.bottomLeft&nbsp;&nbsp;= build(h, <span class="em">r + h</span>, c)<br>
+        &nbsp;&nbsp;node.bottomRight = build(h, r + h, c + h)<br>
+        &nbsp;&nbsp;return node
+      </div>
+      <p>One: describe a square by three numbers, <code class="chip">(length, r, c)</code> — its side and its top-left corner — so I never copy a sub-grid.<br>
+      Two: if every cell matches the top-left cell, return a leaf with that value.<br>
+      Three: otherwise make an internal node and recurse on four half-size squares — right is <code class="chip">c + h</code>, down is <code class="chip">r + h</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the check comes before the split, and that order is the whole reason the tree is minimal: four equal leaf children would mean their parent's square was uniform, so <code class="chip">isSame</code> would have made a leaf.</p>
+      <p><strong>There's a trade-off here:</strong> checking first re-reads cells the parent already read. Bottom-up would read each cell once, but top-down is simpler. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">Node</span>* <span class="fn">construct</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid) {
+        <span class="kw">return</span> <span class="fn">build</span>(grid, grid.<span class="fn">size</span>(), <span class="num2">0</span>, <span class="num2">0</span>);
+    }
+
+    <span class="com">// compare every cell against grid[r][c]; stop at the first mismatch</span>
+    <span class="typ">bool</span> <span class="fn">isSame</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid, <span class="typ">int</span> length, <span class="typ">int</span> r, <span class="typ">int</span> c) {
+        <span class="typ">int</span> val = grid[r][c];
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; length; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; length; j++) {
+                <span class="kw">if</span> (val != grid[r + i][c + j]) <span class="kw">return</span> <span class="kw">false</span>;
+            }
+        }
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+    <span class="typ">Node</span>* <span class="fn">build</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid, <span class="typ">int</span> length, <span class="typ">int</span> r, <span class="typ">int</span> c) {
+        <span class="typ">Node</span> *root;
+        <span class="kw">if</span> (<span class="fn">isSame</span>(grid, length, r, c)) {
+            root = <span class="kw">new</span> <span class="typ">Node</span>(grid[r][c], <span class="kw">true</span>);       <span class="com">// leaf</span>
+        } <span class="kw">else</span> {
+            root = <span class="kw">new</span> <span class="typ">Node</span>(grid[r][c], <span class="kw">false</span>);      <span class="com">// internal node: any val is accepted</span>
+
+            root-&gt;topLeft = <span class="fn">build</span>(grid, length / <span class="num2">2</span>, r, c);
+            root-&gt;topRight = <span class="fn">build</span>(grid, length / <span class="num2">2</span>, r, c + length / <span class="num2">2</span>);
+            root-&gt;bottomLeft = <span class="fn">build</span>(grid, length / <span class="num2">2</span>, r + length / <span class="num2">2</span>, c);
+            root-&gt;bottomRight = <span class="fn">build</span>(grid, length / <span class="num2">2</span>, r + length / <span class="num2">2</span>, c + length / <span class="num2">2</span>);
+        }
+        <span class="kw">return</span> root;
+    }
+};</pre>
+      <p><code class="chip">isSame</code> compares every cell against the square's own top-left cell and returns <code class="chip">false</code> at the first mismatch. <code class="chip">build</code> makes a leaf if the square is uniform; otherwise it makes an internal node and recurses four times with <code class="chip">length / 2</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the internal node reuses <code class="chip">grid[r][c]</code> as its <code class="chip">val</code>. The judge ignores <code class="chip">val</code> when <code class="chip">isLeaf</code> is false, so on Example 1 my root prints as <code class="chip">[0,0]</code> instead of <code class="chip">[0,1]</code>, and it's still accepted.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>bug (all 65,554 grids, n = 1, 2, 4)</th><th>grids failed</th><th>smallest failing input</th></tr></thead>
+        <tbody>
+          <tr><td>swap topRight / bottomLeft coords</td><td>64,520</td><td>[[0,0],[1,0]]</td></tr>
+          <tr class="highlight-row"><td>isSame checks only the 4 corners</td><td>8,190</td><td>n=4, all 0 but grid[3][2]=1</td></tr>
+          <tr><td>baseline grid[0][0], not grid[r][c]</td><td>65,548</td><td>—</td></tr>
+          <tr><td>children get length, not length / 2</td><td>—</td><td>infinite recursion</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>And the sneakiest bug is checking only the four corners: it passes every 1 × 1 and 2 × 2 grid, because there the corners <em>are</em> all the cells. You need n = 4 to catch it.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on the 8 × 8 example, counting cell reads.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>call (len, r, c)</th><th>isSame</th><th>reads</th><th>total</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>build(8, 0, 0)</td><td>false · (0,4)</td><td>5</td><td>5</td><td>internal</td></tr>
+          <tr><td>&nbsp;&nbsp;build(4, 0, 0)</td><td>true</td><td>16</td><td>21</td><td>leaf 1</td></tr>
+          <tr class="highlight-row"><td>&nbsp;&nbsp;build(4, 0, 4)</td><td>false · (2,4)</td><td>9</td><td>30</td><td>internal</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;build(2, 0, 4)</td><td>true</td><td>4</td><td>34</td><td>leaf 0</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;build(2, 0, 6)</td><td>true</td><td>4</td><td>38</td><td>leaf 0</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;build(2, 2, 4)</td><td>true</td><td>4</td><td>42</td><td>leaf 1</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;build(2, 2, 6)</td><td>true</td><td>4</td><td>46</td><td>leaf 1</td></tr>
+          <tr><td>&nbsp;&nbsp;build(4, 4, 0)</td><td>true</td><td>16</td><td>62</td><td>leaf 1</td></tr>
+          <tr><td>&nbsp;&nbsp;build(4, 4, 4)</td><td>true</td><td>16</td><td><span class="answer-cell">78</span></td><td>leaf 0</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the top-right 4 × 4: two full rows of 0s, then the 9th read, <code class="chip">(2,4)</code>, is a 1, so it splits — and its four uniform 2 × 2 children re-read those same 8 cells.</p>
+      <p>Total: <strong>78 reads</strong> on 64 cells, 9 nodes, 7 leaves and 2 internal. That matches. A failing check quits early; a passing check must read the whole square.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:480px;">
+        <thead><tr><th>grid (n = 64)</th><th>nodes</th><th>cell reads</th></tr></thead>
+        <tbody>
+          <tr><td>all zeros</td><td>1</td><td>4096 (n²)</td></tr>
+          <tr><td>checkerboard</td><td>5461</td><td>6826 (1.67n²)</td></tr>
+          <tr class="highlight-row"><td>all 0, bottom-right = 1</td><td>25</td><td>9556 (2.33n²)</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Corner cases:</p>
+      <p>• All zeros is one leaf after <code class="chip num">4096</code> reads.<br>
+      • A checkerboard builds the biggest tree, <code class="chip num">5461</code> nodes, but reads only <code class="chip num">6826</code> cells.<br>
+      • One odd bottom-right cell gives just <code class="chip num">25</code> nodes but <code class="chip num">9556</code> reads.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em> This one is easy to get wrong.</p>
+      <p>Time is O(n² log n). Group the work by level: squares on one level have the same side, don't overlap, and together cover at most the whole grid, so one level reads at most n² cells. There are log<sub>2</sub>n + 1 levels. At n = 64, the ceiling is 4096 × 7 = <code class="chip num">28,672</code> reads.</p>
+      <p>Space is O(n²) for the output tree — the checkerboard gives <code class="chip num">5461</code> nodes — and the stack is at most <code class="chip num">7</code> frames, since the side halves every level.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>I've seen people say it's really about 2.375 n² reads at most. Or maybe 3 n². Isn't it just O(n²)?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>I wouldn't claim either. 2.375 n² is real, but only for n = 4: across all <code class="chip num">65,536</code> grids, the worst reads 38 cells, and 38 / 16 = 2.375.</p>
+      <p>At n = 8 there's already a grid that reads <code class="chip num">178</code> cells, about 2.78 n². So a fixed constant is the wrong way to state it; the safe statement is the level bound.</p>
+      <p><em class="pause">Oh, one more thing —</em> to drop the log factor, I'd go bottom-up: build the four children first, and merge only if all four are leaves with the same value. Each cell is read once. At this size both are instant, so I'd still ship top-down for clarity.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You showed the tree is minimal just from the check-before-split order, with a one-line argument instead of a merge pass. You pinned the cost with the level bound and refused to shrink it to a constant — 2.375 n² only holds at n = 4, and n = 8 already beats it. And you named the mechanism: a failing check quits early but a passing one must read every cell, which is why the checkerboard is cheap and one odd corner cell is expensive. Good work.</p>
+    </div>
+  </div>
+
+
+</div>
+<script>window.MOCK_CUES = [0.0, 19.67, 43.45, 48.34, 68.4, 77.56, 98.84, 132.92, 180.31, 183.09, 222.49, 270.61, 309.26, 320.15, 362.63]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
