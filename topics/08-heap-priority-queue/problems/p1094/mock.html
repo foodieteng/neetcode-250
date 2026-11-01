@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1094 · Car Pooling</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1094 · Car Pooling · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>A car has <code class="chip">capacity</code> empty seats. It only drives east. You get <code class="chip">trips[i] = [numPassengers, from, to]</code>: pick up that many people at <code class="chip">from</code>, and drop them at <code class="chip">to</code>. Return <code class="chip">true</code> if you can finish every trip.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the car never turns back. So the only question is: at any point on the road, are there ever more than <code class="chip">capacity</code> people in the car?</p>
+      <p>And if one group gets off at <code class="chip num">5</code> and another gets on at <code class="chip num">5</code>, do they ever share the car?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>No. People leave at <code class="chip">to</code>, so their seats are free for anyone boarding at that same point.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. A trip covers <code class="chip">[from, to)</code> — from up to, but not including, to — half-open. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to <code class="chip num">1000</code> trips. Each trip has <code class="chip num">1 ≤ numPassengers ≤ 100</code>. From is less than to, and both are in <code class="chip num">[0, 1000]</code>. Capacity is up to <code class="chip num">10<sup>5</sup></code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. At most <code class="chip num">1000 × 100 = 100,000</code> people at once, so an <code class="chip">int</code> is fine. And positions are small: at most <code class="chip num">1000</code>.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[[2,1,5],[3,3,7]]</code> — two people from 1 to 5, and three from 3 to 7. From <code class="chip num">3</code> to <code class="chip num">5</code>, both groups ride, so that's <code class="chip num">2 + 3 = 5</code> people. With capacity <code class="chip num">4</code>, <code class="chip">false</code>. With capacity <code class="chip num">5</code>, <code class="chip">true</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> check every point on the road and sum the trips that cover it. That's O(n × 1000). It works here, but its cost grows with the road length, not with the trips.</p>
+      <p><strong>This problem reminds me of</strong> a sweep line over intervals with a min-heap of end points. Sort the trips by pick-up point. Keep a <strong>min-heap of drop-off points</strong>. Before each pick-up, pop everyone whose drop-off is at or before it. The top of the heap is always the next person to leave. That's O(n log n).</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        trips sorted by from<br>
+        pq = min-heap of {to, num}&nbsp;&nbsp;(top = next drop-off)<br>
+        passenger = people in the car now<br>
+        <br>
+        <span class="label">// for each trip (num, from, to)</span><br>
+        1. while pq.top().to &lt;= from: drop them&nbsp;&nbsp;<span class="em">← &lt;=, not &lt;</span><br>
+        2. passenger += num<br>
+        3. if passenger &gt; capacity: return false<br>
+        4. push {to, num}<br>
+        <br>
+        <span class="label">// end</span><br>
+        return true
+      </div>
+      <p>One: sort the trips by pick-up point.<br>
+      Two: at each pick-up, drop everyone whose drop-off is at or before it, then board the new group.<br>
+      Three: if the count goes over capacity, return <code class="chip">false</code>; otherwise push the drop-off and the count onto the heap.</p>
+      <p><strong>Here, I'm using</strong> the min-heap <strong>to keep track of</strong> who leaves first. I only care about the earliest drop-off, so a heap is enough.</p>
+      <p><strong>One thing worth flagging</strong> — the pop check must be <code class="chip">&lt;=</code>. People getting off at a point free their seats for people getting on at that same point. With <code class="chip">&lt;</code>, they'd still be counted, and the car looks full when it isn't.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">carPooling</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; trips, <span class="typ">int</span> capacity) {
+        <span class="com">// [numPassengersi, fromi, toi]</span>
+        <span class="fn">sort</span>(trips.<span class="fn">begin</span>(), trips.<span class="fn">end</span>(), [](<span class="kw">auto</span>&amp; t1, <span class="kw">auto</span>&amp; t2) {
+            <span class="kw">return</span> t1[<span class="num2">1</span>] &lt; t2[<span class="num2">1</span>];                           <span class="com">// sort by pick-up point</span>
+        });
+
+        <span class="com">// {to, num}</span>
+        <span class="kw">using</span> <span class="typ">P</span> = <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;;
+        <span class="typ">priority_queue</span>&lt;<span class="typ">P</span>, <span class="typ">vector</span>&lt;<span class="typ">P</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">P</span>&gt;&gt; pq;        <span class="com">// earliest exit on top</span>
+        <span class="typ">int</span> passenger = <span class="num2">0</span>;
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; t : trips) {
+            <span class="typ">int</span> num = t[<span class="num2">0</span>], from = t[<span class="num2">1</span>], to = t[<span class="num2">2</span>];
+
+            <span class="kw">while</span> (!pq.<span class="fn">empty</span>() &amp;&amp; pq.<span class="fn">top</span>().first &lt;= from) { <span class="com">// drop off first (&lt;=)</span>
+                passenger -= pq.<span class="fn">top</span>().second; pq.<span class="fn">pop</span>();
+            }
+
+            passenger += num;                               <span class="com">// then board</span>
+            <span class="kw">if</span> (passenger &gt; capacity) <span class="kw">return</span> false;
+            pq.<span class="fn">emplace</span>(to, num);
+        }
+        <span class="kw">return</span> true;
+    }
+};</pre>
+      <p>I sort by <code class="chip">t[1]</code>, the pick-up point, so I see events in road order. The heap stores <code class="chip">{to, num}</code> with <code class="chip">greater</code>, so the smallest <code class="chip">to</code> is on top.</p>
+      <p><strong>One thing worth flagging</strong> — it's a <code class="chip">while</code>, not an <code class="chip">if</code>. Several groups can leave before one pick-up. And I check capacity <strong>right after</strong> boarding. The count only goes up at a pick-up, so that's the only place it can break the limit.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> <code class="chip">trips = [[2,1,5],[3,3,7],[1,5,8],[2,7,9]]</code>, <code class="chip">capacity = 5</code>; expected <code class="chip">true</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:540px;">
+        <thead><tr><th>trip (num, from→to)</th><th>drop</th><th>after drop</th><th>board</th><th>push</th></tr></thead>
+        <tbody>
+          <tr><td>(2, 1→5)</td><td>heap empty</td><td>p=0</td><td>p=2 ok</td><td>(5,2)</td></tr>
+          <tr><td>(3, 3→7)</td><td>top 5 &gt; 3, none</td><td>p=2</td><td>p=5 = cap, ok</td><td>(7,3)</td></tr>
+          <tr class="highlight-row"><td>(1, 5→8)</td><td>(5,2): 5 ≤ 5</td><td>p=3</td><td>p=4 ok</td><td>(8,1)</td></tr>
+          <tr class="highlight-row"><td>(2, 7→9)</td><td>(7,3): 7 ≤ 7</td><td>p=1</td><td>p=3 ok</td><td>(9,2)</td></tr>
+          <tr><td>return</td><td colspan="4"><span class="answer-cell">true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The two highlighted rows are the key ones: both drops happen <strong>exactly at</strong> the pick-up point. At 5, the group of two leaves first, so one person boards into a car of 3. With <code class="chip">&lt;</code>, nobody drops at <code class="chip">from = 5</code>, the count hits <code class="chip num">5 + 1 = 6 &gt; 5</code>, and it returns <code class="chip">false</code> — wrong.</p>
+      <p>Corner cases:</p>
+      <p>• Back-to-back, <code class="chip">[[1,0,1],[1,1,2]]</code>, cap <code class="chip num">1</code> → <code class="chip">true</code>.<br>
+      • <code class="chip">if</code> instead of <code class="chip">while</code> fails when two groups leave at the same point: <code class="chip">[[1,0,1],[1,0,1],[2,1,2]]</code>, cap <code class="chip num">2</code>.<br>
+      • Skipping the sort fails when trips come out of order: <code class="chip">[[1,1,2],[1,0,1]]</code>, cap <code class="chip num">1</code>.<br>
+      • Checking <code class="chip">&gt;=</code> rejects a car that's exactly full: <code class="chip">[[1,0,1]]</code>, cap <code class="chip num">1</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(n log n). The sort is O(n log n). Each trip is pushed once and popped at most once, so the heap work is O(n log n) in total, even with the inner <code class="chip">while</code>. <strong>The space complexity is</strong> O(n), for the heap.</p>
+      <p><em class="pause">Oh, one more thing —</em> since positions are at most <code class="chip num">1000</code>, there's a <strong>difference array</strong>. Do <code class="chip">d[from] += num</code> and <code class="chip">d[to] -= num</code>, then take a prefix sum and check it never goes over <code class="chip">capacity</code>. That's <strong>O(n + 1001)</strong> time, O(1001) space, and no sort. It also gets <code class="chip">&lt;=</code> right for free: at the same point, the <code class="chip">-num</code> and <code class="chip">+num</code> land in the same cell. The heap version is the one that still works if positions were too large for an array.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You asked about <strong>same-point drop-off and pick-up</strong> up front and turned it into <code class="chip">&lt;=</code>. You used a <strong>min-heap of drop-offs</strong> and explained why the <code class="chip">while</code> is still O(n log n) overall. And you used the small position range to offer the <strong>O(n + 1001) difference array</strong>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.97, 35.92, 42.03, 50.18, 62.87, 87.61, 121.28, 164.09, 166.75, 192.42, 238.45, 284.42]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1834 · Single-Threaded CPU</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1834 · Single-Threaded CPU · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have <code class="chip">n</code> tasks, labeled 0 to n − 1. Each task is <code class="chip">tasks[i] = [enqueueTime, processingTime]</code>: task i becomes available at its enqueue time and takes its processing time to finish. A single-threaded CPU runs one task at a time. If it's idle and nothing is available, it stays idle. If it's idle and tasks are available, it picks the one with the shortest processing time, and on a tie, the smallest index. Once it starts a task, it runs it to the end, and it can start the next one right away. Return the order the CPU processes the tasks.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the CPU only makes a choice when it becomes free. So a short task that arrives in the middle of a long task has to wait. It can't cut in. Right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right. No preemption.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>And a task that arrives at the exact moment the CPU becomes free counts as available? So "available" means enqueue time <code class="chip">&lt;=</code> current time?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, it can be picked at that moment.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip num">1 &lt;= n &lt;= 10<sup>5</sup></code>. Both times are between 1 and <code class="chip num">10<sup>9</sup></code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK, two things jump out. First, n is up to 10<sup>5</sup>, so I need about O(n log n). Second, the <strong>total</strong> time can reach <code class="chip num">10<sup>5</sup> × 10<sup>9</sup> = 10<sup>14</sup></code>. That doesn't fit in an <code class="chip">int</code>, so my clock has to be a <code class="chip">long long</code>.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[[1,2],[2,4],[3,2],[4,1]]</code>. Task 0 runs alone from 1 to 3. The real decision is at 3: tasks 1 and 2 are both waiting, and the shorter task 2 wins. Task 3 arrives meanwhile and is the shortest, then task 1. So the answer is <code class="chip">[0,2,3,1]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> simulate, and each time the CPU is free, scan all the tasks that have arrived and aren't done, and pick the best one. That's correct, but it's O(n) per pick, so O(n<sup>2</sup>) in total. With 10<sup>5</sup> tasks, that's around 10<sup>10</sup>. Too slow.</p>
+      <p><strong>This problem reminds me of</strong> an event-driven simulation with a heap. Two parts:</p>
+      <p>• Tasks <strong>arrive</strong> in enqueue-time order, so I sort the indices by enqueue time and walk them with one pointer.<br>
+      • Among the tasks that have arrived, I need the <strong>best</strong> one quickly — that's a min-heap keyed by <code class="chip">(processing time, index)</code>.</p>
+      <p>Each task goes into the heap once and comes out once, so this is O(n log n).</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        arr = indices sorted by enqueue time<br>
+        i&nbsp;&nbsp;&nbsp;= next task in arr that hasn't arrived yet<br>
+        pq&nbsp;&nbsp;= min-heap of (proc, index)&nbsp;&nbsp;<span class="em">← arrived, not run</span><br>
+        t&nbsp;&nbsp;&nbsp;= current time (long long)<br>
+        <br>
+        <span class="label">// loop while tasks are left</span><br>
+        if pq is empty: t = max(t, enqueue of arr[i])&nbsp;&nbsp;<span class="em">← jump</span><br>
+        push every arr[i] with enqueue &lt;= t<br>
+        pop the best → run it: t += proc, add to ans
+      </div>
+      <p>One: sort the indices by enqueue time.<br>
+      Two: if the heap is empty, jump the clock to the next arrival, then push every task that has arrived.<br>
+      Three: pop the best task, run it, and add its time to the clock.</p>
+      <p><strong>One thing worth flagging</strong> — the heap key needs <strong>both</strong> parts. Processing time first: shorter wins. Index second: a heap is not stable, so I can't rely on push order to break ties; it has to be in the comparator.</p>
+      <p>And the idle jump must be a <code class="chip">max</code>. The clock must <strong>never go backwards</strong>.</p>
+      <p><strong>There's a trade-off here.</strong> I could tick the clock one step at a time. Same answer, but a gap of <code class="chip num">10<sup>9</sup></code> would mean 10<sup>9</sup> loop steps. The jump takes one.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">getOrder</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; tasks) {
+        <span class="typ">int</span> n = tasks.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; arr(n);
+        <span class="fn">iota</span>(arr.<span class="fn">begin</span>(), arr.<span class="fn">end</span>(), <span class="num2">0</span>);
+        <span class="fn">sort</span>(arr.<span class="fn">begin</span>(), arr.<span class="fn">end</span>(), [&amp;](<span class="typ">int</span> a, <span class="typ">int</span> b) {
+            <span class="kw">return</span> tasks[a][<span class="num2">0</span>] &lt; tasks[b][<span class="num2">0</span>];             <span class="com">// sort by arrival</span>
+        });
+
+        <span class="kw">auto</span> cmp = [&amp;](<span class="typ">int</span> a, <span class="typ">int</span> b) {                    <span class="com">// ① int params</span>
+            <span class="kw">if</span> (tasks[a][<span class="num2">1</span>] != tasks[b][<span class="num2">1</span>]) <span class="kw">return</span> tasks[a][<span class="num2">1</span>] &gt; tasks[b][<span class="num2">1</span>];
+            <span class="kw">return</span> a &gt; b;                                 <span class="com">// ③ tie: smaller index</span>
+        };
+        <span class="typ">priority_queue</span>&lt;<span class="typ">int</span>, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;, <span class="kw">decltype</span>(cmp)&gt; pq(cmp);
+
+        <span class="typ">long long</span> t = <span class="num2">0</span>;                                  <span class="com">// ④ up to ~10¹⁴</span>
+        <span class="typ">int</span> i = <span class="num2">0</span>;
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; ans;
+
+        <span class="kw">while</span> (i &lt; n || !pq.<span class="fn">empty</span>()) {
+            <span class="kw">if</span> (pq.<span class="fn">empty</span>()) {
+                t = <span class="fn">max</span>(t, (<span class="typ">long long</span>)tasks[arr[i]][<span class="num2">0</span>]);  <span class="com">// ② jump forward only</span>
+            }
+            <span class="kw">while</span> (i &lt; n &amp;&amp; t &gt;= tasks[arr[i]][<span class="num2">0</span>]) {
+                pq.<span class="fn">push</span>(arr[i]); i++;                     <span class="com">// push all arrived</span>
+            }
+            <span class="typ">int</span> idx = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();                 <span class="com">// heap non-empty here</span>
+            t += tasks[idx][<span class="num2">1</span>];
+            ans.<span class="fn">push_back</span>(idx);
+        }
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p>The heap stores <strong>indices</strong>, not copies of the tasks, and the comparator looks the task up through the <code class="chip">[&amp;]</code> capture. In a <code class="chip">priority_queue</code>, a "greater" comparator puts the <strong>smallest</strong> on top. So <code class="chip">&gt;</code> on processing time, then <code class="chip">a &gt; b</code> on the index, gives shortest first, then smallest index.</p>
+      <p><strong>One thing worth flagging</strong> — the inner <code class="chip">while</code> uses <code class="chip">t &gt;= enqueue</code>, not <code class="chip">&gt;</code>. Right after the idle jump, <code class="chip">t</code> equals the next enqueue time exactly. With a strict <code class="chip">&gt;</code>, nothing gets pushed, and <code class="chip">pq.top()</code> runs on an empty heap. That breaks on every input.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Example 1, <code class="chip">[[1,2],[2,4],[3,2],[4,1]]</code>: <code class="chip">arr</code> is already <code class="chip">[0,1,2,3]</code>, and I expect <code class="chip">[0,2,3,1]</code>. Heap entries are <code class="chip">(proc, index)</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>step</th><th>t / push</th><th>heap (top first)</th><th>run</th><th>t after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>idle: 0 → 1, push 0</td><td>(2,0)</td><td>0</td><td>3</td></tr>
+          <tr class="highlight-row"><td>2</td><td>t=3, push 1, 2</td><td>(2,2) (4,1)</td><td>2</td><td>5</td></tr>
+          <tr><td>3</td><td>t=5, push 3</td><td>(1,3) (4,1)</td><td>3</td><td>6</td></tr>
+          <tr><td>4</td><td>t=6, nothing left</td><td>(4,1)</td><td>1</td><td>10</td></tr>
+          <tr><td>result</td><td colspan="4"><span class="answer-cell">[0,2,3,1]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The highlighted row is the key one. Task 0 ends at 3. By then tasks 1 and 2 have <strong>both</strong> arrived, so they compete, and the shorter task 2 wins. Then task 3 arrives while task 2 runs, and it beats task 1 too. That matches.</p>
+      <p>Example 2, <code class="chip">[[7,10],[7,12],[7,5],[7,4],[7,2]]</code>: all five arrive at 7, so they pop by length, giving <code class="chip">[4,3,2,0,1]</code>.</p>
+      <p>Corner cases:</p>
+      <p>• A single task, <code class="chip">[[5,3]]</code> → <code class="chip">[0]</code>.<br>
+      • Ties, <code class="chip">[[1,1],[2,1],[1,1]]</code> → <code class="chip">[0,1,2]</code>, because index breaks the tie.<br>
+      • A huge idle gap, <code class="chip">[[1,1],[10<sup>9</sup>,1]]</code>, jumps the clock in one step.<br>
+      • Without the <code class="chip">max</code>, Example 1 sends the clock back from 3 to 2, task 2 never competes, and I'd get <code class="chip">[0,1,2,3]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(n log n). The sort is O(n log n), and each task is pushed once and popped once, at O(log n) each. The outer loop runs exactly n times, because every pass pops one task, so empty time costs nothing. <strong>The space complexity is</strong> O(n), for <code class="chip">arr</code>, the heap, and the answer.</p>
+      <p><strong>In the worst-case scenario</strong> all tasks arrive at time 1, so the heap holds all <code class="chip num">10<sup>5</sup></code> at once — that runs in about 43 ms, and a random input in about 60 ms.</p>
+      <p>One note on the clock: an <code class="chip">int</code> would overflow, and the sanitizer flags it, yet the output never changes. To overflow, <code class="chip">t</code> must pass about <code class="chip num">1.147 · 10<sup>9</sup></code>, and by then every task is already in the heap. It's still undefined behavior, so it's a <code class="chip">long long</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why not just tick the clock forward by one (<code class="chip">t++</code>) while the CPU is idle? It's simpler.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>It's correct, but the cost depends on the <strong>values</strong>, not on n. For two tasks, <code class="chip">[[1,1],[10<sup>9</sup>,1]]</code>, ticking takes <code class="chip num">1,000,000,001</code> loop steps, about 552 ms. The jump takes 2 steps. Since times reach 10<sup>9</sup>, ticking is a real time-limit risk.</p>
+      <p><em class="pause">Oh, one more thing —</em> the <code class="chip">max</code> in the jump is what makes the jump safe. The jump only moves the clock <strong>forward</strong> when the CPU is idle. If the CPU just finished late, the clock stays where it is. Without that one <code class="chip">max</code>, <code class="chip num">6,372</code> of the <code class="chip num">66,429</code> small test inputs come out wrong.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You showed the <code class="chip">max</code> in the idle jump is a correctness fix, with the Example 1 trace where the clock goes back from 3 to 2 and task 2 never competes. You put the index tie-break in the comparator, because a heap isn't stable. And you explained why the <code class="chip">int</code> clock never changed the output, but is still undefined behavior, so you used <code class="chip">long long</code>. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 37.34, 53.8, 56.65, 66.65, 69.59, 72.71, 78.73, 116.76, 161.42, 211.09, 213.77, 254.76, 311.63, 364.12, 369.87, 407.83]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

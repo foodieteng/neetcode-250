@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 295 · Find Median from Data Stream</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 295 · Find Median from Data Stream · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Build a class with two calls. <code class="chip">addNum(num)</code> adds a number from a stream. <code class="chip">findMedian()</code> returns the median of everything added so far. If the count is even, the median is the average of the two middle values.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> numbers come one at a time, and I can be asked for the median at any point. So I never see the whole list up front. Is that right?</p>
+      <p>And the key thing: I don't need the list sorted. I only need the <strong>one or two middle values</strong>. If I split the numbers into a smaller half and a bigger half, the median is just the top of one half, or the average of both tops.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, that's right. And duplicates are allowed.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Will <code class="chip">findMedian</code> ever be called on an empty stream? <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Values are in <code class="chip num">[-10<sup>5</sup>, 10<sup>5</sup>]</code>. At most <code class="chip num">5 · 10<sup>4</sup></code> calls in total. <code class="chip">findMedian</code> is only called after at least one <code class="chip">addNum</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. So two values add up to at most <code class="chip num">200,000</code> in size. That fits in an <code class="chip">int</code>, but I'll still be careful when I average them.</p>
+      <p><strong>Let me run through the example.</strong> Add <code class="chip num">1</code>, add <code class="chip num">2</code>: the median is <code class="chip num">(1 + 2) / 2 = 1.5</code>. Add <code class="chip num">3</code>: now it's <code class="chip">[1, 2, 3]</code>, so the median is <code class="chip num">2.0</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> keep a vector, and sort a copy on every <code class="chip">findMedian</code>. That's O(n log n) per query — at <code class="chip num">5 · 10<sup>4</sup></code> calls it takes over a minute. Way too slow.</p>
+      <p>A better naive way keeps the vector sorted and inserts in place. Finding the spot is O(log n), but shifting is O(n), so it's quadratic overall and won't scale.</p>
+      <p><strong>This problem reminds me of</strong> the classic <strong>two heaps</strong> pattern. A max-heap holds the smaller half, so its top is the biggest of the small numbers. A min-heap holds the bigger half, so its top is the smallest of the big numbers. Those two tops are exactly the middle. Each add is O(log n), and each median is O(1).</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        maxHeap = smaller half&nbsp;&nbsp;(top = largest small)<br>
+        minHeap = bigger half&nbsp;&nbsp;&nbsp;(top = smallest big)<br>
+        <br>
+        <span class="label">// invariant after every addNum</span><br>
+        1. size:&nbsp;&nbsp;max == min&nbsp;&nbsp;or&nbsp;&nbsp;max == min + 1<br>
+        2. order: maxHeap.top() &lt;= minHeap.top()<br>
+        <br>
+        <span class="label">// findMedian</span><br>
+        odd count&nbsp;&nbsp;→ maxHeap.top()<br>
+        even count → (maxHeap.top() + minHeap.top()) / 2&nbsp;&nbsp;<span class="em">← cast first</span>
+      </div>
+      <p>One: a max-heap for the smaller half, a min-heap for the bigger half.<br>
+      Two: after every add, the max-heap has the same size or one more, and its top is no bigger than the min-heap's top.<br>
+      Three: odd count, return the max-heap top; even count, average both tops, casting first.</p>
+      <p><strong>One thing worth flagging</strong> — there are two rules, not one. A big number in the small half keeps the sizes fine but breaks the tops. So every add must fix both size <em>and</em> order.</p>
+      <p><strong>There's a trade-off here.</strong> I can pick the heap by size and then fix the order, or always route the number through both heaps. The first usually does less work; the second is shorter and easier to prove. I'll write mine first, then the clean one.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. <strong>Mine</strong> picks the heap by size, then fixes the order with one swap.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MedianFinder</span> {
+<span class="kw">public</span>:
+    <span class="typ">priority_queue</span>&lt;<span class="typ">int</span>&gt; mxH;                              <span class="com">// smaller half</span>
+    <span class="typ">priority_queue</span>&lt;<span class="typ">int</span>, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">int</span>&gt;&gt; miH;   <span class="com">// bigger half</span>
+
+    <span class="typ">MedianFinder</span>() {
+
+    }
+
+    <span class="typ">void</span> <span class="fn">addNum</span>(<span class="typ">int</span> num) {
+        <span class="kw">if</span> (mxH.<span class="fn">size</span>() &lt;= miH.<span class="fn">size</span>()) {                   <span class="com">// size first</span>
+            mxH.<span class="fn">push</span>(num);
+        } <span class="kw">else</span> {
+            miH.<span class="fn">push</span>(num);
+        }
+
+        <span class="kw">if</span> (!miH.<span class="fn">empty</span>() &amp;&amp; mxH.<span class="fn">top</span>() &gt; miH.<span class="fn">top</span>()) {      <span class="com">// then fix order</span>
+            <span class="kw">auto</span> a = miH.<span class="fn">top</span>(); miH.<span class="fn">pop</span>();
+            <span class="kw">auto</span> b = mxH.<span class="fn">top</span>(); mxH.<span class="fn">pop</span>();
+            mxH.<span class="fn">push</span>(a); miH.<span class="fn">push</span>(b);                     <span class="com">// size unchanged</span>
+        }
+    }
+
+    <span class="typ">double</span> <span class="fn">findMedian</span>() {
+        <span class="kw">if</span> (mxH.<span class="fn">size</span>() &gt; miH.<span class="fn">size</span>()) {
+            <span class="kw">return</span> (<span class="typ">double</span>)(mxH.<span class="fn">top</span>());
+        }
+
+        <span class="kw">return</span> <span class="typ">double</span>(mxH.<span class="fn">top</span>() + miH.<span class="fn">top</span>()) / <span class="num2">2.0</span>;       <span class="com">// int add first</span>
+    }
+};</pre>
+      <p>Ties go to <code class="chip">mxH</code>, because of <code class="chip">&lt;=</code>, so it's always the same size or one bigger — that's why the odd case reads <code class="chip">mxH.top()</code>.</p>
+      <p><strong>One thing worth flagging</strong> — why is <strong>one swap</strong> enough? Before this add, both rules held. Only the new number can be in the wrong half, and the swap moves one value each way, so <strong>the sizes stay the same</strong> and the order holds again. No loop needed.</p>
+      <p>Also, the <code class="chip">!miH.empty()</code> check is required: on the very first add <code class="chip">miH</code> is empty, and calling <code class="chip">top()</code> on it is undefined behavior.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Works. Can you make it shorter?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Clean</strong> always pushes into the small half, passes its top to the big half, then rebalances by size.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">MedianFinder</span> {
+    <span class="typ">priority_queue</span>&lt;<span class="typ">int</span>&gt; lo;                               <span class="com">// smaller half</span>
+    <span class="typ">priority_queue</span>&lt;<span class="typ">int</span>, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">int</span>&gt;&gt; hi;    <span class="com">// bigger half</span>
+
+<span class="kw">public</span>:
+    <span class="typ">void</span> <span class="fn">addNum</span>(<span class="typ">int</span> num) {
+        lo.<span class="fn">push</span>(num);                                     <span class="com">// ① into lo first</span>
+        hi.<span class="fn">push</span>(lo.<span class="fn">top</span>()); lo.<span class="fn">pop</span>();                      <span class="com">// ② lo's max to hi → order</span>
+        <span class="kw">if</span> (hi.<span class="fn">size</span>() &gt; lo.<span class="fn">size</span>()) {                      <span class="com">// ③ hi bigger → send back → size</span>
+            lo.<span class="fn">push</span>(hi.<span class="fn">top</span>()); hi.<span class="fn">pop</span>();
+        }
+    }
+
+    <span class="typ">double</span> <span class="fn">findMedian</span>() {
+        <span class="kw">if</span> (lo.<span class="fn">size</span>() &gt; hi.<span class="fn">size</span>()) <span class="kw">return</span> lo.<span class="fn">top</span>();
+        <span class="kw">return</span> (lo.<span class="fn">top</span>() + (<span class="typ">double</span>)hi.<span class="fn">top</span>()) / <span class="num2">2.0</span>;       <span class="com">// cast to double first</span>
+    }
+};</pre>
+      <p><em class="pause">Let me walk through that.</em> After <code class="chip">lo.push(num)</code>, the top of <code class="chip">lo</code> is the biggest of the small side plus the new number, so moving it to <code class="chip">hi</code> keeps the order rule for free. Then, if <code class="chip">hi</code> got bigger, I move its smallest back. Both rules hold with no comparison at all.</p>
+      <p><strong>One thing worth flagging</strong> — the cast. Here I turn one top into a <code class="chip">double</code> <strong>before</strong> the add. If I add two ints first and cast after, that's safe with this problem's range, but <code class="chip">INT_MAX + INT_MAX</code> would overflow to <code class="chip num">-1.0</code>. Casting first gives the right answer.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Stream <code class="chip num">5 2 8 9 1 4</code>; expected medians <code class="chip num">5, 3.5, 5, 6.5, 5, 4.5</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>op</th><th>pushed to</th><th>swap</th><th>heaps after</th><th>median</th></tr></thead>
+        <tbody>
+          <tr><td>add 5</td><td>mxH</td><td>—</td><td>mx[5] mi[]</td><td><span class="answer-cell">5.0</span></td></tr>
+          <tr><td>add 2</td><td>miH</td><td>5 ↔ 2</td><td>mx[2] mi[5]</td><td><span class="answer-cell">3.5</span></td></tr>
+          <tr><td>add 8</td><td>mxH</td><td>8 ↔ 5</td><td>mx[5,2] mi[8]</td><td><span class="answer-cell">5.0</span></td></tr>
+          <tr><td>add 9</td><td>miH</td><td>—</td><td>mx[5,2] mi[8,9]</td><td><span class="answer-cell">6.5</span></td></tr>
+          <tr><td>add 1</td><td>mxH</td><td>—</td><td>mx[5,2,1] mi[8,9]</td><td><span class="answer-cell">5.0</span></td></tr>
+          <tr class="highlight-row"><td>add 4</td><td>miH</td><td>5 ↔ 4</td><td>mx[4,2,1] mi[5,8,9]</td><td><span class="answer-cell">4.5</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>In Mine, the last row is the key one. <code class="chip num">4</code> goes to <code class="chip">miH</code>, but now <code class="chip">mxH.top()</code> is <code class="chip num">5</code> and <code class="chip">miH.top()</code> is <code class="chip num">4</code> — out of order. One swap moves <code class="chip num">5</code> up and <code class="chip num">4</code> down, sizes stay 3 and 3, and the median is <code class="chip num">(4 + 5) / 2 = 4.5</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>op</th><th>move</th><th>rebalance</th><th>heaps after</th><th>median</th></tr></thead>
+        <tbody>
+          <tr><td>add 5</td><td>5 lo→hi</td><td>5 hi→lo</td><td>lo[5] hi[]</td><td><span class="answer-cell">5.0</span></td></tr>
+          <tr><td>add 2</td><td>5 lo→hi</td><td>—</td><td>lo[2] hi[5]</td><td><span class="answer-cell">3.5</span></td></tr>
+          <tr class="highlight-row"><td>add 8</td><td>8 lo→hi</td><td>5 hi→lo</td><td>lo[5,2] hi[8]</td><td><span class="answer-cell">5.0</span></td></tr>
+          <tr><td>add 9</td><td>9 lo→hi</td><td>—</td><td>lo[5,2] hi[8,9]</td><td><span class="answer-cell">6.5</span></td></tr>
+          <tr><td>add 1</td><td>5 lo→hi</td><td>5 hi→lo</td><td>lo[5,2,1] hi[8,9]</td><td><span class="answer-cell">5.0</span></td></tr>
+          <tr><td>add 4</td><td>5 lo→hi</td><td>—</td><td>lo[4,2,1] hi[5,8,9]</td><td><span class="answer-cell">4.5</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>In Clean, look at <code class="chip">add 8</code>: it goes into <code class="chip">lo</code>, straight up to <code class="chip">hi</code>, and since <code class="chip">hi</code> now has 2 and <code class="chip">lo</code> 1, <code class="chip num">5</code> comes back down. Same medians, every step.</p>
+      <p>Corner cases:</p>
+      <p>• Integer division turns <code class="chip">[2,1]</code> into <code class="chip num">1.0</code> instead of <code class="chip num">1.5</code>.<br>
+      • With no swap, <code class="chip">[2,1]</code> passes by luck, but <code class="chip">[2,1,1]</code> gives <code class="chip num">2.0</code> instead of <code class="chip num">1.0</code>.<br>
+      • <code class="chip">&gt;=</code> in the swap check is harmless.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(log n) per <code class="chip">addNum</code>, since each one does a constant number of heap pushes and pops. <code class="chip">findMedian</code> is O(1); it only reads tops. <strong>The space complexity is</strong> O(n) — every number is stored once.</p>
+      <p><strong>In the worst-case scenario</strong> the constants differ. Over <code class="chip num">5 · 10<sup>4</sup></code> adds, Clean always does <code class="chip num">125,000</code> pushes. Mine does about <code class="chip num">100,000</code> on random or sorted input, but a stream that alternates big and small forces a swap on every add — about <code class="chip num">150,000</code>.</p>
+      <p><em class="pause">Oh, one more thing —</em> if all numbers were in <code class="chip num">[0, 100]</code>, I'd skip heaps and keep a counting array <code class="chip">cnt[101]</code>, then walk it to find the middle.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You named <strong>two invariants</strong>, size and order, and showed why size alone isn't enough. You proved <strong>one swap is enough</strong>, because sizes stay the same and only the new number can be misplaced. And you caught the <strong>overflow in the average</strong>, casting before the add. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.79, 42.92, 46.85, 53.21, 64.67, 86.27, 129.68, 179.4, 182.06, 219.95, 222.89, 261.72, 311.25, 355.36]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
