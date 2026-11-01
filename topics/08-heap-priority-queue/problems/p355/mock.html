@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 355 · Design Twitter</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.hb { display: inline-block; min-width: 20px; white-space: nowrap; text-align: center; padding: 0 4px; margin-right: 3px;
+  border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2); }
+.hb.top { border-color: var(--candidate); color: var(--candidate); font-weight: 600; }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 56px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  table.trace th, table.trace td { padding: 6px 7px; }
+}
+table.trace td { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 355 · Design Twitter · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design a simple version of Twitter. Users can post tweets, follow and unfollow other users, and see the 10 most recent tweets in their news feed. You need <code class="chip">postTweet(userId, tweetId)</code>, <code class="chip">getNewsFeed(userId)</code>, <code class="chip">follow(followerId, followeeId)</code>, and <code class="chip">unfollow(followerId, followeeId)</code>. The feed holds tweets from people the user follows, and from the user themself, from most recent to least recent.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> "most recent" means the order the tweets were posted, right? Not the size of the tweet ID?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right. Post order. Tweet IDs are unique, but they're not in time order.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good. Then I need my own clock. I'll keep one global counter and stamp every tweet with it. If I used the tweet ID as the time, <code class="chip">post(1,2)</code>, <code class="chip">post(1,1)</code> would give <code class="chip">[2,1]</code>, but the right feed is <code class="chip">[1,2]</code>.</p>
+      <p>Two more questions. What if a user follows themself? And what if they unfollow someone they don't follow?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Treat both as no-ops. A user's own tweets are always in their feed anyway.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. That matters. My own tweets are always added, so if I also end up in my own follow set, every tweet of mine shows up <strong>twice</strong>. I'll guard against that. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>User IDs are from 1 to 500. <code class="chip">0 &lt;= tweetId &lt;= 10^4</code>, all unique. At most <code class="chip num">3 · 10^4</code> calls in total.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> User 1 posts tweet 5, so the feed of user 1 is <code class="chip">[5]</code>. User 1 follows user 2, and user 2 posts tweet 6. Now the feed is <code class="chip">[6,5]</code> — 6 is newer, so it comes first. Then user 1 unfollows user 2, and the feed goes back to <code class="chip">[5]</code>. That matches <code class="chip">[null,null,[5],null,null,[6,5],null,[5]]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would be to</strong> keep one global list of all tweets. For a feed, I filter it down to me and the people I follow, sort by time, and take the first 10. It's correct, but every feed call touches every tweet ever posted, and sorts them.</p>
+      <p><strong>This problem reminds me of</strong> the top-k pattern. I only need the 10 newest, so I don't sort everything. I keep a <strong>min-heap of size 10</strong>, keyed by time. The top is the oldest of the 10 I'm keeping, so when a newer tweet pushes the heap over 10, I pop the top and throw away the oldest.</p>
+      <p>It's also a merge of sorted lists, since each person's tweets are already sorted by time. I'll come back to that when we talk about cost.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        followG[u] = set of users u follows&nbsp;&nbsp;<span class="em">← never u itself</span><br>
+        tweets[u]&nbsp;&nbsp;= list of (time, tweetId), oldest first<br>
+        ts&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= global clock, ++ on every post<br>
+        <br>
+        <span class="label">// getNewsFeed(u)</span><br>
+        pq = min-heap by time<br>
+        for each tweet of u and of everyone in followG[u]:<br>
+        &nbsp;&nbsp;push it; if size &gt; 10 → pop&nbsp;&nbsp;<span class="em">← drops the oldest</span><br>
+        pop all into ans&nbsp;&nbsp;<span class="label">// comes out oldest first</span><br>
+        reverse(ans)&nbsp;&nbsp;<span class="em">← newest first</span>
+      </div>
+      <p>One: a hash map of sets for who follows whom, so <code class="chip">follow</code> and <code class="chip">unfollow</code> are O(1) and a repeated follow can't add a duplicate.<br>
+      Two: each user's tweets as <code class="chip">(time, tweetId)</code> pairs from a global clock.<br>
+      Three: for a feed, push my tweets and every followee's tweets into a min-heap, pop when it goes over 10, then pop everything and reverse.</p>
+      <p><strong>One thing worth flagging</strong> — the heap direction. A <strong>min</strong>-heap throws out the oldest, so the 10 newest stay. A <strong>max</strong>-heap with the same pop throws out the newest: with 12 posts, it keeps tweets 1 to 10 instead of 12 down to 3. Side effect: a min-heap pops oldest first, so I have to reverse at the end.</p>
+      <p><strong>There's a trade-off here:</strong> it pushes <strong>every</strong> old tweet. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Twitter</span> {
+<span class="kw">public</span>:
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">unordered_set</span>&lt;<span class="typ">int</span>&gt;&gt; followG;          <span class="com">// who follows whom</span>
+    <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt;&gt; tweets;    <span class="com">// user → (time, tweetId)</span>
+    <span class="typ">int</span> ts = <span class="num2">0</span>;                                            <span class="com">// global timestamp</span>
+
+    <span class="fn">Twitter</span>() {
+
+    }
+
+    <span class="typ">void</span> <span class="fn">postTweet</span>(<span class="typ">int</span> userId, <span class="typ">int</span> tweetId) {
+        tweets[userId].<span class="fn">push_back</span>({++ts, tweetId});
+    }
+
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">getNewsFeed</span>(<span class="typ">int</span> userId) {
+        <span class="kw">auto</span> cmp = [&amp;](<span class="kw">const</span> <span class="kw">auto</span>&amp; p1, <span class="kw">const</span> <span class="kw">auto</span>&amp; p2) {
+            <span class="kw">return</span> p1.first &gt; p2.first;                    <span class="com">// min-heap: top = oldest</span>
+        };
+
+        <span class="typ">priority_queue</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;, <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt;, <span class="kw">decltype</span>(cmp)&gt; pq(cmp);
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [ts, tweetId] : tweets[userId]) {
+            pq.<span class="fn">push</span>({ts, tweetId});
+            <span class="kw">if</span> (pq.<span class="fn">size</span>() &gt; <span class="num2">10</span>) pq.<span class="fn">pop</span>();               <span class="com">// drop the oldest</span>
+        }
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; followeeId : followG[userId]) {
+            <span class="kw">for</span> (<span class="kw">auto</span>&amp; [ts, tweetId] : tweets[followeeId]) {
+                pq.<span class="fn">push</span>({ts, tweetId});
+                <span class="kw">if</span> (pq.<span class="fn">size</span>() &gt; <span class="num2">10</span>) pq.<span class="fn">pop</span>();
+            }
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; ans;
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            ans.<span class="fn">push_back</span>(pq.<span class="fn">top</span>().second); pq.<span class="fn">pop</span>();   <span class="com">// old → new</span>
+        }
+        <span class="fn">reverse</span>(ans.<span class="fn">begin</span>(), ans.<span class="fn">end</span>());                   <span class="com">// new → old</span>
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">follow</span>(<span class="typ">int</span> followerId, <span class="typ">int</span> followeeId) {
+        <span class="kw">if</span> (followerId == followeeId) <span class="kw">return</span>;              <span class="com">// own tweets are already added</span>
+        followG[followerId].<span class="fn">insert</span>(followeeId);
+    }
+
+    <span class="typ">void</span> <span class="fn">unfollow</span>(<span class="typ">int</span> followerId, <span class="typ">int</span> followeeId) {
+        <span class="kw">if</span> (followerId == followeeId) <span class="kw">return</span>;
+        followG[followerId].<span class="fn">erase</span>(followeeId);
+    }
+};</pre>
+      <p><code class="chip">postTweet</code> stamps the tweet with <code class="chip">++ts</code>, so every stamp is unique. The comparator returns <code class="chip">p1.first &gt; p2.first</code>, which in a <code class="chip">priority_queue</code> means a <strong>min</strong>-heap, so the oldest time sits on top. The feed pushes my tweets, then each followee's, popping past 10, then drains and reverses.</p>
+      <p><strong>One thing worth flagging</strong> — the guard in <code class="chip">follow</code> is a correctness fix, not a nice-to-have. Without it, <code class="chip">follow(1,1)</code>, <code class="chip">post(1,1)</code>, <code class="chip">feed(1)</code> gives <code class="chip">[1,1]</code>: the first loop adds my tweet, and the followee loop adds it again. The guard in <code class="chip">unfollow</code> is harmless either way, since I can never be in my own set.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with the official example.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;">
+        <thead><tr><th>call</th><th>state after (time, id)</th><th>heap → ans</th><th>returns</th></tr></thead>
+        <tbody>
+          <tr><td>postTweet(1,5)</td><td>ts=1, tweets[1]=[(1,5)]</td><td>—</td><td>null</td></tr>
+          <tr><td>getNewsFeed(1)</td><td>followG[1]={ }</td><td>[(1,5)] → [5]</td><td><span class="answer-cell">[5]</span></td></tr>
+          <tr><td>follow(1,2)</td><td>followG[1]={2}</td><td>—</td><td>null</td></tr>
+          <tr><td>postTweet(2,6)</td><td>ts=2, tweets[2]=[(2,6)]</td><td>—</td><td>null</td></tr>
+          <tr class="highlight-row"><td>getNewsFeed(1)</td><td>self (1,5), then (2,6)</td><td>pop: 5, 6 → reverse</td><td><span class="answer-cell">[6,5]</span></td></tr>
+          <tr><td>unfollow(1,2)</td><td>followG[1]={ }</td><td>—</td><td>null</td></tr>
+          <tr><td>getNewsFeed(1)</td><td>self only</td><td>[(1,5)] → [5]</td><td><span class="answer-cell">[5]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The key row is the second feed: my own tweet 5 has time 1, and 6 has time 2. The min-heap pops 5 first since it's older, so <code class="chip">ans</code> is <code class="chip">[5,6]</code> before the reverse, and <code class="chip">[6,5]</code> after. That matches.</p>
+      <p>The example never has more than 10 tweets, so it doesn't test eviction. If user 1 posts twelve tweets, 101 to 112:</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:420px;">
+        <thead><tr><th>push</th><th>heap (top = oldest)</th><th>pop</th></tr></thead>
+        <tbody>
+          <tr><td>t=1 … t=10</td><td><span class="hb top">1</span><span class="hb">2</span><span class="hb">3</span> … <span class="hb">10</span></td><td>— (size 10)</td></tr>
+          <tr class="highlight-row"><td>t=11</td><td><span class="hb top">2</span><span class="hb">3</span> … <span class="hb">11</span></td><td>(1,101)</td></tr>
+          <tr><td>t=12</td><td><span class="hb top">3</span><span class="hb">4</span> … <span class="hb">12</span></td><td>(2,102)</td></tr>
+          <tr><td>drain</td><td colspan="2">[103, 104, …, 112] → reverse</td></tr>
+          <tr><td>result</td><td colspan="2"><span class="answer-cell">[112, 111, …, 103]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Each time the heap hits 11, the oldest is on top and gets dropped, so the 10 newest survive.</p>
+      <p><strong>Corner cases:</strong></p>
+      <p>• No tweets and no follows → <code class="chip">[]</code>.<br>
+      • Self-follow is a no-op → <code class="chip">[1]</code>, not <code class="chip">[1,1]</code>.<br>
+      • Out-of-order IDs, <code class="chip">post(1,2)</code>, <code class="chip">post(1,1)</code> → <code class="chip">[1,2]</code>: the clock decides.<br>
+      • Exactly 10 tweets: nothing is popped.</p>
+      <p>And against the brute force — 752,080 random feeds, 37,644 large-session feeds, and 271,452 exhaustive sequences — <strong>0 mismatches</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> O(1) average for <code class="chip">postTweet</code>, <code class="chip">follow</code>, and <code class="chip">unfollow</code>. A feed is O(T · log 10), where T is the total number of tweets of the user and everyone they follow; the heap never holds more than 11 items.</p>
+      <p><strong>The space complexity is</strong> O(total tweets + total follow edges), plus O(10) for the heap per feed call.</p>
+      <p><strong>In the worst-case scenario,</strong> T is every tweet in the system. The log is small, but T is not.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>What if a user follows hundreds of people with long histories?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>That's exactly the weak spot. Within the constraints: user 1 follows 499 users, there are 10,001 posts round-robin, then 19,500 calls to <code class="chip">feed(1)</code>. That's 19,500 × 10,001 = <code class="chip num">195,019,500</code> heap pushes, and my code takes about <strong>2.4 to 2.6 s</strong>.</p>
+      <p>The fix uses the fact that each list is already sorted by time: only the last 10 tweets of any one person can ever make the feed.</p>
+      <div class="insight-box">
+        <span class="label">// optimized feed</span><br>
+        for each person p (me + followees):<br>
+        &nbsp;&nbsp;walk tweets[p] <span class="em">backwards</span>, at most 10<br>
+        &nbsp;&nbsp;stop early if older than the heap's oldest (size 10)
+      </div>
+      <p>That takes about <strong>59 to 69 ms</strong>, with identical output.</p>
+      <p>The classic version is a <strong>k-way merge</strong>: one pointer per person in a max-heap, pop 10 times, about O(F + 10 log F) per feed.</p>
+      <p><em class="pause">Oh, one more thing —</em> <code class="chip">operator[]</code> on an <code class="chip">unordered_map</code> creates empty entries; <code class="chip">find()</code> avoids that.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You picked a size-10 <strong>min</strong>-heap and explained why a max-heap keeps the wrong 10, and why the answer then needs a reverse. You showed the self-follow guard is a correctness fix, with the <code class="chip">[1,1]</code> duplicate, and you used your own clock instead of tweet IDs. And when I pushed on scale, you measured 2.5 s against 60 ms, and gave the "last 10 per person" and k-way merge fixes. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 20.78, 33.23, 39.17, 58.66, 64.29, 77.68, 88.85, 112.49, 156.71, 208.16, 210.75, 252.82, 306.02, 336.95, 341.02, 394.73]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
