@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 297 · Serialize and Deserialize Binary Tree</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+table.trace th, table.trace td { white-space: nowrap; }
+.tree { display: block; width: 100%; max-width: 360px; height: auto; margin: 10px auto; }
+.tree line { stroke: var(--border); stroke-width: 2; }
+.tree line.hot { stroke: var(--candidate); }
+.tree circle { fill: var(--surface-2); stroke: var(--interviewer); stroke-width: 2; }
+.tree circle.bad { stroke: var(--candidate); }
+.tree circle.dim { stroke: var(--border); }
+.tree text { fill: var(--text); font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 14px; text-anchor: middle; dominant-baseline: central; }
+.tree text.dim { fill: var(--text-2); }
+.tree text.rng { fill: var(--text-3); font-size: 11px; }
+.tree text.rng.bad { fill: var(--candidate); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px 14px; font-size: 12px; }
+}
+.tree line.dash { stroke-dasharray: 4 3; }
+.tree rect.nul { fill: none; stroke: var(--text-3); stroke-width: 1.2; stroke-dasharray: 3 2; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 297 · Serialize and Deserialize Binary Tree · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Design an algorithm to serialize a binary tree to a string, and deserialize that string back to the original tree. You pick the format. There's no restriction on how it works, as long as the round trip gives back the same tree.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I write two functions, <code class="chip">serialize</code> and <code class="chip">deserialize</code>. The only rule is that <code class="chip">deserialize(serialize(root))</code> gives the same shape with the same values. The string is my own format, so nobody else has to read it. And the empty tree is a valid input too. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes. Your format, your rules. The tree can be empty.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>0 to 10<sup>4</sup> nodes, and each value is between <code class="chip num">-1000</code> and <code class="chip num">1000</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>OK. Two things jump out. Values can be negative and up to four digits, like <code class="chip num">-1000</code>, so my format needs a <strong>separator</strong> between values. And the tree isn't promised to be balanced; it can be a chain 10<sup>4</sup> deep, so recursion needs care.</p>
+      <p>The key fact: the values alone are <strong>not enough</strong>. Take <code class="chip">[1,2]</code> and <code class="chip">[1,null,2]</code>. In both, the level-order values are just "1, 2" — but in one, 2 is a left child, and in the other it's a right child. So I must also write down <strong>where the holes are</strong>, with a marker <code class="chip">n</code> for every null child.</p>
+      <p>Quick check on example 1: <code class="chip">[1,2,3,null,null,4,5]</code>.</p>
+      <svg class="tree" viewBox="0 0 380 230" role="img" aria-label="tree 1, 2, 3, null, null, 4, 5 with six null markers">
+        <line x1="190" y1="28" x2="100" y2="92"/><line x1="190" y1="28" x2="280" y2="92"/>
+        <line x1="280" y1="92" x2="235" y2="156"/><line x1="280" y1="92" x2="325" y2="156"/>
+        <line class="dash" x1="100" y1="92" x2="70" y2="150"/><line class="dash" x1="100" y1="92" x2="130" y2="150"/>
+        <line class="dash" x1="235" y1="156" x2="215" y2="204"/><line class="dash" x1="235" y1="156" x2="255" y2="204"/>
+        <line class="dash" x1="325" y1="156" x2="305" y2="204"/><line class="dash" x1="325" y1="156" x2="345" y2="204"/>
+        <circle class="bad" cx="190" cy="28" r="17"/><text x="190" y="28">1</text>
+        <circle class="bad" cx="100" cy="92" r="17"/><text x="100" y="92">2</text>
+        <circle class="bad" cx="280" cy="92" r="17"/><text x="280" y="92">3</text>
+        <circle class="bad" cx="235" cy="156" r="17"/><text x="235" y="156">4</text>
+        <circle class="bad" cx="325" cy="156" r="17"/><text x="325" y="156">5</text>
+        <rect class="nul" x="58" y="150" width="24" height="22" rx="4"/><text class="dim" x="70" y="161">n</text>
+        <rect class="nul" x="118" y="150" width="24" height="22" rx="4"/><text class="dim" x="130" y="161">n</text>
+        <rect class="nul" x="203" y="204" width="24" height="22" rx="4"/><text class="dim" x="215" y="215">n</text>
+        <rect class="nul" x="243" y="204" width="24" height="22" rx="4"/><text class="dim" x="255" y="215">n</text>
+        <rect class="nul" x="293" y="204" width="24" height="22" rx="4"/><text class="dim" x="305" y="215">n</text>
+        <rect class="nul" x="333" y="204" width="24" height="22" rx="4"/><text class="dim" x="345" y="215">n</text>
+        <text class="rng bad" x="40" y="20" style="text-anchor:start">5 values</text>
+        <text class="rng" x="40" y="38" style="text-anchor:start">6 n = n + 1</text>
+      </svg>
+      <p>Level by level, I get <code class="chip">"1 2 3 n n 4 5 n n n n "</code>: <code class="chip num">11</code> tokens — five values and six markers — and reading them back gives the same tree. The empty tree <code class="chip">[]</code> should give back <code class="chip">[]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> write only the values and rebuild a tree from them. That's fast, but just wrong: it throws away the shape, and <code class="chip">[1,2]</code> and <code class="chip">[1,null,2]</code> both become "1 2". So the real work isn't speed — it's making the format <strong>unambiguous</strong>.</p>
+      <p><strong>This problem reminds me of</strong> level-order traversal with a queue: the bracket format used to display test-case trees, like <code class="chip">[1,2,3,null,null,4,5]</code>, is exactly BFS with null holes. The other option is a preorder DFS with null markers. Both work. I'll pick BFS, because it's a plain loop with a queue, so there's no recursion depth to worry about on a 10<sup>4</sup>-node chain.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// serialize: BFS, write EVERY popped slot, nulls too</span><br>
+        if root is null: return ""&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">// empty tree = empty string</span><br>
+        q = [root]<br>
+        while q not empty:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;node = pop<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if node: s += val + " "; push left; push right<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;else:&nbsp;&nbsp;&nbsp;&nbsp;s += "n "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">// hole marker</span><br>
+        <br>
+        <span class="label">// deserialize: same BFS order, each popped node eats 2 tokens</span><br>
+        if data is empty: return null<br>
+        root = first token; q = [root]<br>
+        while read token L:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;node = pop<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if L != "n": node.left = new(L); push it<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;read token R<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if R != "n": node.right = new(R); push it
+      </div>
+      <p>One: serialize with BFS, writing every popped slot — a value and a space, or <code class="chip">n</code> for a null.<br>
+      Two: deserialize in the same order: the first token is the root, then each popped node eats two tokens, left then right, and only real children join the queue.<br>
+      Three: on both sides, the empty string means the empty tree.</p>
+      <p><strong>One thing worth flagging</strong> — the right child's read isn't checked, and that's safe. <code class="chip">n</code> nodes have <code class="chip">2n</code> child pointers. Every node except the root fills one of them, so <code class="chip">n - 1</code> are real and <code class="chip">n + 1</code> are null. That's <code class="chip">2n + 1</code> tokens: after the root, exactly two per node.</p>
+      <p><strong>The trade-off:</strong> about half the tokens are markers, but trimming trailing ones breaks that count, so I keep them. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Codec</span> {
+<span class="kw">public</span>:
+    <span class="com">// Encodes a tree to a single string.</span>
+    <span class="typ">string</span> <span class="fn">serialize</span>(<span class="typ">TreeNode</span>* root) {
+        <span class="kw">if</span> (root == <span class="kw">nullptr</span>) <span class="kw">return</span> <span class="str">""</span>;
+
+        <span class="typ">string</span> s;
+        <span class="typ">queue</span>&lt;<span class="typ">TreeNode</span>*&gt; q;
+        q.<span class="fn">emplace</span>(root);
+
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="typ">TreeNode</span>* node = q.<span class="fn">front</span>();
+            q.<span class="fn">pop</span>();
+            <span class="kw">if</span> (node != <span class="kw">nullptr</span>) {
+                s += <span class="fn">to_string</span>(node-&gt;val) + <span class="str">" "</span>;
+                q.<span class="fn">emplace</span>(node-&gt;left);          <span class="com">// push nulls too</span>
+                q.<span class="fn">emplace</span>(node-&gt;right);
+            } <span class="kw">else</span> {
+                s += <span class="str">"n "</span>;                          <span class="com">// null marker</span>
+            }
+        }
+        <span class="kw">return</span> s;
+    }
+
+    <span class="com">// Decodes your encoded data to tree.</span>
+    <span class="typ">TreeNode</span>* <span class="fn">deserialize</span>(<span class="typ">string</span> data) {
+        <span class="kw">if</span> (data.<span class="fn">empty</span>()) <span class="kw">return</span> <span class="kw">nullptr</span>;
+
+        <span class="typ">stringstream</span> ss(data);
+        <span class="typ">string</span> word;
+        ss &gt;&gt; word;
+        <span class="typ">TreeNode</span>* root = <span class="kw">new</span> <span class="typ">TreeNode</span>(<span class="fn">stoi</span>(word));
+        <span class="typ">queue</span>&lt;<span class="typ">TreeNode</span>*&gt; q;
+        q.<span class="fn">emplace</span>(root);
+
+        <span class="kw">while</span> (ss &gt;&gt; word) {                         <span class="com">// left child's token</span>
+            <span class="typ">TreeNode</span>* node = q.<span class="fn">front</span>();
+            q.<span class="fn">pop</span>();
+            <span class="kw">if</span> (word != <span class="str">"n"</span>) {
+                node-&gt;left = <span class="kw">new</span> <span class="typ">TreeNode</span>(<span class="fn">stoi</span>(word));
+                q.<span class="fn">emplace</span>(node-&gt;left);
+            }
+            ss &gt;&gt; word;                                <span class="com">// right child's token</span>
+            <span class="kw">if</span> (word != <span class="str">"n"</span>) {
+                node-&gt;right = <span class="kw">new</span> <span class="typ">TreeNode</span>(<span class="fn">stoi</span>(word));
+                q.<span class="fn">emplace</span>(node-&gt;right);
+            }
+        }
+
+        <span class="kw">return</span> root;
+    }
+};</pre>
+      <p>Serialize pushes null children too, so it writes a marker for every hole. Deserialize only pushes <strong>real</strong> nodes, because a null slot has no children to fill, and the <code class="chip">while (ss &gt;&gt; word)</code> read stops cleanly when the tokens run out.</p>
+      <p><strong>One thing worth flagging</strong> — the empty tree. Serialize returns <code class="chip">""</code>, and deserialize checks <code class="chip">data.empty()</code> first. The two must match: if I'd encoded the empty tree as <code class="chip">"n "</code>, deserialize would call <code class="chip">stoi("n")</code> and throw <code class="chip">std::invalid_argument</code>. Also, <code class="chip">Codec</code> has no member state, so separate <code class="chip">Codec</code> objects for the two calls work the same as one shared object.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on example 1, <code class="chip">[1,2,3,null,null,4,5]</code>. Serialize first (∅ is a null in the queue):</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:380px;">
+        <thead><tr><th>pop</th><th>append</th><th>queue after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>"1 "</td><td>[2, 3]</td></tr>
+          <tr><td>2</td><td>"2 "</td><td>[3, ∅, ∅]</td></tr>
+          <tr class="highlight-row"><td>3</td><td>"3 "</td><td>[∅, ∅, 4, 5]</td></tr>
+          <tr><td>∅</td><td>"n "</td><td>[∅, 4, 5]</td></tr>
+          <tr><td>∅</td><td>"n "</td><td>[4, 5]</td></tr>
+          <tr><td>4</td><td>"4 "</td><td>[5, ∅, ∅]</td></tr>
+          <tr><td>5</td><td>"5 "</td><td>[∅, ∅, ∅, ∅]</td></tr>
+          <tr><td>∅ ×4</td><td>"n n n n "</td><td>[]</td></tr>
+          <tr><td>return s</td><td colspan="2"><span class="answer-cell">"1 2 3 n n 4 5 n n n n "</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is popping 3: node 2's two nulls already sit in the queue ahead of 3's children, so they're written as <code class="chip">n n</code> before 4 and 5. That's how the string records that 2 is a leaf.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:480px;">
+        <thead><tr><th>pass</th><th>pop</th><th>left token</th><th>right token</th><th>queue after</th></tr></thead>
+        <tbody>
+          <tr><td>start</td><td>—</td><td>read "1" → root</td><td></td><td>[1]</td></tr>
+          <tr><td>1</td><td>1</td><td>"2" → new</td><td>"3" → new</td><td>[2, 3]</td></tr>
+          <tr><td>2</td><td>2</td><td>"n"</td><td>"n"</td><td>[3]</td></tr>
+          <tr><td>3</td><td>3</td><td>"4" → new</td><td>"5" → new</td><td>[4, 5]</td></tr>
+          <tr><td>4</td><td>4</td><td>"n"</td><td>"n"</td><td>[5]</td></tr>
+          <tr><td>5</td><td>5</td><td>"n"</td><td>"n"</td><td>[]</td></tr>
+          <tr><td>end</td><td colspan="3">next read hits the end → loop stops</td><td><span class="answer-cell">[1,2,3,null,null,4,5]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Deserialize then runs exactly <code class="chip num">5</code> passes for 5 nodes, two tokens each — <code class="chip">1 + 5 × 2 = 11</code>, all used. Same tree back. Correct.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">[]</code> → <code class="chip">""</code> → <code class="chip">nullptr</code>.<br>
+      • <code class="chip">[-1000]</code> → <code class="chip">"-1000 n n "</code>: <code class="chip">stoi</code> reads the whole token, sign and all.<br>
+      • <code class="chip">[1,2]</code> → <code class="chip">"1 2 n n n "</code> and <code class="chip">[1,null,2]</code> → <code class="chip">"1 n 2 n n "</code>: different strings, so no collision.<br>
+      • And the trim slip in the table: cutting trailing markers turns <code class="chip">[1,2]</code> into <code class="chip">[1,2,2]</code>, because the failed second read keeps the old <code class="chip">word</code>. That's why the count matters.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>slip</th><th>wrong</th><th>case</th><th>gives</th></tr></thead>
+        <tbody>
+          <tr><td>no null markers</td><td>24,612</td><td>[1,2] → "1 2 "</td><td>[1,2,2]</td></tr>
+          <tr><td>no separator</td><td>24,648</td><td>[1,2] → "12nnn"</td><td>[12]</td></tr>
+          <tr><td>parse one char per value</td><td>22,587</td><td>[-1000]</td><td>[-3,1,0,0,0]</td></tr>
+          <tr><td>read right before left</td><td>24,646</td><td>[1,2]</td><td>[1,null,2]</td></tr>
+          <tr><td>preorder ser + BFS deser</td><td>24,480</td><td>[1,2,3]</td><td>[1,2,null,null,3]</td></tr>
+          <tr><td>children not pushed</td><td>24,612</td><td>[1,2,null,3]</td><td>SIGSEGV</td></tr>
+          <tr class="highlight-row"><td>trim trailing "n "</td><td>10,704</td><td>[1,2] → "1 2 "</td><td>[1,2,2]</td></tr>
+          <tr><td>empty tree → "n "</td><td>all empty</td><td>[]</td><td>throws</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n) both ways: <code class="chip">2n + 1</code> slots, each pushed and popped once. Space is O(n) too. The string is the big part — at most <code class="chip num">80,002</code> characters at 10<sup>4</sup> nodes, when every value is <code class="chip num">-1000</code>. The queue is O(n) at worst: it peaks at <code class="chip num">10,001</code> on a balanced tree, but stays tiny on a chain.</p>
+      <p>In the worst case the tree is a long chain, and that's where BFS pays off: no recursion, so a 10<sup>6</sup>-node chain round-trips fine, while a recursive preorder, also correct, crashes on it.</p>
+      <p><em class="pause">Oh, one more thing —</em> bad input. A cut-off string won't crash, it quietly builds a wrong tree: <code class="chip">"1 2"</code> gives 1 with two children of 2. For a real service, I'd check the second <code class="chip">ss &gt;&gt; word</code> and reject bad strings.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You showed why the format must be unambiguous: null markers so <code class="chip">[1,2]</code> and <code class="chip">[1,null,2]</code> don't collide, and a separator for values like <code class="chip num">-1000</code>. You proved the <code class="chip">2n + 1</code> token count, used it to explain why the unchecked second read is safe, and showed how trimming trailing markers breaks it. And you picked BFS for a reason: no recursion, so a 10<sup>6</sup>-node chain works where recursive preorder crashes, with the empty tree kept as <code class="chip">""</code> on both sides. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.51, 39.13, 43.93, 47.95, 54.69, 103.04, 142.3, 193.68, 196.34, 234.52, 283.47, 332.83]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
