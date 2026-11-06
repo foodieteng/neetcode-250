@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 417 · Pacific Atlantic Water Flow</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+}
+.grids { display: flex; flex-wrap: wrap; gap: 16px 26px; margin: 12px 0; }
+table.grid { border-collapse: collapse; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 13px; }
+table.grid td { width: 30px; height: 30px; text-align: center; border: 1px solid var(--border);
+  color: var(--text-3); background: var(--surface); }
+table.grid td.h { color: var(--mono); }
+table.grid td.peak { background: #3a2219; color: var(--chip-num); font-weight: 600; }
+table.grid td.p { background: #1b2a3a; color: #8fb3e0; }
+table.grid td.a { background: #2a2618; color: var(--chip-text); }
+table.grid td.b { background: #3a2219; color: #e0905f; font-weight: 600; }
+table.grid caption { caption-side: bottom; font-size: 11.5px; color: var(--text-2);
+  padding-top: 6px; white-space: nowrap; text-align: left; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 417 · Pacific Atlantic Water Flow · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Here's an island grid of heights. The Pacific touches the top and left edges, and the Atlantic touches the bottom and right edges. Water flows from a cell to a neighbor of <strong>equal or lower</strong> height. Return every cell from which water can reach <strong>both</strong> oceans.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> flow is 4-directional, downhill or flat, and a cell on an ocean edge drains straight into it. I want the cells that reach the Pacific <em>and</em> the Atlantic. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. The clean idea is to <strong>reverse it</strong>. Rather than ask each cell "can you flow to an ocean," I start at the ocean edges and walk <em>inland and uphill</em> — to neighbors of <strong>equal or greater</strong> height. Whatever I can reach that way is exactly the set of cells that can flow <em>down</em> to that ocean. I flood once from the Pacific edges, once from the Atlantic edges, and intersect.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> search from every cell and check if it reaches both oceans — that's <code class="chip">O((mn)²)</code>.</p>
+      <p><strong>This problem reminds me of</strong> a reverse flood fill: when many starting points share one target, search backward from the target instead. Two flood fills from the borders, going uphill, then intersect the two reachable sets. One linear pass each — <code class="chip">O(mn)</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// two reachable grids: p_set, a_set</span><br>
+        dfs from Pacific edges (top row + left col) → mark p_set<br>
+        dfs from Atlantic edges (bottom row + right col) → mark a_set<br>
+        dfs(seen, r, c): mark; go to neighbor if <span class="em">heights[nei] &gt;= heights[cur]</span><br>
+        answer = cells where p_set AND a_set
+      </div>
+      <p>One: flood from the Pacific edges, the top row and left column, into <code class="chip">p_set</code>.<br>
+      Two: flood from the Atlantic edges, the bottom row and right column, into <code class="chip">a_set</code> — each step only goes to a neighbor at least as high.<br>
+      Three: collect the cells marked in both.</p>
+      <p><strong>Here, I'm using</strong> two separate visited grids <strong>to keep track of</strong> what each ocean can reach, so I can intersect them at the end.</p>
+      <p><strong>One thing worth flagging</strong> — the flood condition is <code class="chip">&gt;=</code>, not <code class="chip">&lt;=</code>. Real flow is downhill, so the reversed walk goes uphill. And it includes equals, because equal-height cells share flow.</p>
+      <p><strong>There's a trade-off here.</strong> Two <code class="chip">m × n</code> boolean grids cost extra memory, but they buy linear time over the quadratic per-cell search.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> m, n;
+    <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">0</span>, -<span class="num2">1</span>}, {<span class="num2">0</span>, <span class="num2">1</span>}};
+
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; <span class="fn">pacificAtlantic</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; heights) {
+        m = heights.<span class="fn">size</span>(); n = heights[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&gt; p_set(m, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;(n, <span class="kw">false</span>)), a_set(m, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;(n, <span class="kw">false</span>));
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {             <span class="com">// left edge → Pacific, right edge → Atlantic</span>
+            <span class="fn">dfs</span>(heights, p_set, i, <span class="num2">0</span>);
+            <span class="fn">dfs</span>(heights, a_set, i, n - <span class="num2">1</span>);
+        }
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n; i++) {             <span class="com">// top edge → Pacific, bottom edge → Atlantic</span>
+            <span class="fn">dfs</span>(heights, p_set, <span class="num2">0</span>, i);
+            <span class="fn">dfs</span>(heights, a_set, m - <span class="num2">1</span>, i);
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; ans;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="kw">if</span> (p_set[i][j] &amp;&amp; a_set[i][j])       <span class="com">// reaches both oceans → answer</span>
+                    ans.<span class="fn">push_back</span>({i, j});
+            }
+        }
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; heights, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&gt;&amp; seen, <span class="typ">int</span> r, <span class="typ">int</span> c) {
+        seen[r][c] = <span class="kw">true</span>;                     <span class="com">// mark on entry</span>
+        <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+            <span class="typ">int</span> nr = r + dr, nc = c + dc;
+            <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= m || nc &lt; <span class="num2">0</span> || nc &gt;= n) <span class="kw">continue</span>;
+            <span class="kw">if</span> (seen[nr][nc] || heights[nr][nc] &lt; heights[r][c]) <span class="kw">continue</span>;  <span class="com">// only climb to neighbors &gt;= current</span>
+            <span class="fn">dfs</span>(heights, seen, nr, nc);
+        }
+    }
+};</pre>
+      <p>The main function runs a DFS from every border cell: the left and top edges fill <code class="chip">p_set</code>, the right and bottom edges fill <code class="chip">a_set</code>. Then one scan collects every cell that's <code class="chip">true</code> in both. The DFS marks the cell on entry, skips out-of-bounds neighbors first, then skips anything already seen or lower than the current cell.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">heights[nr][nc] &lt; heights[r][c]</code> is the guard I <em>continue</em> on, which means I only recurse when the neighbor is <code class="chip">&gt;=</code>. Flip that comparison and the whole thing floods the wrong direction.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with the example:</strong> the 5×5 grid from the problem, expected 7 cells. The Pacific flood covers the top-left wedge, and the Atlantic flood covers the bottom-right wedge.</p>
+      <div class="grids">
+        <table class="grid">
+          <tr><td class="h">1</td><td class="h">2</td><td class="h">2</td><td class="h">3</td><td class="h">5</td></tr>
+          <tr><td class="h">3</td><td class="h">2</td><td class="h">3</td><td class="h">4</td><td class="h">4</td></tr>
+          <tr><td class="h">2</td><td class="h">4</td><td class="peak">5</td><td class="h">3</td><td class="h">1</td></tr>
+          <tr><td class="h">6</td><td class="h">7</td><td class="h">1</td><td class="h">4</td><td class="h">5</td></tr>
+          <tr><td class="h">5</td><td class="h">1</td><td class="h">1</td><td class="h">2</td><td class="h">4</td></tr>
+          <caption>heights</caption>
+        </table>
+        <table class="grid">
+          <tr><td class="p">1</td><td class="p">1</td><td class="p">1</td><td class="p">1</td><td class="p">1</td></tr>
+          <tr><td class="p">1</td><td class="p">1</td><td class="p">1</td><td class="p">1</td><td class="p">1</td></tr>
+          <tr><td class="p">1</td><td class="p">1</td><td class="p">1</td><td>·</td><td>·</td></tr>
+          <tr><td class="p">1</td><td class="p">1</td><td>·</td><td>·</td><td>·</td></tr>
+          <tr><td class="p">1</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+          <caption>p_set (top + left)</caption>
+        </table>
+        <table class="grid">
+          <tr><td>·</td><td>·</td><td>·</td><td>·</td><td class="a">1</td></tr>
+          <tr><td>·</td><td>·</td><td>·</td><td class="a">1</td><td class="a">1</td></tr>
+          <tr><td>·</td><td>·</td><td class="a">1</td><td class="a">1</td><td class="a">1</td></tr>
+          <tr><td class="a">1</td><td class="a">1</td><td class="a">1</td><td class="a">1</td><td class="a">1</td></tr>
+          <tr><td class="a">1</td><td class="a">1</td><td class="a">1</td><td class="a">1</td><td class="a">1</td></tr>
+          <caption>a_set (bottom + right)</caption>
+        </table>
+        <table class="grid">
+          <tr><td>·</td><td>·</td><td>·</td><td>·</td><td class="b">B</td></tr>
+          <tr><td>·</td><td>·</td><td>·</td><td class="b">B</td><td class="b">B</td></tr>
+          <tr><td>·</td><td>·</td><td class="b">B</td><td>·</td><td>·</td></tr>
+          <tr><td class="b">B</td><td class="b">B</td><td>·</td><td>·</td><td>·</td></tr>
+          <tr><td class="b">B</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+          <caption>both → 7 cells</caption>
+        </table>
+      </div>
+      <p>The cell that shows the idea is <code class="chip">(2,2)</code>, the peak of height <code class="chip num">5</code> in the middle: the Pacific climbs to it from the <code class="chip num">3</code> above, and the Atlantic from the <code class="chip num">3</code> on its right, so it's in both. Overlaying the two sets gives the 7 expected cells <code class="chip">[0,4] [1,3] [1,4] [2,2] [3,0] [3,1] [4,0]</code>. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• A single cell <code class="chip">[[1]]</code> touches all four edges, so the output is <code class="chip">[[0,0]]</code>.<br>
+      • A perfectly flat grid floods everywhere from both sides, so every cell qualifies.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> <code class="chip">O(m·n)</code> — two floods, each visiting every cell at most once, plus a linear intersection scan. <strong>The space complexity is</strong> <code class="chip">O(m·n)</code> for the two boolean grids and the recursion stack.</p>
+      <p><em class="pause">Oh, one more thing —</em> the whole win is the reversal. Asking "can this cell reach the ocean" per cell is quadratic; asking "what can the ocean reach, going uphill" is one linear flood per ocean. That reverse-the-search trick shows up whenever many sources share one target.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You reversed the question — flooding from the oceans uphill instead of searching per cell, dropping it from quadratic to linear. You got the <code class="chip">&gt;=</code> condition right and explained why equal heights connect. And you kept two separate visited grids so the intersection is clean. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 17.2, 35.2, 37.52, 60.72, 87.88, 138.52, 140.84, 175.39, 214.41, 247.79]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

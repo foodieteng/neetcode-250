@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 994 · Rotting Oranges</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.grids { display: flex; flex-wrap: wrap; gap: 18px 34px; margin: 12px 0; }
+table.grid { border-collapse: collapse; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 14px; }
+table.grid td { width: 34px; height: 34px; text-align: center; border: 1px solid var(--border);
+  color: var(--text-3); background: var(--surface); }
+table.grid td.g1 { background: #2a2618; color: var(--chip-text); }
+table.grid td.g2 { background: #3a2219; color: #e0905f; font-weight: 600; }
+table.grid caption { caption-side: bottom; font-size: 11.5px; color: var(--text-2);
+  padding-top: 6px; text-align: left; white-space: nowrap; }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 994 · Rotting Oranges · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have a grid of oranges. <code class="chip num">0</code> is an empty cell, <code class="chip num">1</code> is a fresh orange, and <code class="chip num">2</code> is a rotten one. Every minute, any fresh orange next to a rotten one — up, down, left, or right — rots too. Return the number of minutes until no fresh orange is left, or <code class="chip num">-1</code> if that's impossible.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> all rotten oranges spread <em>at the same time</em> each minute, and a fresh orange that's walled off from every rotten one makes the answer <code class="chip num">-1</code>. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly — simultaneous spread.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. Spreading outward at the same time and counting the minutes is a <strong>multi-source BFS</strong>. I seed <em>all</em> rotten oranges into the queue, then expand level by level — each level is one minute. I also keep a <code class="chip">fresh</code> counter, so I know when everything has rotted, and can return <code class="chip num">-1</code> if some fresh orange is never reached.</p>
+      <p><strong>Let me run through the example:</strong> <code class="chip">[[2,1,1],[1,1,0],[0,1,1]]</code>. It starts with six fresh oranges, and four minutes later all of them are rotten, so the answer is <code class="chip num">4</code>. That matches.</p>
+      <div class="grids">
+        <table class="grid">
+          <tr><td class="g2">2</td><td class="g1">1</td><td class="g1">1</td></tr>
+          <tr><td class="g1">1</td><td class="g1">1</td><td>0</td></tr>
+          <tr><td>0</td><td class="g1">1</td><td class="g1">1</td></tr>
+          <caption>minute 0 · fresh=6</caption>
+        </table>
+        <table class="grid">
+          <tr><td class="g2">2</td><td class="g2">2</td><td class="g2">2</td></tr>
+          <tr><td class="g2">2</td><td class="g2">2</td><td>0</td></tr>
+          <tr><td>0</td><td class="g2">2</td><td class="g2">2</td></tr>
+          <caption>minute 4 · fresh=0 → 4</caption>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> BFS from every fresh orange to its nearest rotten one and take the max — that's <code class="chip">O((mn)²)</code>.</p>
+      <p><strong>This problem reminds me of</strong> multi-source BFS: every rotten orange is a starting point and they all spread in parallel, so seeding them together gives each cell its distance to the nearest rotten one in a single pass. The twist here is that I want the <em>number of levels</em>, so I process the queue one level at a time.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// seed all rotten, count fresh</span><br>
+        push every 2 into queue; count 1s as fresh<br>
+        if fresh == 0 → return 0<br>
+        while queue: sz = queue.size()&nbsp;&nbsp;<span class="label">// this whole minute's cells</span><br>
+        &nbsp;&nbsp;repeat sz times: pop, rot fresh neighbors, fresh--, push<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="em">fresh hits 0</span> → return this minute<br>
+        &nbsp;&nbsp;time++<br>
+        return -1&nbsp;&nbsp;<span class="label">// queue drained, fresh &gt; 0</span>
+      </div>
+      <p>One: push every rotten orange into the queue and count the fresh ones; if there are none, return <code class="chip num">0</code>.<br>
+      Two: while the queue isn't empty, snapshot its size and process exactly that many cells, rotting their fresh neighbors, then add one minute.<br>
+      Three: if <code class="chip">fresh</code> hits zero, return the minute; if the queue drains first, return <code class="chip num">-1</code>.</p>
+      <p><strong>One thing worth flagging</strong> — that size snapshot is the whole trick. The queue holds this minute's oranges <em>and</em> the ones they just infected, so without it, two minutes blend together and the count comes out wrong.</p>
+      <p><strong>There's a trade-off here.</strong> The <code class="chip">fresh</code> counter isn't optional — it's how I detect the walled-off case. And I write the rot back into the grid, so I don't need a visited array.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">orangesRotting</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid) {
+        <span class="typ">int</span> m = grid.<span class="fn">size</span>(), n = grid[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="typ">queue</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; q;
+        <span class="typ">int</span> fresh = <span class="num2">0</span>;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="kw">if</span> (grid[i][j] == <span class="num2">0</span>) <span class="kw">continue</span>;
+                <span class="kw">if</span> (grid[i][j] == <span class="num2">1</span>) fresh++;            <span class="com">// count fresh</span>
+                <span class="kw">if</span> (grid[i][j] == <span class="num2">2</span>) q.<span class="fn">push</span>({i, j});  <span class="com">// seed EVERY rotten (multi-source)</span>
+            }
+        }
+
+        <span class="kw">if</span> (fresh == <span class="num2">0</span>) <span class="kw">return</span> <span class="num2">0</span>;                     <span class="com">// no fresh → 0 minutes</span>
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">0</span>, -<span class="num2">1</span>}, {<span class="num2">0</span>, <span class="num2">1</span>}};
+        <span class="typ">int</span> time = <span class="num2">0</span>;
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="typ">int</span> sz = q.<span class="fn">size</span>();                       <span class="com">// this wave = this minute's cells</span>
+            <span class="kw">for</span> (<span class="typ">int</span> _ = <span class="num2">0</span>; _ &lt; sz; _++) {
+                <span class="kw">auto</span> [r, c] = q.<span class="fn">front</span>(); q.<span class="fn">pop</span>();
+                <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+                    <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                    <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= m || nc &lt; <span class="num2">0</span> || nc &gt;= n || grid[nr][nc] != <span class="num2">1</span>) <span class="kw">continue</span>;
+                    <span class="kw">if</span> (--fresh == <span class="num2">0</span>) <span class="kw">return</span> time + <span class="num2">1</span>;       <span class="com">// last fresh rots → return this minute</span>
+                    grid[nr][nc] = <span class="num2">2</span>;                    <span class="com">// only infect fresh (== 1)</span>
+                    q.<span class="fn">push</span>({nr, nc});
+                }
+            }
+            time++;                                    <span class="com">// finished a wave = one minute</span>
+        }
+        <span class="kw">return</span> -<span class="num2">1</span>;                                   <span class="com">// queue empty but fresh &gt; 0 → unreachable</span>
+    }
+};</pre>
+      <p>One scan seeds every rotten orange and counts the fresh ones, with an early return of <code class="chip num">0</code>. Then the BFS loop: snapshot the size, pop exactly that many, and rot only neighbors that are in bounds and still fresh — writing a <code class="chip num">2</code> into the grid so nothing rots twice. If the queue empties, I return <code class="chip num">-1</code>.</p>
+      <p><strong>One thing worth flagging</strong> — <code class="chip">return time + 1</code>, not <code class="chip">time</code>. <code class="chip">time</code> counts the minutes fully elapsed; the neighbor I'm rotting right now rots in the <em>next</em> minute, so when the last fresh one goes, the answer is <code class="chip">time + 1</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with the example.</strong> The rotten orange at <code class="chip">(0,0)</code> seeds the queue, with <code class="chip">fresh=6</code>. The waves rot two, two, one, and then one orange.</p>
+      <div class="insight-box">
+        <span class="label">// oranges that rot each wave</span><br>
+        time 0 → (1,0),(0,1) · fresh 6→4<br>
+        time 1 → (1,1),(0,2) · fresh 4→2<br>
+        time 2 → (2,1) · fresh 2→1<br>
+        time 3 → (2,2) · fresh 1→0 → <span class="em">return 3 + 1 = 4</span>
+      </div>
+      <p>The decision happens in the last wave: the orange at <code class="chip">(2,2)</code> rots while <code class="chip">time</code> is still <code class="chip num">3</code>, so <code class="chip">fresh</code> hits zero and I return <code class="chip">3 + 1</code> — <code class="chip num">4</code>. The empty cell at <code class="chip">(2,0)</code> blocks one path, but everything else is reachable. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• No fresh oranges at the start → <code class="chip num">0</code> from the guard.<br>
+      • Fresh oranges but no rotten one → empty queue, so <code class="chip num">-1</code>.<br>
+      • A fresh orange boxed in by empties → <code class="chip">fresh &gt; 0</code> when the queue drains, so <code class="chip num">-1</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> <code class="chip">O(m·n)</code> — each cell enters and leaves the queue at most once. <strong>The space complexity is</strong> <code class="chip">O(m·n)</code> for the queue. <strong>In the worst-case scenario</strong>, a grid that's almost all rotten puts nearly every cell in the queue at the start.</p>
+      <p><em class="pause">Oh, one more thing —</em> the level split is only there because I return a <em>number of levels</em>. If I only needed each cell's distance to the nearest source, I could write that into the cell and skip the counter; here, the <code class="chip">sz</code> snapshot is essential.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You seeded all rotten oranges for a simultaneous spread, not just one. You snapshotted the queue size so each wave maps to exactly one minute, and explained the <code class="chip">time + 1</code>. And you used the <code class="chip">fresh</code> counter to detect the unreachable <code class="chip num">-1</code> case. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 20.08, 35.87, 38.96, 71.35, 99.4, 150.28, 153.1, 186.89, 227.37, 259.14]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

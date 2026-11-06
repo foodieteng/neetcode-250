@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 286 · Walls and Gates</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+}
+.grids { display: flex; flex-wrap: wrap; gap: 18px 34px; margin: 12px 0; }
+table.grid { border-collapse: collapse; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 13.5px; }
+table.grid td { width: 36px; height: 34px; text-align: center; border: 1px solid var(--border);
+  color: var(--str); background: var(--surface); }
+table.grid td.inf { color: var(--text-2); }
+table.grid td.wall { background: #23262e; color: var(--text-3); }
+table.grid td.gate { background: #3a2219; color: var(--chip-num); font-weight: 600; }
+table.grid caption { caption-side: bottom; font-size: 11.5px; color: var(--text-2);
+  padding-top: 6px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 286 · Walls and Gates · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have a grid where <code class="chip num">-1</code> is a wall, <code class="chip num">0</code> is a gate, and <code class="chip">INF</code> is an empty room. Fill each empty room with the distance to its nearest gate. If a room can't reach any gate, leave it as <code class="chip">INF</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> movement is 4-directional, walls block, and "nearest gate" means the shortest number of steps to <em>any</em> gate. So each room wants the minimum distance over all gates. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. Key observation: instead of asking each room "which gate is nearest," I flip it — let <strong>all gates expand outward at once</strong>. That's a multi-source BFS. I seed every gate into the queue, then spread in waves. The first wave to reach a room came from the nearest gate, so its distance is automatically the minimum.</p>
+      <p><strong>Let me run through the example.</strong> With two gates, the rooms fill in rings of distance 1, 2, 3, 4 — each room getting the value of whichever gate's wave reached it first.</p>
+      <div class="grids">
+        <table class="grid">
+          <tr><td class="inf">∞</td><td class="wall">-1</td><td class="gate">0</td><td class="inf">∞</td></tr>
+          <tr><td class="inf">∞</td><td class="inf">∞</td><td class="inf">∞</td><td class="wall">-1</td></tr>
+          <tr><td class="inf">∞</td><td class="wall">-1</td><td class="inf">∞</td><td class="wall">-1</td></tr>
+          <tr><td class="gate">0</td><td class="wall">-1</td><td class="inf">∞</td><td class="inf">∞</td></tr>
+          <caption>before</caption>
+        </table>
+        <table class="grid">
+          <tr><td>3</td><td class="wall">-1</td><td class="gate">0</td><td>1</td></tr>
+          <tr><td>2</td><td>2</td><td>1</td><td class="wall">-1</td></tr>
+          <tr><td>1</td><td class="wall">-1</td><td>2</td><td class="wall">-1</td></tr>
+          <tr><td class="gate">0</td><td class="wall">-1</td><td>3</td><td>4</td></tr>
+          <caption>after</caption>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> run a BFS from every empty room to find its nearest gate — but that's <code class="chip">O((mn)²)</code> and times out.</p>
+      <p><strong>This problem reminds me of</strong> multi-source BFS, the pattern for shortest distance to the nearest of many sources. Putting every gate in the first wave treats them as one super source, so a single pass of <code class="chip">O(mn)</code> gives every room its answer.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// seed every gate, then spread</span><br>
+        push all cells with value 0 into the queue<br>
+        while queue: pop (r,c)<br>
+        &nbsp;&nbsp;for each neighbor (nr,nc):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;if in bounds AND rooms[nr][nc] == INF:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="em">rooms[nr][nc] = rooms[r][c] + 1</span>; push it
+      </div>
+      <p>One: push every gate into the queue.<br>
+      Two: pop a cell, and for each in-bounds neighbor that is still <code class="chip">INF</code>, write this cell's distance <code class="chip">+ 1</code> and push it.<br>
+      Three: when the queue is empty, every reachable room is filled.</p>
+      <p><strong>Here, I'm using</strong> the grid itself <strong>to keep track of</strong> distances and visited-ness at once.</p>
+      <p><strong>One thing worth flagging</strong> — the guard <code class="chip">rooms[nr][nc] == INF</code> does triple duty. Walls are <code class="chip num">-1</code>, gates are <code class="chip num">0</code>, and filled rooms are positive, so one check skips walls, gates, and revisits.</p>
+      <p><strong>There's a trade-off here.</strong> Writing into the input mutates it, but that's expected here and saves a separate distance grid. And because BFS reaches each cell by its shortest path first, the first write is final.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">void</span> <span class="fn">wallsAndGates</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; rooms) {
+        <span class="typ">int</span> m = rooms.<span class="fn">size</span>(), n = rooms[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">const</span> <span class="typ">int</span> INF = <span class="typ">INT_MAX</span>;
+
+        <span class="typ">queue</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; q;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {             <span class="com">// plant every source</span>
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="kw">if</span> (rooms[i][j] == <span class="num2">0</span>) q.<span class="fn">push</span>({i, j}); <span class="com">// seed EVERY gate</span>
+            }
+        }
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">1</span>, <span class="num2">0</span>}, {<span class="num2">0</span>, -<span class="num2">1</span>}, {<span class="num2">0</span>, <span class="num2">1</span>}};
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="typ">int</span> sz = q.<span class="fn">size</span>();
+            <span class="kw">for</span> (<span class="typ">int</span> _ = <span class="num2">0</span>; _ &lt; sz; _++) {          <span class="com">// one wave at a time</span>
+                <span class="kw">auto</span> [r, c] = q.<span class="fn">front</span>(); q.<span class="fn">pop</span>();
+                <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+                    <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                    <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= m || nc &lt; <span class="num2">0</span> || nc &gt;= n || rooms[nr][nc] != INF) <span class="kw">continue</span>;
+                    rooms[nr][nc] = rooms[r][c] + <span class="num2">1</span>;   <span class="com">// only fills a still-INF room</span>
+                    q.<span class="fn">push</span>({nr, nc});
+                }
+            }
+        }
+    }
+};</pre>
+      <p>One scan pushes every gate. Then the BFS: pop a cell, look at its four neighbors, and skip anything out of bounds or <code class="chip">!= INF</code> — the bounds check comes first, so I never read outside the grid. Otherwise the neighbor gets this cell's distance <code class="chip">+ 1</code> and joins the queue.</p>
+      <p><strong>One thing worth flagging</strong> — I kept the <code class="chip">sz</code> snapshot loop to process one wave at a time, but here it's optional. The distance lives in the cell as <code class="chip">rooms[r][c] + 1</code>, so dropping that loop gives the same result. I'd only need it to return a number of waves.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with the example.</strong> The two gates at <code class="chip">(0,2)</code> and <code class="chip">(3,0)</code> both start in the queue. The waves fill three, three, two, and then one room.</p>
+      <div class="insight-box">
+        <span class="label">// distances filled per wave</span><br>
+        wave 1 → (1,2)=1, (0,3)=1, (2,0)=1<br>
+        wave 2 → (2,2)=2, (1,1)=2, (1,0)=2<br>
+        wave 3 → (3,2)=3, <span class="em">(0,0)=3</span><br>
+        wave 4 → (3,3)=4
+      </div>
+      <p>The cell worth watching is <code class="chip">(0,0)</code>: a wall cuts it off from the top gate, so it's reached in wave 3, from the bottom gate going up — value <code class="chip num">3</code>. BFS found the shortest route around the walls automatically. That matches the expected output.</p>
+      <p>Corner cases:</p>
+      <p>• A grid that's a single wall, <code class="chip">[[-1]]</code>, stays <code class="chip num">-1</code> — no gates, so the loop never runs.<br>
+      • A room with no path to any gate stays <code class="chip">INF</code>, since no wave ever reaches it.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>The time complexity is</strong> <code class="chip">O(m·n)</code> — each cell enters and leaves the queue at most once, when it's first filled. <strong>The space complexity is</strong> <code class="chip">O(m·n)</code> for the queue. <strong>In the worst-case scenario</strong>, a grid that's mostly gates puts nearly every cell in the queue at the start.</p>
+      <p><em class="pause">Oh, one more thing —</em> this pattern fits any question about distance to the nearest of many sources. If I had to return how many waves it took instead, the <code class="chip">sz</code> snapshot would become essential, not optional.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You flipped it from per-room search to multi-source BFS, seeding every gate so the first wave to arrive is the nearest one. You noticed the <code class="chip">!= INF</code> guard skips walls, gates, and revisits in one check — no visited array. And you explained why the wave loop is optional here, because the distance lives in the cell. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.84, 31.57, 33.89, 68.98, 98.2, 150.2, 153.01, 188.4, 230.01, 266.96]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
