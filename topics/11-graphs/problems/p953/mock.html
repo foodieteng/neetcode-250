@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 953 · Verifying an Alien Dictionary</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 953 · Verifying an Alien Dictionary · Easy</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>An alien language uses the same <code class="chip num">26</code> lowercase letters, but in a different order, given by a string <code class="chip">order</code>. Given a list of <code class="chip">words</code>, return whether they are sorted by this alien order.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> the alien order is <strong>given</strong>, so I'm not deriving it. I just have to check the words are in non-decreasing order under it. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct — the order is given.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good, that's the key point. Since the order is given, I can turn it into a <code class="chip">rank</code> array — <code class="chip">rank[letter]</code> is its position in <code class="chip">order</code>. Then comparing two letters is just comparing their ranks. And to check the whole list is sorted, I only need to check each <strong>adjacent pair</strong> is in order. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to <code class="chip num">100</code> words, each up to <code class="chip num">20</code> characters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> Words <code class="chip">["word","world"]</code>, with order <code class="chip">"worldabc…"</code>. Here <code class="chip">rank[l]=3</code> and <code class="chip">rank[d]=4</code>. The first three letters match, then <code class="chip">d</code> vs <code class="chip">l</code>: since <code class="chip num">4 &gt; 3</code>, <code class="chip">d</code> is bigger, so <code class="chip">word</code> should come after <code class="chip">world</code>. They're out of order — answer <code class="chip">false</code>. <em class="pause">Note the alien order flips the normal one, where d comes before l.</em></p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> sort a copy of the words with a custom comparator and check it equals the original. That works, but it's O(n log n · L), and it's more than I need — checking "is it already sorted" is a single linear pass.</p>
+      <p><strong>This problem reminds me of</strong> plain dictionary-order comparison, just with letters remapped by rank. One thing I want to flag early: this is <em>not</em> the same as building an unknown order with a topological sort over a letter graph. Here the order is given, so no graph at all.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// rank[c] = position of letter c in order</span><br>
+        for each adjacent pair (w1, w2):<br>
+        &nbsp;&nbsp;compare column by column up to the shorter length<br>
+        &nbsp;&nbsp;· same letter → keep going<br>
+        &nbsp;&nbsp;· different → if rank[w1] &gt; rank[w2] <span class="em">return false</span>; else this pair is OK, stop<br>
+        &nbsp;&nbsp;all equal so far &amp; w1 is longer → <span class="em">return false</span> <span class="label">// prefix rule</span>
+      </div>
+      <p>One: build <code class="chip">rank</code>, each letter's place in the alien order, so a letter comparison is one array lookup.<br>
+      Two: for each adjacent pair, compare column by column; the first different letter decides — bigger rank first means <code class="chip">false</code>.<br>
+      Three: if all shared letters match and <code class="chip">w1</code> is longer, return <code class="chip">false</code>.</p>
+      <p><strong>One thing worth flagging</strong> — why checking adjacent pairs is enough. Sorted-ness is transitive: if <code class="chip">w0 ≤ w1</code> and <code class="chip">w1 ≤ w2</code>, then <code class="chip">w0 ≤ w2</code> for free. So I don't need all O(n<sup>2</sup>) pairs.</p>
+      <p><strong>There's a trade-off here.</strong> The prefix case is easy to miss: <code class="chip">["apple","app"]</code> must be <code class="chip">false</code>, because the shorter word should come first. I handle it after the inner loop.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">isAlienSorted</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; words, <span class="typ">string</span> order) {
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; rank(<span class="num2">26</span>, <span class="num2">0</span>);
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; <span class="num2">26</span>; i++) {
+            rank[order[i] - <span class="str">'a'</span>] = i;          <span class="com">// letter → its place in order</span>
+        }
+
+        <span class="typ">int</span> n = words.<span class="fn">size</span>();
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n - <span class="num2">1</span>; i++) {          <span class="com">// only adjacent pairs</span>
+            <span class="typ">string</span> w1 = words[i], w2 = words[i + <span class="num2">1</span>];
+            <span class="typ">int</span> minL = <span class="fn">min</span>(w1.<span class="fn">size</span>(), w2.<span class="fn">size</span>());
+            <span class="typ">int</span> j = <span class="num2">0</span>;
+
+            <span class="kw">for</span> (; j &lt; minL; j++) {
+                <span class="kw">if</span> (w1[j] == w2[j]) <span class="kw">continue</span>;            <span class="com">// same → next column</span>
+                <span class="kw">if</span> (rank[w1[j] - <span class="str">'a'</span>] &gt; rank[w2[j] - <span class="str">'a'</span>]) <span class="kw">return</span> <span class="kw">false</span>;  <span class="com">// w1 bigger → out of order</span>
+                <span class="kw">break</span>;                                <span class="com">// different but OK → pair settled</span>
+            }
+
+            <span class="kw">if</span> (j == minL &amp;&amp; w1.<span class="fn">size</span>() &gt; w2.<span class="fn">size</span>()) <span class="kw">return</span> <span class="kw">false</span>;  <span class="com">// prefix rule: longer first is wrong</span>
+        }
+
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+};</pre>
+      <p>First I fill <code class="chip">rank</code> from <code class="chip">order</code>. Then for each adjacent pair I walk up to <code class="chip">minL</code>: same letter, keep going; a bigger rank in <code class="chip">w1</code>, return <code class="chip">false</code>. After the loop, if <code class="chip">j == minL</code> and <code class="chip">w1</code> is longer, that's the prefix rule — return <code class="chip">false</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">break</code> is doing real work. Once the first differing letter settles the pair, I must stop. If I kept comparing later columns, a reversed letter further down could wrongly fail a pair that's already in order — like <code class="chip">["ay","bx"]</code>, where <code class="chip">a</code> ranks before <code class="chip">b</code> but <code class="chip">y</code> ranks after <code class="chip">x</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Pair <code class="chip">("word","world")</code>, with <code class="chip">rank</code> <code class="chip">w=0, o=1, r=2, l=3, d=4</code>. Expected output is <code class="chip">false</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:440px;">
+        <thead><tr><th>j</th><th>w1[j]</th><th>w2[j]</th><th>compare</th><th>action</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>w</td><td>w</td><td>equal</td><td>continue</td></tr>
+          <tr><td>1</td><td>o</td><td>o</td><td>equal</td><td>continue</td></tr>
+          <tr><td>2</td><td>r</td><td>r</td><td>equal</td><td>continue</td></tr>
+          <tr class="highlight-row"><td>3</td><td>d</td><td>l</td><td>rank 4 &gt; 3</td><td><span class="answer-cell">return false</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The first three columns are equal. At column 3, <code class="chip">d</code> and <code class="chip">l</code> differ. In the alien order <code class="chip">d</code> outranks <code class="chip">l</code> (4 vs 3), so <code class="chip">word</code> is bigger than <code class="chip">world</code> but comes first — out of order, return <code class="chip">false</code>.</p>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• <code class="chip">["app","apple"]</code> → <code class="chip">true</code> — all shared letters match and the shorter word is first.<br>
+      • Flip it to <code class="chip">["apple","app"]</code> and the prefix check fires: <code class="chip">j</code> reaches <code class="chip">minL</code> with everything equal, but <code class="chip">w1</code> is longer, so <code class="chip">false</code>.<br>
+      • A single word is trivially <code class="chip">true</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> O(Σ|words|), linear in the total length — building <code class="chip">rank</code> is O(26), and every letter I compare is charged once against the total input length. <strong>The space complexity is</strong> O(1) — just the fixed 26-slot <code class="chip">rank</code> array.</p>
+      <p><strong>In the worst-case scenario</strong>, all words nearly equal, I scan every character once.</p>
+      <p><em class="pause">Oh, one more thing —</em> if the alphabet weren't fixed 26 lowercase letters — say Unicode — I'd swap the rank array for a hash map. The comparison logic is identical; only the lookup changes.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You separated this cleanly from the unknown-order version up front — the order is given, so no topological sort. You justified checking only adjacent pairs with transitivity, instead of all pairs. And you flagged both easy-to-miss cases: the prefix rule, and why the <code class="chip">break</code> is needed so a later column can't wrongly fail a settled pair. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.53, 29.22, 31.76, 51.84, 55.84, 80.41, 114.53, 165.53, 167.75, 205.81, 247.88, 281.54]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

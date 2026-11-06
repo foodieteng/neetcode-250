@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 399 · Evaluate Division</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 399 · Evaluate Division · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given equations like <code class="chip">A / B = value</code> for pairs of variables, plus a list of queries <code class="chip">C / D = ?</code>. Return each query's value, or <code class="chip num">-1</code> if it can't be determined from the equations.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> if I know <code class="chip">a/b</code> and <code class="chip">b/c</code>, I can chain them: <code class="chip">a/c = (a/b)·(b/c)</code>. So this is really a <strong>graph</strong> where variables are nodes and each equation is a weighted edge. Is that the intended model?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly. What about the <code class="chip num">-1</code> cases?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Two of them. If <strong>either variable never appears</strong> in the equations, it's undefined → <code class="chip num">-1</code>. And if both are defined but <strong>lie in disconnected parts</strong> of the graph, there's no path → <code class="chip num">-1</code>. Notably <code class="chip">x/x</code> for an <em>undefined</em> <code class="chip">x</code> is <code class="chip num">-1</code>, not 1 — I have to check "is it in the graph" <em>before</em> the equal-variable shortcut.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good catch. Inputs are valid — no contradictions, no division by zero.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through an example.</strong> <code class="chip">a/b=2</code>, <code class="chip">b/c=3</code>. Then <code class="chip">a/c = 2·3 = 6</code>; <code class="chip">b/a = 1/2 = 0.5</code>; <code class="chip">a/a = 1</code>; and <code class="chip">a/e = -1</code>, since <code class="chip">e</code> is undefined.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>This problem reminds me of</strong> path search on a weighted graph, where the answer is the product of the edge weights along the path. I build a directed weighted graph: <code class="chip">a/b=v</code> gives edge <code class="chip">a→b</code> of weight <code class="chip">v</code> and <code class="chip">b→a</code> of weight <code class="chip">1/v</code>.</p>
+      <p>Each query <code class="chip">C/D</code> becomes: find <em>any</em> path from <code class="chip">C</code> to <code class="chip">D</code> and <strong>multiply the edge weights</strong> — the intermediate variables telescope away, leaving <code class="chip">C/D</code>. I'll do a <strong>BFS</strong> per query carrying a running product. With at most 20 equations and 20 queries, that's trivially fast.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// build: graph[a][b]=v, graph[b][a]=1/v</span><br>
+        bfs(start, end):<br>
+        &nbsp;&nbsp;if start or end not in graph: <span class="em">return -1</span> <span class="label">// undefined</span><br>
+        &nbsp;&nbsp;if start == end: return 1<br>
+        &nbsp;&nbsp;queue of (node, product), start at (start, 1.0), visited set<br>
+        &nbsp;&nbsp;pop (u,w); for (v,nw) in graph[u]: if v==end <span class="em">return w*nw</span>; else push (v, w*nw)<br>
+        &nbsp;&nbsp;return -1 <span class="label">// unreachable</span>
+      </div>
+      <p>One: build the graph with both the forward edge and its reciprocal.<br>
+      Two: for each query, if either variable isn't in the graph, return <code class="chip num">-1</code>; if they're equal, return 1.<br>
+      Three: BFS from the start with a running product, and when the end shows up as a neighbor, return the product times that edge; if the queue empties, return <code class="chip num">-1</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the running product starts at <code class="chip num">1.0</code>, the multiplicative identity, and gets multiplied by each edge weight. <em class="pause">And the ordering of the guards matters</em> — the "not in graph → -1" check must come <em>before</em> the "start == end → 1" shortcut, so an undefined <code class="chip">x/x</code> correctly returns -1.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">double</span>&gt; <span class="fn">calcEquation</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt;&amp; equations,
+            <span class="typ">vector</span>&lt;<span class="typ">double</span>&gt;&amp; values, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt;&amp; queries) {
+        <span class="typ">unordered_map</span>&lt;<span class="typ">string</span>, <span class="typ">unordered_map</span>&lt;<span class="typ">string</span>, <span class="typ">double</span>&gt;&gt; graph;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; equations.<span class="fn">size</span>(); i++) {
+            <span class="typ">string</span> a = equations[i][<span class="num2">0</span>], b = equations[i][<span class="num2">1</span>];
+            <span class="typ">double</span> v = values[i];
+            graph[a][b] = v;              <span class="com">// a/b = v</span>
+            graph[b][a] = <span class="num2">1.0</span> / v;        <span class="com">// b/a = 1/v (reversible)</span>
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">double</span>&gt; ans;
+        <span class="kw">for</span> (<span class="kw">auto</span> q : queries)
+            ans.<span class="fn">push_back</span>(<span class="fn">bfs</span>(graph, q[<span class="num2">0</span>], q[<span class="num2">1</span>]));
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">double</span> <span class="fn">bfs</span>(<span class="typ">unordered_map</span>&lt;<span class="typ">string</span>, <span class="typ">unordered_map</span>&lt;<span class="typ">string</span>, <span class="typ">double</span>&gt;&gt;&amp; graph,
+               <span class="typ">string</span> start, <span class="typ">string</span> end) {
+        <span class="kw">if</span> (!graph.<span class="fn">count</span>(start) || !graph.<span class="fn">count</span>(end)) <span class="kw">return</span> <span class="num2">-1.0</span>;  <span class="com">// undefined</span>
+        <span class="kw">if</span> (start == end) <span class="kw">return</span> <span class="num2">1.0</span>;
+
+        <span class="typ">unordered_set</span>&lt;<span class="typ">string</span>&gt; visit;
+        <span class="typ">queue</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">string</span>, <span class="typ">double</span>&gt;&gt; q;
+        q.<span class="fn">push</span>({start, <span class="num2">1.0</span>});              <span class="com">// (node, running product)</span>
+        visit.<span class="fn">insert</span>(start);
+
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [u, w] = q.<span class="fn">front</span>(); q.<span class="fn">pop</span>();
+            <span class="kw">for</span> (<span class="kw">auto</span> [v, nw] : graph[u]) {
+                <span class="kw">if</span> (v == end) <span class="kw">return</span> w * nw;       <span class="com">// hit → product × edge weight</span>
+                <span class="kw">if</span> (visit.<span class="fn">count</span>(v)) <span class="kw">continue</span>;
+                visit.<span class="fn">insert</span>(v);
+                q.<span class="fn">push</span>({v, w * nw});            <span class="com">// multiply along the path</span>
+            }
+        }
+        <span class="kw">return</span> <span class="num2">-1.0</span>;                        <span class="com">// unreachable → can't determine</span>
+    }
+};</pre>
+      <p>Each equation stores <code class="chip">a/b</code> as <code class="chip">v</code> and <code class="chip">b/a</code> as <code class="chip">1/v</code>. Each query calls a <code class="chip">bfs</code> helper: the two guards in that order, then a queue of (node, product), seeded with <code class="chip">{start, 1.0}</code>. A neighbor that's the end returns right away; a new one is marked and pushed with the product times the edge weight.</p>
+      <p><strong>One thing worth flagging</strong> — on a hit I return <code class="chip">w * nw</code>, not just <code class="chip">w</code>: the last edge's weight is part of the answer. And returning on the first hit is safe, because with consistent inputs every path gives the same product.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> on <code class="chip">a/b=2</code>, <code class="chip">b/c=3</code> across a few queries.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:440px;">
+        <thead><tr><th>query</th><th>BFS</th><th>result</th></tr></thead>
+        <tbody>
+          <tr><td>a / c</td><td>(a,1) → b: 1·2=2 → c: 2·3</td><td><span class="answer-cell">6.0</span></td></tr>
+          <tr><td>b / a</td><td>(b,1) → a: 1·0.5</td><td>0.5</td></tr>
+          <tr><td>a / a</td><td>start == end</td><td>1.0</td></tr>
+          <tr class="highlight-row"><td>a / e</td><td>e not in graph</td><td>-1.0</td></tr>
+          <tr class="highlight-row"><td>x / x</td><td>x not in graph (guard first!)</td><td><span class="answer-cell">-1.0</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><code class="chip">a/c</code> goes a, then b with product 2, then c with <code class="chip">2·3</code>, so <code class="chip num">6</code>. <code class="chip">b/a</code> is <code class="chip num">0.5</code>, and <code class="chip">a/a</code> is <code class="chip num">1</code>.</p>
+      <p>The rows that matter are the last two: <code class="chip">a/e</code> and <code class="chip">x/x</code> both return <code class="chip num">-1</code> because the variable is undefined — and crucially <code class="chip">x/x</code> is <em>not</em> 1, since the "in graph" guard runs before the equal-variable shortcut.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Time is</strong> O(q · (V + E)) — one BFS per query over the graph. <strong>Space is</strong> O(V + E) for the adjacency map, plus the visited set and queue.</p>
+      <p><em class="pause">Oh, one more thing —</em> if there were far more queries than variables, I'd precompute all pairs once — Floyd-Warshall style, O(V<sup>3</sup>) build and O(1) per query. Or I'd use a <strong>weighted union-find</strong> storing each node's ratio to its root. And if the input <em>could</em> contradict, that weighted union-find would let me detect it while building.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You modeled division as a weighted graph and saw the telescoping product. You built both the forward and reciprocal edges. And you nailed the guard ordering so an undefined <code class="chip">x/x</code> returns -1 rather than 1. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.32, 35.72, 39.63, 61.08, 67.58, 81.76, 117.34, 163.03, 165.35, 200.1, 229.28, 259.63]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
