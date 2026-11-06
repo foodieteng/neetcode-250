@@ -81,15 +81,16 @@
     </p>
 
     <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
-      🎤 面試模擬 · <a href="mock.png" target="_blank" rel="noopener">UMPIRE mock interview transcript ↗</a>
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
     </p>
+    <audio controls preload="metadata" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
   </section>
 
   <!-- ════════════ 2 · long long 版 ════════════ -->
   <section class="sc-section">
     <div class="sc-section__head">
       <span class="sc-section__num">2</span>
-      <h2 class="sc-section__title">寫法 B · long long(面試建議)<span class="sc-section__title-en">// SAFE & CLEAR</span></h2>
+      <h2 class="sc-section__title">寫法 B · long long(直觀,但仍可能溢位)<span class="sc-section__title-en">// DELAYS OVERFLOW</span></h2>
     </div>
 
     <div class="sc-codewindow">
@@ -103,7 +104,7 @@
 <pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
 <span class="k">public</span><span class="p">:</span>
     <span class="t">int</span> <span class="f">combinationSum4</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&amp;</span> nums<span class="p">,</span> <span class="t">int</span> target<span class="p">)</span> <span class="p">{</span>
-        <span class="t">vector</span><span class="p">&lt;</span><span class="t">long</span> <span class="t">long</span><span class="p">&gt;</span> dp<span class="p">(</span>target <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>       <span class="c">// 64 位,這題不會溢位</span>
+        <span class="t">vector</span><span class="p">&lt;</span><span class="t">long</span> <span class="t">long</span><span class="p">&gt;</span> dp<span class="p">(</span>target <span class="p">+</span> <span class="n">1</span><span class="p">,</span> <span class="n">0</span><span class="p">);</span>       <span class="c">// 64 位只是延後溢位,仍可能 UB</span>
         dp<span class="p">[</span><span class="n">0</span><span class="p">]</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span>
 
         <span class="k">for</span> <span class="p">(</span><span class="t">int</span> i <span class="p">=</span> <span class="n">1</span><span class="p">;</span> i <span class="p">&lt;=</span> target<span class="p">;</span> i<span class="p">++)</span>
@@ -117,7 +118,7 @@
     </div>
 
     <p style="margin-top:12px;font-size:13px;color:#6a3c2e;">
-      <code>long long</code> 有 64 位,對本題(答案 fits 32-bit、中途值遠小於 <code><span class="nm">2</span>⁶³</code>)<strong>不會溢位、也不需 mod 推理</strong>,可讀性最好 —— 面試時直接這樣寫、口頭說一句「用 long long 防中途溢位」即可。<code>unsigned <span class="kw2">int</span></code> 省一半記憶體、是競賽慣用,但要懂它「mod 2³²」的語意。
+      <code>long long</code> 有 64 位,但<strong>中途值不受答案大小限制</strong>:反例 <code>nums = 10, 20, …, 990, 111</code>、<code>target = 999</code>,答案只有 1,<code>dp[990]</code> 卻約 2⁹⁸ → 有號溢位 UB(<code>-fsanitize=undefined</code> 實測報錯)。所以 long long 只是延後溢位,<strong>要提交的是 unsigned 版</strong>。<code>unsigned <span class="kw2">int</span></code> 省一半記憶體、是競賽慣用,但要懂它「mod 2³²」的語意。
     </p>
   </section>
 
@@ -146,7 +147,7 @@
     <table class="sc-table">
       <thead><tr><th>陷阱</th><th>後果</th><th>正解</th></tr></thead>
       <tbody>
-        <tr><td>用 <code><span class="kw2">int</span></code> 累加</td><td class="fail">中途 &gt;2³¹ → 有號溢位 UB、變負</td><td><code>unsigned <span class="kw2">int</span></code> 或 <code>long long</code></td></tr>
+        <tr><td>用 <code><span class="kw2">int</span></code> 累加</td><td class="fail">中途 &gt;2³¹ → 有號溢位 UB、變負</td><td><code>unsigned <span class="kw2">int</span></code>(<code>long long</code> 只延後溢位)</td></tr>
         <tr><td>硬幣外層、金額內層</td><td class="fail">變成數<strong>組合</strong>(518)、少算</td><td>金額外層、num 內層(排列)</td></tr>
         <tr><td>忘記 <code>dp[<span class="nm">0</span>]=<span class="nm">1</span></code></td><td class="fail">全 0,答案永遠 0</td><td>base:空排列一種</td></tr>
         <tr><td>把 <code>unsigned</code> 當「只是防負」</td><td class="fail">誤解它的 mod 語意</td><td>懂它是 mod 2³² 環繞</td></tr>
@@ -197,7 +198,7 @@ int(有號)       = -463960867   ✗ 3831006429 − 4294967296 的位元 → 負
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// PERMUTATION COUNT</div>
-    <div class="sc-summary-bar__body">金額外層 → 排列;dp[i]+=dp[i−num]。unsigned=mod 2³² 環繞;long long 最穩。</div>
+    <div class="sc-summary-bar__body">金額外層 → 排列;dp[i]+=dp[i−num]。unsigned=mod 2³² 環繞、才是正解;long long 只延後溢位。</div>
     <div class="sc-summary-bar__detail">LEETCODE 377 · COMBINATION SUM IV</div>
   </div>
 

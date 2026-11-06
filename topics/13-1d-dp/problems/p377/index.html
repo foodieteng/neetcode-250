@@ -110,7 +110,7 @@
       <tbody>
         <tr><td><code><span class="kw2">int</span></code></td><td class="fail"><strong>未定義行為(UB)</strong> —— C++ 對有號溢位不保證任何結果,常見變成負值/亂數</td><td>× 危險</td></tr>
         <tr><td><code>unsigned <span class="kw2">int</span></code></td><td><strong>有定義</strong>:溢位<strong>環繞 mod 2³²</strong>(超過就從 0 重來)</td><td>○ 可用(見下)</td></tr>
-        <tr><td><code>long long</code></td><td>64 位,這題的值不會溢位(<code>&lt; <span class="nm">2</span>⁶³</code>)</td><td>● 最直觀安全</td></tr>
+        <tr><td><code>long long</code></td><td>64 位,但中途值可達 ~2⁹⁸(如 <code>10…990, 111</code>,<code>target 999</code>)→ 仍會溢位 UB</td><td>✗ 只延後溢位</td></tr>
       </tbody>
     </table>
 
@@ -144,7 +144,7 @@ int(有號)       : -463960867   ✗ 溢位 UB(3831006429 − 2³² 的位元被
     <ol>
       <li><strong>狀態 + base</strong>:<code>dp[i]</code> = 湊出 <code>i</code> 的排列數;<code>dp[<span class="nm">0</span>]=<span class="nm">1</span></code>(空排列一種)。</li>
       <li><strong>金額外層</strong>(排列):<code>i</code> 從 <code><span class="nm">1</span></code> 到 <code>target</code>;<strong>num 內層</strong>:每個 <code>num≤i</code>。</li>
-      <li><strong>轉移</strong>:<code>dp[i] += dp[i−num]</code>;用 <code>unsigned</code> / <code>long long</code> 防溢位;回傳 <code>dp[target]</code>。</li>
+      <li><strong>轉移</strong>:<code>dp[i] += dp[i−num]</code>;用 <code>unsigned</code> 讓溢位 mod 2³² 環繞(<code>long long</code> 只延後溢位);回傳 <code>dp[target]</code>。</li>
     </ol>
   </section>
 
@@ -195,7 +195,7 @@ int(有號)       : -463960867   ✗ 溢位 UB(3831006429 − 2³² 的位元被
 
     <div class="sc-insight">
       同一條 <code>dp[i]+=dp[i−num]</code>:<strong>金額外層 = 排列(順序算)、物品外層 = 組合</strong>。
-      加法會爆 <code><span class="kw2">int</span></code> → 用 <code>unsigned</code>(mod 2³² 環繞、加法保持一致)或直接 <code>long long</code>。
+      加法會爆 <code><span class="kw2">int</span></code> → 用 <code>unsigned</code>(mod 2³² 環繞、加法保持一致)(<code>long long</code> 不夠:中途值可超過 2⁶³)。
     </div>
   </section>
 
@@ -211,7 +211,7 @@ int(有號)       : -463960867   ✗ 溢位 UB(3831006429 − 2³² 的位元被
 
   <div class="sc-summary-bar">
     <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
-    <div class="sc-summary-bar__body">dp[i]+=dp[i−num];金額外層=排列。加法會溢位 → unsigned(mod 2³²)或 long long。</div>
+    <div class="sc-summary-bar__body">dp[i]+=dp[i−num];金額外層=排列。加法會溢位 → unsigned(mod 2³²);long long 仍會溢位。</div>
     <div class="sc-summary-bar__detail">1-D DP · COMBINATION SUM IV</div>
   </div>
 
