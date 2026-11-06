@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 210 · Course Schedule II</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } pre.code { padding: 14px 14px; font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 210 · Course Schedule II · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have <code class="chip">numCourses</code> courses, labeled <code class="chip num">0</code> to <code class="chip">n-1</code>. You're given pairs <code class="chip">[a, b]</code>, meaning you must take course <code class="chip">b</code> before course <code class="chip">a</code>. Return any valid order to finish all courses. If it's impossible, return an empty array.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> a pair <code class="chip">[a, b]</code> is a dependency: <code class="chip">b</code> is a prerequisite of <code class="chip">a</code>, so <code class="chip">b</code> comes first. And the answer is an ordering where every course appears after all its prerequisites. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>When is it impossible?</strong> I think the only way it fails is if the dependencies form a cycle — course A needs B, B needs A. Then no valid order exists and I return an empty array. Is a cycle the only failure case?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right. A cycle is the only reason it fails.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>A couple more.</strong> Can the answer have more than one valid order? <strong>And are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Any valid order is accepted. Up to about 2000 courses and a few thousand pairs.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> Say <code class="chip num">4</code> courses, with pairs <code class="chip">[1,0],[2,0],[3,1],[3,2]</code>. So <code class="chip num">0</code> unlocks <code class="chip num">1</code> and <code class="chip num">2</code>, and both <code class="chip num">1</code> and <code class="chip num">2</code> unlock <code class="chip num">3</code>. A valid order is <code class="chip">[0,1,2,3]</code> — or <code class="chip">[0,2,1,3]</code>, since <code class="chip num">1</code> and <code class="chip num">2</code> don't depend on each other. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p>This is a <strong>directed graph</strong>: each course is a node, each pair is a directed edge. Finishing all courses while respecting prerequisites is exactly a <strong>topological sort</strong> of that graph, and a topological order exists <em>if and only if</em> the graph has no cycle — which lines up with the one failure case.</p>
+      <p><strong>This problem reminds me of</strong> topological sorting, and there are <strong>two standard ways</strong> to build it. <strong>One is DFS post-order</strong>: finish a node only after all its descendants, then reverse. <strong>The other is Kahn's algorithm</strong> — a BFS that repeatedly removes nodes with no remaining prerequisites. Both run in <code class="chip">O(V + E)</code>. I'll code the DFS one and then show the Kahn variant.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan for the DFS version.</p>
+      <div class="insight-box">
+        <span class="label">// build edge b → a (prerequisite points to the course it unlocks)</span><br>
+        <span class="label">// visit[]: 0 = unvisited, 1 = on current path, 2 = done</span><br>
+        dfs(u):<br>
+        &nbsp;&nbsp;if visit[u] == 1: return <span class="em">CYCLE</span>&nbsp;&nbsp;<span class="label">// came back onto the path</span><br>
+        &nbsp;&nbsp;if visit[u] == 2: return OK<br>
+        &nbsp;&nbsp;visit[u] = 1<br>
+        &nbsp;&nbsp;for v in graph[u]: if dfs(v) == CYCLE: return CYCLE<br>
+        &nbsp;&nbsp;visit[u] = 2; <span class="em">order.push(u)</span>&nbsp;&nbsp;<span class="label">// post-order</span><br>
+        for every i: if dfs(i) == CYCLE: return []<br>
+        reverse(order)
+      </div>
+      <p>One: build an edge <code class="chip">b → a</code>, so a prerequisite points to the course it unlocks.<br>
+      Two: DFS from every course with three states, and append a node to <code class="chip">order</code> only after all its neighbors finish.<br>
+      Three: if any DFS finds a cycle, return empty; otherwise reverse <code class="chip">order</code>.</p>
+      <p><strong>One thing worth flagging</strong> — the cycle check needs <strong>three</strong> states, not two. In a DAG a node can be reached again by a different path, and that's normal. Only re-entering a node <strong>still on the current recursion path</strong> (state <code class="chip num">1</code>) is a real cycle; a plain visited flag would falsely flag the diamond's shared node.</p>
+      <p><strong>Why reverse?</strong> Post-order puts a node after its descendants; a topological order wants it <em>before</em> them.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>DFS is good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I'll think out loud as I go.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">findOrder</span>(<span class="typ">int</span> numCourses, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; prerequisites) {
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; visit(numCourses, <span class="num2">0</span>), order;   <span class="com">// visit: 0 unvisited / 1 on path / 2 done</span>
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; graph(numCourses);
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : prerequisites) {
+            <span class="typ">int</span> a = p[<span class="num2">0</span>], b = p[<span class="num2">1</span>];
+            graph[b].<span class="fn">push_back</span>(a);              <span class="com">// edge b→a (prerequisite b points to a)</span>
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; numCourses; i++)
+            <span class="kw">if</span> (<span class="fn">hasCycle</span>(graph, visit, order, i)) <span class="kw">return</span> {};   <span class="com">// cycle → return empty</span>
+
+        <span class="fn">reverse</span>(order.<span class="fn">begin</span>(), order.<span class="fn">end</span>());          <span class="com">// reversed post-order = topological order</span>
+        <span class="kw">return</span> order;
+    }
+
+    <span class="typ">bool</span> <span class="fn">hasCycle</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; graph, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; visit, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&amp; order, <span class="typ">int</span> u) {
+        <span class="kw">if</span> (visit[u] == <span class="num2">1</span>) <span class="kw">return</span> <span class="kw">true</span>;          <span class="com">// back to an "on path" node → cycle</span>
+        <span class="kw">if</span> (visit[u] == <span class="num2">2</span>) <span class="kw">return</span> <span class="kw">false</span>;         <span class="com">// already done, no need to revisit</span>
+
+        visit[u] = <span class="num2">1</span>;                            <span class="com">// in progress (on the current recursion path)</span>
+        <span class="kw">for</span> (<span class="typ">int</span> v : graph[u])
+            <span class="kw">if</span> (<span class="fn">hasCycle</span>(graph, visit, order, v)) <span class="kw">return</span> <span class="kw">true</span>;
+        visit[u] = <span class="num2">2</span>;                            <span class="com">// done</span>
+
+        order.<span class="fn">push_back</span>(u);                       <span class="com">// post-order: add self after all descendants</span>
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p>I build the edges <code class="chip">b → a</code>, then run <code class="chip">hasCycle</code> from every course and return <code class="chip">{}</code> on the first cycle; at the end I reverse <code class="chip">order</code>. Inside <code class="chip">hasCycle</code>, state <code class="chip num">1</code> means I came back onto my path, state <code class="chip num">2</code> means the node is already finished. Otherwise I mark it <code class="chip num">1</code>, explore its neighbors, then mark it <code class="chip num">2</code> and append it.</p>
+      <p><strong>One thing worth flagging</strong> — I set <code class="chip">visit[u] = 2</code> and push to <code class="chip">order</code> <em>after</em> the loop over neighbors. That ordering is the whole point: the node is recorded only once every descendant is already recorded.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> on <code class="chip num">4</code> courses, pairs <code class="chip">[1,0],[2,0],[3,1],[3,2]</code> — so <code class="chip num">0</code> points to <code class="chip num">1</code> and <code class="chip num">2</code>, and both point to <code class="chip num">3</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:440px;">
+        <thead><tr><th>action</th><th>on path (1)</th><th>order (finish)</th></tr></thead>
+        <tbody>
+          <tr><td>enter 0</td><td>{0}</td><td>[]</td></tr>
+          <tr><td>enter 1</td><td>{0,1}</td><td>[]</td></tr>
+          <tr><td>enter 3</td><td>{0,1,3}</td><td>[]</td></tr>
+          <tr><td>3 has no edges → finish 3</td><td>{0,1}</td><td>[3]</td></tr>
+          <tr><td>back at 1 → finish 1</td><td>{0}</td><td>[3,1]</td></tr>
+          <tr class="highlight-row"><td>enter 2, see 3 (state 2) → return</td><td>{0,2}</td><td>[3,1]</td></tr>
+          <tr><td>finish 2</td><td>{0}</td><td>[3,1,2]</td></tr>
+          <tr><td>back at 0 → finish 0</td><td>{}</td><td>[3,1,2,0]</td></tr>
+          <tr><td>reverse(order)</td><td>—</td><td><span class="answer-cell">[0,2,1,3]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is <strong>entering 2 and seeing 3 already in state 2</strong> — that call returns right away, where a two-state flag would have called it a cycle. The finish order is <code class="chip">[3,1,2,0]</code>, so reversed it's <code class="chip">[0,2,1,3]</code>. Valid.</p>
+      <p>Corner cases:</p>
+      <p>• One course and no pairs → <code class="chip">[0]</code>.<br>
+      • The cycle <code class="chip">[0,1],[1,0]</code>: from <code class="chip num">0</code> I reach <code class="chip num">1</code>, whose edge leads back to <code class="chip num">0</code>, still in state <code class="chip num">1</code>, so I return <code class="chip">{}</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. You mentioned Kahn's algorithm earlier — can you show that version?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Sure. Instead of recursion, I track each node's <strong>in-degree</strong> — how many prerequisites it still has. I start a queue with every node at in-degree <code class="chip num">0</code>, and each time I pop one, I "remove" it by decrementing its neighbors; any neighbor that reaches <code class="chip num">0</code> joins the queue. The pop order is the answer.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">findOrder</span>(<span class="typ">int</span> numCourses, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; prerequisites) {
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; indeg(numCourses, <span class="num2">0</span>);
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; graph(numCourses);
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : prerequisites) {
+            <span class="typ">int</span> b = p[<span class="num2">1</span>], a = p[<span class="num2">0</span>];
+            graph[b].<span class="fn">push_back</span>(a);
+            indeg[a]++;                          <span class="com">// a gains one prerequisite</span>
+        }
+
+        <span class="typ">queue</span>&lt;<span class="typ">int</span>&gt; q;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; numCourses; i++)
+            <span class="kw">if</span> (indeg[i] == <span class="num2">0</span>) q.<span class="fn">push</span>(i);          <span class="com">// no prerequisites → start</span>
+
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; order;
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="typ">int</span> u = q.<span class="fn">front</span>(); q.<span class="fn">pop</span>();
+            order.<span class="fn">push_back</span>(u);
+            <span class="kw">for</span> (<span class="typ">int</span> v : graph[u])
+                <span class="kw">if</span> (--indeg[v] == <span class="num2">0</span>) q.<span class="fn">push</span>(v);      <span class="com">// all prerequisites done → ready</span>
+        }
+        <span class="kw">return</span> order.<span class="fn">size</span>() == numCourses ? order : <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;();  <span class="com">// fewer = cycle</span>
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — here the cycle check is <em>free</em>. Nodes inside a cycle keep a positive in-degree forever, so they never enter the queue. If <code class="chip">order.size()</code> ends up less than <code class="chip">numCourses</code>, some node was stuck in a cycle, and I return empty. Same <code class="chip">O(V + E)</code>, no recursion depth risk.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p><strong>Time is <code class="chip">O(V + E)</code></strong> for both — every node and edge is touched once. <strong>Space is <code class="chip">O(V + E)</code></strong> for the adjacency list, plus <code class="chip">O(V)</code> for the visit or in-degree arrays and the queue or recursion stack.</p>
+      <p><em class="pause">Oh, one more thing —</em> for very deep graphs the DFS recursion could risk a stack overflow, so in production I'd lean toward <strong>Kahn's iterative version</strong>. And if the problem wanted the <strong>lexicographically smallest</strong> order, I'd swap Kahn's plain queue for a min-heap.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You framed it as a topological sort and tied "impossible" precisely to a cycle. You caught that the DFS cycle check needs three states — and showed exactly where a two-state flag would break on the shared node. And you gave both algorithms with a clear reason to prefer the iterative one. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 15.79, 34.76, 37.09, 51.43, 55.6, 62.39, 69.05, 93.53, 140.44, 191.94, 195.08, 233.11, 274.65, 280.04, 319.09, 353.11]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
