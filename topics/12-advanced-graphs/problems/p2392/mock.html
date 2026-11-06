@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 2392 · Build a Matrix With Conditions</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 2392 · Build a Matrix With Conditions · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Build a <code class="chip">k × k</code> matrix. Place each number <code class="chip">1..k</code> exactly once; the rest are <code class="chip num">0</code>. <code class="chip">rowConditions[i] = [a,b]</code> means <code class="chip">a</code>'s row is strictly above <code class="chip">b</code>'s row. <code class="chip">colConditions</code> is the same idea for columns. Return any valid matrix, or an empty one if none exists.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong></p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> each number gets one cell. Its <strong>row</strong> is controlled only by <code class="chip">rowConditions</code>, and its <strong>column</strong> only by <code class="chip">colConditions</code>. So the row and the column are two separate questions. Right?</p>
+      <p><em class="pause">Here's the thing I want to say early.</em> "a is above b" is just an order. It says a comes before b when I stack rows top to bottom. That's a <strong>topological order</strong>. Same for columns, left to right.</p>
+      <p><strong>Are there any constraints on k and on how many conditions there are?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">k</code> is up to <code class="chip num">400</code>, and each condition list has up to 10<sup>4</sup> entries. Conditions can contradict each other.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — "can contradict" tells me I must detect a cycle and return empty.</p>
+      <p>Let me run through the example. Take <code class="chip">k=3</code>, <code class="chip">row=[[1,2],[3,2]]</code> — 1 above 2, and 3 above 2. A valid top-to-bottom order is <code class="chip">1, 3, 2</code>. That gives 1 the top row, then 3, then 2.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">M — match</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would</strong> be to try every possible ordering of rows and columns and check the conditions. But that's <code class="chip">k!</code> orderings. With k up to 400, that's hopeless.</p>
+      <p><strong>This problem reminds me of topological sort.</strong> Each "above" or "left" rule is a directed edge. A valid line-up is a topo order of that graph. If the graph has a cycle, no order exists.</p>
+      <p>The key move is to keep rows and columns <strong>separate</strong>. Two independent graphs, two independent topo sorts. Mixing them would invent fake cycles across dimensions that don't really conflict.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">P — plan</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan. I'm using Kahn's algorithm — peel off in-degree-zero nodes — to get each order.</p>
+      <div class="insight-box">
+        <span class="label">// 1. topo(rowConditions) → rowOrder ; rowOrder[i] sits in row i</span><br>
+        <span class="label">// 2. topo(colConditions) → colOrder ; colOrder[i] sits in col i</span><br>
+        <span class="label">// 3. if either topo length != k → cycle → return {}</span><br>
+        <span class="label">// 4. place value v at (rowPos[v], colPos[v]); rest stay 0</span><br>
+        <span class="em">claim:</span> rowPos and colPos are permutations → no two values collide
+      </div>
+      <p>One: topo-sort <code class="chip">rowConditions</code>; the i-th number in that order sits in row i.<br>
+      Two: do the same for <code class="chip">colConditions</code> to get each column.<br>
+      Three: if either order is shorter than k, there's a cycle, so return <code class="chip">{}</code>; otherwise drop each value at its row and column crossing.</p>
+      <p><strong>One thing worth flagging</strong> about correctness. Both position maps are permutations of <code class="chip">0..k-1</code>, so the k values land in k different cells — like a permutation matrix. No collisions, and every other cell is naturally 0.</p>
+      <p>There's a trade-off here. The matrix itself costs O(k<sup>2</sup>) space, which I can't avoid since I have to return it. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead and code it up.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">I — implement</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; <span class="fn">buildMatrix</span>(<span class="typ">int</span> k, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; rowConditions,
+                                       <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; colConditions) {
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; rowOrder = <span class="fn">topo</span>(rowConditions, k);   <span class="com">// row order</span>
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; colOrder = <span class="fn">topo</span>(colConditions, k);   <span class="com">// col order</span>
+        <span class="kw">if</span> (rowOrder.<span class="fn">empty</span>() || colOrder.<span class="fn">empty</span>()) <span class="kw">return</span> {};  <span class="com">// a cycle → no answer</span>
+
+        <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>,<span class="typ">int</span>&gt;&gt; pos(k + <span class="num2">1</span>, {-<span class="num2">1</span>, -<span class="num2">1</span>});
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; k; i++) {
+            pos[rowOrder[i]].first  = i;          <span class="com">// its row index</span>
+            pos[colOrder[i]].second = i;          <span class="com">// its col index</span>
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; matrix(k, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;(k, <span class="num2">0</span>));
+        <span class="kw">for</span> (<span class="typ">int</span> v = <span class="num2">1</span>; v &lt;= k; v++)
+            matrix[pos[v].first][pos[v].second] = v;   <span class="com">// drop at crossing</span>
+        <span class="kw">return</span> matrix;
+    }
+
+    <span class="com">// Kahn topo sort: an order of length k, or empty on a cycle</span>
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; <span class="fn">topo</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; arr, <span class="typ">int</span> k) {
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; graph(k + <span class="num2">1</span>);
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; indegree(k + <span class="num2">1</span>, <span class="num2">0</span>);
+        <span class="kw">for</span> (<span class="kw">auto</span> e : arr) {
+            <span class="kw">auto</span> u = e[<span class="num2">0</span>], v = e[<span class="num2">1</span>];
+            graph[u].<span class="fn">push_back</span>(v);                     <span class="com">// u before v (above / left)</span>
+            indegree[v]++;
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; order;
+        <span class="typ">queue</span>&lt;<span class="typ">int</span>&gt; q;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= k; i++)
+            <span class="kw">if</span> (indegree[i] == <span class="num2">0</span>) q.<span class="fn">push</span>(i);       <span class="com">// no prerequisite</span>
+
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> u = q.<span class="fn">front</span>(); q.<span class="fn">pop</span>();
+            order.<span class="fn">push_back</span>(u);
+            <span class="kw">for</span> (<span class="kw">auto</span> v : graph[u])
+                <span class="kw">if</span> (--indegree[v] == <span class="num2">0</span>) q.<span class="fn">push</span>(v);   <span class="com">// freed a node</span>
+        }
+        <span class="kw">return</span> order.<span class="fn">size</span>() == k ? order : <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;();  <span class="com">// short = cycle</span>
+    }
+};</pre>
+      <p>The main function runs <code class="chip">topo</code> twice, returns empty if either order comes back empty, records each number's row and column index in <code class="chip">pos</code>, and drops it at that crossing. <code class="chip">topo</code> is plain Kahn: build the edges, push every in-degree-0 number, and when popping a node drops a neighbor to 0, that neighbor joins the queue.</p>
+      <p><strong>One thing worth flagging</strong> in <code class="chip">topo</code>. The cycle check is the return line: <code class="chip">order.size() == k</code>. In a clean DAG every node enters and leaves the queue once, so the order has all k nodes. If a cycle exists, those nodes never reach in-degree zero, so the order comes up short. That one comparison is my whole "no answer" test.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">R — review</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code.</strong> <code class="chip">k=3</code>, <code class="chip">row=[[1,2],[3,2]]</code>, <code class="chip">col=[[2,1],[3,2]]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:480px;">
+        <thead><tr><th>phase</th><th>pop</th><th>order</th><th>note</th></tr></thead>
+        <tbody>
+          <tr><td>row</td><td>1</td><td>[1]</td><td>2's in-degree 2 → 1</td></tr>
+          <tr class="highlight-row"><td>row</td><td>3</td><td>[1,3]</td><td>2's in-degree 1 → 0, enqueue</td></tr>
+          <tr><td>row</td><td>2</td><td>[1,3,2]</td><td>rowOrder done</td></tr>
+          <tr><td>col</td><td>3</td><td>[3]</td><td>2 freed</td></tr>
+          <tr><td>col</td><td>2</td><td>[3,2]</td><td>1 freed</td></tr>
+          <tr><td>col</td><td>1</td><td>[3,2,1]</td><td>colOrder done</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <table class="trace" style="width:auto;">
+        <thead><tr><th colspan="3">result matrix</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>0</td><td><span class="answer-cell">1</span></td></tr>
+          <tr><td><span class="answer-cell">3</span></td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td><span class="answer-cell">2</span></td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p>The moment it clicks is the highlighted row: popping 3 drops 2's in-degree to zero, so 2 gets freed and takes the last row. That "free a node when its last prerequisite leaves" step is the heart of Kahn's.</p>
+      <p><code class="chip">rowOrder = [1,3,2]</code>, <code class="chip">colOrder = [3,2,1]</code>. Dropping each value at its crossing gives a matrix where all four conditions check out.</p>
+      <p>Let's also test with corner cases.</p>
+      <p>• <code class="chip">row=[[1,2],[2,3],[3,1]]</code> — a cycle 1→2→3→1, no node hits in-degree zero, <code class="chip">topo</code> comes back short, so I return empty.<br>
+      • A repeated condition just bumps the in-degree twice and gets undone twice.<br>
+      • A number in no condition starts at in-degree zero and can go anywhere.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is <code class="chip">O(k² + E)</code>, where E is the total number of conditions. Each topo sort is <code class="chip">O(k + E)</code>; the k<sup>2</sup> comes from building the k-by-k matrix, which I have to do anyway.</p>
+      <p>Space is also <code class="chip">O(k² + E)</code> — the matrix is k<sup>2</sup>, and the two graphs are <code class="chip">O(k + E)</code>.</p>
+      <p>In the worst-case scenario, one dimension has all the edges, but Kahn still touches each node and edge once, so it stays linear in the graph.</p>
+      <p><em class="pause">Oh, one more thing —</em> if the caller only needs a yes/no answer, I can skip building the matrix entirely. Just run both topo sorts and return whether both succeeded. That drops it to <code class="chip">O(k + E)</code> time and space.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nice. Three things stood out. You saw early that <strong>rows and columns are independent</strong>, so two separate topo sorts, not one mixed graph. You reduced the cycle test to one clean line — <code class="chip">order.size() == k</code>. And you argued <strong>no collisions</strong> from the permutation structure, instead of hand-waving it. Strong hire.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 20.87, 56.2, 64.64, 82.78, 120.55, 171.97, 175.57, 217.46, 265.87, 310.0]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

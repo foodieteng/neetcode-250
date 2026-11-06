@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 269 · Alien Dictionary</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+code.chip { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 269 · Alien Dictionary · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given a list of words <code class="chip">words</code>, sorted by the rules of an alien language. Recover a possible order of its letters. Return any valid order, or <code class="chip">""</code> if the input is contradictory.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong></p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> the words are already sorted by the alien alphabet, and I need to work backward to the letter order. Right?</p>
+      <p><em class="pause">Here's the thing I want to say early.</em> The sort only leaks one clue per neighboring pair. When I compare two words side by side, the <strong>first place they differ</strong> tells me one letter comes before another. Everything after that first difference tells me nothing.</p>
+      <p>So this is really a graph. Each clue is a directed edge, and I want a <strong>topological order</strong> of the letters.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>That's right. Letters are lowercase a–z.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me run through the example: <code class="chip">[wrt, wrf, er, ett, rftt]</code>. Each neighboring pair gives exactly one clue: <code class="chip">t → f</code>, <code class="chip">w → e</code>, <code class="chip">r → t</code>, and <code class="chip">e → r</code>. Those edges chain up into <code class="chip">w → e → r → t → f</code> — so the order is <code class="chip">"wertf"</code>.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">M — match</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would</strong> be to try every permutation of the letters and check them all. But that's up to 26! — hopeless.</p>
+      <p><strong>This problem reminds me of topological sort.</strong> Build a graph of "before" edges, then flatten it into a line. If the graph has a cycle, the order contradicts itself and I return empty.</p>
+      <p>There are two standard ways to topo-sort, and I'll show both: <strong>DFS reverse post-order</strong>, and <strong>Kahn's BFS on in-degrees</strong>.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">P — plan</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan. I'm using an adjacency set per letter to keep track of the edges.</p>
+      <div class="insight-box">
+        <span class="label">// 1. add every letter that appears as a node (even with no edges)</span><br>
+        <span class="label">// 2. for each adjacent pair, find the first differing index j</span><br>
+        <span class="label">//&nbsp;&nbsp;&nbsp;&nbsp;add edge w1[j] → w2[j], then stop</span><br>
+        <span class="label">//&nbsp;&nbsp;&nbsp;&nbsp;if no diff but w1 is longer → prefix conflict → ""</span><br>
+        <span class="label">// 3. topological sort the graph (DFS or Kahn)</span><br>
+        <span class="label">//&nbsp;&nbsp;&nbsp;&nbsp;a cycle → return ""</span><br>
+        <span class="em">two edge cases:</span> the prefix conflict, and lonely letters with no edges
+      </div>
+      <p>One: add every letter that appears as a node, even with no edges.<br>
+      Two: for each neighboring pair, find the first differing index, add that one edge, and stop.<br>
+      Three: topologically sort the graph, with DFS or Kahn — a cycle means return empty.<br>
+      Two edge cases: the prefix conflict, and lonely letters with no edges.</p>
+      <p><strong>One thing worth flagging.</strong> Two words like <code class="chip">[abc, ab]</code> are a contradiction — a prefix must come before the longer word, never after. If I scan the shared length and find no difference but the first word is longer, I return empty right away.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Show me both topo sorts.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">I — implement</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. First the <strong>DFS</strong> version, with three colors for cycle detection.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="typ">unordered_map</span>&lt;<span class="typ">char</span>, <span class="typ">unordered_set</span>&lt;<span class="typ">char</span>&gt;&gt; graph;
+    <span class="typ">unordered_map</span>&lt;<span class="typ">char</span>, <span class="typ">int</span>&gt; color;   <span class="com">// 0=white(unseen) 1=gray(on stack) 2=black(done)</span>
+    <span class="typ">string</span> res;
+
+    <span class="com">// returns false = cycle found</span>
+    <span class="typ">bool</span> <span class="fn">dfs</span>(<span class="typ">char</span> u) {
+        color[u] = <span class="num2">1</span>;                          <span class="com">// enter: gray</span>
+        <span class="kw">for</span> (<span class="typ">char</span> v : graph[u]) {
+            <span class="kw">if</span> (color[v] == <span class="num2">1</span>) {
+                <span class="kw">return</span> <span class="kw">false</span>;                  <span class="com">// hit gray → cycle</span>
+            }
+            <span class="kw">if</span> (color[v] == <span class="num2">0</span> &amp;&amp; !<span class="fn">dfs</span>(v)) {
+                <span class="kw">return</span> <span class="kw">false</span>;
+            }
+        }
+        color[u] = <span class="num2">2</span>;                          <span class="com">// done: black</span>
+        res += u;                              <span class="com">// post-order (reverse topo)</span>
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+<span class="kw">public</span>:
+    <span class="typ">string</span> <span class="fn">alienOrder</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; words) {
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : words) {
+            <span class="kw">for</span> (<span class="typ">char</span> c : w) {
+                graph[c];                       <span class="com">// make sure the node exists</span>
+                color[c] = <span class="num2">0</span>;
+            }
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i + <span class="num2">1</span> &lt; (<span class="typ">int</span>)words.<span class="fn">size</span>(); i++) {
+            <span class="typ">string</span>&amp; w1 = words[i];
+            <span class="typ">string</span>&amp; w2 = words[i + <span class="num2">1</span>];
+            <span class="typ">int</span> minL = <span class="fn">min</span>(w1.<span class="fn">size</span>(), w2.<span class="fn">size</span>());
+            <span class="typ">int</span> j = <span class="num2">0</span>;
+            <span class="kw">for</span> (; j &lt; minL; j++) {
+                <span class="kw">if</span> (w1[j] == w2[j]) {
+                    <span class="kw">continue</span>;
+                }
+                graph[w1[j]].<span class="fn">insert</span>(w2[j]);    <span class="com">// set dedups for free</span>
+                <span class="kw">break</span>;
+            }
+            <span class="kw">if</span> (j == minL &amp;&amp; w1.<span class="fn">size</span>() &gt; w2.<span class="fn">size</span>()) {
+                <span class="kw">return</span> <span class="str">""</span>;                     <span class="com">// prefix conflict</span>
+            }
+        }
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [c, _] : color) {
+            <span class="kw">if</span> (color[c] == <span class="num2">0</span> &amp;&amp; !<span class="fn">dfs</span>(c)) {
+                <span class="kw">return</span> <span class="str">""</span>;                     <span class="com">// cycle</span>
+            }
+        }
+
+        <span class="fn">reverse</span>(res.<span class="fn">begin</span>(), res.<span class="fn">end</span>());       <span class="com">// reverse post-order → topo order</span>
+        <span class="kw">return</span> res;
+    }
+};</pre>
+      <p>Both versions build the graph the same way: register every letter, add one edge per neighboring pair, and return <code class="chip">""</code> on a prefix conflict.</p>
+      <p><strong>One thing worth flagging</strong> in the DFS. I add a letter to <code class="chip">res</code> only after all its descendants have finished — that's post-order, which is the <strong>reverse</strong> of topological order, so I flip it at the end. Cycle detection is the gray color: if I reach a node that's still on the recursion stack, I've found a back edge.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Now the same thing with Kahn's BFS.</em></p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="typ">unordered_map</span>&lt;<span class="typ">char</span>, <span class="typ">unordered_set</span>&lt;<span class="typ">char</span>&gt;&gt; graph;
+    <span class="typ">unordered_map</span>&lt;<span class="typ">char</span>, <span class="typ">int</span>&gt; indegree;
+
+<span class="kw">public</span>:
+    <span class="typ">string</span> <span class="fn">alienOrder</span>(<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&amp; words) {
+        <span class="typ">int</span> n = words.<span class="fn">size</span>();
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : words) {
+            <span class="kw">for</span> (<span class="typ">char</span> c : w) {
+                indegree[c] = <span class="num2">0</span>;
+                graph[c] = <span class="typ">unordered_set</span>&lt;<span class="typ">char</span>&gt;();
+            }
+        }
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n - <span class="num2">1</span>; i++) {
+            <span class="typ">string</span>&amp; w1 = words[i];
+            <span class="typ">string</span>&amp; w2 = words[i + <span class="num2">1</span>];
+            <span class="typ">int</span> minL = <span class="fn">min</span>(w1.<span class="fn">size</span>(), w2.<span class="fn">size</span>());
+            <span class="typ">int</span> j = <span class="num2">0</span>;
+            <span class="kw">for</span> (; j &lt; minL; j++) {
+                <span class="kw">if</span> (w1[j] == w2[j]) {
+                    <span class="kw">continue</span>;
+                }
+                <span class="kw">if</span> (!graph[w1[j]].<span class="fn">count</span>(w2[j])) {   <span class="com">// only a NEW edge bumps indegree</span>
+                    graph[w1[j]].<span class="fn">insert</span>(w2[j]);
+                    indegree[w2[j]]++;
+                }
+                <span class="kw">break</span>;
+            }
+            <span class="kw">if</span> (j == minL &amp;&amp; w1.<span class="fn">size</span>() &gt; w2.<span class="fn">size</span>()) {
+                <span class="kw">return</span> <span class="str">""</span>;                          <span class="com">// prefix conflict</span>
+            }
+        }
+
+        <span class="typ">queue</span>&lt;<span class="typ">char</span>&gt; q;
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [c, deg] : indegree) {
+            <span class="kw">if</span> (deg == <span class="num2">0</span>) {
+                q.<span class="fn">push</span>(c);
+            }
+        }
+
+        <span class="typ">string</span> res;
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="typ">char</span> u = q.<span class="fn">front</span>();
+            q.<span class="fn">pop</span>();
+            res += u;
+            <span class="kw">for</span> (<span class="typ">char</span> v : graph[u]) {
+                <span class="kw">if</span> (--indegree[v] == <span class="num2">0</span>) {
+                    q.<span class="fn">push</span>(v);
+                }
+            }
+        }
+
+        <span class="kw">return</span> res.<span class="fn">size</span>() == indegree.<span class="fn">size</span>() ? res : <span class="str">""</span>;   <span class="com">// short = cycle</span>
+    }
+};</pre>
+      <p>Every letter with in-degree 0 starts in the queue; each pop appends the letter and lowers its neighbors' in-degrees. If <code class="chip">res</code> is shorter than the number of letters, something was stuck in a cycle.</p>
+      <p><strong>One thing worth flagging</strong> in Kahn's — the <code class="chip">count</code> check before <code class="chip">indegree[v]++</code>. The same edge can be produced by more than one word pair. The set only stores it once, but if I bump the in-degree every time, the count is too high, that letter never drops to zero, and I'd falsely report a cycle. The DFS version uses a set with no counts, so it's immune.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">R — review</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">[wrt, wrf, er, ett, rftt]</code>, through Kahn's. The four edges are <code class="chip">t → f</code>, <code class="chip">w → e</code>, <code class="chip">r → t</code>, and <code class="chip">e → r</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:540px;">
+        <thead><tr><th>step</th><th>action</th><th>state</th></tr></thead>
+        <tbody>
+          <tr><td>edges</td><td>t→f, w→e, r→t, e→r</td><td>chain w→e→r→t→f</td></tr>
+          <tr><td>indeg</td><td>w:0 e:1 r:1 t:1 f:1</td><td>queue = [w]</td></tr>
+          <tr class="highlight-row"><td>pop w</td><td>res="w", e→0</td><td>queue = [e]</td></tr>
+          <tr><td>pop e</td><td>res="we", r→0</td><td>queue = [r]</td></tr>
+          <tr><td>pop r</td><td>res="wer", t→0</td><td>queue = [t]</td></tr>
+          <tr><td>pop t,f</td><td>res="wertf"</td><td><span class="answer-cell">"wertf"</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the start: only <code class="chip">w</code> has in-degree 0, so it goes first. Popping it frees <code class="chip">e</code>, which frees <code class="chip">r</code>, and so on down the chain. <code class="chip">res.size()</code> is 5, equal to the letter count, so no cycle — <code class="chip">"wertf"</code>.</p>
+      <p>Let's also test with corner cases.</p>
+      <p>• <code class="chip">[z, x, z]</code> forces z before x and x before z — a cycle, so I return <code class="chip">""</code>.<br>
+      • <code class="chip">[abc, ab]</code> is a prefix conflict, <code class="chip">""</code>.<br>
+      • A single word like <code class="chip">[abc]</code> has no pairs, so its letters come out in any order — all valid.</p>
+    </div>
+  </div>
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is <code class="chip">O(C + V + E)</code>, where C is the total length of all words, V is the number of distinct letters, and E is the number of edges. Building the graph scans every character once; the topo sort touches each node and edge once. Both versions are the same.</p>
+      <p>Space is <code class="chip">O(V + E)</code>, for the graph plus the color map or the in-degree map.</p>
+      <p>In the worst case V is capped at 26, so the letter part is basically constant.</p>
+      <p><em class="pause">Oh, one more thing —</em> if I needed the smallest valid order instead of any, I'd take the Kahn version and swap the plain queue for a min-heap, always popping the smallest ready letter. The DFS version doesn't give that as cleanly.</p>
+    </div>
+  </div>
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nice. Three things stood out. You saw early that <strong>only the first differing character</strong> carries order info, and you caught the prefix-conflict edge case. You showed <strong>both topo skeletons</strong>, DFS reverse post-order and Kahn. And you flagged the <strong>dedup trap</strong> in Kahn's in-degree — a real bug that a set-based DFS avoids for free. Strong hire.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.07, 48.2, 52.16, 73.32, 104.13, 152.03, 155.57, 189.89, 225.88, 268.57, 312.08]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
