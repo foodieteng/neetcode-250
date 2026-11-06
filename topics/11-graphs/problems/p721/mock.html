@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 721 · Accounts Merge</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+@media (max-width: 480px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 721 · Accounts Merge · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Each account is <code class="chip">[name, email1, email2, ...]</code>. Two accounts belong to the same person if they <strong>share at least one email</strong>. Merge them and return, per person, the name followed by all their emails in sorted order.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> merging is driven purely by <strong>shared emails</strong>, and the name is only there for output. <strong>Two different people could share a name</strong> but stay separate if they share no email. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct — shared email is the only link.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> Two "John" accounts both contain <code class="chip">johnsmith</code>, so they merge into one John with <code class="chip">johnsmith</code>, <code class="chip">john_newyork</code> and <code class="chip">john00</code>. A separate <code class="chip">Mary</code>, and a third "John" with only <code class="chip">johnnybravo</code>, stay on their own. Three groups out.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>This problem reminds me of</strong> <strong>Union-Find</strong>, because grouping sets that share elements is exactly what it's built for. The key move is to make the <strong>emails</strong> the nodes, not the accounts.</p>
+      <p>I give every distinct email an integer id, and within each account I union its emails together. Because the <em>same email string always maps to the same id</em>, any two accounts that share an email get pulled into the same set automatically. Then I bucket emails by their root, sort each bucket, and prepend the owner's name.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// 1. map every email → id; record email[id], owner[id]</span><br>
+        <span class="label">// 2. per account: Union(id[acc[1]], id[acc[i]]) for i&gt;=2 (star, not clique)</span><br>
+        <span class="label">// 3. bucket[Find(i)].push(email[i]); sort each; prepend owner[root]</span>
+      </div>
+      <p>One: map every email to an id, and record the email and its owner for each id.<br>
+      Two: for each account, union its first email with each of the rest.<br>
+      Three: bucket every email under its root, sort each bucket, and put the owner's name in front.</p>
+      <p><strong>One thing worth flagging</strong> — I union in a <strong>star</strong>: the first email links to each of the rest, which is O(k) per account, not the O(k<sup>2</sup>) of connecting every pair. <em class="pause">And a subtle indexing point —</em> the mapping loop starts at <code class="chip">i=1</code>, so every email, including a lone one, gets registered, while the union loop starts at <code class="chip">i=2</code>, since <code class="chip">acc[1]</code> is the star center.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; parent;
+    <span class="typ">int</span> <span class="fn">Find</span>(<span class="typ">int</span> x) { <span class="kw">return</span> parent[x] &lt; <span class="num2">0</span> ? x : parent[x] = <span class="fn">Find</span>(parent[x]); }
+    <span class="typ">bool</span> <span class="fn">Union</span>(<span class="typ">int</span> x, <span class="typ">int</span> y) {
+        <span class="typ">int</span> rx = <span class="fn">Find</span>(x), ry = <span class="fn">Find</span>(y);
+        <span class="kw">if</span> (rx == ry) <span class="kw">return</span> <span class="kw">false</span>;
+        <span class="kw">if</span> (-parent[rx] &lt; -parent[ry]) <span class="fn">swap</span>(rx, ry);
+        parent[rx] += parent[ry]; parent[ry] = rx; <span class="kw">return</span> <span class="kw">true</span>;
+    }
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt; <span class="fn">accountsMerge</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt;&amp; accounts) {
+        <span class="typ">unordered_map</span>&lt;<span class="typ">string</span>, <span class="typ">int</span>&gt; id;
+        <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt; email, owner;          <span class="com">// id → email · id → name</span>
+
+        <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; acc : accounts)       <span class="com">// ① give every email an id</span>
+            <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt; acc.<span class="fn">size</span>(); i++)
+                <span class="kw">if</span> (!id.<span class="fn">count</span>(acc[i])) {
+                    id[acc[i]] = email.<span class="fn">size</span>();
+                    email.<span class="fn">push_back</span>(acc[i]);
+                    owner.<span class="fn">push_back</span>(acc[<span class="num2">0</span>]);     <span class="com">// register lone emails too</span>
+                }
+
+        parent.<span class="fn">assign</span>(email.<span class="fn">size</span>(), <span class="num2">-1</span>);
+
+        <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; acc : accounts)       <span class="com">// ② star union (not clique)</span>
+            <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">2</span>; i &lt; acc.<span class="fn">size</span>(); i++)
+                <span class="fn">Union</span>(id[acc[<span class="num2">1</span>]], id[acc[i]]);  <span class="com">// acc[1] links the rest</span>
+
+        <span class="typ">unordered_map</span>&lt;<span class="typ">int</span>, <span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt; buf;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; (<span class="typ">int</span>)email.<span class="fn">size</span>(); i++)
+            buf[<span class="fn">Find</span>(i)].<span class="fn">push_back</span>(email[i]);       <span class="com">// ③ group by root</span>
+
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">string</span>&gt;&gt; ans;
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [root, group] : buf) {
+            <span class="fn">sort</span>(group.<span class="fn">begin</span>(), group.<span class="fn">end</span>());          <span class="com">// emails in lexicographic order</span>
+            group.<span class="fn">insert</span>(group.<span class="fn">begin</span>(), owner[root]);  <span class="com">// name in front</span>
+            ans.<span class="fn">push_back</span>(group);
+        }
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p><code class="chip">Find</code> and <code class="chip">Union</code> are the usual size-based Union-Find. The first loop gives each new email the next id and records its owner. Then I size <code class="chip">parent</code> to the number of distinct emails, run the star unions, bucket each id under its root, and for each bucket sort it and insert <code class="chip">owner[root]</code> at the front.</p>
+      <p><strong>One thing worth flagging</strong> — registering emails in the first loop from <code class="chip">i=1</code> is what makes single-email accounts like Mary show up at all. They never get a <code class="chip">Union</code>, but they still get an id and a bucket.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> on the example. I'll shorten the emails to <code class="chip">smith</code>, <code class="chip">ny</code>, <code class="chip">j00</code>, <code class="chip">mary</code>, and <code class="chip">bravo</code>, with ids <code class="chip num">0</code> to <code class="chip num">4</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>step</th><th>action</th><th>state</th></tr></thead>
+        <tbody>
+          <tr><td>map</td><td>smith=0, ny=1, j00=2, mary=3, bravo=4</td><td>owner=[John,John,John,Mary,John]</td></tr>
+          <tr><td>acct0 [John,smith,ny]</td><td>Union(0,1)</td><td>{0,1}</td></tr>
+          <tr class="highlight-row"><td>acct1 [John,smith,j00]</td><td>Union(0,2) — smith already 0</td><td>{0,1,2}</td></tr>
+          <tr><td>acct2 [Mary,mary]</td><td>no union</td><td>{3}</td></tr>
+          <tr><td>acct3 [John,bravo]</td><td>no union</td><td>{4}</td></tr>
+          <tr><td>group</td><td>roots 0, 3, 4</td><td><span class="answer-cell">3 groups</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the second John account: <code class="chip">smith</code> already has id <code class="chip num">0</code>, so <code class="chip">Union(0,2)</code> pulls <code class="chip">j00</code> into the same set as <code class="chip">ny</code>. Mary and bravo get no union and stay alone. So the roots are <code class="chip num">0</code>, <code class="chip num">3</code> and <code class="chip num">4</code> — three groups.</p>
+      <p>John gets <code class="chip">[j00, ny, smith]</code>, in sorted order. The two Johns that never shared an email stayed <strong>separate</strong> — just as the clarification predicted.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let <code class="chip">N</code> be the total number of emails. The union and find work is O(N·α(N)), effectively linear. <strong>The bottleneck is sorting</strong> the buckets — across all groups that's <code class="chip">N</code> emails, so O(N log N) overall. <strong>Space is</strong> O(N), for the map, the parent array, and the buckets.</p>
+      <p><em class="pause">Oh, one more thing —</em> the same shape solves with plain DFS: build a graph where each account star-links its emails, then flood-fill each component. Union-Find is just tighter here, and it's the same core as counting components or finding a cycle edge — only the nodes changed from integers to email strings.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You made <em>emails</em> the nodes, so shared emails merge for free. You used a star union to stay O(k) per account. And you nailed that the name is output-only — two same-name accounts with no shared email stay separate. Good work.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>window.MOCK_CUES = [0.0, 14.56, 32.22, 36.05, 51.38, 84.5, 118.67, 121.49, 152.88, 187.67, 222.37]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
