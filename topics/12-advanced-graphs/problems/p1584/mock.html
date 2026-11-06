@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1584 · Min Cost to Connect All Points</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1584 · Min Cost to Connect All Points · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given <code class="chip">n</code> points on a 2D plane. The cost to connect any two points is their Manhattan distance. Return the minimum total cost to connect all points, so every point can reach every other point.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> I can connect <em>any</em> pair of points, and the cost of that edge is fixed: the Manhattan distance between them. I want every point connected into one piece, for the least total cost. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Then the key observation is this: I have a <strong>complete graph</strong>. Every pair of points is an edge, weighted by its Manhattan distance. Connecting all points for the least total cost, with no wasted edges, is exactly the definition of a <strong>minimum spanning tree</strong>. So the answer is the weight of the MST, and it uses exactly <code class="chip">n − 1</code> edges. <strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">n</code> is up to <code class="chip num">1000</code>. Coordinates fit in an int.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example:</strong> five points — <code class="chip">[[0,0],[2,2],[3,10],[5,2],[7,0]]</code>. The cheapest wiring uses <code class="chip">P1–P3 = 3</code>, <code class="chip">P0–P1 = 4</code>, <code class="chip">P3–P4 = 4</code>, and <code class="chip">P1–P2 = 9</code>. That sums to <code class="chip num">20</code>, which matches the expected answer.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> try every subset of edges that connects all points and keep the cheapest. But the number of subsets explodes, so that's not feasible.</p>
+      <p><strong>This problem reminds me of</strong> the two classic minimum spanning tree algorithms: <strong>Prim's</strong> and <strong>Kruskal's</strong>. Both are greedy, and both give a provably minimum tree. I'll show both — they solve the same problem from two angles.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan for both.</p>
+      <div class="insight-box">
+        <span class="label">// A · Prim — grow one tree from a start node</span><br>
+        keep inMST[] + a min-heap of (weight, node)<br>
+        pop cheapest crossing edge → if node already in tree, <span class="em">skip</span><br>
+        else add it, add its weight, push its edges → until n nodes<br>
+        <br>
+        <span class="label">// B · Kruskal — pick smallest edges globally</span><br>
+        push all pair edges → pop smallest by weight<br>
+        Union-Find: endpoints in different sets → take it<br>
+        same set → it makes a <span class="em">cycle</span>, drop it → until n−1 edges
+      </div>
+      <p>One: Prim grows a tree from point <code class="chip num">0</code> with a min-heap, always taking the cheapest edge to a new node.<br>
+      Two: Kruskal pops all pair edges from the smallest up, and Union-Find drops any edge whose endpoints are already connected.<br>
+      Three: stop at <code class="chip">n</code> nodes for Prim, or <code class="chip">n − 1</code> edges for Kruskal.</p>
+      <p><strong>One thing worth flagging</strong> — greedy is safe because of the <strong>cut property</strong>: for any split of the points into two groups, the cheapest crossing edge belongs to some MST. Prim uses the cut "tree vs outside"; Kruskal uses it each time it joins two blocks.</p>
+      <p>Both cost <code class="chip">O(n² log n)</code> on this dense graph. Array-based Prim gets <code class="chip">O(n²)</code>, but the heap versions are cleaner and fast enough for <code class="chip">n = 1000</code>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code them both up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. Prim first: a min-heap of <code class="chip">(weight, node)</code>, seeded with point <code class="chip num">0</code> at cost <code class="chip num">0</code>. Each fresh pop adds a node to the tree and pushes its edges to every outside node.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minCostConnectPoints</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; points) {
+        <span class="kw">auto</span> manhattan = [&amp;](<span class="typ">int</span> u, <span class="typ">int</span> v) {          <span class="com">// cost of two points = Manhattan distance</span>
+            <span class="kw">return</span> <span class="fn">abs</span>(points[u][<span class="num2">0</span>] - points[v][<span class="num2">0</span>]) + <span class="fn">abs</span>(points[u][<span class="num2">1</span>] - points[v][<span class="num2">1</span>]);
+        };
+
+        <span class="typ">int</span> n = points.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; inMST(n, <span class="kw">false</span>);            <span class="com">// points already in the tree</span>
+        <span class="kw">using</span> <span class="typ">P</span> = <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;;              <span class="com">// (weight, target node)</span>
+        <span class="typ">priority_queue</span>&lt;<span class="typ">P</span>, <span class="typ">vector</span>&lt;<span class="typ">P</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">P</span>&gt;&gt; pq;  <span class="com">// min-heap</span>
+
+        pq.<span class="fn">push</span>({<span class="num2">0</span>, <span class="num2">0</span>});                        <span class="com">// grow the tree from point 0, cost 0</span>
+        <span class="typ">int</span> total = <span class="num2">0</span>, cnt = <span class="num2">0</span>;
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>() &amp;&amp; cnt &lt; n) {
+            <span class="kw">auto</span> [w, u] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();
+            <span class="kw">if</span> (inMST[u]) <span class="kw">continue</span>;              <span class="com">// lazy: skip stale entries</span>
+
+            inMST[u] = <span class="kw">true</span>;                   <span class="com">// u joins the tree</span>
+            total += w; cnt++;
+
+            <span class="kw">for</span> (<span class="typ">int</span> v = <span class="num2">0</span>; v &lt; n; v++) {
+                <span class="kw">if</span> (inMST[v] || u == v) <span class="kw">continue</span>;
+                pq.<span class="fn">push</span>({<span class="fn">manhattan</span>(u, v), v});   <span class="com">// push crossing edges u→outside</span>
+            }
+        }
+        <span class="kw">return</span> total;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">if (inMST[u]) continue;</code> line is <em>required</em>, not an optimization. The same node gets pushed many times with different weights; the first pop settles it, and every later pop is stale and would double-count edges.</p>
+      <p>Then Kruskal: push every pair edge into a min-heap by weight, and pop until I've added <code class="chip">n − 1</code> edges.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; parent;                       <span class="com">// parent[x]&lt;0: root, value = −set size</span>
+
+    <span class="typ">int</span> <span class="fn">Find</span>(<span class="typ">int</span> x) {                         <span class="com">// path compression</span>
+        <span class="kw">return</span> parent[x] &lt; <span class="num2">0</span> ? x : parent[x] = <span class="fn">Find</span>(parent[x]);
+    }
+
+    <span class="typ">bool</span> <span class="fn">Union</span>(<span class="typ">int</span> x, <span class="typ">int</span> y) {
+        <span class="typ">int</span> rootX = <span class="fn">Find</span>(x), rootY = <span class="fn">Find</span>(y);
+        <span class="kw">if</span> (rootX == rootY) <span class="kw">return</span> <span class="kw">false</span>;       <span class="com">// same set → cycle, don't merge</span>
+        <span class="kw">if</span> (-parent[rootX] &lt; -parent[rootY]) <span class="fn">swap</span>(rootX, rootY); <span class="com">// union by size</span>
+        parent[rootX] += parent[rootY];
+        parent[rootY] = rootX;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minCostConnectPoints</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; points) {
+        <span class="kw">auto</span> manhattan = [&amp;](<span class="typ">int</span> u, <span class="typ">int</span> v) {
+            <span class="kw">return</span> <span class="fn">abs</span>(points[u][<span class="num2">0</span>] - points[v][<span class="num2">0</span>]) + <span class="fn">abs</span>(points[u][<span class="num2">1</span>] - points[v][<span class="num2">1</span>]);
+        };
+
+        <span class="typ">int</span> n = points.<span class="fn">size</span>();
+        parent.<span class="fn">assign</span>(n, -<span class="num2">1</span>);
+        <span class="kw">using</span> <span class="typ">T</span> = <span class="typ">tuple</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>, <span class="typ">int</span>&gt;;         <span class="com">// (weight, u, v)</span>
+        <span class="kw">auto</span> cmp = [&amp;](<span class="kw">auto</span> t1, <span class="kw">auto</span> t2) {
+            <span class="kw">return</span> <span class="fn">get</span>&lt;<span class="num2">0</span>&gt;(t1) &gt; <span class="fn">get</span>&lt;<span class="num2">0</span>&gt;(t2);    <span class="com">// min-heap by weight</span>
+        };
+        <span class="typ">priority_queue</span>&lt;<span class="typ">T</span>, <span class="typ">vector</span>&lt;<span class="typ">T</span>&gt;, <span class="kw">decltype</span>(cmp)&gt; pq(cmp);
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = i + <span class="num2">1</span>; j &lt; n; j++) {
+                pq.<span class="fn">push</span>({<span class="fn">manhattan</span>(i, j), i, j});   <span class="com">// every pair of points</span>
+            }
+        }
+
+        <span class="typ">int</span> total = <span class="num2">0</span>, add = <span class="num2">0</span>;
+        <span class="kw">while</span> (add &lt; n - <span class="num2">1</span>) {                    <span class="com">// done after n−1 edges</span>
+            <span class="kw">auto</span> [w, u, v] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();
+            <span class="kw">if</span> (<span class="fn">Union</span>(u, v)) {                   <span class="com">// take it only if no cycle</span>
+                total += w; add++;
+            }
+        }
+        <span class="kw">return</span> total;
+    }
+};</pre>
+      <p>Here, <code class="chip">Union</code> returning <code class="chip">false</code> is the cycle check — both endpoints already share a root, so I drop that edge. Only a <code class="chip">true</code>, a real merge, adds to the total.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> I'll trace Kruskal on the five points, since its edge-by-edge view is easy to follow. Expected output is <code class="chip num">20</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:470px;">
+        <thead><tr><th>edge</th><th>weight</th><th>same set?</th><th>action</th><th>total</th><th>edges</th></tr></thead>
+        <tbody>
+          <tr><td>P1–P3</td><td>3</td><td>no</td><td>union ✓</td><td>3</td><td>1</td></tr>
+          <tr><td>P0–P1</td><td>4</td><td>no</td><td>union ✓</td><td>7</td><td>2</td></tr>
+          <tr><td>P3–P4</td><td>4</td><td>no</td><td>union ✓</td><td>11</td><td>3</td></tr>
+          <tr><td>P0–P3</td><td>7</td><td>yes</td><td>cycle ✗ skip</td><td>11</td><td>3</td></tr>
+          <tr><td>P0–P4</td><td>7</td><td>yes</td><td>cycle ✗ skip</td><td>11</td><td>3</td></tr>
+          <tr><td>P1–P4</td><td>7</td><td>yes</td><td>cycle ✗ skip</td><td>11</td><td>3</td></tr>
+          <tr class="highlight-row"><td>P1–P2</td><td>9</td><td>no</td><td>union ✓</td><td><span class="answer-cell">20</span></td><td>4</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the <code class="chip num">9</code>: the three weight-<code class="chip num">7</code> edges were all skipped because their endpoints were already connected, so the far-off point <code class="chip">P2 (3,10)</code> joins last through <code class="chip">P1–P2</code>. That's the fourth edge, <code class="chip">n − 1</code>, so the total is <code class="chip num">20</code> and the loop stops.</p>
+      <p>Corner cases:</p>
+      <p>• A single point <code class="chip">[[0,0]]</code> returns <code class="chip num">0</code>, since Kruskal's loop never runs.<br>
+      • The second example <code class="chip">[[3,12],[-2,5],[-4,1]]</code> gives <code class="chip num">18</code>.<br>
+      • Negative coordinates are fine, because Manhattan distance uses <code class="chip">abs</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Time is <code class="chip">O(n² log n)</code> for both. The graph is complete, so there are about <code class="chip">n²/2</code> edges, and each heap operation costs a <code class="chip">log</code>. Space is <code class="chip">O(n²)</code>, since both can hold that many edges in the heap. In the worst case, with <code class="chip">n = 1000</code>, that's about half a million edges — well within limits.</p>
+      <p><em class="pause">Oh, one more thing —</em> if <code class="chip">n</code> were much larger, pushing all those edges would be wasteful. The clean fix for a dense graph is <strong>array-based Prim</strong>: keep the cheapest distance to each outside node in a plain array, and pick the minimum each round in <code class="chip">O(n)</code>, with no heap at all. That's <code class="chip">O(n²)</code> time and <code class="chip">O(n)</code> space.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You reframed "connect all points cheaply" as an MST on a complete graph right away, instead of reaching for shortest paths. You named the cut property as the reason both greedy algorithms are correct, not just that they work. And you flagged the lazy skip in Prim and the cycle check in Kruskal as correctness requirements, then gave the O(n²) dense-graph fix unprompted. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.93, 31.6, 33.92, 58.73, 63.19, 84.44, 110.65, 162.6, 165.76, 213.71, 255.89, 295.99]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1192 · Critical Connections in a Network</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1192 · Critical Connections in a Network · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have <code class="chip">n</code> servers and a list of undirected <code class="chip">connections</code>. A connection is <strong>critical</strong> if removing it leaves some servers unable to reach some others. Return all critical connections.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> a critical connection is exactly a <strong>bridge</strong>: an edge whose removal raises the number of connected pieces. And an edge is a bridge <strong>if and only if it lies on no cycle</strong> — if it were on a cycle, I could still get across the other way. Is that the right framing?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>That's exactly it.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Two quick constraints.</strong> Can the same pair appear twice — are there <strong>parallel edges</strong>? And is the graph guaranteed connected?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>No repeated connections. Treat it as connected. <code class="chip">n</code> is up to 10<sup>5</sup>, and a similar number of edges.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — <strong>no parallel edges</strong> will matter later. <strong>Let me run through the example:</strong> <code class="chip">[[0,1],[1,2],[2,0],[1,3]]</code>. The 0-1-2 triangle is one big cycle, so none of those three edges is a bridge. But <code class="chip">1–3</code> is the only way to reach <code class="chip num">3</code> — cut it and 3 falls off. So the answer is just <code class="chip">[[1,3]]</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> remove each edge, then run a BFS to see if the graph is still connected. That's <code class="chip">O(E)</code> removals times <code class="chip">O(V + E)</code> per check — far too slow at 10<sup>5</sup> edges.</p>
+      <p><strong>This problem reminds me of Tarjan's bridge-finding.</strong> One DFS. I give each node a <strong>discovery time</strong> <code class="chip">dfn</code>, and a value <code class="chip">low</code> — the earliest <code class="chip">dfn</code> the node's subtree can climb back to using one back edge. A tree edge <code class="chip">(u, v)</code> is a bridge exactly when <code class="chip">low[v] &gt; dfn[u]</code>: the subtree under <code class="chip">v</code> cannot reach <code class="chip">u</code> or anything above it, so that edge is its only way out.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dfn = discovery time, low = earliest dfn reachable</span><br>
+        dfs(p, u):<br>
+        &nbsp;&nbsp;dfn[u] = low[u] = timer++<br>
+        &nbsp;&nbsp;for v in graph[u], skip v == p:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;tree edge → dfs(u, v); low[u] = min(low[u], low[v])<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if <span class="em">low[v] &gt; dfn[u]</span>: (u, v) is a bridge<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;back edge → low[u] = min(low[u], <span class="em">dfn[v]</span>)
+      </div>
+      <p>One: on visiting <code class="chip">u</code>, set both <code class="chip">dfn</code> and <code class="chip">low</code> to the next timer value.<br>
+      Two: for a tree edge, recurse, take the min with the child's <code class="chip">low</code>, and if <code class="chip">low[v] &gt; dfn[u]</code>, record a bridge.<br>
+      Three: for a back edge, take the min with <code class="chip">dfn[v]</code>.</p>
+      <p><strong>One thing worth flagging</strong> — a back edge updates <code class="chip">low</code> with the neighbor's <code class="chip">dfn</code>, <strong>not its low</strong>, since it only proves I can reach that node. And the test is <strong>strict</strong> <code class="chip">&gt;</code>: if <code class="chip">low[v] == dfn[u]</code>, the subtree can still climb back to <code class="chip">u</code>, so it's not a bridge.</p>
+      <p>Also, I skip the parent by node, <code class="chip">v == p</code>. That's only safe because there are no parallel edges; otherwise I'd skip by <strong>edge id</strong>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. I build the adjacency list, set <code class="chip">dfn</code> and <code class="chip">low</code> to <code class="chip num">-1</code> for unvisited, and start a DFS from every unvisited node.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; graph;
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; dfn, low;          <span class="com">// dfn = discovery time; low = earliest dfn reachable</span>
+    <span class="typ">int</span> timer = <span class="num2">0</span>;
+
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; <span class="fn">criticalConnections</span>(<span class="typ">int</span> n, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; connections) {
+        graph.<span class="fn">assign</span>(n, {});
+        dfn.<span class="fn">assign</span>(n, <span class="num2">-1</span>);              <span class="com">// -1 = unvisited</span>
+        low.<span class="fn">assign</span>(n, <span class="num2">-1</span>);
+
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; e : connections) {
+            graph[e[<span class="num2">0</span>]].<span class="fn">push_back</span>(e[<span class="num2">1</span>]);
+            graph[e[<span class="num2">1</span>]].<span class="fn">push_back</span>(e[<span class="num2">0</span>]);
+        }
+
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; ans;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; n; i++)
+            <span class="kw">if</span> (dfn[i] == <span class="num2">-1</span>) <span class="fn">dfs</span>(<span class="num2">-1</span>, i, ans);  <span class="com">// start a DFS in every unvisited piece</span>
+
+        <span class="kw">return</span> ans;
+    }
+
+    <span class="typ">void</span> <span class="fn">dfs</span>(<span class="typ">int</span> p, <span class="typ">int</span> u, <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; ans) {
+        dfn[u] = low[u] = timer++;       <span class="com">// discover u: timestamp, low starts at itself</span>
+        <span class="kw">for</span> (<span class="typ">int</span> v : graph[u]) {
+            <span class="kw">if</span> (v == p) <span class="kw">continue</span>;            <span class="com">// skip parent (safe: no parallel edges)</span>
+            <span class="kw">if</span> (dfn[v] == <span class="num2">-1</span>) {            <span class="com">// tree edge: v is new</span>
+                <span class="fn">dfs</span>(u, v, ans);
+                low[u] = <span class="fn">min</span>(low[u], low[v]);  <span class="com">// inherit the subtree's earliest reach</span>
+                <span class="kw">if</span> (low[v] &gt; dfn[u]) ans.<span class="fn">push_back</span>({u, v});  <span class="com">// can't escape → bridge!</span>
+            } <span class="kw">else</span> {                        <span class="com">// back edge: v is a visited ancestor</span>
+                low[u] = <span class="fn">min</span>(low[u], dfn[v]);  <span class="com">// use dfn[v], not low[v]</span>
+            }
+        }
+    }
+};</pre>
+      <p>Inside <code class="chip">dfs</code>, a tree edge recurses, pulls the child's <code class="chip">low</code> into mine, then tests <code class="chip">low[v] &gt; dfn[u]</code>; a back edge only uses <code class="chip">dfn[v]</code>. That matches the plan.</p>
+      <p><strong>One thing worth flagging</strong> — the root passes <code class="chip">p = -1</code>. Since node ids run <code class="chip">0..n-1</code>, that never equals a real neighbor, so the root's skip is a harmless no-op.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with <code class="chip">[[0,1],[1,2],[2,0],[1,3]]</code>. I expect <code class="chip">[[1,3]]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;white-space:nowrap;">
+        <thead><tr><th>step</th><th>at u (dfn)</th><th>action</th><th>low after</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>0 (0)</td><td>start DFS at 0</td><td>low[0]=0</td></tr>
+          <tr><td>2</td><td>1 (1)</td><td>tree edge 0→1</td><td>low[1]=1</td></tr>
+          <tr><td>3</td><td>2 (2)</td><td>tree edge 1→2</td><td>low[2]=2</td></tr>
+          <tr><td>4</td><td>2</td><td>back edge 2→0, min(2, dfn[0]=0)</td><td>low[2]=0</td></tr>
+          <tr><td>5</td><td>1</td><td>return; check (1,2): 0 &gt; 1? no</td><td>low[1]=0</td></tr>
+          <tr><td>6</td><td>3 (3)</td><td>tree edge 1→3, no back edge</td><td>low[3]=3</td></tr>
+          <tr class="highlight-row"><td>7</td><td>1</td><td>return; check (1,3): 3 &gt; 1? yes</td><td><span class="answer-cell">bridge (1,3)</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the return from node <code class="chip num">3</code>. Node 3 has only its parent, 1, as a neighbor, so <code class="chip">low[3]</code> stays at 3. Since <code class="chip">3 &gt; dfn[1] = 1</code>, the edge <code class="chip">(1,3)</code> is its only exit — a bridge. Meanwhile, 2's back edge to 0 pulls <code class="chip">low[2]</code> down to 0, so the triangle edges all fail the test.</p>
+      <p>Corner cases:</p>
+      <p>• A straight chain <code class="chip">0-1-2-3</code> → every edge is a bridge.<br>
+      • A single cycle → no bridges.<br>
+      • The outer loop over unvisited nodes covers the graph even if it came in as more than one piece.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>The time complexity is</strong> <code class="chip">O(V + E)</code> — one DFS touches every node and every edge once. <strong>The space complexity is</strong> <code class="chip">O(V + E)</code>, for the adjacency list, the two arrays, and the recursion stack. <strong>In the worst case</strong> a long chain makes the recursion depth <code class="chip">O(V)</code>, so on a very deep graph I might switch to an explicit stack.</p>
+      <p><em class="pause">Oh, one more thing —</em> if the problem later allowed repeated connections, I'd move from the parent-node skip to an edge-id skip, and everything else stays the same.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You reframed "critical connection" as a <strong>bridge</strong>, an edge on no cycle, then as <code class="chip">low[v] &gt; dfn[u]</code>. You were precise that a back edge uses <code class="chip">dfn</code>, not <code class="chip">low</code>, and that the test is strict. And you flagged that the simple <code class="chip">v == p</code> skip is correct <strong>only because there are no parallel edges</strong> — with a clean upgrade path if that changed. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.19, 35.2, 37.52, 45.96, 54.21, 76.33, 115.49, 166.27, 169.03, 205.69, 246.34, 276.43]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
