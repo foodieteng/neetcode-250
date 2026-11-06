@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 91 · Decode Ways</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 91 · Decode Ways · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>A message is digits, decoded by <code class="chip">"1" → 'A'</code> up to <code class="chip">"26" → 'Z'</code>. Given a digit string <code class="chip">s</code>, return how many ways it can be decoded. Return <code class="chip num">0</code> if it can't be decoded at all.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> at each position I can take one digit, if it's 1–9, or two digits, if they form 10–26. A leading zero like <code class="chip">"06"</code> is invalid, and a lone <code class="chip">"0"</code> can't be decoded. Right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly. Length up to 100, and the answer fits in 32 bits.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through an example:</strong> <code class="chip">"226"</code>. I can read it as <code class="chip">2 2 6</code>, which is BBF; <code class="chip">22 6</code>, which is VF; or <code class="chip">2 26</code>, which is BZ. That's <code class="chip num">3</code> ways.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p>Trying all splits recursively is O(2<sup>n</sup>). <strong>This problem reminds me of</strong> the Fibonacci-style one-or-two-step counting DP, but conditional. <code class="chip">dp[i]</code> is the number of ways to decode the first <code class="chip">i</code> characters.</p>
+      <p>The last code is either <strong>one digit</strong>, adding <code class="chip">dp[i-1]</code>, or <strong>two digits</strong>, adding <code class="chip">dp[i-2]</code> — but each edge only counts if that code is <em>valid</em>. The DP shares subproblems, so it's O(n).</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dp[i] = ways to decode first i chars</span><br>
+        if s[0]=='0': return 0;&nbsp;&nbsp;dp[0] = dp[1] = 1<br>
+        if s[i-1] != '0': dp[i] += dp[i-1]&nbsp;&nbsp;<span class="label">// one-digit code</span><br>
+        if "10" &lt;= s[i-2..i-1] &lt;= "26": dp[i] += dp[i-2]&nbsp;&nbsp;<span class="label">// two-digit code</span><br>
+        return <span class="em">dp[n]</span>
+      </div>
+      <p>One: if the first character is <code class="chip">'0'</code>, return 0; otherwise <code class="chip">dp[0]</code> and <code class="chip">dp[1]</code> are both 1.<br>
+      Two: for each <code class="chip">i</code>, add <code class="chip">dp[i-1]</code> if the last digit is non-zero, and add <code class="chip">dp[i-2]</code> if the last two digits are 10–26.<br>
+      Three: return <code class="chip">dp[n]</code>.</p>
+      <p><strong>One thing worth flagging</strong> — two gates: the one-digit code must be non-zero, and the two-digit code must land in 10–26. The lower bound 10 kills leading zeros. If both fail, <code class="chip">dp[i]</code> stays 0 and propagates to mean "no decoding." <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it, and the O(1)-space version.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up. The table version is one loop with two gated adds.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">numDecodings</span>(<span class="typ">string</span> s) {
+        <span class="typ">int</span> n = s.<span class="fn">size</span>();
+        <span class="kw">if</span> (s[<span class="num2">0</span>] == <span class="str">'0'</span>) <span class="kw">return</span> <span class="num2">0</span>;      <span class="com">// first char is 0 → can't decode</span>
+
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; dp(n + <span class="num2">1</span>, <span class="num2">0</span>);
+        dp[<span class="num2">0</span>] = <span class="num2">1</span>; dp[<span class="num2">1</span>] = <span class="num2">1</span>;          <span class="com">// empty string: 1 way; first char: 1 way</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">2</span>; i &lt;= n; i++) {
+            <span class="kw">if</span> (s[i - <span class="num2">1</span>] != <span class="str">'0'</span>)            <span class="com">// one-digit code: last digit non-zero</span>
+                dp[i] += dp[i - <span class="num2">1</span>];
+
+            <span class="typ">string</span> w = s.<span class="fn">substr</span>(i - <span class="num2">2</span>, <span class="num2">2</span>);       <span class="com">// last 2 digits</span>
+            <span class="kw">if</span> (w &gt;= <span class="str">"10"</span> &amp;&amp; w &lt;= <span class="str">"26"</span>)    <span class="com">// two-digit code: 10–26</span>
+                dp[i] += dp[i - <span class="num2">2</span>];
+        }
+
+        <span class="kw">return</span> dp[n];
+    }
+};</pre>
+      <p>The two-digit check compares strings: two-digit strings sort the same way as their values, so <code class="chip">"10"</code> to <code class="chip">"26"</code> frames exactly the legal range, and <code class="chip">"01"</code> or <code class="chip">"27"</code> fall outside. The O(1)-space version keeps only the last two values, <code class="chip">prev2</code> and <code class="chip">prev1</code>.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">numDecodings</span>(<span class="typ">string</span> s) {
+        <span class="kw">if</span> (s[<span class="num2">0</span>] == <span class="str">'0'</span>) <span class="kw">return</span> <span class="num2">0</span>;
+        <span class="typ">int</span> prev2 = <span class="num2">1</span>, prev1 = <span class="num2">1</span>;          <span class="com">// dp[i-2], dp[i-1]</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">2</span>; i &lt;= (<span class="typ">int</span>)s.<span class="fn">size</span>(); i++) {
+            <span class="typ">int</span> cur = <span class="num2">0</span>;
+            <span class="kw">if</span> (s[i - <span class="num2">1</span>] != <span class="str">'0'</span>) cur += prev1;       <span class="com">// one-digit code</span>
+            <span class="typ">string</span> w = s.<span class="fn">substr</span>(i - <span class="num2">2</span>, <span class="num2">2</span>);
+            <span class="kw">if</span> (w &gt;= <span class="str">"10"</span> &amp;&amp; w &lt;= <span class="str">"26"</span>) cur += prev2; <span class="com">// two-digit code</span>
+            prev2 = prev1;                      <span class="com">// roll forward one step</span>
+            prev1 = cur;
+        }
+        <span class="kw">return</span> prev1;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> — reset <code class="chip">cur</code> to 0 each round. If both gates fail it stays 0, and that correctly signals a dead end.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> the table on <code class="chip">"2101"</code>, expected <code class="chip num">1</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;white-space:nowrap;">
+        <thead><tr><th>i</th><th>one-digit</th><th>two-digit</th><th>dp[i]</th></tr></thead>
+        <tbody>
+          <tr><td>0,1</td><td>base</td><td>base</td><td>1, 1</td></tr>
+          <tr><td>2</td><td>'1'≠0 → +dp[1]</td><td>"21"∈[10,26] → +dp[0]</td><td>2</td></tr>
+          <tr class="highlight-row"><td>3</td><td>'0' → skip</td><td>"10"∈[10,26] → +dp[1]</td><td>1</td></tr>
+          <tr><td>4</td><td>'1'≠0 → +dp[3]</td><td>"01" leading zero → skip</td><td><span class="answer-cell">return dp[4] = 1</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>At <code class="chip">i = 2</code>, both <code class="chip">"21"</code> and the single <code class="chip">'1'</code> are valid, so 2 ways. The row that matters is the <code class="chip">'0'</code>: it can't stand alone, so only <code class="chip">"10"</code> survives, and <code class="chip">dp</code> drops to 1. At the last digit, <code class="chip">"01"</code> is a leading zero, so only the single <code class="chip">'1'</code> counts. Return <code class="chip num">1</code> — only <code class="chip">2 10 1</code>, which is BJA. That matches.</p>
+      <p><strong>Dead-end check:</strong> <code class="chip">"100"</code>. The final <code class="chip">'0'</code> has no valid single or pair, so <code class="chip">dp[3] = 0</code>, and the answer is <code class="chip num">0</code>. Correct.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time is O(n) for both. Space is O(n) for the table, O(1) for the rolling version.</p>
+      <p><em class="pause">Oh, one more thing —</em> this is the one-or-two-step stair recurrence with a validity gate on each edge: an unconditional <code class="chip">+</code> becomes "add only if the code is legal." A single <code class="chip">'0'</code> is the interesting case — it forces the previous digit to pair with it as 10 or 20, or the whole path dies. If wildcards <code class="chip">'*'</code> were allowed, each edge would carry a count multiplier instead of a 0/1 gate.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You added the two edges with the right gates — a non-zero single and a 10–26 pair. You explained how a zero prunes a path, and how a zero count propagates to "no decoding." And you gave the O(1) rolling version with the reset. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.72, 33.11, 38.98, 55.25, 84.91, 129.01, 132.87, 163.58, 200.13, 231.13]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
