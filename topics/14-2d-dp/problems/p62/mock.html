@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 62 · Unique Paths</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0;
+  white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 62 · Unique Paths · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>A robot sits at the top-left of an <code class="chip">m × n</code> grid and moves only right or down to reach the bottom-right. How many unique paths are there?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> only two moves, right and down, no obstacles, and I count distinct paths to the exact bottom-right cell?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct — right and down only, grid up to 100×100.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. At most 10<sup>4</sup> cells, so visiting each cell once is cheap. <strong>Let me run through an example.</strong> A <code class="chip num">3×7</code> grid gives <code class="chip num">28</code> paths.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> recurse over every path, picking right or down at each step. That's exponential, and it reaches the same cells over and over.</p>
+      <p><strong>This problem reminds me of</strong> a <strong>2-D grid DP</strong>, because each cell's count depends only on its neighbors. Let <code class="chip">dp[i][j]</code> = the number of paths to cell <code class="chip">(i,j)</code>. Since I only move right or down, I reach it either from above <code class="chip">(i-1,j)</code> or from the left <code class="chip">(i,j-1)</code>, so <code class="chip">dp[i][j]</code> is the cell above + the cell to the left. The first row and column are all <code class="chip num">1</code> — only one straight path along an edge.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dp[i][j] = paths to (i,j)</span><br>
+        init whole grid to 1&nbsp;&nbsp;<span class="label">// first row/col = 1</span><br>
+        for i in 1..m-1, j in 1..n-1:<br>
+        &nbsp;&nbsp;dp[i][j] = <span class="em">dp[i-1][j] + dp[i][j-1]</span><br>
+        return dp[m-1][n-1]
+      </div>
+      <p>One: fill the whole grid with ones, which covers the first row and column.<br>
+      Two: for every inner cell, add the cell above and the cell to the left.<br>
+      Three: return the bottom-right cell.</p>
+      <p><strong>One thing worth flagging</strong> — because each cell only needs the row above plus its left neighbor, I can drop to a single row: <code class="chip">dp[j] += dp[j-1]</code>, scanning left to right, for O(n) space. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code both.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The 2-D grid first. The table starts as all ones, and the double loop from index <code class="chip num">1</code> adds up + left.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">uniquePaths</span>(<span class="typ">int</span> m, <span class="typ">int</span> n) {
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; dp(m, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;(n, <span class="num2">1</span>));  <span class="com">// first row/col default to 1</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt; n; j++) {
+                dp[i][j] = dp[i - <span class="num2">1</span>][j] + dp[i][j - <span class="num2">1</span>]; <span class="com">// up + left</span>
+            }
+        }
+
+        <span class="kw">return</span> dp[m - <span class="num2">1</span>][n - <span class="num2">1</span>];
+    }
+};</pre>
+      <p>And the O(n)-space rolling version keeps just one row.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">uniquePaths</span>(<span class="typ">int</span> m, <span class="typ">int</span> n) {
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; dp(n, <span class="num2">0</span>);
+        dp[<span class="num2">0</span>] = <span class="num2">1</span>;                       <span class="com">// start</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= m; i++) {       <span class="com">// roll row by row</span>
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt; n; j++) {
+                dp[j] += dp[j - <span class="num2">1</span>];       <span class="com">// dp[j](up) += dp[j-1](left)</span>
+            }
+        }
+
+        <span class="kw">return</span> dp[n - <span class="num2">1</span>];
+    }
+};</pre>
+      <p>Both are O(mn) time. <strong>One thing worth flagging</strong> — the rolling scan must go <strong>left to right</strong>, so <code class="chip">dp[j-1]</code> is already this row's value, the left neighbor, while <code class="chip">dp[j]</code> is still last row's, the cell above.</p>
+      <p>Also, its outer loop runs <code class="chip">m</code> times, <code class="chip">i &lt;= m</code>: the row starts as <code class="chip">[1,0,0,…]</code>, so the first pass just builds row <code class="chip num">0</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> the 2-D table on a <code class="chip num">3×4</code> grid — expected <code class="chip num">10</code>.</p>
+      <table class="trace">
+        <thead><tr><th>i \ j</th><th>0</th><th>1</th><th>2</th><th>3</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+          <tr class="highlight-row"><td>2</td><td>1</td><td>3</td><td>6</td><td><span class="answer-cell">10</span></td></tr>
+        </tbody>
+      </table>
+      <p>The cell that matters is the corner: <code class="chip">dp[2][3] = dp[1][3] + dp[2][2]</code>, so <code class="chip num">4 + 6 = 10</code>. The rolling version produces the same rows: <code class="chip">[1,1,1,1] → [1,2,3,4] → [1,3,6,10]</code>. Correct.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip num">1×1</code> → <code class="chip num">1</code>, since the start is the goal.<br>
+      • A single row or a single column also gives <code class="chip num">1</code> — just the straight line.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Time is</strong> O(mn), <strong>space</strong> O(mn), or O(n) with the rolling row.</p>
+      <p><em class="pause">Oh, one more thing —</em> there's also a pure-math answer: a path is a choice of which <code class="chip">m-1</code> of the <code class="chip">m+n-2</code> steps go down, so it's <code class="chip">C(m+n-2, m-1)</code>, in O(min(m,n)) time. But I'd keep the DP as the template — it extends directly to grids with obstacles or with cell costs, where the closed form breaks.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You built the up-plus-left recurrence with the first row and column as the base. You compressed to one row and explained why the scan goes left to right. And you knew the combinatorial closed form but kept DP for generality. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 9.45, 23.7, 28.23, 38.95, 78.76, 110.29, 113.09, 150.02, 182.61, 213.32]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
