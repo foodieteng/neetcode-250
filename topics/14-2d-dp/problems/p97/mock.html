@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 97 · Interleaving String</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 520px) {
+  .page { padding: 16px 16px 48px; }
+  .turn { gap: 10px; padding: 6px 0; }
+  .legend { gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 97 · Interleaving String · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given three strings <code class="chip">s1</code>, <code class="chip">s2</code>, <code class="chip">s3</code>, return whether <code class="chip">s3</code> is formed by an <strong>interleaving</strong> of <code class="chip">s1</code> and <code class="chip">s2</code> — you take the characters of each in order and merge them.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> every character of <code class="chip">s1</code> and <code class="chip">s2</code> must be used, none skipped, and each one keeps its relative order within its own string. The only freedom is <em>which string I take the next character from</em>. Is that right?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Exactly. Lengths are up to <code class="chip num">100</code>, lowercase letters.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through an example.</strong> <code class="chip">s1="ab"</code>, <code class="chip">s2="cd"</code>, <code class="chip">s3="acbd"</code> → <code class="chip">true</code>: I take <code class="chip">a</code> from s1, <code class="chip">c</code> from s2, <code class="chip">b</code> from s1, <code class="chip">d</code> from s2. And a quick check — if <code class="chip">|s1| + |s2| != |s3|</code>, it's immediately <code class="chip">false</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>The greedy trap first.</strong> "If s1's next character matches, take it" fails whenever <em>both</em> strings offer the same character. Take <code class="chip">s1="aa"</code>, <code class="chip">s2="ab"</code>, <code class="chip">s3="aaba"</code>. Greedy takes both <code class="chip">a</code>'s from s1, then is stuck matching <code class="chip">"ab"</code> against <code class="chip">"ba"</code>; the right move was to take the second <code class="chip">a</code> from s2, and no local rule tells you that. So I need to keep <strong>both branches alive</strong> — that's DP.</p>
+      <p><strong>The state:</strong> <code class="chip">dp[i][j]</code> = can s1's first <code class="chip">i</code> characters and s2's first <code class="chip">j</code> characters interleave into s3's first <code class="chip">i+j</code>? <strong>This problem reminds me of</strong> a <strong>two-string grid DP</strong> — one index per string, and each cell is built from its up and left neighbours.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You said <code class="chip">i+j</code>. Don't you need a third dimension for the position in <code class="chip">s3</code>?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Good catch — that's the key observation.</strong> No, because nothing is ever skipped: if I've consumed <code class="chip">i</code> characters of s1 and <code class="chip">j</code> of s2, they've filled <em>exactly</em> the first <code class="chip">i+j</code> slots of s3. So the third index is <strong>a function of the other two</strong>, and it collapses away. The character I'm matching right now is always <code class="chip">s3[i+j-1]</code>. Two dimensions suffice.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// dp[i][j] : s1[0..i) + s2[0..j) -&gt; s3[0..i+j)</span><br>
+        if (m + n != s3.size()) return false<br>
+        dp[0][0] = true<br>
+        k = i + j − 1&nbsp;&nbsp;<span class="label">// the char being placed</span><br>
+        <br>
+        dp[i][j] = (dp[i−1][j] &amp;&amp; s1[i−1] == s3[k])&nbsp;&nbsp;<span class="label">// take from s1 — "up"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|| (dp[i][j−1] &amp;&amp; s2[j−1] == s3[k])&nbsp;&nbsp;<span class="label">// take from s2 — "left"</span><br>
+        <br>
+        return dp[m][n]
+      </div>
+      <p>One: if the lengths don't add up, return <code class="chip">false</code>; otherwise the empty corner is <code class="chip">true</code>.<br>
+      Two: a cell is true if I can come from above by taking s1's character, or from the left by taking s2's character, and that character matches <code class="chip">s3[i+j-1]</code>.<br>
+      Three: return the bottom-right cell.</p>
+      <p>Two things worth spelling out. <strong>It's <code class="chip">OR</code>, not <code class="chip">AND</code></strong> — the character comes from s1 <em>or</em> s2, and either working path is enough. And <strong>the <code class="chip">&amp;&amp;</code> inside each branch matters</strong>: a character matching isn't enough, the <em>previous</em> cell must also be reachable, otherwise I'd accept a path that already died earlier. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up. And can you do better than <code class="chip">O(mn)</code> space?</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>2-D table first: fill the first column from s1 only, the first row from s2 only, then every inner cell from up or left.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">isInterleave</span>(<span class="typ">string</span> s1, <span class="typ">string</span> s2, <span class="typ">string</span> s3) {
+        <span class="typ">int</span> m = s1.<span class="fn">size</span>(), n = s2.<span class="fn">size</span>();
+        <span class="kw">if</span> (m + n != s3.<span class="fn">size</span>()) <span class="kw">return</span> <span class="kw">false</span>;
+
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&gt; dp(m + <span class="num2">1</span>, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;(n + <span class="num2">1</span>, <span class="kw">false</span>));
+        dp[<span class="num2">0</span>][<span class="num2">0</span>] = <span class="kw">true</span>;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= m; i++)            <span class="com">// s1 only</span>
+            dp[i][<span class="num2">0</span>] = (s1[i - <span class="num2">1</span>] == s3[i - <span class="num2">1</span>] &amp;&amp; dp[i - <span class="num2">1</span>][<span class="num2">0</span>]);
+
+        <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt;= n; j++)            <span class="com">// s2 only</span>
+            dp[<span class="num2">0</span>][j] = (s2[j - <span class="num2">1</span>] == s3[j - <span class="num2">1</span>]) &amp;&amp; dp[<span class="num2">0</span>][j - <span class="num2">1</span>];
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt;= n; j++) {
+                dp[i][j] = (s1[i - <span class="num2">1</span>] == s3[i + j - <span class="num2">1</span>] &amp;&amp; dp[i - <span class="num2">1</span>][j])  <span class="com">// take s1 (up)</span>
+                    || (s2[j - <span class="num2">1</span>] == s3[i + j - <span class="num2">1</span>] &amp;&amp; dp[i][j - <span class="num2">1</span>]); <span class="com">// take s2 (left)</span>
+            }
+        }
+
+        <span class="kw">return</span> dp[m][n];
+    }
+};</pre>
+      <p><strong>Now the follow-up.</strong> Each cell reads only <strong>up</strong> and <strong>left</strong> — <em class="pause">and this is the part that matters —</em> there's <strong>no diagonal</strong>. So rolling one row works with no temp variable: before I overwrite <code class="chip">dp[j]</code> it still holds the previous row's value, which <em>is</em> "up", and <code class="chip">dp[j-1]</code> was already updated this row, which <em>is</em> "left".</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">bool</span> <span class="fn">isInterleave</span>(<span class="typ">string</span> s1, <span class="typ">string</span> s2, <span class="typ">string</span> s3) {
+        <span class="typ">int</span> m = s1.<span class="fn">size</span>(), n = s2.<span class="fn">size</span>();
+
+        <span class="kw">if</span> (m + n != s3.<span class="fn">size</span>()) <span class="kw">return</span> <span class="kw">false</span>;   <span class="com">// lengths don't add up → no chance</span>
+
+        <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; dp(n + <span class="num2">1</span>, <span class="kw">false</span>);
+        dp[<span class="num2">0</span>] = <span class="kw">true</span>;
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= n; i++)              <span class="com">// first row: s2 only</span>
+            dp[i] = (s2[i - <span class="num2">1</span>] == s3[i - <span class="num2">1</span>] &amp;&amp; dp[i - <span class="num2">1</span>]);
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= m; i++) {
+            dp[<span class="num2">0</span>] = dp[<span class="num2">0</span>] &amp;&amp; s1[i - <span class="num2">1</span>] == s3[i - <span class="num2">1</span>];  <span class="com">// first column: s1 only</span>
+
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt;= n; j++) {
+                dp[j] = (dp[j] &amp;&amp; s1[i - <span class="num2">1</span>] == s3[i + j - <span class="num2">1</span>])   <span class="com">// old dp[j] = up → take s1</span>
+                    || (dp[j - <span class="num2">1</span>] &amp;&amp; s2[j - <span class="num2">1</span>] == s3[i + j - <span class="num2">1</span>]); <span class="com">// new dp[j-1] = left → take s2</span>
+            }
+        }
+
+        <span class="kw">return</span> dp[n];
+    }
+};</pre>
+      <p><code class="chip">O(mn)</code> time, <code class="chip">O(n)</code> space. <strong>One thing worth flagging</strong> — the line that resets <code class="chip">dp[0]</code> at the top of each row is easy to forget. Without it, <code class="chip">dp[0]</code> stays <code class="chip">true</code> forever, even after s1's prefix stops matching.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> the tricky one, where greedy breaks: <code class="chip">s1="aa"</code>, <code class="chip">s2="ab"</code>, <code class="chip">s3="aaba"</code> — expected <code class="chip">true</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px; white-space:nowrap;">
+        <thead><tr><th>cell</th><th>k → s3[k]</th><th>up (from s1)</th><th>left (from s2)</th><th>dp</th></tr></thead>
+        <tbody>
+          <tr><td>dp[0][1]</td><td>0 → 'a'</td><td>—</td><td>s2[0]='a' ✓</td><td>T</td></tr>
+          <tr><td>dp[0][2]</td><td>1 → 'a'</td><td>—</td><td>s2[1]='b' ✗</td><td>F</td></tr>
+          <tr><td>dp[1][0]</td><td>0 → 'a'</td><td>s1[0]='a' ✓</td><td>—</td><td>T</td></tr>
+          <tr><td>dp[2][0]</td><td>1 → 'a'</td><td>s1[1]='a' ✓</td><td>—</td><td>T</td></tr>
+          <tr><td>dp[1][1]</td><td>1 → 'a'</td><td>dp[0][1]=T, 'a' ✓</td><td>dp[1][0]=T, 'a' ✓</td><td>T</td></tr>
+          <tr class="highlight-row"><td>dp[1][2]</td><td>2 → 'b'</td><td>dp[0][2]=F ✗</td><td>dp[1][1]=T, 'b' ✓</td><td>T</td></tr>
+          <tr><td>dp[2][1]</td><td>2 → 'b'</td><td>dp[1][1]=T, 'a' ✗</td><td>dp[2][0]=T, 'a' ✗</td><td>F</td></tr>
+          <tr><td>dp[2][2]</td><td>3 → 'a'</td><td>dp[1][2]=T, 'a' ✓</td><td>dp[2][1]=F ✗</td><td><span class="answer-cell">T → true</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The cell that decides it is <code class="chip">dp[1][2]</code>: from above is dead, but from the left, <code class="chip">dp[1][1]</code> is true and s2's <code class="chip">b</code> matches the <code class="chip">b</code> in s3, so it's true. From there, taking s1's last <code class="chip">a</code> reaches the corner. <code class="chip">dp[2][1]</code> is a <strong>dead end</strong>, and it doesn't matter — one surviving path is enough. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">"aabcc"</code> / <code class="chip">"dbbca"</code>: <code class="chip">"aadbbcbcac"</code> → <code class="chip">true</code>, <code class="chip">"aadbbbaccc"</code> → <code class="chip">false</code>.<br>
+      • <code class="chip">""</code> / <code class="chip">""</code> / <code class="chip">""</code> → <code class="chip">true</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Time is <code class="chip">O(mn)</code></strong> — every cell is <code class="chip">O(1)</code>. <strong>Space <code class="chip">O(n)</code></strong> for the rolled version, <code class="chip">O(mn)</code> for the table. With <code class="chip">m, n ≤ 100</code> that's 10k cells, trivial.</p>
+      <p><em class="pause">Oh, one more thing —</em> if I had to <strong>output an actual interleaving</strong> rather than a yes or no, I'd keep the full 2-D table and backtrack from <code class="chip">(m,n)</code>, so the rolled version wouldn't do. If the question became "<strong>how many</strong> interleavings", I'd swap the <code class="chip">OR</code> for a <code class="chip">+</code> and seed <code class="chip">dp[0][0]=1</code> — the counting analogue. And with three source strings, it's <code class="chip">dp[i][j][k]</code>, with the target position still collapsing out as <code class="chip">i+j+k</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Really solid. Three things stood out. You found the greedy counterexample before writing any code, which is exactly why this needs DP. You spotted that the third dimension is derivable and collapsed it, then explained <em>why</em> the rolled version needs no temp — no diagonal dependency — rather than just asserting it. And your dry-run picked the adversarial input, not the easy one. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.88, 32.68, 37.85, 55.39, 98.18, 104.22, 127.95, 171.84, 177.98, 221.41, 261.08, 297.86]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
