@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 72 · Edit Distance</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.trace-wrap { overflow-x: auto; }
+.trace-wrap table.trace { min-width: 520px; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 72 · Edit Distance · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Given two strings, <code class="chip">word1</code> and <code class="chip">word2</code>, return the minimum number of operations to convert <code class="chip">word1</code> into <code class="chip">word2</code>. You may insert a character, delete a character, or replace a character.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly —</em> all three operations cost the same, one unit each, and I can apply them anywhere in the string? And either word can be empty?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct — unit cost, any position, and yes, empty is allowed. Lengths go up to <code class="chip num">500</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let me run through the example.</strong> <code class="chip">"horse" → "ros"</code> is <code class="chip num">3</code>: replace <code class="chip">h→r</code>, delete <code class="chip">r</code>, delete <code class="chip">e</code>. Notice the optimal answer <em>mixes</em> operations — it's not all replacements — so a greedy character-by-character pass won't cut it.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> recurse on the three choices at every mismatch, which branches three ways and blows up exponentially.</p>
+      <p><strong>This problem reminds me of</strong> two-string prefix DP: a grid where cell <code class="chip">(i, j)</code> only cares about the first <code class="chip">i</code> characters of <code class="chip">word1</code> and the first <code class="chip">j</code> characters of <code class="chip">word2</code>, and each cell depends on its neighbours.</p>
+      <p>Let <code class="chip">dp[i][j]</code> = min operations to turn <code class="chip">word1[0..i)</code> into <code class="chip">word2[0..j)</code>. The elegant part is that <strong>the three operations map to the three neighbours of a cell</strong>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Spell out that mapping.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>When <code class="chip">word1[i-1] != word2[j-1]</code>, I take <code class="chip">1 + min</code> of three sources:</p>
+      <div class="insight-box">
+        up&nbsp;&nbsp;&nbsp;&nbsp;dp[i-1][j]&nbsp;&nbsp;&nbsp;→ <span class="em">delete</span> word1[i-1]&nbsp;&nbsp;<span class="label">// consume word1</span><br>
+        left&nbsp;&nbsp;dp[i][j-1]&nbsp;&nbsp;&nbsp;→ <span class="em">insert</span> word2[j-1]&nbsp;&nbsp;<span class="label">// consume word2</span><br>
+        diag&nbsp;&nbsp;dp[i-1][j-1] → <span class="em">replace</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">// consume both</span>
+      </div>
+      <p>Up is a delete of <code class="chip">word1</code>'s character, left is an insert of <code class="chip">word2</code>'s character, diagonal is a replace.</p>
+      <p>The rule is <strong>"whichever string an operation consumes, that index steps back."</strong> Delete only touches <code class="chip">word1</code>, so <code class="chip">i</code> retreats (up); insert only touches <code class="chip">word2</code>, so <code class="chip">j</code> retreats (left); replace touches both (diagonal). And when the characters <em>match</em>, they align for free: <code class="chip">dp[i][j] = dp[i-1][j-1]</code> with <strong>no +1</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Base cases are the distance to the empty string:</p>
+      <div class="insight-box">
+        dp[i][0] = i&nbsp;&nbsp;<span class="label">// delete all i chars of word1</span><br>
+        dp[0][j] = j&nbsp;&nbsp;<span class="label">// insert all j chars of word2</span><br>
+        answer&nbsp;&nbsp;&nbsp;= <span class="em">dp[m][n]</span>
+      </div>
+      <p>The first column is <code class="chip">i</code>: delete all <code class="chip">i</code> characters of <code class="chip">word1</code>. The first row is <code class="chip">j</code>: insert all <code class="chip">j</code> characters of <code class="chip">word2</code>.</p>
+      <p>So, the plan.<br>
+      One: build an <code class="chip">(m+1) × (n+1)</code> table and fill both edges.<br>
+      Two: fill row by row — free diagonal on a match, otherwise <code class="chip">1 + min(up, left, diag)</code>.<br>
+      Three: return <code class="chip">dp[m][n]</code>.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minDistance</span>(<span class="typ">string</span> word1, <span class="typ">string</span> word2) {
+        <span class="typ">int</span> m = word1.<span class="fn">size</span>(), n = word2.<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; dp(m + <span class="num2">1</span>, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;(n + <span class="num2">1</span>, <span class="num2">0</span>));
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= m; i++) dp[i][<span class="num2">0</span>] = i;   <span class="com">// word2 empty → delete all</span>
+        <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt;= n; j++) dp[<span class="num2">0</span>][j] = j;   <span class="com">// word1 empty → insert all</span>
+
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">1</span>; j &lt;= n; j++) {
+                <span class="kw">if</span> (word1[i - <span class="num2">1</span>] == word2[j - <span class="num2">1</span>]) {
+                    dp[i][j] = dp[i - <span class="num2">1</span>][j - <span class="num2">1</span>];              <span class="com">// match → free diagonal</span>
+                } <span class="kw">else</span> {
+                    dp[i][j] = <span class="fn">min</span>({dp[i - <span class="num2">1</span>][j],       <span class="com">// up   → delete</span>
+                                    dp[i][j - <span class="num2">1</span>],       <span class="com">// left → insert</span>
+                                    dp[i - <span class="num2">1</span>][j - <span class="num2">1</span>]})  <span class="com">// diag → replace</span>
+                               + <span class="num2">1</span>;
+                }
+            }
+        }
+        <span class="kw">return</span> dp[m][n];
+    }
+};</pre>
+      <p>Two loops set the edges, then a double loop fills the table: on a match, copy the diagonal; otherwise, one plus the min of up, left and diagonal, written as a single <code class="chip">min({a, b, c})</code> over a three-element list.</p>
+      <p><strong>One thing worth flagging</strong> — the <code class="chip">+ 1</code> sits outside the <code class="chip">min</code>, and it only applies to the mismatch branch. It's <code class="chip">O(mn)</code> time and space, and it compresses to <code class="chip">O(n)</code> with a single rolling row plus a temp that saves the diagonal before it's overwritten.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Why no <code class="chip">+1</code> when the characters match?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Because a matching pair already aligns — no operation is needed to reconcile them, so I just inherit <code class="chip">dp[i-1][j-1]</code> unchanged. It's the only zero-cost transition in the table, and it's what lets the distance drop below <code class="chip">max(m, n)</code>. If I forced a <code class="chip">+1</code> there, I'd be charging for characters that were already correct.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> <code class="chip">"horse" → "ros"</code>; expected <code class="chip num">3</code>.</p>
+      <table class="trace">
+        <thead><tr><th></th><th>''</th><th>r</th><th>o</th><th>s</th></tr></thead>
+        <tbody>
+          <tr><td>''</td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+          <tr><td>h</td><td>1</td><td>1</td><td>2</td><td>3</td></tr>
+          <tr><td>o</td><td>2</td><td>2</td><td>1</td><td>2</td></tr>
+          <tr><td>r</td><td>3</td><td>2</td><td>2</td><td>2</td></tr>
+          <tr><td>s</td><td>4</td><td>3</td><td>3</td><td>2</td></tr>
+          <tr class="highlight-row"><td>e</td><td>5</td><td>4</td><td>4</td><td><span class="answer-cell">3</span></td></tr>
+        </tbody>
+      </table>
+      <p>The cell that matters is the last one: <code class="chip">'e' != 's'</code>, and the neighbours are up=2, left=3, diag=3. So it's <code class="chip">1 + 2 = 3</code> — and the minimum came from <em>up</em>, meaning the last operation is a delete. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• <code class="chip">"intention" → "execution"</code> → <code class="chip num">5</code>.<br>
+      • An empty input → the other string's length.<br>
+      • Swapping the two words → the same distance.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>Time and space are both <code class="chip">O(mn)</code>, and space is reducible to <code class="chip">O(min(m, n))</code> — I'd pick the shorter string as the inner dimension, which is safe because the distance is symmetric.</p>
+      <p><em class="pause">Oh, one more thing —</em> the structure generalizes cleanly. Weighted edit distance just replaces each <code class="chip">+1</code> with per-operation costs — that's the spell-check and DNA-alignment model. And if replacement were banned, this collapses to <code class="chip">m + n − 2·LCS</code>, since the common subsequence is what you keep and everything else is one delete or one insert. Replace is exactly the shortcut that separates this from LCS.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Excellent. Three things stood out. You mapped the three operations to the three directions with a crisp rule — "whichever string it consumes, that index steps back." You explained the free diagonal precisely. And you connected it to LCS and weighted variants, which shows you see the family, not just the one problem. Strong hire.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 12.67, 26.82, 34.25, 50.18, 85.87, 88.19, 121.73, 155.28, 157.6, 187.74, 191.02, 210.14, 239.73, 278.05]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
