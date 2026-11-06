@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 778 · Swim in Rising Water</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px 14px; font-size: 12px; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 778 · Swim in Rising Water · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You have an <code class="chip">n × n</code> grid of elevations. At time <code class="chip">t</code>, every cell with elevation at most <code class="chip">t</code> is underwater and swimmable. Return the least time to swim from the top-left to the bottom-right.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong></p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> at time <code class="chip">t</code> I can stand on any cell with height at most <code class="chip">t</code>, and I move between adjacent flooded cells. Right?</p>
+      <p><em class="pause">Here's the thing I want to say early.</em> To finish a given path, the water only has to be as high as the <strong>tallest cell on that path</strong>. So the answer is the path whose <strong>maximum cell is smallest</strong> — a minimax, or bottleneck, path. It's not about the sum of heights.</p>
+      <p><strong>Are heights a permutation of 0 to n²−1?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Yes, distinct values 0 to n²−1.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me use a small grid: <code class="chip">[[0,2,1],[5,8,3],[6,7,4]]</code>. The low path <code class="chip">0→2→1→3→4</code> reaches the corner, and its tallest cell is 4. The wall of 5, 6, 7, 8 is never needed. So the answer is <code class="chip num">4</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would</strong> be to DFS every path and take the min of the max. That's exponential.</p>
+      <p><strong>This problem reminds me of</strong> a <strong>minimax bottleneck path</strong>, and that pattern has three standard tools. I'll show all three: a <strong>Kruskal-style rising waterline with union-find</strong>, a <strong>Dijkstra that relaxes with max instead of plus</strong>, and <strong>binary search on the answer</strong>, because reachability is monotonic in <code class="chip">t</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan for the primary one — the rising waterline. Here, I'm using union-find to keep track of which flooded cells are connected.</p>
+      <div class="insight-box">
+        <span class="label">// add cells in increasing height, like Kruskal adds edges</span><br>
+        <span class="label">// after flooding a cell, union it with already-flooded neighbors</span><br>
+        <span class="label">// the moment start and end share a component, that height is the answer</span><br>
+        <span class="em">why:</span> connected at height h &nbsp;⇔&nbsp; a path exists whose max cell is ≤ h
+      </div>
+      <p>One: flood cells in increasing height, like Kruskal adds edges.<br>
+      Two: after flooding a cell, union it with its already-flooded neighbors.<br>
+      Three: the moment start and end share a component, that height is the answer.</p>
+      <p><strong>One thing worth flagging.</strong> Because I add cells from lowest to highest, the first height that connects start to end is exactly the smallest water level that works — there's no path using only strictly smaller cells, or they'd already be connected. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Code it, and show me the other two.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up, the union-find waterline first.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; parent;
+
+    <span class="typ">int</span> <span class="fn">Find</span>(<span class="typ">int</span> x) {
+        <span class="kw">return</span> parent[x] &lt; <span class="num2">0</span> ? x : parent[x] = <span class="fn">Find</span>(parent[x]);
+    }
+
+    <span class="typ">void</span> <span class="fn">Union</span>(<span class="typ">int</span> x, <span class="typ">int</span> y) {
+        <span class="typ">int</span> a = <span class="fn">Find</span>(x), b = <span class="fn">Find</span>(y);
+        <span class="kw">if</span> (a == b) <span class="kw">return</span>;
+        <span class="kw">if</span> (-parent[a] &lt; -parent[b]) <span class="fn">swap</span>(a, b);
+        parent[a] += parent[b];
+        parent[b] = a;
+    }
+
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">swimInWater</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid) {
+        <span class="typ">int</span> m = grid.<span class="fn">size</span>(), n = grid[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">auto</span> getId = [&amp;](<span class="typ">int</span> r, <span class="typ">int</span> c) { <span class="kw">return</span> r * n + c; };
+        parent.<span class="fn">assign</span>(m * n, -<span class="num2">1</span>);
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">0</span>,-<span class="num2">1</span>},{<span class="num2">0</span>,<span class="num2">1</span>}};
+        <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt; on(m * n, <span class="kw">false</span>);
+
+        <span class="kw">using</span> <span class="typ">P</span> = <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;;
+        <span class="typ">priority_queue</span>&lt;<span class="typ">P</span>, <span class="typ">vector</span>&lt;<span class="typ">P</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">P</span>&gt;&gt; pq;   <span class="com">// (height, id)</span>
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                pq.<span class="fn">push</span>({grid[i][j], <span class="fn">getId</span>(i, j)});
+            }
+        }
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [h, id] = pq.<span class="fn">top</span>();
+            pq.<span class="fn">pop</span>();
+            on[id] = <span class="kw">true</span>;                    <span class="com">// flood this cell</span>
+            <span class="typ">int</span> r = id / n, c = id % n;
+
+            <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+                <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nc &lt; <span class="num2">0</span> || nr &gt;= m || nc &gt;= n) <span class="kw">continue</span>;
+                <span class="typ">int</span> nid = <span class="fn">getId</span>(nr, nc);
+                <span class="kw">if</span> (on[nid]) <span class="fn">Union</span>(id, nid);   <span class="com">// join flooded neighbor</span>
+            }
+
+            <span class="kw">if</span> (<span class="fn">Find</span>(<span class="num2">0</span>) == <span class="fn">Find</span>(<span class="fn">getId</span>(m - <span class="num2">1</span>, n - <span class="num2">1</span>))) {
+                <span class="kw">return</span> h;                    <span class="com">// start meets end → answer</span>
+            }
+        }
+        <span class="kw">return</span> -<span class="num2">1</span>;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong> is the connectivity check right after each flood: <code class="chip">Find(0) == Find(getId(m - 1, n - 1))</code>. The heights come out of the min-heap in increasing order, so the first time this passes, <code class="chip">h</code> is the minimum level that links the corners.</p>
+      <p><em class="pause">Now the same minimax two other ways.</em> Dijkstra, but I relax with <code class="chip">max</code>, not <code class="chip">+</code>: a neighbor's cost is the max of my cost and its height.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">swimInWater</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid) {
+        <span class="typ">int</span> m = grid.<span class="fn">size</span>(), n = grid[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">using</span> <span class="typ">T</span> = <span class="typ">tuple</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>, <span class="typ">int</span>&gt;;            <span class="com">// (bottleneck, r, c)</span>
+        <span class="typ">priority_queue</span>&lt;<span class="typ">T</span>, <span class="typ">vector</span>&lt;<span class="typ">T</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">T</span>&gt;&gt; pq;
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">0</span>,-<span class="num2">1</span>},{<span class="num2">0</span>,<span class="num2">1</span>}};
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; dist(m, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;(n, -<span class="num2">1</span>));
+
+        dist[<span class="num2">0</span>][<span class="num2">0</span>] = grid[<span class="num2">0</span>][<span class="num2">0</span>];
+        pq.<span class="fn">emplace</span>(grid[<span class="num2">0</span>][<span class="num2">0</span>], <span class="num2">0</span>, <span class="num2">0</span>);
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [h, r, c] = pq.<span class="fn">top</span>();
+            pq.<span class="fn">pop</span>();
+
+            <span class="kw">if</span> (dist[r][c] != -<span class="num2">1</span> &amp;&amp; h &gt; dist[r][c]) <span class="kw">continue</span>;   <span class="com">// stale entry</span>
+            <span class="kw">if</span> (r == m - <span class="num2">1</span> &amp;&amp; c == n - <span class="num2">1</span>) <span class="kw">return</span> h;
+
+            <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+                <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= m || nc &lt; <span class="num2">0</span> || nc &gt;= n) <span class="kw">continue</span>;
+
+                <span class="typ">int</span> d = <span class="fn">max</span>(h, grid[nr][nc]);          <span class="com">// cost = tallest cell so far</span>
+                <span class="kw">if</span> (dist[nr][nc] == -<span class="num2">1</span> || dist[nr][nc] &gt; d) {
+                    dist[nr][nc] = d;
+                    pq.<span class="fn">emplace</span>(d, nr, nc);
+                }
+            }
+        }
+        <span class="kw">return</span> -<span class="num2">1</span>;
+    }
+};</pre>
+      <p>And binary search on the answer, since a bigger <code class="chip">t</code> only ever floods more cells; a BFS checks reachability.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">swimInWater</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid) {
+        <span class="typ">int</span> n = grid.<span class="fn">size</span>();
+        <span class="typ">int</span> l = <span class="fn">max</span>(grid[<span class="num2">0</span>][<span class="num2">0</span>], grid[n - <span class="num2">1</span>][n - <span class="num2">1</span>]);   <span class="com">// lower bound: start/end heights</span>
+        <span class="typ">int</span> r = n * n - <span class="num2">1</span>;                              <span class="com">// upper bound: max height</span>
+
+        <span class="kw">while</span> (l &lt; r) {
+            <span class="typ">int</span> mid = l + (r - l) / <span class="num2">2</span>;
+            <span class="kw">if</span> (<span class="fn">bfs</span>(grid, mid)) {
+                r = mid;                                 <span class="com">// reachable → shrink the upper bound</span>
+            } <span class="kw">else</span> {
+                l = mid + <span class="num2">1</span>;                             <span class="com">// unreachable → raise the lower bound</span>
+            }
+        }
+        <span class="kw">return</span> l;
+    }
+
+<span class="kw">private</span>:
+    <span class="typ">bool</span> <span class="fn">bfs</span>(<span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; grid, <span class="typ">int</span> t) {
+        <span class="typ">int</span> n = grid.<span class="fn">size</span>();
+        <span class="kw">if</span> (grid[<span class="num2">0</span>][<span class="num2">0</span>] &gt; t) <span class="kw">return</span> <span class="kw">false</span>;
+
+        <span class="typ">queue</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; q;
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&gt; seen(n, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;(n, <span class="kw">false</span>));
+        q.<span class="fn">push</span>({<span class="num2">0</span>, <span class="num2">0</span>});
+        seen[<span class="num2">0</span>][<span class="num2">0</span>] = <span class="kw">true</span>;
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">0</span>,-<span class="num2">1</span>},{<span class="num2">0</span>,<span class="num2">1</span>}};
+
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [r, c] = q.<span class="fn">front</span>();
+            q.<span class="fn">pop</span>();
+            <span class="kw">if</span> (r == n - <span class="num2">1</span> &amp;&amp; c == n - <span class="num2">1</span>) <span class="kw">return</span> <span class="kw">true</span>;
+
+            <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [dr, dc] : dirs) {
+                <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= n || nc &lt; <span class="num2">0</span> || nc &gt;= n) <span class="kw">continue</span>;
+                <span class="kw">if</span> (seen[nr][nc] || grid[nr][nc] &gt; t) <span class="kw">continue</span>;
+                seen[nr][nc] = <span class="kw">true</span>;
+                q.<span class="fn">push</span>({nr, nc});
+            }
+        }
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p>Across the three: union-find relies on adding cells in sorted order, Dijkstra on <code class="chip">max</code> being monotonic so the greedy pop is safe, and binary search on reachability being monotonic in <code class="chip">t</code>. Same minimax fact, three angles.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the waterline</strong> on that grid, <code class="chip">[[0,2,1],[5,8,3],[6,7,4]]</code> — expected <code class="chip num">4</code>. I flood cells in height order and union with flooded neighbors.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;white-space:nowrap;">
+        <thead><tr><th>h</th><th>flood cell</th><th>components</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>(0,0) start</td><td>{start}</td></tr>
+          <tr><td>1</td><td>(0,2)</td><td>{start}, {(0,2)}</td></tr>
+          <tr><td>2</td><td>(0,1)</td><td>merges → top row joined</td></tr>
+          <tr><td>3</td><td>(1,2)</td><td>joins (0,2)</td></tr>
+          <tr class="highlight-row"><td>4</td><td>(2,2) end</td><td>joins (1,2) → <span class="answer-cell">start == end → 4</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Heights 0 to 3 build up the start, the top row, and the cell above the corner into one component. The row that matters is height 4: flooding the corner links it to that already-connected low path, so start and end share a component and I return <code class="chip num">4</code>. Heights 5 through 8 are never flooded. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• A <code class="chip">1×1</code> grid returns its only height, <code class="chip">grid[0][0]</code>.<br>
+      • The answer is always at least <code class="chip">max(grid[0][0], grid[n-1][n-1])</code>, since you must stand on both — that's exactly the binary-search lower bound.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>All three are <code class="chip">O(n² log n)</code>. Union-find and Dijkstra pay the log for the heap over n² cells; binary search does <code class="chip">O(log n²)</code> rounds of an <code class="chip">O(n²)</code> BFS.</p>
+      <p>The space complexity is <code class="chip">O(n²)</code>, for the parent array, the dist grid, or the seen grid.</p>
+      <p>In the worst-case scenario the whole grid is one giant blob, but each of the three still stays within that bound.</p>
+      <p><em class="pause">Oh, one more thing —</em> if I had to pick one, I'd take Dijkstra: it only explores cells reachable from the start and stops the instant it pops the corner, whereas the union-find version pushes all n² cells into the heap up front and floods every low cell, connected or not.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nice. Three things stood out. You reframed it as a <strong>minimax bottleneck path</strong> — the tallest cell, not the sum. You gave <strong>three standard tools</strong> and named exactly what each relies on — sorted insertion, max-relaxation, and monotonic reachability. And you tied the <strong>lower bound</strong>, <code class="chip">max(start, end)</code>, to the binary-search range. Strong hire.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 13.36, 46.19, 50.57, 71.4, 99.38, 141.54, 144.97, 193.42, 233.3, 276.42]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

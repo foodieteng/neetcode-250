@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 743 · Network Delay Time</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px 14px; font-size: 12px; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 743 · Network Delay Time · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>We have a network of <code class="chip">n</code> nodes. You get a list <code class="chip">times</code>, where each entry <code class="chip">[u, v, w]</code> means a signal goes from <code class="chip">u</code> to <code class="chip">v</code> and takes <code class="chip">w</code> time. A signal starts at node <code class="chip">k</code>. Return the time for all nodes to get it, or <code class="chip num">-1</code> if some node never does.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> The edges are <strong>directed</strong>, right? A signal on <code class="chip">[u, v, w]</code> only goes <code class="chip">u → v</code>, not back.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Correct, directed.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> a node gets the signal at the <strong>earliest</strong> time it can be reached from <code class="chip">k</code>. So its arrival time is the <strong>shortest path</strong> from <code class="chip">k</code> to that node.</p>
+      <p>And all nodes have the signal when the <strong>last</strong> one gets it. So the answer is the <strong>max</strong>, over all nodes, of the shortest distance from <code class="chip">k</code>. If even one node is unreachable, that max is infinity, so I return <code class="chip num">-1</code>.</p>
+      <p><strong>Are there any constraints on the input size?</strong> And can weights be negative?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p><code class="chip">n</code> is up to 100, and weights are 0 to 100 — <strong>never negative</strong>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Good — non-negative weights is the key fact. It means I can use <strong>Dijkstra</strong>.</p>
+      <p>Let me run through the example: edges <code class="chip">2→1</code>, <code class="chip">2→3</code> and <code class="chip">3→4</code>, each costing <code class="chip num">1</code>, with <code class="chip">k = 2</code>. Node 2 is at time 0, nodes 1 and 3 at time 1, and node 4 at time 2. The last one is node 4 at time 2, so the answer is <code class="chip num">2</code>. That matches.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would</strong> be to try every path from <code class="chip">k</code> and keep the shortest to each node. That blows up — too many paths.</p>
+      <p><strong>This problem reminds me of</strong> a classic <strong>single-source shortest path</strong>. Because all weights are non-negative, Dijkstra is the right tool. Bellman-Ford would also work, but it's <code class="chip">O(V·E)</code> — slower here for no reason.</p>
+      <p>So: run Dijkstra from <code class="chip">k</code>, get the shortest distance to every node, then take the max.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan.</p>
+      <div class="insight-box">
+        <span class="label">// state</span><br>
+        dist[v] = best known time from k to v&nbsp;&nbsp;<span class="label">(∞ at start)</span><br>
+        heap of (d, node), ordered by d<br>
+        <br>
+        <span class="label">// invariant</span><br>
+        when I pop (d, u) with <span class="em">d == dist[u]</span>,<br>
+        dist[u] is final — nothing can make it shorter later<br>
+        <span class="label">(true because all weights ≥ 0)</span><br>
+        <br>
+        <span class="label">// loop</span><br>
+        pop (d, u); if d &gt; dist[u]: skip&nbsp;&nbsp;&nbsp;<span class="em">// stale</span><br>
+        for each u→v (w): if d + w &lt; dist[v]: update, push
+      </div>
+      <p>One: a <code class="chip">dist</code> array, ∞ everywhere except <code class="chip num">0</code> at <code class="chip">k</code>, and a <strong>min-heap</strong> of <code class="chip">(distance, node)</code> pairs.<br>
+      Two: pop the closest pair; skip it if it's stale, otherwise lock in its distance and relax its out-edges.<br>
+      Three: return the largest distance, or <code class="chip num">-1</code> if any node is still ∞.</p>
+      <p><strong>One thing worth flagging</strong>: I don't decrease keys. When I find a shorter path to <code class="chip">v</code>, I push a new pair and leave the old one in the heap. The guard <code class="chip">if (d &gt; dist[u]) continue;</code> throws those <strong>stale</strong> pairs away when they surface — that's <strong>lazy deletion</strong>. It keeps the code simple without hurting the complexity: at most one push per successful relax, so pushes stay <code class="chip">O(E)</code>. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Go ahead.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">networkDelayTime</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; times, <span class="typ">int</span> n, <span class="typ">int</span> k) {
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt;&gt; graph(n + <span class="num2">1</span>);
+        <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; dist(n + <span class="num2">1</span>, <span class="num2">INT_MAX</span>);
+
+        <span class="kw">for</span> (<span class="kw">auto</span> t : times) {
+            <span class="typ">int</span> u = t[<span class="num2">0</span>], v = t[<span class="num2">1</span>], w = t[<span class="num2">2</span>];
+            graph[u].<span class="fn">push_back</span>({v, w});
+        }
+
+        <span class="kw">using</span> <span class="typ">P</span> = <span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;;          <span class="com">// {dist, node}</span>
+        <span class="typ">priority_queue</span>&lt;<span class="typ">P</span>, <span class="typ">vector</span>&lt;<span class="typ">P</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">P</span>&gt;&gt; pq;  <span class="com">// min-heap</span>
+
+        dist[k] = <span class="num2">0</span>;
+        pq.<span class="fn">push</span>({<span class="num2">0</span>, k});
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [d, u] = pq.<span class="fn">top</span>(); pq.<span class="fn">pop</span>();
+
+            <span class="kw">if</span> (d &gt; dist[u]) <span class="kw">continue</span>;          <span class="com">// stale entry ⇒ lazy deletion</span>
+
+            <span class="kw">for</span> (<span class="kw">auto</span> [v, w] : graph[u]) {
+                <span class="typ">int</span> nd = d + w;
+                <span class="kw">if</span> (nd &lt; dist[v]) {              <span class="com">// relaxed ⇒ push a new entry</span>
+                    dist[v] = nd;
+                    pq.<span class="fn">push</span>({nd, v});
+                }
+            }
+        }
+
+        <span class="typ">int</span> ans = <span class="num2">0</span>;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">1</span>; i &lt;= n; i++) {
+            <span class="kw">if</span> (dist[i] == <span class="num2">INT_MAX</span>) <span class="kw">return</span> -<span class="num2">1</span>;  <span class="com">// some node is unreachable</span>
+            ans = <span class="fn">max</span>(dist[i], ans);          <span class="com">// latest arrival time</span>
+        }
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p>I build an adjacency list of size <code class="chip">n + 1</code>, since nodes are numbered from 1, and a <code class="chip">dist</code> array full of <code class="chip">INT_MAX</code>. I push <code class="chip">{0, k}</code>, then pop the smallest pair, skip it if it's stale, and push a new distance whenever a relax improves. At the end, any node still at <code class="chip">INT_MAX</code> means <code class="chip num">-1</code>; otherwise I return the max.</p>
+      <p><strong>One thing worth flagging</strong>: the heap uses <code class="chip">greater&lt;P&gt;</code>, so it's a min-heap — <code class="chip">priority_queue</code> is a max-heap by default. And the pair is <code class="chip">{dist, node}</code>, not <code class="chip">{node, dist}</code>, so it sorts by distance. Get either wrong and the whole thing breaks.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code</strong> with an example: 5 nodes, <code class="chip">k = 1</code>, seven edges <code class="chip">1→2:2</code>, <code class="chip">1→3:5</code>, <code class="chip">2→3:1</code>, <code class="chip">2→4:7</code>, <code class="chip">3→4:2</code>, <code class="chip">4→5:1</code>, <code class="chip">3→5:6</code> — expected <code class="chip num">6</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>pop (d, u)</th><th>action</th><th>dist[1..5] after</th></tr></thead>
+        <tbody>
+          <tr><td>(0, 1)</td><td>settle 1 · relax 1→2=2, 1→3=5</td><td>[0, 2, 5, ∞, ∞]</td></tr>
+          <tr><td>(2, 2)</td><td>settle 2 · relax 2→3=3, 2→4=9</td><td>[0, 2, 3, 9, ∞]</td></tr>
+          <tr><td>(3, 3)</td><td>settle 3 · relax 3→4=5, 3→5=9</td><td>[0, 2, 3, 5, 9]</td></tr>
+          <tr class="highlight-row"><td>(5, 3)</td><td>d=5 &gt; dist[3]=3 → skip (stale)</td><td>[0, 2, 3, 5, 9]</td></tr>
+          <tr><td>(5, 4)</td><td>settle 4 · relax 4→5=6</td><td>[0, 2, 3, 5, 6]</td></tr>
+          <tr><td>(6, 5)</td><td>settle 5 · no out-edges</td><td>[0, 2, 3, 5, 6]</td></tr>
+          <tr><td>(9, 4) (9, 5)</td><td>both stale → skip</td><td><span class="answer-cell">max = 6</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The row that matters is the pop of <code class="chip">(5, 3)</code>. That pair is a leftover: node 3 was first reached at cost 5 straight from node 1, but going through node 2 later found it at cost 3. When the old pair pops, <code class="chip">d=5</code> is bigger than <code class="chip">dist[3]=3</code>, so I skip it. Final distances are <code class="chip">[0, 2, 3, 5, 6]</code>, so the answer is <code class="chip num">6</code> — node 5 hears the signal last. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• One edge <code class="chip">1→2:1</code> with <code class="chip">k=1</code> → <code class="chip num">1</code>.<br>
+      • The same graph with <code class="chip">k=2</code> → <code class="chip num">-1</code>, since node 1 is unreachable.<br>
+      • A zero-weight edge is fine — that node just gets the signal at time 0.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>The time complexity is <code class="chip">O(E log V)</code>. Each edge causes at most one push, so the heap holds <code class="chip">O(E)</code> pairs, and each pop or push is a <code class="chip">log</code> of that.</p>
+      <p>The space complexity is <code class="chip">O(V + E)</code> — the adjacency list, the <code class="chip">dist</code> array, and the heap.</p>
+      <p>In the worst-case scenario, a dense graph has <code class="chip">E ≈ V²</code> edges, so it's about <code class="chip">O(V² log V)</code>. With <code class="chip">n ≤ 100</code>, that's tiny.</p>
+      <p><em class="pause">Oh, one more thing —</em> the stale guard is not required for a correct answer. The relax check <code class="chip">d + w &lt; dist[v]</code> already blocks useless updates. But without the guard, I'd expand already-settled nodes again and waste time. So it's an <strong>efficiency</strong> guard, not a correctness one.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nice. Three things stood out. You reframed "everyone got the signal" as the <strong>max of the shortest paths</strong> right away. You pinned the correctness of Dijkstra on the <strong>non-negative weights</strong>. And you explained <strong>lazy deletion</strong> clearly — why the stale guard is about speed, not correctness, and why total pushes stay <code class="chip">O(E)</code>. Well done.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 16.87, 28.43, 30.89, 59.69, 64.6, 88.48, 117.89, 167.9, 170.56, 208.79, 257.24, 300.96]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>

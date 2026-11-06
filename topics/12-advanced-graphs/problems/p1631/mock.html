@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1631 · Path With Minimum Effort</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+@media (max-width: 600px) { .page { padding: 16px 16px 48px; } .turn { gap: 10px; padding: 6px 0; }
+  pre.code { padding: 14px 14px; font-size: 12px; } .legend { gap: 16px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1631 · Path With Minimum Effort · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <!-- ===== U ===== -->
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given a grid of heights. You walk from the top-left to the bottom-right, moving up, down, left, or right. A path's <strong>effort</strong> is the largest absolute height difference between two adjacent cells on it. Return the minimum possible effort.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong></p>
+      <p><em class="pause">Just to make sure I'm understanding this correctly —</em> a path's cost isn't the total climb, it's only the <strong>single steepest step</strong> on it. And I want the path whose steepest step is as small as possible. Right?</p>
+      <p><em class="pause">Here's the thing I want to say early.</em> If I put an edge between adjacent cells with weight equal to their height difference, then effort is the <strong>maximum edge</strong> on the path. So this is a minimax — a bottleneck path — not a shortest sum.</p>
+      <p><strong>How big can the grid and the heights get?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to about 100 by 100, heights up to a million.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Let me use a small grid: <code class="chip">[[1,2,2],[3,8,2],[5,3,5]]</code>. The path down the left column and across the bottom — <code class="chip">1→3→5→3→5</code> — has steepest step 2, and the tall 8 in the middle, with steps of 5 and 6, is never worth touching. So the answer is <code class="chip num">2</code>.</p>
+    </div>
+  </div>
+
+  <!-- ===== M ===== -->
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would</strong> be to DFS every path and take the min of the max. That's exponential.</p>
+      <p><strong>This problem reminds me of</strong> a <strong>minimax bottleneck path</strong>, and that pattern has three standard tools. I'll show all three: a <strong>Kruskal-style union-find</strong> on the edges, a <strong>Dijkstra that relaxes with max instead of plus</strong>, and <strong>binary search on the answer</strong>, since reachability is monotonic in the effort limit.</p>
+    </div>
+  </div>
+
+  <!-- ===== P ===== -->
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan for the primary one — union-find. Here, I'm using it to track which cells are connected.</p>
+      <div class="insight-box">
+        <span class="label">// build one edge per adjacent pair, weight = |height difference|</span><br>
+        <span class="label">// sort edges by weight, add them smallest-first, union the two cells</span><br>
+        <span class="label">// the moment src and dst are in one component, that weight is the answer</span><br>
+        <span class="em">why:</span> connected at weight w &nbsp;⇔&nbsp; a path exists whose steepest step is ≤ w
+      </div>
+      <p>One: build one edge per adjacent pair, weighted by the height difference.<br>
+      Two: sort the edges and add them smallest-first, unioning the two cells.<br>
+      Three: the moment the top-left and bottom-right land in one component, that weight is the answer.</p>
+      <p><strong>One thing worth flagging.</strong> I add edges from the smallest weight up, so the first weight that links them is exactly the smallest steepest step that works — anything smaller left them disconnected. <strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Code it, and show me the other two.</p>
+    </div>
+  </div>
+
+  <!-- ===== I ===== -->
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright, let me code this up, union-find first.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">private</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt; parent;
+
+    <span class="typ">int</span> <span class="fn">Find</span>(<span class="typ">int</span> x) {
+        <span class="kw">return</span> parent[x] &lt; <span class="num2">0</span> ? x : parent[x] = <span class="fn">Find</span>(parent[x]);
+    }
+
+    <span class="typ">void</span> <span class="fn">Union</span>(<span class="typ">int</span> x, <span class="typ">int</span> y) {
+        <span class="typ">int</span> a = <span class="fn">Find</span>(x), b = <span class="fn">Find</span>(y);
+        <span class="kw">if</span> (a == b) <span class="kw">return</span>;
+        <span class="kw">if</span> (-parent[a] &lt; -parent[b]) <span class="fn">swap</span>(a, b);
+        parent[a] += parent[b];
+        parent[b] = a;
+    }
+
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minimumEffortPath</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; heights) {
+        <span class="typ">int</span> m = heights.<span class="fn">size</span>(), n = heights[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="kw">auto</span> id = [&amp;](<span class="typ">int</span> r, <span class="typ">int</span> c) { <span class="kw">return</span> r * n + c; };
+
+        <span class="typ">vector</span>&lt;<span class="typ">tuple</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; edges;        <span class="com">// (|Δ|, u, v)</span>
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; m; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; n; j++) {
+                <span class="kw">if</span> (j + <span class="num2">1</span> &lt; n) {
+                    <span class="typ">int</span> w = <span class="fn">abs</span>(heights[i][j] - heights[i][j + <span class="num2">1</span>]);
+                    edges.<span class="fn">push_back</span>({w, <span class="fn">id</span>(i, j), <span class="fn">id</span>(i, j + <span class="num2">1</span>)});
+                }
+                <span class="kw">if</span> (i + <span class="num2">1</span> &lt; m) {
+                    <span class="typ">int</span> w = <span class="fn">abs</span>(heights[i][j] - heights[i + <span class="num2">1</span>][j]);
+                    edges.<span class="fn">push_back</span>({w, <span class="fn">id</span>(i, j), <span class="fn">id</span>(i + <span class="num2">1</span>, j)});
+                }
+            }
+        }
+        <span class="fn">sort</span>(edges.<span class="fn">begin</span>(), edges.<span class="fn">end</span>());            <span class="com">// tuples sort by their first field, |Δ|</span>
+
+        parent.<span class="fn">assign</span>(m * n, -<span class="num2">1</span>);
+        <span class="typ">int</span> src = <span class="fn">id</span>(<span class="num2">0</span>, <span class="num2">0</span>), dst = <span class="fn">id</span>(m - <span class="num2">1</span>, n - <span class="num2">1</span>);
+        <span class="kw">for</span> (<span class="kw">auto</span>&amp; [w, u, v] : edges) {
+            <span class="fn">Union</span>(u, v);
+            <span class="kw">if</span> (<span class="fn">Find</span>(src) == <span class="fn">Find</span>(dst)) <span class="kw">return</span> w;     <span class="com">// connected → current weight = answer</span>
+        }
+        <span class="kw">return</span> <span class="num2">0</span>;
+    }
+};</pre>
+      <p><strong>One thing worth flagging</strong>: the tuples are <code class="chip">(weight, u, v)</code>, so a plain <code class="chip">sort</code> already orders them by weight — no custom comparator needed. And the <code class="chip">return w</code> fires on the first edge that connects the corners.</p>
+      <p><em class="pause">Now the same minimax two other ways.</em> Dijkstra, relaxing with <code class="chip">max</code>: the new effort is the max of the current effort and the next step, and popping the corner gives the answer.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minimumEffortPath</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; heights) {
+        <span class="typ">int</span> m = heights.<span class="fn">size</span>(), n = heights[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt; dist(m, <span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;(n, <span class="num2">INT_MAX</span>));
+        dist[<span class="num2">0</span>][<span class="num2">0</span>] = <span class="num2">0</span>;
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">0</span>,-<span class="num2">1</span>},{<span class="num2">0</span>,<span class="num2">1</span>}};
+        <span class="kw">using</span> <span class="typ">T</span> = <span class="typ">tuple</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>, <span class="typ">int</span>&gt;;               <span class="com">// (effort, r, c)</span>
+        <span class="typ">priority_queue</span>&lt;<span class="typ">T</span>, <span class="typ">vector</span>&lt;<span class="typ">T</span>&gt;, <span class="typ">greater</span>&lt;<span class="typ">T</span>&gt;&gt; pq;
+        pq.<span class="fn">push</span>({<span class="num2">0</span>, <span class="num2">0</span>, <span class="num2">0</span>});
+
+        <span class="kw">while</span> (!pq.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [d, r, c] = pq.<span class="fn">top</span>();
+            pq.<span class="fn">pop</span>();
+            <span class="kw">if</span> (r == m - <span class="num2">1</span> &amp;&amp; c == n - <span class="num2">1</span>) <span class="kw">return</span> d;    <span class="com">// popping the target = answer</span>
+            <span class="kw">if</span> (d &gt; dist[r][c]) <span class="kw">continue</span>;              <span class="com">// stale entry</span>
+
+            <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+                <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= m || nc &lt; <span class="num2">0</span> || nc &gt;= n) <span class="kw">continue</span>;
+                <span class="typ">int</span> nd = <span class="fn">max</span>(d, <span class="fn">abs</span>(heights[nr][nc] - heights[r][c]));
+                <span class="kw">if</span> (nd &lt; dist[nr][nc]) {            <span class="com">// effort = max |Δ| along the path</span>
+                    dist[nr][nc] = nd;
+                    pq.<span class="fn">push</span>({nd, nr, nc});
+                }
+            }
+        }
+        <span class="kw">return</span> <span class="num2">0</span>;
+    }
+};</pre>
+      <p>And binary search on the effort limit, since a bigger limit only ever unlocks more edges; a BFS checks whether the corner is reachable.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">int</span> <span class="fn">minimumEffortPath</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; heights) {
+        <span class="typ">int</span> R = heights.<span class="fn">size</span>(), C = heights[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="typ">int</span> lo = <span class="num2">0</span>, hi = <span class="num2">0</span>;
+        <span class="kw">for</span> (<span class="typ">int</span> i = <span class="num2">0</span>; i &lt; R; i++) {
+            <span class="kw">for</span> (<span class="typ">int</span> j = <span class="num2">0</span>; j &lt; C; j++) {
+                <span class="kw">if</span> (j + <span class="num2">1</span> &lt; C) hi = <span class="fn">max</span>(hi, <span class="fn">abs</span>(heights[i][j + <span class="num2">1</span>] - heights[i][j]));
+                <span class="kw">if</span> (i + <span class="num2">1</span> &lt; R) hi = <span class="fn">max</span>(hi, <span class="fn">abs</span>(heights[i + <span class="num2">1</span>][j] - heights[i][j]));
+            }
+        }
+
+        <span class="kw">while</span> (lo &lt; hi) {
+            <span class="typ">int</span> mid = lo + (hi - lo) / <span class="num2">2</span>;
+            <span class="kw">if</span> (<span class="fn">reach</span>(heights, mid)) hi = mid;       <span class="com">// reachable → shrink the upper bound</span>
+            <span class="kw">else</span> lo = mid + <span class="num2">1</span>;                       <span class="com">// unreachable → raise the lower bound</span>
+        }
+        <span class="kw">return</span> lo;
+    }
+
+<span class="kw">private</span>:
+    <span class="typ">bool</span> <span class="fn">reach</span>(<span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">int</span>&gt;&gt;&amp; h, <span class="typ">int</span> limit) {
+        <span class="typ">int</span> R = h.<span class="fn">size</span>(), C = h[<span class="num2">0</span>].<span class="fn">size</span>();
+        <span class="typ">queue</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; q;
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;&gt; seen(R, <span class="typ">vector</span>&lt;<span class="typ">bool</span>&gt;(C, <span class="kw">false</span>));
+        q.<span class="fn">push</span>({<span class="num2">0</span>, <span class="num2">0</span>});
+        seen[<span class="num2">0</span>][<span class="num2">0</span>] = <span class="kw">true</span>;
+
+        <span class="kw">const</span> <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="typ">int</span>, <span class="typ">int</span>&gt;&gt; dirs = {{-<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">1</span>,<span class="num2">0</span>},{<span class="num2">0</span>,-<span class="num2">1</span>},{<span class="num2">0</span>,<span class="num2">1</span>}};
+        <span class="kw">while</span> (!q.<span class="fn">empty</span>()) {
+            <span class="kw">auto</span> [r, c] = q.<span class="fn">front</span>();
+            q.<span class="fn">pop</span>();
+            <span class="kw">if</span> (r == R - <span class="num2">1</span> &amp;&amp; c == C - <span class="num2">1</span>) <span class="kw">return</span> <span class="kw">true</span>;
+
+            <span class="kw">for</span> (<span class="kw">auto</span> [dr, dc] : dirs) {
+                <span class="typ">int</span> nr = r + dr, nc = c + dc;
+                <span class="kw">if</span> (nr &lt; <span class="num2">0</span> || nr &gt;= R || nc &lt; <span class="num2">0</span> || nc &gt;= C || seen[nr][nc]) <span class="kw">continue</span>;
+                <span class="kw">if</span> (<span class="fn">abs</span>(h[nr][nc] - h[r][c]) &gt; limit) <span class="kw">continue</span>;   <span class="com">// edge over the limit, can't cross</span>
+                seen[nr][nc] = <span class="kw">true</span>;
+                q.<span class="fn">push</span>({nr, nc});
+            }
+        }
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+};</pre>
+      <p>Across the three: union-find relies on sorted order, Dijkstra on <code class="chip">max</code> being monotonic so the greedy pop is safe, and binary search on reachability being monotonic in the limit. Same minimax fact, three angles.</p>
+    </div>
+  </div>
+
+  <!-- ===== R ===== -->
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run union-find</strong> on that grid, <code class="chip">[[1,2,2],[3,8,2],[5,3,5]]</code> — expected <code class="chip num">2</code>. I add edges by <code class="chip">|diff|</code> and union.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;white-space:nowrap;">
+        <thead><tr><th>|diff|</th><th>edges added</th><th>components</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>(0,1)-(0,2), (0,2)-(1,2)</td><td>one island forms</td></tr>
+          <tr><td>1</td><td>(0,0)-(0,1)</td><td>src joins that island</td></tr>
+          <tr class="highlight-row"><td>2</td><td>(0,0)-(1,0) … (2,1)-(2,2)</td><td>dst joins → <span class="answer-cell">src == dst → 2</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The zero edges link the top-right cells into one island, and the one edge pulls the start into it. The row that matters is weight 2: walking the weight-2 edges down the left and across the bottom finally pulls the corner in, so I return <code class="chip num">2</code>. The steep middle 8, with edges of 5 and 6, is never added. That matches.</p>
+      <p>Corner cases:</p>
+      <p>• A <code class="chip">1×1</code> grid has no edges, so effort is <code class="chip num">0</code>.<br>
+      • A flat grid where all neighbors are equal is also <code class="chip num">0</code> — the loop connects them at weight 0 immediately.</p>
+    </div>
+  </div>
+
+  <!-- ===== E ===== -->
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em></p>
+      <p>All three are <code class="chip">O(mn · log)</code>. Union-find sorts about <code class="chip">2mn</code> edges; Dijkstra pays the log on the heap; binary search does <code class="chip">O(log maxDiff)</code> rounds of an <code class="chip">O(mn)</code> BFS over the grid.</p>
+      <p>The space complexity is <code class="chip">O(mn)</code>, for the parent array, the dist grid, or the seen grid.</p>
+      <p>In the worst-case scenario every cell is explored, but each of the three stays within that bound.</p>
+      <p><em class="pause">Oh, one more thing —</em> if the caller also wants the actual path, I'd take the Dijkstra version and store a parent pointer on each successful relax, then walk it back from the corner. The other two only give the effort value.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nice. Three things stood out. You reframed it as a <strong>minimax bottleneck path</strong> over height differences <code class="chip">|Δ|</code> — the steepest step, not the sum. You gave <strong>three standard tools</strong> and named what each relies on. And you noted that <strong>Dijkstra extends cleanly to recover the path</strong>. Strong hire.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 16.17, 49.04, 53.09, 73.66, 101.61, 140.6, 144.03, 193.34, 233.51, 274.48]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
