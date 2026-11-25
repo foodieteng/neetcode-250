@@ -225,6 +225,8 @@ A subagent that is asked to "verify X" will happily report "X 安全" from a pla
    ```
    (e.g. `feat(01/P1): Two Sum — one-pass hash map`)
 
+10. **🚀 Push right away — no need to ask.** As soon as the commit is made, `git push origin HEAD` (use `git -c push.negotiate=true push` from a shallow clone). One problem = one commit = one push; when the user queues several problems, push each one as it lands so finished work is never stuck local. If the push is refused (403 / repo not attached to the session), attach the repo to the session first if a tool for that exists; otherwise fall back to sending the changed files with their repo paths (or a `git format-patch -1`), never ask for tokens.
+
 ## Three sub-page contracts
 
 All three pages use `assets/css/study-card.css` and `<body class="study-card">`. Inline `code` on all three pages is the flat printed-ink style — write plain `<code>…</code>`, then run `python3 scripts/code_tokens.py <the three pages>`: it wraps standalone numbers in `<span class="nm">` and keywords in `<span class="kw2">`, never splits a token (`2n`, `0x1F`, `1e9`, `dp2` stay plain), skips `<pre>`/`.sc-trace`, and is idempotent. Don't hand-wrap. Each page has:
@@ -369,7 +371,7 @@ git add -A
 git commit -m "feat(<NN>/P<num>): <Title> — <one-line summary>"
 ```
 
-Scope prefixes: `feat(<NN>/P<num>)`, `fix(...)`, `style(...)`, `chore(...)`, `refactor(...)`. Don't push without explicit user request.
+Scope prefixes: `feat(<NN>/P<num>)`, `fix(...)`, `style(...)`, `chore(...)`, `refactor(...)`. Push immediately after each problem's commit (Integration step 10) — the user does not need to ask.
 
 ## When the user simply pastes problem text
 
