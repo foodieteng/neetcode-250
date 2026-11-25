@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>56 · Merge Intervals // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P56</span>
+    <span><a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Merge Intervals</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 排好序之後,只要跟最後一段比</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 56</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + LINEAR MERGE · O(n log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一堆區間 <code>[start, end]</code>,<strong>順序是亂的、彼此可能重疊</strong>。把所有重疊的區間合併,回傳一組互不重疊、剛好蓋住所有輸入的區間。<br>
+        <code><span class="nm">1</span> ≤ intervals.length ≤ <span class="nm">10</span>⁴</code>,<code><span class="nm">0</span> ≤ start ≤ end ≤ <span class="nm">10</span>⁴</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[[<span class="nm">1,3</span>],[<span class="nm">2,6</span>],[<span class="nm">8,10</span>],[<span class="nm">15,18</span>]] → [[<span class="nm">1,6</span>],[<span class="nm">8,10</span>],[<span class="nm">15,18</span>]]</code>;<code>[[<span class="nm">1,4</span>],[<span class="nm">4,5</span>]] → [[<span class="nm">1,5</span>]]</code>(在 4 碰到也算重疊)。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>按起點排好之後,一個區間能合併的對象只可能是「目前最後一段」。</strong>
+      <b>前面已經結束的段,終點都比最後一段的起點小,更比現在這個區間的起點小,碰不到。所以排序後一路往右掃:碰得到最後一段就把終點往右推,碰不到就開新的一段。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼先排序<span class="sc-section__title-en">// WHY SORT FIRST</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">兩兩比,能合就合,直到不變</span>
+            <span class="sc-ko-card__o">O(n²) 以上</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每一輪把所有配對都檢查一次,合併一對就重來。正確,但 n = 10⁴ 時光一輪就有 5 × 10⁷ 對,而且合併一次可能讓之前不重疊的配對變得重疊,要一直重跑。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">在數線上標記,再找連續段</span>
+            <span class="sc-ko-card__o">O(n · 長度)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            把每個區間蓋到的點都標起來(座標要乘 2,不然 [1,2]、[3,4] 會被誤接),再掃出連續段。正確(驗證時拿它當參考解),但速度綁在座標範圍上,座標一大就不能用。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 綁座標範圍</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">SORT · THEN ONE PASS · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">按起點排序 · 只跟 res.back() 比</span>
+          <span class="sc-ko-card__o">O(n log n) / O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          排序後每個區間看一次。和 B 比對:座標 0–5 上長度 1–4 的所有區間序列(含重複、各種順序)共 204,204 組;再加隨機 20,000 組(n ≤ 300、座標到 10⁴),全部 0 筆不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 瓶頸只剩排序</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>排序</strong> —— 按起點由小到大,能合併的區間就會挨在一起。</li>
+      <li><strong>第一個先放進 res</strong> —— <code>res.back()</code> 就是「目前還在長的那一段」。</li>
+      <li><strong>往後掃</strong> —— <code>res.back()[<span class="nm">1</span>] &gt;= intervals[i][<span class="nm">0</span>]</code>:碰得到,終點取 <code>max</code>;碰不到,<code>push_back</code> 開新的一段。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      第 3 步就是 <a href="../p57/index.html">57 Insert Interval</a> 的 CASE 2:那裡是 newInterval 一路吞掉重疊的區間,這裡是 <code>res.back()</code> 一路吞。差別是 57 的輸入已經排好、又只有一個要吞別人的區間,所以不用排序,O(n) 就做完。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 範例 1 → 沒排好的一組</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      先走官方範例 1:[1,3] 和 [2,6] 合併,後面兩段各自獨立。再走一組亂序的 <code>[[<span class="nm">8,10</span>],[<span class="nm">1,9</span>],[<span class="nm">3,4</span>],[<span class="nm">12,13</span>],[<span class="nm">2,6</span>]]</code>:排序後 [1,9] 先把 [2,6]、[3,4] 整個包住(終點要留在 9,不能變成 6 或 4),再和 [8,10] 接成 [1,10],最後 [12,13] 自己一段。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ sort · res.back()[1] ≥ intervals[i][0] 就 max 終點 · 否則 push 開新段</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:364px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 14</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 只要跟 res.back() 比,不是跟 intervals[i − 1] 比</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          res 裡除了最後一段,其他段的終點都 &lt; 最後一段的起點 ≤ intervals[i] 的起點,所以碰不到。要比的是「目前合併出來的那一段到哪」,也就是 <code>res.back()[<span class="nm">1</span>]</code>,不是前一個輸入區間的終點。
+          <b>寫成 <code>intervals[i − <span class="nm">1</span>][<span class="nm">1</span>]</code>:<code>[[<span class="nm">1,10</span>],[<span class="nm">2,3</span>],[<span class="nm">4,5</span>]]</code> 會回傳 [[1,10],[4,5]] —— [2,3] 的終點 3 碰不到 4,但 [1,10] 早就蓋住 4 了。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 終點一定要取 max:被包住的區間會把它拉回來</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          排序只保證起點遞增,終點不一定。[1,10] 後面接 [2,3],直接寫 <code>res.back()[<span class="nm">1</span>] = intervals[i][<span class="nm">1</span>]</code> 會把 10 改成 3,得到 [[1,3]]。
+          <b>危險的是:拿掉 max、上一段的錯法、不排序、按終點排序,這四種錯法兩個官方範例全部都會過(實跑)。只有把 &gt;= 寫成 &gt; 會被範例 2 抓到。全部錯法在<a href="code.html">程式碼頁</a>第 3 節。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 正確性證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">正確性證明<span class="sc-section__title-en">// PROOF OF CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>掃完之後,res 就是所有區間的聯集,而且<strong>按起點排好、兩兩不重疊</strong>(碰到的也已經合併)。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:不變量</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>不變量。</strong>處理完排序後的前 i 個區間時,res 剛好是這 i 個區間的聯集,排好、兩兩不重疊。一開始 res = [intervals[0]],成立。</li>
+          <li><strong>加入第 i 個區間後還成立。</strong>它的起點 ≥ res 裡所有段的起點。除了最後一段,其他段的終點 &lt; 最後一段的起點 ≤ 它的起點,碰不到。所以只看最後一段:碰得到,聯集就是「起點不變、終點取 max」;碰不到,它在所有段的右邊,直接接在後面仍然排好、不重疊。</li>
+          <li><strong>做完。</strong>i 走到 n 時不變量成立,就是要的答案。每一步都只有這兩種情況,沒有遺漏。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>先按起點排序。排好之後,一個區間只可能和我目前合併出來的最後一段重疊,因為更早的段在它起點之前就結束了。所以我掃一遍:碰得到最後一段,就把終點延到兩者的最大值;碰不到,就開一段新的。時間花在排序,n log n;掃描本身是線性的。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        排序 O(n log n),掃描 O(n)。res 是輸出,最多 n 段;另外排序本身要 O(log n) 的遞迴空間。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">排序</td><td style="white-space:nowrap;" class="mono">O(n log n)</td><td>瓶頸;按 vector 的字典序比,先比起點</td></tr>
+        <tr><td style="white-space:nowrap;">掃描</td><td style="white-space:nowrap;" class="mono">n − 1</td><td>每個區間一次比較 + 一次 max 或 push</td></tr>
+        <tr><td style="white-space:nowrap;">res</td><td style="white-space:nowrap;" class="mono">≤ 5,001</td><td>座標 ≤ 10⁴ 又「碰到就合併」,最多就是 0, 2, 4, …, 10⁴ 這 5,001 個點(實測)</td></tr>
+        <tr><td style="white-space:nowrap;">實測</td><td style="white-space:nowrap;" class="mono">約 1 ms</td><td>n = 10⁴ 隨機短區間,含排序</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>排好序之後,只有最後一段還可能長大。</strong>
+      <b>碰得到 res.back() 就把終點推到 max,碰不到就開新段。比的是 res.back(),不是前一個輸入;終點一定取 max,因為會有被整個包住的區間。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">按起點排序,res 先放第一個;之後 res.back()[1] ≥ intervals[i][0] 就把終點推到 max,否則 push 開新段。只有最後一段會長大。四種常見錯法官方範例都抓不到:不取 max、比前一個輸入、不排序、按終點排序。O(n log n) / O(n)。</div>
+    <div class="sc-summary-bar__detail">MERGE INTERVALS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p56-merge.js"></script>
+</body>
+</html>

@@ -320,7 +320,7 @@ PROBLEMS = {
     ],
     '16': [  # Intervals
         ('p57',  'Insert Interval',                       'insert-interval',                       'med', 'done'),
-        ('p56',  'Merge Intervals',                       'merge-intervals',                       'med', 'todo'),
+        ('p56',  'Merge Intervals',                       'merge-intervals',                       'med', 'done'),
         ('p435', 'Non-overlapping Intervals',             'non-overlapping-intervals',             'med', 'todo'),
         ('p252', 'Meeting Rooms',                         'meeting-rooms',                         'easy','todo'),
         ('p253', 'Meeting Rooms II',                      'meeting-rooms-ii',                      'med', 'todo'),

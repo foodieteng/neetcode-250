@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 56 · Merge Intervals</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 56 · Merge Intervals · Medium</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given a list of intervals, in no particular order, and some of them overlap. Merge all the overlapping ones and return a list of non-overlapping intervals that covers exactly the same points.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — if two intervals only touch, like <code class="chip">[1,4]</code> and <code class="chip">[4,5]</code>, should they merge? And does the output need to be in any order?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Touching intervals merge, so that's <code class="chip">[1,5]</code>. Any order is fine, but sorted is natural.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. One thing I want to say early: <strong>if I sort by start, an interval can only overlap the last group I've built.</strong> Every earlier group ended before the last group started, so it ends before the current start too.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Between <code class="chip num">1</code> and <code class="chip num">10⁴</code> intervals, and values from <code class="chip num">0</code> to <code class="chip num">10⁴</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. At least one interval, so I can seed the result with the first one.</p>
+      <p><strong>Let me check the examples.</strong> <code class="chip">[1,3]</code> and <code class="chip">[2,6]</code> overlap, so <code class="chip">[1,6]</code>; <code class="chip">[8,10]</code> and <code class="chip">[15,18]</code> stay alone. Second example, <code class="chip">[1,4]</code> and <code class="chip">[4,5]</code> touch, so <code class="chip">[1,5]</code>. Both match.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a second.</em></p>
+      <p><strong>A naive approach would</strong> compare every pair and merge until nothing changes. That's at least O(n²), and one merge can create new overlaps, so it repeats. I could also mark every covered point on a number line, but then the speed depends on the coordinate range.</p>
+      <p><strong>This problem reminds me of</strong> a sort-then-sweep pattern. Once the intervals are sorted by start, a single left-to-right pass is enough, because only the newest group can still grow.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Are you confident the single pass is correct?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Yes. The invariant is that after each step, my result is the merge of everything seen so far, sorted and non-overlapping. A new interval either reaches the last group, so I extend it, or starts after it, so it opens a new group.</p>
+      <p>I also checked it against the number-line version: every list of up to 4 intervals on coordinates 0 to 5, about <code class="chip num">200,000</code> cases, plus <code class="chip num">20,000</code> random ones. <code class="chip num">0</code> mismatches.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan, in three steps.</p>
+      <div class="insight-box">
+        <span class="label">// invariant: res = merge of everything seen, sorted</span><br>
+        sort intervals by start<br>
+        res = [intervals[0]]<br>
+        for each next interval x:<br>
+        &nbsp;&nbsp;if res.back().end <span class="em">&gt;=</span> x.start:&nbsp;&nbsp;res.back().end = <span class="em">max</span>(…)<br>
+        &nbsp;&nbsp;else:&nbsp;&nbsp;push x
+      </div>
+      <p>Sort by start. Put the first interval in the result. Then for each next interval, if the last group's end reaches its start, extend that end to the larger of the two; otherwise push it as a new group.</p>
+      <p><strong>One thing worth flagging</strong> — compare against the last group in the result, not the previous input interval, and always take the <code class="chip">max</code> for the end.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Alright. Sort, seed the result with the first interval, then one loop.</p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&gt; <span class="fn">merge</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; intervals) {
+        <span class="kw">int</span> n = intervals.<span class="fn">size</span>();
+        <span class="fn">sort</span>(intervals.<span class="fn">begin</span>(), intervals.<span class="fn">end</span>());
+
+        <span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&gt; res;
+        res.<span class="fn">push_back</span>(intervals[<span class="num2">0</span>]);
+
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num2">1</span>; i &lt; n; i++) {
+            <span class="kw">if</span> (res.<span class="fn">back</span>()[<span class="num2">1</span>] &gt;= intervals[i][<span class="num2">0</span>]) {
+                res.<span class="fn">back</span>()[<span class="num2">1</span>] = <span class="fn">max</span>(res.<span class="fn">back</span>()[<span class="num2">1</span>], intervals[i][<span class="num2">1</span>]);
+            } <span class="kw">else</span> {
+                res.<span class="fn">push_back</span>(intervals[i]);
+            }
+        }
+
+        <span class="kw">return</span> res;
+    }
+};</pre>
+      <p>If the result's last end is <code class="chip">&gt;=</code> the current start, I set that end to the <code class="chip">max</code> of the two. Otherwise I push the current interval.</p>
+      <p><strong>The easy line to get wrong</strong> is that <code class="chip">max</code>. Sorting only orders the starts; ends can go down. With <code class="chip">[1,10]</code> followed by <code class="chip">[2,3]</code>, a plain assignment shrinks the group to <code class="chip">[1,3]</code>. And both official examples still pass with that bug, because neither has an interval inside another.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run</strong> an unsorted case: <code class="chip">[[8,10],[1,9],[3,4],[12,13],[2,6]]</code>. Expected <code class="chip">[[1,10],[12,13]]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:520px;">
+        <thead><tr><th>i</th><th>interval</th><th>back end</th><th>check</th><th>back end after</th><th>action</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>[1,9]</td><td>—</td><td>—</td><td>9</td><td>seed res</td></tr>
+          <tr><td>1</td><td>[2,6]</td><td>9</td><td>9 ≥ 2 yes</td><td>9</td><td>nested, keep 9</td></tr>
+          <tr><td>2</td><td>[3,4]</td><td>9</td><td>9 ≥ 3 yes</td><td>9</td><td>nested, keep 9</td></tr>
+          <tr class="highlight-row"><td>3</td><td>[8,10]</td><td>9</td><td>9 ≥ 8 yes</td><td>10</td><td>extend</td></tr>
+          <tr><td>4</td><td>[12,13]</td><td>10</td><td>10 ≥ 12 no</td><td>13</td><td>push new group</td></tr>
+          <tr><td>end</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="answer-cell">[[1,10],[12,13]]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>After sorting, <code class="chip">[1,9]</code> swallows <code class="chip">[2,6]</code> and <code class="chip">[3,4]</code>, and the end stays at 9 thanks to the <code class="chip">max</code>. The moment that matters is <code class="chip">[8,10]</code>: 9 reaches 8, so the group grows to 10. Then 12 is past 10, so a new group.</p>
+      <p><strong>Corner cases:</strong></p>
+      <p>• A single interval comes back as is.<br>
+      • All identical intervals become one.<br>
+      • Nested intervals collapse into the outer one.<br>
+      • Disjoint points stay separate.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em> Sorting is O(n log n), and the loop is linear, so <strong>time is</strong> O(n log n). <strong>Space is</strong> O(n) for the output, plus the sort's recursion.</p>
+      <p>If the values are small, like here, I could bucket by start and skip the comparison sort, but the sorted version is the general answer.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You explained why, after sorting, only the last group can change, which is the whole reason one pass works. You flagged the <code class="chip">max</code> on the end and showed a nested case the examples don't cover. And you knew the sort is the real cost, and when you could avoid it. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 14.35, 28.98, 35.89, 51.7, 57.91, 78.04, 107.05, 110.16, 137.63, 161.12, 163.45, 194.38, 232.46, 250.64]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
