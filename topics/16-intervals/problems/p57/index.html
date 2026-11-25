@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>57 · Insert Interval // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P57</span>
+    <span><a href="https://leetcode.com/problems/insert-interval/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Insert Interval</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 左邊照搬、碰到就吞、右邊照搬</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 57</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>THREE-PHASE SCAN · O(n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        <code>intervals</code> 是一串<strong>已經按起點排好、互不重疊</strong>的區間 <code>[start, end]</code>。把 <code>newInterval</code> 插進去,有重疊的就<strong>合併</strong>,回傳的結果仍然要排好、互不重疊。<br>
+        <code><span class="nm">0</span> ≤ intervals.length ≤ <span class="nm">10</span>⁴</code>,<code><span class="nm">0</span> ≤ start ≤ end ≤ <span class="nm">10</span>⁵</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[[<span class="nm">1,3</span>],[<span class="nm">6,9</span>]] + [<span class="nm">2,5</span>] → [[<span class="nm">1,5</span>],[<span class="nm">6,9</span>]]</code>;<code>[[<span class="nm">1,2</span>],[<span class="nm">3,5</span>],[<span class="nm">6,7</span>],[<span class="nm">8,10</span>],[<span class="nm">12,16</span>]] + [<span class="nm">4,8</span>] → [[<span class="nm">1,2</span>],[<span class="nm">3,10</span>],[<span class="nm">12,16</span>]]</code>(new 一口氣吞掉 [3,5]、[6,7]、[8,10])。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>因為 intervals 已經排好又互不重疊,和 new 重疊的區間一定是連續的一整塊。</strong>
+      <b>所以整串只會被切成三段:完全在 new 左邊的、和 new 重疊的、完全在 new 右邊的。左右兩段原樣搬,中間那塊全部併進 new。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用三段掃描<span class="sc-section__title-en">// WHY THREE PHASES</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">塞進去再排序、再合併</span>
+            <span class="sc-ko-card__o">O(n log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            把 new 加到最後、整串按起點排序、再從頭合併(就是 56 Merge Intervals 的寫法)。正確(驗證時拿它當參考解),但 intervals 本來就排好了,重排一次是白做。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 浪費已排序</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">二分搜尋找重疊範圍</span>
+            <span class="sc-ko-card__o">O(log n) + O(n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            用二分找出第一個、最後一個和 new 重疊的區間。找得快,但回傳的是一個新的 vector,所有區間還是要搬一次,整體仍是 O(n),而且邊界更容易寫錯。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 搬的成本省不掉</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">ONE LINEAR PASS · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">三個 while:左搬 · 吞 · 右搬</span>
+          <span class="sc-ko-card__o">O(n) / O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          一個 i 從頭走到尾,每個區間只看一次。和 A 比對:座標 0–7 上所有「排好且不重疊」的 intervals × 所有 new,共 57,492 組;再加隨機 20,000 組(n &lt; 200、座標到 10⁵),全部 0 筆不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每個區間看一次</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>左邊照搬</strong> —— <code>intervals[i][<span class="nm">1</span>] &lt; new[<span class="nm">0</span>]</code>:這段在 new 開始之前就結束了,碰不到,原樣 push。</li>
+      <li><strong>碰到就吞</strong> —— <code>new[<span class="nm">1</span>] &gt;= intervals[i][<span class="nm">0</span>]</code>:這段在 new 結束之前(或剛好結束時)開始,有重疊。new 的起點取 min、終點取 max。條件一不成立,就把 new push 進去。</li>
+      <li><strong>右邊照搬</strong> —— 剩下的起點都比 new 的終點大,不用再比,全部原樣 push。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      第 2 步的 <code>new[<span class="nm">1</span>] = max(…)</code> 和 <a href="../../../15-greedy/problems/p763/index.html">763 Partition Labels</a> 的 <code>r = max(r, last[s[i]])</code> 是同一件事:目前這一塊「至少要延伸到哪」,只會往右推。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 官方範例 1 → 範例 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      每一步就是一次 while 條件的判斷。範例 1 很短:第一個區間就和 new 重疊,CASE 1 一個都沒搬。範例 2 三段都有:[1,2] 先搬走,new 接著吞掉 [3,5]、[6,7]、[8,10](8 和 8 剛好碰到,也算重疊),最後 [12,16] 直接搬。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ CASE 1 end &lt; new[0] 照搬 · CASE 2 new[1] ≥ start 就吞 · CASE 3 照搬</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:356px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 14</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 兩個區間重疊,只需要比一邊</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          [a,b] 和 [c,d] 重疊 ⇔ <code>b ≥ c</code> 而且 <code>d ≥ a</code>。第一個 while 停下來的時候,已經知道 <code>intervals[i][<span class="nm">1</span>] ≥ new[<span class="nm">0</span>]</code>(另一邊成立了),所以第二個 while 只要再比 <code>new[<span class="nm">1</span>] ≥ intervals[i][<span class="nm">0</span>]</code> 就夠。
+          <b>吞完一個之後,下一個區間的終點比剛吞的更大,new 的終點又只會變大 —— 「另一邊」一直成立,所以整個第二個 while 都只比一邊。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 剛好碰到也算重疊:&lt; 和 ≥ 不能換</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          題目把 [1,3] 和 [3,5] 視為重疊,要合併成 [1,5]。所以 CASE 1 是嚴格的 <code>&lt;</code>、CASE 2 是含等號的 <code>&gt;=</code>。CASE 1 寫成 <code>&lt;=</code>,<code>[[<span class="nm">1,3</span>]] + [<span class="nm">3,5</span>]</code> 會回傳 <code>[[<span class="nm">1,3</span>],[<span class="nm">3,5</span>]]</code>。
+          <b>危險的是:這個錯法兩個官方範例都會過(實跑)。CASE 2 寫成 <code>&gt;</code> 至少範例 2 抓得到([8,10] 和 new 在 8 碰到)。兩種錯法都在<a href="review.html">複習頁</a>第 6 題逐步走一遍。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 正確性證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">正確性證明<span class="sc-section__title-en">// PROOF OF CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>res 涵蓋的點剛好等於「intervals 和 new 的聯集」,而且 res <strong>按起點排好、兩兩不重疊</strong>。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:三段各自成立 + 交界處不重疊</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>CASE 1 搬的都在 new 左邊。</strong>最後的 new 起點 = min(原本的 new 起點, 第一個被吞區間的起點)。這兩個數都比這些區間的終點大:前者是 CASE 1 的條件,後者因為 intervals 互不重疊。所以這些區間和最後的 new 不重疊。</li>
+          <li><strong>CASE 2 吞掉的,剛好是所有和 new 重疊的區間。</strong>由 LEMMA 1,每次比的那一邊成立就是重疊;intervals 按起點排好,一旦某個起點 &gt; new 的終點,後面的起點更大,不可能再重疊。吞的時候取 min / max,new 就變成這些區間和原 new 的聯集。</li>
+          <li><strong>CASE 3 搬的都在 new 右邊。</strong>第一個的起點 &gt; new 的終點,後面的起點更大。三段依序 push:左邊那段本來就排好、new 在中間、右邊那段本來就排好 —— res 整體排好、互不重疊,點也一個沒少。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>因為輸入已經排好又不重疊,跟新區間重疊的一定是中間連續的一段。我用一個指標走三次:先把終點小於新區間起點的照搬,再把起點不超過新區間終點的全部併進來,起點取最小、終點取最大,最後把剩下的照搬。每個區間只看一次,所以是線性時間。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        i 只往前走,三個 while 加起來剛好走 n 步。空間 O(n) 全部是回傳的 res;除了 res,只多用了 i 和 n 兩個 int。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>次數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">三個 while</td><td style="white-space:nowrap;" class="mono">n</td><td>每個區間被比一次(CASE 3 甚至不用比)</td></tr>
+        <tr><td style="white-space:nowrap;">合併</td><td style="white-space:nowrap;" class="mono">≤ n</td><td>一次 min + 一次 max</td></tr>
+        <tr><td style="white-space:nowrap;">res</td><td style="white-space:nowrap;" class="mono">≤ n + 1</td><td>new 沒碰到任何區間時最多:n = 10⁴ 接在最後,實測回傳 10,001 個</td></tr>
+        <tr><td style="white-space:nowrap;">額外空間</td><td style="white-space:nowrap;" class="mono ok">O(1)</td><td>不算 res 的話只有 i、n;new 直接在原地改</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>排好又不重疊的區間,和一個新區間重疊的部分一定是連續的一塊。</strong>
+      <b>左邊 end &lt; new[0] 照搬、中間 new[1] ≥ start 就吞(min / max)、右邊照搬。剛好碰到也算重疊,所以是 &lt; 和 ≥。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">重疊的一定是中間連續一塊。CASE 1 intervals[i][1] &lt; new[0] 照搬;CASE 2 new[1] ≥ intervals[i][0] 就吞,start 取 min、end 取 max,停下來 push new;CASE 3 剩下照搬。碰到也算重疊。O(n) / O(n)(全是輸出)。</div>
+    <div class="sc-summary-bar__detail">INSERT INTERVAL · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p57-insert.js"></script>
+</body>
+</html>
