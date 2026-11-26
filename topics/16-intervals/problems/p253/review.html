@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>253 · Meeting Rooms II // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P253</span>
+    <span><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Meeting Rooms II</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 253</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT BY START + MIN-HEAP · O(n log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>INTERVALS · UNIT 16 複習測驗</span>
+      <span>範圍:MEETING ROOMS II(LC 253)· size_t</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 25 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
+  <!-- ════════════ 1 · PART A ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">heap 裡存的是什麼?為什麼要 min-heap(<code>greater&lt;&gt;</code>),不是預設的 max-heap?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>存的是每間使用中房間的結束時間。新會議來時要問「有沒有房間已經空了」,只要看最早空出來的那間 —— 也就是最小的結束時間,所以要 min-heap,讓它在 top。</strong><br><br>
+        預設的 priority_queue 是 max-heap,top 是最晚才空的房間,拿來判斷完全沒用。<code>greater&lt;&gt;</code>(C++14 起可以不寫型別)把比較反過來。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">原版的 cmp 是 <code>a[<span class="nm">1</span>] &lt; b[<span class="nm">1</span>]</code>(按終點)。兩個官方範例都過,為什麼還是錯?舉一個反例。</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong><code>[[<span class="nm">0,3</span>],[<span class="nm">1,4</span>],[<span class="nm">2,7</span>],[<span class="nm">5,6</span>]]</code> 原版回傳 2,正解 3。pop 把 <code>v[<span class="nm">0</span>]</code> 當成「現在」,按終點排序時現在會倒退:[5,6] 先處理,把 3、4 pop 掉;輪到 [2,7] 時其實是時間 2,那兩場還在開,卻已經不在 heap 裡。</strong><br><br>
+        官方範例裡沒有「後開始的會比先開始的會更早結束」(像 [5,6] 和 [2,7]),所以抓不到。窮舉 813,615 組裡錯 106,236 組。改成 <code>a[<span class="nm">0</span>] &lt; b[<span class="nm">0</span>]</code> 就全對。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body"><code>room = max(pq.size(), room);</code> 不加 <code>(<span class="kw2">int</span>)</code> 會怎樣?為什麼?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>編譯錯誤:「deduced conflicting types for parameter '_Tp' ('long unsigned int' and 'int')」。<code>pq.size()</code> 是 size_t(無號),room 是 int;<code>std::max</code> 是模板,兩個參數必須同一型別,編譯器推不出 T 是哪個,也不會自動幫你轉。</strong><br><br>
+        解法:<code>(<span class="kw2">int</span>)pq.size()</code>、<code>static_cast&lt;<span class="kw2">int</span>&gt;(…)</code>,或 <code>max&lt;<span class="kw2">int</span>&gt;(…)</code> 直接指定型別,三種實跑都對。轉成 int 安全,因為 heap 最多 10⁴ 個;反過來把負的 int 轉成 size_t 才危險(-1 會變成 18446744073709551615)。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">pop 的條件是 <code>pq.top() &lt;= v[<span class="nm">0</span>]</code>。寫成 <code>&lt;</code> 哪種輸入會錯?官方範例抓得到嗎?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong><code>[[<span class="nm">0,1</span>],[<span class="nm">1,2</span>]]</code> 會回傳 2,正解 1:第一場 1 點結束,第二場 1 點開始,同一間就夠,但 &lt; 不會把 1 pop 掉。兩個官方範例都抓不到(實跑 2、1)。</strong><br><br>
+        和 <a href="../p252/index.html">252</a> 一樣,「剛好接著」不算重疊。窮舉錯 468,908 / 813,615 組,是所有錯法裡最多的,因為小座標裡剛好接著的情況很常見。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">(按起點排序的前提下)把 <code><span class="kw2">while</span></code> 換成 <code><span class="kw2">if</span></code>,最後直接 <code><span class="kw2">return</span> pq.size()</code>,不要 room 變數。這樣對嗎?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>對,實測 813,615 組 0 錯。每一步都 push 一個、最多 pop 一個,heap 大小永遠不減少,所以最後的大小就是過程中的最大值。</strong><br><br>
+        但兩件事要說清楚:這時 heap 不再是「此刻正在開的會」,而是「用過幾間房」的計數器;而且 while 版本拿掉 max 只留 <code>pq.size()</code> 會錯(<code>[[<span class="nm">0,1</span>],[<span class="nm">0,1</span>],[<span class="nm">1,2</span>]]</code> → 1,正解 2)。面試寫 while + max 最不會出錯。</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · PART B ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">手走官方範例 1 <code>[[<span class="nm">0,30</span>],[<span class="nm">5,10</span>],[<span class="nm">15,20</span>]]</code>(修正版),寫出每一步 pop 了什麼、heap 剩什麼、room 是多少。</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody">
+        <div class="sc-trace"><span class="sc-trace__head">// 修正版:按起點排序</span>
+sorted: [0,30] [5,10] [15,20]
+[0,30]   pop —    → heap {30}       room 1
+[5,10]   pop —    → heap {10,30}    room 2     30 &gt; 5,沒有房間空
+[15,20]  pop 10   → heap {20,30}    room 2     10 ≤ 15,[5,10] 的房間空了
+<span class="sc-trace__out">// OUTPUT: 2</span></div>
+
+        <div class="sc-insight" style="margin-top:14px;">
+          <strong>[15,20] 接手 [5,10] 空出來的房間,所以 room 停在 2。</strong>
+          <b>這組原版(按終點)也回傳 2 —— 它沒有「後開始先結束」的會議,看不出兩種排序的差別。差別要看第 2 題那組。</b>
+        </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · PART C ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 12–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">12 分</span></div>
+      <div class="xq__body">不用 heap:把所有起點排成一串、所有終點排成另一串,能不能做出同樣的答案?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>可以。兩個指標 i(起點)、j(終點):每遇到一個起點 s[i],先把所有 e[j] ≤ s[i] 的終點走過去(房間釋放、used−−),再 used++,記錄最大值。</strong><br><br>
+        想法一樣:沿時間掃,遇到開始 +1、遇到結束 −1。不需要知道哪場對哪場,只要知道時間點,所以起點和終點可以拆開各自排序。和逐時刻數的暴力解在 813,615 組上 0 錯;時間仍是 O(n log n),但常數比 heap 小。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">除了總數,還要回傳每場會議被分到第幾間(房間編號從 0 開始)。怎麼改?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>heap 改存 <code>(結束時間, 房間編號)</code>;另外用一個 min-heap 放「空出來的房間編號」。新會議開始前,把結束的房間編號丟回空房 heap;有空房就拿最小的編號,沒有就開一間新的。</strong><br><br>
+        隨機 100,000 組檢查:用掉的房間數都等於最少需要的數量,而且沒有任何兩場重疊的會議被分到同一間。範例 <code>[[<span class="nm">0,3</span>],[<span class="nm">1,4</span>],[<span class="nm">2,7</span>],[<span class="nm">5,6</span>]]</code> → 房間 0、1、2、0([5,6] 開始時房間 0、1 都空了,拿編號小的)。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">這題和 <a href="../p252/index.html">252 Meeting Rooms</a>(能不能全部參加)是什麼關係?為什麼 252 按起點、按終點都對,這題卻只能按起點?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>能全部參加 ⇔ 本題答案 ≤ 1(隨機 100,000 組對拍一致)。252 只問有沒有衝突,一遇到就 return,不管時間順序;這題要沿著時間數「此刻有幾場」,pop 假設時間只往前走,所以必須按開始時間處理。</strong><br><br>
+        三題的排序鍵:252 哪一端都行;<a href="../p435/index.html">435</a>(挑最多)按終點;253(沿時間掃)按起點。概念頁第 5 節有對照表。</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 考後重點 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
+    </div>
+
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理 · 六句話<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;">
+          <table class="sc-table" style="margin:0;border:none;min-width:480px;">
+            <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+            <tbody>
+              <tr><td style="white-space:nowrap;">轉換</td><td>最少會議室 = 同一時刻最多幾場在開</td></tr>
+              <tr><td style="white-space:nowrap;">排序</td><td>按起點(沿時間掃);按終點會錯,而且官方範例抓不到</td></tr>
+              <tr><td style="white-space:nowrap;">heap</td><td>min-heap 存結束時間;top ≤ 現在就 pop(碰到可以接著用)</td></tr>
+              <tr><td style="white-space:nowrap;">(int)</td><td>size() 是 size_t,std::max 兩邊要同型別,不轉就編譯錯誤</td></tr>
+              <tr><td style="white-space:nowrap;">測試</td><td>[[0,3],[1,4],[2,7],[5,6]] → 3;[[0,1],[1,2]] → 1;[[0,1],[0,1],[1,2]] → 2</td></tr>
+              <tr><td style="white-space:nowrap;">變形</td><td>起點、終點拆開兩指標;分配房間編號;252 ⇔ 答案 ≤ 1</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼、(int) 與改一行會怎樣</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 16 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">最少會議室 = 同時最多幾場。按起點排、min-heap 存結束時間、top ≤ 現在就 pop、room 取 max。按終點排會讓時間倒退而少算;(int) 是因為 size_t 和 int 不能一起丟進 std::max。也可以拆成起點、終點兩串用兩個指標掃。</div>
+    <div class="sc-summary-bar__detail">MEETING ROOMS II · REVIEW</div>
+  </div>
+
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
+</body>
+</html>

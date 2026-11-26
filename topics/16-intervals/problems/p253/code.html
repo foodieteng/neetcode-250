@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>253 · Meeting Rooms II // CODE // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P253</span>
+    <span><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Meeting Rooms II</h1>
+    <p class="sc-mast__subtitle">// CODE · heap + 為什麼要 (int) + 改一行會怎樣</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 253</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>O(n log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 2 / 3 · CODE
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 完整實作 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">完整實作<span class="sc-section__title-en">// SORT BY START · MIN-HEAP OF ENDS</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">你的版本只改一個字:cmp 的 <code>a[<span class="nm">1</span>] &lt; b[<span class="nm">1</span>]</code> 改成 <code>a[<span class="nm">0</span>] &lt; b[<span class="nm">0</span>]</code>。其他一行都沒動。</p>
+
+    <div class="sc-codewindow">
+      <div class="sc-codewindow__chrome">
+        <span class="sc-codewindow__dot sc-codewindow__dot--r"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--y"></span>
+        <span class="sc-codewindow__dot sc-codewindow__dot--g"></span>
+        <span class="sc-codewindow__tab">p253.cpp</span>
+        <span class="sc-codewindow__lang">C++17</span>
+      </div>
+<pre class="sc-code"><span class="k">class</span> <span class="t">Solution</span> <span class="p">{</span>
+<span class="k">public</span><span class="p">:</span>
+    <span class="t">int</span> <span class="f">minMeetingRooms</span><span class="p">(</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;&gt;&amp;</span> intervals<span class="p">)</span> <span class="p">{</span>
+        <span class="f">sort</span><span class="p">(</span>intervals<span class="p">.</span><span class="f">begin</span><span class="p">(),</span> intervals<span class="p">.</span><span class="f">end</span><span class="p">(),</span> <span class="p">[&amp;](</span><span class="t">auto</span><span class="p">&amp;</span> a<span class="p">,</span> <span class="t">auto</span><span class="p">&amp;</span> b<span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> a<span class="p">[</span><span class="n">0</span><span class="p">]</span> <span class="p">&lt;</span> b<span class="p">[</span><span class="n">0</span><span class="p">];</span>   <span class="c">// 按起點(原版 a[1] &lt; b[1] 會錯)</span>
+        <span class="p">});</span>
+
+        <span class="t">priority_queue</span><span class="p">&lt;</span><span class="t">int</span><span class="p">,</span> <span class="t">vector</span><span class="p">&lt;</span><span class="t">int</span><span class="p">&gt;,</span> <span class="t">greater</span><span class="p">&lt;&gt;&gt;</span> pq<span class="p">;</span>
+        <span class="t">int</span> room <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="t">auto</span><span class="p">&amp;</span> v <span class="p">:</span> intervals<span class="p">)</span> <span class="p">{</span>
+            <span class="k">while</span> <span class="p">(!</span>pq<span class="p">.</span><span class="f">empty</span><span class="p">()</span> <span class="p">&amp;&amp;</span> pq<span class="p">.</span><span class="f">top</span><span class="p">()</span> <span class="p">&lt;=</span> v<span class="p">[</span><span class="n">0</span><span class="p">])</span> pq<span class="p">.</span><span class="f">pop</span><span class="p">();</span>
+
+            pq<span class="p">.</span><span class="f">push</span><span class="p">(</span>v<span class="p">[</span><span class="n">1</span><span class="p">]);</span>
+            room <span class="p">=</span> <span class="f">max</span><span class="p">((</span><span class="t">int</span><span class="p">)</span>pq<span class="p">.</span><span class="f">size</span><span class="p">(),</span> room<span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> room<span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span></pre>
+    </div>
+
+    <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;">
+      🎧 面試模擬 · <a href="mock.html" target="_blank" rel="noopener">UMPIRE mock · 逐句點播有聲版 ↗</a>
+    </p>
+    <audio controls preload="metadata" src="mock.mp3" style="width:100%;margin-top:6px;"></audio>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>兩個官方範例 → 2、1,都正確。原版(按終點)也是 2、1 —— 範例抓不到它的錯。</strong>
+      <b>修正版和「逐時刻數」的暴力解比對:座標 0–5 上長度 1–5 的所有會議序列共 813,615 組,加上隨機 30,000 組(n ≤ 40),0 筆不一致。原版在同樣 813,615 組裡錯 106,236 組,隨機錯 10,739 組。</b>
+    </div>
+
+    <p style="margin:14px 0 10px;">每一行各自的意思:</p>
+    <ul>
+      <li><code>priority_queue&lt;<span class="kw2">int</span>, vector&lt;<span class="kw2">int</span>&gt;, greater&lt;&gt;&gt;</code>:C++ 的 priority_queue 預設是 max-heap,第三個參數 <code>greater&lt;&gt;</code> 把它變成 min-heap,<code>top()</code> 是最小的結束時間 —— 最早空出來的那間房。</li>
+      <li><code><span class="kw2">while</span> (… pq.top() &lt;= v[<span class="nm">0</span>]) pq.pop();</code>:現在是 <code>v[<span class="nm">0</span>]</code>,結束時間不晚於現在的房間都空了。用 while 是因為可能一次空出好幾間。</li>
+      <li><code>pq.push(v[<span class="nm">1</span>])</code>:這場佔一間,記下它什麼時候空。</li>
+      <li><code>room = max((<span class="kw2">int</span>)pq.size(), room)</code>:heap 大小 = 此刻在開的場數。<code>(<span class="kw2">int</span>)</code> 為什麼不能省,下一節。</li>
+    </ul>
+  </section>
+
+  <!-- ════════════ 2 · (int) ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼要加 (int)<span class="sc-section__title-en">// size_t VS int</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;"><strong>不加不是答案錯,是根本編譯不過。</strong>把 <code>(<span class="kw2">int</span>)</code> 拿掉,實際用 g++ 編譯:</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// g++ -std=c++17,寫成 room = max(pq.size(), room);</span>
+error: no matching function for call to
+       'max(std::priority_queue&lt;…&gt;::size_type, int&amp;)'
+note:  deduced conflicting types for parameter 'const _Tp'
+       ('long unsigned int' and 'int')</div>
+
+    <p style="margin:14px 0 10px;">原因有兩層:</p>
+    <ol>
+      <li><strong><code>pq.size()</code> 的型別是 <code>size_t</code>。</strong>在 64 位元的 Linux 上就是 <code>unsigned long</code>(錯誤訊息裡的 long unsigned int),而 <code>room</code> 是 <code><span class="kw2">int</span></code>。一個無號、一個有號,長度也不同。</li>
+      <li><strong><code>std::max</code> 是模板 <code>max(const T&amp; a, const T&amp; b)</code>,兩個參數必須是同一個 T。</strong>編譯器從第一個參數推出 T = unsigned long,從第二個推出 T = int,兩個對不上,而模板推導不會自動幫你轉型 —— 所以報 conflicting types。</li>
+    </ol>
+    <p style="margin:10px 0 0;">加上 <code>(<span class="kw2">int</span>)</code> 之後兩邊都是 int,T 就確定了。下面三種寫法都能編譯、官方範例 1 都印出 2(實跑):</p>
+
+    <div style="overflow-x:auto;margin-top:12px;">
+    <table class="sc-table" style="min-width:600px;">
+      <thead><tr><th>寫法</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;"><code>max((<span class="kw2">int</span>)pq.size(), room)</code></td><td>你的寫法:C 風格轉型,最短</td></tr>
+        <tr><td style="white-space:nowrap;"><code>max(static_cast&lt;<span class="kw2">int</span>&gt;(pq.size()), room)</code></td><td>C++ 風格轉型,意思一樣,比較好搜尋</td></tr>
+        <tr><td style="white-space:nowrap;"><code>max&lt;<span class="kw2">int</span>&gt;(pq.size(), room)</code></td><td>直接指定 T = int,不讓編譯器推;size_t 會自動轉成 int</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p style="margin:14px 0 10px;"><strong>轉成 int 安全嗎?</strong>安全:heap 最多 n = 10⁴ 個元素,遠小於 int 上限。反過來「把 int 轉成 size_t」才危險 —— 負數會變成超大的正數。實測:</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// size_t s = 3; int r = -1;   cout &lt;&lt; (s &gt; r);</span>
+輸出 0(false)    -1 被轉成 size_t,變成 18446744073709551615,比 3 大
+g++ -Wall 警告:comparison of integer expressions of different signedness</div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>容器的 <code>.size()</code> 都是 size_t(無號)。和 int 一起丟進 max / min,或互相比大小,先把 size 轉成 int。</strong>
+      <b>max / min 不轉會編譯錯誤(好事,馬上發現);用 &lt; &gt; 直接比卻只會警告,遇到負數就靜靜地算錯 —— 那個比較危險。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 複雜度分析 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">複雜度分析<span class="sc-section__title-en">// COST BREAKDOWN</span></h2>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:460px;">
+      <thead><tr><th>部分</th><th>次數</th><th>每次成本</th></tr></thead>
+      <tbody>
+        <tr><td>sort</td><td class="mono">1</td><td class="mono">O(n log n)</td></tr>
+        <tr><td>push</td><td class="mono">n</td><td class="mono">O(log n)</td></tr>
+        <tr><td>pop</td><td class="mono">≤ n(總共)</td><td class="mono">O(log n)</td></tr>
+        <tr><td>heap 空間</td><td class="mono">≤ n</td><td class="mono">int</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="sc-formula" style="margin-top:14px;">
+      時間 <strong>O(n log n)</strong>　·　空間 <strong>O(n)</strong>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>極端輸入(實跑,修正版)</th><th>結果</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>[[<span class="nm">5,6</span>]]</code>(n = 1)</td><td class="mono ok">1</td><td>一場一間</td></tr>
+        <tr><td>10⁴ 個 <code>[<span class="nm">0</span>, <span class="nm">1000000</span>]</code></td><td class="mono ok">10,000</td><td>全部同時在開,heap 長到 n;約 0.19 ms</td></tr>
+        <tr><td>10⁴ 場一場接一場,打亂</td><td class="mono ok">1</td><td>每場都剛好在上一場結束時開始,一間用到底;約 0.8 ms</td></tr>
+        <tr><td>隨機 10⁴ 個短會議</td><td class="mono ok">14</td><td>約 1.1 ms</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 改一行會怎樣 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">改一行會怎樣<span class="sc-section__title-en">// WHAT IF I CHANGE ONE LINE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">以修正版為基準,每一種都實際改出來跑:座標 0–5 上長度 1–5 的所有會議序列,共 813,615 組,和逐時刻數的暴力解比。「官方範例」欄是實跑兩個範例的結果(正解 2、1)。</p>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:640px;">
+      <thead><tr><th>改法</th><th>錯幾組</th><th>官方範例</th><th>最小反例 / 說明</th></tr></thead>
+      <tbody>
+        <tr><td>cmp 寫成 <code>a[<span class="nm">1</span>] &lt; b[<span class="nm">1</span>]</code>(<strong>原版</strong>)</td><td class="mono fail">106,236</td><td class="mono ok">2、1 全過</td><td><code>[[<span class="nm">0,3</span>],[<span class="nm">1,4</span>],[<span class="nm">2,7</span>],[<span class="nm">5,6</span>]]</code> → 2(正解 3)。按終點處理會讓「現在」倒退(概念頁第 5 節)</td></tr>
+        <tr><td>pop 條件寫成 <code>&lt;</code></td><td class="mono fail">468,908</td><td class="mono ok">2、1 全過</td><td><code>[[<span class="nm">0,1</span>],[<span class="nm">1,2</span>]]</code> → 2(正解 1)。剛好接著的會議不能共用房間</td></tr>
+        <tr><td><code>room = pq.size()</code>(不取 max)</td><td class="mono fail">274,320</td><td class="mono ok">2、1 全過</td><td><code>[[<span class="nm">0,1</span>],[<span class="nm">0,1</span>],[<span class="nm">1,2</span>]]</code> → 1(正解 2)。最後一刻的場數不一定是最多的那刻</td></tr>
+        <tr><td>拿掉 <code>sort</code></td><td class="mono fail">353,795</td><td class="mono fail">範例 2 錯</td><td><code>[[<span class="nm">1,2</span>],[<span class="nm">0,1</span>]]</code> → 2(正解 1)。範例 2 <code>[[<span class="nm">7,10</span>],[<span class="nm">2,4</span>]]</code> 也回傳 2</td></tr>
+        <tr><td>(不是錯)<code><span class="kw2">while</span></code> 換成 <code><span class="kw2">if</span></code></td><td class="mono ok">0</td><td class="mono ok">—</td><td>按起點排序時,heap 不會變小,大小 = 用過最多幾間(概念頁 LEMMA 2)</td></tr>
+        <tr><td>(不是錯)<code><span class="kw2">if</span></code> + 最後 <code><span class="kw2">return</span> pq.size()</code></td><td class="mono ok">0</td><td class="mono ok">—</td><td>同上,連 room 變數都省了;但 heap 不再代表「此刻在開的會」</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>四個會錯的改法,有三個兩個官方範例都會過 —— 包括原版的按終點排序。</strong>
+      <b>自己測一定要加 [[0,3],[1,4],[2,7],[5,6]](後開始的先結束)、[[0,1],[1,2]](剛好接著)、[[0,1],[0,1],[1,2]](最多的那刻不在最後)。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 細節走讀 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">細節走讀<span class="sc-section__title-en">// WALKTHROUGH · 原版 vs 修正版</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">同一組 <code>[[<span class="nm">0,3</span>],[<span class="nm">1,4</span>],[<span class="nm">2,7</span>],[<span class="nm">5,6</span>]]</code>,每一行都是實際印出來的。</p>
+
+    <div class="sc-trace"><span class="sc-trace__head">// 原版:按終點排序</span>
+sorted: [0,3] [1,4] [5,6] [2,7]
+[0,3]  pop —      → heap {3}      size 1   room 1
+[1,4]  pop —      → heap {3,4}    size 2   room 2
+[5,6]  pop 3, 4   → heap {6}      size 1   room 2     現在跳到 5
+[2,7]  pop —      → heap {6,7}    size 2   room 2     其實 2 就開始,3、4 那時還在開
+<span class="sc-trace__out">// OUTPUT: 2(錯,正解 3)</span></div>
+
+    <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 修正版:按起點排序</span>
+sorted: [0,3] [1,4] [2,7] [5,6]
+[0,3]  pop —      → heap {3}      size 1   room 1
+[1,4]  pop —      → heap {3,4}    size 2   room 2
+[2,7]  pop —      → heap {3,4,7}  size 3   room 3     三間同時在用
+[5,6]  pop 3, 4   → heap {6,7}    size 2   room 3     現在是 5,3、4 真的結束了
+<span class="sc-trace__out">// OUTPUT: 3</span></div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="index.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">概念、動畫與起點 vs 終點</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="review.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">複習考卷</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">按起點排序 → min-heap 存結束時間 → top ≤ v[0] 就 pop → push v[1] → room = max((int)pq.size(), room)。(int) 是因為 size() 是 size_t,std::max 要兩個參數同型別,不轉就編譯錯誤。原版按終點排序兩個官方範例都過,卻錯 106,236 / 813,615 組。</div>
+    <div class="sc-summary-bar__detail">MEETING ROOMS II · CODE</div>
+  </div>
+
+</body>
+</html>

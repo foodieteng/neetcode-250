@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>253 · Meeting Rooms II // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P253</span>
+    <span><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Meeting Rooms II</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 按開始時間掃,heap 記每間房什麼時候空</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 253</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT BY START + MIN-HEAP · O(n log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一串會議時間 <code>[start, end]</code>,一間會議室同時只能開一場會,<strong>最少需要幾間會議室</strong>?一場在 5 點結束、另一場 5 點開始,可以用同一間。<br>
+        <code><span class="nm">1</span> ≤ intervals.length ≤ <span class="nm">10</span>⁴</code>,<code><span class="nm">0</span> ≤ start &lt; end ≤ <span class="nm">10</span>⁶</code>。(LeetCode 上是會員題;NeetCode 上可以免費寫。)
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[[<span class="nm">0,30</span>],[<span class="nm">5,10</span>],[<span class="nm">15,20</span>]] → <span class="nm">2</span></code>;<code>[[<span class="nm">7,10</span>],[<span class="nm">2,4</span>]] → <span class="nm">1</span></code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>最少要幾間 = 同一時刻最多有幾場會在開。</strong>
+      <b>照開始時間一場一場排進去:heap 存每間使用中房間的結束時間,最早空出來的在 top。新會議開始前,先把已經結束的房間釋放,剩下的就是「此刻正在開的會」。</b>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">注意 · 原版按終點排序會算錯</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          你貼的程式 cmp 是 <code>a[<span class="nm">1</span>] &lt; b[<span class="nm">1</span>]</code>(按終點)。兩個官方範例都會過,但 <code>[[<span class="nm">0,3</span>],[<span class="nm">1,4</span>],[<span class="nm">2,7</span>],[<span class="nm">5,6</span>]]</code> 回傳 2,正解 3;小測資窮舉 813,615 組裡錯 106,236 組。
+          <b>只要把 cmp 改成 <code>a[<span class="nm">0</span>] &lt; b[<span class="nm">0</span>]</code>(按起點),同樣 813,615 組全部正確。為什麼在第 5 節的圖。這份筆記用的是修正後的版本。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用 heap<span class="sc-section__title-en">// WHY A MIN-HEAP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">時間軸上每一刻都數</span>
+            <span class="sc-ko-card__o">O(n · 10⁶)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            對每個時間點數有幾場在開,取最大。正確(驗證時拿它當參考解),但時間範圍到 10⁶,乘上 n = 10⁴ 太慢。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">只在每場的開始時刻數</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            同時在開的場數只會在某場會議開始時變大,所以只要檢查 n 個開始時刻,每個再掃一遍 n 場。對,但 n = 10⁴ 時約 10⁸ 次比較。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 太慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">SORT BY START · MIN-HEAP · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">按起點排序 + 結束時間的 min-heap</span>
+          <span class="sc-ko-card__o">O(n log n) / O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          B 的想法,但「此刻有幾場在開」用 heap 維護,不用每次重數。和 A 比對:座標 0–5 上長度 1–5 的所有會議序列共 813,615 組,加上隨機 30,000 組(n ≤ 40),0 筆不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 每場進出 heap 各一次</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>按起點排序</strong> —— <code>a[<span class="nm">0</span>] &lt; b[<span class="nm">0</span>]</code>,或直接 <code>sort(begin, end)</code>。</li>
+      <li><strong>每場會議開始前,先釋放房間</strong> —— <code><span class="kw2">while</span> (top &lt;= v[<span class="nm">0</span>]) pop</code>:結束時間不晚於現在的,房間都空出來了(碰到可以接著用)。</li>
+      <li><strong>佔一間,記錄最大值</strong> —— <code>push(v[<span class="nm">1</span>])</code>,heap 大小就是此刻在開的會議數,<code>room = max(room, size)</code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 官方範例 1 → 需要 3 間的一組</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1:[0,30] 佔一間,[5,10] 開始時沒有房間空出來,要第 2 間;[15,20] 開始時 [5,10] 的房間空了(10 ≤ 15),接著用。第二組就是原版會算錯的那組:時間 2 時三場同時在開,heap 大小到 3。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ sort by start · pop 結束時間 ≤ 現在 · push 這場的結束 · room = max(room, size)</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:378px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 12</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 起點 vs 終點 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">為什麼一定要按起點<span class="sc-section__title-en">// TIME MUST MOVE FORWARD</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      同一組 <code>[[<span class="nm">0,3</span>],[<span class="nm">1,4</span>],[<span class="nm">2,7</span>],[<span class="nm">5,6</span>]]</code>,兩種排序的處理順序和每一步之後的 heap(都是實跑結果):
+    </p>
+
+    <div style="overflow-x:auto;border:1px solid var(--sc-ink);background:#fff;">
+      <div style="min-width:620px;">
+<svg viewBox="0 0 760 414" width="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="按終點排序與按起點排序處理會議的順序對照"><rect x="0" y="0" width="760" height="414" fill="#ffffff"/><text x="16.0" y="24.0" text-anchor="start" font-family="'Noto Sans TC', sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">① 四場會議放在時間軸上</text>
+<rect x="297.5" y="38" width="73.8" height="102" fill="#f0d4d4" opacity="0.8"/>
+<text x="138.0" y="55.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#1a1a1a">[0,3]</text>
+<rect x="150.0" y="42.0" width="221.2" height="16.0" rx="4" fill="#f6ead8" stroke="#1a1a1a" stroke-width="1.4"/>
+<text x="138.0" y="79.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#1a1a1a">[1,4]</text>
+<rect x="223.8" y="66.0" width="221.2" height="16.0" rx="4" fill="#f6ead8" stroke="#1a1a1a" stroke-width="1.4"/>
+<text x="138.0" y="103.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#1a1a1a">[2,7]</text>
+<rect x="297.5" y="90.0" width="368.8" height="16.0" rx="4" fill="#f6ead8" stroke="#1a1a1a" stroke-width="1.4"/>
+<text x="138.0" y="127.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#1a1a1a">[5,6]</text>
+<rect x="518.8" y="114.0" width="73.8" height="16.0" rx="4" fill="#f6ead8" stroke="#1a1a1a" stroke-width="1.4"/>
+<line x1="150.0" y1="146.0" x2="740.0" y2="146.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<line x1="150.0" y1="143.0" x2="150.0" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="150.0" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">0</text>
+<line x1="223.8" y1="143.0" x2="223.8" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="223.8" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">1</text>
+<line x1="297.5" y1="143.0" x2="297.5" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="297.5" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">2</text>
+<line x1="371.2" y1="143.0" x2="371.2" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="371.2" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">3</text>
+<line x1="445.0" y1="143.0" x2="445.0" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="445.0" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">4</text>
+<line x1="518.8" y1="143.0" x2="518.8" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="518.8" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">5</text>
+<line x1="592.5" y1="143.0" x2="592.5" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="592.5" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">6</text>
+<line x1="666.2" y1="143.0" x2="666.2" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="666.2" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">7</text>
+<line x1="740.0" y1="143.0" x2="740.0" y2="149.0" stroke="#1a1a1a" stroke-width="1.1"/>
+<text x="740.0" y="161.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="400" fill="#8a8a8a">8</text>
+<text x="334.4" y="180.0" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-size="12.5" font-weight="700" fill="#992424">時間 2–3:[0,3]、[1,4]、[2,7] 同時在開 → 至少要 3 間</text>
+<line x1="12.0" y1="194.0" x2="748.0" y2="194.0" stroke="#d8d8d8" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="16.0" y="218.0" text-anchor="start" font-family="'Noto Sans TC', sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">② 按終點(原版)</text>
+<text x="16.0" y="238.0" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="400" fill="#001080">a[1] < b[1]</text>
+<rect x="16.0" y="250.0" width="112.0" height="26.0" rx="13" fill="#f0d4d4" stroke="#992424" stroke-width="1.6"/>
+<text x="72.0" y="268.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#992424">× 回傳 2</text>
+<rect x="176.0" y="206.0" width="128.0" height="26.0" rx="4" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="240.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#1a1a1a">1. [0,3]</text>
+<text x="312.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#8a8a8a">→</text>
+<text x="240.0" y="252.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {3}</text>
+<text x="240.0" y="270.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 1</text>
+<rect x="320.0" y="206.0" width="128.0" height="26.0" rx="4" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="384.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#1a1a1a">2. [1,4]</text>
+<text x="456.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#8a8a8a">→</text>
+<text x="384.0" y="252.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {3, 4}</text>
+<text x="384.0" y="270.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 2</text>
+<rect x="464.0" y="206.0" width="128.0" height="26.0" rx="4" fill="#f0d4d4" stroke="#cf3535" stroke-width="2.2"/>
+<text x="528.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#992424">3. [5,6]</text>
+<text x="600.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#8a8a8a">→</text>
+<text x="528.0" y="252.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {6}</text>
+<text x="528.0" y="270.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 1</text>
+<text x="528.0" y="290.0" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-size="11" font-weight="600" fill="#992424">現在跳到 5,pop 3、4</text>
+<rect x="608.0" y="206.0" width="128.0" height="26.0" rx="4" fill="#f0d4d4" stroke="#cf3535" stroke-width="2.2"/>
+<text x="672.0" y="224.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#992424">4. [2,7]</text>
+<text x="672.0" y="252.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {6, 7}</text>
+<text x="672.0" y="270.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 2</text>
+<text x="672.0" y="290.0" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-size="11" font-weight="600" fill="#992424">2 就開始,3、4 卻已 pop</text>
+<line x1="12.0" y1="302.0" x2="748.0" y2="302.0" stroke="#d8d8d8" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="16.0" y="326.0" text-anchor="start" font-family="'Noto Sans TC', sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">③ 按起點(修正)</text>
+<text x="16.0" y="346.0" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="400" fill="#001080">a[0] < b[0]</text>
+<rect x="16.0" y="358.0" width="112.0" height="26.0" rx="13" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<text x="72.0" y="376.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#3f6a2a">● 回傳 3</text>
+<rect x="176.0" y="314.0" width="128.0" height="26.0" rx="4" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="240.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#1a1a1a">1. [0,3]</text>
+<text x="312.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#8a8a8a">→</text>
+<text x="240.0" y="360.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {3}</text>
+<text x="240.0" y="378.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 1</text>
+<rect x="320.0" y="314.0" width="128.0" height="26.0" rx="4" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="384.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#1a1a1a">2. [1,4]</text>
+<text x="456.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#8a8a8a">→</text>
+<text x="384.0" y="360.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {3, 4}</text>
+<text x="384.0" y="378.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 2</text>
+<rect x="464.0" y="314.0" width="128.0" height="26.0" rx="4" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="528.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#1a1a1a">3. [2,7]</text>
+<text x="600.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#8a8a8a">→</text>
+<text x="528.0" y="360.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {3, 4, 7}</text>
+<text x="528.0" y="378.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 3</text>
+<text x="528.0" y="398.0" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-size="11" font-weight="600" fill="#3f6a2a">三間同時在用</text>
+<rect x="608.0" y="314.0" width="128.0" height="26.0" rx="4" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.3"/>
+<text x="672.0" y="332.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#1a1a1a">4. [5,6]</text>
+<text x="672.0" y="360.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#1a1a1a">heap {6, 7}</text>
+<text x="672.0" y="378.0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#8a8a8a">size 2</text>
+<text x="672.0" y="398.0" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-size="11" font-weight="600" fill="#3f6a2a">pop 3、4</text></svg>
+      </div>
+    </div>
+
+    <p style="margin:14px 0 10px;">怎麼讀這張圖:</p>
+    <ul>
+      <li><strong>pop 的意思是「到了這個時間,這間房已經空了」。</strong>它把 <code>v[<span class="nm">0</span>]</code> 當成「現在」。這只在現在只會往前走的時候成立 —— 也就是按開始時間處理。</li>
+      <li><strong>② 按終點排序,時間會倒退。</strong>[5,6] 比 [2,7] 早結束,所以先處理;它把現在推到 5,pop 掉 3、4。下一場 [2,7] 其實 2 就開始了,那時 [0,3]、[1,4] 都還在開,可是已經被 pop,算不進去 —— 回傳 2。</li>
+      <li><strong>③ 按起點排序,時間只往前。</strong>處理 [2,7] 時現在是 2,heap 裡 3、4 都還在,大小到 3。之後 [5,6] 開始才 pop 3、4,那時它們真的結束了。</li>
+    </ul>
+
+    <div style="overflow-x:auto;margin-top:14px;">
+    <table class="sc-table" style="min-width:600px;">
+      <thead><tr><th>題目</th><th>在問什麼</th><th>排序鍵</th><th>按另一端排會怎樣(實測)</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../p252/index.html">252 Meeting Rooms</a></td><td>有沒有任何重疊</td><td>起點、終點都行</td><td class="ok">0 錯</td></tr>
+        <tr><td><a href="../p435/index.html">435 Non-overlapping</a></td><td>最多能留幾個(挑選)</td><td class="mono">終點</td><td class="fail">按起點錯 11,592 / 111,110</td></tr>
+        <tr><td>253(本題)</td><td>同一時刻最多幾個(沿時間掃)</td><td class="mono">起點</td><td class="fail">按終點錯 106,236 / 813,615</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>挑選題(435)看「誰先結束」,按終點;時間掃描題(253)要「現在」一路往前,按起點。</strong>
+      <b>原版的錯法兩個官方範例都會過 —— 範例裡沒有「後開始的會比先開始的會更早結束」的情況。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 碰到可以接著用:pop 的條件是 &lt;=</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          一場 1 點結束,下一場 1 點開始,同一間房就夠。所以釋放條件是 <code>pq.top() &lt;= v[<span class="nm">0</span>]</code>。
+          <b>寫成 <code>&lt;</code>:<code>[[<span class="nm">0,1</span>],[<span class="nm">1,2</span>]]</code> 回傳 2(正解 1)。兩個官方範例都會過;窮舉錯 468,908 / 813,615 組。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 按起點排序時,while 換成 if 也對</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          每一步 push 一個、最多 pop 一個,heap 永遠不會變小 —— 它的大小剛好等於「到目前為止用過最多幾間」。所以 <code><span class="kw2">if</span></code> 只 pop 一個、最後直接回傳 <code>pq.size()</code>,實測 813,615 組也 0 錯。
+          <b>但這樣 heap 就不再代表「此刻正在開的會」,只是個計數器。原版的 while + max 意思比較清楚,面試建議寫 while 版,再補一句這個觀察(複習頁第 5 題)。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">最佳解證明<span class="sc-section__title-en">// PROOF OF OPTIMALITY</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>回傳的 room 等於「同一時刻最多有幾場會在開」,而這就是最少需要的會議室數。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:不變量 + 下界</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>不變量。</strong>處理第 i 場(按起點排)之後,heap 裡剛好是「已處理、而且在時刻 start_i 還沒結束」的會議。因為已處理的都在 start_i 或更早開始,所以 heap 大小 = 時刻 start_i 正在開的場數。這一步需要 start 不遞減 —— 按終點排就不成立。</li>
+          <li><strong>最大值一定在某場的開始時刻出現。</strong>在開的場數只會在有會議開始時變多,所以取遍所有 start_i,就拿到全時段的最大值。room 就是這個最大值。</li>
+          <li><strong>不能更少,也不用更多。</strong>同時在開的 k 場一定要 k 間,所以至少 room 間;反過來,每次都把新會議放進剛空出來的房間(複習頁第 9 題),最多只會用到 room 間。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>最少需要幾間,等於同一時刻最多有幾場會在開。我按開始時間排序,用一個 min-heap 存每間使用中房間的結束時間。每場會議開始前,先把結束時間不晚於現在的房間釋放,再把這場的結束時間放進去;heap 的大小就是此刻在開的場數,取最大值。一定要按開始時間,因為「釋放」假設時間只往前走。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        排序 O(n log n);每場會議進 heap 一次、最多出來一次,每次 O(log n)。heap 最多 n 個元素(全部同時在開)。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">排序</td><td style="white-space:nowrap;" class="mono">O(n log n)</td><td>按起點</td></tr>
+        <tr><td style="white-space:nowrap;">push / pop</td><td style="white-space:nowrap;" class="mono">≤ 2n 次 × O(log n)</td><td>while 看起來是兩層迴圈,但 pop 總次數 ≤ n</td></tr>
+        <tr><td style="white-space:nowrap;">heap</td><td style="white-space:nowrap;" class="mono">O(n)</td><td>10⁴ 場全部重疊時,實測回傳 10,000</td></tr>
+        <tr><td style="white-space:nowrap;">實測</td><td style="white-space:nowrap;" class="mono">約 1.1 ms</td><td>n = 10⁴ 隨機短會議</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 9 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">9</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>最少會議室 = 同時最多幾場;沿著時間往前掃,heap 記每間房什麼時候空。</strong>
+      <b>「沿著時間」= 按起點排序。按終點排會讓時間倒退,把還在開的會提早 pop 掉。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼、(int) 與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">最少會議室 = 同時最多幾場。按起點排序(不是終點),min-heap 存結束時間:top ≤ 現在就 pop(碰到可以接著用),push 這場的結束,room = max(room, size)。按終點排兩個官方範例都過,但 [[0,3],[1,4],[2,7],[5,6]] 會錯算成 2。O(n log n) / O(n)。</div>
+    <div class="sc-summary-bar__detail">MEETING ROOMS II · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p253-rooms.js"></script>
+</body>
+</html>
