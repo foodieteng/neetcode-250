@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>435 · Non-overlapping Intervals // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P435</span>
+    <span><a href="https://leetcode.com/problems/non-overlapping-intervals/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Non-overlapping Intervals</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 按終點排序,最早結束的先留</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 435</span>
+      <span class="sc-mast__sep">|</span>
+      <span>MEDIUM</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT BY END + GREEDY · O(n log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一堆區間 <code>[start, end]</code>,<strong>最少要刪掉幾個</strong>,剩下的才會兩兩不重疊?這題<strong>只碰到一點不算重疊</strong>:[1,2] 和 [2,3] 可以同時留著。<br>
+        <code><span class="nm">1</span> ≤ intervals.length ≤ <span class="nm">10</span>⁵</code>,<code>-<span class="nm">5</span> × <span class="nm">10</span>⁴ ≤ start &lt; end ≤ <span class="nm">5</span> × <span class="nm">10</span>⁴</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[[<span class="nm">1,2</span>],[<span class="nm">2,3</span>],[<span class="nm">3,4</span>],[<span class="nm">1,3</span>]] → <span class="nm">1</span></code>(刪 [1,3]);<code>[[<span class="nm">1,2</span>],[<span class="nm">1,2</span>],[<span class="nm">1,2</span>]] → <span class="nm">2</span></code>;<code>[[<span class="nm">1,2</span>],[<span class="nm">2,3</span>]] → <span class="nm">0</span></code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>反過來問:最多能留幾個互不重疊的區間?刪掉的數量就是 n − 留下的數量。</strong>
+      <b>要留最多,就每次留「最早結束」的那一個 —— 它把右邊的空間讓出最多。所以按終點排序,能留就留。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼用貪心<span class="sc-section__title-en">// WHY GREEDY</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">枚舉要留哪些</span>
+            <span class="sc-ko-card__o">O(2ⁿ · n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每個子集都檢查是不是兩兩不重疊,取最大的。正確(驗證時拿它當參考解),但 n = 10⁵ 完全不可能。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">排序後 DP</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            dp[i] = 以第 i 個結尾最多留幾個,往前找所有不重疊的 j 取最大。像最長遞增子序列,對,但 n = 10⁵ 時約 5 × 10⁹ 次比較。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 太慢</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">SORT BY END · GREEDY · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">按終點排序,能留就留</span>
+          <span class="sc-ko-card__o">O(n log n) / O(n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          排序後每個區間看一次。和 A 比對:座標 0–4 上長度 1–5 的所有區間序列共 111,110 組,加上隨機 20,000 組(n ≤ 14、含負座標),0 筆不一致。n = 10⁵ 實測約 14 ms。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 交換論證保證最優</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>按終點排序</strong> —— <code>sort(…, [&amp;](auto&amp; a, auto&amp; b) { <span class="kw2">return</span> a[<span class="nm">1</span>] &lt; b[<span class="nm">1</span>]; })</code>。cmp 怎麼寫見<a href="code.html">程式碼頁</a>第 2 節。</li>
+      <li><strong>能留就留</strong> —— <code>res.empty() || res.back()[<span class="nm">1</span>] &lt;= v[<span class="nm">0</span>]</code>:和最後留下的那個不重疊(碰到也行),就留下。</li>
+      <li><strong>回傳刪掉的數量</strong> —— <code>n − res.size()</code>。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      和 <a href="../p56/index.html">56 Merge Intervals</a> 長得很像:都是排序後只看 <code>res.back()</code>。差別在排序的鍵(56 按起點、這題按終點)和碰到時的處理(56 合併、這題保留)。兩者的差別在第 5 節的圖裡。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 官方範例 1 → 有長區間的一組</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      先走官方範例 1:按終點排成 [1,2]、[2,3]、[1,3]、[3,4],只有 [1,3] 和已留下的 [2,3] 衝突。再走 <code>[[<span class="nm">1,10</span>],[<span class="nm">2,3</span>],[<span class="nm">4,5</span>],[<span class="nm">3,6</span>],[<span class="nm">6,8</span>]]</code>:[1,10] 起點最早,但終點最晚,排到最後才輪到,一出場就被刪 —— 這正是按終點排序要的效果。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ sort by end · res.back()[1] ≤ v[0] 就留 · 否則刪 · 答案 = n − 留下</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:364px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 14</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · START vs END ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">按起點 vs 按終點 · 整理圖<span class="sc-section__title-en">// SORT KEY: START OR END</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      同一組 <code>[[<span class="nm">1,10</span>],[<span class="nm">2,3</span>],[<span class="nm">4,5</span>]]</code>,三種寫法。紅點標的是排序用的那一端;綠 = 留下,紅虛線 = 刪掉。正確答案是刪 1 個(留 [2,3]、[4,5])。
+    </p>
+
+    <div style="overflow-x:auto;border:1px solid var(--sc-ink);background:#fff;">
+      <div style="min-width:620px;">
+<svg viewBox="0 0 760 462" width="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="按起點排序與按終點排序的比較">
+<rect x="0" y="0" width="100%" style="display:block;" fill="#ffffff"/>
+<text x="16" y="28" font-family="'Noto Sans TC', sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">① 按起點排序</text>
+<text x="16" y="50" font-family="'JetBrains Mono', monospace" font-size="12" fill="#001080">sort(begin, end)</text>
+<text x="16" y="70" font-family="'Noto Sans TC', sans-serif" font-size="12" fill="#8a8a8a">同一個貪心:能留就留</text>
+<rect x="16" y="84" width="112" height="26" rx="13" fill="#f0d4d4" stroke="#992424" stroke-width="1.6"/>
+<text x="72" y="102" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#992424">× 刪 2 · 錯</text>
+<text x="220" y="30.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">1</text>
+<rect x="276.4" y="18" width="417.3" height="16" rx="4" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<circle cx="276.4" cy="26.0" r="3.6" fill="#cf3535"/>
+<text x="681.6" y="30.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#3f6a2a">[1,10]  先拿到,一路擋到 10</text>
+<text x="220" y="56.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">2</text>
+<rect x="322.7" y="44" width="46.4" height="16" rx="4" fill="#f0d4d4" stroke="#cf3535" stroke-width="1.4" stroke-dasharray="4 3"/>
+<line x1="326.7" y1="52.0" x2="365.1" y2="52.0" stroke="#cf3535" stroke-width="1.6"/>
+<circle cx="322.7" cy="52.0" r="3.6" fill="#cf3535"/>
+<text x="378.1" y="56.0" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#992424">[2,3]</text>
+<text x="220" y="82.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">3</text>
+<rect x="415.5" y="70" width="46.4" height="16" rx="4" fill="#f0d4d4" stroke="#cf3535" stroke-width="1.4" stroke-dasharray="4 3"/>
+<line x1="419.5" y1="78.0" x2="457.8" y2="78.0" stroke="#cf3535" stroke-width="1.6"/>
+<circle cx="415.5" cy="78.0" r="3.6" fill="#cf3535"/>
+<text x="470.8" y="82.0" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#992424">[4,5]</text>
+<line x1="230" y1="104" x2="740" y2="104" stroke="#1a1a1a" stroke-width="1.1"/>
+<line x1="230.0" y1="101" x2="230.0" y2="107" stroke="#1a1a1a"/>
+<text x="230.0" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">0</text>
+<line x1="276.4" y1="101" x2="276.4" y2="107" stroke="#1a1a1a"/>
+<text x="276.4" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">1</text>
+<line x1="322.7" y1="101" x2="322.7" y2="107" stroke="#1a1a1a"/>
+<text x="322.7" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">2</text>
+<line x1="369.1" y1="101" x2="369.1" y2="107" stroke="#1a1a1a"/>
+<text x="369.1" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">3</text>
+<line x1="415.5" y1="101" x2="415.5" y2="107" stroke="#1a1a1a"/>
+<text x="415.5" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">4</text>
+<line x1="461.8" y1="101" x2="461.8" y2="107" stroke="#1a1a1a"/>
+<text x="461.8" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">5</text>
+<line x1="508.2" y1="101" x2="508.2" y2="107" stroke="#1a1a1a"/>
+<text x="508.2" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">6</text>
+<line x1="554.5" y1="101" x2="554.5" y2="107" stroke="#1a1a1a"/>
+<text x="554.5" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">7</text>
+<line x1="600.9" y1="101" x2="600.9" y2="107" stroke="#1a1a1a"/>
+<text x="600.9" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">8</text>
+<line x1="647.3" y1="101" x2="647.3" y2="107" stroke="#1a1a1a"/>
+<text x="647.3" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">9</text>
+<line x1="693.6" y1="101" x2="693.6" y2="107" stroke="#1a1a1a"/>
+<text x="693.6" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">10</text>
+<line x1="740.0" y1="101" x2="740.0" y2="107" stroke="#1a1a1a"/>
+<text x="740.0" y="119" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">11</text>
+<text x="230" y="140" font-family="'Noto Sans TC', sans-serif" font-size="12.5" font-weight="600" fill="#1a1a1a">→ [1,10] 起點最早、結束最晚,先留它就把後面全擋掉</text>
+<line x1="12" y1="152" x2="748" y2="152" stroke="#d8d8d8" stroke-dasharray="4 4"/>
+<text x="16" y="178" font-family="'Noto Sans TC', sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">② 按終點排序(本題)</text>
+<text x="16" y="200" font-family="'JetBrains Mono', monospace" font-size="12" fill="#001080">a[1] < b[1]</text>
+<text x="16" y="220" font-family="'Noto Sans TC', sans-serif" font-size="12" fill="#8a8a8a">能留就留</text>
+<rect x="16" y="234" width="112" height="26" rx="13" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<text x="72" y="252" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#3f6a2a">● 刪 1 · 對</text>
+<text x="220" y="180.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">1</text>
+<rect x="322.7" y="168" width="46.4" height="16" rx="4" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<circle cx="369.1" cy="176.0" r="3.6" fill="#cf3535"/>
+<text x="378.1" y="180.0" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#3f6a2a">[2,3]</text>
+<text x="220" y="206.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">2</text>
+<rect x="415.5" y="194" width="46.4" height="16" rx="4" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<circle cx="461.8" cy="202.0" r="3.6" fill="#cf3535"/>
+<text x="470.8" y="206.0" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#3f6a2a">[4,5]</text>
+<text x="220" y="232.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">3</text>
+<rect x="276.4" y="220" width="417.3" height="16" rx="4" fill="#f0d4d4" stroke="#cf3535" stroke-width="1.4" stroke-dasharray="4 3"/>
+<circle cx="693.6" cy="228.0" r="3.6" fill="#cf3535"/>
+<text x="681.6" y="232.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#992424">[1,10]  最晚結束,最後才輪到</text>
+<line x1="230" y1="254" x2="740" y2="254" stroke="#1a1a1a" stroke-width="1.1"/>
+<line x1="230.0" y1="251" x2="230.0" y2="257" stroke="#1a1a1a"/>
+<text x="230.0" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">0</text>
+<line x1="276.4" y1="251" x2="276.4" y2="257" stroke="#1a1a1a"/>
+<text x="276.4" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">1</text>
+<line x1="322.7" y1="251" x2="322.7" y2="257" stroke="#1a1a1a"/>
+<text x="322.7" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">2</text>
+<line x1="369.1" y1="251" x2="369.1" y2="257" stroke="#1a1a1a"/>
+<text x="369.1" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">3</text>
+<line x1="415.5" y1="251" x2="415.5" y2="257" stroke="#1a1a1a"/>
+<text x="415.5" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">4</text>
+<line x1="461.8" y1="251" x2="461.8" y2="257" stroke="#1a1a1a"/>
+<text x="461.8" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">5</text>
+<line x1="508.2" y1="251" x2="508.2" y2="257" stroke="#1a1a1a"/>
+<text x="508.2" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">6</text>
+<line x1="554.5" y1="251" x2="554.5" y2="257" stroke="#1a1a1a"/>
+<text x="554.5" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">7</text>
+<line x1="600.9" y1="251" x2="600.9" y2="257" stroke="#1a1a1a"/>
+<text x="600.9" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">8</text>
+<line x1="647.3" y1="251" x2="647.3" y2="257" stroke="#1a1a1a"/>
+<text x="647.3" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">9</text>
+<line x1="693.6" y1="251" x2="693.6" y2="257" stroke="#1a1a1a"/>
+<text x="693.6" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">10</text>
+<line x1="740.0" y1="251" x2="740.0" y2="257" stroke="#1a1a1a"/>
+<text x="740.0" y="269" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">11</text>
+<text x="230" y="290" font-family="'Noto Sans TC', sans-serif" font-size="12.5" font-weight="600" fill="#1a1a1a">→ 每次留下的都是「最早結束」的,給後面留最多空間</text>
+<line x1="12" y1="302" x2="748" y2="302" stroke="#d8d8d8" stroke-dasharray="4 4"/>
+<text x="16" y="328" font-family="'Noto Sans TC', sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">③ 按起點排序 + 修正</text>
+<text x="16" y="350" font-family="'JetBrains Mono', monospace" font-size="12" fill="#001080">重疊時留終點小的</text>
+<text x="16" y="370" font-family="'Noto Sans TC', sans-serif" font-size="12" fill="#8a8a8a">prevEnd = min(prevEnd, end)</text>
+<rect x="16" y="384" width="112" height="26" rx="13" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<text x="72" y="402" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#3f6a2a">● 刪 1 · 對</text>
+<text x="220" y="330.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">1</text>
+<rect x="276.4" y="318" width="417.3" height="16" rx="4" fill="#e3edf5" stroke="#cf3535" stroke-width="1.4" stroke-dasharray="4 3"/>
+<circle cx="276.4" cy="326.0" r="3.6" fill="#cf3535"/>
+<text x="681.6" y="330.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#992424">[1,10]  先暫留,遇到 [2,3] 時換掉</text>
+<text x="220" y="356.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">2</text>
+<rect x="322.7" y="344" width="46.4" height="16" rx="4" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<circle cx="322.7" cy="352.0" r="3.6" fill="#cf3535"/>
+<text x="378.1" y="356.0" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#3f6a2a">[2,3]</text>
+<text x="220" y="382.0" text-anchor="end" font-family="'JetBrains Mono', monospace" font-size="11" fill="#8a8a8a">3</text>
+<rect x="415.5" y="370" width="46.4" height="16" rx="4" fill="#d9e8c7" stroke="#3f6a2a" stroke-width="1.6"/>
+<circle cx="415.5" cy="378.0" r="3.6" fill="#cf3535"/>
+<text x="470.8" y="382.0" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#3f6a2a">[4,5]</text>
+<line x1="230" y1="404" x2="740" y2="404" stroke="#1a1a1a" stroke-width="1.1"/>
+<line x1="230.0" y1="401" x2="230.0" y2="407" stroke="#1a1a1a"/>
+<text x="230.0" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">0</text>
+<line x1="276.4" y1="401" x2="276.4" y2="407" stroke="#1a1a1a"/>
+<text x="276.4" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">1</text>
+<line x1="322.7" y1="401" x2="322.7" y2="407" stroke="#1a1a1a"/>
+<text x="322.7" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">2</text>
+<line x1="369.1" y1="401" x2="369.1" y2="407" stroke="#1a1a1a"/>
+<text x="369.1" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">3</text>
+<line x1="415.5" y1="401" x2="415.5" y2="407" stroke="#1a1a1a"/>
+<text x="415.5" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">4</text>
+<line x1="461.8" y1="401" x2="461.8" y2="407" stroke="#1a1a1a"/>
+<text x="461.8" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">5</text>
+<line x1="508.2" y1="401" x2="508.2" y2="407" stroke="#1a1a1a"/>
+<text x="508.2" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">6</text>
+<line x1="554.5" y1="401" x2="554.5" y2="407" stroke="#1a1a1a"/>
+<text x="554.5" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">7</text>
+<line x1="600.9" y1="401" x2="600.9" y2="407" stroke="#1a1a1a"/>
+<text x="600.9" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">8</text>
+<line x1="647.3" y1="401" x2="647.3" y2="407" stroke="#1a1a1a"/>
+<text x="647.3" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">9</text>
+<line x1="693.6" y1="401" x2="693.6" y2="407" stroke="#1a1a1a"/>
+<text x="693.6" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">10</text>
+<line x1="740.0" y1="401" x2="740.0" y2="407" stroke="#1a1a1a"/>
+<text x="740.0" y="419" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8a8a8a">11</text>
+<text x="230" y="440" font-family="'Noto Sans TC', sans-serif" font-size="12.5" font-weight="600" fill="#1a1a1a">→ 也對,但要多一個 min;本質還是「留終點小的」</text>
+</svg>
+      </div>
+    </div>
+
+    <p style="margin:14px 0 10px;">怎麼讀這張圖:</p>
+    <ul>
+      <li><strong>① 錯在哪:</strong>按起點排,[1,10] 第一個出場就被留下,之後的 [2,3]、[4,5] 都撞到它。起點早不代表結束早 —— 貪心要比的是「誰先把空間讓出來」,那是終點。</li>
+      <li><strong>② 為什麼對:</strong>按終點排,每次留下的都是剩下的區間裡最早結束的。換成任何別的區間,結束得只會更晚,後面能放的只會更少(第 7 節證明)。</li>
+      <li><strong>③ 也對:</strong>按起點排也行,但重疊時要「刪掉終點比較大的那個」,也就是 <code>prevEnd = min(prevEnd, end)</code>。它其實還是在留終點小的,只是決定得比較晚。</li>
+    </ul>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>① 這個錯法三個官方範例全部都會過(實跑:1、2、0),但窮舉的 111,110 組裡錯 11,592 組。</strong>
+      <b>官方範例裡沒有「起點早、結束晚、把別人整個蓋住」的長區間。自己測一定要加一組,例如 [[1,10],[2,3],[4,5]]。</b>
+    </div>
+
+    <div style="overflow-x:auto;margin-top:14px;">
+    <table class="sc-table" style="min-width:560px;">
+      <thead><tr><th>要做的事</th><th>排序鍵</th><th>碰到 / 重疊時</th><th>本站題目</th></tr></thead>
+      <tbody>
+        <tr><td>留最多個不重疊的(= 刪最少)</td><td class="mono">終點 a[1] &lt; b[1]</td><td>重疊就丟,只留最早結束的</td><td>435(本題)</td></tr>
+        <tr><td>把重疊的接成一段</td><td class="mono">起點(預設 sort)</td><td>終點取 max,接起來</td><td><a href="../p56/index.html">56 Merge Intervals</a></td></tr>
+        <tr><td>插入一個到已排好的序列</td><td class="mono">不用排(已按起點)</td><td>重疊的全併進新區間</td><td><a href="../p57/index.html">57 Insert Interval</a></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      口訣:<strong>要「合併」從左邊接,按起點;要「挑最多」看誰先結束,按終點。</strong>另一個常見的錯直覺是「先留最短的」:<code>[[<span class="nm">0,4</span>],[<span class="nm">3,6</span>],[<span class="nm">5,9</span>]]</code> 會先留 [3,6],結果刪 2 個,正解只要刪 [3,6] 這 1 個(實跑)。
+    </p>
+  </section>
+
+  <!-- ════════════ 6 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 碰到不算重疊:留下的條件是 &lt;=</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          [1,2] 和 [2,3] 可以同時留,所以條件是 <code>res.back()[<span class="nm">1</span>] &lt;= v[<span class="nm">0</span>]</code>。這裡和 56 / 57 相反 —— 那兩題「碰到就合併」。
+          <b>寫成 <code>&lt;</code>:官方範例 1 回傳 2(應為 1)、範例 3 回傳 1(應為 0),會被抓到;窮舉錯 62,128 / 111,110 組。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 終點相同時,誰先誰後都一樣</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          兩個區間終點相同,留哪一個,對後面的影響完全一樣(後面只看 <code>res.back()[<span class="nm">1</span>]</code>)。所以 cmp 只比終點就夠,不用 tie-break。
+          <b>實測加上「終點相同再比起點(由小到大 / 由大到小)」,200,000 組隨機都 0 差異。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 最佳解證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">最佳解證明<span class="sc-section__title-en">// PROOF OF OPTIMALITY</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>按終點排序、能留就留,留下的個數是所有「兩兩不重疊的子集」裡<strong>最多</strong>的,所以 n − 留下 就是最少刪除數。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:交換論證</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>第一個可以換成貪心的。</strong>拿任何一個最佳解 OPT,把它最早結束的區間 o₁ 換成全體最早結束的 g₁。g₁ 結束得不比 o₁ 晚,所以不會撞到 OPT 後面的區間 —— 換完還是合法、個數不變。</li>
+          <li><strong>一路換下去。</strong>前 k 個都一樣之後,OPT 的第 k + 1 個一定在 g_k 結束後才開始;貪心挑的是這些區間裡最早結束的,同樣可以換過去而不撞到後面。</li>
+          <li><strong>貪心不會比較少。</strong>如果 OPT 還有第 m + 1 個,它在 g_m 結束後開始,貪心掃到它時就會留下 —— 矛盾。所以貪心留下的個數 = OPT。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>我把題目反過來想:最多能留幾個不重疊的區間,刪掉的就是剩下的。要留最多,每次就留最早結束的那個,因為它讓出最多空間給後面。所以我按終點排序,往後掃,跟最後留下的不重疊就留,碰到也算不重疊。最後回傳總數減掉留下的。用交換論證可以證明這樣是最優的。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        排序 O(n log n),掃描 O(n)。空間 O(n) 來自 res 存下的區間;只留一個 prevEnd 就能降到 O(1) 額外空間(複習頁第 7 題)。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">排序</td><td style="white-space:nowrap;" class="mono">O(n log n)</td><td>瓶頸;cmp 參數要傳參考,傳值慢約 9 倍(程式碼頁第 2 節)</td></tr>
+        <tr><td style="white-space:nowrap;">掃描</td><td style="white-space:nowrap;" class="mono">O(n)</td><td>每個區間一次比較</td></tr>
+        <tr><td style="white-space:nowrap;">res</td><td style="white-space:nowrap;" class="mono">O(n)</td><td>最多存 n 個區間(全部不重疊時)</td></tr>
+        <tr><td style="white-space:nowrap;">實測</td><td style="white-space:nowrap;" class="mono">約 14 ms</td><td>n = 10⁵ 隨機區間,整個函式</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 9 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">9</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>刪最少 = 留最多;留最多 = 每次留最早結束的。</strong>
+      <b>所以排序鍵是終點,不是起點。碰到不算重疊,條件是 res.back()[1] &lt;= v[0]。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼、cmp 寫法與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">刪最少 = n − 最多能留幾個。按終點排序(cmp: a[1] &lt; b[1]),res.back()[1] ≤ v[0] 就留(碰到不算重疊)。按起點排 + 同一個貪心是錯的,而且官方範例全過 —— 要測 [[1,10],[2,3],[4,5]]。O(n log n) / O(n)。</div>
+    <div class="sc-summary-bar__detail">NON-OVERLAPPING INTERVALS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p435-keep.js"></script>
+</body>
+</html>
