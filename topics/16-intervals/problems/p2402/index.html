@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2402 · Meeting Rooms III // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P2402</span>
+    <span><a href="https://leetcode.com/problems/meeting-rooms-iii/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Meeting Rooms III</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 兩個 heap:空房按編號、使用中按結束時間</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 2402</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + TWO HEAPS · O(m log m + m log n) / O(n)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        有 n 間會議室,編號 0 到 n − 1。會議 <code>[start, end)</code>(不含 end)照下面三條規則分配:<br>
+        ① 有空房就用<strong>編號最小</strong>的空房;② 沒有空房,會議<strong>延後</strong>到有房間空出來,長度不變;③ 有房間空出來時,<strong>原本開始時間較早</strong>的會議先拿。<br>
+        回傳<strong>開最多場會議的房間編號</strong>,平手回傳編號最小的。<br>
+        <code><span class="nm">1</span> ≤ n ≤ <span class="nm">100</span></code>,<code><span class="nm">1</span> ≤ meetings.length ≤ <span class="nm">10</span>⁵</code>,<code><span class="nm">0</span> ≤ start &lt; end ≤ <span class="nm">5</span> × <span class="nm">10</span>⁵</code>,所有 start 都不同。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>n = <span class="nm">2</span>, [[<span class="nm">0,10</span>],[<span class="nm">1,5</span>],[<span class="nm">2,7</span>],[<span class="nm">3,4</span>]] → <span class="nm">0</span></code>;<code>n = <span class="nm">3</span>, [[<span class="nm">1,20</span>],[<span class="nm">2,10</span>],[<span class="nm">3,5</span>],[<span class="nm">4,9</span>],[<span class="nm">6,8</span>]] → <span class="nm">1</span></code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>照開始時間模擬,但「挑房間」有兩種完全不同的規則,所以要兩個 heap。</strong>
+      <b>有空房時比的是編號(freeRoom:編號的 min-heap);沒空房時比的是誰先空出來(usedRoom:{結束時間, 編號} 的 min-heap)。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼要兩個 heap<span class="sc-section__title-en">// WHY TWO HEAPS</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">一個 heap 存 {可用時間, 編號}</span>
+            <span class="sc-ko-card__o">O(m log n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            每場拿 top 那間。但好幾間都已經空了的時候,top 是「最早空出來的」,不是「編號最小的」。<code>n = <span class="nm">2</span>, [[<span class="nm">0,3</span>],[<span class="nm">1,2</span>],[<span class="nm">3,4</span>]]</code>:時間 3 兩間都空,它挑了房 1,正解是房 0 → 回傳 1(應為 0)。窮舉錯 297 組,兩個官方範例都過。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 規則 ① 錯</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">每場掃一遍 n 間房</span>
+            <span class="sc-ko-card__o">O(m log m + m · n)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            記每間房什麼時候空,每場從編號 0 掃到 n − 1:有空的就用,都沒空就挑最早空的。正確(驗證時拿它當參考解),而且 n ≤ 100 時也夠快 —— 但速度綁在 n 上。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · n 小才行</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">TWO HEAPS · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">freeRoom(編號)+ usedRoom({結束, 編號})</span>
+          <span class="sc-ko-card__o">O(m log m + m log n)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          兩種規則各用一個 heap,每次挑房間都是 O(log n)。和 B 比對:n = 1–3、最多 5 場會議的所有組合共 10,098 組,加上隨機 50,000 組(n ≤ 6、最多 30 場),0 筆不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 兩條規則各一個 heap</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>按起點排序</strong>,所有房間編號放進 freeRoom。</li>
+      <li><strong>每場會議 [s, e) 開始前,先釋放</strong> —— usedRoom 裡結束時間 ≤ s 的房間,編號放回 freeRoom。</li>
+      <li><strong>分配</strong> —— freeRoom 有房就拿 top(編號最小);沒有就從 usedRoom 拿 top(最早空、同時空取編號小),會議延後:<code>e = end + (e − s)</code>。房間的 freq +1,<code>{e, 編號}</code> 放回 usedRoom。最後回傳 freq 最大的編號。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      和 <a href="../p253/index.html">253 Meeting Rooms II</a> 同一個骨架:按起點掃、usedRoom 存結束時間、結束 ≤ 現在就釋放。253 的房間沒有編號、也不會不夠,所以一個 heap 就夠;這題房間數固定、要記編號,才多了 freeRoom 和「延後」。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 官方範例 1 → 範例 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      範例 1 兩個 tie-break 都會用到:[3,4) 進來時房 0、房 1 都在 10 才空,取編號小的房 0;最後 freq = [2, 2] 平手,回傳 0。範例 2 有兩場被延後:[4,9) 等房 2 在 5 空出來,[6,8) 等房 1 在 10 空出來。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ 釋放 end ≤ s 的房間 · 有空房取編號最小 · 沒有就等最早空的、會議延後</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:388px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 14</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 兩個平手規則,都不用額外寫程式</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          <strong>同時空出來的房間取編號小的:</strong><code>pair&lt;long long, <span class="kw2">int</span>&gt;</code> 先比 first(結束時間),一樣再比 second(編號),<code>greater&lt;&gt;</code> 讓小的在 top —— 自動做到。如果自己寫 comparator 只比結束時間,就會錯(窮舉 6 組,兩個官方範例都過)。<br>
+          <strong>freq 平手取編號小的:</strong><code>max_element</code> 回傳<strong>第一個</strong>最大值。
+          <b>官方範例 1 兩個平手都會遇到:[3,4) 要在 {10, 0} 和 {10, 1} 之間選,最後 freq = [2, 2]。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 延後會一直累加,結束時間要 long long</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          沒有空房時,會議從 <code>end</code> 開始、長度 <code>e − s</code> 不變,所以 <code>e = end + (e − s)</code>。被延後的會議又會讓後面的會議延更久。
+          <b>n = 1、10⁵ 場 <code>[k, <span class="nm">500000</span>]</code>:最後一場結束在 45,000,050,000,從第 4,313 場起就超過 int 上限(實測)。用 int 的版本在 n = 2 的同一組輸入回傳 1,正解 0。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">正確性證明<span class="sc-section__title-en">// PROOF OF CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>按起點一場一場處理,兩個 heap 的分配結果和題目的三條規則<strong>完全一樣</strong>。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:每一步對照規則</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>規則 ①。</strong>處理 [s, e) 時,先把結束 ≤ s 的房間全放回 freeRoom,所以 freeRoom 剛好是「時刻 s 沒人用的房間」;它的 top 是其中編號最小的。</li>
+          <li><strong>規則 ②。</strong>freeRoom 空的時候,每間房都要等;usedRoom 的 top 是最早空出來的那間(同時空取編號小的),會議從它空的那一刻開始、長度不變。</li>
+          <li><strong>規則 ③。</strong>會議是照原本的開始時間處理的,所以比較早的會議一定先拿到房間 —— 不需要另外一個「等待隊伍」。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>我按開始時間模擬。用兩個 min-heap:一個放空房的編號,一個放使用中房間的結束時間和編號。每場會議開始前,先把已經結束的房間放回空房堆;有空房就用編號最小的,沒有就等最早空出來的那間,會議整段往後延,所以結束時間要用 long long。每間房記開了幾場,最後回傳最多的,平手取編號小的。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(m log m + m log n)</strong>　　S = <strong>O(n)</strong></div>
+      <p class="sc-formula__hint">
+        m = 會議數、n = 房間數。排序 O(m log m);每場會議最多進出兩個 heap 各一次,heap 最多 n 個元素。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">排序</td><td style="white-space:nowrap;" class="mono">O(m log m)</td><td>瓶頸,m 到 10⁵</td></tr>
+        <tr><td style="white-space:nowrap;">heap 操作</td><td style="white-space:nowrap;" class="mono">O(m log n)</td><td>兩個 heap 加起來永遠剛好 n 個元素</td></tr>
+        <tr><td style="white-space:nowrap;">空間</td><td style="white-space:nowrap;" class="mono">O(n)</td><td>兩個 heap + freq</td></tr>
+        <tr><td style="white-space:nowrap;">實測</td><td style="white-space:nowrap;" class="mono">約 8–21 ms</td><td>m = 10⁵(含排序)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>有空房比編號、沒空房比誰先空 —— 兩條規則,兩個 heap。</strong>
+      <b>延後的會議長度不變、結束時間會累加超過 int;兩個平手規則靠 pair 的比較和 max_element 自動處理。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與原版的三個錯</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">按起點模擬:釋放 end ≤ s 的房間;freeRoom(編號 min-heap)有房就拿 top;沒有就拿 usedRoom({結束, 編號} min-heap)的 top,e = end + (e − s)。結束時間用 long long,回傳 max_element − begin。O(m log m + m log n) / O(n)。</div>
+    <div class="sc-summary-bar__detail">MEETING ROOMS III · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p2402-rooms.js"></script>
+</body>
+</html>

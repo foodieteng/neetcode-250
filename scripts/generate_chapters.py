@@ -324,7 +324,7 @@ PROBLEMS = {
         ('p435', 'Non-overlapping Intervals',             'non-overlapping-intervals',             'med', 'done'),
         ('p252', 'Meeting Rooms',                         'meeting-rooms',                         'easy','done'),
         ('p253', 'Meeting Rooms II',                      'meeting-rooms-ii',                      'med', 'done'),
-        ('p2402','Meeting Rooms III',                     'meeting-rooms-iii',                     'hard','todo'),
+        ('p2402','Meeting Rooms III',                     'meeting-rooms-iii',                     'hard','done'),
         ('p1851','Minimum Interval to Include Each Query','minimum-interval-to-include-each-query','hard','todo'),
     ],
     '17': [  # Math & Geometry
