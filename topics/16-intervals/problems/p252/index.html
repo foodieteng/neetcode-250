@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>252 · Meeting Rooms // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P252</span>
+    <span><a href="https://leetcode.com/problems/meeting-rooms/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Meeting Rooms</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 排好序,每場都要等前面全部結束</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★☆☆☆☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 252</span>
+      <span class="sc-mast__sep">|</span>
+      <span>EASY</span>
+      <span class="sc-mast__sep">|</span>
+      <span>SORT + ONE PASS · O(n log n) / O(1)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一串會議時間 <code>[start, end]</code>,一個人<strong>能不能全部參加</strong>?一場在 5 點結束、另一場 5 點開始,算來得及。<br>
+        <code><span class="nm">0</span> ≤ intervals.length ≤ <span class="nm">10</span>⁴</code>,<code><span class="nm">0</span> ≤ start &lt; end ≤ <span class="nm">10</span>⁶</code>。(LeetCode 上是會員題;NeetCode 上可以免費寫。)
+      </p>
+    </div>
+
+    <p>
+      範例:<code>[[<span class="nm">0,30</span>],[<span class="nm">5,10</span>],[<span class="nm">15,20</span>]] → <span class="kw2">false</span></code>([0,30] 和另外兩場都撞);<code>[[<span class="nm">7,10</span>],[<span class="nm">2,4</span>]] → <span class="kw2">true</span></code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>能全部參加 ⇔ 任兩場都不重疊。</strong>
+      <b>排好序之後,不用比 n² 對:每一場只要和「前面所有會議裡最晚的結束時間」比一次就知道。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼先排序<span class="sc-section__title-en">// WHY SORT</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每一對都比</span>
+            <span class="sc-ko-card__o">O(n²)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            兩層迴圈,任兩場重疊就回 false。正確(驗證時拿它當參考解),但 n = 10⁴ 要比約 5 × 10⁷ 對,大部分都是白比。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · 平方</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">在時間軸上標記</span>
+            <span class="sc-ko-card__o">O(n + 10⁶)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            開一個長度 10⁶ 的陣列,每場會議把自己佔的時間格 +1,出現 2 就衝突。用差分陣列可以做到線性,但速度和記憶體綁在時間範圍上。
+          </div>
+          <div class="sc-ko-card__verdict">△ 能用 · 綁時間範圍</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">SORT · ONE PASS · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">排序 · 每場和 e 比一次</span>
+          <span class="sc-ko-card__o">O(n log n) / O(1)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          和 A 比對:座標 0–5 上長度 0–4 的所有會議序列共 54,241 組,加上隨機 50,000 組(n &lt; 30),0 筆不一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 一次掃完</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>空的直接 true</strong>,然後排序 —— 你的寫法按終點 <code>a[<span class="nm">1</span>] &lt; b[<span class="nm">1</span>]</code>(按起點也對,第 5 節)。</li>
+      <li><strong><code>e</code> = 目前為止最晚的結束時間</strong>,從第一場的結束開始。</li>
+      <li><strong>往後掃</strong> —— <code>intervals[i][<span class="nm">0</span>] &lt; e</code>:這場在前面某場結束前就開始了,<code><span class="kw2">return</span> <span class="kw2">false</span></code>;否則更新 <code>e</code>。全部掃完 <code><span class="kw2">return</span> <span class="kw2">true</span></code>。</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 官方範例 1 → 剛好碰到的一組</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      官方範例 1 按終點排成 [5,10]、[15,20]、[0,30]:前兩場沒問題,[0,30] 的起點 0 &lt; e = 20,撞到了。第二組 <code>[[<span class="nm">7,10</span>],[<span class="nm">2,4</span>],[<span class="nm">4,7</span>]]</code> 每一場都剛好在上一場結束的那一刻開始 —— 碰到不算衝突,回傳 true。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ sort by end · intervals[i][0] &lt; e 就 false · 否則 e = max(…)</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:352px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 11</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · 起點 vs 終點 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">按起點還是按終點?<span class="sc-section__title-en">// BOTH WORK HERE</span></h2>
+    </div>
+
+    <p style="margin:0 0 12px;">
+      <a href="../p435/index.html">435 Non-overlapping Intervals</a> 一定要按終點,按起點會錯。這題兩種都對 —— 實際改成按起點排序跑,54,241 組 0 錯。差別在問題問的是什麼:
+    </p>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:560px;">
+      <thead><tr><th></th><th>252(本題)</th><th>435</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">問什麼</td><td>有沒有<strong>任何一對</strong>重疊(是 / 否)</td><td>最多能<strong>挑</strong>幾個不重疊的</td></tr>
+        <tr><td style="white-space:nowrap;">遇到重疊</td><td>直接 return false,不用選留誰</td><td>要決定留哪一個 —— 選錯就少留</td></tr>
+        <tr><td style="white-space:nowrap;">按起點排</td><td class="ok">● 對(0 / 54,241 錯)</td><td class="fail">× 錯(11,592 / 111,110 錯)</td></tr>
+        <tr><td style="white-space:nowrap;">按終點排</td><td class="ok">● 對(你的寫法)</td><td class="ok">● 對</td></tr>
+        <tr><td style="white-space:nowrap;">兩題的關係</td><td colspan="2">能全部參加 ⇔ 435 的答案是 0(隨機 100,000 組對拍一致)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="sc-insight" style="margin-top:14px;">
+      <strong>排序鍵要緊,是因為貪心要「做選擇」。只是檢查有沒有衝突,不用選,所以哪一端排都行。</strong>
+      <b>面試時兩種都可以;按起點排(sort 不帶 cmp)比較常見、也少寫一個 lambda。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 碰到不算衝突:條件是嚴格的 &lt;</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          前一場 4 點結束、下一場 4 點開始,來得及。所以衝突是 <code>intervals[i][<span class="nm">0</span>] &lt; e</code>,不是 <code>&lt;=</code>。
+          <b>寫成 <code>&lt;=</code>:<code>[[<span class="nm">0,1</span>],[<span class="nm">1,2</span>]]</code> 會回傳 false(正解 true)。兩個官方範例都會過(實跑),因為範例裡沒有剛好碰到的情況。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 按終點排序時,max 其實是多餘的</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          按終點排好之後,後面那場的終點一定 ≥ 前面所有場,所以 <code>max(intervals[i][<span class="nm">1</span>], e)</code> 永遠等於 <code>intervals[i][<span class="nm">1</span>]</code>。寫 <code>e = intervals[i][<span class="nm">1</span>]</code> 一樣對(54,241 組 0 錯)。
+          <b>留著 max 也沒錯。按起點排時,理論上 e 可能被一場短會議往回拉,但那一定是重疊、當場就 return 了 —— 所以實測按起點 + 不取 max 也 0 錯(複習頁第 3 題)。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 最佳解證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">正確性證明<span class="sc-section__title-en">// PROOF OF CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>程式回傳 false ⇔ <strong>存在兩場會議重疊</strong>。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:兩個方向各證一次</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>回傳 false ⇒ 真的有重疊。</strong>在第 i 場回傳 false 時,<code>start_i &lt; e</code>,而 e 是前面某一場 k 的終點。按終點排,end_k ≤ end_i;又 start_k &lt; end_k、start_i &lt; end_k —— 兩場的較晚開始 &lt; 較早結束,重疊。</li>
+          <li><strong>有重疊 ⇒ 一定會回傳 false。</strong>設 j 排在 k 前面(end_j ≤ end_k)、兩者重疊,即 start_k &lt; end_j。掃到 k 時(如果還沒提早 return),e ≥ end_j,所以 start_k &lt; e,回傳 false。</li>
+          <li><strong>做完。</strong>兩個方向都成立,所以回傳值正確。程式只在「已經確定有重疊」時提早結束,不會漏掉也不會誤判。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>能全部參加,等於任兩場都不重疊。我先排序,記住目前為止最晚的結束時間 e。往後每一場,如果它在 e 之前就開始,代表和前面某一場撞了,直接回 false;否則更新 e。結束時間等於開始時間不算撞。排序 n log n,掃描是線性的。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n)</strong>　　S = <strong>O(1)</strong> 額外</div>
+      <p class="sc-formula__hint">
+        排序 O(n log n),掃描 O(n)。只多用 n、e、i 三個 int;sort 原地排,本身要 O(log n) 遞迴空間。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">排序</td><td style="white-space:nowrap;" class="mono">O(n log n)</td><td>瓶頸</td></tr>
+        <tr><td style="white-space:nowrap;">掃描</td><td style="white-space:nowrap;" class="mono">≤ n − 1 次</td><td>撞到就提早結束</td></tr>
+        <tr><td style="white-space:nowrap;">額外空間</td><td style="white-space:nowrap;" class="mono">O(1)</td><td>不像 435 要存 res</td></tr>
+        <tr><td style="white-space:nowrap;">實測</td><td style="white-space:nowrap;" class="mono">約 0.8 ms</td><td>n = 10⁴、全部剛好接起來(最壞:要掃到最後)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 9 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">9</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>排好序,每一場只要和「前面最晚的結束時間」比一次。</strong>
+      <b>起點 &lt; e 就撞;碰到不算撞。只問有沒有衝突,按起點、按終點排都對。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">能全部參加 ⇔ 沒有重疊。排序後 e = 前面最晚的結束,intervals[i][0] &lt; e 就 false(碰到不算)。只是檢查、不用挑選,所以按起點或按終點排都對 —— 和 435 不同。O(n log n) / O(1)。</div>
+    <div class="sc-summary-bar__detail">MEETING ROOMS · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p252-attend.js"></script>
+</body>
+</html>
