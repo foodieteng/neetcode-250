@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1851 · Minimum Interval to Include Each Query // REVIEW // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P1851</span>
+    <span><a href="https://leetcode.com/problems/minimum-interval-to-include-each-query/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Minimum Interval to Include Each Query</h1>
+    <p class="sc-mast__subtitle">// REVIEW · 複習考卷 · 作答後逐題展開解答</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1851</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>OFFLINE SWEEP + HEAP · O(n log n + q log q) / O(n + q)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 3 / 3 · REVIEW
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot is-active"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 考卷頭 ════════════ -->
+  <div class="xp-strip">
+    <div class="xp-strip__row">
+      <span>INTERVALS · UNIT 16 複習測驗</span>
+      <span>範圍:MINIMUM INTERVAL TO INCLUDE EACH QUERY(LC 1851)</span>
+      <span>共 <b>9</b> 題 · 滿分 <b>100</b></span>
+    </div>
+    <div class="xp-strip__row">
+      <span>建議時間 30 分鐘 · 先作答,再展開解答對分</span>
+      <span>NAME <span class="blank"></span>&nbsp;&nbsp;SCORE <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="xp-tools">
+    <button id="xp-open">全部展開 +</button>
+    <button id="xp-close">全部收合 −</button>
+  </div>
+
+  <!-- ════════════ 1 · PART A ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">PART A · 觀念題<span class="sc-section__title-en">// 5 題 × 10 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 1 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">heap 裡存 <code>{right, size}</code>(用右端點排),pop 掉 right &lt; q 之後回傳 top 的 size,錯在哪?舉一個最小的反例。</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>top 會是「最早結束的」區間,不是「最短的」。<code>intervals = [[<span class="nm">1,3</span>],[<span class="nm">3,4</span>]], queries = [<span class="nm">3</span>]</code>:兩個都包含 3,top 是 right 較小的 [1,3],回傳 3;正解是 [3,4] 的長度 2。</strong><br><br>
+        heap 的第一個鍵決定 top 是誰,題目要最短,第一個鍵就要放 size;right 只用來判斷過期。這是你第一版的寫法:窮舉 172,050 組錯 3,124 組,兩個官方範例都會過,所以光跑範例抓不到。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 2 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">退場只檢查 top,heap 底下可能還埋著已經過期的區間。為什麼這樣不會算錯?為什麼要用 <code><span class="kw2">while</span></code> 不能用 <code><span class="kw2">if</span></code>?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>埋在下面的區間都不比 top 短,只要 top 還包含 q,答案就是 top,底下的不會被用到。而 q 只會變大,過期的區間以後也不會再有效,等它浮上 top 時再丟就好。</strong><br><br>
+        但 top 過期時,新的 top 也可能過期,所以要一直 pop 到 top 有效或 heap 空。用 <code><span class="kw2">if</span></code> 的版本:<code>intervals = [[<span class="nm">1,1</span>],[<span class="nm">1,1</span>]], queries = [<span class="nm">2</span>]</code> 回傳 [1],正解 [-1];窮舉錯 94,660 組,兩個官方範例都會錯。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 3 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">為什麼要排 query 的<strong>下標</strong>,不直接 <code>sort(queries)</code>?如果完全不排、照輸入順序處理,會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>答案要照輸入順序回傳。直接排 queries 就不知道每個答案該放回哪裡,所以排下標 <code>order</code>,作答時寫 <code>ans[qi]</code>。</strong><br><br>
+        完全不排的話,大的 q 先處理會把區間 pop 掉,小的 q 再來時已經沒了。官方範例 2 會變成 [2,-1,-1,6](正解 [2,-1,4,6]);最小反例 <code>[[<span class="nm">1,1</span>]], queries = [<span class="nm">2,1</span>]</code> → [-1,-1],正解 [-1,1]。窮舉錯 88,342 組。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 4 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">進場條件是 <code>left &lt;= q</code>,退場條件是 <code>right &lt; q</code>。一個是 ≤、一個是 &lt;,為什麼?各寫錯一邊會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>區間兩端都包含 q。left 剛好等於 q 要進場,所以是 ≤;right 剛好等於 q 還有效,不能丟,所以只丟 right &lt; q。</strong><br><br>
+        兩種寫錯都用同一個反例抓得到:<code>[[<span class="nm">1,1</span>]], queries = [<span class="nm">1</span>]</code> → [-1],正解 [1]。進場寫成 &lt;,[1,1] 根本沒推進去;退場寫成 ≤,推進去又馬上被丟掉。兩種各錯 123,330 組,兩個官方範例都會錯。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 5 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">intervals 為什麼要按 left(start)排?改成按 right 排、或乾脆不排,會怎樣?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>指標 i 只往右走,遇到第一個 left &gt; q 就停。只有按 left 排,停下來時才保證後面全都 left &gt; q。沒照 left 排,指標會被一個 left 大的區間卡住,後面 left 小的永遠推不進去。</strong><br><br>
+        按 right 排:<code>[[<span class="nm">1,3</span>],[<span class="nm">2,2</span>]], queries = [<span class="nm">1</span>]</code> → [-1],正解 [3](窮舉錯 27,185 組)。不排:<code>[[<span class="nm">2,2</span>],[<span class="nm">1,1</span>]], queries = [<span class="nm">1</span>]</code> → [-1],正解 [1](窮舉錯 54,954 組)。兩種兩個官方範例都會過。<br>
+        這題是沿著數線往右掃,和 <a href="../p2402/index.html">2402</a> 模擬時間線一樣看 start;<a href="../p435/index.html">435</a> 按 end 是在挑最多不重疊的區間,目的不同。</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · PART B ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">PART B · 手走模擬<span class="sc-section__title-en">// 1 題 × 10 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 6 題</span><span class="xq__pts">10 分</span></div>
+      <div class="xq__body">手走官方範例 1:<code>intervals = [[<span class="nm">1,4</span>],[<span class="nm">2,4</span>],[<span class="nm">3,6</span>],[<span class="nm">4,4</span>]], queries = [<span class="nm">2,3,4,5</span>]</code>。寫出每個 q 之後的 heap(<code>(size, right)</code>)和答案。如果退場用 <code><span class="kw2">if</span></code>,哪一步會錯?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody">
+        <div class="sc-trace"><span class="sc-trace__head">// 照程式(while)</span>
+q=2   push (4,4) (3,4)       heap {(3,4), (4,4)}                 → 3
+q=3   push (4,6)             heap {(3,4), (4,4), (4,6)}          → 3
+q=4   push (1,4)             heap {(1,4), (3,4), (4,4), (4,6)}   → 1
+q=5   pop (1,4) (3,4) (4,4)  heap {(4,6)}                        → 4
+<span class="sc-trace__out">// OUTPUT: [3,3,1,4]</span></div>
+
+        <div class="sc-trace" style="margin-top:14px;"><span class="sc-trace__head">// 錯誤走法:退場用 if</span>
+q=2..4  和上面一樣                                              → 3, 3, 1
+q=5     只 pop (1,4),top (3,4) 的 right 4 &lt; 5 已經過期,還是拿來當答案 → 3
+<span class="sc-trace__out">// OUTPUT: [3,3,1,3]</span></div>
+
+        <div class="sc-insight" style="margin-top:14px;">
+          <strong>q = 5 時 right = 4 的三個區間一起過期,要連 pop 三次。</strong>
+          <b>q = 4 時 (1,4)、(3,4)、(4,4) 都還有效(right = 4 = q),這是退場條件用 &lt; 而不是 ≤ 的原因。</b>
+        </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · PART C ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">PART C · 應用題<span class="sc-section__title-en">// 3 題 × 12–14 分</span></h2>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 7 題</span><span class="xq__pts">12 分</span></div>
+      <div class="xq__body">題目改成:回傳那個最短區間在 intervals 裡的<strong>下標</strong>(有好幾個一樣短就回傳下標最小的)。要改哪裡?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>heap 多存一個原始下標:<code>{size, index, right}</code>,一樣短時比 index,小的在 top。intervals 排序前要先記下原始下標(例如排 intervals 的下標,和 queries 同一招)。</strong><br><br>
+        退場判斷還是看 right;作答改成 <code>ans[qi] = top 的 index</code>。tuple 的比較順序就是平手規則:先比長度,再比下標 —— 和 <a href="../p2402/index.html">2402</a> 用 pair 自動處理「同時空出來取編號小」是同一招。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 8 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">換個角度:不用 heap,改成「區間由短到長處理,每個區間把它範圍內還沒有答案的 query 填上」。怎麼讓每個 query 只被填一次?複雜度多少?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>query 照值排好,用並查集記「從這格往右,下一個還沒填的 query 在哪」。區間 [left, right] 用二分找到第一個 ≥ left 的 query,沿著並查集跳,每填一個就把它併到右邊那格,直到值超過 right。</strong><br><br>
+        區間由短到長,所以第一個填到 query 的就是最短的。每個 query 只被填一次,總共 O(n log n + q log q + (n + q)·α)。這份筆記驗證大測資(n = q = 10⁵)時就是拿這個解法和主解對拍,結果完全一致。</div>
+      </details>
+    </div>
+
+    <div class="xq">
+      <div class="xq__head"><span class="xq__no">第 9 題</span><span class="xq__pts">14 分</span></div>
+      <div class="xq__body">如果 intervals 事先全部給你,但 queries 是<strong>線上</strong>一個一個來、要馬上回答(不能先收齊再排序),主解還能用嗎?該怎麼做?</div>
+      <details class="xq__ans"><summary>解答與說明 · ANSWER<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody"><strong>主解不能用:延遲刪除靠的是「q 只會變大」,線上的 q 可大可小,丟掉的區間可能又需要。改成先把整條數線的答案都算好,每個 query 只做查表。</strong><br><br>
+        做法:把所有區間端點座標壓縮,數線切成 O(n) 段;區間由短到長,用第 8 題的並查集把每段塗上「第一個蓋到它的長度」。之後每個 query 用二分找到它所在的段,O(log n) 回答。前處理 O(n log n)。</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════════════ 4 · 考後重點 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">考後重點<span class="sc-section__title-en">// RECAP · 對完分再看</span></h2>
+    </div>
+
+    <div class="xq">
+      <details class="xq__ans"><summary>重點整理 · 六句話<span class="xq__caret">▾</span></summary>
+        <div class="xq__ansbody" style="padding:0;border-left:none;">
+          <div style="overflow-x:auto;">
+          <table class="sc-table" style="margin:0;border:none;min-width:480px;">
+            <thead><tr><th>面向</th><th>要記住的那一句</th></tr></thead>
+            <tbody>
+              <tr><td style="white-space:nowrap;">離線</td><td>排 query 的下標,答案寫回 ans[qi]</td></tr>
+              <tr><td style="white-space:nowrap;">進場</td><td>intervals 按 left 排,left ≤ q 就推</td></tr>
+              <tr><td style="white-space:nowrap;">heap 鍵</td><td>{size, right}:要最短,size 放第一個</td></tr>
+              <tr><td style="white-space:nowrap;">退場</td><td>while top.right &lt; q 就 pop;q 只變大,丟了不後悔</td></tr>
+              <tr><td style="white-space:nowrap;">邊界</td><td>兩端都包含:size 要 +1,進場 ≤、退場 &lt;</td></tr>
+              <tr><td style="white-space:nowrap;">原版的錯</td><td>heap 用 right 排,top 是最早結束不是最短</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <a class="sc-pager__item sc-pager__item--prev" href="code.html">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+    <a class="sc-pager__item sc-pager__item--next" href="../../index.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">↑ 回 16 分類</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">離線:query 下標按值排、intervals 按 left 排;left ≤ q 進場、heap 用 {size, right} 排、top.right &lt; q 就 pop(while),答案寫回 ans[qi]。q 只會變大是延遲刪除成立的前提;線上查詢就要改成先把整條數線算好。</div>
+    <div class="sc-summary-bar__detail">MINIMUM INTERVAL TO INCLUDE EACH QUERY · REVIEW</div>
+  </div>
+
+  <script>
+    document.getElementById('xp-open').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = true; });
+    };
+    document.getElementById('xp-close').onclick = function () {
+      document.querySelectorAll('details.xq__ans').forEach(function (d) { d.open = false; });
+    };
+  </script>
+</body>
+</html>

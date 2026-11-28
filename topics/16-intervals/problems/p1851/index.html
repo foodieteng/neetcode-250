@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1851 · Minimum Interval to Include Each Query // CONCEPT // NEETCODE 250</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="../../../../assets/css/study-card.css" />
+</head>
+<body class="study-card">
+
+  <div class="sc-topnav">
+    <span><a href="../../../../index.html">HOME</a> / <a href="../../index.html">16 · Intervals</a> / P1851</span>
+    <span><a href="https://leetcode.com/problems/minimum-interval-to-include-each-query/" target="_blank" rel="noopener">原題 ↗ LEETCODE</a></span>
+  </div>
+
+  <header class="sc-mast">
+    <span class="sc-mast__chip">學習卡 · STUDY CARD</span>
+    <h1 class="sc-mast__title">Minimum Interval to Include Each Query</h1>
+    <p class="sc-mast__subtitle">// CONCEPT · 離線排序 + 依長度的 min-heap + 延遲刪除</p>
+    <div class="sc-mast__meta">
+      <span class="sc-mast__stars">★★★★☆</span>
+      <span class="sc-mast__sep">|</span>
+      <span>LeetCode 1851</span>
+      <span class="sc-mast__sep">|</span>
+      <span>HARD</span>
+      <span class="sc-mast__sep">|</span>
+      <span>OFFLINE SWEEP + HEAP · O(n log n + q log q) / O(n + q)</span>
+    </div>
+  </header>
+
+  <div class="sc-pageind">
+    PAGE 1 / 3 · CONCEPT
+    <span class="sc-pageind__dot is-active"></span>
+    <span class="sc-pageind__dot"></span>
+    <span class="sc-pageind__dot"></span>
+  </div>
+
+  <div class="sc-mast__rule"></div>
+
+  <!-- ════════════ 1 · 題目簡介 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">1</span>
+      <h2 class="sc-section__title">題目簡介<span class="sc-section__title-en">// THE QUESTION</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">QUESTION</span>
+      <p>
+        給一堆區間 <code>intervals[i] = [left, right]</code>(兩端都包含),長度是 <strong>right − left + 1</strong>。<br>
+        對每個 <code>queries[j]</code>,回傳<strong>包含它的區間裡最短的長度</strong>;沒有區間包含它就回傳 <code>-<span class="nm">1</span></code>。答案要照 queries 原本的順序。<br>
+        <code><span class="nm">1</span> ≤ intervals.length, queries.length ≤ <span class="nm">10</span>⁵</code>,<code><span class="nm">1</span> ≤ left ≤ right ≤ <span class="nm">10</span>⁷</code>,<code><span class="nm">1</span> ≤ queries[j] ≤ <span class="nm">10</span>⁷</code>。
+      </p>
+    </div>
+
+    <p>
+      範例:<code>intervals = [[<span class="nm">1,4</span>],[<span class="nm">2,4</span>],[<span class="nm">3,6</span>],[<span class="nm">4,4</span>]], queries = [<span class="nm">2,3,4,5</span>] → [<span class="nm">3,3,1,4</span>]</code>;<code>intervals = [[<span class="nm">2,3</span>],[<span class="nm">2,5</span>],[<span class="nm">1,8</span>],[<span class="nm">20,25</span>]], queries = [<span class="nm">2,19,5,22</span>] → [<span class="nm">2</span>,-<span class="nm">1,4,6</span>]</code>。
+    </p>
+
+    <div class="sc-insight" style="margin-top:12px;">
+      <strong>queries 可以自己決定處理順序(離線):由小到大掃,區間就能「進場一次、退場一次」。</strong>
+      <b>按 start 讓區間進場,heap 用長度排,top 是候選裡最短的;top 的 right 已經在 q 左邊就丟掉 —— q 只會變大,丟掉的永遠不會再用到。</b>
+    </div>
+  </section>
+
+  <!-- ════════════ 2 · 為什麼 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">2</span>
+      <h2 class="sc-section__title">為什麼 heap 要用長度排<span class="sc-section__title-en">// WHY A SIZE-KEYED HEAP</span></h2>
+    </div>
+
+    <div class="sc-ko">
+      <div class="sc-ko__row">
+        <div class="sc-ko-card sc-ko-card--bad">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">A</span>
+            <span class="sc-ko-card__title">每個 query 掃一遍所有區間</span>
+            <span class="sc-ko-card__o">O(n · q)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            直接照定義:包含 q 的區間裡取最短。正確(驗證時拿它當參考解),但 n、q 都到 10⁵,是 10¹⁰ 次比較。
+          </div>
+          <div class="sc-ko-card__verdict">× REJECT · TLE</div>
+        </div>
+
+        <div class="sc-ko-card sc-ko-card--mid">
+          <div class="sc-ko-card__head">
+            <span class="sc-ko-card__badge">B</span>
+            <span class="sc-ko-card__title">heap 存 {right, size},用 right 排</span>
+            <span class="sc-ko-card__o">O(n log n + q log q)</span>
+          </div>
+          <div class="sc-ko-card__body">
+            你的第一版。top 是「最早結束的」,不是「最短的」。<code>intervals = [[<span class="nm">1,3</span>],[<span class="nm">3,4</span>]], queries = [<span class="nm">3</span>]</code>:兩個都包含 3,top 是 [1,3](長度 3),正解是 [3,4] 的 2。窮舉 172,050 組錯 3,124 組,兩個官方範例都過。
+          </div>
+          <div class="sc-ko-card__verdict">△ REJECT · 排錯鍵</div>
+        </div>
+      </div>
+
+      <div class="sc-ko__arrow">BOTH FAIL · ADOPT</div>
+
+      <div class="sc-ko-card sc-ko-card--good">
+        <div class="sc-ko-card__head">
+          <span class="sc-ko-card__badge">C</span>
+          <span class="sc-ko-card__title">heap 存 {size, right},用 size 排 + 延遲刪除</span>
+          <span class="sc-ko-card__o">O(n log n + q log q)</span>
+        </div>
+        <div class="sc-ko-card__body">
+          top 永遠是候選裡最短的;過期的只在浮到 top 時才 pop。和 A 對拍:窮舉 172,050 組 + 隨機 50,000 組,0 筆不一致;n = q = 10⁵ 的大測資也和另一種解法(並查集)完全一致。
+        </div>
+        <div class="sc-ko-card__verdict">● ADOPT · 最短的在 top</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 3 · 核心策略 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">3</span>
+      <h2 class="sc-section__title">核心策略 · 三步驟<span class="sc-section__title-en">// THE LOOP</span></h2>
+    </div>
+
+    <ol class="sc-steps">
+      <li><strong>離線排序</strong> —— intervals 按 start 排;queries 不動,另外把<strong>下標</strong>按值排成 <code>order</code>,答案才能寫回原位置。</li>
+      <li><strong>進場</strong> —— 對每個 q(由小到大),把所有 <code>start ≤ q</code> 的區間推進 heap,存 <code>{size, right}</code>。</li>
+      <li><strong>退場 + 作答</strong> —— top 的 <code>right &lt; q</code> 就 pop,直到 top 還包含 q 或 heap 空了。<code>ans[qi] = top.size</code>,空了就維持 <code>-<span class="nm">1</span></code>。</li>
+    </ol>
+    <p style="margin:10px 0 0;font-size:13.5px;">
+      區間按 start 排,是因為這題在「沿著數線往右掃」—— 和 <a href="../p253/index.html">253 Meeting Rooms II</a>、<a href="../p2402/index.html">2402 Meeting Rooms III</a> 一樣是模擬時間線,所以看 start。不同的是,這裡 heap 裡比的不是結束時間,而是長度。
+    </p>
+  </section>
+
+  <!-- ════════════ 4 · 動畫演示 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">4</span>
+      <h2 class="sc-section__title">動畫演示<span class="sc-section__title-en">// 官方範例 2</span></h2>
+    </div>
+
+    <p style="margin:2px 0 12px;font-size:13.5px;">
+      queries = [2, 19, 5, 22],處理順序是 2 → 5 → 19 → 22。q = 19 時 heap 裡剩下的兩個都已經過期,答案 -1;每個答案都寫回 queries 原本的位置,所以 OUTPUT 是 [2, -1, 4, 6]。
+    </p>
+
+    <div class="sc-viz">
+      <div class="sc-viz__title">▶ q 由小到大 · 起點 ≤ q 的區間進 heap(size, right)· top 過期就 pop · 答案寫回 ans[原位置]</div>
+      <div class="sc-viz__cvwrap"><canvas id="viz-canvas" class="sc-viz__canvas" style="height:464px;"></canvas></div>
+      <div class="sc-viz__controls">
+        <button class="sc-btn" id="viz-reset">Reset</button><button class="sc-btn" id="viz-prev">Prev</button>
+        <button class="sc-btn sc-btn--primary" id="viz-play">Play</button><button class="sc-btn" id="viz-next">Next</button>
+        <span class="sc-viz__step" id="viz-step">00 / 13</span>
+      </div>
+      <div class="sc-viz__label" id="viz-label">載入中…</div>
+    </div>
+  </section>
+
+  <!-- ════════════ 5 · LEMMA ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">5</span>
+      <h2 class="sc-section__title">兩個關鍵<span class="sc-section__title-en">// TWO LEMMAS</span></h2>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">LEMMA 1 · 延遲刪除:只要 top 有效就夠</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          heap 裡每個區間都滿足 <code>start ≤ q</code>(進場條件,而且 q 只會變大),所以它包含 q ⇔ <code>right ≥ q</code>。
+          <strong>right &lt; q 的區間對之後更大的 q 也一定無效</strong>,丟掉不會後悔。埋在下面的過期區間不用管:它們比 top 長,只要 top 有效就輪不到它們;等它們浮上來時再 pop。
+          <b>寫成 <code><span class="kw2">if</span></code> 只 pop 一次就不夠:<code>intervals = [[<span class="nm">1,1</span>],[<span class="nm">1,1</span>]], queries = [<span class="nm">2</span>]</code> 回傳 1,正解 -1(窮舉錯 94,660 組)。</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="sc-dark-box" style="margin-top:14px;">
+      <div class="sc-dark-box__title">LEMMA 2 · 答案要寫回原位置</div>
+      <div class="sc-dark-box__body">
+        <p style="margin:0;">
+          掃描必須照 q 由小到大,但輸出要照輸入順序。所以排序的是下標 <code>order</code>,不是 queries 本身,作答時寫 <code>ans[qi]</code>。
+          <b>不排 queries、照輸入順序處理的話,官方範例 2 會變成 [2,-1,-1,6]:先處理了 19,把 heap 裡三個區間全 pop 掉,輪到 5 時已經沒東西了(窮舉錯 88,342 組)。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 6 · 證明 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">6</span>
+      <h2 class="sc-section__title">正確性證明<span class="sc-section__title-en">// PROOF OF CORRECTNESS</span></h2>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">要證明什麼 · CLAIM</span>
+      <p>處理到 q 時,pop 完之後的 top(如果有)就是<strong>包含 q 的區間裡最短的</strong>;heap 空了就代表沒有區間包含 q。</p>
+    </div>
+
+    <div class="sc-dark-box">
+      <div class="sc-dark-box__title">PROOF · 手法:不變量</div>
+      <div class="sc-dark-box__body">
+        <ol>
+          <li><strong>進場完整。</strong>區間按 start 排、指標 i 只往右,處理 q 時所有 <code>start ≤ q</code> 的區間都已經推過一次;<code>start &gt; q</code> 的一個都沒推。所以包含 q 的區間 = 推過的、而且 <code>right ≥ q</code> 的那些。</li>
+          <li><strong>退場安全。</strong>被 pop 的區間 right 小於當時的 q,而之後的 q 只會更大,它不可能再包含任何 q。所以「推過且 right ≥ q」的區間全都還在 heap 裡。</li>
+          <li><strong>top 最短。</strong>pop 停下時 top 的 right ≥ q,它包含 q;heap 依 size 排,任何其他還在 heap 裡的區間(不論是否過期)都不比它短。所以它就是答案;heap 空了表示沒有任何區間包含 q。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sc-question">
+      <span class="sc-question__label">面試這樣說 · 30 秒</span>
+      <p>我離線處理:queries 的下標按值排序,區間按左端點排序。由小到大掃每個 query,把左端點不超過它的區間推進一個 min-heap,用長度排,同時記右端點。接著只要 top 的右端點在 query 左邊就 pop,因為 query 只會變大,這些區間以後也用不到。剩下的 top 就是包含這個 query 的最短區間,沒有就是 -1,答案寫回原本的位置。</p>
+    </div>
+  </section>
+
+  <!-- ════════════ 7 · 複雜度 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">7</span>
+      <h2 class="sc-section__title">複雜度<span class="sc-section__title-en">// COMPLEXITY</span></h2>
+    </div>
+
+    <div class="sc-formula">
+      <div class="sc-formula__main">T = <strong>O(n log n + q log q)</strong>　　S = <strong>O(n + q)</strong></div>
+      <p class="sc-formula__hint">
+        n = 區間數、q = query 數。兩次排序;每個區間最多 push 一次、pop 一次,各 O(log n)。
+      </p>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="sc-table" style="min-width:520px;">
+      <thead><tr><th>部分</th><th>成本</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td style="white-space:nowrap;">排序</td><td style="white-space:nowrap;" class="mono">O(n log n + q log q)</td><td>intervals 按 start、query 下標按值</td></tr>
+        <tr><td style="white-space:nowrap;">heap 操作</td><td style="white-space:nowrap;" class="mono">O(n log n)</td><td>每個區間進出各一次,和 q 無關</td></tr>
+        <tr><td style="white-space:nowrap;">空間</td><td style="white-space:nowrap;" class="mono">O(n + q)</td><td>heap 最多 n 個(實測峰值 10⁵);order、ans 各 q 個</td></tr>
+        <tr><td style="white-space:nowrap;">實測</td><td style="white-space:nowrap;" class="mono">約 9–25 ms</td><td>n = q = 10⁵,值到 10⁷(含排序)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ════════════ 8 · 一句洞察 ════════════ -->
+  <section class="sc-section">
+    <div class="sc-section__head">
+      <span class="sc-section__num">8</span>
+      <h2 class="sc-section__title">一句洞察<span class="sc-section__title-en">// INSIGHT</span></h2>
+    </div>
+
+    <div class="sc-insight">
+      <strong>queries 由小到大掃:按 start 進場,按長度挑最短,right &lt; q 才退場。</strong>
+      <b>heap 的第一個鍵決定 top 是誰 —— 要最短就放 size;過期判斷只看 top,因為 q 只會變大。</b>
+    </div>
+  </section>
+
+  <!-- ── pager ── -->
+  <nav class="sc-pager">
+    <span class="sc-pager__item sc-pager__item--prev is-disabled">
+      <span class="sc-pager__label">PREV</span><span class="sc-pager__title">—</span>
+    </span>
+    <a class="sc-pager__item sc-pager__item--next" href="code.html">
+      <span class="sc-pager__label">NEXT</span><span class="sc-pager__title">程式碼與改一行會怎樣</span>
+    </a>
+  </nav>
+
+  <div class="sc-summary-bar">
+    <div class="sc-summary-bar__label">// ONE-LINE TAKEAWAY</div>
+    <div class="sc-summary-bar__body">intervals 按 start 排、query 下標按值排;每個 q 推入 start ≤ q 的區間({size, right} min-heap),pop 掉 right &lt; q 的 top,答案 = top.size 或 -1,寫回 ans[qi]。O(n log n + q log q) / O(n + q)。</div>
+    <div class="sc-summary-bar__detail">MINIMUM INTERVAL TO INCLUDE EACH QUERY · CONCEPT</div>
+  </div>
+
+  <script src="../../../../assets/js/viz/p1851-heap.js"></script>
+</body>
+</html>

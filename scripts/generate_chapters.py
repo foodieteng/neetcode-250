@@ -325,7 +325,7 @@ PROBLEMS = {
         ('p252', 'Meeting Rooms',                         'meeting-rooms',                         'easy','done'),
         ('p253', 'Meeting Rooms II',                      'meeting-rooms-ii',                      'med', 'done'),
         ('p2402','Meeting Rooms III',                     'meeting-rooms-iii',                     'hard','done'),
-        ('p1851','Minimum Interval to Include Each Query','minimum-interval-to-include-each-query','hard','todo'),
+        ('p1851','Minimum Interval to Include Each Query','minimum-interval-to-include-each-query','hard','done'),
     ],
     '17': [  # Math & Geometry
         ('p168', 'Excel Sheet Column Title',                      'excel-sheet-column-title',                      'easy','todo'),

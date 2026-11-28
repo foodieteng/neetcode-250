@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock — LC 1851 · Minimum Interval to Include Each Query</title>
+<style>
+:root {
+  --bg: #0f1014; --surface: #15171c; --surface-2: #1c1f26; --border: #2a2d36;
+  --text: #d8dae0; --text-2: #9094a0; --text-3: #6b6f7a; --mono: #c9cdd6;
+  --chip-bg: #22262f; --chip-text: #d2c7a0; --chip-num: #e0b37a;
+  --kw: #c792ea; --typ: #82aaff; --str: #c3e88d; --com: #6b7080; --fn: #82aaff;
+  --interviewer: #6b9bd8; --candidate: #d88464;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 820px; margin: 0 auto; padding: 24px 40px 64px; }
+.audiobar { position: sticky; top: 0; z-index: 9; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 26px; }
+.audiobar audio { width: 100%; height: 34px; }
+.audiobar .hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.header { text-align: center; margin-bottom: 18px; }
+.header h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.01em; }
+.header .sub { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+.header .pill { display: inline-block; padding: 5px 13px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+.legend { display: flex; justify-content: center; gap: 22px; font-size: 12px;
+  color: var(--text-2); margin: 14px 0 30px; }
+.legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; }
+.legend .dot.i { background: var(--interviewer); }
+.legend .dot.c { background: var(--candidate); }
+.stage { text-align: center; margin: 30px 0 18px; }
+.stage .tag { display: inline-block; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11.5px; color: var(--text-2); padding: 4px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 6px; letter-spacing: 0.02em; }
+.turn { display: flex; gap: 14px; margin: 14px 0; padding: 6px 8px; }
+.avatar { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #0f1014; margin-top: 2px; }
+.avatar.i { background: var(--interviewer); }
+.avatar.c { background: var(--candidate); }
+.body { flex: 1; min-width: 0; }
+.role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.role.i { color: var(--interviewer); }
+.role.c { color: var(--candidate); }
+.body p { margin: 6px 0; }
+.body strong { color: #ebedf0; font-weight: 600; }
+em.pause { color: var(--text-3); font-style: italic; }
+code.chip { font-family: "SF Mono", "Menlo", "Consolas", monospace; font-size: 12.5px;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 6px; color: var(--chip-text); }
+code.chip.num { color: var(--chip-num); }
+pre.code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.65; color: var(--mono); overflow-x: auto; margin: 12px 0; }
+pre.code .kw { color: var(--kw); }
+pre.code .typ { color: var(--typ); }
+pre.code .fn { color: var(--fn); }
+pre.code .com { color: var(--com); font-style: italic; }
+pre.code .num2 { color: var(--chip-num); }
+pre.code .str { color: var(--str); }
+table.trace { border-collapse: collapse; width: 100%; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.5px; margin: 12px 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+table.trace th { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-2); font-weight: 600; text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); }
+table.trace td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--mono); }
+table.trace tr:last-child td { border-bottom: none; }
+table.trace tr.highlight-row td { background: rgba(216, 132, 100, 0.08); }
+.answer-cell { color: var(--str); font-weight: 600; }
+.insight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 18px; font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 12.8px; line-height: 1.75; color: var(--mono); margin: 12px 0; }
+.insight-box { white-space: nowrap; overflow-x: auto; }
+.insight-box .label { color: var(--com); font-style: italic; }
+.insight-box .em { color: var(--chip-num); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="audiobar">
+    <audio id="mock-audio" controls preload="metadata" src="mock.mp3"></audio>
+    <div class="hint">▶ 上方播放器聽全程 · 點任一句只播該句(講完自動停) · click a turn to play just that line</div>
+  </div>
+
+  <div class="header">
+    <h1>Mock coding interview</h1>
+    <div class="sub">UMPIRE framework · Full english simulation</div>
+    <div class="pill">LeetCode 1851 · Minimum Interval to Include Each Query · Hard</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot i"></span>Interviewer</span>
+    <span><span class="dot c"></span>Candidate</span>
+  </div>
+
+  <div class="stage"><span class="tag">U — understand</span></div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You're given a list of intervals. Each one has a left end and a right end, both included, and its size is <code class="chip">right − left + 1</code>. You're also given a list of queries. For each query, find the size of the smallest interval that contains it. If no interval contains it, the answer is <code class="chip num">-1</code>. Return the answers in the same order as the queries.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Thanks. <strong>Before I dive in, I'd like to clarify a few things.</strong> <em class="pause">Just to make sure I'm understanding this correctly</em> — both ends are included, so the interval <code class="chip">[2,4]</code> holds 2, 3 and 4, and its size is <code class="chip num">3</code>? And if several intervals contain the query, I only return the smallest size, not which interval it was?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Right on both. Both ends count, and you only return the size.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Okay. One thing I want to say early: <strong>each answer depends only on the query's value, not on where it sits in the list.</strong> So I'm free to answer the queries in any order I like, as long as each answer goes back to its original slot.</p>
+      <p><strong>Are there any constraints on the input size?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Up to <code class="chip num">10⁵</code> intervals and <code class="chip num">10⁵</code> queries. Every value is between <code class="chip num">1</code> and <code class="chip num">10⁷</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Got it. A size is at most ten million, so an <code class="chip">int</code> is enough.</p>
+      <p><strong>Let me run through the example.</strong> Example one: intervals <code class="chip">[[1,4],[2,4],[3,6],[4,4]]</code>, with queries <code class="chip">[2,3,4,5]</code>. Expected <code class="chip">[3,3,1,4]</code>. Query 4 sits inside all four intervals, and the point interval <code class="chip">[4,4]</code> wins with size <code class="chip num">1</code>. Query 5 is only inside <code class="chip">[3,6]</code>, so its answer is <code class="chip num">4</code>.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">M — match</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Hmm, let me think about this for a sec.</em></p>
+      <p><strong>A naive approach would be to</strong> scan every interval for every query. That's <code class="chip num">10⁵</code> × <code class="chip num">10⁵</code>, about ten billion checks, which is too slow.</p>
+      <p><strong>This problem reminds me of</strong> an offline sweep line with a min-heap. Since the queries are independent, I can sort them and sweep from small to large. As the sweep moves right, an interval becomes a candidate once its left end is passed, and it stops being one once its right end falls behind. A heap ordered by size keeps the smallest candidate on top.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>You order the heap by size, but you throw things out by right end. Why not just key it by the right end?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Because the answer is the smallest size, and the right end tells me nothing about size. Take intervals <code class="chip">[[1,3],[3,4]]</code>, with query <code class="chip num">3</code>. Both contain 3. Keyed by right end, the top is <code class="chip">[1,3]</code>, so I'd answer <code class="chip num">3</code>. But <code class="chip">[3,4]</code> has size <code class="chip num">2</code>, which is the right answer.</p>
+      <p>My first draft did exactly that, and it passes both official examples, so it's an easy bug to miss. So <strong>the key is size first</strong>, and I keep the right end next to it only to check if the entry has expired.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">P — plan</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p>Here's the plan, in three steps.</p>
+      <div class="insight-box">
+        <span class="label">// offline sweep + min-heap keyed (size, right)</span><br>
+        order = query indices sorted by value; sort intervals by left<br>
+        for qi in order: q = queries[qi]<br>
+        &nbsp;&nbsp;while next interval's left <span class="em">&lt;=</span> q: push (right − left + 1, right)<br>
+        &nbsp;&nbsp;while top.right <span class="em">&lt;</span> q: pop &nbsp;<span class="label">// lazy: expired never returns</span><br>
+        &nbsp;&nbsp;ans[qi] = top.size, or −1 if the heap is empty
+      </div>
+      <p>One: sort the query indices by value, so each answer can go back to its slot, and sort the intervals by left end. Two: for each query, push every interval whose left end is at most <code class="chip">q</code>, as a pair of size and right end. Three: pop while the top's right end is less than <code class="chip">q</code>; whatever is left on top is the answer.</p>
+      <p><strong>Here, I'm using</strong> the heap <strong>to keep track of</strong> every interval that has started, smallest first.</p>
+      <p><strong>One thing worth flagging</strong> — I only throw out an expired interval when it reaches the top. Expired ones deeper down never block the top, so they don't hurt. And it's safe, because <strong>queries only grow, so an expired interval can never become valid again.</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Does that lazy removal cost you anything?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>There's a trade-off here.</strong> The heap can hold stale entries, so it may grow to all <code class="chip num">10⁵</code> intervals instead of only the live ones. But each interval is pushed once and popped at most once, so the total work stays the same. And it saves me from deleting from the middle of a heap, which a standard priority queue can't do.</p>
+      <p><strong>Does this approach sound good, or would you rather I think of another way?</strong></p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Sounds good. Code it up.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">I — implement</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Alright, let me code this up. I'll think out loud as I go.</strong></p>
+<pre class="code"><span class="kw">class</span> <span class="typ">Solution</span> {
+<span class="kw">public</span>:
+    <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">minInterval</span>(<span class="typ">vector</span>&lt;<span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; intervals, <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt;&amp; queries) {
+        <span class="kw">int</span> m = (<span class="kw">int</span>)queries.<span class="fn">size</span>(), n = (<span class="kw">int</span>)intervals.<span class="fn">size</span>();
+
+        <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt; order(m);
+        <span class="fn">iota</span>(order.<span class="fn">begin</span>(), order.<span class="fn">end</span>(), <span class="num2">0</span>);
+        <span class="fn">sort</span>(order.<span class="fn">begin</span>(), order.<span class="fn">end</span>(), [&amp;](<span class="kw">int</span> a, <span class="kw">int</span> b) {
+            <span class="kw">return</span> queries[a] &lt; queries[b];
+        });
+        <span class="fn">sort</span>(intervals.<span class="fn">begin</span>(), intervals.<span class="fn">end</span>());
+
+        <span class="typ">priority_queue</span>&lt;<span class="typ">pair</span>&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt;, <span class="typ">vector</span>&lt;<span class="typ">pair</span>&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt;&gt;, <span class="typ">greater</span>&lt;&gt;&gt; pq;  <span class="com">// {size, right}</span>
+        <span class="typ">vector</span>&lt;<span class="kw">int</span>&gt; ans(m, -<span class="num2">1</span>);
+        <span class="kw">int</span> i = <span class="num2">0</span>;
+
+        <span class="kw">for</span> (<span class="kw">int</span> qi : order) {
+            <span class="kw">int</span> q = queries[qi];
+
+            <span class="kw">while</span> (i &lt; n &amp;&amp; intervals[i][<span class="num2">0</span>] &lt;= q) {
+                <span class="kw">int</span> left = intervals[i][<span class="num2">0</span>], right = intervals[i][<span class="num2">1</span>];
+                pq.<span class="fn">push</span>({right - left + <span class="num2">1</span>, right});
+                i++;
+            }
+
+            <span class="kw">while</span> (!pq.<span class="fn">empty</span>() &amp;&amp; pq.<span class="fn">top</span>().second &lt; q) pq.<span class="fn">pop</span>();
+
+            <span class="kw">if</span> (!pq.<span class="fn">empty</span>()) ans[qi] = pq.<span class="fn">top</span>().first;
+        }
+
+        <span class="kw">return</span> ans;
+    }
+};</pre>
+      <p>The <code class="chip">order</code> array holds the query indices, sorted by query value. The heap is a min-heap of pairs, size first, then right end. A pointer <code class="chip">i</code> walks the sorted intervals, so each one is pushed exactly once across all queries. The answers start at <code class="chip num">-1</code>, so a query with an empty heap just keeps it.</p>
+      <p><strong>One thing worth flagging</strong> — the two comparisons. I push while <code class="chip">left &lt;= q</code>, and I pop only while <code class="chip">right &lt; q</code>, strictly less. Both ends are included, so an interval that starts or ends exactly at <code class="chip">q</code> must still count. And the size needs the <code class="chip">+ 1</code>: a point interval has size one, not zero.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">R — review</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's dry-run the code with an example.</strong> Example two: intervals <code class="chip">[[2,3],[2,5],[1,8],[20,25]]</code>, with queries <code class="chip">[2,19,5,22]</code>. Expected <code class="chip">[2,-1,4,6]</code>.</p>
+      <div style="overflow-x:auto;">
+      <table class="trace" style="min-width:560px;white-space:nowrap;">
+        <thead><tr><th>q (slot)</th><th>push (size,right)</th><th>pop expired</th><th>heap after</th><th>ans[slot]</th></tr></thead>
+        <tbody>
+          <tr><td>2 (0)</td><td>(8,8) (2,3) (4,5)</td><td>—</td><td>(2,3) (4,5) (8,8)</td><td>2</td></tr>
+          <tr><td>5 (2)</td><td>—</td><td>(2,3)</td><td>(4,5) (8,8)</td><td>4</td></tr>
+          <tr class="highlight-row"><td>19 (1)</td><td>—</td><td>(4,5) (8,8)</td><td>∅</td><td>-1</td></tr>
+          <tr><td>22 (3)</td><td>(6,25)</td><td>—</td><td>(6,25)</td><td>6</td></tr>
+          <tr><td colspan="4">write back by slot</td><td><span class="answer-cell">[2,-1,4,6]</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Sorted, the queries go 2, 5, 19, 22. <strong>The moment that matters is 19.</strong> The two entries left, <code class="chip">[2,5]</code> and <code class="chip">[1,8]</code>, both end before 19. I pop both, the heap is empty, and that query stays <code class="chip num">-1</code>. Each answer goes back to its original slot, so the output is <code class="chip">[2,-1,4,6]</code>.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Good. Any edge cases?</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><strong>Let's also test with corner cases.</strong></p>
+      <p>• If no interval contains the query, the heap ends up empty and the answer stays <code class="chip num">-1</code>.<br>
+      • A point interval like <code class="chip">[4,4]</code> gets size <code class="chip num">1</code>, thanks to the <code class="chip">+ 1</code>.<br>
+      • If every interval starts before the first query, the heap holds all <code class="chip num">10⁵</code> at once, which is fine.<br>
+      • And one interval <code class="chip">[1, 10⁷]</code> has size ten million, which still fits in an <code class="chip">int</code>.</p>
+    </div>
+  </div>
+
+  <div class="stage"><span class="tag">E — evaluate</span></div>
+
+  <div class="turn">
+    <div class="avatar c">C</div>
+    <div class="body">
+      <div class="role c">CANDIDATE</div>
+      <p><em class="pause">Let me think about complexity here.</em> <strong>The time complexity is</strong> O(n log n) to sort the intervals, plus O(q log q) to sort the queries. There's a <code class="chip">while</code> loop inside the <code class="chip">for</code> loop, but the pointer only moves forward and each interval is popped at most once, so all the heap work adds up to O(n log n).</p>
+      <p><strong>The space complexity is</strong> linear, O(n + q), for the heap, the order array and the answers. <strong>In the worst-case scenario,</strong> the heap holds all <code class="chip num">10⁵</code> intervals. On a random test with <code class="chip num">10⁵</code> of each, it ran in about 25 ms.</p>
+      <p><em class="pause">Oh, one more thing —</em> this needs all the queries up front. If they came one at a time in any order, I couldn't throw away expired intervals, because a later, smaller query might still need them.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="avatar i">I</div>
+    <div class="body">
+      <div class="role i">INTERVIEWER</div>
+      <p>Nicely done. Three things stood out. You turned it into an offline problem by sorting the queries and keeping their positions. You showed with a two-interval example why the heap must be keyed by size and not by right end. And you explained why lazy removal is safe: queries only grow, so an expired interval never comes back. Good work.</p>
+    </div>
+  </div>
+
+</div>
+<script>window.MOCK_CUES = [0.0, 23.2, 43.36, 48.56, 64.61, 72.28, 102.3, 136.3, 143.14, 176.39, 222.35, 225.51, 249.41, 252.19, 295.02, 334.28, 337.03, 362.59, 410.44]</script>
+<script src="../../../../assets/js/mock-audio.js"></script>
+</body>
+</html>
